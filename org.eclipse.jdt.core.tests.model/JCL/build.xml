@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2020, 2024 GK Software SE and others.
+    Copyright (c) 2020, 2025 GK Software SE and others.
 
     This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
@@ -19,22 +19,10 @@
 	<target name="build" depends="allConverterJcls,allJclMins"/>
 	
 	<target name="allConverterJcls">
-		<!--antcall target="converterJclMin">
-			<param name="compliance" value="1.4"/>
-			<param name="suffix" value=""/>
-		</antcall>
-		<antcall target="converterJclMin">
-			<param name="compliance" value="1.5"/>
-			<param name="suffix" value="1.5"/>
-		</antcall>
-		<antcall target="converterJclMin">
-			<param name="compliance" value="1.7"/>
-			<param name="suffix" value="1.7"/>
-		</antcall>
 		<antcall target="converterJclMin">
 			<param name="compliance" value="1.8"/>
 			<param name="suffix" value="1.8"/>
-		</antcall-->
+		</antcall>
 		<antcall target="converterJclMin">
 			<param name="compliance" value="9"/>
 			<param name="suffix" value="9"/>
@@ -87,6 +75,14 @@
 			<param name="compliance" value="23"/>
 			<param name="suffix" value="23"/>
 		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="24"/>
+			<param name="suffix" value="24"/>
+		</antcall>		
+		<antcall target="converterJclMin">
+			<param name="compliance" value="25"/>
+			<param name="suffix" value="25"/>
+		</antcall>
 	</target>
 	<target name="converterJclMin">
 		<mkdir dir="${jclbase}/converterJclMin${suffix}/bin" />
@@ -96,8 +92,8 @@
 					target="${compliance}">
 			<compilerarg line="-Xlint:none"/>
 		</javac>
-		<jar destfile="${basedir}/converterJclMin${suffix}.jar" basedir="${jclbase}/converterJclMin${suffix}/bin"/>
-		<zip destfile="${basedir}/converterJclMin${suffix}src.zip">
+		<jar destfile="${basedir}/jclMin${suffix}.jar" basedir="${jclbase}/converterJclMin${suffix}/bin"/>
+		<zip destfile="${basedir}/jclMin${suffix}src.zip">
 			<fileset dir="${jclbase}/converterJclMin${suffix}/src" />
 		</zip>
 	</target>

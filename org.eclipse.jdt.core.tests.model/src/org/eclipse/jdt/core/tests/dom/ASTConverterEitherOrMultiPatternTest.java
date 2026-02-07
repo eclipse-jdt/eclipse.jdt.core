@@ -440,4 +440,102 @@ public class ASTConverterEitherOrMultiPatternTest extends ConverterTestSetup {
 		assertEquals("SingleVariableDeclaration type", typePattern.getPatternVariable2().getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
 		assertEquals("pattern variable name", ((SingleVariableDeclaration) typePattern.getPatternVariable2()).getType().toString(), "Long");
 	}
+
+	//SingleVariableDeclaration with name and type
+	public void testNaiveASTFlattnerSync_a() throws JavaModelException {
+		String contents = """
+					public class X {
+	                    public static void main(Object object) {
+	                        if (object instanceof Pos(int x1, int y1)) {
+	                            System.out.println("object is a path starting at x = "+x1 + " , y = "+ y1 +"%n");
+	                        }
+	                    }
+	                }
+	                record Pos(int x, int y) {}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit cu = (CompilationUnit) node;
+
+		TypeDeclaration typedeclaration =  (TypeDeclaration) cu.types().get(0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) typedeclaration.bodyDeclarations().get(0);
+		Block block = methodDeclaration.getBody();
+		List<ASTNode> statements = block.statements();
+		IfStatement ifStatement = (IfStatement) statements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern rp = (RecordPattern) expression.getPattern();
+		List<Pattern> patterns = rp.patterns();
+		TypePattern secondPattern = (TypePattern) patterns.get(1);
+		SingleVariableDeclaration svd = secondPattern.getPatternVariable();
+		assertEquals("SingleVariableDeclaration type", svd.getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
+		assertEquals("SimpleType", svd.getType().getNodeType(), ASTNode.PRIMITIVE_TYPE);
+		assertEquals("SimpleName", svd.getName().getNodeType(), ASTNode.SIMPLE_NAME);
+	}
+
+	//SingleVariableDeclaration with Type and name as _
+	public void testNaiveASTFlattnerSync_b() throws JavaModelException {
+		String contents = """
+					public class X {
+	                    public static void main(Object object) {
+	                        if (object instanceof Pos(int x1, int _)) {
+	                            System.out.println("object is a path starting at x = "+x1);
+	                        }
+	                    }
+	                }
+	                record Pos(int x, int y) {}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit cu = (CompilationUnit) node;
+
+		TypeDeclaration typedeclaration =  (TypeDeclaration) cu.types().get(0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) typedeclaration.bodyDeclarations().get(0);
+		Block block = methodDeclaration.getBody();
+		List<ASTNode> statements = block.statements();
+		IfStatement ifStatement = (IfStatement) statements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern rp = (RecordPattern) expression.getPattern();
+		List<Pattern> patterns = rp.patterns();
+		TypePattern secondPattern = (TypePattern) patterns.get(1);
+		SingleVariableDeclaration svd = (SingleVariableDeclaration) secondPattern.getPatternVariable2();
+		assertEquals("SingleVariableDeclaration type", svd.getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
+		assertEquals("SimpleType", svd.getType().getNodeType(), ASTNode.PRIMITIVE_TYPE);
+		assertEquals("SimpleName", svd.getName().getNodeType(), ASTNode.SIMPLE_NAME);
+	}
+
+	//VariableDeclarationFragment
+	public void testNaiveASTFlattnerSync_c() throws JavaModelException {
+		String contents = """
+					public class X {
+	                    public static void main(Object object) {
+	                        if (object instanceof Pos(int x1, _)) {
+	                            System.out.println("object is a path starting at x = "+x1);
+	                        }
+	                    }
+	                }
+	                record Pos(int x, int y) {}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit cu = (CompilationUnit) node;
+
+		TypeDeclaration typedeclaration =  (TypeDeclaration) cu.types().get(0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) typedeclaration.bodyDeclarations().get(0);
+		Block block = methodDeclaration.getBody();
+		List<ASTNode> statements = block.statements();
+		IfStatement ifStatement = (IfStatement) statements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern rp = (RecordPattern) expression.getPattern();
+		List<Pattern> patterns = rp.patterns();
+		TypePattern secondPattern = (TypePattern) patterns.get(1);
+		VariableDeclarationFragment vdf = (VariableDeclarationFragment) secondPattern.getPatternVariable2();
+
+		assertEquals("SingleVariableDeclaration type", vdf.getNodeType(), ASTNode.VARIABLE_DECLARATION_FRAGMENT);
+		assertEquals("SimpleName", vdf.getName().getNodeType(), ASTNode.SIMPLE_NAME);
+	}
+
+
 }

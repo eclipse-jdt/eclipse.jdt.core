@@ -13,6 +13,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -430,6 +431,317 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
 				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
 				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				requestor.getResults());
+	}
+	public void testConstructor7() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"        public void foo(Object o) {\n" +
+			"                new TestConstructor\n" +
+			"        }\n" +
+			"}");
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/TestConstructor1.java",
+			"package test;"+
+			"public record TestConstructor1(int[] i) {\n" +
+			"        public TestConstructor1 {\n" +
+			"        }\n" +
+			"}");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "TestConstructor";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, ([I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+				"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
+				requestor.getResults());
+	}
+
+	public void testCompletionFindConstructor() throws JavaModelException {
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionFindConstructor.java",
+	            "public record CompletionFindConstructor(int i, int [] ia) {\n"+
+	            "	public CompletionFindConstructor {\n"+
+	            "	}\n"+
+	            "	public void foo(){\n"+
+	            "		int x = 45;\n"+
+	            "		new CompletionFindConstructor(i);\n"+
+	            "	}\n"+
+	            "}");
+
+
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	    String str = this.wc.getSource();
+	    String completeBehind = "CompletionFindConstructor(";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	    assertResults(
+	            "expectedTypesSignatures={I}\n"+
+	            "expectedTypesKeys={I}",
+	            requestor.getContext());
+
+	   assertResults(
+			   "CompletionFindConstructor[METHOD_REF<CONSTRUCTOR>]{, LCompletionFindConstructor;, (I[I)V, CompletionFindConstructor, (i, ia), 39}\n" +
+					   "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
+					   "i[FIELD_REF]{i, LCompletionFindConstructor;, I, i, null, 52}\n" +
+					   "i[METHOD_REF]{i(), LCompletionFindConstructor;, ()I, i, null, 52}\n" +
+					   "x[LOCAL_VARIABLE_REF]{x, null, I, x, null, 52}",
+				requestor.getResults());
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3983
+	// [Records][Completion] Canonical constructor argument names missing from completion proposals
+	public void testIssue3983() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/XIssue3983.java",
+				"""
+				record RecordWithSynthCCtor(int from, int to, double length, Object profile) {
+					void foo() {
+						new RecordWithSynthCCtor
+					}
+				}
+				"""
+				);
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+
+		String completeBehind = "new RecordWithSynthCCtor";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+		assertResults("RecordWithSynthCCtor[CONSTRUCTOR_INVOCATION]{(), LRecordWithSynthCCtor;, (IIDLjava.lang.Object;)V, RecordWithSynthCCtor, (from, to, length, profile), 59}", requestor.getResults());
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3983
+	// [Records][Completion] Canonical constructor argument names missing from completion proposals
+	public void testIssue3983_2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/XIssue3983.java",
+				"""
+				record CompactCtorContainingRecord(int from, int to, double length, Object profile) {
+				    CompactCtorContainingRecord {}
+					void foo() {
+						new CompactCtorContainingRecord
+					}
+				}
+				"""
+				);
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+
+		String completeBehind = "new CompactCtorContainingRecord";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+		assertResults("CompactCtorContainingRecord[CONSTRUCTOR_INVOCATION]{(), LCompactCtorContainingRecord;, (IIDLjava.lang.Object;)V, CompactCtorContainingRecord, (from, to, length, profile), 59}", requestor.getResults());
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3983
+	// [Records][Completion] Canonical constructor argument names missing from completion proposals
+	public void testIssue3983_3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/XIssue3983.java",
+				"""
+				record ExplicitCCtorContainingRecord(int from, int to, double length, Object profile) {
+				    ExplicitCCtorContainingRecord(int from, int to, double length, Object profile) {}
+					void foo() {
+						new ExplicitCCtorContainingRecord
+					}
+				}
+				"""
+				);
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+
+		String completeBehind = "new ExplicitCCtorContainingRecord";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+		assertResults("ExplicitCCtorContainingRecord[CONSTRUCTOR_INVOCATION]{(), LExplicitCCtorContainingRecord;, (IIDLjava.lang.Object;)V, ExplicitCCtorContainingRecord, (from, to, length, profile), 59}", requestor.getResults());
+	}
+	public void testRecordSyntheticMethods() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				package test;
+				/**
+				 * A foo bar.
+				 * @param foo The foo.
+				 * @param bar The bar.
+				 */
+				public record FooBar(String foo, String bar) {}
+			""");
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/X1.java",
+			"""
+			package test;
+			public class X1 {
+				public static void main(String[] args) {
+					FooBar fooBar = new FooBar("some foo", "some bar");
+					fooBar.fo
+				}
+			}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[1].getSource();
+		String completeBehind = "fooBar.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"foo[FIELD_REF]{foo, Ltest.FooBar;, Ljava.lang.String;, foo, null, 60}\n"
+				+ "foo[METHOD_REF]{foo(), Ltest.FooBar;, ()Ljava.lang.String;, foo, null, 60}",
+				requestor.getResults());
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/X1.java",
+				"""
+				package test;
+				public class X1 {
+					public static void main(String[] args) {
+						FooBar fooBar = new FooBar("some foo", "some bar");
+						fooBar.
+					}
+				}
+				""");
+		requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		str = this.workingCopies[1].getSource();
+		completeBehind = "fooBar.";
+		cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"bar[FIELD_REF]{bar, Ltest.FooBar;, Ljava.lang.String;, bar, null, 60}\n"
+				+ "bar[METHOD_REF]{bar(), Ltest.FooBar;, ()Ljava.lang.String;, bar, null, 60}\n"
+				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
+				+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
+				+ "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n"
+				+ "foo[FIELD_REF]{foo, Ltest.FooBar;, Ljava.lang.String;, foo, null, 60}\n"
+				+ "foo[METHOD_REF]{foo(), Ltest.FooBar;, ()Ljava.lang.String;, foo, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n"
+				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n"
+				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n"
+				+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_1() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				package test;
+				/**
+				 * A foo bar.
+				 * @param foo The foo.
+				 * @param bar the bar 1
+				 * @param bar
+				 */
+				public record FooBar(String foo, String bar, String bar2, String bar3) {}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"bar3[JAVADOC_PARAM_REF]{bar3, null, null, bar3, null, 43}\n"
+				+ "bar2[JAVADOC_PARAM_REF]{bar2, null, null, bar2, null, 44}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				package test;
+				/**
+				 * A foo bar.
+				 * @param foo The foo.
+				 * @param bar
+				 */
+				public record FooBar(String foo, String bar, String bar2, String bar3) {}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"bar3[JAVADOC_PARAM_REF]{bar3, null, null, bar3, null, 43}\n"
+				+ "bar2[JAVADOC_PARAM_REF]{bar2, null, null, bar2, null, 44}\n"
+				+ "bar[JAVADOC_PARAM_REF]{bar, null, null, bar, null, 45}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				/**
+				 *
+				 * @param <X
+				 */
+				public record X<XTZ>(int abc, int XPZ) {
+				}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param <X";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"XTZ[JAVADOC_PARAM_REF]{<XTZ>, null, null, XTZ, null, 38}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_4() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				/**
+				 *
+				 * @param X
+				 */
+				public record X<XTZ>(int abc, int XPZ) {
+				}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param X";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"XPZ[JAVADOC_PARAM_REF]{XPZ, null, null, XPZ, null, 44}",
 				requestor.getResults());
 	}
 }

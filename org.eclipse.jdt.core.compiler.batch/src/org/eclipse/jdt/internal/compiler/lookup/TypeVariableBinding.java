@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -51,10 +51,10 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
+import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
@@ -190,7 +190,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 												// non-object real superclass should have produced a valid 'match' above
 												return BoundCheckStatus.MISMATCH;
 											}
-											// not fully spec-ed in JLS, but based on email communication (2017-09-13):
+											// NON-JLS, but based on email communication (2017-09-13):
 											// (a) bound check should apply capture
 											// (b) capture applies glb
 											// (c) and then the glb should be checked for well-formedness (see Scope.isMalformedPair() - this part missing in JLS).
@@ -362,52 +362,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 			}
 		}
 		return missingTypes;
-	}
-
-	/**
-	 * Collect the substitutes into a map for certain type variables inside the receiver type
-	 * e.g. {@code Collection<T>.collectSubstitutes(Collection<List<X>>, Map)} will populate Map with: {@code T --> List<X>}
-	 * <pre>{@code
-	 * Constraints:
-	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EXTENDS (1))
-	 *   A = F    corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
-	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_SUPER (2))
-	 * }</pre>
-	 */
-	@Override
-	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
-
-		//	only infer for type params of the generic method
-		if (this.declaringElement != inferenceContext.genericMethod) return;
-
-		// cannot infer anything from a null type
-		switch (actualType.kind()) {
-			case Binding.BASE_TYPE :
-				if (actualType == TypeBinding.NULL) return;
-				TypeBinding boxedType = scope.environment().computeBoxingType(actualType);
-				if (boxedType == actualType) return; //$IDENTITY-COMPARISON$
-				actualType = boxedType;
-				break;
-			case Binding.POLY_TYPE: // cannot steer inference, only learn from it.
-			case Binding.WILDCARD_TYPE :
-				return; // wildcards are not true type expressions (JLS 15.12.2.7, p.453 2nd discussion)
-		}
-
-		// reverse constraint, to reflect variable on rhs:   A << T --> T >: A
-		int variableConstraint;
-		switch(constraint) {
-			case TypeConstants.CONSTRAINT_EQUAL :
-				variableConstraint = TypeConstants.CONSTRAINT_EQUAL;
-				break;
-			case TypeConstants.CONSTRAINT_EXTENDS :
-				variableConstraint = TypeConstants.CONSTRAINT_SUPER;
-				break;
-			default:
-			//case CONSTRAINT_SUPER :
-				variableConstraint =TypeConstants.CONSTRAINT_EXTENDS;
-				break;
-		}
-		inferenceContext.recordSubstitute(this, actualType, variableConstraint);
 	}
 
 	/*
@@ -912,7 +866,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	@Override
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-		if (getClass() == TypeVariableBinding.class) {
+		if (getClass() == TypeVariableBinding.class && this.environment.globalOptions.storeAnnotations) {
 			// TVB only: if the declaration itself carries type annotations,
 			// make sure TypeSystem will still have an unannotated variant at position 0, to answer getUnannotated()
 			// (in this case the unannotated type is never explicit in source code, that's why we need this charade).
@@ -1226,15 +1180,4 @@ public class TypeVariableBinding extends ReferenceBinding {
 				&& this.environment.globalOptions.pessimisticNullAnalysisForFreeTypeVariablesEnabled
 				&& (this.tagBits & TagBits.AnnotationNullMASK) == 0;
 	}
-
-	@Override
-	public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-		return this;
-	}
-
-	@Override
-	public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-		return this;
-	}
-
 }

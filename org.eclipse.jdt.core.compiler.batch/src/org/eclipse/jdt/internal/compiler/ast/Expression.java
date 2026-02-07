@@ -34,11 +34,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -263,9 +261,6 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 
 	// identity conversion cannot be performed upfront, due to side-effects
 	// like constant propagation
-	boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-	boolean use17specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
-	useAutoBoxing &= use15specifics;
 	if (castType.isBaseType()) {
 		if (expressionType.isBaseType()) {
 			if (TypeBinding.equalsEquals(expressionType, castType)) {
@@ -288,7 +283,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 				return true;
 
 			}
-		} else if (useAutoBoxing && use17specifics && castType.isPrimitiveType() && expressionType instanceof ReferenceBinding &&
+		} else if (useAutoBoxing && castType.isPrimitiveType() && expressionType instanceof ReferenceBinding &&
 				!expressionType.isBoxedPrimitiveType() && checkCastTypesCompatibility(scope, scope.boxing(castType), expressionType, expression, useAutoBoxing)) {
 			// cast from any reference type (other than boxing types) to base type allowed from 1.7, see JLS $5.5
 			// by our own interpretation (in accordance with javac) we reject arays, though.
@@ -450,34 +445,10 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							}
 							if (((ReferenceBinding) castType).isDisjointFrom(interfaceType))
 								return false;
-							if (use15specifics) {
-								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
-								// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
-								if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
-									if (interfaceType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
-										return false;
-									}
-								} else if (!castType.isRawType() && interfaceType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
-									return false;
-								}
-							} else {
-								// pre1.5 semantics - no covariance allowed (even if 1.5 compliant, but 1.4 source)
-								// look at original methods rather than the parameterized variants at 1.4 to detect
-								// covariance. Otherwise when confronted with one raw type and one parameterized type,
-								// we could mistakenly detect covariance and scream foul. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=332744
-								MethodBinding[] castTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) castType);
-								MethodBinding[] expressionTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) expressionType);
-								int exprMethodsLength = expressionTypeMethods.length;
-								for (MethodBinding castTypeMethod : castTypeMethods) {
-									for (int j = 0; j < exprMethodsLength; j++) {
-										if ((TypeBinding.notEquals(castTypeMethod.returnType, expressionTypeMethods[j].returnType))
-												&& (CharOperation.equals(castTypeMethod.selector, expressionTypeMethods[j].selector))
-												&& castTypeMethod.areParametersEqual(expressionTypeMethods[j])) {
-											return false;
-
-										}
-									}
-								}
+							checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
+							// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
+							if (!castType.isRawType() && interfaceType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
+								return false;
 							}
 							return true;
 						} else {
@@ -499,16 +470,10 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (((ReferenceBinding) castType).isDisjointFrom((ReferenceBinding) expressionType)) {
 								return false;
 							}
-							if (use15specifics) {
-								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
-								// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
-								if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
-									if (((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType)) {
-										return false;
-									}
-								} else if (!castType.isRawType() && ((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType)) {
-									return false;
-								}
+							checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
+							// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
+							if (!castType.isRawType() && ((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType)) {
+								return false;
 							}
 							return true;
 						}
@@ -518,7 +483,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 					case Binding.ARRAY_TYPE :
 						// ( ARRAY ) CLASS
 						if (expressionType.id == TypeIds.T_JavaLangObject) { // potential runtime error
-							if (use15specifics) checkUnsafeCast(scope, castType, expressionType, expressionType, true);
+							checkUnsafeCast(scope, castType, expressionType, expressionType, true);
 							tagAsNeedCheckCast();
 							return true;
 						}
@@ -557,16 +522,10 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (refExprType.isDisjointFrom((ReferenceBinding) castType)) {
 								return false;
 							}
-							if (use15specifics) {
-								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
-								// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
-								if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
-									if (refExprType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
-										return false;
-									}
-								} else if (!castType.isRawType() && refExprType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
-									return false;
-								}
+							checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
+							// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
+							if (!castType.isRawType() && refExprType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
+								return false;
 							}
 							return true;
 						} else {
@@ -884,22 +843,20 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, 
 	codeStream.invokeStringConcatenationStringConstructor();
 }
 private void addArgumentToRecipe(BlockScope blockScope, CodeStream codeStream, StringBuilder recipe, TypeBinding argType, List<TypeBinding> args) {
-	recipe.append(STRING_CONCAT_MARKER_1);
+	recipe.append(STRING_CONCAT_FACTORY_TAG_ARG);
 	args.add(argType);
 	if (args.size() > 190) {
-		// StringConcatFactory#makeConcatWithConstants() can take only 200 arguments
-		// Commit whatever we have accumulated so far
-		// Get the result pushed to the stack and to be used as an operand
-		// for the subsequent concat operation
+		// StringConcatFactory#makeConcatWithConstants() can take only 200 arguments. Commit whatever we have accumulated so far
+		// Get the intermediate result pushed to the stack and to be used as an operand for the subsequent concat operation
 		codeStream.invokeDynamicForStringConcat(recipe, args);
 		// Clear the arguments for the next batch
 		args.clear();
 		recipe.delete(0, recipe.length());
-		recipe.append(TypeConstants.STRING_CONCAT_MARKER_1);
+		recipe.append(TypeConstants.STRING_CONCAT_FACTORY_TAG_ARG);
 		args.add(blockScope.getJavaLangString());
 	}
 }
-public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
+public void buildStringForConcatenation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
 	if (this.constant == Constant.NotAConstant) {
 		switch (typeID) {
 			case T_JavaLangString :
@@ -926,32 +883,13 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 		}
 	} else {
 		// StringLiteral and CharLiteral may contain special characters
-		if (this.constant.stringValue().indexOf('\u0001') != -1 || this.constant.stringValue().indexOf('\u0002') != -1) {
-			codeStream.ldc(this.constant.stringValue());
+		final String stringValue = this.constant.stringValue();
+		if (stringValue.indexOf(TypeConstants.STRING_CONCAT_FACTORY_TAG_ARG) != -1 || stringValue.indexOf(TypeConstants.STRING_CONCAT_FACTORY_TAG_CONST) != -1) {
+			codeStream.ldc(stringValue);
 			addArgumentToRecipe(blockScope, codeStream, recipe, blockScope.getJavaLangString(), argTypes);
 		} else {
-			recipe.append(this.constant.stringValue());
+			recipe.append(stringValue);
 		}
-	}
-}
-private MethodBinding[] getAllOriginalInheritedMethods(ReferenceBinding binding) {
-	ArrayList<MethodBinding> collector = new ArrayList<>();
-	getAllInheritedMethods0(binding, collector);
-	for (int i = 0, len = collector.size(); i < len; i++) {
-		collector.set(i, collector.get(i).original());
-	}
-	return collector.toArray(new MethodBinding[collector.size()]);
-}
-
-private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList<MethodBinding> collector) {
-	if (!binding.isInterface()) return;
-	MethodBinding[] methodBindings = binding.methods();
-	for (MethodBinding methodBinding : methodBindings) {
-		collector.add(methodBinding);
-	}
-	ReferenceBinding[] superInterfaces = binding.superInterfaces();
-	for (ReferenceBinding superInterface : superInterfaces) {
-		getAllInheritedMethods0(superInterface, collector);
 	}
 }
 
@@ -1177,7 +1115,7 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 	return expressionType;
 }
 
-public Expression resolveExpressionExpecting(TypeBinding targetType, Scope scope, InferenceContext18 context) {
+public Expression resolveExpressionExpecting(TypeBinding targetType, Scope scope) {
 	return this; // subclasses should implement for a better resolved expression if required.
 }
 
@@ -1294,6 +1232,17 @@ public boolean isPolyExpression() throws UnsupportedOperationException {
 /** Variant of isPolyExpression() to be used during type inference, when a resolution candidate exists. */
 public boolean isPolyExpression(MethodBinding method) {
 	return false;
+}
+
+// Answer if the receiver is a poly-expression in the given context.
+public final boolean isPolyExpression(ExpressionContext context) {
+	ExpressionContext prevailing = getExpressionContext();
+	try {
+		setExpressionContext(context);
+		return isPolyExpression();
+	} finally {
+		setExpressionContext(prevailing);
+	}
 }
 
 

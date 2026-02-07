@@ -13,15 +13,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -161,5 +165,67 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 		// check that the error is resolved now:
 		reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
+	}
+	public void testGH3623_withNullAnnoatations() throws CoreException, IOException {
+		IJavaProject annots = createJava23Project("external-null-annotations"); //$NON-NLS-1$
+		createSourceFiles(annots, new String[] {
+				"java/util/Set.eea",
+				"""
+				class java/util/Set
+				of
+				 <E:Ljava/lang/Object;>([TE;)Ljava/util/Set<TE;>;
+				 <1E:Ljava/lang/Object;>([T1E;)L1java/util/Set<T1E;>;
+				"""
+			});
+		myCreateJavaProject("Test", "23", "JCL_23_LIB");
+		addEeaToVariableEntry("JCL_23_LIB", "/external-null-annotations");
+		createFileInProject("src", "Test.java",
+				"""
+				import java.util.Set;
+				import org.eclipse.jdt.annotation.NonNull;
+
+				public class Test {
+					public static void main(String[] args) {
+						var b = Set.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11");
+						for (String s : b)
+							print(s);
+					}
+					static void print(@NonNull String s) {}
+				}
+				""");
+		this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		assertNoMarkers(markers);
+	}
+	public void testGH3623_nullAnnotationsNotEnabled() throws CoreException, IOException {
+		IJavaProject annots = createJava23Project("external-null-annotations"); //$NON-NLS-1$
+		createSourceFiles(annots, new String[] {
+				"java/util/Set.eea",
+				"""
+				class java/util/Set
+				of
+				 <E:Ljava/lang/Object;>([TE;)Ljava/util/Set<TE;>;
+				 <1E:Ljava/lang/Object;>([T1E;)L1java/util/Set<T1E;>;
+				"""
+			});
+		this.project = createJavaProject("Test", new String[]{"src"}, new String[]{"JCL_23_LIB"}, null, null, "bin", null, null, null, "23");
+		Map options = this.project.getOptions(true);
+		this.project.setOptions(options);
+
+		addEeaToVariableEntry("JCL_23_LIB", "/external-null-annotations");
+		createFileInProject("src", "Test.java",
+				"""
+				import java.util.Set;
+
+				public class Test {
+					public static void main(String[] args) {
+						var b = Set.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11");
+						System.out.println(b.toString());
+					}
+				}
+				""");
+		this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		assertNoMarkers(markers);
 	}
 }

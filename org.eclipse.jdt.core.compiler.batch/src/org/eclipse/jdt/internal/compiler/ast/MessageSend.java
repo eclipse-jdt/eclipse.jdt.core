@@ -70,6 +70,7 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CONTEXT;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -86,7 +87,6 @@ import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class MessageSend extends Expression implements IPolyExpression, Invocation {
 
@@ -106,9 +106,8 @@ public class MessageSend extends Expression implements IPolyExpression, Invocati
 	public ExpressionContext expressionContext = VANILLA_CONTEXT;
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
-	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
+	private Map<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
 	private HashMap<TypeBinding, MethodBinding> solutionsPerTargetType;
-	private InferenceContext18 outerInferenceContext; // resolving within the context of an outer (lambda) inference?
 
 	private boolean receiverIsType;
 	protected boolean argsContainCast;
@@ -499,7 +498,7 @@ private FlowInfo analyseNullAssertion(BlockScope currentScope, Expression argume
 		{
 			FieldBinding field = ((Reference)argument).lastFieldBinding();
 			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-				flowContext.recordNullCheckedFieldReference((Reference) argument, 3); // survive this assert as a MessageSend and as a Statement
+				flowContext.recordNullCheckedFieldReference((Reference) argument, 3, FlowInfo.NON_NULL); // survive this assert as a MessageSend and as a Statement
 			}
 		}
 	}
@@ -519,7 +518,7 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 			scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
 		}
 	} else if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
-		NullAnnotationMatching nonNullStatus = NullAnnotationMatching.okNonNullStatus(this);
+		NullAnnotationMatching nonNullStatus = NullAnnotationMatching.okNonNullStatus(this, true);
 		if (nonNullStatus.wantToReport())
 			nonNullStatus.report(scope);
 	}
@@ -538,8 +537,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		TypeBinding originalType = originalBinding.returnType;
 	    // extra cast needed if method return type is type variable
 		if (ArrayBinding.isArrayClone(this.actualReceiverType, this.binding)
-				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
-				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				&& runtimeTimeType.id != TypeIds.T_JavaLangObject) {
 			// from 1.5 source level on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
 			this.valueCast = runtimeTimeType;
 		} else if (originalType.leafComponentType().isTypeVariable()) {
@@ -775,7 +773,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 	if (this.constant != Constant.NotAConstant) {
 		this.constant = Constant.NotAConstant;
-		long sourceLevel = scope.compilerOptions().sourceLevel;
 		if (this.receiver instanceof CastExpression) {
 			this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 		}
@@ -787,7 +784,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		// resolve type arguments (for generic constructor call)
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
-			this.argumentsHaveErrors = sourceLevel < ClassFileConstants.JDK1_5; // typeChecks all arguments
+			this.argumentsHaveErrors = false; // typeChecks all arguments
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeReference typeReference = this.typeArguments[i];
@@ -929,11 +926,6 @@ public TypeBinding resolveType(BlockScope scope) {
 						: null;
 	}
 	final CompilerOptions compilerOptions = scope.compilerOptions();
-	if (compilerOptions.complianceLevel <= ClassFileConstants.JDK1_6
-			&& this.binding.isPolymorphic()) {
-		scope.problemReporter().polymorphicMethodNotBelow17(this);
-		return null;
-	}
 
 	if (this.receiver instanceof CastExpression castedRecevier) {
 		// this check was suppressed while resolving receiver, check now based on the resolved method
@@ -943,12 +935,10 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
 		ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(this.binding, scope);
-		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
-			if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
-				TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
-				for (int i = 0; i < this.typeArguments.length; i++)
-					this.typeArguments[i].checkNullConstraints(scope, (ParameterizedGenericMethodBinding) this.binding, typeVariables, i);
-			}
+		if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
+			TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
+			for (int i = 0; i < this.typeArguments.length; i++)
+				this.typeArguments[i].checkNullConstraints(scope, (ParameterizedGenericMethodBinding) this.binding, typeVariables, i);
 		}
 	}
 
@@ -1011,7 +1001,10 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
-	if (isMethodUseDeprecated(this.binding, scope, true, this))
+	TypeBinding declared = this.binding.declaringClass.erasure();
+	TypeBinding actual = this.actualReceiverType.erasure();
+	boolean isExplicitUse = TypeBinding.equalsEquals( declared, actual);
+	if (isMethodUseDeprecated(this.binding, scope, isExplicitUse, this))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 
 	TypeBinding returnType;
@@ -1123,11 +1116,6 @@ protected TypeBinding handleNullnessCodePatterns(BlockScope scope, TypeBinding r
 }
 
 protected TypeBinding findMethodBinding(BlockScope scope) {
-	ReferenceContext referenceContext = scope.methodScope().referenceContext;
-	if (referenceContext instanceof LambdaExpression) {
-		this.outerInferenceContext = ((LambdaExpression) referenceContext).inferenceContext;
-	}
-
 	if (this.expectedType != null && this.binding instanceof PolyParameterizedGenericMethodBinding) {
 		this.binding = this.solutionsPerTargetType.get(this.expectedType);
 	}
@@ -1244,12 +1232,7 @@ public boolean isPolyExpression(MethodBinding resolutionCandidate) {
 		throw new UnsupportedOperationException("Unresolved MessageSend can't be queried if it is a polyexpression"); //$NON-NLS-1$
 
 	if (resolutionCandidate != null) {
-		if (resolutionCandidate instanceof ParameterizedGenericMethodBinding) {
-			ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) resolutionCandidate;
-			if (pgmb.inferredReturnType)
-				return true; // if already determined
-		}
-		if (resolutionCandidate.returnType != null) {
+		if (resolutionCandidate.returnType != null && resolutionCandidate.returnType.id != TypeIds.T_void) {
 			// resolution may have prematurely instantiated the generic method, we need the original, though:
 			MethodBinding candidateOriginal = resolutionCandidate.original();
 			return candidateOriginal.returnType.mentionsAny(candidateOriginal.typeVariables(), -1);
@@ -1312,7 +1295,7 @@ public void registerInferenceContext(ParameterizedGenericMethodBinding method, I
 		System.out.println("Register inference context of "+this+" for "+method+":\n"+infCtx18); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	if (this.inferenceContexts == null)
-		this.inferenceContexts = new SimpleLookupTable();
+		this.inferenceContexts = new HashMap<>();
 	this.inferenceContexts.put(method, infCtx18);
 }
 
@@ -1331,7 +1314,7 @@ public void registerResult(TypeBinding targetType, MethodBinding method) {
 public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
 	InferenceContext18 context = null;
 	if (this.inferenceContexts != null)
-		context = (InferenceContext18) this.inferenceContexts.get(method);
+		context = this.inferenceContexts.get(method);
 	if (InferenceContext18.DEBUG) {
 		System.out.println("Retrieve inference context of "+this+" for "+method+":\n"+context); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -1341,11 +1324,10 @@ public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method)
 public void cleanUpInferenceContexts() {
 	if (this.inferenceContexts == null)
 		return;
-	for (Object value : this.inferenceContexts.valueTable)
-		if (value != null)
-			((InferenceContext18) value).cleanUp();
+	for (InferenceContext18 value : this.inferenceContexts.values()) {
+			value.cleanUp();
+	}
 	this.inferenceContexts = null;
-	this.outerInferenceContext = null;
 	this.solutionsPerTargetType = null;
 }
 @Override
@@ -1359,7 +1341,7 @@ public ExpressionContext getExpressionContext() {
 // -- Interface InvocationSite: --
 @Override
 public InferenceContext18 freshInferenceContext(Scope scope) {
-	return new InferenceContext18(scope, this.arguments, this, this.outerInferenceContext);
+	return new InferenceContext18(scope, this.arguments, this);
 }
 @Override
 public boolean isQualifiedSuper() {

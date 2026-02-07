@@ -18,6 +18,7 @@ import java.io.IOException;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "rawtypes" })
@@ -124,7 +125,7 @@ public void test003() {
 					"1 problem (1 error)\n",
 					true);
 }
-public void test004() throws Exception {
+public void test004_previewUnused() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -137,6 +138,29 @@ public void test004() throws Exception {
 					"		if (false) {\n" +
 					"			;\n" +
 					"		} else {\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
+					"",
+					"",
+					true);
+	String expectedOutput = ".0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+public void test004_previewUsed() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+					")\n" +
+					"public class X {\n" +
+					"	public static void main(Object o) {\n" +
+					"		switch (o) {\n" +
+					"			case int i -> System.out.print(i);\n" +
+					"			default -> System.out.print(0);\n" +
 					"		}\n" +
 					"	}\n" +
 					"}"
@@ -147,31 +171,6 @@ public void test004() throws Exception {
 					"",
 					true);
 	String expectedOutput = ".65535, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-public void test005() throws Exception {
-	this.runConformTest(
-			new String[] {
-					"X.java",
-					"import java.util.List;\n" +
-					"\n" +
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
-					"		}\n" +
-					"	}\n" +
-					"}"
-			},
-			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
-					"",
-					"",
-					true);
-	String expectedOutput = "65535, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test006() throws Exception {
@@ -466,4 +465,39 @@ public void testIssue147() throws Exception {
 	String expectedOutput = "java.lang.invoke.MethodHandle.invoke(java.lang.Object)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+public void testGH4744() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK21) {
+		return;
+	}
+	String libPath = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "gh4744.jar";
+		this.runConformTest(
+			new String[] {
+					"Trigger.java",
+					"""
+						import java.lang.annotation.Retention;
+						import java.lang.annotation.Target;
+						import static java.lang.annotation.ElementType.TYPE;
+						import static java.lang.annotation.RetentionPolicy.SOURCE;
+						@Trigger
+						@Retention(SOURCE)
+						@Target(TYPE)
+						public @interface Trigger {}
+					"""
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "Trigger.java\"" +
+					" -cp " + libPath + // relative
+					" -source " + CompilerOptions.getLatestVersion() +
+					" -target " + CompilerOptions.getLatestVersion() + " " +
+					" -processor DumpProcessor ",
+					"",
+					"1. INFO: Test simpleName=Test\n"
+					+ "2. INFO: Test ctor params: javacWorksNotEcj:int\n"
+					+ "3. INFO: Test ctor params: bothWork1:short\n"
+					+ "4. INFO: Test ctor params: bothWork2:double\n"
+					+ "5. INFO: Test method params: test1(javacWorksNotEcj:int)\n"
+					+ "6. INFO: Test method params: test2(bothWork1:int)\n"
+					+ "7. INFO: Test method params: test3(bothWork2:int)\n"
+					+ "7 problems (7 infos)\n",
+					true);
+	}
 }

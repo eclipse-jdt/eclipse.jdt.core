@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -381,9 +381,10 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 }
 
 @Override
-protected void consumeFormalParameter(boolean isVarArgs) {
-	super.consumeFormalParameter(isVarArgs);
-	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
+	super.consumeSingleVariableDeclarator(isVarArgs);
+	if (!this.parsingRecordComponents)
+		this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
 
 @Override
@@ -970,8 +971,8 @@ protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeRe
 	return result;
 }
 @Override
-protected TypeReference getTypeReference(int dim) {
-	TypeReference typeRef = super.getTypeReference(dim);
+protected TypeReference constructTypeReference(int dim) {
+	TypeReference typeRef = super.constructTypeReference(dim);
 	if (this.patternFineGrain == 0) {
 		this.patternLocator.match(typeRef, this.nodeSet); // NB: Don't check container since type reference can happen anywhere
 	}
@@ -1058,6 +1059,7 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 				}
 			} else if (method.isDefaultConstructor()) {
 				method.parseStatements(this, unit);
+				method.traverse(this.localDeclarationVisitor, (ClassScope) null);
 			}
 		}
 	}

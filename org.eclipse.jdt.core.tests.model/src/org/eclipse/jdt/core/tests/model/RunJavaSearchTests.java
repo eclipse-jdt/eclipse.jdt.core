@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -72,7 +72,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 		allClasses.add(JavaSearchBugs17Tests.class);
 		allClasses.add(JavaSearchBugs19Tests.class);
 		allClasses.add(JavaSearchBugs21Tests.class);
-		allClasses.add(JavaSearchBugs23Tests.class);
+		allClasses.add(JavaSearchModuleImportTest.class);
 		allClasses.add(JavaSearchMultipleProjectsTests.class);
 		allClasses.add(SearchTests.class);
 		allClasses.add(JavaSearchScopeTests.class);
@@ -84,6 +84,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 		allClasses.add(JavaSearchSuperAfterStatementTests.class);
 		allClasses.add(JavaSearchIssue190Test.class);
 		allClasses.add(JavaSearchImplicitTypeDeclarationTests.class);
+		allClasses.add(JavaSearchExtensionTest.class);
 
 		// Reset forgotten subsets of tests
 		TestCase.TESTS_PREFIX = null;

@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.Jav
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.EclipseJustification;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -8563,7 +8564,599 @@ public void testGHIssue2302() {
                 """});
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2096
+// Textual problem indicator goes wild with lamda
+public void testGHIssue2096() {
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return; // just to standardize messages, we skip below 17.
+    this.runNegativeTest(
+            new String[] {
+                "X.java",
+                """
+				import java.security.AccessController;
+				import java.security.PrivilegedActionException;
+				import java.security.PrivilegedExceptionAction;
 
+				public class X {
+					public static void main(String[] args) throws PrivilegedActionException {
+						AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->
+							{
+								System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+								System.out.println();System.out.println();System.out.println();System.out.println();
+							});
+					}
+				}
+                """},
+            "----------\n" +
+    		"1. WARNING in X.java (at line 7)\n" +
+    		"	AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->\n" +
+    		"	^^^^^^^^^^^^^^^^\n" +
+    		"The type AccessController has been deprecated since version 17 and marked for removal\n" +
+    		"----------\n" +
+    		"3. ERROR in X.java (at line 7)\n" +
+    		"	AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->\n" +
+    		"	                                                                  ^^^^^\n" +
+    		"This method must return a result of type Boolean\n" +
+    		"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3798
+// BootstrapMethodError / LambdaConversionException using ECJ
+public void testIssue3798() {
+	this.runConformTest(
+         new String[] {
+             "X.java",
+             """
+			import java.util.Optional;
+			import java.util.stream.Stream;
+
+			public class X {
+			    private static interface Value1 {
+			        int getValue1();
+			    }
+
+			    private static interface Value2 {
+			        String getValue2();
+			    }
+
+			    private static class ObjectA implements Value1, Value2 {
+			        @Override
+			        public String getValue2() {
+			            return "A2";
+			        }
+
+			        @Override
+			        public int getValue1() {
+			            return 'A' + 1;
+			        }
+			    }
+
+			    private static class ObjectB implements Value1, Value2 {
+			        @Override
+			        public String getValue2() {
+			            return "B2";
+			        }
+
+			        @Override
+			        public int getValue1() {
+			            return 'B' + 1;
+			        }
+			    }
+
+			    public static void main(String[] args) {
+			        Stream.of(Optional.<ObjectA>empty(), Optional.of(new ObjectA()), Optional.of(new ObjectB()))
+			                .filter(Optional::isPresent)
+			                .map(Optional::get)
+			                .map(Value2::getValue2)
+			                .forEach(System.out::println);
+			    }
+			}
+             """},
+         "A2\nB2");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+      new String[] {
+            "X.java",
+            """
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						switch (args.length) {
+							case 10 ->
+							System.out.println("value1");
+						}
+					});
+				}
+			}
+            """
+            },
+      "Runnable");
+}
+
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+//Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+		    "X.java",
+         	"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() ->
+						switch (args.length) {
+							case 10 -> 42;
+							default -> -1;
+						}
+					);
+				}
+			}
+		    """
+         },
+   "Callable");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+   new String[] {
+         "X.java",
+         """
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						switch (args.length) {
+							case 10 -> { System.out.println("value1"); }
+						}
+					});
+				}
+			}
+         """
+         },
+   "Runnable");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_3_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+		        "X.java",
+		        """
+				import java.util.concurrent.Callable;
+
+				public class X {
+
+					static void foo(Runnable r) {
+						System.out.println("Runnable");
+					}
+
+					static <T> void foo(Callable<T> task) {
+						System.out.println("Callable");
+					}
+
+					public static void main(String [] args) {
+						foo(() -> {
+							switch (args.length) {
+								case 10 -> { System.out.println("value1"); }
+								default -> throw new NullPointerException();
+							}
+						});
+					}
+				}
+		        """
+		      },
+		"Runnable");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						if (args == null)
+							throw new NullPointerException();
+						else
+							throw new NullPointerException();
+					}
+					);
+				}
+			}
+		    """
+      },
+	  "Callable");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_5() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						if (args == null)
+							throw new NullPointerException();					}
+					);
+				}
+			}
+		    """
+	  },
+	  "Runnable");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_6() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						switch(args.length) {
+							default -> throw new NullPointerException();
+						}
+					}
+					);
+				}
+			}
+		    """
+	  },
+	  "Callable");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4204
+// negative testing that the synthetic method - access - not present in the class declaring the private method accessed by a nestmate
+public void testIssue4204() throws Exception {
+
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					interface Base {
+						Base get(int x);
+					}
+					public class X {
+						private void privateMethod(int p) {
+							System.out.println("Private method called with " + p);
+						}
+					    <T> Base foo(Base b) {
+					        return b;
+					     }
+					    void bar(Base b) {
+					    	b.get(42);
+					    }
+					    void testCase() {
+					        bar(foo((int p)-> {
+					        	new Object() {
+					        		void foo() {
+					        			privateMethod(p);
+					        		}
+					        	}.foo();
+					        	return null;}
+					        ));
+					     }
+
+					    public static void main(String[] args) {
+							new X().testCase();
+						}
+					}
+					""",
+			},
+			"Private method called with 42");
+
+	if (this.complianceLevel >= ClassFileConstants.JDK11) {
+		String unExpectedPartialOutput = "access$";
+		verifyNegativeClassFile(unExpectedPartialOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	} else {
+		String expectedPartialOutput = "static synthetic void access$0(X arg0, int arg1);";
+		verifyClassFile(expectedPartialOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4433
+// Java 25: java.lang.TypeNotPresentException: Type I not present
+public void testIssue4433() throws Exception {
+
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.reflect.Method;
+					import java.util.function.BinaryOperator;
+
+					public class X {
+
+					    public static class A<I> {}
+
+					    public static <I> A<I> a(A<I>... a) {
+					        return null;
+					    }
+
+					    public static <J> J b(BinaryOperator<J> bo) {
+					        return null;
+					    }
+
+					    public <I> void c() {
+					        A<I> d = b(X::a);
+					        System.out.println(d);
+					    }
+
+					    public static void main(String[] args) {
+
+					        Method[] methods = X.class.getDeclaredMethods();
+
+					        for (Method method : methods) {
+					        	if (method.getName().contains("lambda"))
+					        		System.out.println(method.getGenericReturnType());
+					        }
+					    }
+					}
+					""",
+			},
+			"class X$A");
+}
+public void testLambdaAsAssignmentRHS() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.Consumer;
+
+				public class X {
+					Consumer<Boolean> xx;
+					void foo() {
+						this.xx = (f) -> { System.out.println(f); };
+						this.xx.accept(true);
+						this.xx.accept(false);
+						this.xx.accept(true);
+					}
+					public static void main(String [] args) {
+                        new X().foo();
+                    }
+				}
+				""",
+			},
+			"true\nfalse\ntrue"
+			);
+}
+// Test that a lambda featuring in the production `ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' LambdaExpression` is handled properly.
+public void testLambdaInTernary_01() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.Supplier;
+
+				public class X {
+				    public static void main(String[] args) {
+				    	Supplier<String> s = () -> "Hello ";
+						boolean b = true;
+						Supplier<String> sup = b ? s : () -> { return "World!"; };
+						System.out.print(sup.get());
+						b = false;
+						sup = b ? s : () -> { return "World!"; };
+						System.out.println(sup.get());
+					}
+				}
+				""",
+			},
+			"Hello World!"
+			);
+}
+// Test that a lambda featuring in the production `ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' CastedLambdaExpression` is handled properly.
+public void testLambdaInTernary_02() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.Supplier;
+
+				public class X {
+				    public static void main(String[] args) {
+				    	Supplier<String> s = () -> "Hello ";
+						boolean b = true;
+						Supplier<String> sup = b ? s : (Supplier<String>) () -> { return "World!"; };
+						System.out.print(sup.get());
+						b = false;
+						sup = b ? s : (Supplier<String>) () -> { return "World!"; };
+						System.out.println(sup.get());
+					}
+				}
+				""",
+			},
+			"Hello World!"
+			);
+}
+// Test that a lambda featuring in the production `ConditionalExpression_NotName ::= ConditionalOrExpression_NotName '?' Expression ':' LambdaExpression` is handled properly.
+public void testLambdaInTernary_03() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.Supplier;
+
+				public class X {
+				    public static void main(String[] args) {
+				    	Supplier<String> s = () -> "Hello ";
+						boolean a = false;
+						Supplier<String> sup  = (!a ? s : () -> { return "World"; });
+						System.out.print(sup.get());
+						a = true;
+						sup  = (!a ? s : () -> { return "World!"; });
+						System.out.println(sup.get());
+					}
+				}
+				""",
+			},
+			"Hello World!"
+			);
+}
+// Test that a lambda featuring in the production `ConditionalExpression_NotName ::= ConditionalOrExpression_NotName '?' Expression ':' CastedLambdaExpression` is handled properly.
+public void testLambdaInTernary_04() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.Supplier;
+
+				public class X {
+				    public static void main(String[] args) {
+				    	Supplier<String> s = () -> "Hello ";
+						boolean a = false;
+						Supplier<String> sup  = (!a ? s : (Supplier<String>) () -> { return "World"; });
+						System.out.print(sup.get());
+						a = true;
+						sup  = (!a ? s : (Supplier<String>) () -> { return "World!"; });
+						System.out.println(sup.get());
+					}
+				}
+				""",
+			},
+			"Hello World!"
+			);
+}
+// Test that a lambda featuring in the production `ConditionalExpression_NotName ::= Name '?' Expression ':' LambdaExpression` is handled properly.
+public void testLambdaInTernary_05() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.Supplier;
+
+				public class X {
+					public static void main(String[] args) {
+				    	Supplier<String> s = () -> "Hello ";
+						boolean a = true, b = false;
+						Supplier<String> sup  = (a ? s : () -> { return "World"; });
+						System.out.print(sup.get());
+						a = false;
+						sup  = (a ? s : () -> { return "World!"; });
+						System.out.println(sup.get());
+					}
+				}
+				""",
+			},
+			"Hello World!"
+			);
+}
+// Test that a lambda featuring in the production `ConditionalExpression_NotName ::= Name '?' Expression ':' CastedLambdaExpression` is handled properly.
+public void testLambdaInTernary_06() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+			import java.util.function.Supplier;
+
+			public class X {
+				public static void main(String[] args) {
+			    	Supplier<String> s = () -> "Hello ";
+					boolean a = true, b = false;
+					Supplier<String> sup  = (a ? s : (Supplier<String>) () -> { return "World"; });
+					System.out.print(sup.get());
+					a = false;
+					sup  = (a ? s : (Supplier<String>) () -> { return "World!"; });
+					System.out.println(sup.get());
+				}
+			}
+				""",
+			},
+			"Hello World!"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

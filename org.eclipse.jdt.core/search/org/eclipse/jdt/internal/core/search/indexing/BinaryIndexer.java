@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.Flags;
@@ -728,7 +729,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			char[][] typeParameterSignatures = null;
 			char[] genericSignature = reader.getGenericSignature();
 			if (genericSignature != null) {
-				CharOperation.replace(genericSignature, '/', '.');
+				genericSignature = replace('/', '.', genericSignature);
 				typeParameterSignatures = Signature.getTypeParameters(genericSignature);
 			}
 
@@ -740,6 +741,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			int modifiers = reader.getModifiers();
 			switch (TypeDeclaration.kind(modifiers)) {
 				case TypeDeclaration.CLASS_DECL :
+				case TypeDeclaration.RECORD_DECL:
 					char[] superclass = replace('/', '.', reader.getSuperclassName());
 					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures, false);
 					break;
@@ -752,10 +754,6 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					break;
 				case TypeDeclaration.ANNOTATION_TYPE_DECL :
 					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false);
-					break;
-				case TypeDeclaration.RECORD_DECL :
-					superclass = replace('/', '.', reader.getSuperclassName());
-					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures, false);
 					break;
 			}
 
@@ -873,6 +871,11 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			// logging the entry that could not be indexed and continue with the next one
 			// we remove all entries relative to the boggus document
 			this.document.removeAllIndexEntries();
+			if (e instanceof ClassFormatException cfe && cfe.getErrorCode() == ClassFormatException.ErrBadMagic) {
+				Util.log(new Status(IStatus.INFO, JavaCore.PLUGIN_ID,
+						"Could not index empty " + this.document.getPath())); //$NON-NLS-1$
+				return;
+			}
 			Util.log(new Status(IStatus.WARNING,
 					JavaCore.PLUGIN_ID,
 					"The Java indexing could not index " + this.document.getPath() + ". This .class file doesn't follow the class file format specification. Please report this issue against the .class file vendor", //$NON-NLS-1$ //$NON-NLS-2$
@@ -946,21 +949,23 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			return descriptor;
 		}
 	}
-	/*
-	 * Modify the array by replacing all occurences of toBeReplaced with newChar
+	/**
+	 * @return a copy of the array, replacing all occurences of toBeReplaced with newChar
 	 */
 	private char[][] replace(char toBeReplaced, char newChar, char[][] array) {
 		if (array == null) return null;
-		for (char[] element : array) {
-			replace(toBeReplaced, newChar, element);
+		array = Arrays.copyOf(array, array.length);
+		for (int i = 0; i < array.length; i++) {
+			array[i] = replace(toBeReplaced, newChar, array[i]);
 		}
 		return array;
 	}
-	/*
-	 * Modify the array by replacing all occurences of toBeReplaced with newChar
+	/**
+	 * @return a copy of the array, replacing all occurences of toBeReplaced with newChar
 	 */
 	private char[] replace(char toBeReplaced, char newChar, char[] array) {
 		if (array == null) return null;
+		array = Arrays.copyOf(array, array.length);
 		for (int i = 0, max = array.length; i < max; i++) {
 			if (array[i] == toBeReplaced) {
 				array[i] = newChar;

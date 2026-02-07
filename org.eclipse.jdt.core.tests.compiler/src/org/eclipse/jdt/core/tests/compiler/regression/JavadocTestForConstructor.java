@@ -69,7 +69,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 			"----------\n"
 				+ "1. WARNING in X.java (at line 4)\n"
 				+ "	new Z();\n"
-				+ "	    ^^^\n"
+				+ "	    ^\n"
 				+ "The constructor Z() is deprecated\n"
 				+ "----------\n",
 				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -103,7 +103,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 			"----------\n"
 				+ "1. WARNING in X.java (at line 4)\n"
 				+ "	new Z(2);\n"
-				+ "	    ^^^^\n"
+				+ "	    ^\n"
 				+ "The constructor Z(int) is deprecated\n"
 				+ "----------\n");
 	}
@@ -138,7 +138,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 			"----------\n"
 				+ "1. WARNING in X.java (at line 4)\n"
 				+ "	new Z();\n"
-				+ "	    ^^^\n"
+				+ "	    ^\n"
 				+ "The constructor Z() is deprecated\n"
 				+ "----------\n"
 				+ "----------\n"
@@ -958,5 +958,37 @@ public class JavadocTestForConstructor extends JavadocTest {
 					+ "	public X() {\n"
 					+ "	}\n"
 					+ "}\n" });
+	}
+	public void testGH4692_1() {
+		this.runNegativeTest(
+				new String[] {
+					"SuperClass.java",
+					"""
+					public class SuperClass {
+					    public SuperClass(){}
+					    public SuperClass(byte[] data){}
+					}
+					""",
+					"SubClass.java",
+					"""
+					public class SubClass extends SuperClass {
+						/**
+						 * @see SuperClass#SuperClass()
+						 */
+						public SubClass(int x) {
+						}
+						/**
+						 * @see SuperClass#SuperClass()
+						 */
+						public SubClass() {
+						}
+					}
+					"""},
+						"----------\n" +
+						"1. ERROR in SubClass.java (at line 5)\n" +
+						"	public SubClass(int x) {\n" +
+						"	                    ^\n" +
+						"Javadoc: Missing tag for parameter x\n" +
+						"----------\n");
 	}
 }

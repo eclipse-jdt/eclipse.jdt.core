@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -91,22 +92,30 @@ public class SearchableEnvironment
 
 	private List<IPackageFragmentRoot> unnamedModulePackageFragmentRoots;
 
+	private int release;
+
 	@Deprecated
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
-		this(project, workingCopies, false);
+		this(project, workingCopies, false, JavaProject.NO_RELEASE);
 	}
 	/**
 	 * Creates a SearchableEnvironment on the given project
+	 * <p>
+	 * When {@code release} is not {@link JavaProject#NO_RELEASE} then this SearchableEnvironment
+	 * will define a view that prefers to search in locations that best match the given release.
+	 * See {@link NameLookup#findType(String, String, boolean, int, boolean, boolean, boolean, IProgressMonitor, IPackageFragmentRoot[], int)}.
+	 * </p>
 	 */
-	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, boolean excludeTestCode) throws JavaModelException {
+	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, boolean excludeTestCode, int release) throws JavaModelException {
 		this.project = project;
 		this.excludeTestCode = excludeTestCode;
+		this.release = release;
 		this.checkAccessRestrictions =
 			!JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
 			|| !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true));
 		this.workingCopies = workingCopies;
 		this.nameLookup = project.newNameLookup(workingCopies, excludeTestCode);
-		boolean java9plus = JavaCore.callReadOnly(() -> CompilerOptions
+		boolean java9plus = release >=JavaProject.FIRST_MULTI_RELEASE || JavaCore.callReadOnly(() -> CompilerOptions
 				.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9);
 		if (java9plus) {
 			this.knownModuleLocations = new HashMap<>();
@@ -139,14 +148,14 @@ public class SearchableEnvironment
 	 */
 	@Deprecated
 	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
-		this(project, owner, false);
+		this(project, owner, false, JavaProject.NO_RELEASE);
 	}
 
 	/**
 	 * Creates a SearchableEnvironment on the given project
 	 */
-	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner, boolean excludeTestCode) throws JavaModelException {
-		this(project, owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary WCs*/), excludeTestCode);
+	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner, boolean excludeTestCode, int release) throws JavaModelException {
+		this(project, owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary WCs*/), excludeTestCode, release);
 		this.owner = owner;
 	}
 
@@ -194,7 +203,8 @@ public class SearchableEnvironment
 				false/*exact match*/,
 				NameLookup.ACCEPT_ALL,
 				this.checkAccessRestrictions,
-				moduleContext);
+				moduleContext,
+				this.release);
 		if (answer != null) {
 			// construct name env answer
 			if (answer.type instanceof BinaryType) { // BinaryType
@@ -299,6 +309,22 @@ public class SearchableEnvironment
 	 */
 	public void findModules(char[] prefix, ISearchRequestor requestor, IJavaProject javaProject) {
 		this.nameLookup.seekModule(prefix, true, new SearchableEnvironmentRequestor(requestor));
+	}
+
+	@Override
+	public boolean isOnModulePath(ICompilationUnit unit) {
+		if (unit instanceof CompilationUnit cUnit) {
+			IPackageFragmentRoot root = cUnit.originalFromClone().getPackageFragmentRoot();
+			if (Objects.equals(root.getJavaProject(), this.project))
+				return true; // current project: modular if it contains module-info :)
+			IClasspathEntry entry = this.nameLookup.rootToResolvedEntries.get(root);
+			if (entry instanceof ClasspathEntry cpEntry)
+				return cpEntry.isModular();
+			return true; // out-of-band resolution / transitive dependency?
+		} else if (unit instanceof BasicCompilationUnit bUnit) {
+			return bUnit.moduleName != null;
+		}
+		return false;
 	}
 
 	/**

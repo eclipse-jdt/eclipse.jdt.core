@@ -42,36 +42,48 @@ public Block(int explicitDeclarations) {
 
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	// empty block
-	if (this.statements == null)	return flowInfo;
-	int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
-	CompilerOptions compilerOptions = currentScope.compilerOptions();
-	boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
-	for (Statement stat : this.statements) {
-		if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
-			flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
-		}
-		// record the effect of stat on the finally block of an enclosing try-finally, if any:
-		flowContext.mergeFinallyNullInfo(flowInfo);
-		if (enableSyntacticNullAnalysisForFields) {
-			flowContext.expireNullCheckedFieldInfo();
-		}
-		if (compilerOptions.analyseResourceLeaks) {
-			FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
-		}
-	}
-	if (this.scope != currentScope) {
-		// if block is tracking any resources other than the enclosing 'currentScope', analyse them now:
-		this.scope.checkUnclosedCloseables(flowInfo, flowContext, null, null);
-	}
-	if (this.explicitDeclarations > 0) {
-		// cleanup assignment info for locals that are scoped to this block:
-		LocalVariableBinding[] locals = this.scope.locals;
-		if (locals != null) {
-			int numLocals = this.scope.localIndex;
-			for (int i = 0; i < numLocals; i++) {
-				flowInfo.resetAssignmentInfo(locals[i]);
+	if (this.statements != null) {
+		int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
+		CompilerOptions compilerOptions = currentScope.compilerOptions();
+		boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
+		for (Statement stat : this.statements) {
+			if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
+				flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 			}
+			// record the effect of stat on the finally block of an enclosing try-finally, if any:
+			flowContext.mergeFinallyNullInfo(flowInfo);
+			if (enableSyntacticNullAnalysisForFields) {
+				flowContext.expireNullCheckedFieldInfo();
+			}
+			if (compilerOptions.analyseResourceLeaks) {
+				FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
+			}
+		}
+		if (this.scope != currentScope) {
+			// if block is tracking any resources other than the enclosing 'currentScope', analyse them now:
+			this.scope.checkUnclosedCloseables(flowInfo, flowContext, null, null);
+		}
+		if (this.explicitDeclarations > 0) {
+			// cleanup assignment info for locals that are scoped to this block:
+			LocalVariableBinding[] locals = this.scope.locals;
+			if (locals != null) {
+				int numLocals = this.scope.localIndex;
+				for (int i = 0; i < numLocals; i++) {
+					flowInfo.resetAssignmentInfo(locals[i]);
+				}
+			}
+		}
+	}
+	if ((this.bits & ASTNode.BlockShouldEndDead) != 0) { // switch rule blocks don't fall through
+		if (flowInfo != FlowInfo.DEAD_END) {
+			if (flowContext.associatedNode instanceof SwitchExpression) { // ... demand that for expression switch ...
+				currentScope.problemReporter().switchExpressionBlockCompletesNormally(this);
+			} else { // ... enforce that for statement switch, by having the code generator inject an automagic break ...
+				flowContext.recordBreakFrom(flowInfo);
+				return FlowInfo.DEAD_END;
+			}
+		} else {
+			this.bits &= ~ASTNode.BlockShouldEndDead; // Already dead-ends; nothing special needed from code generator
 		}
 	}
 	return flowInfo;
@@ -176,17 +188,4 @@ public boolean completesByContinue() {
 	int length = this.statements == null ? 0 : this.statements.length;
 	return length > 0 && this.statements[length - 1].completesByContinue();
 }
-
-@Override
-public boolean canCompleteNormally() {
-	int length = this.statements == null ? 0 : this.statements.length;
-	return length == 0 || this.statements[length - 1].canCompleteNormally();
-}
-
-@Override
-public boolean continueCompletes() {
-	int length = this.statements == null ? 0 : this.statements.length;
-	return length > 0 && this.statements[length - 1].continueCompletes();
-}
-
 }

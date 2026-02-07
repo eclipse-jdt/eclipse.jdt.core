@@ -113,6 +113,16 @@ public class JavaProject
 	implements IJavaProject, SuffixConstants {
 
 	/**
+	 * Marker value used in cases where a release is passed or used as an argument but no specific release is selected.
+	 */
+	public static final int NO_RELEASE = -1;
+
+	/**
+	 * The first java release that supports multi release jars
+	 */
+	public static final int FIRST_MULTI_RELEASE = 9;
+
+	/**
 	 * Name of file containing project classpath
 	 */
 	public static final String CLASSPATH_FILENAME = IJavaProject.CLASSPATH_FILE_NAME;
@@ -516,13 +526,19 @@ public class JavaProject
 			// Get cached preferences if exist
 			JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, false);
 			if (perProjectInfo != null && perProjectInfo.preferences != null) {
-				IEclipsePreferences eclipseParentPreferences = (IEclipsePreferences) perProjectInfo.preferences.parent();
-				if (this.preferencesNodeListener != null) {
-					eclipseParentPreferences.removeNodeChangeListener(this.preferencesNodeListener);
+				try {
+					IEclipsePreferences eclipseParentPreferences = (IEclipsePreferences) perProjectInfo.preferences.parent();
+					if (this.preferencesNodeListener != null) {
+						eclipseParentPreferences.removeNodeChangeListener(this.preferencesNodeListener);
+						this.preferencesNodeListener = null;
+					}
+					if (this.preferencesChangeListener != null) {
+						perProjectInfo.preferences.removePreferenceChangeListener(this.preferencesChangeListener);
+						this.preferencesChangeListener = null;
+					}
+				} catch (IllegalStateException e) {
+					// Ignore, the preferences have already been removed
 					this.preferencesNodeListener = null;
-				}
-				if (this.preferencesChangeListener != null) {
-					perProjectInfo.preferences.removePreferenceChangeListener(this.preferencesChangeListener);
 					this.preferencesChangeListener = null;
 				}
 			}
@@ -741,7 +757,9 @@ public class JavaProject
 								if (limitModules != null) {
 									rootModules = Arrays.asList(limitModules.split(",")); //$NON-NLS-1$
 								} else if (isUnNamedModule()) {
-									rootModules = defaultRootModules((Iterable) imageRoots);
+									String release = JavaCore.ENABLED.equals(getOption(JavaCore.COMPILER_RELEASE, true))
+											? getOption(JavaCore.COMPILER_COMPLIANCE, true) : null;
+									rootModules = defaultRootModules((Iterable) imageRoots, release);
 								}
 								if (rootModules != null) {
 									imageRoots = filterLimitedModules(entryPath, imageRoots, rootModules);
@@ -792,30 +810,50 @@ public class JavaProject
 		}
 	}
 
-	/** Implements selection of root modules per JEP 261. */
+	/**
+	 * Implements selection of root modules per JEP 261.
+	 * @deprecated This method cannot distinguish strategies for old (9/10) vs new (11+) JDK versions. Please use {@link #defaultRootModules(Iterable, String)}
+	 */
+	@Deprecated
 	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
-		return internalDefaultRootModules(allSystemRoots,
-				IPackageFragmentRoot::getElementName,
-				r ->  (r instanceof JrtPackageFragmentRoot) ? ((JrtPackageFragmentRoot) r).getModule() : null);
+		return defaultRootModules(allSystemRoots, JavaCore.VERSION_11); // 11 is fix version of https://bugs.openjdk.org/browse/JDK-8205169
 	}
 
-	public static <T> List<String> internalDefaultRootModules(Iterable<T> allSystemModules, Function<T,String> getModuleName, Function<T,IModule> getModule) {
+	/**
+	 * Implements selection of root modules per JEP 261.
+	 * @param allSystemRoots all modules found in the JRT system
+	 * @param releaseVersion the release version which decides about the strategy for selecting root modules
+	 */
+	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots, String releaseVersion) {
+		return internalDefaultRootModules(allSystemRoots,
+				IPackageFragmentRoot::getElementName,
+				r ->  (r instanceof JrtPackageFragmentRoot) ? ((JrtPackageFragmentRoot) r).getModule() : null,
+				releaseVersion);
+	}
+
+	public static <T> List<String> internalDefaultRootModules(Iterable<T> allSystemModules, Function<T,String> getModuleName, Function<T,IModule> getModule, String releaseVersion) {
 		List<String> result = new ArrayList<>();
+		boolean beforeJDK8205169 = JavaCore.VERSION_9.equals(releaseVersion) || JavaCore.VERSION_10.equals(releaseVersion);
 		boolean hasJavaDotSE = false;
-		for (T mod : allSystemModules) {
-			String moduleName = getModuleName.apply(mod);
-			if ("java.se".equals(moduleName)) { //$NON-NLS-1$
-				result.add(moduleName);
-				hasJavaDotSE = true;
-				break;
+		if (beforeJDK8205169) {
+			for (T mod : allSystemModules) {
+				String moduleName = getModuleName.apply(mod);
+				if ("java.se".equals(moduleName)) { //$NON-NLS-1$
+					result.add(moduleName);
+					hasJavaDotSE = true;
+					break;
+				}
 			}
 		}
 		for (T mod : allSystemModules) {
 			String moduleName = getModuleName.apply(mod);
-			boolean isJavaDotStart = moduleName.startsWith("java."); //$NON-NLS-1$
-			boolean isPotentialRoot = !isJavaDotStart;	// always include non-java.*
-			if (!hasJavaDotSE)
-				isPotentialRoot |= isJavaDotStart;		// no java.se => add all java.*
+			boolean isPotentialRoot = true;  // since JDK-8205169 all system modules are considered
+			if (beforeJDK8205169) {
+				boolean isJavaDotStart = moduleName.startsWith("java."); //$NON-NLS-1$
+				isPotentialRoot = !isJavaDotStart;	// always include non-java.*
+				if (!hasJavaDotSE)
+					isPotentialRoot |= isJavaDotStart;		// no java.se => add all java.*
+			}
 
 			if (isPotentialRoot) {
 				IModule module = getModule.apply(mod);
@@ -1198,6 +1236,16 @@ public class JavaProject
 
 		try {
 			marker = this.project.createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
+			String message = status.getMessage();
+			int msgLength = message.length();
+			if (!(msgLength < 21000)) {
+				// prevent too long messages, see MarkerInfo.checkValidAttribute()
+				byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+				if (bytes.length > 65535) {
+					msgLength = 21000 - 15;
+				}
+				message = message.substring(0, msgLength) + "..."; //$NON-NLS-1$
+			}
 			marker.setAttributes(
 				new String[] {
 					IMarker.MESSAGE,
@@ -1212,7 +1260,7 @@ public class JavaProject
 					IMarker.SOURCE_ID,
 				},
 				new Object[] {
-					status.getMessage(),
+					message,
 					Integer.valueOf(severity),
 					Messages.classpath_buildPath,
 					isCycleProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
@@ -2794,7 +2842,7 @@ public class JavaProject
 	 * Returns a new search name environment for this project. This name environment first looks in the given working copies.
 	 */
 	public SearchableEnvironment newSearchableNameEnvironment(ICompilationUnit[] workingCopies, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, workingCopies, excludeTestCode);
+		return new SearchableEnvironment(this, workingCopies, excludeTestCode, NO_RELEASE);
 	}
 
 	/*
@@ -2805,7 +2853,7 @@ public class JavaProject
 		return newSearchableNameEnvironment(owner, false);
 	}
 	public SearchableEnvironment newSearchableNameEnvironment(WorkingCopyOwner owner, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, owner, excludeTestCode);
+		return new SearchableEnvironment(this, owner, excludeTestCode, NO_RELEASE);
 	}
 
 	/*
@@ -3565,12 +3613,10 @@ public class JavaProject
 				cyclesPerProject.put(project, list = new ArrayList<>());
 			} else {
 				for (CycleInfo cycleInfo: list) {
-					if (cycleInfo.cycle.equals(cycle)) {
-						// same cycle: use the shorter prefix:
-						if (cycleInfo.pathToCycle.size() > prefix.size()) {
-							cycleInfo.pathToCycle.clear();
-							cycleInfo.pathToCycle.addAll(prefix);
-						}
+					if (cycleInfo.pathToCycle.size() > prefix.size() && cycleInfo.cycle.equals(cycle)) {
+						// use same cycle with shorter prefix:
+						cycleInfo.pathToCycle.clear();
+						cycleInfo.pathToCycle.addAll(prefix);
 						return;
 					}
 				}
@@ -3597,7 +3643,7 @@ public class JavaProject
 	 */
 	public void updateCycleParticipants(
 			List<IPath> prereqChain,
-			LinkedHashSet cycleParticipants,
+			LinkedHashSet<IPath> cycleParticipants,
 			Map<IPath,List<CycleInfo>> cyclesPerProject,
 			IWorkspaceRoot workspaceRoot,
 			HashSet traversed,

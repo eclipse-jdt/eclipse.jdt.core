@@ -1734,4 +1734,70 @@ public void testGH2443() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3777
+// [Code select] NPE in SwitchExpression: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.TypeBinding.unboxedType()" because "rxpressionType" is null
+public void testIssue3777() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"""
+			public interface X <T, U> {
+				void accept(T t, U u);
+
+				default void foo(String s) {
+					X<String, String> set = switch (this) {
+						default -> {
+							yield (k, v) -> {
+								foo/*first*/(s);
+							};
+						}
+					};
+					set = switch (this) {
+						default -> {
+							yield (k, v) -> {
+								foo/*second*/(s);
+							};
+						}
+					};
+				}
+
+				X<String, String> set = switch (this) {
+						default -> {
+							yield (k, v) -> {
+								foo/*third*/("test");
+							};
+						}
+					};
+
+			}
+			""");
+	String str = this.wc.getSource();
+	String selection = "foo/*first*/";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(String) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+
+	selection = "foo/*second*/";
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(String) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+
+	selection = "foo/*third*/";
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(String) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
 }

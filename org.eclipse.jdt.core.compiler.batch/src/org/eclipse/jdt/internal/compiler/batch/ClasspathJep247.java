@@ -285,12 +285,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 	@Override
 	public String getPath() {
 		if (this.path == null) {
-			try {
-				this.path = this.file.getCanonicalPath();
-			} catch (IOException e) {
-				// in case of error, simply return the absolute path
-				this.path = this.file.getAbsolutePath();
-			}
+			this.path = this.file.toPath().normalize().toAbsolutePath().toString();
 		}
 		return this.path;
 	}

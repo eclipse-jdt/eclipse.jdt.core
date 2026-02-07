@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -61,7 +61,11 @@ default boolean ignoreOptionalProblems() {
  * @return the binding representing the module.
  */
 default ModuleBinding module(LookupEnvironment environment) {
-	return environment.getModule(getModuleName());
+	if (environment.nameEnvironment instanceof IModuleAwareNameEnvironment modEnv) {
+		char[] moduleName = modEnv.isOnModulePath(this) ? getModuleName() : ModuleBinding.UNNAMED;
+		return environment.getModule(moduleName);
+	}
+	return null;
 }
 /**
  * Returns the name of the module to which this compilation unit is associated.

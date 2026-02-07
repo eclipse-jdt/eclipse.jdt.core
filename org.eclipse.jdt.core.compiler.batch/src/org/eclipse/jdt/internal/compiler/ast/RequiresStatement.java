@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation and others.
+ * Copyright (c) 2016, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class RequiresStatement extends ModuleStatement {
 
@@ -52,8 +55,17 @@ public class RequiresStatement extends ModuleStatement {
 		if (scope != null) {
 			if (this.resolvedBinding == null) {
 				scope.problemReporter().invalidModule(this.module);
-			} else if (this.resolvedBinding.hasUnstableAutoName()) {
-				scope.problemReporter().autoModuleWithUnstableName(this.module);
+			} else {
+				if (this.resolvedBinding.hasUnstableAutoName()) {
+					scope.problemReporter().autoModuleWithUnstableName(this.module);
+				}
+				if (CharOperation.equals(TypeConstants.JAVA_DOT_BASE, this.module.moduleName)) {
+					if (this.isStatic()) {
+						scope.problemReporter().modifierRequiresJavaBase(this, null);
+					} else if (this.isTransitive()) { // legal since 25
+						scope.problemReporter().modifierRequiresJavaBase(this, JavaFeature.MODULE_IMPORTS);
+					}
+				}
 			}
 		}
 		return this.resolvedBinding;

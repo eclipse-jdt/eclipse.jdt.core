@@ -125,6 +125,7 @@ public abstract class APTTestBase extends BuilderTests{
 		super.tearDown();
 	}
 
+	@SuppressWarnings("removal")
 	private static void runFinalizers() {
         // GC in an attempt to release file lock on Classes.jar
 		System.gc();
@@ -365,22 +366,4 @@ public abstract class APTTestBase extends BuilderTests{
 	protected void expectingOnlySpecificProblemFor(IPath root, ExpectedProblem problem) {
 		expectingOnlySpecificProblemsFor(root, new ExpectedProblem[] { problem });
 	}
-
-	protected static void sleep( long millis )
-	{
-		long end = System.currentTimeMillis() + millis;
-		while ( millis > 0 )
-		{
-			try
-			{
-				Thread.sleep( millis );
-			}
-			catch ( InterruptedException ie )
-			{}
-			millis = end - System.currentTimeMillis();
-		}
-	}
-
-
-
 }

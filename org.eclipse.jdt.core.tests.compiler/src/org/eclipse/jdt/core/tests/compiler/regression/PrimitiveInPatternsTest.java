@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,25 +14,27 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@PreviewTest
 public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue2936" };
+//		TESTS_NAMES = new String[] { "testIssue3536" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
 		return PrimitiveInPatternsTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_23);
+		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
 	public PrimitiveInPatternsTest(String testName) {
 		super(testName);
@@ -54,9 +56,9 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
@@ -6937,10 +6939,20 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	switch (d) {\n" +
+			"	        ^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
 			"	switch (d) {\n" +
 			"	        ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 5)\n" +
+			"	case 1d : i = 1; break;\n" +
+			"	^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n");
 	}
 
@@ -7113,8 +7125,8 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\r\n" +
-			"	default -> -1;\r\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	default -> -1;\n" +
 			"	^^^^^^^\n" +
 			"Switch case cannot have both unconditional pattern and default label\n" +
 			"----------\n");
@@ -7331,6 +7343,24 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		"43.0");
 	}
 
+	public void testIssuePrimitivesWithNull() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X  {
+				    record R(Integer i) {}
+				    public static int foo(R r) {
+				        if (r instanceof R(int i)) { return i; }
+				        return -1;
+				    }
+				    public static void main(String argv[]) {
+				        System.out.println(foo(new R(null)));
+				    }
+				}
+				"""
+				},
+				"-1");
+	}
 	public void _testSpec00X() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -7368,5 +7398,116 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"Default");
 	}
+	public void testIssue3505() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+				public class X {
 
+					public static int foo() {
+						Y<Float> y = new Y<>();
+						y.value = 100f;
+						return y.get() instanceof float ? 1 : 0;
+					}
+					public static void main(String[] args) {
+						System.out.println(X.foo());
+					}
+				}
+
+				class Y<T> {
+					T value;
+					public T get() {
+						return this.value;
+					}
+				}   			"""
+			},
+			"1");
+	}
+
+	public void testIssue3535_001() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					static Integer getInteger() {
+						return Integer.MIN_VALUE;
+					}
+					public int foo() {
+						Integer i = 10;
+						Y<Integer> f = new Y<>();
+						f.put(X.getInteger()); // This makes all the difference
+						return f.get() instanceof float ? 3 : 2;
+					}
+					public static void main(String[] args) {
+						System.out.println(new X().foo());
+					}
+
+				}
+				class Y <T> {
+				    T t;
+				    T get() {
+				        return t;
+				    }
+				    void put( T t) {
+				    	this.t = t;
+				    }
+				}
+				"""
+			},
+			"3");
+	}
+	public void testIssue3535_002() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					static Integer getInteger() {
+						return Integer.MAX_VALUE;
+					}
+					public int foo() {
+						Integer i = 10;
+						Y<Integer> f = new Y<>();
+						f.put(X.getInteger()); // This makes all the difference
+						return f.get() instanceof float ? 3 : 2;
+					}
+					public static void main(String[] args) {
+						System.out.println(new X().foo());
+					}
+
+				}
+				class Y <T> {
+				    T t;
+				    T get() {
+				        return t;
+				    }
+				    void put( T t) {
+				    	this.t = t;
+				    }
+				}
+				"""
+			},
+			"2");
+	}
+	public void testIssue3536() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+				record Record(Byte b) {}
+				public class X {
+					public static void main(String argv[]) {
+						X x = new X();
+						System.out.println(x.foo(new Record(null)));
+					}
+					public int foo(Record r) {
+						int result = 0;
+						result = r instanceof Record(short s) ? 0 : 1;
+						return result;
+					}
+				}
+			"""
+			},
+			"1");
+	}
 }

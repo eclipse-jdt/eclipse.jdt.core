@@ -1166,15 +1166,16 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public record C() {\n");
-		buf.append("\n");
-		buf.append("    public C{}\n");
-		buf.append("\n");
-		buf.append("}\n");
+		String rewritten = 
+				"package test1;\n" +
+				"public record C() {\n" +
+				"\n" +
+				"    public C {\n" +
+				"    }\n" +
+				"\n" +
+				"}\n";
 
-		assertEqualString(preview, buf.toString());
+		assertEqualString(preview, rewritten);
 
 	}
 

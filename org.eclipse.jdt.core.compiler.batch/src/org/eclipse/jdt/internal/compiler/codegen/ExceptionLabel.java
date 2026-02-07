@@ -46,7 +46,7 @@ public int getCount() {
 public void place() {
 	// register the handler inside the codeStream then normal place
 	this.codeStream.registerExceptionHandler(this);
-	this.position = this.codeStream.getPosition();
+	this.position = this.codeStream.position;
 	this.codeStream.stackDepth = 1;
 }
 

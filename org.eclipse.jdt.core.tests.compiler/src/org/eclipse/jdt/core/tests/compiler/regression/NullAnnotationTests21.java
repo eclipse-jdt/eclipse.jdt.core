@@ -50,7 +50,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 			int len = defaultLibs.length;
 			this.LIBS = new String[len+1];
 			System.arraycopy(defaultLibs, 0, this.LIBS, 0, len);
-			this.LIBS[len] = NullAnnotationTests9.createAnnotation_2_2_jar(Util.getOutputDirectory() + File.separator, null);
+			this.LIBS[len] = NullAnnotationTests9.createAnnotation_2_4_jar(Util.getOutputDirectory() + File.separator, null);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				  "				case Number n0 -> consumeNumber(n0);\n" +
 				  "			}\n" +
 				  "		} catch (NullPointerException npe) {\n" +
-				  "			// ignoring the unchecked warning, and expecting the NPE:\n" +
+				  "			// Expecting an NPE because selector is null\n" +
 				  "			System.out.print(npe.getMessage());\n" +
 				  "		}\n" +
 				  "	}\n" +
@@ -115,6 +115,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				  "		System.out.print(i);\n" +
 				  "	}\n" +
 				  "	void consumeNumber(@NonNull Number n) {\n" +
+				  "     System.out.println(\"consumeNumber \");\n" +
 				  "		System.out.print(n.toString());\n" +
 				  "	}\n" +
 				  "	public static void main(String... args) {\n" +
@@ -122,14 +123,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				  "	}\n" +
 				  "}\n"
 			};
-		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 7)\n" +
-				"	case Number n0 -> consumeNumber(n0);\n" +
-				"	                                ^^\n" +
-				"Null type safety (type annotations): The expression of type \'Number\' needs unchecked conversion to conform to \'@NonNull Number\'\n" +
-				"----------\n";
-//		runner.expectedOutputString = "Cannot invoke \"Object.toString()\" because \"n\" is null";
+		runner.expectedCompilerLog = "";
 		runner.expectedOutputString = "null";
 		runner.runConformTest();
 	}
@@ -234,10 +228,10 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 			};
 		runner.expectedCompilerLog =
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case Number n0 -> consumeNumber(n0);\n" +
-				"	                                ^^\n" +
-				"Null type mismatch: required \'@NonNull Number\' but the provided value is inferred as @Nullable\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	switch (n) {\n" +
+				"	        ^\n" +
+				"Potential null pointer access: this expression has a '@Nullable' type\n" +
 				"----------\n";
 		runner.runNegativeTest();
 	}
@@ -800,11 +794,6 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
 				"	                                                                  ^^^\n" +
 				"Duplicate component ca2 in record\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 2)\n" +
-				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
-				"	                                                                  ^^^\n" +
-				"Duplicate parameter ca2\n" +
 				"----------\n";
 		runner.runNegativeTest();
 	}
@@ -1100,6 +1089,105 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+	public void testGH1771_otherConflict1() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportNullSpecViolation, CompilerOptions.ERROR);
+		runner.customOptions.put(CompilerOptions.OPTION_InheritNullAnnotations, CompilerOptions.ENABLED);
+		runner.testFiles = new String[] {
+			"p/Foo.java",
+			"""
+			package p;
+			import org.eclipse.jdt.annotation.*;
+			public interface Foo {
+
+				@NonNull Object foo();
+
+				record BarNOK(
+						Object foo // conflicts with inherited @NonNull Object foo()
+					) implements Foo { }
+
+				record BarNOK2(
+						@Nullable Object foo // conflicts with inherited @NonNull Object foo()
+					) implements Foo { }
+
+				record BarNOK3(Object foo) {
+					@Override
+					public @NonNull Object foo() { // try to outsmart analysis by improved explicit accessor
+						return foo; // simple contract violation
+					}
+				}
+
+				@NonNullByDefault
+				record BarOK(Object foo) implements Foo { }
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. ERROR in p\\Foo.java (at line 8)
+					Object foo // conflicts with inherited @NonNull Object foo()
+					^^^^^^
+				Implicit accessor method for 'Object foo' cannot override inherited method '@NonNull Object foo()' from Foo.BarNOK due to incompatible nullness constraints
+				----------
+				2. ERROR in p\\Foo.java (at line 12)
+					@Nullable Object foo // conflicts with inherited @NonNull Object foo()
+					          ^^^^^^
+				Implicit accessor method for '@Nullable Object foo' cannot override inherited method '@NonNull Object foo()' from Foo.BarNOK2 due to incompatible nullness constraints
+				----------
+				3. WARNING in p\\Foo.java (at line 18)
+					return foo; // simple contract violation
+					       ^^^
+				Null type safety (type annotations): The expression of type 'Object' needs unchecked conversion to conform to '@NonNull Object'
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+	public void testGH1771_otherConflict2() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportNullSpecViolation, CompilerOptions.ERROR);
+		runner.customOptions.put(CompilerOptions.OPTION_InheritNullAnnotations, CompilerOptions.ENABLED);
+		runner.testFiles = new String[] {
+			"p/Foo.java",
+			"""
+			package p;
+			import org.eclipse.jdt.annotation.*;
+			public interface Foo {
+
+				@Nullable Object foo();
+
+				record BarNOK(
+						Object foo // legally covariant override @Nullable Object -> Object
+					) implements Foo { }
+
+				record BarOK1(
+						@NonNull Object foo // legally covariant override @Nullable Object -> @NonNull Object
+					) implements Foo { }
+
+				@NonNullByDefault
+				record BarNOK3(
+						Object foo // conflict between implicits: default & inherited
+					) implements Foo { }
+
+				record BarOK(@Nullable Object foo) implements Foo { }
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. ERROR in p\\Foo.java (at line 17)
+					Object foo // conflict between implicits: default & inherited
+					^^^^^^
+				The default '@NonNull' conflicts with the inherited '@Nullable' annotation in the overridden method from Foo
+				----------
+				""";
+		runner.runNegativeTest();
+	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2521
 	// NPE on exhaustive pattern matching switch expressions with sealed interface
@@ -1243,5 +1331,159 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				----------
 				""";
 		runner.runNegativeTest();
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3381
+	// [Enhanced Switch][Null] Missing Null pointer access warning with total/unconditional patterns
+	public void testIssue3381() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.Nullable;
+
+			public class X {
+				void foo() {
+					@Nullable Integer i = null;
+					switch (i) {
+						case Integer ii -> System.out.println();
+					}
+				}
+				void goo() {
+					@Nullable Integer i = null;
+					switch (i) {
+						default -> System.out.println();
+					}
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. ERROR in X.java (at line 6)
+					switch (i) {
+					        ^
+				Null pointer access: The variable i can only be null at this location
+				----------
+				2. ERROR in X.java (at line 12)
+					switch (i) {
+					        ^
+				Null pointer access: This expression of type Integer is null but requires auto-unboxing
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3319
+	// [Enhanced Switch][Null] Inconsistent nullness propagation
+	public void testIssue3319() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.NonNull;
+
+			public class X {
+				static @NonNull Object foo(Object o) {
+					switch (o) {
+						case String s -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println();
+						}
+						default -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println();
+						}
+					}
+					return new Object();
+				}
+
+				static @NonNull Object foo(X o) {
+					switch (o) {
+						case X s  -> {
+							if (o == null) {
+								System.out.println("o cannot be null at all!");
+							}
+							System.out.println(s);
+						}
+					}
+					return new Object();
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 7)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 13)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 25)\n" +
+				"	if (o == null) {\n" +
+				"	    ^\n" +
+				"Null comparison always yields false: The variable o cannot be null at this location\n" +
+				"----------\n" +
+				"6. WARNING in X.java (at line 25)\n" +
+				"	if (o == null) {\n" +
+				"					System.out.println(\"o cannot be null at all!\");\n" +
+				"				}\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
+
+	public void testGH701() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				import static org.eclipse.jdt.annotation.DefaultLocation.*;
+
+
+				@org.eclipse.jdt.annotation.NonNullByDefault({FIELD, PARAMETER, RETURN_TYPE}) // not RECORD_COMPONENT!
+				public class X {
+					record R(X x) {}
+					X test(R r) {
+						return r.x();
+					}
+				}
+				"""
+		};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. WARNING in X.java (at line 8)
+					return r.x();
+					       ^^^^^
+				Null type safety (type annotations): The expression of type 'X' needs unchecked conversion to conform to '@NonNull X'
+				----------
+				""";
+		runner.runWarningTest();
 	}
 }

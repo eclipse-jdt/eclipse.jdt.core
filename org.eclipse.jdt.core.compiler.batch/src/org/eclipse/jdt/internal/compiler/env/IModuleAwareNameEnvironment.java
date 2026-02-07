@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corporation and others.
+ * Copyright (c) 2016, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -131,6 +131,16 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	/** Get the module with the given name, which must denote a named module. */
 	IModule getModule(char[] moduleName);
 	char[][] getAllAutomaticModules();
+
+	/**
+	 * If this environment focusses on one IJavaProject answer if the given
+	 * compilation unit is found on the module path, rather than the class path.
+	 * @param unit compilation unit to test
+	 * @return true iff unit is on the module path.
+	 */
+	default boolean isOnModulePath(ICompilationUnit unit) {
+		return true; // TODO: should more / all implementors implement this method?
+	}
 
 	/**
 	 * Ask the name environment to perform any updates (add-exports or add-reads) to the given module.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.search.TypeReferenceMatch;
 public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 	public JavaSearchSuperAfterStatementTests(String name) {
 		super(name);
-		this.endChar = "";
 	}
 
 	public static Test suite() {
@@ -94,13 +93,14 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 		return setUpJavaProject;
 	}
 
+	@Override
 	IJavaSearchScope getJavaSearchScope() {
-		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
+		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs23")});
 	}
 
 	IJavaSearchScope getJavaSearchScopeBugs(String packageName, boolean addSubpackages) throws JavaModelException {
 		if (packageName == null) return getJavaSearchScope();
-		return getJavaSearchPackageScope("JavaSearchBugs", packageName, addSubpackages);
+		return getJavaSearchPackageScope("JavaSearchBugs23", packageName, addSubpackages);
 	}
 
 	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
@@ -112,13 +112,13 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 
 	@Override
 	public void setUpSuite() throws Exception {
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "23");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs23", "25");
 		JAVA_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		super.setUpSuite();
 	}
 
 	public void tearDownSuite() throws Exception {
-		deleteProject("JavaSearchBugs");
+		deleteProject("JavaSearchBugs23");
 		super.tearDownSuite();
 	}
 
@@ -151,17 +151,9 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 					}
 				}
 				""";
-		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject();
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-			search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java X(int) [super(value);] EXACT_MATCH");
-		} finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
-
-
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs23/src/X.java", code);
+		search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+		assertSearchResults("src/X.java X(int) [super(value);] EXACT_MATCH");
 	}
 	public void test_002() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -192,15 +184,9 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 					}
 				}
 				""";
-		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject();
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-			search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java X(int) [super(f, f);] EXACT_MATCH");
-		} finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs23/src/X.java", code);
+		search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+		assertSearchResults("src/X.java X(int) [super(f, f);] EXACT_MATCH");
 	}
 	public void test_003() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -220,14 +206,8 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 				    }
 				}
 				""";
-		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", code);
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject();
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-			search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
-			assertSearchResults("src/X.java X(int) [super();] EXACT_MATCH");
-		} finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs23/src/X.java", code);
+		search("Y", CONSTRUCTOR, REFERENCES, EXACT_RULE);
+		assertSearchResults("src/X.java X(int) [super();] EXACT_MATCH");
 	}
 }

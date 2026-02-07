@@ -26,7 +26,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -97,7 +96,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			&& !(this.receiver instanceof QualifiedThisReference)
 			&& ((this.receiver.bits & ASTNode.ParenthesizedMASK) == 0) // (this).x is forbidden
 			&& currentScope.allowBlankFinalFieldAssignment(this.binding)
-			&& !currentScope.methodScope().isCompactConstructorScope) {
+			&& (!(currentScope.methodScope().referenceContext instanceof ConstructorDeclaration cd) || !cd.isCompactConstructor())) {
 			if (flowInfo.isPotentiallyAssigned(this.binding)) {
 				currentScope.problemReporter().duplicateInitializationOfBlankFinalField(
 					this.binding,
@@ -107,8 +106,8 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			}
 			flowInfo.markAsDefinitelyAssigned(this.binding);
 		} else {
-			if (currentScope.methodScope().isCompactConstructorScope)
-				currentScope.problemReporter().recordIllegalExplicitFinalFieldAssignInCompactConstructor(this.binding, this);
+			if (currentScope.methodScope().referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor())
+				currentScope.problemReporter().illegalExplicitAssignmentInCompactConstructor(this.binding, this);
 			else
 			// assigning a final field outside an initializer or constructor or wrong reference
 				currentScope.problemReporter().cannotAssignToFinalField(this.binding, this);
@@ -139,16 +138,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	}
 
-	if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
-		manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
-	}
-	if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7) {
-		FieldBinding fieldBinding = this.binding;
-		if (this.receiver.isThis() && fieldBinding.isBlankFinal() && currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
-			FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
-			if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
-				currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
-			}
+	manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
+	FieldBinding fieldBinding = this.binding;
+	if (this.receiver.isThis() && fieldBinding.isBlankFinal() && currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
+		FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
+		if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
+			currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 		}
 	}
 	return flowInfo;
@@ -249,7 +244,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		return;
 	}
 	if (valueRequired
-			|| (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+			|| (!isThisReceiver)
 			|| ((this.implicitConversion & TypeIds.UNBOXING) != 0)
 			|| (this.genericCast != null)) {
 		this.receiver.generateCode(currentScope, codeStream, !isStatic);

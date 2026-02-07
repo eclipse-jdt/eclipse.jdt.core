@@ -2207,7 +2207,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"  public void fooInt() {}\n" +
 				"}"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
-				new String[0],
+				null,
 				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
@@ -2241,7 +2241,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"    }\n" +
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
-				new String[0],
+				null,
 				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
@@ -2274,7 +2274,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"    }\n" +
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
-				new String[0],
+				null,
 				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
@@ -2537,7 +2537,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"  public void fooInt() {}\n" +
 				"}"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
-				new String[0],
+				null,
 				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
@@ -2576,7 +2576,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"    }\n" +
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
-				new String[0],
+				null,
 				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
@@ -2614,7 +2614,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"    }\n" +
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
-				new String[0],
+				null,
 				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 

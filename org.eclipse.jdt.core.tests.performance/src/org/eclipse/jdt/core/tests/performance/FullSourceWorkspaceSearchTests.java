@@ -187,13 +187,15 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * @param scope TODO
 	 */
 	protected void cleanCategoryTableCache(boolean type, IJavaSearchScope scope, JavaSearchResultCollector resultCollector) throws CoreException {
-		long time = System.currentTimeMillis();
+		long startNanos = System.nanoTime();
 		if (type) {
 			search("foo", FIELD, DECLARATIONS, scope, resultCollector);
 		} else {
 			search("Foo", TYPE, DECLARATIONS, scope, resultCollector);
 		}
-		if (DEBUG) System.out.println("Time to clean category table cache: "+(System.currentTimeMillis()-time));
+		if (DEBUG) {
+			System.out.println("Time to clean category table cache [ms]: " + (System.nanoTime() - startNanos) / 1_000_000L);
+		}
 	}
 
 	/**

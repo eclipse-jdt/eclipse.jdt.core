@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
@@ -48,10 +47,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
     public TypeBinding[] typeArguments;
     protected LookupEnvironment environment;
-    public boolean inferredReturnType;
     public boolean wasInferred; // only set to true for instances resulting from method invocation inferrence
     public boolean isRaw; // set to true for method behaving as raw for substitution purpose
-    private MethodBinding tiebreakMethod;
 	public boolean inferredWithUncheckedConversion;
 	public TypeBinding targetType; // used to distinguish different PGMB created for different target types (needed because inference contexts are remembered per PGMB)
 
@@ -71,8 +68,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		ParameterizedGenericMethodBinding methodSubstitute;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
 		TypeBinding[] substitutes = invocationSite.genericTypeArguments();
-		InferenceContext inferenceContext = null;
-		TypeBinding[] uncheckedArguments = null;
 		computeSubstitutes: {
 			if (substitutes != null) {
 				// explicit type arguments got supplied
@@ -85,68 +80,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			}
 			// perform type argument inference (15.12.2.7)
 			// initializes the map of substitutes (var --> type[][]{ equal, extends, super}
-			TypeBinding[] parameters = originalMethod.parameters;
-
-			CompilerOptions compilerOptions = scope.compilerOptions();
-			if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8)
-				return computeCompatibleMethod18(originalMethod, arguments, scope, invocationSite);
-
-			// 1.7- only.
-			inferenceContext = new InferenceContext(originalMethod);
-			methodSubstitute = inferFromArgumentTypes(scope, originalMethod, arguments, parameters, inferenceContext);
-			if (methodSubstitute == null)
-				return null;
-
-			// substitutes may hold null to denote unresolved vars, but null arguments got replaced with respective original variable in param method
-			// 15.12.2.8 - inferring unresolved type arguments
-			if (inferenceContext.hasUnresolvedTypeArgument()) {
-				if (inferenceContext.isUnchecked) { // only remember unchecked status post 15.12.2.7
-					int length = inferenceContext.substitutes.length;
-					System.arraycopy(inferenceContext.substitutes, 0, uncheckedArguments = new TypeBinding[length], 0, length);
-				}
-				if (methodSubstitute.returnType != TypeBinding.VOID) {
-					TypeBinding expectedType = invocationSite.invocationTargetType();
-					if (expectedType != null) {
-						// record it was explicit from context, as opposed to assumed by default (see below)
-						inferenceContext.hasExplicitExpectedType = true;
-					} else {
-						expectedType = scope.getJavaLangObject(); // assume Object by default
-					}
-					inferenceContext.expectedType = expectedType;
-				}
-				methodSubstitute = methodSubstitute.inferFromExpectedType(scope, inferenceContext);
-				if (methodSubstitute == null)
-					return null;
-			} else if (compilerOptions.sourceLevel == ClassFileConstants.JDK1_7) {
-				// bug 425203 - consider additional constraints to conform to buggy javac behavior
-				if (methodSubstitute.returnType != TypeBinding.VOID) {
-					TypeBinding expectedType = invocationSite.invocationTargetType();
-					// In case of a method like <T> List<T> foo(T arg), solution based on return type
-					// should not be preferred vs solution based on parameter types, so do not attempt
-					// to use return type based inference in this case
- 					if (expectedType != null && !originalMethod.returnType.mentionsAny(originalMethod.parameters, -1)) {
-						TypeBinding uncaptured = methodSubstitute.returnType.uncapture(scope);
-						if (!methodSubstitute.returnType.isCompatibleWith(expectedType) &&
-								expectedType.isCompatibleWith(uncaptured)) {
-							InferenceContext oldContext = inferenceContext;
-							inferenceContext = new InferenceContext(originalMethod);
-							// Include additional constraint pertaining to the expected type
-							originalMethod.returnType.collectSubstitutes(scope, expectedType, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-							ParameterizedGenericMethodBinding substitute = inferFromArgumentTypes(scope, originalMethod, arguments, parameters, inferenceContext);
-							if (substitute != null && substitute.returnType.isCompatibleWith(expectedType)) {
-								// Do not use the new solution if it results in incompatibilities in parameter types
-								if ((scope.parameterCompatibilityLevel(substitute, arguments, false)) > Scope.NOT_COMPATIBLE) { // don't worry about COMPATIBLE_IGNORING_MISSING_TYPE in 1.7 context
-									methodSubstitute = substitute;
-								} else {
-									inferenceContext = oldContext;
-								}
-							} else {
-								inferenceContext = oldContext;
-							}
-						}
-					}
-				}
-			}
+			return computeCompatibleMethod18(originalMethod, arguments, scope, invocationSite);
 		}
 
 		/* bounds check: https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159, Inferred types may contain self reference
@@ -157,12 +91,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		   extra substitution that has taken place to properly substitute a remaining unresolved variable which also appears
 		   in a formal bound  (So we really have a bounds mismatch between I<I<T>> and I<I<I<T>>>, in the absence of a fix.)
 		*/
-		Substitution substitution = null;
-		if (inferenceContext != null) {
-			substitution = new LingeringTypeVariableEliminator(typeVariables, inferenceContext.substitutes, scope);
-		} else {
-			substitution = methodSubstitute;
-		}
+		Substitution substitution = methodSubstitute;
 		for (int i = 0, length = typeVariables.length; i < length; i++) {
 		    TypeVariableBinding typeVariable = typeVariables[i];
 		    TypeBinding substitute = methodSubstitute.typeArguments[i]; // retain for diagnostics
@@ -177,7 +106,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		    	substituteForChecks = Scope.substitute(new LingeringTypeVariableEliminator(typeVariables, null, scope), substitute); // while using this for bounds check
 		    }
 
-		    if (uncheckedArguments != null && uncheckedArguments[i] == null) continue; // only bound check if inferred through 15.12.2.6
 			switch (typeVariable.boundCheck(substitution, substituteForChecks, scope, null)) {
 				case MISMATCH :
 			        // incompatible due to bound check
@@ -307,8 +235,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					if (invocationSite instanceof Invocation && allArgumentsAreProper && (expectedType == null || expectedType.isProperType(true)))
 						infCtx18.forwardResults(result, (Invocation) invocationSite, methodSubstitute, expectedType);
 					try {
-						if (infCtx18.hasIgnoredMissingType) {
-							return new ProblemMethodBinding(originalMethod, originalMethod.selector, parameters, ProblemReasons.MissingTypeInSignature);
+						if (infCtx18.missingType != null
+								&& (expectedType == null
+									|| (expectedType.tagBits & TagBits.HasMissingType) == 0)) { // here the context will have reported an error already, so keep quiet
+							ProblemMethodBinding problemMethod = new ProblemMethodBinding(originalMethod, originalMethod.selector, parameters, ProblemReasons.MissingTypeInSignature);
+							problemMethod.missingType = infCtx18.missingType;
+							return problemMethod;
 						}
 						if (hasReturnProblem) { // illegally working from the provisional result?
 							MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
@@ -385,159 +317,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Collect argument type mapping, handling varargs
-	 */
-	private static ParameterizedGenericMethodBinding inferFromArgumentTypes(Scope scope, MethodBinding originalMethod, TypeBinding[] arguments, TypeBinding[] parameters, InferenceContext inferenceContext) {
-		if (originalMethod.isVarargs()) {
-			int paramLength = parameters.length;
-			int minArgLength = paramLength - 1;
-			int argLength = arguments.length;
-			// process mandatory arguments
-			for (int i = 0; i < minArgLength; i++) {
-				parameters[i].collectSubstitutes(scope, arguments[i], inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-				if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-			}
-			// process optional arguments
-			if (minArgLength < argLength) {
-				TypeBinding varargType = parameters[minArgLength]; // last arg type - as is ?
-				TypeBinding lastArgument = arguments[minArgLength];
-				checkVarargDimension: {
-					if (paramLength == argLength) {
-						if (lastArgument == TypeBinding.NULL) break checkVarargDimension;
-						switch (lastArgument.dimensions()) {
-							case 0 :
-								break; // will remove one dim
-							case 1 :
-								if (!lastArgument.leafComponentType().isBaseType()) break checkVarargDimension;
-								break; // will remove one dim
-							default :
-								break checkVarargDimension;
-						}
-					}
-					// eliminate one array dimension
-					varargType = ((ArrayBinding)varargType).elementsType();
-				}
-				for (int i = minArgLength; i < argLength; i++) {
-					varargType.collectSubstitutes(scope, arguments[i], inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-					if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-				}
-			}
-		} else {
-			int paramLength = parameters.length;
-			for (int i = 0; i < paramLength; i++) {
-				parameters[i].collectSubstitutes(scope, arguments[i], inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-				if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-			}
-		}
-		TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
-		if (!resolveSubstituteConstraints(scope, originalVariables , inferenceContext, false/*ignore Ti<:Uk*/))
-			return null; // impossible substitution
-
-		// apply inferred variable substitutions - replacing unresolved variable with original ones in param method
-		TypeBinding[] inferredSustitutes = inferenceContext.substitutes;
-		TypeBinding[] actualSubstitutes = inferredSustitutes;
-		for (int i = 0, varLength = originalVariables.length; i < varLength; i++) {
-			if (inferredSustitutes[i] == null) {
-				if (actualSubstitutes == inferredSustitutes) {
-					System.arraycopy(inferredSustitutes, 0, actualSubstitutes = new TypeBinding[varLength], 0, i); // clone to replace null with original variable in param method
-				}
-				actualSubstitutes[i] = originalVariables[i];
-			} else if (actualSubstitutes != inferredSustitutes) {
-				actualSubstitutes[i] = inferredSustitutes[i];
-			}
-		}
-		ParameterizedGenericMethodBinding paramMethod = scope.environment().createParameterizedGenericMethod(originalMethod, actualSubstitutes);
-		return paramMethod;
-	}
-
-	private static boolean resolveSubstituteConstraints(Scope scope, TypeVariableBinding[] typeVariables, InferenceContext inferenceContext, boolean considerEXTENDSConstraints) {
-		TypeBinding[] substitutes = inferenceContext.substitutes;
-		int varLength = typeVariables.length;
-		// check Tj=U constraints
-		nextTypeParameter:
-			for (int i = 0; i < varLength; i++) {
-				TypeVariableBinding current = typeVariables[i];
-				TypeBinding substitute = substitutes[i];
-				if (substitute != null) continue nextTypeParameter; // already inferred previously
-				TypeBinding [] equalSubstitutes = inferenceContext.getSubstitutes(current, TypeConstants.CONSTRAINT_EQUAL);
-				if (equalSubstitutes != null) {
-					nextConstraint:
-						for (int j = 0, equalLength = equalSubstitutes.length; j < equalLength; j++) {
-							TypeBinding equalSubstitute = equalSubstitutes[j];
-							if (equalSubstitute == null) continue nextConstraint;
-							if (TypeBinding.equalsEquals(equalSubstitute, current)) {
-								// try to find a better different match if any in subsequent equal candidates
-								for (int k = j+1; k < equalLength; k++) {
-									equalSubstitute = equalSubstitutes[k];
-									if (TypeBinding.notEquals(equalSubstitute, current) && equalSubstitute != null) {
-										substitutes[i] = equalSubstitute;
-										continue nextTypeParameter;
-									}
-								}
-								substitutes[i] = current;
-								continue nextTypeParameter;
-							}
-//							if (equalSubstitute.isTypeVariable()) {
-//								TypeVariableBinding variable = (TypeVariableBinding) equalSubstitute;
-//								// substituted by a variable of the same method, ignore
-//								if (variable.rank < varLength && typeVariables[variable.rank] == variable) {
-//									// TODO (philippe) rewrite all other constraints to use current instead.
-//									continue nextConstraint;
-//								}
-//							}
-							substitutes[i] = equalSubstitute;
-							continue nextTypeParameter; // pick first match, applicability check will rule out invalid scenario where others were present
-						}
-				}
-			}
-		if (inferenceContext.hasUnresolvedTypeArgument()) {
-			// check Tj>:U constraints
-			nextTypeParameter:
-				for (int i = 0; i < varLength; i++) {
-					TypeVariableBinding current = typeVariables[i];
-					TypeBinding substitute = substitutes[i];
-					if (substitute != null) continue nextTypeParameter; // already inferred previously
-					TypeBinding [] bounds = inferenceContext.getSubstitutes(current, TypeConstants.CONSTRAINT_SUPER);
-					if (bounds == null) continue nextTypeParameter;
-					TypeBinding mostSpecificSubstitute = scope.lowerUpperBound(bounds);
-					if (mostSpecificSubstitute == null) {
-						return false; // incompatible
-					}
-					if (mostSpecificSubstitute != TypeBinding.VOID) {
-						substitutes[i] = mostSpecificSubstitute;
-					}
-				}
-		}
-		if (considerEXTENDSConstraints && inferenceContext.hasUnresolvedTypeArgument()) {
-			// check Tj<:U constraints
-			nextTypeParameter:
-				for (int i = 0; i < varLength; i++) {
-					TypeVariableBinding current = typeVariables[i];
-					TypeBinding substitute = substitutes[i];
-					if (substitute != null) continue nextTypeParameter; // already inferred previously
-					TypeBinding [] bounds = inferenceContext.getSubstitutes(current, TypeConstants.CONSTRAINT_EXTENDS);
-					if (bounds == null) continue nextTypeParameter;
-					TypeBinding[] glb = Scope.greaterLowerBound(bounds, scope, scope.environment());
-					TypeBinding mostSpecificSubstitute = null;
-					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341795 - Per 15.12.2.8, we should fully apply glb
-					if (glb != null) {
-						if (glb.length == 1) {
-							mostSpecificSubstitute = glb[0];
-						} else {
-							TypeBinding [] otherBounds = new TypeBinding[glb.length - 1];
-							System.arraycopy(glb, 1, otherBounds, 0, glb.length - 1);
-							mostSpecificSubstitute = scope.environment().createWildcard(null, 0, glb[0], otherBounds, Wildcard.EXTENDS);
-						}
-					}
-					if (mostSpecificSubstitute != null) {
-						substitutes[i] = mostSpecificSubstitute;
-					}
-				}
-		}
-		return true;
 	}
 
 	/**
@@ -703,101 +482,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	@Override
 	public boolean hasSubstitutedReturnType() {
-		if (this.inferredReturnType)
+		if (this.wasInferred)
 			return this.originalMethod.hasSubstitutedReturnType();
 		return super.hasSubstitutedReturnType();
-	}
-	/**
-	 * Given some type expectation, and type variable bounds, perform some inference.
-	 * Returns true if still had unresolved type variable at the end of the operation
-	 */
-	private ParameterizedGenericMethodBinding inferFromExpectedType(Scope scope, InferenceContext inferenceContext) {
-	    TypeVariableBinding[] originalVariables = this.originalMethod.typeVariables; // immediate parent (could be a parameterized method)
-		int varLength = originalVariables.length;
-	    // infer from expected return type
-		if (inferenceContext.expectedType != null) {
-		    this.returnType.collectSubstitutes(scope, inferenceContext.expectedType, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-		    if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-		}
-	    // infer from bounds of type parameters
-		for (int i = 0; i < varLength; i++) {
-			TypeVariableBinding originalVariable = originalVariables[i];
-			TypeBinding argument = this.typeArguments[i];
-			boolean argAlreadyInferred = TypeBinding.notEquals(argument, originalVariable);
-			if (TypeBinding.equalsEquals(originalVariable.firstBound, originalVariable.superclass)) {
-				TypeBinding substitutedBound = Scope.substitute(this, originalVariable.superclass);
-				argument.collectSubstitutes(scope, substitutedBound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-				if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-				// JLS 15.12.2.8 claims reverse inference shouldn't occur, however it improves inference
-				// e.g. given: <E extends Object, S extends Collection<E>> S test1(S param)
-				//                   invocation: test1(new Vector<String>())    will infer: S=Vector<String>  and with code below: E=String
-				if (argAlreadyInferred) {
-					substitutedBound.collectSubstitutes(scope, argument, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-					if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-				}
-			}
-			for (ReferenceBinding superInterface : originalVariable.superInterfaces) {
-				TypeBinding substitutedBound = Scope.substitute(this, superInterface);
-				argument.collectSubstitutes(scope, substitutedBound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-				if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-				// JLS 15.12.2.8 claims reverse inference shouldn't occur, however it improves inference
-				if (argAlreadyInferred) {
-					substitutedBound.collectSubstitutes(scope, argument, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-					if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
-				}
-			}
-		}
-		if (!resolveSubstituteConstraints(scope, originalVariables, inferenceContext, true/*consider Ti<:Uk*/))
-			return null; // incompatible
-		// this.typeArguments = substitutes; - no op since side effects got performed during #resolveSubstituteConstraints
-    	for (int i = 0; i < varLength; i++) {
-    		TypeBinding substitute = inferenceContext.substitutes[i];
-    		if (substitute != null) {
-    			this.typeArguments[i] = substitute;
-    		} else {
-    			// remaining unresolved variable are considered to be Object (or their bound actually)
-	    		this.typeArguments[i] = inferenceContext.substitutes[i] = originalVariables[i].upperBound();
-	    	}
-    	}
-		/* May still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
-		   to properly substitute a remaining unresolved variable which also appear in a formal bound. See also
-		   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5021635. It is questionable though whether this extra
-		   substitution should take place when the invocation site offers no guidance whatsoever and the type variables
-		   are inferred to be the glb of the published bounds - as there can recursion in the formal bounds, the
-		   inferred bounds would no longer be glb.
-		*/
-
-		this.typeArguments = Scope.substitute(this, this.typeArguments);
-
-    	// adjust method types to reflect latest inference
-		TypeBinding oldReturnType = this.returnType;
-		this.returnType = Scope.substitute(this, this.returnType);
-		this.inferredReturnType = inferenceContext.hasExplicitExpectedType && TypeBinding.notEquals(this.returnType, oldReturnType);
-	    this.parameters = Scope.substitute(this, this.parameters);
-	    this.thrownExceptions = Scope.substitute(this, this.thrownExceptions);
-	    // error case where exception type variable would have been substituted by a non-reference type (207573)
-	    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;
-		checkMissingType: {
-			if ((this.tagBits & TagBits.HasMissingType) != 0)
-				break checkMissingType;
-			if ((this.returnType.tagBits & TagBits.HasMissingType) != 0) {
-				this.tagBits |=  TagBits.HasMissingType;
-				break checkMissingType;
-			}
-			for (int i = 0, max = this.parameters.length; i < max; i++) {
-				if ((this.parameters[i].tagBits & TagBits.HasMissingType) != 0) {
-					this.tagBits |=  TagBits.HasMissingType;
-					break checkMissingType;
-				}
-			}
-			for (int i = 0, max = this.thrownExceptions.length; i < max; i++) {
-				if ((this.thrownExceptions[i].tagBits & TagBits.HasMissingType) != 0) {
-					this.tagBits |=  TagBits.HasMissingType;
-					break checkMissingType;
-				}
-			}
-		}
-	    return this;
 	}
 
 	@Override
@@ -869,15 +556,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         	return originalVariable.combineTypeAnnotations(substitute);
         }
 	    return originalVariable;
-	}
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.MethodBinding#tiebreakMethod()
-	 */
-	@Override
-	public MethodBinding tiebreakMethod() {
-		if (this.tiebreakMethod == null)
-			this.tiebreakMethod = this.originalMethod.asRawMethod(this.environment);
-		return this.tiebreakMethod;
 	}
 
 	@Override

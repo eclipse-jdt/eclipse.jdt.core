@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -223,6 +223,8 @@ public class CompilerOptions {
 	public static final String OPTION_UseStringConcatFactory = "org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory"; //$NON-NLS-1$
 
 	public static final String OPTION_validateOperandStack = "org.eclipse.jdt.core.compiler.codegen.validateOperandStack"; //$NON-NLS-1$
+
+	public static final String OPTION_MemberOfDeprecatedTypeNotDeprecated = "org.eclipse.jdt.core.compiler.problem.memberOfDeprecatedTypeNotDeprecated"; //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -255,6 +257,8 @@ public class CompilerOptions {
 	public static final String VERSION_21 = "21"; //$NON-NLS-1$
 	public static final String VERSION_22 = "22"; //$NON-NLS-1$
 	public static final String VERSION_23 = "23"; //$NON-NLS-1$
+	public static final String VERSION_24 = "24"; //$NON-NLS-1$
+	public static final String VERSION_25 = "25"; //$NON-NLS-1$
 	/*
 	 * Note: Whenever a new version is added, make sure getLatestVersion()
 	 * is updated with it.
@@ -400,6 +404,7 @@ public class CompilerOptions {
 	public static final int InsufficientResourceManagement = IrritantSet.GROUP3 | ASTNode.Bit1;
 	public static final int IncompatibleOwningContract = IrritantSet.GROUP3 | ASTNode.Bit2;
 	public static final int UnusedLambdaParameter = IrritantSet.GROUP3 | ASTNode.Bit3;
+	public static final int MemberOfDeprecatedType = IrritantSet.GROUP3 | ASTNode.Bit4;
 
 
 	// Severity level for handlers
@@ -429,10 +434,15 @@ public class CompilerOptions {
 	public boolean produceMethodParameters;
 	/** Indicates whether generic signature should be generated for lambda expressions */
 	public boolean generateGenericSignatureForLambdaExpressions;
-	/** Compliance level for the compiler, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
+	/** Compliance level for the compiler, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_8} */
 	public long complianceLevel;
-	/** Java source level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
+	/** Java source level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_8} */
 	public long sourceLevel;
+	/**
+	 * Use <code>-release</code> setting to pass compliance version and enable checking for
+	 * availability of system APIs for the compliance version.
+	 */
+	public boolean release;
 	/**
 	 * Initially requested source version, not necessarily consistent with {@link #sourceLevel} as
 	 * sourceLevel forcibly contain a version that is compatible with ECJ.
@@ -441,7 +451,7 @@ public class CompilerOptions {
 	 * <p>May be {@code null}.</p>
 	 */
 	public String requestedSourceVersion;
-	/** VM target level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
+	/** VM target level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_8} */
 	public long targetJDK;
 	/** Source encoding format */
 	public String defaultEncoding;
@@ -565,13 +575,6 @@ public class CompilerOptions {
 	/** When checking for unlikely argument types of of Map.get() et al, perform strict analysis against the expected type */
 	public boolean reportUnlikelyCollectionMethodArgumentTypeStrict;
 
-	/** Should the compiler tolerate illegal ambiguous varargs invocation in {@code compliance < 1.7}
-	 * to be bug compatible with javac? (bug 383780) */
-	public static boolean tolerateIllegalAmbiguousVarargsInvocation;
-	{
-		String tolerateIllegalAmbiguousVarargs = System.getProperty("tolerateIllegalAmbiguousVarargsInvocation"); //$NON-NLS-1$
-		tolerateIllegalAmbiguousVarargsInvocation = tolerateIllegalAmbiguousVarargs != null && tolerateIllegalAmbiguousVarargs.equalsIgnoreCase("true"); //$NON-NLS-1$
-	}
 	/** Should null annotations of overridden methods be inherited? */
 	public boolean inheritNullAnnotations;
 
@@ -678,7 +681,7 @@ public class CompilerOptions {
 	 * Return the latest Java language version supported by the Eclipse compiler
 	 */
 	public static String getLatestVersion() {
-		return VERSION_23;
+		return VERSION_25;
 	}
 	/**
 	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by
@@ -698,6 +701,8 @@ public class CompilerOptions {
 			case UsingTerminallyDeprecatedAPI :
 			case (InvalidJavadoc | UsingTerminallyDeprecatedAPI) :
 				return OPTION_ReportTerminalDeprecation;
+			case MemberOfDeprecatedType :
+				return OPTION_MemberOfDeprecatedTypeNotDeprecated;
 			case MaskedCatchBlock  :
 				return OPTION_ReportHiddenCatchBlock;
 			case UnusedLocalVariable :
@@ -932,11 +937,16 @@ public class CompilerOptions {
 
 	public static long releaseToJDKLevel(String release) {
 		if (release != null && release.length() > 0) {
-			int major = Integer.parseInt(release) + ClassFileConstants.MAJOR_VERSION_0;
-			if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
-				long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
-				return jdkLevel;
-			}
+			return releaseToJDKLevel(Integer.parseInt(release));
+		}
+		return 0;
+	}
+
+	public static long releaseToJDKLevel(int release) {
+		int major = release + ClassFileConstants.MAJOR_VERSION_0;
+		if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
+			long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
+			return jdkLevel;
 		}
 		return 0;
 	}
@@ -1348,6 +1358,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportTerminalDeprecation, getSeverityString(UsingTerminallyDeprecatedAPI));
 		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_MemberOfDeprecatedTypeNotDeprecated, getSeverityString(MemberOfDeprecatedType));
 		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock));
 		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable));
 		optionsMap.put(OPTION_ReportUnusedLambdaParameter, getSeverityString(UnusedLambdaParameter));
@@ -1410,7 +1421,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnusedLabel, getSeverityString(UnusedLabel));
 		optionsMap.put(OPTION_ReportUnusedTypeArgumentsForMethodInvocation, getSeverityString(UnusedTypeArguments));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel));
-		optionsMap.put(OPTION_Release, DISABLED);
+		optionsMap.put(OPTION_Release, this.release ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel));
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK));
 		optionsMap.put(OPTION_FatalOptionalError, this.treatOptionalErrorAsFatal ? ENABLED : DISABLED);
@@ -1579,6 +1590,7 @@ public class CompilerOptions {
 		this.complianceLevel = firstSupportedJdkLevel;
 		this.sourceLevel = firstSupportedJdkLevel;
 		this.targetJDK = firstSupportedJdkLevel;
+		this.release = false;
 
 		this.defaultEncoding = null; // will use the platform default encoding
 
@@ -1776,12 +1788,10 @@ public class CompilerOptions {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.sourceLevel = level;
 		}
+		this.release = ENABLED.equals(optionsMap.get(OPTION_Release));
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) {
-				if (this.enablePreviewFeatures) {
-					level |= ClassFileConstants.MINOR_VERSION_PREVIEW;
-				}
 				this.targetJDK = level;
 			}
 		}
@@ -1927,6 +1937,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportTerminalDeprecation)) != null) updateSeverity(UsingTerminallyDeprecatedAPI, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_MemberOfDeprecatedTypeNotDeprecated)) != null) updateSeverity(MemberOfDeprecatedType, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportHiddenCatchBlock)) != null) updateSeverity(MaskedCatchBlock, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLocal)) != null) updateSeverity(UnusedLocalVariable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLambdaParameter)) != null) updateSeverity(UnusedLambdaParameter, optionValue);
@@ -2217,8 +2228,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_EnablePreviews)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.enablePreviewFeatures = true;
-				if (this.targetJDK != 0)
-					this.targetJDK |= ClassFileConstants.MINOR_VERSION_PREVIEW;
 			} else if (DISABLED.equals(optionValue)) {
 				this.enablePreviewFeatures = false;
 			}

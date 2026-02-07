@@ -226,7 +226,7 @@ public class DeltaProcessor {
 	 * Used for detecting external JAR changes
 	 */
 	public static long getTimeStamp(File file) {
-		return file.lastModified() + file.length();
+		return file.lastModified() + Long.hashCode(file.length()) * 31;
 	}
 
 	/*
@@ -2022,7 +2022,7 @@ public class DeltaProcessor {
 	 * Registers the given delta with this delta processor.
 	 */
 	public void registerJavaModelDelta(IJavaElementDelta delta) {
-		if (JavaModelManager.isReadOnly()) {
+		if (VERBOSE && JavaModelManager.isReadOnly()) {
 			ILog.get().warn("JavaModel change during read only operation", new IllegalStateException( //$NON-NLS-1$
 					"JavaModel modified during 'read only' operation. Consider to report this warning to https://github.com/eclipse-jdt/eclipse.jdt.core/issues. delta=" //$NON-NLS-1$
 							+ delta));

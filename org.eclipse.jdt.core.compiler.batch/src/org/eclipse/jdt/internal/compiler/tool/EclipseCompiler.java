@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 IBM Corporation and others.
+ * Copyright (c) 2006, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -60,6 +60,7 @@ public class EclipseCompiler implements JavaCompiler {
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 
 	public static final RuntimeException UNEXPECTED_CONTROL_FLOW = new RuntimeException() { private static final long serialVersionUID = 1L; };
+	public static final RuntimeException UNSUPPORTED_OPERATION = new RuntimeException() { private static final long serialVersionUID = 1L; };
 
 	public EclipseCompiler() {
 		this.threadCache = new WeakHashMap<>();
@@ -111,7 +112,11 @@ public class EclipseCompiler implements JavaCompiler {
 			eclipseCompiler.initialize(writerOut, writerErr, false, null/*options*/, null/*progress*/);
 		}
 		final EclipseCompilerImpl eclipseCompiler2 = new EclipseCompilerImpl(writerOut, writerErr, false);
-		eclipseCompiler2.compilationUnits = compilationUnits;
+		eclipseCompiler2.compilationUnits = new ArrayList<>();
+		if (compilationUnits != null) {
+			for (JavaFileObject javaFileObject : compilationUnits)
+				eclipseCompiler2.compilationUnits.add(javaFileObject);
+		}
 		eclipseCompiler2.diagnosticListener = someDiagnosticListener;
 		if (fileManager != null) {
 			eclipseCompiler2.fileManager = fileManager;
@@ -134,21 +139,19 @@ public class EclipseCompiler implements JavaCompiler {
 			}
 		}
 
-		if (compilationUnits != null) {
-			for (JavaFileObject javaFileObject : compilationUnits) {
-				// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
-				// compells us to check that the returned URIs are absolute,
-				// which they happen not to be for the default compiler on some
-				// unices
-				URI uri = javaFileObject.toUri();
-				if (!uri.isAbsolute()) {
-					uri = URI.create("file://" + uri.toString()); //$NON-NLS-1$
-				}
-				if (uri.getScheme().equals("file")) { //$NON-NLS-1$
-					allOptions.add(new File(uri).getAbsolutePath());
-				} else {
-					allOptions.add(uri.toString());
-				}
+		for (JavaFileObject javaFileObject : eclipseCompiler2.compilationUnits) {
+			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
+			// compells us to check that the returned URIs are absolute,
+			// which they happen not to be for the default compiler on some
+			// unices
+			URI uri = javaFileObject.toUri();
+			if (!uri.isAbsolute()) {
+				uri = URI.create("file://" + uri.toString()); //$NON-NLS-1$
+			}
+			if (uri.getScheme().equals("file")) { //$NON-NLS-1$
+				allOptions.add(new File(uri).getAbsolutePath());
+			} else {
+				allOptions.add(uri.toString());
 			}
 		}
 

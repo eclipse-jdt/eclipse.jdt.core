@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 17 --enable-preview -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 17");
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -202,12 +202,26 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 			},
+			this.complianceLevel < ClassFileConstants.JDK21 ?
+
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	if (s instanceof Object o) {\n" +
+			"	    ^\n" +
+			"Expression type cannot be a subtype of the Pattern type\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
 			"	System.out.println(s1);\n" +
 			"	                   ^^\n" +
 			"s1 cannot be resolved to a variable\n" +
-			"----------\n");
+			"----------\n" :
+
+					"----------\n" +
+					"1. ERROR in X.java (at line 4)\n" +
+					"	System.out.println(s1);\n" +
+					"	                   ^^\n" +
+					"s1 cannot be resolved to a variable\n" +
+					"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1076
 	// ECJ accepts invalid Java code instanceof final Type
@@ -652,6 +666,8 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
 	public void testIssue3222() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -679,6 +695,8 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
 	public void testIssue3222_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -706,6 +724,8 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
 	public void testIssue3222_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -732,5 +752,236 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"""
 			},
 			"42");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
+	// Compilation error on ECJ but not with JavaC
+	public void testIssue3897() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+
+				public class X {
+
+					public static void main(String[] args) {
+						var o = new Object();
+						if (o instanceof ListInteger<? extends Integer> list) {
+							System.out.println("List");
+						}
+						System.out.println("Not List");
+					}
+
+					class ListInteger<T extends Integer> extends ArrayList<T> {
+
+					}
+				}
+				"""
+			},
+			"Not List");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
+	// Compilation error on ECJ but not with JavaC
+	public void testIssue3897_2() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+
+				interface I {}
+
+				class A implements I {}
+				class B implements I {}
+
+				public class X {
+
+					public void main(String[] args) {
+				        ListInteger<? extends B> li = (ListInteger<? extends B>) new Object();
+				        ListInteger<? extends A> li2 = (ListInteger<? extends A>) new Object();
+				        ArrayList<String> as = (ArrayList<String>) new Object();
+				        Zork z;
+					}
+
+					class ListInteger<T extends I> extends ArrayList<T> {
+
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 11)\n" +
+			"	ListInteger<? extends B> li = (ListInteger<? extends B>) new Object();\n" +
+			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Object to X.ListInteger<? extends B>\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 12)\n" +
+			"	ListInteger<? extends A> li2 = (ListInteger<? extends A>) new Object();\n" +
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Object to X.ListInteger<? extends A>\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 13)\n" +
+			"	ArrayList<String> as = (ArrayList<String>) new Object();\n" +
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Object to ArrayList<String>\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 14)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"5. WARNING in X.java (at line 17)\n" +
+			"	class ListInteger<T extends I> extends ArrayList<T> {\n" +
+			"	      ^^^^^^^^^^^\n" +
+			"The serializable class ListInteger does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
+	// Compilation error on ECJ but not with JavaC
+	public void testIssue3897_3() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+
+				class Base {}
+
+				class A extends Base {}
+				class B extends Base {}
+
+				public class X {
+
+					public void main(String[] args) {
+				        ListInteger<? extends B> li = (ListInteger<? extends B>) new Object();
+				        ListInteger<? extends A> li2 = (ListInteger<? extends A>) new Object();
+				        ArrayList<String> as = (ArrayList<String>) new Object();
+				        Zork z;
+					}
+
+					class ListInteger<T extends Base> extends ArrayList<T> {
+
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 11)\n" +
+			"	ListInteger<? extends B> li = (ListInteger<? extends B>) new Object();\n" +
+			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Object to X.ListInteger<? extends B>\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 12)\n" +
+			"	ListInteger<? extends A> li2 = (ListInteger<? extends A>) new Object();\n" +
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Object to X.ListInteger<? extends A>\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 13)\n" +
+			"	ArrayList<String> as = (ArrayList<String>) new Object();\n" +
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Object to ArrayList<String>\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 14)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"5. WARNING in X.java (at line 17)\n" +
+			"	class ListInteger<T extends Base> extends ArrayList<T> {\n" +
+			"	      ^^^^^^^^^^^\n" +
+			"The serializable class ListInteger does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
+	// Compilation error on ECJ but not with JavaC
+	public void testIssue3897_4() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				interface I {}
+
+				class A<T extends I> {
+				    T i;
+				}
+
+				public class X {
+				    public static void main(String[] args) {
+				        Object o = new A<>();
+
+				        // 1. No warning in Javac; "Unchecked cast" warning in ECJ, even if the cast can never fail.
+				        A<? extends I> a = (A<? extends I>) o;
+				        // 2. No warning in either Javac or ECJ.
+				        A<? extends I> b = (A<?>) o;
+
+				        // 3. Works in Javac; error in ECJ.
+				        if (o instanceof A<? extends I> c) {
+				            I i = c.i;
+				            System.out.println(i);
+				        }
+
+				        // 4. Works in both Javac and ECJ.
+				        if (o instanceof A<?> c) {
+				            // Type checks in ECJ and Javac. Both considers b.i to have type I.
+				            I i = c.i;
+				            System.out.println(i);
+				        }
+
+				        System.out.println(o);
+				        System.out.println(a);
+				        Zork z;
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 31)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
+	// Compilation error on ECJ but not with JavaC
+	public void testIssue3897_5() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.List;
+
+				class Test2 {
+					public static void main(String[] args) {
+						List<Integer> x = new ArrayList<Integer>();
+						if (x instanceof ArrayList<Integer>) { // OK
+							System.out.println("ArrayList of Integers");
+						}
+						if (x instanceof ArrayList<String>) { // error
+							System.out.println("ArrayList of Strings");
+						}
+						if (x instanceof ArrayList<Object>) { // error
+							System.out.println("ArrayList of Objects");
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	if (x instanceof ArrayList<String>) { // error\n" +
+			"	    ^\n" +
+			"Type List<Integer> cannot be safely cast to ArrayList<String>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 13)\n" +
+			"	if (x instanceof ArrayList<Object>) { // error\n" +
+			"	    ^\n" +
+			"Type List<Integer> cannot be safely cast to ArrayList<Object>\n" +
+			"----------\n");
 	}
 }

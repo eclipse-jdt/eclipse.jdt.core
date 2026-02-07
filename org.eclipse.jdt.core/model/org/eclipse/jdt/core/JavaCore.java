@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -424,6 +424,24 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD = "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting members in a deprecated type that are not deprecated.
+	 * <p>When enabled, the compiler will issue a configurable warning against every member of
+	 * 	a deprecated type that is not deprecated itself.</p>
+	 * <p>This information is relevant in particular in light that previous versions of JDT have treated such
+	 * 	members as <em>implicitly deprecated</em>, which, however, is incorrect with respect to JLS.
+	 * 	Users are advised to consider explicitly marking all affected members as deprecated, to raise visibility
+	 * 	of any usage of members from deprecated types.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.memberOfDeprecatedTypeNotDeprecated"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"info"</code></dd>
+	 * </dl>
+	 * @since 3.44
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MEMBER_OF_DEPRECATED_TYPE = "org.eclipse.jdt.core.compiler.problem.memberOfDeprecatedTypeNotDeprecated"; //$NON-NLS-1$
+
 	/**
 	 * Compiler option ID: Reporting Hidden Catch Block.
 	 * <p>Locally to a try statement, some catch blocks may hide others. For example,</p>
@@ -3283,13 +3301,31 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_23 = "23"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
+	 * @since 3.42
+	 * @category OptionValue
+	 */
+	public static final String VERSION_24 = "24"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
+	 * @since 3.43
+	 * @category OptionValue
+	 */
+	public static final String VERSION_25 = "25"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
+	 * @since 3.44
+	 * @category OptionValue
+	 */
+	public static final String VERSION_26 = "26"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
 	 * @since 3.4
 	 * @category OptionValue
 	 */
 	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
 	private static final List<String> allVersions = Collections.unmodifiableList(Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
 			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11, VERSION_12, VERSION_13, VERSION_14, VERSION_15, VERSION_16, VERSION_17, VERSION_18,
-			VERSION_19, VERSION_20, VERSION_21, VERSION_22, VERSION_23));
+			VERSION_19, VERSION_20, VERSION_21, VERSION_22, VERSION_23, VERSION_24, VERSION_25));
 
 	/**
 	 * Unordered set of all Java source versions <b>not supported</b> by compiler anymore.
@@ -6500,9 +6536,22 @@ public final class JavaCore extends Plugin {
 	 * @param allSystemRoots all physically available system modules, represented by their package fragment roots
 	 * @return the list of names of default root modules
 	 * @since 3.14
+	 * @deprecated This method cannot distinguish strategies for old (9/10) vs new (11+) JDK versions. Please use {@link #defaultRootModules(Iterable, String)}
 	 */
+	@Deprecated
 	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
 		return JavaProject.defaultRootModules(allSystemRoots);
+	}
+
+	/**
+	 * Filter the given set of system roots by the rules for root modules from JEP 261.
+	 * @param allSystemRoots all physically available system modules, represented by their package fragment roots
+	 * @param release JDK version to select strategies before / after resolution of https://bugs.openjdk.org/browse/JDK-8205169
+	 * @return the list of names of default root modules
+	 * @since 3.41
+	 */
+	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots, String release) {
+		return JavaProject.defaultRootModules(allSystemRoots, release);
 	}
 
 	/**

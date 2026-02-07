@@ -30,7 +30,7 @@ public abstract class Pattern extends Expression {
 
 	boolean isTotalTypeNode = false;
 
-	private Pattern enclosingPattern;
+	private RecordPattern enclosingPattern;
 
 	protected MethodBinding accessorMethod;
 
@@ -56,9 +56,11 @@ public abstract class Pattern extends Expression {
 
 	protected TypeBinding outerExpressionType; // the expression type of the enclosing instanceof, switch or outer record pattern
 
+	private boolean previewReported;
+
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
-	public Pattern getEnclosingPattern() {
+	public RecordPattern getEnclosingPattern() {
 		return this.enclosingPattern;
 	}
 
@@ -83,7 +85,7 @@ public abstract class Pattern extends Expression {
 		if (type instanceof TypeVariableBinding && type.superclass().isBoxedPrimitiveType())
 			type = type.superclass(); // when a boxing type is in supers it must be superclass, because all boxing types are classes
 		if (type.isPrimitiveOrBoxedPrimitiveType()) {
-			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, type, scope);
+			PrimitiveConversionRoute route = findPrimitiveConversionRoute(this.resolvedType, type, scope);
 			switch (route) {
 				// JLS §5.7.2:
 				case IDENTITY_CONVERSION:
@@ -110,21 +112,11 @@ public abstract class Pattern extends Expression {
 		return false;
 	}
 
-	// Given a non-null instance of same type, would the pattern always match ?
-	public boolean matchFailurePossible() {
-		return false;
-	}
-
 	public boolean isUnconditional(TypeBinding t, Scope scope) {
 		return false;
 	}
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
-
-	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
-		// TODO: MAKE THIS abstract
-	}
-
 
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -155,7 +147,7 @@ public abstract class Pattern extends Expression {
 			return false;
 		}
 		if (patternType.isBaseType()) {
-			PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(this.resolvedType, this.outerExpressionType, scope);
+			PrimitiveConversionRoute route = findPrimitiveConversionRoute(this.resolvedType, this.outerExpressionType, scope);
 			if (!TypeBinding.equalsEquals(expressionType, patternType)
 					&& route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 				scope.problemReporter().notCompatibleTypesError(location, expressionType, patternType);
@@ -216,13 +208,22 @@ public abstract class Pattern extends Expression {
 		}
 		return false;
 	}
-	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, Scope scope) {
+	public static PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, Scope scope, ASTNode location) {
 		if (!JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()))
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		if (destinationType == null || expressionType == null)
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		boolean destinationIsBaseType = destinationType.isBaseType();
 		boolean expressionIsBaseType = expressionType.isBaseType();
+		reporting: if ((expressionIsBaseType || destinationIsBaseType) &&
+				(expressionType.id != TypeIds.T_int || destinationType.id != TypeIds.T_int)) {
+			if (location instanceof Pattern pattern) {
+				if (pattern.previewReported)
+					break reporting;
+				pattern.previewReported = true;
+			}
+			scope.problemReporter().previewFeatureUsed(location.sourceStart, location.sourceEnd);
+		}
 		if (destinationIsBaseType && expressionIsBaseType) {
 			if (TypeBinding.equalsEquals(destinationType, expressionType)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
@@ -269,5 +270,9 @@ public abstract class Pattern extends Expression {
 			}
 		}
 		return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
+	}
+
+	public PrimitiveConversionRoute findPrimitiveConversionRoute(TypeBinding destinationType, TypeBinding expressionType, Scope scope) {
+		return findPrimitiveConversionRoute(destinationType, expressionType, scope, this);
 	}
 }

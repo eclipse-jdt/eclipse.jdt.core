@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2023 BEA Systems, Inc.
+ * Copyright (c) 2006, 2024 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -89,7 +89,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 			this._fileManager = manager;
 		}
 		this._processorOptions = Collections.unmodifiableMap(parseProcessorOptions(commandLineArguments));
-		this._filer = new BatchFilerImpl(this._dispatchManager, this);
+		this._filer = new BatchFilerImpl(this._dispatchManager, this, this._compilerOwner);
 		this._messager = new BatchMessagerImpl(this, this._compilerOwner);
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -113,7 +113,7 @@ public class Java50Tests extends BuilderTests {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=231293
-	public void _2551_testMissingRequiredBinaries() throws JavaModelException {
+	public void testMissingRequiredBinaries() throws JavaModelException {
 
 		IPath p1 = env.addProject("P1", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
@@ -164,8 +164,7 @@ public class Java50Tests extends BuilderTests {
 
 		incrementalBuild(p1);
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
-				new Problem("p1", "The project was not built since its build path is incomplete. Cannot find the class file for p2.Z. Fix the build path then try building this project", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "The type p2.Z cannot be resolved. It is indirectly referenced from required type p2.Y", xx, 51, 67, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "The method foo(int, Z) from the type Y refers to the missing type Z", xx, 53, 56, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 	}
 

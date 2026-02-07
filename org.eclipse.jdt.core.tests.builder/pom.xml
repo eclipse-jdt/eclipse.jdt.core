@@ -14,11 +14,11 @@
   <parent>
     <artifactId>tests-pom</artifactId>
     <groupId>org.eclipse.jdt</groupId>
-    <version>4.35.0-SNAPSHOT</version>
+    <version>4.39.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.core.tests.builder</artifactId>
-  <version>3.12.600-SNAPSHOT</version>
+  <version>3.12.1100-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
@@ -60,7 +60,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -81,28 +81,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,21</tycho.surefire.argLine>
-		</properties>
-	</profile>
-	<profile>
-		<id>test-on-javase-22</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-toolchains-plugin</artifactId>
-					<configuration>
-						<toolchains>
-							<jdk>
-								<id>JavaSE-22</id>
-							</jdk>
-						</toolchains>
-					</configuration>
-				</plugin>
-			</plugins>
-		</build>
-		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,21,22</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21</tycho.surefire.argLine>
 		</properties>
 	</profile>
   </profiles>

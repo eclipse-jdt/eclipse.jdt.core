@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -31,6 +32,25 @@ public class JavadocSingleNameReference extends SingleNameReference {
 		this.bits |= InsideJavadoc;
 	}
 
+	public void resolve(ClassScope scope) {
+		TypeDeclaration type = scope.referenceContext;
+		if (type != null && type.isRecord()) {
+			FieldBinding field = type.binding.getField(this.token, false);
+			if (field != null && field.isValidBinding()) {
+				this.binding = field;
+				return;
+			}
+			if (scope.compilerOptions().reportUnusedParameterIncludeDocCommentReference) {
+				try {
+					scope.problemReporter().javadocUndeclaredParamTagName(this.token, this.sourceStart, this.sourceEnd, type.modifiers);
+				}
+				catch (Exception e) {
+					scope.problemReporter().javadocUndeclaredParamTagName(this.token, this.sourceStart, this.sourceEnd, -1);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void resolve(BlockScope scope) {
 		resolve(scope, true, scope.compilerOptions().reportUnusedParameterIncludeDocCommentReference);
@@ -41,7 +61,7 @@ public class JavadocSingleNameReference extends SingleNameReference {
 	 */
 	public void resolve(BlockScope scope, boolean warn, boolean considerParamRefAsUsage) {
 
-		LocalVariableBinding variableBinding = scope.findVariable(this.token, this);
+		LocalVariableBinding variableBinding = scope.findVariable(this.token);
 		if (variableBinding != null && variableBinding.isValidBinding() && ((variableBinding.tagBits & TagBits.IsArgument) != 0)) {
 			this.binding = variableBinding;
 			if (considerParamRefAsUsage) {

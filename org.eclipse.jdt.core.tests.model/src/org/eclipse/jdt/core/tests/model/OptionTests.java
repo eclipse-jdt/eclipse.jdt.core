@@ -996,4 +996,12 @@ public void testBug550081() {
 	}
 	assertEquals("latest should be unchanged", latestVersion, JavaCore.latestSupportedJavaVersion());
 }
+
+public void testReleasePersistedInOptions() {
+	for (String value : List.of(CompilerOptions.ENABLED, CompilerOptions.DISABLED)) {
+		CompilerOptions options = new CompilerOptions(Map.of(CompilerOptions.OPTION_Release, value));
+		assertEquals("OPTION_Release=" + value + " ignored when building CompilerOptions", CompilerOptions.ENABLED.equals(value), options.release);
+		assertEquals("OPTION_Release=" + value + " incorectly returned in map", value, options.getMap().get(CompilerOptions.OPTION_Release));
+	}
+}
 }

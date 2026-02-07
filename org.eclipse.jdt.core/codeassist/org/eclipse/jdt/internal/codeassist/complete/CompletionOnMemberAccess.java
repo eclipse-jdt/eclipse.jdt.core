@@ -86,8 +86,12 @@ public class CompletionOnMemberAccess extends FieldReference implements Completi
 			}
 		}
 
-		if (this.actualReceiverType == null || !this.actualReceiverType.isValidBinding())
+		if (this.actualReceiverType == null || !this.actualReceiverType.isValidBinding()) {
+			if (this.receiver.resolvedType != null && this.receiver.resolvedType.problemId() == ProblemReasons.NotFound) {
+				throw new CompletionNodeFound(this, this.receiver.resolvedType, scope);
+			}
 			throw new CompletionNodeFound();
+		}
 		else
 			throw new CompletionNodeFound(this, this.actualReceiverType, scope);
 		// array types are passed along to find the length field

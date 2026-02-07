@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2019 IBM Corporation and others.
+ * Copyright (c) 2016, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
@@ -1512,5 +1513,352 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("ASTParserModelTests");
 		}
 	}
+	public void testStackOverflow_type_schizophrenia() throws JavaModelException, CoreException {
+		try {
+			// empty project, used only as a dependency:
+			IJavaProject project0 = createJavaProject("P0", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+
+			// modular shared project
+			IJavaProject project1 = createJavaProject("P1", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+
+			// HACK#1
+			// the following dependency triggers a code path in ModuleUpdater.determineModulesOfProjectsWithNonEmptyClasspath()
+			// - guarded by containsNonModularDependency()
+			// - if effective it adds ALL-UNNAMED to P1's module requirements:
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project0.getPath())); // not modular!
+
+			project1.open(null);
+			createFolder("/P1/src/common/pack1");
+			createFile("/P1/src/common/pack1/C1.java",
+					"""
+					package common.pack1;
+					import common.pack1.Shared;
+					// the type parameter bound forces resolving 'Shared' from within its module:
+					public interface C1<T extends Shared> {
+						static final String CONST1 = "const1";
+					}
+					""");
+			createFile("/P1/src/common/pack1/Shared.java",
+					"""
+					package common.pack1;
+					// the following import triggers recursive lookup of the class being inserted into compilation:
+					import static common.pack1.Shared.Kind.*;
+					public interface Shared {
+						enum Kind { Good, Bad }
+						static Kind DEFAULT = Good;
+					}
+					""");
+			createFile("/P1/src/module-info.java",
+					"""
+					module first {
+						exports common.pack1;
+					}
+					""");
+
+			// non-modular client project where the SOE occurs:
+			IJavaProject project2 = createJavaProject("P2", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+			addClasspathEntry(project2, JavaCore.newProjectEntry(project1.getPath())); // not modular!
+
+			// the following dependency enables a code path in the constructor of SearchableEnvironment:
+			// - guarded by Arrays.stream(expandedClasspath).anyMatch(IClasspathEntry::isTest)
+			// - if effective tries to add ALL-UNNAMED to module requirements.
+			// - additionally needs HACK#1 to be effective
+			addClasspathEntry(project2, JavaCore.newSourceEntry(new Path("/P2/testsrc"), null, null, new Path("/P2/testbin"),
+					new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true")}));
+			project2.open(null);
+			createFolder("/P2/src/common/test");
+			createFile("/P2/src/common/test/Client.java",
+					"""
+					package common.test;
+					import static common.pack1.C1.*; // this import pulls in classes from the other project
+					import common.pack1.C1;
+					public class Client {
+						String s = CONST1;
+						C1<?> c1;
+					}
+					""");
+
+			IJavaElement[] types = { project2.findType("common.test.Client") };
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+			astParser.setProject(project2);
+			IBinding[] bindings = astParser.createBindings(types, null);
+			assertEquals(1, bindings.length);
+			ITypeBinding type = (ITypeBinding) bindings[0];
+			IVariableBinding c1 = type.getDeclaredFields()[0];
+			IModuleBinding module = c1.getType().getModule();
+			assertNotNull(module);
+			assertEquals("", module.getName());
+		} finally {
+			deleteProject("P0");
+			deleteProject("P1");
+			deleteProject("P2");
+		}
+	}
+	public void testRequiresDirectiveNameIsMandatory() throws JavaModelException, CoreException {
+		try {
+			assertTrue(RequiresDirective.NAME_PROPERTY.isMandatory());
+
+			IJavaProject project1 = createJavaProject("ASTParserModelTests", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String content = """
+			module first {
+				requires other;
+			}
+			""";
+			createFile("/ASTParserModelTests/src/module-info.java", content);
+			this.workingCopy = getCompilationUnit("/ASTParserModelTests/src/module-info.java");
+
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+			astParser.setSource(this.workingCopy);
+			astParser.setResolveBindings(true);
+			astParser.setStatementsRecovery(true);
+			CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(new NullProgressMonitor());
+			ModuleDeclaration moduleDeclaration = compilationUnit.getModule();
+			RequiresDirective requiresDirective = (RequiresDirective)moduleDeclaration.moduleStatements().get(0);
+			try {
+				requiresDirective.setName(null);
+				fail("Expected an IllegalArgumentException to be thrown");
+			} catch (IllegalArgumentException e) {
+				// do nothing
+			}
+		} finally {
+			deleteProject("ASTParserModelTests");
+		}
+	}
+
+	public void testFindTypeInPackageBinding_1() throws Exception { //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4414
+		try {
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires transitive second;\n" +
+				"    requires third;\n" +
+				"	 uses pack22.I22;\n" +
+				"    uses pack33.I33;\n" +
+				"    provides pack22.I22 with pack1.X11;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 implements pack22.I22{pack33.I33 x;}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+			createFile("/second/src/pack22/Class22.java",
+					"package pack22;\n" +
+					"public class Class22 {\n" +
+					"    public static class Class22Inner {\n" +
+					"        public static class Class22InnerInner {}\n" +
+					"    }\n" +
+					"}\n");
+
+			IJavaProject project3 = createJavaProject("third", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project3.open(null);
+			addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String thirdFile =
+					"module third {\n" +
+					"    exports pack33 to first;\n" +
+					"}";
+			createFile("/third/src/module-info.java",	thirdFile);
+			createFolder("/third/src/pack33");
+			createFile("/third/src/pack33/I33.java",
+					"package pack33;\n" +
+					"public interface I33 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project3.getPath()));
+
+			project1.close(); // sync
+			project2.close();
+			project3.close();
+			project3.open(null);
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
+			checkSourceRange(moduleDecl1, fileContent, fileContent);
+
+			IModuleBinding moduleBinding = moduleDecl1.resolveBinding();
+			Name modName1 = moduleDecl1.getName();
+			IBinding binding = modName1.resolveBinding();
+			assertTrue("binding not a module binding", binding instanceof IModuleBinding);
+			moduleBinding = (IModuleBinding) binding;
+
+			assertModuleFirstDetailsTransitive(moduleBinding);
+
+			List<IPackageBinding> packageBindings= ImportRewrite.getPackageBindingsForModule(moduleBinding, project1);
+			assertTrue("Number of package bindings not 1 or not pack22", packageBindings.size() == 1 && packageBindings.get(0).getName().equals("pack22"));
+			ITypeBinding listType= packageBindings.get(0).findTypeBinding("List");
+			assertTrue("List type binding should be null", listType == null);
+			ITypeBinding i22= packageBindings.get(0).findTypeBinding("I22");
+			assertTrue("I22 type not found", i22 != null && i22.getName().equals("I22"));
+			ITypeBinding class22Inner= packageBindings.get(0).findTypeBinding("Class22.Class22Inner");
+			assertTrue("Class22Inner type not found", class22Inner != null && class22Inner.getName().equals("Class22Inner"));
+			ITypeBinding class22InnerInner= packageBindings.get(0).findTypeBinding("Class22.Class22Inner.Class22InnerInner");
+			assertTrue("Class22InnerInner type not found", class22InnerInner != null && class22InnerInner.getName().equals("Class22InnerInner"));
+		} finally {
+			deleteProject("ConverterTests9");
+			deleteProject("second");
+			deleteProject("third");
+		}
+	}
+
+	public void testTransitiveRequires_1() throws Exception { //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4350
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires transitive second;\n" +
+				"    requires third;\n" +
+				"	 uses pack22.I22;\n" +
+				"    uses pack33.I33;\n" +
+				"    provides pack22.I22 with pack1.X11;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 implements pack22.I22{pack33.I33 x;}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			IJavaProject project3 = createJavaProject("third", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project3.open(null);
+			addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String thirdFile =
+					"module third {\n" +
+					"    exports pack33 to first;\n" +
+					"}";
+			createFile("/third/src/module-info.java",	thirdFile);
+			createFolder("/third/src/pack33");
+			createFile("/third/src/pack33/I33.java",
+					"package pack33;\n" +
+					"public interface I33 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project3.getPath()));
+
+			project1.close(); // sync
+			project2.close();
+			project3.close();
+			project3.open(null);
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
+			checkSourceRange(moduleDecl1, fileContent, fileContent);
+
+			IModuleBinding moduleBinding = moduleDecl1.resolveBinding();
+			Name modName1 = moduleDecl1.getName();
+			IBinding binding = modName1.resolveBinding();
+			assertTrue("binding not a module binding", binding instanceof IModuleBinding);
+			moduleBinding = (IModuleBinding) binding;
+
+			assertModuleFirstDetailsTransitive(moduleBinding);
+
+		} finally {
+			deleteProject("ConverterTests9");
+			deleteProject("second");
+			deleteProject("third");
+		}
+	}
+
+	private void assertModuleFirstDetailsTransitive(IModuleBinding moduleBinding) {
+		assertTrue("Module Binding null", moduleBinding != null);
+		String name = moduleBinding.getName();
+		assertTrue("Module Name null", name != null);
+		assertTrue("Wrong Module Name", name.equals("first"));
+
+		assertTrue("Module Binding null", moduleBinding != null);
+		name = moduleBinding.getName();
+		assertTrue("Module Name null", name != null);
+		assertTrue("Wrong Module Name", name.equals("first"));
+
+		IModuleBinding[] reqs = moduleBinding.getRequiredModules();
+		assertTrue("Null requires", reqs != null);
+		assertTrue("incorrect number of requires modules", reqs.length == 3);
+		assertTrue("incorrect name for requires modules", reqs[0].getName().equals("java.base"));
+		assertTrue("incorrect name for requires modules",
+				(reqs[1].getName().equals("second") && reqs[2].getName().equals("third")) ||
+				(reqs[1].getName().equals("third") && reqs[2].getName().equals("second")));
+
+		IModuleBinding[] reqsTransitive= moduleBinding.getRequiredTransitiveModules();
+		assertTrue("Null requires", reqsTransitive != null);
+		assertTrue("incorrect number of requires transitive modules", reqsTransitive.length == 1);
+		assertTrue("incorrect name for requires transitive modules", reqsTransitive[0].getName().equals("second"));
+
+		for (int i = 1; i < 3; ++i) {
+			if (reqs[i].getName().equals("second")) {
+				IPackageBinding[] secPacks = reqs[i].getExportedPackages();
+				assertTrue("Packages Exported in second module null", secPacks != null);
+				assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
+				IPackageBinding pack22 = secPacks[0];
+				assertTrue("Incorrect Package", pack22.getName().equals("pack22"));
+			} else {
+				IPackageBinding[] secPacks = reqs[i].getExportedPackages();
+				assertTrue("Packages Exported in third module null", secPacks != null);
+				assertTrue("Incorrect number of exported packages in third module", secPacks.length == 1);
+				IPackageBinding pack33 = secPacks[0];
+				assertTrue("Incorrect Package", pack33.getName().equals("pack33"));
+			}
+		}
+
+		ITypeBinding[] uses = moduleBinding.getUses();
+		assertTrue("uses null", uses != null);
+		assertTrue("Incorrect number of uses", uses.length == 2);
+		assertTrue("Incorrect uses",
+				(uses[0].getQualifiedName().equals("pack22.I22") && uses[1].getQualifiedName().equals("pack33.I33") ||
+						(uses[0].getQualifiedName().equals("pack33.I33") && uses[1].getQualifiedName().equals("pack22.I22"))));
+
+		ITypeBinding[] services = moduleBinding.getServices();
+		assertTrue("services null", services != null);
+		assertTrue("Incorrect number of services", services.length == 1);
+		for (ITypeBinding s : services) {
+			assertTrue("Incorrect service", s.getQualifiedName().equals("pack22.I22"));
+			ITypeBinding[] implementations = moduleBinding.getImplementations(s);
+			assertTrue("implementations null", implementations != null);
+			assertTrue("Incorrect number of implementations", implementations.length == 1);
+			assertTrue("Incorrect implementation", implementations[0].getQualifiedName().equals("pack1.X11"));
+		}
+	}
+
 // Add new tests here
 }

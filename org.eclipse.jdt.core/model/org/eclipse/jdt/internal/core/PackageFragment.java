@@ -186,7 +186,7 @@ public boolean exists() {
 	// so also ensure that:
 	//  - the package is not excluded (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
 	//  - its name is valide (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
-	return super.exists() && !Util.isExcluded(this) && isValidPackageName();
+	return isValidPackageName() && super.exists() && !Util.isExcluded(this);
 }
 /**
  * @see IPackageFragment#getOrdinaryClassFile(String)

@@ -5960,53 +5960,63 @@ public void testBug279359() throws JavaModelException {
  * test Ensure that no exception occurs while formatting 1.5 snippet
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280061"
  */
-public void testBug280061() throws JavaModelException {
-	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-	String source =
-		"public interface X {\n" +
-		"/**\n" +
-		" * <pre>\n" +
-		" *   void solve(Executor e,\n" +
-		" *              Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" +
-		" *     throws InterruptedException, ExecutionException {\n" +
-		" *       CompletionService&lt;Result&gt; ecs\n" +
-		" *           = new ExecutorCompletionService&lt;Result&gt;(e);\n" +
-		" *       for (Callable&lt;Result&gt; s : solvers)\n" +
-		" *           ecs.submit(s);\n" +
-		" *       int n = solvers.size();\n" +
-		" *       for (int i = 0; i &lt; n; ++i) {\n" +
-		" *           Result r = ecs.take().get();\n" +
-		" *           if (r != null)\n" +
-		" *               use(r);\n" +
-		" *       }\n" +
-		" *   }\n" +
-		" * </pre>\n" +
-		" */\n" +
-		" void foo();\n" +
-		"}\n";
-	formatSource(source,
-		"public interface X {\n" +
-		"	/**\n" +
-		"	 * <pre>\n" +
-		"	 *   void solve(Executor e,\n" +
-		"	 *              Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" +
-		"	 *     throws InterruptedException, ExecutionException {\n" +
-		"	 *       CompletionService&lt;Result&gt; ecs\n" +
-		"	 *           = new ExecutorCompletionService&lt;Result&gt;(e);\n" +
-		"	 *       for (Callable&lt;Result&gt; s : solvers)\n" +
-		"	 *           ecs.submit(s);\n" +
-		"	 *       int n = solvers.size();\n" +
-		"	 *       for (int i = 0; i &lt; n; ++i) {\n" +
-		"	 *           Result r = ecs.take().get();\n" +
-		"	 *           if (r != null)\n" +
-		"	 *               use(r);\n" +
-		"	 *       }\n" +
-		"	 *   }\n" +
-		"	 * </pre>\n" +
-		"	 */\n" +
-		"	void foo();\n" +
-		"}\n"
-	);
+// Test disabled due https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3890
+public void _testBug280061() throws JavaModelException {
+	// We try to format code that requires Java 14 with Java 8 source option
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	String noErrorsWith21butWith8 =
+		"""
+		public class X {
+		    enum COLOR {
+		        BLACK, WHITE, RED, GREEN
+		    }
+		    COLOR color = COLOR.RED;
+		    Object result = switch (color) {
+		        case RED, WHITE -> 1;
+		        case GREEN ->  2;
+		        case BLACK -> {
+		            int number = color.toString().length();
+		            yield number * 4;
+		        }
+		        default -> 0;
+		    };
+		}
+		""";
+	// XXX this renders some garbage
+	formatSource(noErrorsWith21butWith8, noErrorsWith21butWith8);
+
+	String classWithErrorsAtAnyJava =
+		"""
+		public class X {
+		//    enum COLOR {
+		//        BLACK, WHITE, RED, GREEN
+		//    }
+		    COLOR color = COLOR.RED;
+		    Object result = switch (color) {
+		        case RED, WHITE -> 1;
+		        case GREEN ->  2;
+		        case BLACK -> {
+		            int number = color.toString().length();
+		            yield number * 4;
+		        }
+		        default -> 0;
+		    };
+		}
+		""";
+	// XXX this produces AIOOBE below
+	/*
+	java.lang.IndexOutOfBoundsException: Index -1 out of bounds for length 64
+	at java.base/jdk.internal.util.Preconditions.outOfBounds(Preconditions.java:100)
+	at java.base/jdk.internal.util.Preconditions.outOfBoundsCheckIndex(Preconditions.java:106)
+	at java.base/jdk.internal.util.Preconditions.checkIndex(Preconditions.java:302)
+	at java.base/java.util.Objects.checkIndex(Objects.java:385)
+	at java.base/java.util.ArrayList.get(ArrayList.java:427)
+	at org.eclipse.jdt.internal.formatter.TokenManager.get(TokenManager.java:78)
+	at org.eclipse.jdt.internal.formatter.TokenManager.findIndex(TokenManager.java:172)
+	at org.eclipse.jdt.internal.formatter.TokenManager.lastIndexIn(TokenManager.java:205)
+	at org.eclipse.jdt.internal.formatter.LineBreaksPreparator.handleBracedCode(LineBreaksPreparator.java:664)
+    */
+	formatSource(classWithErrorsAtAnyJava, classWithErrorsAtAnyJava);
 }
 
 /**
@@ -7812,5 +7822,24 @@ public void testIssue2127b() {
 		}
 		""",
 		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3372
+ */
+public void testIssue3372() {
+	String source =
+		"""
+		/**
+		 * <pre>
+		 * {@code
+		 * void test() {
+		 *   int i;
+		 * }
+		 * </pre>
+		 */
+		class Test {
+		}
+		""";
+	formatSource(source);
 }
 }

@@ -26,10 +26,10 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
@@ -51,66 +52,66 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathDirectory extends ClasspathLocation {
 
-private Hashtable directoryCache;
-private final String[] missingPackageHolder = new String[1];
-private final int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
-private final String encoding; // only useful if referenced in the source path
-private Hashtable<String, Hashtable<String, String>> packageSecondaryTypes = null;
-Map options;
+	private final Map<String, String[]> directoryCache = new ConcurrentHashMap<>();
+	private final String[] missingPackageHolder = new String[1];
+	private final int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
+	private final String encoding; // only useful if referenced in the source path
+	private final Map<String, Map<String, String>> packageSecondaryTypes = new ConcurrentHashMap<>();
+	private final Map<String, String> options;
 
 ClasspathDirectory(File directory, String encoding, int mode,
-		AccessRuleSet accessRuleSet, String destinationPath, Map options) {
+		AccessRuleSet accessRuleSet, String destinationPath, Map<String, String> options) {
 	super(accessRuleSet, destinationPath);
 	this.mode = mode;
 	this.options = options;
-	try {
-		this.path = directory.getCanonicalPath();
-	} catch (IOException e) {
-		// should not happen as we know that the file exists
-		this.path = directory.getAbsolutePath();
-	}
+	this.path = directory.toPath().normalize().toAbsolutePath().toString();
 	if (!this.path.endsWith(File.separator))
 		this.path += File.separator;
-	this.directoryCache = new Hashtable(11);
 	this.encoding = encoding;
 }
-String[] directoryList(String qualifiedPackageName) {
-	if (File.separatorChar != '/' && qualifiedPackageName.indexOf('/') != -1) {
-		qualifiedPackageName = qualifiedPackageName.replace('/', File.separatorChar);
-	}
-	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
-	if (dirList == this.missingPackageHolder) return null; // package exists in another classpath directory or jar
-	if (dirList != null) return dirList;
 
-	File dir = new File(this.path + qualifiedPackageName);
-	notFound : if (dir.isDirectory()) {
-		// must protect against a case insensitive File call
-		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
-		int index = qualifiedPackageName.length();
-		int last = qualifiedPackageName.lastIndexOf(File.separatorChar);
-		while (--index > last && !ScannerHelper.isUpperCase(qualifiedPackageName.charAt(index))){/*empty*/}
-		if (index > last) {
-			if (last == -1) {
-				if (!doesFileExist(qualifiedPackageName, Util.EMPTY_STRING))
-					break notFound;
-			} else {
-				String packageName = qualifiedPackageName.substring(last + 1);
-				String parentPackage = qualifiedPackageName.substring(0, last);
-				if (!doesFileExist(packageName, parentPackage))
-					break notFound;
-			}
+private String[] directoryList(String qualifiedPackageName) {
+	String qualifiedPackagePath = qualifiedPackageName.replace('/', File.separatorChar);
+	// must protect against a case insensitive File call
+	// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
+	int index = qualifiedPackagePath.length();
+	int last = qualifiedPackagePath.lastIndexOf(File.separatorChar);
+	while (--index > last && !ScannerHelper.isUpperCase(qualifiedPackagePath.charAt(index))) {
+		/* empty */}
+	if (index > last) {
+		if (last == -1) {
+			if (!doesFileExist(qualifiedPackagePath, Util.EMPTY_STRING))
+				return null;
+		} else {
+			String packageName = qualifiedPackagePath.substring(last + 1);
+			String parentPackage = qualifiedPackagePath.substring(0, last);
+			if (!doesFileExist(packageName, parentPackage))
+				return null;
 		}
-		if ((dirList = dir.list()) == null)
+	}
+
+	String[] cached = this.directoryCache.computeIfAbsent(qualifiedPackageName, this::computeDirectoryList);
+	if (cached == this.missingPackageHolder) {
+		return null; // package exists in another classpath directory or jar
+	}
+	return cached;
+}
+
+private String[] computeDirectoryList(String qualifiedPackageName) {
+	String qualifiedPackagePath = qualifiedPackageName.replace('/', File.separatorChar);
+	File dir = new File(this.path + qualifiedPackagePath);
+	String[] dirList = dir.list();
+	if (dirList != null) { // if isDirectory
+		if (dirList.length == 0) {
 			dirList = CharOperation.NO_STRINGS;
-		this.directoryCache.put(qualifiedPackageName, dirList);
+		}
 		return dirList;
 	}
-	this.directoryCache.put(qualifiedPackageName, this.missingPackageHolder);
-	return null;
+	return this.missingPackageHolder;
 }
+
 boolean doesFileExist(String fileName, String qualifiedPackageName) {
 	String[] dirList = directoryList(qualifiedPackageName);
 	if (dirList == null) return false; // most common case
@@ -121,7 +122,7 @@ boolean doesFileExist(String fileName, String qualifiedPackageName) {
 	return false;
 }
 @Override
-public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
+public List<Classpath> fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	return null;
 }
 private NameEnvironmentAnswer findClassInternal(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
@@ -202,10 +203,10 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 /**
  *  Add all the secondary types in the package
  */
-private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName) {
-	Hashtable<String, String> packageEntry = new Hashtable<>();
+private Map<String, String> getSecondaryTypes(String qualifiedPackageName) {
+	Map<String, String> packageEntry = new ConcurrentHashMap<>();
 
-	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
+	String[] dirList = this.directoryCache.get(qualifiedPackageName);
 	if (dirList == this.missingPackageHolder // package exists in another classpath directory or jar
 			|| dirList == null)
 		return packageEntry;
@@ -241,13 +242,7 @@ private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName)
 	return packageEntry;
 }
 private NameEnvironmentAnswer findSourceSecondaryType(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-
-	if (this.packageSecondaryTypes == null) this.packageSecondaryTypes = new Hashtable<>();
-	Hashtable<String, String> packageEntry = this.packageSecondaryTypes.get(qualifiedPackageName);
-	if (packageEntry == null) {
-		packageEntry = 	getSecondaryTypes(qualifiedPackageName);
-		this.packageSecondaryTypes.put(qualifiedPackageName, packageEntry);
-	}
+	Map<String, String> packageEntry = this.packageSecondaryTypes.computeIfAbsent(qualifiedPackageName, this::getSecondaryTypes);
 	String fileName = packageEntry.get(typeName);
 	return fileName != null ? new NameEnvironmentAnswer(new CompilationUnit(null,
 			fileName, this.encoding, this.destinationPath),
@@ -360,7 +355,8 @@ public char[][] listPackages() {
 @Override
 public void reset() {
 	super.reset();
-	this.directoryCache = new Hashtable(11);
+	this.directoryCache.clear();
+	this.packageSecondaryTypes.clear();
 }
 @Override
 public String toString() {

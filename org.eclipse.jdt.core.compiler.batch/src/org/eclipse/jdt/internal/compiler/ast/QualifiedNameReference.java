@@ -66,14 +66,11 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 	// determine the rank until which we now we do not need any actual value for the field access
 	int otherBindingsCount = this.otherBindings == null ? 0 : this.otherBindings.length;
 	boolean needValue = otherBindingsCount == 0 || !this.otherBindings[0].isStatic();
-	boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 	FieldBinding lastFieldBinding = null;
 	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 		case Binding.FIELD : // reading a field
 			lastFieldBinding = (FieldBinding) this.binding;
-			if (needValue || complyTo14) {
-				manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, 0, flowInfo);
-			}
+			manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, 0, flowInfo);
 			// check if final blank field
 			if (lastFieldBinding.isBlankFinal()
 				    && this.otherBindings != null // the last field binding is only assigned
@@ -99,6 +96,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
 			}
+			if ((this.bits & (IsCapturedOuterLocal | IsUsedInPatternGuard)) != 0) {
+				localBinding.checkEffectiveFinality(currentScope, this);
+			}
 			if (needValue) {
 				checkInternalNPE(currentScope, flowContext, flowInfo, true);
 			}
@@ -113,9 +113,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 		for (int i = 0; i < otherBindingsCount-1; i++) {
 			lastFieldBinding = this.otherBindings[i];
 			needValue = !this.otherBindings[i+1].isStatic();
-			if (needValue || complyTo14) {
-				manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, i + 1, flowInfo);
-			}
+			manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, i + 1, flowInfo);
 		}
 		lastFieldBinding = this.otherBindings[otherBindingsCount-1];
 	}
@@ -178,12 +176,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int otherBindingsCount = this.otherBindings == null ? 0 : this.otherBindings.length;
 
 	boolean needValue = otherBindingsCount == 0 ? valueRequired : !this.otherBindings[0].isStatic();
-	boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 		case Binding.FIELD : // reading a field
-			if (needValue || complyTo14) {
-				manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) this.binding, 0, flowInfo);
-			}
+			manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) this.binding, 0, flowInfo);
 			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
 				// check if reading a final blank field
@@ -206,6 +201,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
 			}
+			if ((this.bits & (IsCapturedOuterLocal | IsUsedInPatternGuard)) != 0) {
+				localBinding.checkEffectiveFinality(currentScope, this);
+			}
 	}
 	if (needValue) {
 		checkInternalNPE(currentScope, flowContext, flowInfo, true);
@@ -217,9 +215,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (this.otherBindings != null) {
 		for (int i = 0; i < otherBindingsCount; i++) {
 			needValue = i < otherBindingsCount-1 ? !this.otherBindings[i+1].isStatic() : valueRequired;
-			if (needValue || complyTo14) {
-				manageSyntheticAccessIfNecessary(currentScope, this.otherBindings[i], i + 1, flowInfo);
-			}
+			manageSyntheticAccessIfNecessary(currentScope, this.otherBindings[i], i + 1, flowInfo);
 		}
 	}
 	return flowInfo;
@@ -358,7 +354,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 												&& this.otherBindings == null; // could be dup: next.next.next
 				TypeBinding requiredGenericCast = getGenericCast(this.otherBindings == null ? 0 : this.otherBindings.length);
 				if (valueRequired
-						|| (!isFirst && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+						|| (!isFirst)
 						|| ((this.implicitConversion & TypeIds.UNBOXING) != 0)
 						|| requiredGenericCast != null) {
 					int lastFieldPc = codeStream.position;
@@ -548,7 +544,6 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 	FieldBinding lastFieldBinding;
 	TypeBinding lastGenericCast;
 	TypeBinding lastReceiverType;
-	boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 
 	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 		case Binding.FIELD :
@@ -576,8 +571,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 			lastGenericCast = null;
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
 			lastReceiverType = localBinding.type;
-			// checkEffectiveFinality() returns if it's outer local
-			boolean capturedInOuter = checkEffectiveFinality(localBinding, currentScope);
+			boolean capturedInOuter = (this.bits & ASTNode.IsCapturedOuterLocal) != 0;
 			if (!needValue) break; // no value needed
 			// regular local variable read
 			Constant localConstant = localBinding.constant();
@@ -619,7 +613,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 						codeStream.generateConstant(fieldConstant, 0);
 					}
 				} else {
-					if (needValue || (i > 0 && complyTo14) || lastGenericCast != null) {
+					if (needValue || (i > 0) || lastGenericCast != null) {
 						MethodBinding accessor = this.syntheticReadAccessors == null ? null : this.syntheticReadAccessors[i];
 						if (accessor == null) {
 							TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, lastReceiverType, i == 0 && this.indexOfFirstFieldBinding == 1);
@@ -914,7 +908,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FieldBindi
 
 @Override
 public Constant optimizedBooleanConstant() {
-	if (this.binding.isValidBinding() && this.resolvedType != null) {
+	if (this.resolvedType != null && this.binding.isValidBinding()) {
 		switch (this.resolvedType.id) {
 			case T_boolean :
 			case T_JavaLangBoolean :
@@ -997,6 +991,8 @@ public TypeBinding reportError(BlockScope scope) {
 		scope.problemReporter().invalidField(this, (FieldBinding) this.binding);
 	} else if (this.binding instanceof ProblemReferenceBinding || this.binding instanceof MissingTypeBinding) {
 		scope.problemReporter().invalidType(this, (TypeBinding) this.binding);
+	} else if (this.binding instanceof ProblemLocalVariableBinding plvb && plvb.problemId() == ProblemReasons.NonStaticReferenceInStaticContext) {
+		scope.problemReporter().recordStaticReferenceToOuterLocalVariable(plvb.closestMatch, this);
 	} else {
 		scope.problemReporter().unresolvableReference(this, this.binding);
 	}
@@ -1018,10 +1014,6 @@ public TypeBinding resolveType(BlockScope scope) {
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.LOCAL;
 					LocalVariableBinding local = (LocalVariableBinding) this.binding;
-					if (!local.isFinal() && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
-						if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
-							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
-					}
 					if (local.type != null && (local.type.tagBits & TagBits.HasMissingType) != 0) {
 						// only complain if field reference (for local, its type got flagged already)
 						return null;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -55,7 +55,7 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 protected boolean checkNullableFieldDereference(Scope scope, FieldBinding field, long sourcePosition, FlowContext flowContext, int ttlForFieldCheck) {
 	if (field != null) {
 		if (ttlForFieldCheck > 0 && scope.compilerOptions().enableSyntacticNullAnalysisForFields)
-			flowContext.recordNullCheckedFieldReference(this, ttlForFieldCheck);
+			flowContext.recordNullCheckedFieldReference(this, ttlForFieldCheck, FlowInfo.NON_NULL);
 		// preference to type annotations if we have any
 		if ((field.type.tagBits & TagBits.AnnotationNullable) != 0) {
 			scope.problemReporter().dereferencingNullableExpression(sourcePosition, scope.environment());
@@ -187,9 +187,9 @@ void reportOnlyUselesslyReadPrivateField(BlockScope currentScope, FieldBinding f
 }
 
 protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char[] token, FieldBinding fieldBinding, TypeBinding actualReceiverType) {
-	if (actualReceiverType != null && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(scope.compilerOptions())) {
+	if (actualReceiverType != null) {
 		if (scope.isInsideEarlyConstructionContext(actualReceiverType, false)) {
-			// §6.5.6.1 (JEP 482):
+			// §6.5.6.1 (JEP 513):
 			// If the declaration denotes an instance variable of a class C ... then .. or a compile time occurs:
 			// - [...]
 			// - If the expression name appears in an early construction context of C (8.8.7.1),
@@ -207,6 +207,10 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 				scope.problemReporter().superFieldAssignInEarlyConstructionContext(this, fieldBinding);
 				return;
 			} else {
+				if (scope.methodScope().isLambdaScope()) {
+					scope.problemReporter().fieldAssignInEarlyConstructionContextInLambda(this, fieldBinding);
+					return;
+				}
 				FieldDeclaration sourceField = fieldBinding.sourceField();
 				if (sourceField != null && sourceField.initialization != null) {
 					// Error: field has an initializer
@@ -214,7 +218,7 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 					return;
 				}
 			}
-			// otherwise legal if JEP 482 is enabled
+			// otherwise legal if JEP 513 is enabled
 			scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, this.sourceStart, this.sourceEnd);
 		}
 	}
@@ -255,12 +259,12 @@ static void reportOnlyUselesslyReadLocal(BlockScope currentScope, LocalVariableB
 
 			if (shouldReport) {
 				// report the case of an argument that is unread except through a special operator
-				currentScope.problemReporter().unusedArgument(localBinding.declaration);
+				currentScope.problemReporter().unusedArgument((LocalDeclaration) localBinding.declaration);
 			}
 		}
 	} else {
 		// report the case of a local variable that is unread except for a special operator
-		currentScope.problemReporter().unusedLocalVariable(localBinding.declaration);
+		currentScope.problemReporter().unusedLocalVariable((LocalDeclaration) localBinding.declaration);
 	}
 }
 }

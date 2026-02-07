@@ -464,13 +464,13 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		IMethodBinding[] mBindings = typeBinding.getDeclaredMethods();
 		assertEquals("No. of declared methods is not 6", mBindings.length, 6);
 		for (IMethodBinding mBinding : mBindings) {
-			if (mBinding.getName().equals("X") || mBinding.getName().equals("foo")) {
+			if (mBinding.getName().equals("foo")) {
 				assertFalse("foo is not a synthetic method", mBinding.isSyntheticRecordMethod());
+			} else {
+				assertTrue("expected a synthetic method", mBinding.isSyntheticRecordMethod());
 				if (mBinding.getName().equals("X")) {
 					assertArrayEquals(mBinding.getParameterNames(), new String[] { "myComp" });
 				}
-			} else {
-				assertTrue("expected a synthetic method", mBinding.isSyntheticRecordMethod());
 			}
 		}
 

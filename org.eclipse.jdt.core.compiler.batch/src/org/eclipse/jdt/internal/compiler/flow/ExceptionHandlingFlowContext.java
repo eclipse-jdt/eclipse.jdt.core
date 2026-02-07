@@ -20,6 +20,7 @@ package org.eclipse.jdt.internal.compiler.flow;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -28,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.ast.StatementWithFinallyBlock;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
-import org.eclipse.jdt.internal.compiler.codegen.ObjectCache;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CatchParameterBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  * Reflects the context of code analysis, keeping track of enclosing
  *	try statements, exception handlers, etc...
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class ExceptionHandlingFlowContext extends FlowContext {
 
 	public final static int BitCacheSize = 32; // 32 bits per int
@@ -52,16 +51,15 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	int[] isNeeded;
 	// WARNING: This is an array that maps to catch blocks, not caught exceptions (which could be more than catch blocks in a multi-catch block)
 	UnconditionalFlowInfo[] initsOnExceptions;
-	ObjectCache indexes = new ObjectCache();
+	IdentityHashMap<ReferenceBinding, Integer> indexes = new IdentityHashMap<>();
 	boolean isMethodContext;
 
 	public UnconditionalFlowInfo initsOnReturn;
 	public FlowContext initializationParent; // special parent relationship only for initialization purpose
 
 	// for dealing with anonymous constructor thrown exceptions
-	public List extendedExceptions;
+	public List<TypeBinding> extendedExceptions;
 
-	private static final Argument[] NO_ARGUMENTS = new Argument[0];
 	public  Argument [] catchArguments;
 
 	private final int[] exceptionToCatchBlockMap;
@@ -73,7 +71,7 @@ public ExceptionHandlingFlowContext(
 			FlowContext initializationParent,
 			BlockScope scope,
 			UnconditionalFlowInfo flowInfo) {
-	this(parent, associatedNode, handledExceptions, null, NO_ARGUMENTS, initializationParent, scope, flowInfo);
+	this(parent, associatedNode, handledExceptions, null, ASTNode.NO_ARGUMENTS, initializationParent, scope, flowInfo);
 }
 public ExceptionHandlingFlowContext(
 		FlowContext parent,
@@ -255,7 +253,7 @@ public void mergeUnhandledException(TypeBinding newException){
 	boolean isRedundant = false;
 
 	for(int i = this.extendedExceptions.size()-1; i >= 0; i--){
-		switch(Scope.compareTypes(newException, (TypeBinding)this.extendedExceptions.get(i))){
+		switch(Scope.compareTypes(newException, this.extendedExceptions.get(i))){
 			case Scope.MORE_GENERIC :
 				this.extendedExceptions.remove(i);
 				break;

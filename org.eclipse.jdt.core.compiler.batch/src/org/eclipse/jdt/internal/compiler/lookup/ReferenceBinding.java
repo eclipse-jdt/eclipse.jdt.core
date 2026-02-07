@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -55,17 +55,20 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
+import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /*
 Not all fields defined by this type (& its subclasses) are initialized when it is created.
@@ -88,10 +91,12 @@ abstract public class ReferenceBinding extends TypeBinding {
 	char[] constantPoolName;
 	char[] signature;
 
-	private SimpleLookupTable compatibleCache;
+	protected Map<TypeBinding, Boolean> compatibleCache;
 
 	int typeBits; // additional bits characterizing this type
 	protected MethodBinding [] singleAbstractMethod;
+
+	protected static final DysfunctionalInterfaceException DYSFUNCTIONAL_INTERFACE_EXCEPTION = new DysfunctionalInterfaceException("Not a functional interface"); //$NON-NLS-1$
 
 	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */
 		{ this.id = TypeIds.T_undefined; }
@@ -354,16 +359,8 @@ public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invoc
 	if (isPrivate()) {
 		// answer true if the receiverType is the receiver or its enclosingType
 		// AND the invocationType and the receiver have a common enclosingType
-		receiverCheck: {
-			if (!(TypeBinding.equalsEquals(receiverType, this) || TypeBinding.equalsEquals(receiverType, enclosingType()))) {
-				// special tolerance for type variable direct bounds, but only if compliance <= 1.6, see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
-				if (receiverType.isTypeVariable()) {
-					TypeVariableBinding typeVariable = (TypeVariableBinding) receiverType;
-					if (typeVariable.environment.globalOptions.complianceLevel <= ClassFileConstants.JDK1_6 && (typeVariable.isErasureBoundTo(erasure()) || typeVariable.isErasureBoundTo(enclosingType().erasure())))
-						break receiverCheck;
-				}
-				return false;
-			}
+		if (!(TypeBinding.equalsEquals(receiverType, this) || TypeBinding.equalsEquals(receiverType, enclosingType()))) {
+			return false;
 		}
 
 		if (TypeBinding.notEquals(invocationType, this)) {
@@ -504,9 +501,6 @@ public void computeId() {
 				case 3: // only one type in this group, yet:
 					if (CharOperation.equals(TypeConstants.ORG_JUNIT_ASSERT, this.compoundName))
 						this.id = TypeIds.T_OrgJunitAssert;
-					else if (CharOperation.equals(TypeConstants.JDK_INTERNAL_PREVIEW_FEATURE, this.compoundName)
-							|| CharOperation.equals(TypeConstants.JDK_INTERNAL_JAVAC_PREVIEW_FEATURE, this.compoundName))
-						this.id = TypeIds.T_JdkInternalPreviewFeature;
 					return;
 				case 4:
 					if (!CharOperation.equals(TypeConstants.JAVA, packageName))
@@ -528,7 +522,7 @@ public void computeId() {
 					switch (packageName[1]) {
 						case 'a':
 							if (CharOperation.equals(TypeConstants.JAKARTA_ANNOTATION_INJECT_INJECT, this.compoundName))
-								this.id = TypeIds.T_JavaxInjectInject;
+								this.id = TypeIds.T_JakartaInjectInject;
 							return;
 					}
 					return;
@@ -1062,6 +1056,7 @@ public ReferenceBinding actualType() {
 	return this;
 }
 
+@Override
 public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
@@ -1075,10 +1070,6 @@ public int fieldCount() {
 	return fields().length;
 }
 
-public FieldBinding[] fields() {
-	return Binding.NO_FIELDS;
-}
-
 public final int getAccessFlags() {
 	return this.modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
@@ -1090,13 +1081,46 @@ public final int getAccessFlags() {
 public AnnotationBinding[] getAnnotations() {
 	return retrieveAnnotations(prototype());
 }
-
+/**
+ * Get annotations, but request initialization only for specific ones
+ * @param requestedInitialization uses the bits from {@link ExtendedTagBits#DeprecatedAnnotationResolved}
+ *  or {@link ExtendedTagBits#AllAnnotationsResolved} to request initialization of specific annotations
+ *  (with option to select others in the future).
+ */
+public AnnotationBinding[] getAnnotations(long requestedInitialization) {
+	return getAnnotations();
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
  */
 @Override
 public long getAnnotationTagBits() {
 	return this.tagBits;
+}
+
+public RecordComponent getRecordComponent(char[] name) {
+	if (this.isRecord()) {
+		RecordComponentBinding [] rcbs = components();
+		int length = rcbs == null ? 0 : rcbs.length;
+		for (int i = 0; i < length; i++)
+			if (CharOperation.equals(name, rcbs[i].name))
+				return rcbs[i].sourceRecordComponent();
+	}
+	return null;
+}
+
+public RecordComponent[] getRecordComponents() {
+	RecordComponent[] recordComponents = ASTNode.NO_RECORD_COMPONENTS;
+	if (this.isRecord()) {
+		RecordComponentBinding[] rcbs = components();
+		int length = rcbs == null ? 0 : rcbs.length;
+		if (length > 0) {
+			recordComponents = new RecordComponent[length];
+			for (int i = 0; i < length; i++)
+				recordComponents[i] = rcbs[i].sourceRecordComponent();
+		}
+	}
+	return recordComponents;
 }
 
 /**
@@ -1117,13 +1141,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	return null;
 }
-public RecordComponentBinding getComponent(char[] componentName, boolean needResolve) {
-	return null;
-}
-// adding this since we don't use sorting for components
-public RecordComponentBinding getRecordComponent(char[] name) {
-	return null;
-}
+
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
@@ -1211,10 +1229,6 @@ public int hashCode() {
 	return (this.compoundName == null || this.compoundName.length == 0)
 		? super.hashCode()
 		: CharOperation.hashCode(this.compoundName[this.compoundName.length - 1]);
-}
-
-final int identityHashCode() {
-	return super.hashCode();
 }
 
 /**
@@ -1411,15 +1425,19 @@ public boolean isClass() {
 	return (this.modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) == 0;
 }
 
+@Override
+public boolean isRecord() {
+	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
+}
+
 private static SourceTypeBinding getSourceTypeBinding(ReferenceBinding ref) {
-	if (ref instanceof SourceTypeBinding)
-		return (SourceTypeBinding) ref;
-	if (ref instanceof ParameterizedTypeBinding) {
-		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) ref;
-		return ptb.type instanceof SourceTypeBinding ? (SourceTypeBinding) ptb.type : null;
-	}
+	if (ref instanceof SourceTypeBinding stb)
+		return stb;
+	if (ref instanceof ParameterizedTypeBinding ptb)
+		return ptb.type instanceof SourceTypeBinding stb ? stb : null;
 	return null;
 }
+
 public  boolean isNestmateOf(ReferenceBinding other) {
 	SourceTypeBinding s1 = getSourceTypeBinding(this);
 	SourceTypeBinding s2 = getSourceTypeBinding(other);
@@ -1448,9 +1466,9 @@ public boolean isCompatibleWith(TypeBinding otherType, /*@Nullable*/ Scope captu
 
 	if (otherType.id == TypeIds.T_JavaLangObject)
 		return true;
-	Object result;
+	Boolean result;
 	if (this.compatibleCache == null) {
-		this.compatibleCache = new SimpleLookupTable(3);
+		this.compatibleCache = new HashMap<>();
 		result = null;
 	} else {
 		result = this.compatibleCache.get(otherType); // [dbg reset] this.compatibleCache.put(otherType,null)
@@ -1499,18 +1517,6 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 				if ((otherLowerBound = otherCapture.lowerBound) != null) {
 					if (otherLowerBound.isArrayType()) return false;
 					return isCompatibleWith(otherLowerBound);
-				}
-			}
-			if (otherType instanceof InferenceVariable) {
-				// may interpret InferenceVariable as a joker, but only when within an outer lambda inference:
-				if (captureScope != null) {
-					MethodScope methodScope = captureScope.methodScope();
-					if (methodScope != null) {
-						ReferenceContext referenceContext = methodScope.referenceContext;
-						if (referenceContext instanceof LambdaExpression
-								&& ((LambdaExpression)referenceContext).inferenceContext != null)
-							return true;
-					}
 				}
 			}
 			//$FALL-THROUGH$
@@ -1672,6 +1678,22 @@ public boolean isInterface() {
 	return (this.modifiers & ClassFileConstants.AccInterface) != 0;
 }
 
+private boolean isPatentlyDysfunctional(Scope scope) {
+	if (!isInterface() || isSealed() || isAnnotationType())
+		return true;
+	MethodBinding samCandidate = null;
+	for (MethodBinding method : methods()) {
+		if (method.isAbstract() && !method.redeclaresPublicObjectMethod(scope)) {
+			if (samCandidate == null) {
+				samCandidate = method;
+			} else if (!CharOperation.equals(samCandidate.selector, method.selector) ||
+						samCandidate.parameters.length != method.parameters.length) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 @Override
 public boolean isFunctionalInterface(Scope scope) {
 	MethodBinding method;
@@ -1734,6 +1756,7 @@ public final boolean isStrictfp() {
  */
 public boolean isSuperclassOf(ReferenceBinding otherType) {
 	while ((otherType = otherType.superclass()) != null) {
+		otherType = CapturingContext.maybeCapture(otherType);
 		if (otherType.isEquivalentTo(this)) return true;
 	}
 	return false;
@@ -1796,18 +1819,6 @@ public final boolean isUsed() {
 	return (this.modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
 
-/**
- * Answer true if the receiver is deprecated (or any of its enclosing types)
- */
-public final boolean isViewedAsDeprecated() {
-	if ((this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0)
-		return true;
-	if (getPackage().isViewedAsDeprecated()) {
-		this.tagBits |= (getPackage().tagBits & TagBits.AnnotationTerminallyDeprecated);
-		return true;
-	}
-	return false;
-}
 public boolean isImplicitType() {
 	return false;
 }
@@ -1829,6 +1840,60 @@ public final ReferenceBinding outermostEnclosingType() {
 		if ((current = current.enclosingType()) == null)
 			return last;
 	}
+}
+
+/** return all type variables involved left to right */
+public TypeVariableBinding [] typeVariablesIncludingEnclosing() {
+
+	ReferenceBinding enclosingType = enclosingType();
+	TypeVariableBinding [] ownVariables = typeVariables();
+	TypeVariableBinding [] outerVariables = hasEnclosingInstanceContext() && enclosingType != null ? enclosingType.typeVariablesIncludingEnclosing() : Binding.NO_TYPE_VARIABLES;
+
+	if (outerVariables == null || outerVariables == Binding.NO_TYPE_VARIABLES)
+		return ownVariables == null ? Binding.NO_TYPE_VARIABLES : ownVariables;
+
+	if (ownVariables == null || ownVariables == Binding.NO_TYPE_VARIABLES)
+		return outerVariables;
+
+	int outerVariablesCount = outerVariables.length;
+	TypeVariableBinding [] allVariables;
+	System.arraycopy(outerVariables,
+			            0,
+			            allVariables = new TypeVariableBinding[outerVariablesCount + ownVariables.length],
+			            0,
+			         outerVariablesCount);
+	System.arraycopy(ownVariables,
+                         0,
+                         allVariables,
+                 outerVariablesCount,
+              ownVariables.length);
+	return allVariables;
+}
+
+public TypeBinding[] typeArgumentsIncludingEnclosing() {
+	ReferenceBinding enclosingType = enclosingType();
+	TypeBinding [] ownArguments = typeArguments();
+	TypeBinding [] outerArguments = hasEnclosingInstanceContext() && enclosingType != null ? enclosingType.typeArguments() : Binding.NO_TYPES;
+
+	if (outerArguments == null || outerArguments == Binding.NO_TYPES)
+		return ownArguments == null ? Binding.NO_TYPES : ownArguments;
+
+	if (ownArguments == null || ownArguments == Binding.NO_TYPES)
+		return outerArguments;
+
+	int outerArgumentsCount = outerArguments.length;
+	TypeBinding [] allArguments;
+	System.arraycopy(outerArguments,
+			            0,
+			            allArguments = new TypeBinding[outerArgumentsCount + ownArguments.length],
+			            0,
+			            outerArgumentsCount);
+	System.arraycopy(ownArguments,
+                         0,
+                         allArguments,
+                         outerArgumentsCount,
+              ownArguments.length);
+	return allArguments;
 }
 
 /**
@@ -1901,8 +1966,8 @@ protected void appendNullAnnotation(StringBuilder nameBuffer, CompilerOptions op
 }
 
 public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
-	SimpleLookupTable store = storedAnnotations(forceInitialization, false);
-	return store == null ? null : (AnnotationHolder) store.get(binding);
+	Map<Binding, AnnotationHolder> store = storedAnnotations(forceInitialization, false);
+	return store == null ? null : store.get(binding);
 }
 
 AnnotationBinding[] retrieveAnnotations(Binding binding) {
@@ -2041,37 +2106,13 @@ public char[] sourceName() {
 	return this.sourceName;
 }
 
-/**
- * Perform an upwards type projection as per JLS 4.10.5
- * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
- * @return Upwards type projection of 'this', or null if downwards projection is undefined
-*/
-@Override
-public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
-	return this;
-}
-
-/**
- * Perform a downwards type projection as per JLS 4.10.5
- * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
- * @return Downwards type projection of 'this', or null if downwards projection is undefined
-*/
-@Override
-public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
-	return this;
-}
-
 void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {
 	if (holder == null) {
-		SimpleLookupTable store = storedAnnotations(false, false);
+		Map<Binding, AnnotationHolder> store = storedAnnotations(false, false);
 		if (store != null)
-			store.removeKey(binding);
+			store.remove(binding);
 	} else {
-		SimpleLookupTable store = storedAnnotations(true, false);
+		Map<Binding, AnnotationHolder> store = storedAnnotations(true, false);
 		if (store != null)
 			store.put(binding, holder);
 	}
@@ -2080,21 +2121,21 @@ void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {
 void storeAnnotations(Binding binding, AnnotationBinding[] annotations, boolean forceStore) {
 	AnnotationHolder holder = null;
 	if (annotations == null || annotations.length == 0) {
-		SimpleLookupTable store = storedAnnotations(false, forceStore);
+		Map<Binding, AnnotationHolder> store = storedAnnotations(false, forceStore);
 		if (store != null)
-			holder = (AnnotationHolder) store.get(binding);
+			holder = store.get(binding);
 		if (holder == null) return; // nothing to delete
 	} else {
-		SimpleLookupTable store = storedAnnotations(true, forceStore);
+		Map<Binding, AnnotationHolder> store = storedAnnotations(true, forceStore);
 		if (store == null) return; // not supported
-		holder = (AnnotationHolder) store.get(binding);
+		holder = store.get(binding);
 		if (holder == null)
 			holder = new AnnotationHolder();
 	}
 	storeAnnotationHolder(binding, holder.setAnnotations(annotations));
 }
 
-SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore) {
+Map<Binding, AnnotationHolder> storedAnnotations(boolean forceInitialize, boolean forceStore) {
 	return null; // overrride if interested in storing annotations for the receiver, its fields and methods
 }
 
@@ -2124,9 +2165,6 @@ public FieldBinding[] unResolvedFields() {
 	return Binding.NO_FIELDS;
 }
 
-public RecordComponentBinding[] unResolvedComponents() {
-	return Binding.NO_COMPONENTS;
-}
 /*
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
@@ -2163,14 +2201,16 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 					}
 				}
 			}
-			for (int i=0; i<3; i++) {
-				if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
-					return 0;
+			streamex: {
+				for (int i=0; i<3; i++) {
+					if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
+						break streamex;
+					}
 				}
-			}
-			for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
-				if (CharOperation.equals(this.compoundName[3], streamName)) {
-					return TypeIds.BitResourceFreeCloseable;
+				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
+					if (CharOperation.equals(this.compoundName[3], streamName)) {
+						return TypeIds.BitResourceFreeCloseable;
+					}
 				}
 			}
 			break;
@@ -2270,111 +2310,76 @@ public void detectWrapperResource() {
 	}
 }
 
-protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidBindingException {
-
-	if (!isInterface() || !isValidBinding()) {
-		throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
-	}
-
-	MethodBinding [] methods = methods();
-	MethodBinding [] contracts = new MethodBinding[0];
-	int contractsCount = 0;
-	int contractsLength = 0;
-
-	ReferenceBinding [] superInterfaces = superInterfaces();
-	for (ReferenceBinding superInterface : superInterfaces) {
-		// filterDefaultMethods=false => keep default methods needed to filter out any abstract methods they may override:
-		MethodBinding [] superInterfaceContracts = superInterface.getInterfaceAbstractContracts(scope, replaceWildcards, false);
-		final int superInterfaceContractsLength = superInterfaceContracts == null  ? 0 : superInterfaceContracts.length;
-		if (superInterfaceContractsLength == 0) continue;
-		if (contractsLength < contractsCount + superInterfaceContractsLength) {
-			System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsLength = contractsCount + superInterfaceContractsLength], 0, contractsCount);
-		}
-		System.arraycopy(superInterfaceContracts, 0, contracts, contractsCount,	superInterfaceContractsLength);
-		contractsCount += superInterfaceContractsLength;
-	}
+private MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
 
 	LookupEnvironment environment = scope.environment();
-	for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++) {
-		final MethodBinding method = methods[i];
-		if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope) || method.isPrivate())
-			continue;
-		if (!method.isValidBinding())
-			throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
-		for (int j = 0; j < contractsCount;) {
-			if ( contracts[j] != null && MethodVerifier.doesMethodOverride(method, contracts[j], environment)) {
-				contractsCount--;
-				// abstract method from super type overridden by present interface ==> contracts[j] = null;
-				if (j < contractsCount) {
-					System.arraycopy(contracts, j+1, contracts, j, contractsCount - j);
-					continue;
-				}
-			}
-			j++;
-		}
-		if (filterDefaultMethods && method.isDefaultMethod())
-			continue; // skip default method itself
-		if (contractsCount == contractsLength) {
-			System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsLength += 16], 0, contractsCount);
-		}
-		if(environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-			ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(method, scope);
-		}
-		contracts[contractsCount++] = method;
-	}
-	// check mutual overriding of inherited methods (i.e., not from current type):
-	for (int i = 0; i < contractsCount; i++) {
-		MethodBinding contractI = contracts[i];
-		if (TypeBinding.equalsEquals(contractI.declaringClass, this))
-			continue;
-		for (int j = 0; j < contractsCount; j++) {
-			MethodBinding contractJ = contracts[j];
-			if (i == j || TypeBinding.equalsEquals(contractJ.declaringClass, this))
-				continue;
-			if (contractI == contractJ || MethodVerifier.doesMethodOverride(contractI, contractJ, environment)) {
-				contractsCount--;
-				// abstract method from one super type overridden by other super interface ==> contracts[j] = null;
-				if (j < contractsCount) {
-					System.arraycopy(contracts, j+1, contracts, j, contractsCount - j);
-				}
-				j--;
-				if (j < i)
-					i--;
-				continue;
+	boolean isAnnotationBasedNullAnalysisEnabled = environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
+	MethodBinding samCandidate = null;
+
+	MethodBinding[] methods = collateFunctionalInterfaceContracts(scope, replaceWildcards, new HashSet<>())
+		.sorted((m1, m2) -> CharOperation.compareTo(m1.selector, m2.selector))
+		.toArray(MethodBinding []::new);
+
+	for (int i = 0, length = methods.length; i < length; i++) {
+		MethodBinding method = methods[i];
+		for (int j = i + 1; j < length; j++) {
+			MethodBinding otherMethod = methods[j];
+			if (method.selector.length != otherMethod.selector.length || !CharOperation.equals(method.selector, otherMethod.selector))
+				break; // Skip comparing apple to oranges (input sorted by selector, so no viable overrides past this point)
+			if (MethodVerifier.doesMethodOverride(otherMethod, method, environment)) {
+				methods[i] = method = null;
+				break; // Skip comparing rotten apple with remaining lot: is overridden already, no use checking if is overridden also by another
 			}
 		}
-		if (filterDefaultMethods && contractI.isDefaultMethod()) {
-			contractsCount--;
-			// remove default method after it has eliminated any matching abstract methods from contracts
-			if (i < contractsCount) {
-				System.arraycopy(contracts, i+1, contracts, i, contractsCount - i);
-			}
-			i--;
+		if (method != null && method.isAbstract()) {
+			if (samCandidate == null)
+				samCandidate = method;
+			else if (!CharOperation.equals(samCandidate.selector, method.selector) || samCandidate.parameters.length != method.parameters.length)
+				throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
+			if (isAnnotationBasedNullAnalysisEnabled)
+				ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(method, scope);
 		}
 	}
-	if (contractsCount < contractsLength) {
-		System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsCount], 0, contractsCount);
-	}
-	return contracts;
+	return Arrays.stream(methods).filter(m -> m != null && m.isAbstract()).toArray(MethodBinding []::new);
 }
+
+protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards, Set<ReferenceBinding> visitedInterfaces) throws DysfunctionalInterfaceException {
+
+	if (!isInterface() || !isValidBinding())
+		throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
+
+	Predicate<MethodBinding> isContractual = m -> { // select valid public abstract || default methods
+		if (m == null || m.isStatic() || m.redeclaresPublicObjectMethod(scope) || m.isPrivate())
+			return false;
+		if (!m.isValidBinding())
+			throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
+		return true;
+	};
+
+	return Stream.concat( //
+			Arrays.stream(superInterfaces()).filter(iface->visitedInterfaces.add(iface)).flatMap(superInterface -> superInterface.collateFunctionalInterfaceContracts(scope, replaceWildcards, visitedInterfaces)), //
+			Arrays.stream(methods()).filter(isContractual)
+	);
+}
+
 @Override
 public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
 
 	int index = replaceWildcards ? 0 : 1;
 	if (this.singleAbstractMethod != null) {
 		if (this.singleAbstractMethod[index] != null)
-		return this.singleAbstractMethod[index];
+			return this.singleAbstractMethod[index];
 	} else {
 		this.singleAbstractMethod = new MethodBinding[2];
-		if (this.isSealed())
-			return this.singleAbstractMethod[index] = samProblemBinding; // JLS 9.8
+		if (isPatentlyDysfunctional(scope))
+			return this.singleAbstractMethod[0] = this.singleAbstractMethod[1] = samProblemBinding;
 	}
 
 	if (this.compoundName != null)
 		scope.compilationUnitScope().recordQualifiedReference(this.compoundName);
 	MethodBinding[] methods = null;
 	try {
-		methods = getInterfaceAbstractContracts(scope, replaceWildcards, true);
+		methods = getFunctionalInterfaceAbstractContracts(scope, replaceWildcards);
 		if (methods == null || methods.length == 0)
 			return this.singleAbstractMethod[index] = samProblemBinding;
 		int contractParameterLength = 0;
@@ -2390,7 +2395,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 					return this.singleAbstractMethod[index] = samProblemBinding;
 			}
 		}
-	} catch (InvalidBindingException e) {
+	} catch (DysfunctionalInterfaceException e) {
 		return this.singleAbstractMethod[index] = samProblemBinding;
 	}
 	if (methods.length == 1)
@@ -2500,7 +2505,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 }
 
 // See JLS 4.9 bullet 1
-public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes) {
+public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes, boolean simulatingBugJDK8026527) {
 	TypeBinding[] ci = new TypeBinding[intersectingTypes.length];
 	for (int i = 0; i < ci.length; i++) {
 		TypeBinding current = intersectingTypes[i];
@@ -2513,9 +2518,9 @@ public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes) 
 		// when invoked during type inference we only want to check inconsistency among real types:
 		if (current.isTypeVariable() || current.isWildcard() || !current.isProperType(true))
 			continue;
-		if (mostSpecific.isSubtypeOf(current, false))
+		if (mostSpecific.isSubtypeOf(current, simulatingBugJDK8026527))
 			continue;
-		else if (current.isSubtypeOf(mostSpecific, false))
+		else if (current.isSubtypeOf(mostSpecific, simulatingBugJDK8026527))
 			mostSpecific = current;
 		else
 			return false;
@@ -2528,8 +2533,9 @@ public ModuleBinding module() {
 	return null;
 }
 
+@Override
 public boolean hasEnclosingInstanceContext() {
-	// This method intentionally disregards early construction contexts (JEP 482).
+	// This method intentionally disregards early construction contexts (JEP 513).
 	// Details of how each outer level is handled are coordinated in
 	// TypeDeclaration.manageEnclosingInstanceAccessIfNecessary().
 	if (isStatic())
@@ -2625,10 +2631,9 @@ public boolean isDisjointFrom(ReferenceBinding that) {
 		}
 	}
 }
-static class InvalidBindingException extends Exception {
+static class DysfunctionalInterfaceException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
-
-	InvalidBindingException(String message) {
+	DysfunctionalInterfaceException(String message) {
 		super(message);
 	}
 }

@@ -29,12 +29,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -51,7 +50,7 @@ public final class JavaConventions {
 	private static final char DOT= '.';
     private static final Pattern DOT_DOT = Pattern.compile("(\\.)(\\1)+"); //$NON-NLS-1$
     private static final Pattern PREFIX_JAVA = Pattern.compile("java$"); //$NON-NLS-1$
-	private static final Scanner SCANNER = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
+	private static final Scanner SCANNER = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.getFirstSupportedJdkLevel() /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 	private static Map<String, Set<String>> restrictedIdentifiersMap, restrictedIdentifierPreviewMap;
 	private static List<String> javaVersions;
 	private static String VAR_ID = "var"; //$NON-NLS-1$
@@ -125,14 +124,14 @@ public final class JavaConventions {
 			return null;
 		}
 		// Set scanner for given source and compliance levels
-		SCANNER.sourceLevel = sourceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(sourceLevel);
-		SCANNER.complianceLevel = complianceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(complianceLevel);
+		SCANNER.sourceLevel = sourceLevel == null ? CompilerOptions.getFirstSupportedJdkLevel() : CompilerOptions.versionToJdkLevel(sourceLevel);
+		SCANNER.complianceLevel = complianceLevel == null ? CompilerOptions.getFirstSupportedJdkLevel() : CompilerOptions.versionToJdkLevel(complianceLevel);
 		SCANNER.previewEnabled = previewEnabled == null ? false : JavaCore.ENABLED.equals(previewEnabled);
 
 		try {
 			SCANNER.setSource(id.toCharArray());
-			int token = SCANNER.scanIdentifier();
-			if (token != TerminalTokens.TokenNameIdentifier) return null;
+			TerminalToken token = SCANNER.scanIdentifier();
+			if (token != TerminalToken.TokenNameIdentifier) return null;
 			if (SCANNER.currentPosition == SCANNER.eofPosition) { // to handle case where we had an ArrayIndexOutOfBoundsException
 				try {
 					char[] src= SCANNER.getCurrentIdentifierSource();
@@ -461,8 +460,8 @@ public final class JavaConventions {
 	 * <p>For example, <code>"java.lang.Object"</code>, or <code>"Object"</code>.</p>
 	 *
 	 * <p>The source level and compliance level values should be taken from the constant defined inside
-	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_1_x</code>, x being set
-	 * between '1' and '8'.
+	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_x</code>, x being different versions
+	 * of Java language.
 	 * </p>
 	 *
 	 * @param name the name of a type
@@ -475,15 +474,6 @@ public final class JavaConventions {
 	 *      otherwise a status object indicating what is wrong with
 	 *      the name
 	 * @since 3.3
-	 * @see JavaCore#VERSION_1_1
-	 * @see JavaCore#VERSION_1_2
-	 * @see JavaCore#VERSION_1_3
-	 * @see JavaCore#VERSION_1_4
-	 * @see JavaCore#VERSION_1_5
-	 * @see JavaCore#VERSION_1_6
-	 * @see JavaCore#VERSION_1_7
-	 * @see JavaCore#VERSION_1_8
-	 * @see JavaCore#VERSION_9
 	 * @deprecated Use {@link #validateJavaTypeName(String id, String sourceLevel, String complianceLevel, String previewEnabled)} instead
 	 */
 	public static IStatus validateJavaTypeName(String name, String sourceLevel, String complianceLevel) {
@@ -497,8 +487,8 @@ public final class JavaConventions {
 	 * <p>For example, <code>"java.lang.Object"</code>, or <code>"Object"</code>.</p>
 	 *
 	 * <p>The source level and compliance level values should be taken from the constant defined inside
-	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_1_x</code>, x being set
-	 * between '1' and '8'.
+	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_x</code>, x being different versions
+	 * of Java language.
 	 * </p>
 	 * <p>The preview flag should be one of {@link JavaCore#ENABLED}, {@link JavaCore#DISABLED} or null.
 	 *  When null is passed, the preview is considered to be disabled.
@@ -515,20 +505,6 @@ public final class JavaConventions {
 	 *      otherwise a status object indicating what is wrong with
 	 *      the name
 	 * @since 3.22
-	 * @see JavaCore#VERSION_1_1
-	 * @see JavaCore#VERSION_1_2
-	 * @see JavaCore#VERSION_1_3
-	 * @see JavaCore#VERSION_1_4
-	 * @see JavaCore#VERSION_1_5
-	 * @see JavaCore#VERSION_1_6
-	 * @see JavaCore#VERSION_1_7
-	 * @see JavaCore#VERSION_1_8
-	 * @see JavaCore#VERSION_9
-	 * @see JavaCore#VERSION_10
-	 * @see JavaCore#VERSION_11
-	 * @see JavaCore#VERSION_12
-	 * @see JavaCore#VERSION_13
-	 * @see JavaCore#VERSION_14
 	 */
 	public static IStatus validateJavaTypeName(String name, String sourceLevel, String complianceLevel, String previewEnabled) {
 		return internalValidateJavaTypeName(name, sourceLevel, complianceLevel, previewEnabled);
@@ -852,158 +828,4 @@ public final class JavaConventions {
 		return validateIdentifier(name, sourceLevel, complianceLevel);
 	}
 
-	/**
-	 * Validate that all compiler options of the given project match keys and values
-	 * described in {@link JavaCore#getDefaultOptions()} method.
-	 *
-	 * @param javaProject the given java project
-	 * @param inheritJavaCoreOptions inherit project options from JavaCore or not.
-	 * @return a status object with code <code>IStatus.OK</code> if all project
-	 *		compiler options are valid, otherwise a status object indicating what is wrong
-	 *		with the keys and their value.
-	 * @since 3.1
-	 * TODO (frederic) finalize for all possible options (JavaCore, DefaultCodeFormatterOptions, AssistOptions) and open to API
-	 */
-	/*
-	public static IStatus validateCompilerOptions(IJavaProject javaProject, boolean inheritJavaCoreOptions)	  {
-		return validateCompilerOptions(javaProject.getOptions(inheritJavaCoreOptions));
-	}
-	*/
-
-	/**
-	 * Validate that all compiler options of the given project match keys and values
-	 * described in {@link JavaCore#getDefaultOptions()} method.
-	 *
-	 * @param compilerOptions Map of options
-	 * @return a status object with code <code>IStatus.OK</code> if all
-	 *		compiler options are valid, otherwise a status object indicating what is wrong
-	 *		with the keys and their value.
-	 * @since 3.1
-	 */
-	/*
-	public static IStatus validateCompilerOptions(Map compilerOptions)	  {
-
-		// Get current options
-		String compliance = (String) compilerOptions.get(JavaCore.COMPILER_COMPLIANCE);
-		String source = (String) compilerOptions.get(JavaCore.COMPILER_SOURCE);
-		String target = (String) compilerOptions.get(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM);
-		if (compliance == null && source == null && target == null) {
-			return JavaModelStatus.VERIFIED_OK; // default is OK
-		}
-
-		// Initialize multi-status
-		List errors = new ArrayList();
-
-		// Set default for compliance if necessary (not set on project and not inherited...)
-		if (compliance == null) {
-			compliance = JavaCore.getOption(JavaCore.COMPILER_COMPLIANCE);
-		}
-
-		// Verify compliance level value and set source and target default if necessary
-		long complianceLevel = 0;
-		long sourceLevel = 0;
-		long targetLevel = 0;
-		if (JavaCore.VERSION_1_3.equals(compliance)) {
-			complianceLevel = ClassFileConstants.JDK1_3;
-			if (source == null) {
-				source = JavaCore.VERSION_1_3;
-				sourceLevel = ClassFileConstants.JDK1_3;
-			}
-			if (target == null) {
-				target = JavaCore.VERSION_1_1;
-				targetLevel = ClassFileConstants.JDK1_1;
-			}
-		} else if (JavaCore.VERSION_1_4.equals(compliance)) {
-			complianceLevel = ClassFileConstants.JDK1_4;
-			if (source == null) {
-				source = JavaCore.VERSION_1_3;
-				sourceLevel = ClassFileConstants.JDK1_3;
-			}
-			if (target == null) {
-				target = JavaCore.VERSION_1_2;
-				targetLevel = ClassFileConstants.JDK1_2;
-			}
-		} else if (JavaCore.VERSION_1_5.equals(compliance)) {
-			complianceLevel = ClassFileConstants.JDK1_5;
-			if (source == null) {
-				source = JavaCore.VERSION_1_5;
-				sourceLevel = ClassFileConstants.JDK1_5;
-			}
-			if (target == null) {
-				target = JavaCore.VERSION_1_5;
-				targetLevel = ClassFileConstants.JDK1_5;
-			}
-		} else {
-			// compliance is not valid
-			errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.invalidCompilerOption", compliance==null?"":compliance, JavaCore.COMPILER_COMPLIANCE))); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		// Verify source value and set default for target if necessary
-		 if (JavaCore.VERSION_1_4.equals(source)) {
-			sourceLevel = ClassFileConstants.JDK1_4;
-			if (target == null) {
-				target = JavaCore.VERSION_1_4;
-				targetLevel = ClassFileConstants.JDK1_4;
-			}
-		} else if (JavaCore.VERSION_1_5.equals(source)) {
-			sourceLevel = ClassFileConstants.JDK1_5;
-			if (target == null) {
-				target = JavaCore.VERSION_1_5;
-				targetLevel = ClassFileConstants.JDK1_5;
-			}
-		} else if (JavaCore.VERSION_1_3.equals(source)) {
-			sourceLevel = ClassFileConstants.JDK1_3;
-		} else {
-			// source is not valid
-			errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.invalidCompilerOption", source==null?"":source, JavaCore.COMPILER_SOURCE))); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		// Verify target value
-		 if (targetLevel == 0) {
-			 targetLevel = CompilerOptions.versionToJdkLevel(target);
-			 if (targetLevel == 0) {
-				// target is not valid
-				errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.invalidCompilerOption", target==null?"":target, JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM))); //$NON-NLS-1$ //$NON-NLS-2$
-			 }
-		}
-
-		// Check and set compliance/source/target compatibilities (only if they have valid values)
-		if (complianceLevel != 0 && sourceLevel != 0 && targetLevel != 0) {
-			// target must be 1.5 if source is 1.5
-			if (sourceLevel >= ClassFileConstants.JDK1_5 && targetLevel < ClassFileConstants.JDK1_5) {
-				errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.incompatibleTargetForSource", target, JavaCore.VERSION_1_5))); //$NON-NLS-1$
-			}
-	   		else
-		   		// target must be 1.4 if source is 1.4
-	   			if (sourceLevel >= ClassFileConstants.JDK1_4 && targetLevel < ClassFileConstants.JDK1_4) {
-					errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.incompatibleTargetForSource", target, JavaCore.VERSION_1_4))); //$NON-NLS-1$
-	   		}
-			// target cannot be greater than compliance level
-			if (complianceLevel < targetLevel){
-				errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.incompatibleComplianceForTarget", compliance, JavaCore.VERSION_1_4))); //$NON-NLS-1$
-			}
-			// compliance must be 1.5 if source is 1.5
-			if (source.equals(JavaCore.VERSION_1_5) && complianceLevel < ClassFileConstants.JDK1_5) {
-				errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.incompatibleComplianceForSource", compliance, JavaCore.VERSION_1_5))); //$NON-NLS-1$
-			} else
-				// compliance must be 1.4 if source is 1.4
-				if (source.equals(JavaCore.VERSION_1_4) && complianceLevel < ClassFileConstants.JDK1_4) {
-					errors.add(new JavaModelStatus(IStatus.ERROR, Util.bind("convention.compiler.incompatibleComplianceForSource", compliance, JavaCore.VERSION_1_4))); //$NON-NLS-1$
-			}
-		}
-
-		// Return status
-		int size = errors.size();
-		switch (size) {
-			case 0:
-				return JavaModelStatus.VERIFIED_OK;
-			case 1:
-				return (IStatus) errors.get(0);
-			default:
-				IJavaModelStatus[] allStatus = new IJavaModelStatus[size];
-				errors.toArray(allStatus);
-				return JavaModelStatus.newMultiStatus(allStatus);
-		}
-	}
-	*/
 }

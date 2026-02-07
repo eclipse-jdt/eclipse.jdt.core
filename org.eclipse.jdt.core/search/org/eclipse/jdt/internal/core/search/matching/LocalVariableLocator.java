@@ -16,7 +16,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.CompactConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
@@ -123,13 +123,13 @@ public int resolveLevel(ASTNode possiblelMatchingNode) {
 public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
 	// for record's component local variable matching component name
-	if(binding instanceof FieldBinding && ((FieldBinding) binding).isRecordComponent()) {
+	if (binding instanceof FieldBinding && ((FieldBinding) binding).isRecordComponent()) {
 		return matchField(binding, true);
 	}
-	if(binding instanceof LocalVariableBinding) {
-		if ( ((LocalVariableBinding)binding).declaringScope.referenceContext() instanceof CompactConstructorDeclaration) {
+	if (binding instanceof LocalVariableBinding) {
+		if (((LocalVariableBinding)binding).declaringScope.referenceContext() instanceof ConstructorDeclaration cd && cd.isCompactConstructor()) {
 			//update with binding
-			if( this.pattern instanceof FieldPattern) {
+			if (this.pattern instanceof FieldPattern) {
 				return matchField(binding, true);
 			}
 		}

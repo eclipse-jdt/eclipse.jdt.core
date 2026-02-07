@@ -519,16 +519,8 @@ class DefaultBindingResolver extends BindingResolver {
 	@Override
 	boolean isResolvedTypeInferredFromExpectedType(MethodInvocation methodInvocation) {
 		Object oldNode = this.newAstToOldAst.get(methodInvocation);
-		if (oldNode instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) oldNode;
-			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
-			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
-				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
-				if (genericMethodBinding.wasInferred && messageSend.typeArguments == null) {
-					return org.eclipse.jdt.internal.compiler.lookup.TypeBinding.notEquals(
-							genericMethodBinding.original().returnType, genericMethodBinding.returnType);
-				}
-			}
+		if (oldNode instanceof MessageSend messageSend && messageSend.typeArguments == null) {
+			return internalIsResolvedTypeInferred(messageSend.binding);
 		}
 		return false;
 	}
@@ -536,12 +528,18 @@ class DefaultBindingResolver extends BindingResolver {
 	@Override
 	boolean isResolvedTypeInferredFromExpectedType(SuperMethodInvocation superMethodInvocation) {
 		Object oldNode = this.newAstToOldAst.get(superMethodInvocation);
-		if (oldNode instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) oldNode;
-			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
-			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
-				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
-				return genericMethodBinding.inferredReturnType;
+		if (oldNode instanceof MessageSend messageSend && messageSend.typeArguments == null) {
+			return internalIsResolvedTypeInferred(messageSend.binding);
+		}
+		return false;
+	}
+
+	private boolean internalIsResolvedTypeInferred(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
+		if (methodBinding instanceof ParameterizedGenericMethodBinding) {
+			ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
+			if (genericMethodBinding.wasInferred) {
+				return org.eclipse.jdt.internal.compiler.lookup.TypeBinding.notEquals(
+						genericMethodBinding.original().returnType, genericMethodBinding.returnType);
 			}
 		}
 		return false;
@@ -552,7 +550,12 @@ class DefaultBindingResolver extends BindingResolver {
 		Object oldNode = this.newAstToOldAst.get(classInstanceCreation);
 		if (oldNode instanceof AllocationExpression) {
 			AllocationExpression allocationExpression = (AllocationExpression) oldNode;
-			return allocationExpression.inferredReturnType;
+			if (allocationExpression.wasInferred) {
+				if (allocationExpression.binding instanceof ParameterizedMethodBinding methodBinding) {
+					return org.eclipse.jdt.internal.compiler.lookup.TypeBinding.notEquals(
+								methodBinding.original().declaringClass, methodBinding.declaringClass);
+				}
+			}
 		}
 		return false;
 	}
@@ -785,31 +788,26 @@ class DefaultBindingResolver extends BindingResolver {
 		if (this.scope == null) return null;
 		try {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(importDeclaration);
-			if (node instanceof ImportReference) {
-				ImportReference importReference = (ImportReference) node;
+			if (node instanceof ImportReference importReference) {
 				final boolean isStatic = importReference.isStatic();
 				if ((importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0) {
 					Binding binding = this.scope.getImport(importReference.tokens, true, importReference.modifiers);
 					if (binding != null) {
 						if (isStatic) {
-							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-								return typeBinding == null ? null : typeBinding;
+							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding tb) {
+								return this.getTypeBinding(tb);
 							}
 						} else {
 							if ((binding.kind() & Binding.PACKAGE) != 0) {
-								IPackageBinding packageBinding = getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
-								if (packageBinding == null) {
-									return null;
+								if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding pack) {
+									return getPackageBinding(pack);
 								}
-								return packageBinding;
 							} else {
-								// if it is not a package, it has to be a type
-								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-								if (typeBinding == null) {
-									return null;
+								if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.ModuleBinding moduleBinding) {
+								    return getModuleBinding(moduleBinding);
+								} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
+								    return getTypeBinding(typeBinding);
 								}
-								return typeBinding;
 							}
 						}
 					}
@@ -817,23 +815,18 @@ class DefaultBindingResolver extends BindingResolver {
 					Binding binding = this.scope.getImport(importReference.tokens, false, importReference.modifiers);
 					if (binding != null) {
 						if (isStatic) {
-							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-								return typeBinding == null ? null : typeBinding;
-							} else if (binding instanceof FieldBinding) {
-								IVariableBinding variableBinding = this.getVariableBinding((FieldBinding) binding);
-								return variableBinding == null ? null : variableBinding;
-							} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
-								// it is a type
-								return getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding)binding);
-							} else if (binding instanceof RecordComponentBinding) {
-								IVariableBinding variableBinding = this.getVariableBinding((RecordComponentBinding) binding);
-								return variableBinding == null ? null : variableBinding;
+							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding tb) {
+								return this.getTypeBinding(tb);
+							} else if (binding instanceof FieldBinding fieldBinding) {
+								return this.getVariableBinding(fieldBinding);
+							} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
+								return getMethodBinding(methodBinding);
+							} else if (binding instanceof RecordComponentBinding recordComponentBinding) {
+								return this.getVariableBinding(recordComponentBinding);
 							}
 						} else {
-							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-								return typeBinding == null ? null : typeBinding;
+							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding tb) {
+								return this.getTypeBinding(tb);
 							}
 						}
 					}

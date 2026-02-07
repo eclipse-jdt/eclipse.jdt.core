@@ -41,12 +41,11 @@ import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -251,9 +250,9 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	void compile(String pluginID, String options, String compliance, boolean log, String[] srcPaths) throws IOException, CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().getCanonicalPath();
+		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
-		String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath()+File.separator;
+		String workspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString()+File.separator;
 		String binPath = File.separator+"bin"+File.pathSeparator;
 		String classpath = " -cp " +
 			workspacePath+"org.eclipse.osgi" + binPath +
@@ -277,7 +276,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	// compile the file from org.eclipse.jdt.core.tests.binaries bundle using batch compiler
 	void compile (String srcPath, long fileSize, String options, String compliance, boolean log) throws IOException {
-		final String targetWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getCanonicalPath();
+		final String targetWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
 
 		File file = fetchFromBinariesProject(srcPath, fileSize);
@@ -363,8 +362,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		File file = new File(fileName);
 		char[] content = Util.getFileCharContent(file, null);
 		CompilerOptions options = new CompilerOptions();
-		options.sourceLevel = ClassFileConstants.JDK1_4;
-		options.targetJDK = ClassFileConstants.JDK1_4;
+		options.sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
+		options.targetJDK = CompilerOptions.getFirstSupportedJdkLevel();
 		ProblemReporter problemReporter =
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.exitAfterAllProblems(),
@@ -396,10 +395,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Measures
 		long parsedLines = 0;
 		long parsedCharacters = 0;
-		long start = 0;
-		if (DEBUG) {
-			start = System.currentTimeMillis();
-		}
+		long startNanos = System.nanoTime();
 		startMeasuring();
 		for (int i = 0; i < iterations; i++) {
 			ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
@@ -413,8 +409,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 		// Warn if measure time is not enough while debugging
 		if (DEBUG) {
-			long time = System.currentTimeMillis() - start;
-			if (time < TIME_THRESHOLD) {
+			long timeMs = (System.nanoTime() - startNanos) / 1_000_000L;
+			if (timeMs < TIME_THRESHOLD) {
 	            System.err.println(parsedLines + " lines/"+ parsedCharacters + " characters parsed");
 			} else {
 	            System.out.println(parsedLines + " lines/"+ parsedCharacters + " characters parsed");
@@ -435,7 +431,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+		final String workspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 
 		// Run test
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -485,19 +481,19 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		for (int i = 0; i < 2; i++) {
 			scanner.resetTo(0, content.length);
 			tokenize: while (true) {
-				int token = scanner.getNextToken();
+				TerminalToken token = scanner.getNextToken();
 				switch (kind) {
 					case 0: // first case: only read tokens
 						switch (token) {
-							case TerminalTokens.TokenNameEOF:
+							case TerminalToken.TokenNameEOF:
 								break tokenize;
 						}
 						break;
 					case 1: // second case: read tokens + get ids
 						switch (token) {
-							case TerminalTokens.TokenNameEOF:
+							case TerminalToken.TokenNameEOF:
 								break tokenize;
-							case TerminalTokens.TokenNameIdentifier:
+							case TerminalToken.TokenNameIdentifier:
 								scanner.getCurrentIdentifierSource();
 								break;
 						}
@@ -514,19 +510,19 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			for (int j = 0; j < SCAN_REPEAT; j++) {
 				scanner.resetTo(0, content.length);
 				tokenize: while (true) {
-					int token = scanner.getNextToken();
+					TerminalToken token = scanner.getNextToken();
 					switch (kind) {
 						case 0: // first case: only read tokens
 							switch (token) {
-								case TerminalTokens.TokenNameEOF:
+								case TerminalToken.TokenNameEOF:
 									break tokenize;
 							}
 							break;
 						case 1: // second case: read tokens + get ids
 							switch (token) {
-								case TerminalTokens.TokenNameEOF:
+								case TerminalToken.TokenNameEOF:
 									break tokenize;
-								case TerminalTokens.TokenNameIdentifier:
+								case TerminalToken.TokenNameIdentifier:
 									char[] c = scanner.getCurrentIdentifierSource();
 									size += c.length;
 									break;
@@ -584,7 +580,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+		final String workspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 
 		// Run test
 		IWorkspaceRunnable compilation = new IWorkspaceRunnable() {

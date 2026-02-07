@@ -26,8 +26,8 @@ import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.NameLookup.Answer;
@@ -399,19 +399,23 @@ public void acceptLocalMethodTypeParameter(TypeVariableBinding typeVariableBindi
 	}
 }
 public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit) {
-	LocalDeclaration local = binding.declaration;
-	IJavaElement parent = null;
+	AbstractVariableDeclaration local = binding.declaration;
+	IJavaElement parent;
 	if (binding.declaringScope.isLambdaSubscope() && unit instanceof ICompilationUnit) {
 		HashSet existingElements = new HashSet();
 		HashMap knownScopes = new HashMap();
 		parent = this.handleFactory.createElement(binding.declaringScope, local.sourceStart, (ICompilationUnit) unit, existingElements, knownScopes);
 	} else {
-		parent = findLocalElement(local.sourceStart, binding.declaringScope.methodScope()); // findLocalElement() cannot find local variable
+		if (binding.isParameter() && binding.declaringScope.referenceContext() instanceof ConstructorDeclaration cd && cd.isCompactConstructor()) {
+			parent = findLocalElement(cd.sourceStart);
+		} else {
+			parent = findLocalElement(local.sourceStart, binding.declaringScope.methodScope()); // findLocalElement() cannot find local variable
+		}
 	}
 	LocalVariable localVar = null;
 	if(parent != null) {
 		String typeSig = null;
-		if (local.type == null || (local.type.isTypeNameVar(binding.declaringScope) && !binding.type.isAnonymousType())) {
+		if (local.type == null || (local.type.isTypeNameVar(binding.declaringScope) && binding.type != null && !binding.type.isAnonymousType())) {
 			if (local.initialization instanceof CastExpression) {
 				typeSig = Util.typeSignature(((CastExpression) local.initialization).type);
 			} else {

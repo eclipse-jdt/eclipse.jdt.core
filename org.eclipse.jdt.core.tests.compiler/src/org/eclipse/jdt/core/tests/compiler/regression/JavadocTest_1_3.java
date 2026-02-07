@@ -278,43 +278,6 @@ public class JavadocTest_1_3 extends JavadocTest {
 		);
 	}
 
-
-	/**
-	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
-	 */
-	public void _2551_testBug83804() {
-		runNegativeTest(
-			new String[] {
-				"pack/package-info.java",
-				"/**\n" +
-				" * Valid javadoc.\n" +
-				" * @see Test\n" +
-				" * @see Unknown\n" +
-				" * @see Test#foo()\n" +
-				" * @see Test#unknown()\n" +
-				" * @see Test#field\n" +
-				" * @see Test#unknown\n" +
-				" * @param unexpected\n" +
-				" * @throws unexpected\n" +
-				" * @return unexpected \n" +
-				" * @deprecated accepted by javadoc.exe although javadoc 1.5 spec does not say that's a valid tag\n" +
-				" * @other-tags are valid\n" +
-				" */\n" +
-				"package pack;\n",
-				"pack/Test.java",
-				"/**\n" +
-				" * Invalid javadoc\n" +
-				" */\n" +
-				"package pack;\n" +
-				"public class Test {\n" +
-				"	public int field;\n" +
-				"	public void foo() {}\n" +
-				"}\n"
-			},
-			""
-		);
-	}
 	/**
 	 * Bug 96237: [javadoc] Inner types must be qualified
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=96237"

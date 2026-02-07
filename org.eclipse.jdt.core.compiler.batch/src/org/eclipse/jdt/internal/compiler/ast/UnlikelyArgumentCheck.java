@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 GK Software AG and others.
+ * Copyright (c) 2015, 2025 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,11 +14,16 @@
 
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.HashSet;
+import java.util.Set;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.DangerousMethod;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -63,8 +68,36 @@ public class UnlikelyArgumentCheck {
 			typeToCheck2 = typeToCheck2.erasure();
 			expectedType2 = expectedType2.erasure();
 		}
-		return !typeToCheck2.isCompatibleWith(expectedType2, currentScope)
+		boolean potentiallyDangerous = !typeToCheck2.isCompatibleWith(expectedType2, currentScope)
 				&& !expectedType2.isCompatibleWith(typeToCheck2, currentScope);
+		if (potentiallyDangerous
+				&& this.dangerousMethod == DangerousMethod.Equals
+				&& this.expectedType.kind() != Binding.ARRAY_TYPE
+				&& !this.expectedType.isBaseType()
+				&& hasEqualsMethodInCommonSuperType(this.expectedType, this.typeToCheck, new HashSet<>())) {
+			return false;
+		}
+		return potentiallyDangerous;
+	}
+
+	private boolean hasEqualsMethodInCommonSuperType(TypeBinding type1, TypeBinding type2, Set<TypeBinding> visited) {
+		if (type1.id == TypeIds.T_JavaLangObject || type2.id == TypeIds.T_JavaLangObject)
+			return false;
+		if (!visited.add(type1))
+			return false;
+		if (type2.isCompatibleWith(type1)) {
+			// found a common super type
+			for (MethodBinding equalsMethod : type1.getMethods(TypeConstants.EQUALS))
+				if (equalsMethod.parameters.length == 1 && equalsMethod.parameters[0].id == TypeIds.T_JavaLangObject)
+					return true;
+		}
+		if (hasEqualsMethodInCommonSuperType(type1.superclass(), type2, visited))
+			return true;
+		for (ReferenceBinding ifc : type1.superInterfaces()) {
+			if (hasEqualsMethodInCommonSuperType(ifc, type2, visited))
+				return true;
+		}
+		return false;
 	}
 
 	/**

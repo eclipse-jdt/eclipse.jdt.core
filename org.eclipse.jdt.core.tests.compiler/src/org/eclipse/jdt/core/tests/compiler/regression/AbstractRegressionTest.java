@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -88,6 +88,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()) && !"_JAVA_OPTIONS".equals(e.getKey()))
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
+
+	protected static long PREVIEW_FEATURE_CLASS_FILE_CONST = ClassFileConstants.JDK25;
+	protected static int PREVIEW_FEATURE_LEVEL = 25;
 
 	protected class Runner {
 		boolean shouldFlushOutputDirectory = true;
@@ -216,7 +219,7 @@ static class JavacCompiler {
 	JavacCompiler(String rootDirectoryPath, String rawVersion) throws IOException, InterruptedException {
 		this.rootDirectoryPath = rootDirectoryPath;
 		this.javacPathName = new File(rootDirectoryPath + File.separator
-				+ "bin" + File.separator + JAVAC_NAME).getCanonicalPath();
+				+ "bin" + File.separator + JAVAC_NAME).toPath().normalize().toAbsolutePath().toString();
 		// WORK don't need JAVAC_NAME any more; suppress this as we work towards code cleanup
 		if (rawVersion == null) {
 			rawVersion = getVersion(this.javacPathName);
@@ -225,8 +228,7 @@ static class JavacCompiler {
 		this.compliance = CompilerOptions.versionToJdkLevel(this.version);
 		this.minor = minorFromRawVersion(this.version, rawVersion);
 		this.rawVersion = rawVersion;
-		StringBuilder classpathBuffer = new StringBuilder(" -classpath ");
-		this.classpath = classpathBuffer.toString();
+		this.classpath = " -classpath ";
 	}
 	/** Call this if " -classpath " should be replaced by some other option token. */
 	protected void usePathOption(String option) {
@@ -235,7 +237,7 @@ static class JavacCompiler {
 	static String getVersion(String javacPathName) throws IOException, InterruptedException {
 		Process fetchVersionProcess = null;
 		try {
-			fetchVersionProcess = Runtime.getRuntime().exec(javacPathName + " -version", env, null);
+			fetchVersionProcess = Runtime.getRuntime().exec(new String[] {javacPathName, "-version"}, env, null);
 		    Logger versionStdErrLogger = new Logger(fetchVersionProcess.getErrorStream(), ""); // for javac <= 1.8
 		    Logger versionStdOutLogger = new Logger(fetchVersionProcess.getInputStream(), ""); // for javac >= 9
 		    versionStdErrLogger.start();
@@ -253,6 +255,36 @@ static class JavacCompiler {
 			}
 			if (loggedVersion.startsWith("javac ")) {
 				loggedVersion = loggedVersion.substring(6, loggedVersion.length());
+			}
+			return loggedVersion;
+		} finally {
+			if (fetchVersionProcess != null) {
+				fetchVersionProcess.destroy(); // closes process streams
+			}
+		}
+	}
+	static String getBuild(String javaPathName) throws IOException, InterruptedException {
+		Process fetchVersionProcess = null;
+		try {
+			fetchVersionProcess = Runtime.getRuntime().exec(new String[] {javaPathName , "-version"}, env, null);
+		    Logger versionStdErrLogger = new Logger(fetchVersionProcess.getErrorStream(), ""); // for javac <= 1.8
+		    Logger versionStdOutLogger = new Logger(fetchVersionProcess.getInputStream(), ""); // for javac >= 9
+		    versionStdErrLogger.start();
+		    versionStdOutLogger.start();
+			fetchVersionProcess.waitFor();
+			// make sure we get the whole output
+			versionStdErrLogger.join();
+			versionStdOutLogger.join();
+			String loggedVersion = versionStdErrLogger.buffer.toString();
+			if (loggedVersion.isEmpty())
+				loggedVersion = versionStdOutLogger.buffer.toString();
+			int eol = loggedVersion.indexOf('\n');
+			if (eol != -1) {
+				// expect second line of format "OpenJDK Runtime Environment (build 24-ea+29-3578)"
+				int open = loggedVersion.indexOf('(', eol+1);
+				int close = loggedVersion.indexOf(')', open);
+				if (open != -1 && close != -1)
+					loggedVersion = loggedVersion.substring(open, close+1);
 			}
 			return loggedVersion;
 		} finally {
@@ -306,6 +338,10 @@ static class JavacCompiler {
 			return JavaCore.VERSION_22;
 		} else if(rawVersion.startsWith("23")) {
 			return JavaCore.VERSION_23;
+		} else if(rawVersion.startsWith("24")) {
+			return JavaCore.VERSION_24;
+		} else if(rawVersion.startsWith("25")) {
+			return JavaCore.VERSION_25;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -315,39 +351,6 @@ static class JavacCompiler {
 	// of the same version; two latest digits are used for variants into levels
 	// denoted by the two first digits
 	static int minorFromRawVersion (String version, String rawVersion) {
-		if (version == JavaCore.VERSION_1_5) {
-			if ("1.5.0_15-ea".equals(rawVersion)) {
-				return 1500;
-			}
-			if ("1.5.0_16-ea".equals(rawVersion)) { // b01
-				return 1600;
-			}
-		}
-		if (version == JavaCore.VERSION_1_6) {
-			if ("1.6.0_10-ea".equals(rawVersion)) {
-				return 1000;
-			}
-			if ("1.6.0_10-beta".equals(rawVersion)) { // b24
-				return 1010;
-			}
-			if ("1.6.0_45".equals(rawVersion)) {
-				return 1045;
-			}
-		}
-		if (version == JavaCore.VERSION_1_7) {
-			if ("1.7.0-ea".equals(rawVersion)) {
-				return 0000;
-			}
-			if ("1.7.0_10".equals(rawVersion)) {
-				return 1000;
-			}
-			if ("1.7.0_25".equals(rawVersion)) {
-				return 2500;
-			}
-			if ("1.7.0_80".equals(rawVersion)) {
-				return 8000;
-			}
-		}
 		if (version == JavaCore.VERSION_1_8) {
 			if ("1.8.0-ea".equals(rawVersion) || ("1.8.0".equals(rawVersion))) {
 				return 0000;
@@ -573,6 +576,22 @@ static class JavacCompiler {
 				case "23.0.2": return 0200;
 			}
 		}
+		if (version == JavaCore.VERSION_24) {
+			switch(rawVersion) {
+				case "24-ea", "24-beta", "24":
+					return 0000;
+				case "24.0.1":
+					return 0100;
+				case "24.0.2":
+					return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_25) {
+			switch(rawVersion) {
+				case "25-ea", "25-beta", "25":
+					return 0000;
+			}
+		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
 	}
 	// returns 0L if everything went fine; else the lower word contains the
@@ -605,7 +624,7 @@ static class JavacCompiler {
 			} else {
 				cmdLineAsString = cmdLine.toString();
 			}
-			compileProcess = Runtime.getRuntime().exec(cmdLineAsString, env, directory);
+			compileProcess = Runtime.getRuntime().exec(cmdLineAsString.split("\\s+"), env, directory);
 			Logger errorLogger = new Logger(compileProcess.getErrorStream(),
 					"ERROR", log == null ? new StringBuilder() : log);
 			errorLogger.start();
@@ -655,7 +674,7 @@ static class JavaRuntime {
 	private JavaRuntime(String rootDirectoryPath, String version, String rawVersion, int minor) throws IOException, InterruptedException {
 		this.rootDirectoryPath = rootDirectoryPath;
 		this.javaPathName = new File(this.rootDirectoryPath + File.separator
-				+ "bin" + File.separator + JAVA_NAME).getCanonicalPath();
+				+ "bin" + File.separator + JAVA_NAME).toPath().normalize().toAbsolutePath().toString();
 		this.version = version;
 		this.rawVersion = rawVersion;
 		this.minor = minor;
@@ -672,7 +691,7 @@ static class JavaRuntime {
 			cmdLine.append(options);
 			cmdLine.append(' ');
 			cmdLine.append(className);
-			executionProcess = Runtime.getRuntime().exec(cmdLine.toString(), env, directory);
+			executionProcess = Runtime.getRuntime().exec(cmdLine.toString().split("\\s+"), env, directory);
 			Logger outputLogger = new Logger(executionProcess.getInputStream(),
 					"RUNTIME OUTPUT", stdout == null ? new StringBuilder() : stdout);
 			outputLogger.start();
@@ -842,6 +861,8 @@ protected static class JavacTestOptions {
 		JavacErrorsEclipseNone =
 				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone),
 		JDK8319461 = // https://bugs.openjdk.org/browse/JDK-8319461
+				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone),
+		JDK8364144 = // https://bugs.openjdk.org/browse/JDK-8364144
 				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone);
 	}
 	public static class EclipseHasABug extends Excuse {
@@ -882,7 +903,7 @@ protected static class JavacTestOptions {
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
 					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+						return this;
 					}
 				},
 			EclipseBug236242 = // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236242
@@ -903,7 +924,7 @@ protected static class JavacTestOptions {
 				new EclipseHasABug(MismatchType.EclipseWarningsJavacNone) {
 					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_5 ? null : this;
+						return null;
 					}
 				},
 			EclipseBug424410 = // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424410
@@ -1056,21 +1077,6 @@ protected static class JavacTestOptions {
 				if (compiler.compliance == ClassFileConstants.JDK1_8) {
 					return this.minorsFixed[5] > compiler.minor || this.minorsFixed[5] < 0 ?
 							this : null;
-				} else if (compiler.compliance == ClassFileConstants.JDK1_7) {
-					return this.minorsFixed[4] > compiler.minor || this.minorsFixed[4] < 0 ?
-							this : null;
-				} else if (compiler.compliance == ClassFileConstants.JDK1_6) {
-					return this.minorsFixed[3] > compiler.minor || this.minorsFixed[3] < 0 ?
-							this : null;
-				} else if (compiler.compliance == ClassFileConstants.JDK1_5) {
-					return this.minorsFixed[2] > compiler.minor || this.minorsFixed[2] < 0 ?
-							this : null;
-				} else if (compiler.compliance == ClassFileConstants.JDK1_4) {
-					return this.minorsFixed[1] > compiler.minor || this.minorsFixed[1] < 0 ?
-							this : null;
-				} else if (compiler.compliance == ClassFileConstants.JDK1_3) {
-					return this.minorsFixed[0] > compiler.minor || this.minorsFixed[0] < 0 ?
-							this : null;
 				}
 				throw new RuntimeException(); // should not get there
 			} else if (this.pivotCompliance > 0) {
@@ -1166,15 +1172,18 @@ protected static class JavacTestOptions {
 			JavacBug8226510_switchExpression = // https://bugs.openjdk.java.net/browse/JDK-8226510
 					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview"),
 //		    JavacBug8299416 = // https://bugs.openjdk.java.net/browse/JDK-8299416 was active only in some builds of JDK 20
-		    JavacBug8336255 = // https://bugs.openjdk.org/browse/JDK-8336255
-					new JavacBugExtraJavacOptionsPlusMismatch(" --release 23 --enable-preview -Xlint:-preview",
-							MismatchType.JavacErrorsEclipseNone),
+//		    JavacBug8336255 = // https://bugs.openjdk.org/browse/JDK-8336255 was active only during preview 23
 			JavacBug8337980 = // https://bugs.openjdk.org/browse/JDK-8337980
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */),
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
 			JavacBug8343306 = // https://bugs.openjdk.org/browse/JDK-8343306
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */),
-			JavacBug8341408 = // https://bugs.openjdk.org/browse/JDK-8341408
-					new JavacBug8341408();
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
+			JavacBug8348928 = // https://bugs.openjdk.org/browse/JDK-8348928
+					new JavacHasABug(MismatchType.EclipseErrorsJavacWarnings),
+			JavacBug8348410 = // https://bugs.openjdk.org/browse/JDK-8348410
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK25, 0000),
+			JavacBug8016196 = // https://bugs.openjdk.org/browse/JDK-8016196
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone);
+
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -1268,7 +1277,7 @@ protected static class JavacTestOptions {
 	}
 	public static class JavacBug8341408 extends JavacBugExtraJavacOptionsPlusMismatch {
 		public JavacBug8341408() {
-			super("--enable-preview -source 23 -Xlint:-preview", MismatchType.StandardOutputMismatch);
+			super("--enable-preview -source 24 -Xlint:-preview", MismatchType.StandardOutputMismatch);
 // FIXME	this.pivotCompliance = ClassFileConstants.JDK24;
 		}
 	}
@@ -1501,6 +1510,40 @@ protected static class JavacTestOptions {
 		ClassFileReader.read(Files.readAllBytes(classFile.toPath()), className + ".class", true);
 	}
 
+	protected static void verifyClassFile(String expectedOutput, String unexpectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		if (!classFileName.startsWith(OUTPUT_DIR))
+			classFileName = OUTPUT_DIR + File.separator + classFileName;
+		File f = new File(classFileName);
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		if (expectedOutput != null) {
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+				System.out.println("...");
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		}
+		if (unexpectedOutput != null) {
+			int index = result.indexOf(unexpectedOutput);
+			assertTrue("Unexpected output found", index == -1);
+		}
+	}
+
+	protected void verifyNegativeClassFile(String unExpectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		verifyClassFile(null, unExpectedOutput, classFileName, mode);
+	}
+
+	protected void verifyClassFile(String expectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		verifyClassFile(expectedOutput, null, classFileName, mode);
+	}
+
 	protected void compileAndDeploy(String source, String directoryName, String className, boolean suppressConsole) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
@@ -1534,15 +1577,7 @@ protected static class JavacTestOptions {
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY);
 		String processAnnot = this.enableAPT ? "" : "-proc:none";
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-			buffer.append("\" -1.4 -source 1.3 -target 1.2");
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_5) {
-			buffer.append("\" -1.5");
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_6) {
-			buffer.append("\" -1.6 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_7) {
-			buffer.append("\" -1.7 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
+		if (this.complianceLevel == ClassFileConstants.JDK1_8) {
 			buffer.append("\" -1.8 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK9) {
 			buffer.append("\" -9 " + processAnnot);
@@ -2264,6 +2299,7 @@ protected static class JavacTestOptions {
 			}
 		}
 	}
+
 	/*
 	 * Run Sun compilation using javac.
 	 * Launch compilation in a thread and verify that it does not take more than 5s
@@ -2333,7 +2369,7 @@ protected static class JavacTestOptions {
 
 			// Launch process
 			compileProcess = Runtime.getRuntime().exec(
-				cmdLine.toString(), env, this.outputTestDirectory);
+				cmdLine.toString().split("\\s"), env, this.outputTestDirectory);
 
 			// Log errors
       Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");
@@ -2398,7 +2434,7 @@ protected static class JavacTestOptions {
 						javaCmdLine.append(cp);
 						javaCmdLine.append(' ').append(testFiles[0].substring(0, testFiles[0].indexOf('.')));
 							// assume executable class is name of first test file - PREMATURE check if this is also the case in other test fwk classes
-						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString(), env, this.outputTestDirectory);
+						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString().split("\\s"), env, this.outputTestDirectory);
 						Logger logger = new Logger(execProcess.getInputStream(), "");
 						// PREMATURE implement consistent error policy
 	     				logger.start();
@@ -2453,14 +2489,14 @@ protected static class JavacTestOptions {
 		catch (InterruptedException e1) {
 			if (compileProcess != null) compileProcess.destroy();
 			if (execProcess != null) execProcess.destroy();
-			System.out.println(testName+": Sun javac compilation was aborted!");
-			javacFullLog.println("JAVAC_WARNING: Sun javac compilation was aborted!");
+			System.out.println(testName+": OpenJDK javac compilation was aborted!");
+			javacFullLog.println("JAVAC_WARNING: OpenJDK javac compilation was aborted!");
 			e1.printStackTrace(javacFullLog);
 		}
 		catch (Throwable e) {
-			System.out.println(testName+": could not launch Sun javac compilation!");
+			System.out.println(testName+": could not launch OpenJDK javac compilation!");
 			e.printStackTrace();
-			javacFullLog.println("JAVAC_ERROR: could not launch Sun javac compilation!");
+			javacFullLog.println("JAVAC_ERROR: could not launch OpenJDK javac compilation!");
 			e.printStackTrace(javacFullLog);
 			// PREMATURE failing the javac pass or comparison could also fail
 			//           the test itself
@@ -2487,7 +2523,7 @@ protected static class JavacTestOptions {
 			// Launch process
 			File currentDirectory = new File(currentDirectoryPath);
 			compileProcess = Runtime.getRuntime().exec(
-				cmdLine.toString(), env, currentDirectory);
+				cmdLine.toString().split("\\s"), env, currentDirectory);
 
 			// Log errors
 			Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");
@@ -2700,7 +2736,7 @@ protected void runJavac(
 					//      it should have had contents, stderr is leveraged as
 					//      potentially holding indications regarding the failure
 					if (expectedErrorString != null /* null skips error test */ && mismatch == 0) {
-						err = adjustErrorOutput(stderr.toString().trim());
+						err = adjustErrorOutput(stderr.toString().trim(), className);
 						if (!errorStringMatch(expectedErrorString, err)) {
 							mismatch = JavacTestOptions.MismatchType.ErrorOutputMismatch;
 						}
@@ -2825,10 +2861,13 @@ void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles,
 	}
 }
 
-private String adjustErrorOutput(String error) {
+private String adjustErrorOutput(String error, String className) {
 	// VerifyTests performs an explicit e.printStackTrace() which has slightly different format
 	// from a stack trace written directly by a dying JVM (during javac testing), adjust if needed:
-	final String excPrefix = "Exception in thread \"main\" ";
+	String excPrefix = "Exception in thread \"main\" ";
+	if (error.startsWith(excPrefix))
+		return error.substring(excPrefix.length())+'\n';
+	excPrefix = "Error: LinkageError occurred while loading main class "+className+"\n\t";
 	if (error.startsWith(excPrefix))
 		return error.substring(excPrefix.length())+'\n';
 	return error;
@@ -4139,9 +4178,9 @@ protected void runNegativeTest(
 				javaCommandLineHeader = cmdLineHeader.toString();
 				cmdLineHeader = new StringBuilder(jdkRootDirPath.
 						append("bin").append(JAVAC_NAME).toString());
+				String version = JavacCompiler.getVersion(cmdLineHeader.toString());
 				cmdLineHeader.append(" -classpath . ");
 				  // start with the current directory which contains the source files
-				String version = JavacCompiler.getVersion(cmdLineHeader.toString());
 				cmdLineHeader.append(" -d ");
 				cmdLineHeader.append(JAVAC_OUTPUT_DIR_NAME.indexOf(" ") != -1 ? "\"" + JAVAC_OUTPUT_DIR_NAME + "\"" : JAVAC_OUTPUT_DIR_NAME);
 				String firstSupportedVersion = CompilerOptions.getFirstSupportedJavaVersion();
@@ -4161,7 +4200,7 @@ protected void runNegativeTest(
 				  	new PrintWriter(new FileOutputStream(javacFullLogFileName)); // static that is initialized once, closed at process end
 				javacFullLog.println(version); // so that the contents is self sufficient
 				System.out.println("***************************************************************************");
-				System.out.println("* Sun Javac compiler output archived into file:");
+				System.out.println("* OpenJDK javac compiler "+JavacCompiler.getBuild(javaCommandLineHeader)+" output archived into file:");
 				System.out.println("* " + javacFullLogFileName);
 				System.out.println("***************************************************************************");
 				javacCompilers = new ArrayList<>();
@@ -4178,7 +4217,7 @@ protected void runNegativeTest(
 			// per class initialization
 			CURRENT_CLASS_NAME = getClass().getName();
 			dualPrintln("***************************************************************************");
-			System.out.print("* Comparison with Sun Javac compiler for class ");
+			System.out.print("* Comparison with OpenJDK javac compiler for class ");
 			dualPrintln(CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.lastIndexOf('.')+1) +
 					" (" + TESTS_COUNTERS.get(CURRENT_CLASS_NAME) + " tests)");
 			System.out.println("***************************************************************************");
@@ -4213,6 +4252,7 @@ protected void runNegativeTest(
 				Util.flushDirectoryContent(JAVAC_OUTPUT_DIR);
 			}
 			printJavacResultsSummary();
+			javacUsePathOption(" -classpath ");
 		}
 	}
 	/**

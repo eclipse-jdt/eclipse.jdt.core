@@ -30,8 +30,7 @@ public class BranchLabel extends Label {
 	public int tagBits;
 	protected int targetStackDepth = -1;
 	public final static int WIDE = 1;
-	public final static int USED = 2;
-	public final static int VALIDATE = 4;
+	public final static int VALIDATE = 2;
 	private OperandStack operandStack;
 
 
@@ -194,7 +193,6 @@ protected void trackStackDepth(boolean branch) {
 * Put down  a reference to the array at the location in the codestream.
 */
 void branch() {
-	this.tagBits |= BranchLabel.USED;
 	if (this.delegate != null) {
 		this.delegate.branch();
 		return;
@@ -213,11 +211,7 @@ void branch() {
 	trackStackDepth(true);
 }
 
-/*
-* No support for wide branches yet
-*/
 void branchWide() {
-	this.tagBits |= BranchLabel.USED;
 	if (this.delegate != null) {
 		this.delegate.branchWide();
 		return;
@@ -283,21 +277,21 @@ public void place() { // Currently lacking wide support.
 					this.codeStream.lastEntryPC = this.position;
 				}
 				// end of new code
-				if ((this.codeStream.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP_TABLE | ClassFileConstants.ATTR_STACK_MAP)) != 0) {
-					LocalVariableBinding locals[] = this.codeStream.locals;
-					for (LocalVariableBinding local : locals) {
-						if ((local != null) && (local.initializationCount > 0)) {
-							if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
-								// we want to prevent interval of size 0 to have a negative size.
-								// see PR 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
-								local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = this.position;
-							}
-							if (local.initializationPCs[(local.initializationCount - 1) << 1] == oldPosition) {
-								local.initializationPCs[(local.initializationCount - 1) << 1] = this.position;
-							}
+
+				LocalVariableBinding locals[] = this.codeStream.locals;
+				for (LocalVariableBinding local : locals) {
+					if ((local != null) && (local.initializationCount > 0)) {
+						if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
+							// we want to prevent interval of size 0 to have a negative size.
+							// see PR 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
+							local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = this.position;
+						}
+						if (local.initializationPCs[(local.initializationCount - 1) << 1] == oldPosition) {
+							local.initializationPCs[(local.initializationCount - 1) << 1] = this.position;
 						}
 					}
 				}
+
 				if ((this.codeStream.generateAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 					// we need to remove all entries that is beyond this.position inside the pcToSourcerMap table
 					this.codeStream.removeUnusedPcToSourceMapEntries();

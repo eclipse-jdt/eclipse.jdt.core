@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.core; singleton:=true
-Bundle-Version: 3.40.100.qualifier
+Bundle-Version: 3.45.0.qualifier
 Bundle-Activator: org.eclipse.jdt.core.JavaCore
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -23,7 +23,7 @@ Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.codeassist.select;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.compiler;x-friends:="org.eclipse.jdt.apt.pluggable.core, org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.compiler.parser;x-friends:="org.eclipse.jdt.apt.pluggable.core, org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
- org.eclipse.jdt.internal.core;x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.pde.api.tools,org.eclipse.jdt.launching, org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
+ org.eclipse.jdt.internal.core;x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.pde.api.tools,org.eclipse.jdt.launching,org.eclipse.jdt.junit.core,org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.core.builder;x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.pde.api.tools, org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.core.dom;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.core.dom.rewrite;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
@@ -47,7 +47,7 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="[3.22.0,4.0.0)",
  org.eclipse.core.filesystem;bundle-version="[1.11.0,2.0.0)",
  org.eclipse.text;bundle-version="[3.6.0,4.0.0)",
  org.eclipse.team.core;bundle-version="[3.1.0,4.0.0)";resolution:=optional,
- org.eclipse.jdt.core.compiler.batch;bundle-version="3.40.0";visibility:=reexport
+ org.eclipse.jdt.core.compiler.batch;bundle-version="3.45.0";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-ExtensibleAPI: true
 Bundle-ActivationPolicy: lazy

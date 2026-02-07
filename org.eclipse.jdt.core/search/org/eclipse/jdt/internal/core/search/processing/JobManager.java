@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -505,7 +505,7 @@ public abstract class JobManager {
 					}
 					if (job == null) {
 						// don't call notifyIdle() within synchronized block or it may deadlock:
-						notifyIdle((System.nanoTime() - idlingStart) / 1_000_000);
+						notifyIdle((System.nanoTime() - idlingStart) / 1_000_000L);
 						if (currentJob() != null) {
 							// notifyIdle() may have requested new job
 							continue;
@@ -557,9 +557,6 @@ public abstract class JobManager {
 				} catch (InterruptedException e) { // background indexing was interrupted
 				}
 			}
-		} catch (ThreadDeath e) {
-			// do not restart
-			throw e;
 		} catch (RuntimeException|Error e) {
 			if (getProcessingThread() != null) { // if not shutting down
 				// log exception

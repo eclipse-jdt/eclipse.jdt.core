@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DeprecatedTest extends AbstractRegressionTest {
@@ -214,7 +213,7 @@ public void test004() {
 		"----------\n" +
 		"2. WARNING in p\\Warning.java (at line 7)\n" +
 		"	dateObj.UTC(1,2,3,4,5,6);\n" +
-		"	        ^^^^^^^^^^^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" +
 		"----------\n");
 }
@@ -400,10 +399,6 @@ public void test008a() throws IOException {
 		"	      ^\n" +
 		"The type X is deprecated\n" +
 		"----------\n";
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-		// simulate we were running on a JRE without java.lang.Deprecated
-		this.invisibleType = TypeConstants.JAVA_LANG_DEPRECATED;
-	}
 	runner.runWarningTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124 - variation
@@ -550,46 +545,44 @@ public void test012() {
 // JLS3 9.6
 // @Deprecated variant
 public void test013() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportDeprecation,
-			CompilerOptions.ERROR);
-		customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
-			CompilerOptions.IGNORE);
-		runNegativeTest(
-			// test directory preparation
-			true /* flush output directory */,
-			new String[] { /* test files */
-	            "X.java",
-				"public class X {\n" +
-				"    void foo() {\n" +
-				"        @Deprecated\n" +
-				"        int i1 = Y.m;\n" +
-				"    }\n" +
-				"    @Deprecated\n" +
-				"    void bar() {\n" +
-				"        int i1 = Y.m;\n" +
-				"    }\n" +
-				"}\n",
-	            "Y.java",
-				"public class Y {\n" +
-				"    @Deprecated\n" +
-				"    static int m;\n" +
-				"}\n",
-			},
-			// compiler options
-			null /* no class libraries */,
-			customOptions /* custom options */,
-			// compiler results
-			"----------\n" + /* expected compiler log */
-			"1. ERROR in X.java (at line 4)\n" +
-			"	int i1 = Y.m;\n" +
-			"	           ^\n" +
-			"The field Y.m is deprecated\n" +
-			"----------\n",
-			// javac options
-			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
-	}
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation,
+		CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
+		CompilerOptions.IGNORE);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+	        "X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        @Deprecated\n" +
+			"        int i1 = Y.m;\n" +
+			"    }\n" +
+			"    @Deprecated\n" +
+			"    void bar() {\n" +
+			"        int i1 = Y.m;\n" +
+			"    }\n" +
+			"}\n",
+	        "Y.java",
+			"public class Y {\n" +
+			"    @Deprecated\n" +
+			"    static int m;\n" +
+			"}\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 4)\n" +
+		"	int i1 = Y.m;\n" +
+		"	           ^\n" +
+		"The field Y.m is deprecated\n" +
+		"----------\n",
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159243
 public void test014() {
@@ -688,16 +681,6 @@ public void test015() {
 		"	a.N1.N2.N3 m = null;\n" +
 		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in p\\M1.java (at line 4)\n" +
-		"	a.N1.N2.N3 m = null;\n" +
-		"	        ^^\n" +
-		"The type N1.N2.N3 is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in p\\M1.java (at line 5)\n" +
-		"	m.foo();\n" +
-		"	  ^^^^^\n" +
-		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -740,16 +723,6 @@ public void test016() {
 		"	a.N1.N2.N3 m = null;\n" +
 		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in p\\M1.java (at line 4)\n" +
-		"	a.N1.N2.N3 m = null;\n" +
-		"	        ^^\n" +
-		"The type N1.N2.N3 is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in p\\M1.java (at line 5)\n" +
-		"	m.foo();\n" +
-		"	  ^^^^^\n" +
-		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -836,16 +809,6 @@ public void test018() {
 		"	a.N1.N2.N3 m = null;\n" +
 		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in p\\M1.java (at line 4)\n" +
-		"	a.N1.N2.N3 m = null;\n" +
-		"	        ^^\n" +
-		"The type N1.N2.N3 is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in p\\M1.java (at line 5)\n" +
-		"	m.foo();\n" +
-		"	  ^^^^^\n" +
-		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -950,25 +913,23 @@ public void test020() {
 		"----------\n" +
 		"4. ERROR in a.b.c.d.e\\T.java (at line 8)\n" +
 		"	f.foo().goo();\n" +
-		"	  ^^^^^\n" +
+		"	  ^^^\n" +
 		"The method foo() from the type Deprecated is deprecated\n" +
 		"----------\n" +
 		"5. ERROR in a.b.c.d.e\\T.java (at line 8)\n" +
 		"	f.foo().goo();\n" +
-		"	        ^^^^^\n" +
+		"	        ^^^\n" +
 		"The method goo() from the type Deprecated is deprecated\n" +
 		"----------\n" +
 		"6. ERROR in a.b.c.d.e\\T.java (at line 9)\n" +
 		"	a.b.c.d.Deprecated.bar();\n" +
-		"	                   ^^^^^\n" +
+		"	                   ^^^\n" +
 		"The method bar() from the type Deprecated is deprecated\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void testJEP211_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5)
-		return;
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"p1/C1.java",

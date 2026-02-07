@@ -225,6 +225,7 @@ public class FileManagerTests extends TestCase {
 		assertNull(loader.findResource("jarresource.txt")); // assert the classloader is closed
 	}
 
+	@SuppressWarnings("removal")
 	public void testBug573287_ArchiveFileObject_openInputStream() throws Exception {
 		Path dir = Files.createTempDirectory("repro573287-");
 		Path target = dir.resolve("copy573287.zip");

@@ -41,21 +41,22 @@ public class Semaphore {
 			e.printStackTrace();
 		}
 	}
-	public synchronized void acquire(long timeout) throws TimeOutException {
-		long start = System.currentTimeMillis();
-		while (this.permissions <= 0 && timeout > 0) {
+	public synchronized void acquire(long timeoutMs) throws TimeOutException {
+		long timeoutNanos = timeoutMs == Long.MAX_VALUE ? Long.MAX_VALUE : (timeoutMs * 1_000_000L);
+		long startNanos = System.nanoTime();
+		while (this.permissions <= 0 && timeoutNanos > 0) {
 			try {
 				if (this.name != null) System.out.println(Thread.currentThread() + " - waiting to acquire: " + this.name); //$NON-NLS-1$
-				if (timeout == Long.MAX_VALUE) {
+				if (timeoutNanos == Long.MAX_VALUE) {
 					wait();
 				} else {
-					wait(timeout);
+					wait(timeoutNanos / 1_000_000L);
 				}
 			} catch(InterruptedException e){
 			}
-			timeout -= System.currentTimeMillis() - start;
+			timeoutNanos -= System.nanoTime() - startNanos;
 		}
-		if (timeout <= 0) {
+		if (timeoutNanos <= 0) {
 			throw new TimeOutException();
 		}
 		this.permissions--;

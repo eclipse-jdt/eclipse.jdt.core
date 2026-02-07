@@ -19,7 +19,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -165,9 +165,9 @@ public class CharacterLiteral extends Expression {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case TerminalTokens.TokenNameCharacterLiteral:
+				case TokenNameCharacterLiteral:
 					break;
 				default:
 					throw new IllegalArgumentException();
@@ -205,7 +205,18 @@ public class CharacterLiteral extends Expression {
 	 * @exception IllegalArgumentException if the literal value cannot be converted
 	 */
 	public char charValue() {
-		Scanner scanner = this.ast.scanner;
+		// create a new local scanner to allow concurrent use
+		Scanner scanner = new Scanner(
+				this.ast.scanner.tokenizeComments,
+				this.ast.scanner.tokenizeWhiteSpace,
+				this.ast.scanner.checkNonExternalizedStringLiterals,
+				this.ast.scanner.sourceLevel,
+				this.ast.scanner.complianceLevel,
+				this.ast.scanner.taskTags,
+				this.ast.scanner.taskPriorities,
+				this.ast.scanner.isTaskCaseSensitive,
+				this.ast.scanner.previewEnabled);
+
 		char[] source = this.escapedValue.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);

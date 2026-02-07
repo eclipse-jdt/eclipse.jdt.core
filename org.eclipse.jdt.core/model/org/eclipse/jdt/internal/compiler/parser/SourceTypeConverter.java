@@ -27,16 +27,7 @@ package org.eclipse.jdt.internal.compiler.parser;
  * | Given the intended purpose of the conversion is to resolve references, this is not
  * | a problem.
  */
-
-import org.eclipse.jdt.core.IAnnotatable;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -131,23 +122,12 @@ public class SourceTypeConverter extends TypeConverter {
 
 		if (sourceTypes.length == 0) return this.unit;
 		SourceTypeElementInfo topLevelTypeInfo = (SourceTypeElementInfo) sourceTypes[0];
-		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/342
-		boolean couldBeVarargs = false;
-		if (topLevelTypeInfo.getHandle().isRecord()) {
-			for (IField field: topLevelTypeInfo.getHandle().getRecordComponents()) {
-				if (Signature.getTypeSignatureKind(field.getTypeSignature()) == Signature.ARRAY_TYPE_SIGNATURE) {
-					couldBeVarargs = true;
-					break;
-				}
-			}
-		}
 		org.eclipse.jdt.core.ICompilationUnit cuHandle = topLevelTypeInfo.getHandle().getCompilationUnit();
 		this.cu = (ICompilationUnit) cuHandle;
 		final CompilationUnitElementInfo compilationUnitElementInfo = (CompilationUnitElementInfo) ((JavaElement) this.cu).getElementInfo();
 		if (
 				(compilationUnitElementInfo.annotationNumber >= CompilationUnitElementInfo.ANNOTATION_THRESHOLD_FOR_DIET_PARSE ||
-				(compilationUnitElementInfo.hasFunctionalTypes && (this.flags & LOCAL_TYPE) != 0) ||
-				couldBeVarargs)) {
+				(compilationUnitElementInfo.hasFunctionalTypes && (this.flags & LOCAL_TYPE) != 0))) {
 			// If more than 10 annotations, diet parse as this is faster, but not if
 			// the client wants local and anonymous types to be converted (https://bugs.eclipse.org/bugs/show_bug.cgi?id=254738)
 			// Also see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=405843
@@ -254,31 +234,35 @@ public class SourceTypeConverter extends TypeConverter {
 	}
 
 	/*
-	 * Convert a field source element into a parsed field declaration
+	 * Convert a record component source element into a parsed record component declaration
 	 */
-	private RecordComponent convertRecordComponents(SourceField component,
+	private RecordComponent convertRecordComponent(SourceField componentHandle,
 										TypeDeclaration type,
 										CompilationResult compilationResult) throws JavaModelException {
 
-		SourceFieldElementInfo compInfo = (SourceFieldElementInfo) component.getElementInfo();
-		RecordComponent comp = new RecordComponent(null, -1, -1);
+		SourceFieldElementInfo componentInfo = (SourceFieldElementInfo) componentHandle.getElementInfo();
+		RecordComponent component = new RecordComponent(null, -1, -1);
 
-		int start = compInfo.getNameSourceStart();
-		int end = compInfo.getNameSourceEnd();
+		int start = componentInfo.getNameSourceStart();
+		int end = componentInfo.getNameSourceEnd();
 
-		comp.name = component.getElementName().toCharArray();
-		comp.sourceStart = start;
-		comp.sourceEnd = end;
-		comp.declarationSourceStart = compInfo.getDeclarationSourceStart();
-		comp.declarationSourceEnd = compInfo.getDeclarationSourceEnd();
-		comp.type = createTypeReference(compInfo.getTypeName(), start, end);
+		component.name = componentHandle.getElementName().toCharArray();
+		component.sourceStart = start;
+		component.sourceEnd = end;
+		component.declarationSourceStart = componentInfo.getDeclarationSourceStart();
+		component.declarationSourceEnd = componentInfo.getDeclarationSourceEnd();
+		component.type = createTypeReference(componentInfo.getTypeName(), start, end);
 
+
+		if (Flags.isVarargs(componentHandle.getFlags())) {
+			component.type.bits |= ASTNode.IsVarArgs;
+		}
 		/* convert annotations */
-		comp.annotations = convertAnnotations(component);
-		return comp;
+		component.annotations = convertAnnotations(componentHandle);
+		return component;
 	}
 	/*
-	 * Convert a record component source element into a parsed record component declaration
+	 * Convert a field source element into a parsed field declaration
 	 */
 	private FieldDeclaration convert(SourceField fieldHandle, TypeDeclaration type, CompilationResult compilationResult) throws JavaModelException {
 
@@ -385,6 +369,8 @@ public class SourceTypeConverter extends TypeConverter {
 		if (methodInfo.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
 			decl.bits &= ~ASTNode.IsDefaultConstructor;
+			if (methodInfo.isCanonicalConstructor())
+				decl.bits |= ASTNode.IsCanonicalConstructor;
 			method = decl;
 			decl.typeParameters = typeParams;
 		} else {
@@ -510,13 +496,11 @@ public class SourceTypeConverter extends TypeConverter {
 		/* create type/record declaration - can be member type */
 		TypeDeclaration type = new TypeDeclaration(compilationResult);
 		if ((TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.RECORD_DECL)) {
-			// The first choice constructor that takes CompilationResult as arg is not setting all the fields
-			// Hence, use the one that does
 			type.modifiers |= ExtraCompilerModifiers.AccRecord;
 			IField[] recordComponents = typeHandle.getRecordComponents();
 			type.recordComponents = new RecordComponent[recordComponents.length];
-			for(int i = 0; i < recordComponents.length; i++) {
-				type.recordComponents[i] = convertRecordComponents((SourceField)recordComponents[i], type, compilationResult);
+			for (int i = 0, length = recordComponents.length; i < length; i++) {
+				type.recordComponents[i] = convertRecordComponent((SourceField)recordComponents[i], type, compilationResult);
 			}
 		}
 		if (typeInfo.getEnclosingType() == null) {
@@ -600,10 +584,10 @@ public class SourceTypeConverter extends TypeConverter {
 			initializers = typeInfo.getInitializers();
 			initializerCount = initializers.length;
 		}
-		SourceField[] sourceFields = null;
+		IField[] sourceFields = null;
 		int sourceFieldCount = 0;
 		if ((this.flags & FIELD) != 0) {
-			sourceFields = typeInfo.getFieldHandles();
+			sourceFields = typeHandle.getFields();
 			sourceFieldCount = sourceFields.length;
 		}
 		int length = initializerCount + sourceFieldCount;
@@ -614,7 +598,7 @@ public class SourceTypeConverter extends TypeConverter {
 			}
 			int index = 0;
 			for (int i = initializerCount; i < length; i++) {
-				type.fields[i] = convert(sourceFields[index++], type, compilationResult);
+				type.fields[i] = convert((SourceField) sourceFields[index++], type, compilationResult);
 			}
 		}
 
@@ -637,8 +621,7 @@ public class SourceTypeConverter extends TypeConverter {
 				for (int i = 0; i < sourceMethodCount; i++) {
 					if (sourceMethods[i].isConstructor()) {
 						if (needConstructor) {
-							if (!type.isRecord())     // Records need a canonical constructor - clashes with express ones handled elsewhere
-								extraConstructor = 0; // Does not need the extra constructor since one constructor already exists.
+							extraConstructor = 0; // Does not need the extra constructor since one constructor already exists.
 							methodCount++;
 						}
 					} else if (needMethod) {

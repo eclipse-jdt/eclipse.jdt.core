@@ -76,13 +76,6 @@ public static Test suite() {
 	return buildModelTestSuite(ReconcilerStatementsRecoveryTests.class);
 }
 
-/**
- * Internal synonym for deprecated constant AST.JSL3
- * to alleviate deprecation warnings.
- * @deprecated
- */
-/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-
 protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
 }
@@ -97,7 +90,7 @@ protected void assertNoProblem(char[] source, ICompilationUnit unit) throws Inte
 		// Reconcile again to see if error goes away
 		this.problemRequestor.initialize(source);
 		unit.getBuffer().setContents(source); // need to set contents again to be sure that following reconcile will be really done
-		unit.reconcile(JLS3_INTERNAL,
+		unit.reconcile(AST.getAllSupportedVersions().getFirst(),
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -278,7 +271,7 @@ public void testStatementsRecovery02() throws CoreException {
 		"     UnknownType name\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile(JLS3_INTERNAL, false, false, null, null);
+	this.workingCopy.reconcile(AST.getAllSupportedVersions().getFirst(), false, false, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
@@ -343,7 +336,7 @@ public void testStatementsRecovery04() throws CoreException {
 		"     UnknownType name\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile(JLS3_INTERNAL, false, true, null, null);
+	this.workingCopy.reconcile(AST.getAllSupportedVersions().getFirst(), false, true, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"

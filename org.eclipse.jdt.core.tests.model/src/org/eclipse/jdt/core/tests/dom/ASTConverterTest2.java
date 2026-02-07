@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -31,15 +32,14 @@ import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverterTest2 extends ConverterTestSetup {
 
-	/** @deprecated using deprecated code */
-	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS2, false);
+		this.ast = AST.newAST(AST.getAllSupportedVersions().get(0), false);
 	}
 
 	public ASTConverterTest2(String name) {
@@ -54,23 +54,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverterTest2.class);
 	}
 	/**
-	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
-	 * @deprecated
-	 */
-	private static List internalThrownExceptions(MethodDeclaration methodDeclaration) {
-		return methodDeclaration.thrownExceptions();
-	}
-
-	/**
-	 * @deprecated
-	 */
-	private Type componentType(ArrayType array) {
-		return array.getComponentType();
-	}
-
-	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560
-	 * @deprecated using deprecated code
 	 */
 	public void test0401() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0401", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -88,7 +72,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Expression expression = returnStatement.getExpression();
 		assertNotNull("there is no expression", expression); //$NON-NLS-1$
 		// call the default initialization
-		methodDeclaration.getReturnType();
+		methodDeclaration.getReturnType2();
 		ITypeBinding typeBinding = expression.resolveTypeBinding();
 		assertNotNull("No typebinding", typeBinding); //$NON-NLS-1$
 		assertEquals("wrong name", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -280,7 +264,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		Type type = methodDeclaration.getReturnType();
+		Type type = methodDeclaration.getReturnType2();
 		assertTrue("Not a simple type", type.isSimpleType()); //$NON-NLS-1$
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
@@ -316,7 +300,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			compilationUnit.accept(bindingsCollectorVisitor);
 			assertEquals("wrong number", 3, bindingsCollectorVisitor.getUnresolvedNodesSet().size()); //$NON-NLS-1$
 			Map bindingsMap = bindingsCollectorVisitor.getBindingsMap();
-			assertEquals("wrong number", 205, bindingsMap.size()); //$NON-NLS-1$
+			assertEquals("wrong number", 212, bindingsMap.size()); //$NON-NLS-1$
 			ASTNodesCollectorVisitor nodesCollector = new ASTNodesCollectorVisitor();
 			compilationUnit.accept(nodesCollector);
 			Set detachedNodes = nodesCollector.getDetachedAstNodes();
@@ -466,9 +450,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		List throwsException = internalThrownExceptions(methodDeclaration);
+		List throwsException = methodDeclaration.thrownExceptionTypes();
 		assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
-		Name name = (Name) throwsException.get(0);
+		Name name = ((SimpleType)throwsException.get(0)).getName();
 		IBinding binding = name.resolveBinding();
 		assertNotNull("No binding", binding); //$NON-NLS-1$
 		assertEquals("LIOException;", binding.getKey());
@@ -476,7 +460,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23734
-	 * @deprecated using deprecated code
 	 */
 	public void test0414() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0414", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -488,7 +471,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		Type type = methodDeclaration.getReturnType();
+		Type type = methodDeclaration.getReturnType2();
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		ASTNode declaringNode = unit.findDeclaringNode(typeBinding);
@@ -498,7 +481,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration2 = (MethodDeclaration) node;
-		Type type2 = methodDeclaration2.getReturnType();
+		Type type2 = methodDeclaration2.getReturnType2();
 		ITypeBinding typeBinding2 = type2.resolveBinding();
 		assertNotNull("No type binding", typeBinding2); //$NON-NLS-1$
 		ASTNode declaringNode2 = unit.findDeclaringNode(typeBinding2);
@@ -1301,7 +1284,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25330
-	 * @deprecated using deprecated code
 	 */
 	public void test0448() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0448", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1313,11 +1295,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Not a method declaration", node.getNodeType(), ASTNode.METHOD_DECLARATION);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		assertTrue("Not a constructor", methodDeclaration.isConstructor());
-		ITypeBinding returnTypeBinding = methodDeclaration.getReturnType().resolveBinding();
-		assertNotNull("No return type binding", returnTypeBinding);
-		Block block = methodDeclaration.getBody();
-		assertNotNull("No method body", block);
-		assertEquals("wrong size", 0, block.statements().size());
+		assertNull(methodDeclaration.getReturnType2());
 	}
 
 	/**
@@ -1440,7 +1418,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		Type type = methodDeclaration.getReturnType();
+		Type type = methodDeclaration.getReturnType2();
 		checkSourceRange(type, "int", source);
 	}
 
@@ -2643,13 +2621,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
+		assertEquals(2, arrayType.getDimensions());
+		assertEquals("Class", ((SimpleType)arrayType.getElementType()).getName().getFullyQualifiedName());
 	}
 
 	/**
@@ -2669,17 +2642,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[][]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
+		assertEquals(3, arrayType.getDimensions());
+		assertEquals("Class", ((SimpleType)arrayType.getElementType()).getName().getFullyQualifiedName());
 	}
 
 	/**
@@ -2699,17 +2663,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
-		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
-		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-		assertEquals("wrong extra dimension", 1, fragment.getExtraDimensions());
+		assertEquals(2, arrayType.getDimensions());
+		assertEquals("Class", ((SimpleType)arrayType.getElementType()).getName().getFullyQualifiedName());
 	}
 
 	/**
@@ -2729,21 +2684,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][][][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[][][]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[][]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
+		assertEquals(4, arrayType.getDimensions());
+		assertEquals("Class", ((SimpleType)arrayType.getElementType()).getName().getFullyQualifiedName());
 	}
 
 	/**
@@ -2763,9 +2705,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
+		assertEquals(1, arrayType.getDimensions());
+		assertEquals("Class", ((SimpleType)arrayType.getElementType()).getName().getFullyQualifiedName());
 	}
 
 	public void test0498() throws JavaModelException {
@@ -2936,7 +2877,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		AbstractTypeDeclaration typeDeclaration = typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected key", "Ltest0502/A$206$B;", typeBinding.getKey()); //$NON-NLS-1$
 	}
@@ -2958,7 +2899,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
-	 * @deprecated using deprecated code
 	 */
 	public void test0502i() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2966,7 +2906,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// 'field' in 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		IVariableBinding fieldBinding = fragment.resolveBinding();
@@ -2975,7 +2915,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
-	 * @deprecated using deprecated code
 	 */
 	public void test0502j() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2983,7 +2922,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// 'bar()' in 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
 		assertEquals("Unexpected key", "Ltest0502/A$206$B;.bar()V", methodBinding.getKey()); //$NON-NLS-1$
@@ -3017,7 +2956,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
-	 * @deprecated using deprecated code
 	 */
 	public void test0503c() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3025,7 +2963,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// local type E in foo() in A
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 0);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected binary name", "test0503.A$1E", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
@@ -3063,7 +3001,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
-	 * @deprecated using deprecated code
 	 */
 	public void test0503f() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3072,7 +3009,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		// local type C in bar() in B in A
 		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) method.getBody().statements().get(0);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected binary name", "test0503.A$B$1C", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
@@ -3112,7 +3049,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
-	 * @deprecated using deprecated code
 	 */
 	public void test0503i() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3122,7 +3058,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 2);
 		Block block = (Block)ifStatement.getThenStatement();
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) block.statements().get(0);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected binary name", null, typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
@@ -4038,7 +3974,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
-	 * @deprecated using deprecated code
 	 */
 	public void test0533() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0533", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4050,7 +3985,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().get(0));
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -4063,7 +3998,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
-	 * @deprecated using deprecated code
 	 */
 	public void test0534() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0534", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4075,7 +4009,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration declaration = (FieldDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().get(0));
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -4088,7 +4022,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
-	 * @deprecated using deprecated code
 	 */
 	public void test0535() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0535", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4100,7 +4033,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
 		Initializer declaration = (Initializer) node;
-		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().get(0));
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -4157,9 +4090,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  int i;\n" +
 				"}"
 			);
-			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
-			assertNotNull("No level 2 compilation unit", unit);
-			assertEquals("Compilation unit has wrong AST level (2)", AST.JLS2, unit.getAST().apiLevel());
+			CompilationUnit unit = sourceUnit.reconcile(AST.getAllSupportedVersions().get(0), false, null, null);
+			assertNotNull("No compilation unit of version"+AST.getAllSupportedVersions().get(0), unit);
+			assertEquals("Compilation unit has wrong AST level", AST.getAllSupportedVersions().get(0).intValue(), unit.getAST().apiLevel());
 			// TODO improve test for AST.JLS3
 		} finally {
 			sourceUnit.discardWorkingCopy();
@@ -4673,7 +4606,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59848
-	 * @deprecated using deprecated code
 	 */
 	public void test0546() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0546", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4708,7 +4640,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		SimpleName simpleName = (SimpleName) expression2;
 		ITypeBinding typeBinding4 = simpleName.resolveTypeBinding();
 		assertTrue("An anonymous type binding", !typeBinding4.isAnonymous());
-		Name name = classInstanceCreation.getName();
+		Name name = ((SimpleType)classInstanceCreation.getType()).getName();
 		IBinding binding = name.resolveBinding();
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
 		ITypeBinding typeBinding5 = (ITypeBinding) binding;
@@ -4717,7 +4649,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60078
-	 * @deprecated using deprecated code
 	 */
 	public void test0547() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0547", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4727,7 +4658,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Wrong key", "Ltest0547/A$74$Local;", typeBinding.getKey());
 
@@ -5188,7 +5119,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74369
-	 * @deprecated using deprecated code
 	 */
 	public void test0569() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0569", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5200,7 +5130,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 1);
 		assertEquals("not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		assertEquals("wrong name", "Local", typeDeclaration.getName().getIdentifier());
 		assertNull("Got a javadoc", typeDeclaration.getJavadoc());
 		node = getASTNode(unit, 0);
@@ -5220,7 +5150,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * when the AST is computed using ICompilationUnit#reconcile(...)
 	 * (regression test for bug 83210 Unidentical ITypeBindings for same type from same AST from reconcile)
 	 */
-	public void _2551_test0570() throws CoreException {
+	public void test0570() throws CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true);
@@ -5236,8 +5166,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
 			Type type = fieldDeclaration.getType();
 			IBinding importBinding = importDeclaration.resolveBinding();
-			IBinding typeBinding = type.resolveBinding();
-			assertEquals(importBinding.toString(), typeBinding.toString());
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertTrue(typeBinding.isRawType());
+			assertEquals(importBinding.toString(), (typeBinding).getErasure().toString());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -5249,7 +5180,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0571() throws CoreException, IOException {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL_LIB"}, "");
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "");
 			String source =
 				"public class X {\n" +
 				"  public class Y {\n" +
@@ -5257,7 +5188,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}";
 			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, CompilerOptions.getFirstSupportedJavaVersion());
 			IOrdinaryClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
-			CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), classFile, 0, true);
+			CompilationUnit unit = (CompilationUnit) runConversion(classFile, 0, true);
 			IProblem[] problems = unit.getProblems();
 			StringBuilder buffer = new StringBuilder();
 			for (int i = 0, length = problems.length; i < length; i++)
@@ -5548,7 +5479,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"        }\n" +
 				"}"
 			);
-			ASTNode cu = workingCopy.reconcile(getJLS3(), true, true, null, null);
+			ASTNode cu = workingCopy.reconcile(getJLSFirst(), true, true, null, null);
 			assertNotNull("Should get an AST", cu);
 		} finally {
 			if (workingCopy != null)
@@ -5573,7 +5504,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			);
 
 			// Create parser
-			ASTParser parser = ASTParser.newParser(getJLS3());
+			ASTParser parser = ASTParser.newParser(getJLSFirst());
 			parser.setSource(workingCopy);
 			parser.setFocalPosition(0);
 			parser.setResolveBindings(true);
@@ -5584,6 +5515,124 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+
+	public void testBug4234_01() throws CoreException {
+		String source = """
+		        module a {
+		            exports pack to b;
+		        }
+		        """;
+
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    parser.setUnitName("module-info.java");
+
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
+	    parser.setCompilerOptions(options);
+
+	    parser.setSource(source.toCharArray());
+	    parser.setResolveBindings(false);
+	    parser.setStatementsRecovery(false);
+	    parser.setBindingsRecovery(false);
+	    CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		ModuleDeclaration module = cu.getModule();
+
+		ExportsDirective export = null;
+	    for (Object directive : module.moduleStatements()) {
+	        if (directive instanceof ExportsDirective) {
+	            export = (ExportsDirective) directive;
+	            break;
+	        }
+	    }
+	    assertNotNull("ExportsDirective not found", export);
+
+	    NaiveASTFlattener flattener = new NaiveASTFlattener();
+	    export.accept(flattener);
+	    assertEquals("exports pack to b;\n", flattener.getResult());
+	}
+
+	public void testBug4234_02() throws CoreException {
+		String source = """
+		        module a {
+		            opens pack to b;
+		        }
+		        """;
+
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    parser.setUnitName("module-info.java");
+
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
+	    parser.setCompilerOptions(options);
+
+	    parser.setSource(source.toCharArray());
+	    parser.setResolveBindings(false);
+	    parser.setStatementsRecovery(false);
+	    parser.setBindingsRecovery(false);
+	    CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		ModuleDeclaration module = cu.getModule();
+
+		OpensDirective opens = null;
+	    for (Object directive : module.moduleStatements()) {
+	        if (directive instanceof OpensDirective) {
+	            opens = (OpensDirective) directive;
+	            break;
+	        }
+	    }
+	    assertNotNull("OpensDirective not found", opens);
+
+	    NaiveASTFlattener flattener = new NaiveASTFlattener();
+	    opens.accept(flattener);
+	    assertEquals("opens pack to b;\n", flattener.getResult());
+	}
+
+	public void testBug4234_03() throws CoreException {
+		String source = """
+		module a {
+            provides java.util.spi.ResourceBundleProvider
+                with com.example.MyProvider, com.example.AltProvider;
+        }
+        """;
+
+    ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+    parser.setUnitName("module-info.java");
+
+    Map<String, String> options = new HashMap<>();
+    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+    options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
+    parser.setCompilerOptions(options);
+
+    parser.setSource(source.toCharArray());
+    parser.setResolveBindings(false);
+    parser.setStatementsRecovery(false);
+    parser.setBindingsRecovery(false);
+    CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+    ModuleDeclaration module = cu.getModule();
+
+    ProvidesDirective provides = null;
+    for (Object directive : module.moduleStatements()) {
+        if (directive instanceof ProvidesDirective) {
+            provides = (ProvidesDirective) directive;
+            break;
+        }
+    }
+    assertNotNull("ProvidesDirective not found", provides);
+
+    NaiveASTFlattener flattener = new NaiveASTFlattener();
+    provides.accept(flattener);
+
+    // Note: Flattener output has no newlines
+    String expected = "provides java.util.spi.ResourceBundleProvider with com.example.MyProvider, com.example.AltProvider;\n";
+    assertEquals(expected, flattener.getResult());
 	}
 
 }

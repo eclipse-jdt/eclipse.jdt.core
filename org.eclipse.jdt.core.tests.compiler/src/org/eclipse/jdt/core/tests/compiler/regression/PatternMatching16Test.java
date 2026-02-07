@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class PatternMatching16Test extends AbstractRegressionTest {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 16 --enable-preview -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 16");
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -195,7 +195,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 	}
 	public void test003a() {
-		Map<String, String> options = getCompilerOptions(true);
+		Map<String, String> options = getCompilerOptions(false);
 		String[] testFiles =
 				new String[] {
 						"X3.java",
@@ -211,8 +211,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n",
 				};
-		if (this.complianceLevel < ClassFileConstants.JDK23) {
-			runNegativeTest(
+		runNegativeTest(
 				testFiles,
 				"----------\n" +
 				"1. ERROR in X3.java (at line 4)\n" +
@@ -224,9 +223,6 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				null,
 				true,
 				options);
-		} else {
-			runConformTest(testFiles, "int", options, new String[] {"--enable-preview"}, JavacTestOptions.DEFAULT);
-		}
 	}
 	public void test004() {
 		Map<String, String> options = getCompilerOptions(true);
@@ -1038,7 +1034,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 	}
 	/* Test that we report subtypes of pattern variables used in the same stmt
-	 * As of Java 19, we no longer report error for the above
+	 * As of Java 21, we no longer report error for the above
 	 */
 	public void test020() {
 		Map<String, String> options = getCompilerOptions(true);
@@ -1055,12 +1051,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n",
 				},
-				"----------\n" +
-				"1. ERROR in X20.java (at line 7)\n" +
-				"	System.out.print(b1);\n" +
-				"	                 ^^\n" +
-				"b1 cannot be resolved to a variable\n" +
-				"----------\n",
+				this.complianceLevel < ClassFileConstants.JDK21 ?
+					"----------\n" +
+					"1. ERROR in X20.java (at line 6)\n" +
+					"	boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;\n" +
+					"	                                         ^\n" +
+					"Expression type cannot be a subtype of the Pattern type\n" +
+					"----------\n" +
+					"2. ERROR in X20.java (at line 7)\n" +
+					"	System.out.print(b1);\n" +
+					"	                 ^^\n" +
+					"b1 cannot be resolved to a variable\n" +
+					"----------\n" :
+							"----------\n" +
+							"1. ERROR in X20.java (at line 7)\n" +
+							"	System.out.print(b1);\n" +
+							"	                 ^^\n" +
+							"b1 cannot be resolved to a variable\n" +
+							"----------\n",
 				"",
 				null,
 				true,
@@ -1763,7 +1771,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"null",
-				getCompilerOptions(true));
+				getCompilerOptions(false));
 	}
 	public void test032a() {
 		runConformTest(
@@ -1788,7 +1796,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"one",
-				getCompilerOptions(true));
+				getCompilerOptions(false));
 	}
 	public void test033() {
 		runNegativeTest(
@@ -1897,7 +1905,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"",
 				null,
 				true,
-				getCompilerOptions(true));
+				getCompilerOptions(false));
 	}
 	public void test036() {
 		runConformTest(
@@ -1921,7 +1929,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"one",
-				getCompilerOptions(true));
+				getCompilerOptions(false));
 	}
 	public void test037() {
 		runNegativeTest(
@@ -2292,7 +2300,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
 	public void test052() {
-		Map<String, String> compilerOptions = getCompilerOptions(true);
+		Map<String, String> compilerOptions = getCompilerOptions(false);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
 		runConformTest(
@@ -2431,12 +2439,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	System.out.println(abc);\n" +
-				"	                   ^^^\n" +
-				"abc cannot be resolved to a variable\n" +
-				"----------\n",
+				this.complianceLevel < ClassFileConstants.JDK21 ?
+					"----------\n" +
+					"1. ERROR in X.java (at line 4)\n" +
+					"	if (null instanceof T t) {\n" +
+					"	    ^^^^\n" +
+					"Expression type cannot be a subtype of the Pattern type\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 10)\n" +
+					"	System.out.println(abc);\n" +
+					"	                   ^^^\n" +
+					"abc cannot be resolved to a variable\n" +
+					"----------\n" :
+						"----------\n" +
+						"1. ERROR in X.java (at line 10)\n" +
+						"	System.out.println(abc);\n" +
+						"	                   ^^^\n" +
+						"abc cannot be resolved to a variable\n" +
+						"----------\n",
 				"",
 				null,
 				true,
@@ -4327,7 +4347,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1485
 	// ECJ hangs when pattern matching code is used in a nested conditional expression.
 	public void testGHI1485() {
-
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -4823,6 +4844,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2104
 	// [Patterns] Missing boxing conversion after instanceof leads to verify error
 	public void testBoxing() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
 		runConformTest(
 				new String[] {
 						"X.java",

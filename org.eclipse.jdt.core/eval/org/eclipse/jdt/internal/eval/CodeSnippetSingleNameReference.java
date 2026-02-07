@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
@@ -247,8 +248,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 				if (!valueRequired)
 					break;
-				// checkEffectiveFinality() returns if it's outer local
-				if (checkEffectiveFinality(localBinding, currentScope)) {
+				if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 					// outer local can be reached either through a synthetic arg or a synthetic field
 					VariableBinding[] path = currentScope.getEmulationPath(localBinding);
 					codeStream.generateOuterAccess(path, this, localBinding, currentScope);

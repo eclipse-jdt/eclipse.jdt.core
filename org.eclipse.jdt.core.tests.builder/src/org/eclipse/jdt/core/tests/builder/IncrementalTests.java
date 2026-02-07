@@ -667,10 +667,10 @@ public class IncrementalTests extends BuilderTests {
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=377401
 	public void test$InTypeName() throws JavaModelException {
-		IPath projectPath1 = env.addProject("Project1", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath1 = env.addProject("Project1", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath1, Util.getJavaClassLibs());
 
-		IPath projectPath2 = env.addProject("Project2", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath2 = env.addProject("Project2", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath2, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
@@ -1722,6 +1722,185 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(pathToX, new Problem("E", "A Switch expression should cover all possible values", pathToX, 100, 101, CategorizedProblem.CAT_SYNTAX, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(projectPath);
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3488
+	// [Sealed types] Proper sealing of hierarchy rejected in incremental builds if permitted class is generic
+	public void testIssue3488() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "Message",
+				"""
+				public sealed abstract class Message permits Request {
+				    public final String id;
+
+				    protected Message(String id) {
+				        this.id = id;
+				    }
+				}
+				""");
+
+		env.addClass(root, "", "Request",
+				"""
+				public final class Request<T> extends Message {  // Error here
+				    public final T payload;
+
+				    public Request(String id, T payload) {
+				        super(id);
+				        this.payload = payload;
+				    }
+				}
+				""");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "", "Request",
+				"""
+				public final class Request<T> extends Message {  // Error here
+				    public final T payload;
+
+				    public Request(String id, T payload) {
+				        super(id);
+				        this.payload = payload;
+				    }
+				}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.removeProject(projectPath);
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4622
+	// Inconsistent classfile encountered on annotated generic types
+	public void testIssue4622() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "Record",
+					"""
+					import java.lang.annotation.Target;
+
+					public record Record(
+					        Patch<@ValidUrlTemplate(value = UrlValidationType.AA, message = "{}") String> labelUrl) {
+					}
+
+					class Patch<T> {
+					    public T field;
+					}
+
+					enum UrlValidationType {
+					    AA, BB
+					}
+
+					@Target(java.lang.annotation.ElementType.TYPE_USE)
+					@interface ValidUrlTemplate {
+					    UrlValidationType value();
+					    String message();
+					}
+					""");
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "", "Driver",
+				"""
+				public class Driver {
+				    public Record r;
+
+				    public static void main(String [] args) {
+				    	System.out.println("OK!");
+					}
+				}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.removeProject(projectPath);
+	}
+
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4632
+	// The type ... from the descriptor computed for the target context is not visible here
+	public void testIssue4632() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "other", "AuthorizeHttpRequestsConfigurer",
+					"""
+					package other;
+
+					public class AuthorizeHttpRequestsConfigurer<T> {
+						public class AuthorizationManagerRequestMatcherRegistry {}
+					}
+					""");
+		env.addClass(root, "other", "Customizer",
+				"""
+				package other;
+
+				public interface Customizer<T> {
+					void customize(T t);
+				}
+				""");
+		env.addClass(root, "other", "HttpSecurity",
+				"""
+				package other;
+
+				public class HttpSecurity {
+				}
+				""");
+		env.addClass(root, "test", "FrontEndSecurityCustomizer",
+				"""
+				package test;
+
+				import other.AuthorizeHttpRequestsConfigurer;
+				import other.Customizer;
+				import other.HttpSecurity;
+
+				public interface FrontEndSecurityCustomizer extends Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> {
+
+				}
+				""");
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "test", "ProfileSecurityConfiguration",
+				"""
+				package test;
+
+				public class ProfileSecurityConfiguration {
+
+				    FrontEndSecurityCustomizer profileFrontEndSecurityCustomizer() {
+				        return auth -> System.out.println(auth);
+				    }
+				}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
 		env.removeProject(projectPath);
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2023 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2024 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 
 /**
  * A delegating JavaFileObject that hooks the close() methods of the Writer
@@ -200,11 +201,17 @@ public class HookedJavaFileObject extends
 
 	private final String _typeName;
 
-	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer) {
+	private final String _moduleName;
+
+	private final String _encoding;
+
+	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer, String module, String encoding) {
 		super(fileObject);
 		this._filer = filer;
 		this._fileName = fileName;
 		this._typeName = typeName;
+		this._moduleName = module;
+		this._encoding = encoding;
 	}
 
 	@SuppressWarnings("resource") // ForwardingOutputStream forwards close() too
@@ -222,11 +229,21 @@ public class HookedJavaFileObject extends
 	protected void closed() {
 		if (!this._closed) {
 			this._closed = true;
-			//TODO: support encoding
 			switch(this.getKind()) {
 				case SOURCE :
-					CompilationUnit unit = new CompilationUnit(null, this._fileName, null /* encoding */, null, this._filer._env.shouldIgnoreOptionalProblems(this._fileName.toCharArray()), null);
-					this._filer.addNewUnit(unit);
+					try {
+						CompilationUnit unit = new CompilationUnit(
+								getCharContent(false).toString().toCharArray(),
+								this._fileName,
+								this._encoding,
+								null /* destination path */,
+								this._filer._env.shouldIgnoreOptionalProblems(this._fileName.toCharArray()),
+								this._moduleName);
+						this._filer.addNewUnit(unit);
+					} catch (IOException e) {
+						e.printStackTrace();
+						throw new AbortCompilationUnit(null, e, this._encoding);
+					}
 					break;
 				case CLASS :
 					IBinaryType binaryType = null;

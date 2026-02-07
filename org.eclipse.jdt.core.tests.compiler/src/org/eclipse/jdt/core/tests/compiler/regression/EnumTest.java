@@ -6505,9 +6505,6 @@ public void test175() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
 public void test176() {
-	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6548,9 +6545,6 @@ public void test176() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
 public void test177() {
-	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6595,9 +6589,6 @@ public void test177() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
 public void test178() {
-	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6643,9 +6634,6 @@ public void test178() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=285701
 public void test179() {
-	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7194,8 +7182,6 @@ public void test433060() {
 		options);
 }
 public void test434442() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	this.runConformTest(new String[] {
 			"X.java",
 			"interface I {\n" +
@@ -7229,8 +7215,6 @@ public void test434442() {
 	});
 }
 public void test476281() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	this.runConformTest(new String[] {
 			"LambdaEnumLocalClassBug.java",
 			"public enum LambdaEnumLocalClassBug {\n" +
@@ -7328,8 +7312,6 @@ public void testBug388314() throws Exception {
 	}
 }
 public void testGHIssue2398() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	this.runNegativeTest(new String[] {
 			"com/test/X.java",
 			"""
@@ -7427,5 +7409,52 @@ public void testGHIssue1368() {
 			"	                   ^\n" +
 			"Cannot make a static reference to the non-static field h\n" +
 			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3356
+// Test failures in I-Builds due to less diagnostics being emitted
+public void testIssue3356() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			    public enum color {black, white}
+			    public void foo(color c) {
+					switch (c) {
+			            case (color.black):
+			                System.out.println("Black");
+			                break;
+			        }
+			    }
+			}
+			"""
+			},
+			this.complianceLevel < ClassFileConstants.JDK21 ?
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	switch (c) {\n" +
+			"	        ^\n" +
+			"The enum constant white needs a corresponding case label in this enum switch on X.color\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case (color.black):\n" +
+			"	     ^^^^^^^^^^^^^\n" +
+			"Enum constants cannot be surrounded by parenthesis\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case (color.black):\n" +
+			"	     ^^^^^^^^^^^^^\n" +
+			"The qualified case label X.color.black must be replaced with the unqualified enum constant black\n" +
+			"----------\n"
+				: "----------\n" +
+				"1. WARNING in X.java (at line 4)\n" +
+				"	switch (c) {\n" +
+				"	        ^\n" +
+				"The enum constant white needs a corresponding case label in this enum switch on X.color\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case (color.black):\n" +
+				"	     ^^^^^^^^^^^^^\n" +
+				"Enum constants cannot be surrounded by parenthesis\n" +
+				"----------\n");
 }
 }

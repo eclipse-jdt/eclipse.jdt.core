@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Internal parser used for decoding doc comments.
@@ -40,17 +40,7 @@ class DocCommentParser extends AbstractCommentParser {
 		super(null);
 		this.ast = ast;
 		this.scanner = scanner;
-		switch(this.ast.apiLevel()) {
-			case AST.JLS2_INTERNAL :
-				this.sourceLevel = ClassFileConstants.JDK1_3;
-				break;
-			case AST.JLS3_INTERNAL:
-				this.sourceLevel = ClassFileConstants.JDK1_5;
-				break;
-			default:
-				// AST.JLS4 for now
-				this.sourceLevel = ClassFileConstants.JDK1_7;
-		}
+		this.sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
 		this.checkDocComment = check;
 		this.kind = DOM_PARSER | TEXT_PARSE;
 	}
@@ -533,12 +523,12 @@ class DocCommentParser extends AbstractCommentParser {
 
 
 	@Override
-	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
+	protected Object createTypeReference(TerminalToken primitiveToken, boolean canBeModule) {
 		return createTypeReference(primitiveToken);
 	}
 
 	@Override
-	protected Object createTypeReference(int primitiveToken) {
+	protected Object createTypeReference(TerminalToken primitiveToken) {
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		String[] identifiers = new String[size];
 		int pos = this.identifierPtr - size + 1;
@@ -546,35 +536,35 @@ class DocCommentParser extends AbstractCommentParser {
 			identifiers[i] = new String(this.identifierStack[pos+i]);
 		}
 		ASTNode typeRef = null;
-		if (primitiveToken == -1) {
+		if (primitiveToken == TerminalToken.TokenNameInvalid) {
 			typeRef = this.ast.internalNewName(identifiers);
 		} else {
 			switch (primitiveToken) {
-				case TerminalTokens.TokenNamevoid :
+				case TokenNamevoid :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.VOID);
 					break;
-				case TerminalTokens.TokenNameboolean :
+				case TokenNameboolean :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.BOOLEAN);
 					break;
-				case TerminalTokens.TokenNamebyte :
+				case TokenNamebyte :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.BYTE);
 					break;
-				case TerminalTokens.TokenNamechar :
+				case TokenNamechar :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.CHAR);
 					break;
-				case TerminalTokens.TokenNamedouble :
+				case TokenNamedouble :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.DOUBLE);
 					break;
-				case TerminalTokens.TokenNamefloat :
+				case TokenNamefloat :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.FLOAT);
 					break;
-				case TerminalTokens.TokenNameint :
+				case TokenNameint :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.INT);
 					break;
-				case TerminalTokens.TokenNamelong :
+				case TokenNamelong :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.LONG);
 					break;
-				case TerminalTokens.TokenNameshort :
+				case TokenNameshort :
 					typeRef = this.ast.newPrimitiveType(PrimitiveType.SHORT);
 					break;
 				default:
@@ -647,7 +637,7 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected Object createModuleTypeReference(int primitiveToken, int  moduleRefTokenCount) {
+	protected Object createModuleTypeReference(TerminalToken primitiveToken, int  moduleRefTokenCount) {
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		ModuleQualifiedName moduleRef= null;
 		Name typeRef= null;
@@ -668,7 +658,7 @@ class DocCommentParser extends AbstractCommentParser {
 			moduleRef= createModuleReference(moduleRefTokenCount);
 			pos = this.identifierPtr+moduleRefTokenCount - size + 1;
 
-			if (primitiveToken == -1) {
+			if (primitiveToken == TerminalToken.TokenNameInvalid) {
 				typeRef = this.ast.internalNewName(identifiers);
 				// Update ref for whole name
 				int start = (int) (this.identifierPositionStack[pos] >>> 32);
@@ -743,53 +733,20 @@ class DocCommentParser extends AbstractCommentParser {
 						readChar();
 					}
 					break;
+				case ')':
+					if (peekChar() == '\n' || peekChar() == ' ') {
+						valid = parseMarkdownLinkTags(true, start, previousPosition, tStart, tEnd);
+						break loop;
+					}
+					break;
 				case ']':
-					if (peekChar() == '[') {
+					if ((peekChar() == '[' ) || peekChar() == '(') {
 						tStart = start;
 						tEnd = this.index - 1;
 						currentChar = readChar();
 						start = this.index;
-					} else {
-						int eofBkup = this.scanner.eofPosition;
-						this.scanner.eofPosition = this.index - 1;
-						this.scanner.resetTo(start, this.javadocEnd);
-						this.inlineTagStarted = true;
-						this.inlineTagStart = previousPosition;
-						this.tagValue = TAG_LINK_VALUE;
-						int indexBkup = this.index;
-						valid = parseReference(true);
-						this.index = indexBkup;
-						// This creates a two level structure. The @link tag is added to
-						// another tag element, which gets added to the astStack
-						// Both tag elements must get the same source range.
-						TagElement previousTag = (TagElement) this.astStack[this.astPtr];
-						int parentStart = previousTag.getStartPosition();
-						previousTag.setSourceRange(parentStart, this.index - parentStart);
-						List fragments = previousTag.fragments();
-						int size = fragments.size();
-						if (size == 0) {
-							// no existing fragment => just add the element
-							TagElement inlineTag = this.ast.newTagElement();
-							fragments.add(inlineTag);
-							previousTag = inlineTag;
-						} else {
-							// If last fragment is a tag, then use it as previous tag
-							ASTNode lastFragment = (ASTNode) fragments.get(size-1);
-							if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
-								lastFragment.setSourceRange(lastFragment.getStartPosition(), this.index - previousPosition);
-								previousTag = (TagElement) lastFragment;
-							}
-						}
-						if (tEnd != -1) {
-							TextElement text = this.ast.newTextElement();
-							text.setText(new String( this.source, tStart, tEnd-tStart));
-							text.setSourceRange(tStart, tEnd-tStart);
-							previousTag.fragments().add(0, text);
-						}
-						this.tagValue = NO_TAG_VALUE;
-						this.inlineTagStarted = false;
-						this.inlineTagStart = -1;
-						this.scanner.eofPosition = eofBkup;
+					} else if (peekChar() != ']') {
+						valid = parseMarkdownLinkTags(false, start, previousPosition, tStart, tEnd);
 						break loop;
 					}
 					break;
@@ -805,13 +762,61 @@ class DocCommentParser extends AbstractCommentParser {
 		return valid;
 	}
 
+	private boolean parseMarkdownLinkTags(boolean refFlag, int start, int previousPosition, int tStart, int tEnd ) throws InvalidInputException {
+		boolean valid = false;
+		int eofBkup = this.scanner.eofPosition;
+		this.scanner.eofPosition = this.index - 1;
+		this.scanner.resetTo(start, this.javadocEnd);
+		this.inlineTagStarted = true;
+		this.inlineTagStart = previousPosition;
+		this.tagValue = TAG_LINK_VALUE;
+		int indexBkup = this.index;
+		if (refFlag)
+			valid = parseURLReference(this.scanner.startPosition - 1, false);
+		else
+			valid = parseReference(true);
+		this.index = indexBkup;
+		// This creates a two level structure. The @link tag is added to
+		// another tag element, which gets added to the astStack
+		// Both tag elements must get the same source range.
+		TagElement previousTag = (TagElement) this.astStack[this.astPtr];
+		int parentStart = previousTag.getStartPosition();
+		previousTag.setSourceRange(parentStart, this.index - parentStart);
+		List fragments = previousTag.fragments();
+		int size = fragments.size();
+		if (size == 0) {
+			// no existing fragment => just add the element
+			TagElement inlineTag = this.ast.newTagElement();
+			fragments.add(inlineTag);
+			previousTag = inlineTag;
+		} else {
+			// If last fragment is a tag, then use it as previous tag
+			ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+			if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+				lastFragment.setSourceRange(lastFragment.getStartPosition(), this.index - previousPosition);
+				previousTag = (TagElement) lastFragment;
+			}
+		}
+		if (tEnd != -1) {
+			TextElement text = this.ast.newTextElement();
+			text.setText(new String( this.source, tStart, tEnd-tStart));
+			text.setSourceRange(tStart, tEnd-tStart);
+			previousTag.fragments().add(0, text);
+		}
+		this.tagValue = NO_TAG_VALUE;
+		this.inlineTagStarted = false;
+		this.inlineTagStart = -1;
+		this.scanner.eofPosition = eofBkup;
+		return valid;
+	}
+
 	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 		this.markdownHelper.resetLineStart();
 
 		// Read tag name
 		int currentPosition = this.index;
-		int token = readTokenAndConsume();
+		TerminalToken token = readTokenAndConsume();
 		char[] tagName = CharOperation.NO_CHAR;
 		if (currentPosition == this.scanner.startPosition) {
 			this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
@@ -824,7 +829,7 @@ class DocCommentParser extends AbstractCommentParser {
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
 		if (this.scanner.currentCharacter != ' ' && !ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
-			tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
+			tagNameToken: while (token != TerminalToken.TokenNameEOF && this.index < this.scanner.eofPosition) {
 				int length = tagName.length;
 				// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
 				switch (this.scanner.currentCharacter) {
@@ -873,7 +878,7 @@ class DocCommentParser extends AbstractCommentParser {
 		this.tagValue = NO_TAG_VALUE;
 		boolean valid = true;
 		switch (token) {
-			case TerminalTokens.TokenNameIdentifier :
+			case TokenNameIdentifier :
 				switch (tagName[0]) {
 					case 'c':
 						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName)) {
@@ -972,7 +977,7 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 					break;
 					case 'v':
-						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName)) {
+						if (length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName)) {
 							this.tagValue = TAG_VALUE_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();
@@ -989,67 +994,69 @@ class DocCommentParser extends AbstractCommentParser {
 						createTag();
 				}
 				break;
-			case TerminalTokens.TokenNamereturn :
+			case TokenNamereturn :
 				this.tagValue = TAG_RETURN_VALUE;
 				valid = parseReturn();
 				break;
-			case TerminalTokens.TokenNamethrows :
+			case TokenNamethrows :
 				this.tagValue = TAG_THROWS_VALUE;
 				valid = parseThrows();
 				break;
-			case TerminalTokens.TokenNameabstract:
-			case TerminalTokens.TokenNameassert:
-			case TerminalTokens.TokenNameboolean:
-			case TerminalTokens.TokenNamebreak:
-			case TerminalTokens.TokenNamebyte:
-			case TerminalTokens.TokenNamecase:
-			case TerminalTokens.TokenNamecatch:
-			case TerminalTokens.TokenNamechar:
-			case TerminalTokens.TokenNameclass:
-			case TerminalTokens.TokenNamecontinue:
-			case TerminalTokens.TokenNamedefault:
-			case TerminalTokens.TokenNamedo:
-			case TerminalTokens.TokenNamedouble:
-			case TerminalTokens.TokenNameelse:
-			case TerminalTokens.TokenNameextends:
-			case TerminalTokens.TokenNamefalse:
-			case TerminalTokens.TokenNamefinal:
-			case TerminalTokens.TokenNamefinally:
-			case TerminalTokens.TokenNamefloat:
-			case TerminalTokens.TokenNamefor:
-			case TerminalTokens.TokenNameif:
-			case TerminalTokens.TokenNameimplements:
-			case TerminalTokens.TokenNameimport:
-			case TerminalTokens.TokenNameinstanceof:
-			case TerminalTokens.TokenNameint:
-			case TerminalTokens.TokenNameinterface:
-			case TerminalTokens.TokenNamelong:
-			case TerminalTokens.TokenNamenative:
-			case TerminalTokens.TokenNamenew:
-			case TerminalTokens.TokenNamenull:
-			case TerminalTokens.TokenNamepackage:
-			case TerminalTokens.TokenNameprivate:
-			case TerminalTokens.TokenNameprotected:
-			case TerminalTokens.TokenNamepublic:
-			case TerminalTokens.TokenNameshort:
-			case TerminalTokens.TokenNamestatic:
-			case TerminalTokens.TokenNamestrictfp:
-			case TerminalTokens.TokenNamesuper:
-			case TerminalTokens.TokenNameswitch:
-			case TerminalTokens.TokenNamesynchronized:
-			case TerminalTokens.TokenNamethis:
-			case TerminalTokens.TokenNamethrow:
-			case TerminalTokens.TokenNametransient:
-			case TerminalTokens.TokenNametrue:
-			case TerminalTokens.TokenNametry:
-			case TerminalTokens.TokenNamevoid:
-			case TerminalTokens.TokenNamevolatile:
-			case TerminalTokens.TokenNamewhile:
-			case TerminalTokens.TokenNameenum :
-			case TerminalTokens.TokenNameconst :
-			case TerminalTokens.TokenNamegoto :
+			case TokenNameabstract:
+			case TokenNameassert:
+			case TokenNameboolean:
+			case TokenNamebreak:
+			case TokenNamebyte:
+			case TokenNamecase:
+			case TokenNamecatch:
+			case TokenNamechar:
+			case TokenNameclass:
+			case TokenNamecontinue:
+			case TokenNamedefault:
+			case TokenNamedo:
+			case TokenNamedouble:
+			case TokenNameelse:
+			case TokenNameextends:
+			case TokenNamefalse:
+			case TokenNamefinal:
+			case TokenNamefinally:
+			case TokenNamefloat:
+			case TokenNamefor:
+			case TokenNameif:
+			case TokenNameimplements:
+			case TokenNameimport:
+			case TokenNameinstanceof:
+			case TokenNameint:
+			case TokenNameinterface:
+			case TokenNamelong:
+			case TokenNamenative:
+			case TokenNamenew:
+			case TokenNamenull:
+			case TokenNamepackage:
+			case TokenNameprivate:
+			case TokenNameprotected:
+			case TokenNamepublic:
+			case TokenNameshort:
+			case TokenNamestatic:
+			case TokenNamestrictfp:
+			case TokenNamesuper:
+			case TokenNameswitch:
+			case TokenNamesynchronized:
+			case TokenNamethis:
+			case TokenNamethrow:
+			case TokenNametransient:
+			case TokenNametrue:
+			case TokenNametry:
+			case TokenNamevoid:
+			case TokenNamevolatile:
+			case TokenNamewhile:
+			case TokenNameenum :
+			case TokenNameconst :
+			case TokenNamegoto :
 				this.tagValue = TAG_OTHERS_VALUE;
 				createTag();
+				break;
+			default:
 				break;
 		}
 		this.textStart = this.index;
@@ -1398,6 +1405,7 @@ class DocCommentParser extends AbstractCommentParser {
 					}
 				} else {
 					this.inlineReturn= false;
+					this.inlineReturnOpenBraces= 0;
 				}
 			}
 		}

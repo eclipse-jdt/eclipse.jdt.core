@@ -64,9 +64,13 @@ public class OR_OR_Expression extends BinaryExpression {
 			return mergedInfo;
 		}
 
+		boolean oldNegation = (flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0;
+		flowContext.tagBits |= FlowContext.INSIDE_NEGATION; // record field nullness from !left for use in right, seen as an else branch
 		FlowInfo leftInfo = this.left.analyseCode(currentScope, flowContext, flowInfo);
 		if ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) == 0)
 			flowContext.expireNullCheckedFieldInfo();
+		if (!oldNegation)
+			flowContext.tagBits &= ~FlowContext.INSIDE_NEGATION;
 
 		// rightInfo captures the flow (!left then right):
 		FlowInfo rightInfo = leftInfo.initsWhenFalse().unconditionalCopy();

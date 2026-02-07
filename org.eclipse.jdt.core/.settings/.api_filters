@@ -1,29 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF" type="org.eclipse.jdt.core.dom.StringFragment">
-        <filter id="305324134">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.StringFragment"/>
-                <message_argument value="org.eclipse.jdt.core_3.40.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="META-INF/MANIFEST.MF" type="org.eclipse.jdt.core.dom.StringTemplateComponent">
-        <filter id="305324134">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.StringTemplateComponent"/>
-                <message_argument value="org.eclipse.jdt.core_3.40.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="META-INF/MANIFEST.MF" type="org.eclipse.jdt.core.dom.StringTemplateExpression">
-        <filter id="305324134">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.StringTemplateExpression"/>
-                <message_argument value="org.eclipse.jdt.core_3.40.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
         <filter id="576725006">
             <message_arguments>
@@ -259,6 +235,22 @@
             <message_arguments>
                 <message_argument value="IBytecodeVisitor"/>
                 <message_argument value="ByteCodeVisitorAdapter"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="search/org/eclipse/jdt/core/search/IJavaSearchDelegate.java" type="org.eclipse.jdt.core.search.IJavaSearchDelegate">
+        <filter id="643846161">
+            <message_arguments>
+                <message_argument value="MatchLocator"/>
+                <message_argument value="IJavaSearchDelegate"/>
+                <message_argument value="locateMatches(MatchLocator, IJavaProject, PossibleMatch[], int, int)"/>
+            </message_arguments>
+        </filter>
+        <filter id="643846161">
+            <message_arguments>
+                <message_argument value="PossibleMatch"/>
+                <message_argument value="IJavaSearchDelegate"/>
+                <message_argument value="locateMatches(MatchLocator, IJavaProject, PossibleMatch[], int, int)"/>
             </message_arguments>
         </filter>
     </resource>

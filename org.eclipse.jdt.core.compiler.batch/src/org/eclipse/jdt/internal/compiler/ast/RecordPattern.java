@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022, 2023 IBM Corporation and others.
+ * Copyright (c) 2022, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -128,12 +128,13 @@ public class RecordPattern extends Pattern {
 			}
 		}
 
+		RecordComponentBinding[] componentBindings = this.resolvedType.components();
 		LocalVariableBinding [] bindings = NO_VARIABLES;
 		for (int i = 0, l = this.patterns.length; i < l; ++i) {
 			Pattern p = this.patterns[i];
+			p.setOuterExpressionType(componentBindings[i].type);
 			p.resolveTypeWithBindings(bindings, scope);
 			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
-			p.setOuterExpressionType(this.resolvedType.components()[i].type);
 		}
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
@@ -172,11 +173,6 @@ public class RecordPattern extends Pattern {
 		} finally {
 			freshInferenceContext.cleanUp();
 		}
-	}
-
-	@Override
-	public boolean matchFailurePossible() {
-		return this.patterns.length != 0; // if no deconstruction is involved, no failure is possible.
 	}
 
 	@Override
@@ -244,6 +240,7 @@ public class RecordPattern extends Pattern {
 			labels.add(exceptionLabel);
 
 			TypeBinding componentType = p.accessorMethod.returnType;
+			checkForPrimitiveType(currentScope, p, componentType);
 			if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
 					componentType.erasure()))
 				codeStream.checkcast(componentType); // lastComponent ? [C] : [R, C]
@@ -264,7 +261,7 @@ public class RecordPattern extends Pattern {
 					if (current.index != outer.patterns.length - 1)
 						pops++;
 					current = outer;
-					outer = outer.getEnclosingPattern() instanceof RecordPattern rp ? rp : null;
+					outer = outer.getEnclosingPattern();
 				}
 				while (pops > 1) {
 					codeStream.pop2();
@@ -288,6 +285,19 @@ public class RecordPattern extends Pattern {
 				eLabels.addAll(labels);
 			}
 			codeStream.patternAccessorMap.put(trapScope, eLabels);
+		}
+	}
+
+	private void checkForPrimitiveType(BlockScope currentScope, Pattern p, TypeBinding componentType) {
+		if (p.isTotalTypeNode && !componentType.isPrimitiveType() &&  p instanceof TypePattern tp) {
+			TypeBinding providedType = tp.resolvedType;
+			if (providedType != null && providedType.isPrimitiveType()) {
+				PrimitiveConversionRoute route = findPrimitiveConversionRoute(componentType, providedType, currentScope);
+				if (route != PrimitiveConversionRoute.NO_CONVERSION_ROUTE
+						|| !componentType.isPrimitiveType()) {
+					p.isTotalTypeNode = false;
+				}
+			}
 		}
 	}
 

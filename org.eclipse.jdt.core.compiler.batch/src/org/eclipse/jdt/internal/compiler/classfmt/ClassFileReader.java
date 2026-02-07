@@ -240,6 +240,10 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 	// by index are tweaked to have their value in inst vars, this minor cost at read-time makes
 	// all subsequent uses of the constant pool element faster.
 	super(classFileBytes, null, 0);
+	if (classFileBytes == null || classFileBytes.length == 0) {
+		throw new ClassFormatException(ClassFormatException.ErrBadMagic);
+	}
+
 	this.classFileName = fileName;
 	int readOffset = 10;
 	try {
@@ -495,28 +499,6 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.ModuleName)) {
 						this.moduleDeclaration = ModuleInfo.createModule(this.reference, this.constantPoolOffsets, readOffset);
 						this.moduleName = this.moduleDeclaration.name();
-					}
-					break;
-				case 'N' :
-					if (CharOperation.equals(attributeName, AttributeNamesConstants.NestHost)) {
-						utf8Offset =
-							this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(readOffset + 6)] + 1)];
-						@SuppressWarnings("unused")
-						char[] nestHos = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.NestMembers)) {
-						int offset = readOffset + 6;
-						int nestMembersCount = u2At(offset);
-						if (nestMembersCount != 0) {
-							offset += 2;
-							/** unused */
-							char[][] nestMember = new char[nestMembersCount][];
-							for (int j = 0; j < nestMembersCount; j++) {
-								utf8Offset =
-									this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(offset)] + 1)];
-		 						nestMember[j] = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		 						offset += 2;
-							}
-						}
 					}
 					break;
 				case 'P' :

@@ -169,7 +169,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 	}
 	public static class SearchTypeNameRequestor extends TypeNameRequestor {
-		List<String> results = new ArrayList<>();
+		ArrayList<String> results = new ArrayList<>();
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
 			char[] typeName =
 				CharOperation.concat(
@@ -274,6 +274,31 @@ protected void assertAllTypes(String expected) throws JavaModelException {
 }
 protected void assertAllTypes(String message, IJavaProject project, String expected) throws JavaModelException {
 	assertAllTypes(message, project, WAIT_UNTIL_READY_TO_SEARCH, null/* no progress monitor*/, expected);
+}
+protected void assertAllTypes(String message, IJavaProject project, int waitingPolicy, IProgressMonitor progressMonitor, String[] expected) throws JavaModelException {
+	IJavaSearchScope scope =
+		project == null ?
+			SearchEngine.createWorkspaceScope() :
+			SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+	SearchEngine searchEngine = new SearchEngine();
+	SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
+	searchEngine.searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		null,
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		TYPE,
+		scope,
+		requestor,
+		waitingPolicy,
+		progressMonitor);
+	if (requestor.results.containsAll(java.util.Arrays.asList(expected))) {
+		return;
+	}
+	assertEquals(
+		message,
+		expected,
+		requestor.results.toArray(new String[requestor.results.size()]));
 }
 protected void assertAllTypes(String message, IJavaProject project, int waitingPolicy, IProgressMonitor progressMonitor, String expected) throws JavaModelException {
 	IJavaSearchScope scope =
@@ -517,7 +542,7 @@ public void testChangeClasspath2() throws CoreException {
  * Ensure that performing a concurrent job while indexing a jar doesn't use the old index.
  * (regression test for bug 35306 Index update request can be incorrectly handled)
  */
-public void _2551_testConcurrentJob() throws Exception {
+public void testConcurrentJob() throws Exception {
 	WaitingJob job = new WaitingJob();
 	final String library = "jclMin" + CompilerOptions.getFirstSupportedJavaVersion() + ".jar";
 	try {
@@ -548,17 +573,18 @@ public void _2551_testConcurrentJob() throws Exception {
 						project,
 						WAIT_UNTIL_READY_TO_SEARCH,
 						monitor,
-						"java.io.Serializable\n" +
-						"java.lang.Class\n" +
-						"java.lang.CloneNotSupportedException\n" +
-						"java.lang.Error\n" +
-						"java.lang.Exception\n" +
-						"java.lang.IllegalMonitorStateException\n" +
-						"java.lang.InterruptedException\n" +
-						"java.lang.Object\n" +
-						"java.lang.RuntimeException\n" +
-						"java.lang.String\n" +
-						"java.lang.Throwable"
+						new String[] {
+						"java.io.Serializable",
+						"java.lang.Class",
+						"java.lang.CloneNotSupportedException",
+						"java.lang.Error",
+						"java.lang.Exception",
+						"java.lang.IllegalMonitorStateException",
+						"java.lang.InterruptedException",
+						"java.lang.Object",
+						"java.lang.RuntimeException",
+						"java.lang.String",
+						"java.lang.Throwable"}
 					);
 				} catch (Exception e) {
 					e.printStackTrace();

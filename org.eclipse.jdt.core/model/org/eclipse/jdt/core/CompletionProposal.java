@@ -1064,6 +1064,21 @@ public class CompletionProposal {
 	}
 
 	/**
+	 * Returns the proposed sequence of characters to be displayed. In certain scenarios
+	 * where the code to be inserted cannot be displayed as is, for e.g. aesthetic reasons,
+	 * the implementor of this API may choose to return a different value other than {@link #getCompletion()}.
+	 * The other characteristics of the {@link #getCompletion()} also apply here.
+	 * <p>
+	 * The client must not modify the array returned.
+	 * </p>
+	 *
+	 * @return the completion string to be displayed in a pretty form
+	 * @since 3.42
+	 */
+	public char[] getDisplayString() {
+		return null;
+	}
+	/**
 	 * Sets the proposed sequence of characters to insert into the
 	 * source file buffer, replacing the characters at the specified
 	 * source range. The string can be arbitrary; for example, it might
@@ -1680,7 +1695,7 @@ public class CompletionProposal {
 	 * 	<li><code>METHOD_DECLARATION</code> - return <code>true</code>
 	 * if the declared method is a constructor</li>
 	 * </ul>
-	 * For kinds of completion proposals, this method returns
+	 * For other kinds of completion proposals, this method returns
 	 * <code>false</code>.
 	 *
 	 * @return <code>true</code> if the proposal is a constructor.
@@ -1690,6 +1705,24 @@ public class CompletionProposal {
 		return false; // default overridden by concrete implementation
 	}
 
+	/**
+	 * Returns whether this proposal is a record component accessor.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>METHOD_REF</code> - return <code>true</code>
+	 * if the referenced method is a record component accessor</li>
+	 * </ul>
+	 * For other kinds of completion proposals, this method returns
+	 * <code>false</code>.
+	 *
+	 * @return <code>true</code> if the proposal is a record component accessor.
+	 * @since 3.43
+	 */
+	public boolean isRecordComponentAccessor() {
+		return false;
+	}
 	/**
 	 * Returns the type signature or package name of the relevant
 	 * receiver in the context, or <code>null</code> if none.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Location;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -71,15 +72,13 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	/**
 	 * Map from typeBinding -> accessRestriction rule
 	 */
-	private Map accessRestrictions;
+	private Map<TypeBinding, AccessRestriction> accessRestrictions;
 	ImportBinding[] defaultImports;				// ROOT_ONLY
 	/**
 	 * The root environment driving the current compilation.
@@ -109,29 +108,25 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private CompleteTypeBindingsSteps stepCompleted = CompleteTypeBindingsSteps.NONE; // ROOT_ONLY
 	public ITypeRequestor typeRequestor;		// SHARED
 
-	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
+	private Map<MethodBinding, ParameterizedGenericMethodBinding[]> uniqueParameterizedGenericMethodBindings;
 
-	// key is a string with the method selector value is an array of method bindings
-	private SimpleLookupTable uniquePolymorphicMethodBindings;
-	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
+	private Map<String, MethodBinding[]> uniquePolymorphicMethodBindings;
+	private Map<TypeBinding, ParameterizedMethodBinding> uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
 	boolean useModuleSystem;					// true when compliance >= 9 and nameEnvironment is module aware
 	// key is a string with the module name value is a module binding
 	public HashtableOfModule knownModules;		// SHARED
 
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units -- ROOT_ONLY
-	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
+	public Location missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4]; // ROOT_ONLY
 	private MethodVerifier verifier;
 
-	private ArrayList missingTypes;
-	Set<SourceTypeBinding> typesBeingConnected;	// SHARED
+	private ArrayList<MissingTypeBinding> missingTypes;
+	final Set<SourceTypeBinding> typesBeingConnected;	// SHARED
 	public boolean isProcessingAnnotations = false; // ROOT_ONLY
+	public boolean isResolvingSuperType = false; // ROOT_ONLY
 	public boolean mayTolerateMissingType = false;
-
-	PackageBinding nullableAnnotationPackage;			// the package supposed to contain the Nullable annotation type
-	PackageBinding nonnullAnnotationPackage;			// the package supposed to contain the NonNull annotation type
-	PackageBinding nonnullByDefaultAnnotationPackage;	// the package supposed to contain the NonNullByDefault annotation type
 
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
@@ -157,11 +152,45 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	public String moduleVersion; 	// ROOT_ONLY
 
+	static class GlobalDataMemento {
+		Set<SourceTypeBinding> typesBeingConnected;
+		boolean mayTolerateMissingType = false;
+		boolean isResolvingSuperType = false;
+		GlobalDataMemento(Set<SourceTypeBinding> typesBeingConnected, boolean mayTolerateMissingType, boolean isResolvingSuperType) {
+			this.typesBeingConnected = typesBeingConnected;
+			this.mayTolerateMissingType = mayTolerateMissingType;
+			this.isResolvingSuperType = isResolvingSuperType;
+		}
+	}
+	GlobalDataMemento stashGlobalData() {
+		GlobalDataMemento memento = new GlobalDataMemento(new LinkedHashSet<>(this.typesBeingConnected),
+				this.mayTolerateMissingType, this.root.isResolvingSuperType);
+		if (!this.root.isResolvingSuperType)
+			this.typesBeingConnected.clear(); // lookup is not within the hierarchy of these types
+		this.root.isResolvingSuperType = false;
+		this.mayTolerateMissingType = false;
+		return memento;
+	}
+	void restoreFrom(GlobalDataMemento memento) {
+		this.typesBeingConnected.clear();
+		this.typesBeingConnected.addAll(memento.typesBeingConnected);
+		this.mayTolerateMissingType = memento.mayTolerateMissingType;
+		this.root.isResolvingSuperType = memento.isResolvingSuperType;
+	}
+
+	public boolean enterSuperTypeLookup(SourceTypeBinding sourceType) {
+		this.typesBeingConnected.add(sourceType);
+		boolean previous = this.root.isResolvingSuperType;
+		this.root.isResolvingSuperType = true;
+		return previous;
+	}
+
 	static enum CompleteTypeBindingsSteps {
 		NONE,
 		CHECK_AND_SET_IMPORTS,
 		CONNECT_TYPE_HIERARCHY,
 		SEAL_TYPE_HIERARCHY,
+		COLLATE_RECORD_COMPONENTS,
 		BUILD_FIELDS_AND_METHODS,
 		INTEGRATE_ANNOTATIONS_IN_HIERARCHY,
 		CHECK_PARAMETERIZED_TYPES;
@@ -191,6 +220,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 				case CHECK_AND_SET_IMPORTS -> scope.checkAndSetImports();
 				case CONNECT_TYPE_HIERARCHY -> scope.connectTypeHierarchy();
 				case SEAL_TYPE_HIERARCHY -> scope.sealTypeHierarchy();
+				case COLLATE_RECORD_COMPONENTS -> scope.buildComponents();
 				case BUILD_FIELDS_AND_METHODS -> scope.buildFieldsAndMethods();
 				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY -> scope.integrateAnnotationsInHierarchy();
 				case CHECK_PARAMETERIZED_TYPES -> scope.checkParameterizedTypes();
@@ -214,15 +244,15 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.defaultPackage = new PlainPackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
 	this.nameEnvironment = nameEnvironment;
-	this.knownPackages = new HashtableOfPackage();
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
-	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
+	this.knownPackages = new HashtableOfPackage<>();
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
+	this.uniquePolymorphicMethodBindings = new HashMap<>();
 	this.missingTypes = null;
-	this.accessRestrictions = new HashMap(3);
+	this.accessRestrictions = new HashMap<>();
 	this.classFilePool = ClassFilePool.newInstance();
 	this.typesBeingConnected = new LinkedHashSet<>();
 	this.deferredEnumMethods = new ArrayList<>();
-	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
+	this.typeSystem = this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
 	this.knownModules = new HashtableOfModule();
 	this.useModuleSystem = nameEnvironment instanceof IModuleAwareNameEnvironment && globalOptions.complianceLevel >= ClassFileConstants.JDK9;
 	this.resolutionListeners = new IQualifiedTypeResolutionListener[0];
@@ -239,11 +269,11 @@ LookupEnvironment(LookupEnvironment rootEnv, ModuleBinding module) {
 	this.defaultPackage = new PlainPackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
 	this.nameEnvironment = rootEnv.nameEnvironment;
-	this.knownPackages = new HashtableOfPackage();
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
-	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
+	this.knownPackages = new HashtableOfPackage<>();
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
+	this.uniquePolymorphicMethodBindings = new HashMap<>();
 	this.missingTypes = null;
-	this.accessRestrictions = new HashMap(3);
+	this.accessRestrictions = new HashMap<>();
 	this.classFilePool = rootEnv.classFilePool;
 	this.typesBeingConnected = rootEnv.typesBeingConnected;
 	this.deferredEnumMethods = rootEnv.deferredEnumMethods;
@@ -299,32 +329,40 @@ public ReferenceBinding askForType(char[][] compoundName, /*@NonNull*/ModuleBind
 		if (answer == null) continue;
 
 		ModuleBinding answerModule = answer.moduleBinding != null ? answer.moduleBinding : this.UnNamedModule;
-
-		if (answer.isBinaryType()) {
-			// the type was found as a .class file
-			PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
-			this.typeRequestor.accept(answer.getBinaryType(), pkg, answer.getAccessRestriction());
-			ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
-			if (binding instanceof BinaryTypeBinding) {
-				((BinaryTypeBinding) binding).module = answerModule;
-				if (pkg.enclosingModule == null)
-					pkg.enclosingModule = answerModule;
+		GlobalDataMemento memento = null;
+		try {
+			if (answer.isBinaryType()) {
+				// the type was found as a .class file
+				PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getBinaryType(), pkg, answer.getAccessRestriction());
+				ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
+				if (binding instanceof BinaryTypeBinding) {
+					((BinaryTypeBinding) binding).module = answerModule;
+					if (pkg.enclosingModule == null)
+						pkg.enclosingModule = answerModule;
+				}
+			} else if (answer.isCompilationUnit()) {
+				// the type was found as a .java file, try to build it then search the cache
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+			} else if (answer.isSourceType()) {
+				// the type was found as a source model
+				PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getSourceTypes(), pkg, answer.getAccessRestriction());
+				ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
+				if (binding instanceof SourceTypeBinding) {
+					((SourceTypeBinding) binding).module = answerModule;
+					if (pkg.enclosingModule == null)
+						pkg.enclosingModule = answerModule;
+				}
 			}
-		} else if (answer.isCompilationUnit()) {
-			// the type was found as a .java file, try to build it then search the cache
-			this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
-		} else if (answer.isSourceType()) {
-			// the type was found as a source model
-			PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
-			this.typeRequestor.accept(answer.getSourceTypes(), pkg, answer.getAccessRestriction());
-			ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
-			if (binding instanceof SourceTypeBinding) {
-				((SourceTypeBinding) binding).module = answerModule;
-				if (pkg.enclosingModule == null)
-					pkg.enclosingModule = answerModule;
-			}
+			candidate = combine(candidate, answerModule.environment.getCachedType(compoundName), clientModule);
+		} finally {
+			if (memento != null)
+				restoreFrom(memento);
 		}
-		candidate = combine(candidate, answerModule.environment.getCachedType(compoundName), clientModule);
 	}
 	return candidate;
 }
@@ -367,40 +405,49 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 				continue; // this answer is not reachable via the packageBinding
 			answerPackage = answerPackage.getIncarnation(answerModule);
 		}
-		if (answer.isResolvedBinding()) {
-			candidate = combine(candidate, answer.getResolvedBinding(), clientModule);
-			continue;
-		} else if (answer.isBinaryType()) {
-			// the type was found as a .class file
-			this.typeRequestor.accept(answer.getBinaryType(), answerPackage, answer.getAccessRestriction());
-			ReferenceBinding binding = answerPackage.getType0(name);
-			if (binding instanceof BinaryTypeBinding) {
-				((BinaryTypeBinding) binding).module = answerModule;
+		GlobalDataMemento memento = null;
+		try {
+			if (answer.isResolvedBinding()) {
+				candidate = combine(candidate, answer.getResolvedBinding(), clientModule);
+				continue;
+			} else if (answer.isBinaryType()) {
+				// the type was found as a .class file
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getBinaryType(), answerPackage, answer.getAccessRestriction());
+				ReferenceBinding binding = answerPackage.getType0(name);
+				if (binding instanceof BinaryTypeBinding) {
+					((BinaryTypeBinding) binding).module = answerModule;
+				}
+			} else if (answer.isCompilationUnit()) {
+				// the type was found as a .java file, try to build it then search the cache
+				try {
+					memento = stashGlobalData();
+					this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+				} catch (AbortCompilation abort) {
+					if (CharOperation.equals(name, TypeConstants.PACKAGE_INFO_NAME))
+						return null; // silently, requestor may not be able to handle compilation units (HierarchyResolver)
+					throw abort;
+				}
+			} else if (answer.isSourceType()) {
+				// the type was found as a source model
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getSourceTypes(), answerPackage, answer.getAccessRestriction());
+				ReferenceBinding binding = answerPackage.getType0(name);
+				if (binding instanceof SourceTypeBinding) {
+					((SourceTypeBinding) binding).module = answerModule;
+				}
+				String externalAnnotationPath = answer.getExternalAnnotationPath();
+				if (externalAnnotationPath != null && this.globalOptions.isAnnotationBasedNullAnalysisEnabled && binding instanceof SourceTypeBinding) {
+					ExternalAnnotationSuperimposer.apply((SourceTypeBinding) binding, externalAnnotationPath);
+				}
+				candidate = combine(candidate, binding, clientModule);
+				continue;
 			}
-		} else if (answer.isCompilationUnit()) {
-			// the type was found as a .java file, try to build it then search the cache
-			try {
-				this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
-			} catch (AbortCompilation abort) {
-				if (CharOperation.equals(name, TypeConstants.PACKAGE_INFO_NAME))
-					return null; // silently, requestor may not be able to handle compilation units (HierarchyResolver)
-				throw abort;
-			}
-		} else if (answer.isSourceType()) {
-			// the type was found as a source model
-			this.typeRequestor.accept(answer.getSourceTypes(), answerPackage, answer.getAccessRestriction());
-			ReferenceBinding binding = answerPackage.getType0(name);
-			if (binding instanceof SourceTypeBinding) {
-				((SourceTypeBinding) binding).module = answerModule;
-			}
-			String externalAnnotationPath = answer.getExternalAnnotationPath();
-			if (externalAnnotationPath != null && this.globalOptions.isAnnotationBasedNullAnalysisEnabled && binding instanceof SourceTypeBinding) {
-				ExternalAnnotationSuperimposer.apply((SourceTypeBinding) binding, externalAnnotationPath);
-			}
-			candidate = combine(candidate, binding, clientModule);
-			continue;
+			candidate = combine(candidate, answerPackage.getType0(name), clientModule);
+		} finally {
+			if (memento != null)
+				restoreFrom(memento);
 		}
-		candidate = combine(candidate, answerPackage.getType0(name), clientModule);
 	}
 	return candidate;
 }
@@ -1067,6 +1114,14 @@ public TypeBinding createIntersectionType18(ReferenceBinding[] intersectingTypes
 			}
 		});
 	}
+	int j = 0;
+	for (int i = 1; i < intersectingTypes.length; i++) {
+		if (!TypeBinding.equalsEquals(intersectingTypes[j], intersectingTypes[i])) {
+			intersectingTypes[++j] = intersectingTypes[i];
+		}
+	}
+	if (j < intersectingTypes.length)
+		intersectingTypes = Arrays.copyOfRange(intersectingTypes, 0, j+1);
 	return this.typeSystem.getIntersectionType18(intersectingTypes);
 }
 
@@ -1116,7 +1171,7 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
 	}
 	packageBinding.addType(missingType);
 	if (this.missingTypes == null)
-		this.missingTypes = new ArrayList(3);
+		this.missingTypes = new ArrayList<>();
 	this.missingTypes.add(missingType);
 	return missingType;
 }
@@ -1194,7 +1249,7 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, RawTypeBinding rawType) {
 	// cached info is array of already created parameterized types for this type
-	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
+	ParameterizedGenericMethodBinding[] cachedInfo = this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	boolean needToGrow = false;
 	int index = 0;
 	if (cachedInfo != null){
@@ -1234,7 +1289,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 																			boolean inferredWithUncheckedConversion, boolean hasReturnProblem, TypeBinding targetType)
 {
 	// cached info is array of already created parameterized types for this type
-	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
+	ParameterizedGenericMethodBinding[] cachedInfo = this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	int argLength = typeArguments == null ? 0: typeArguments.length;
 	boolean needToGrow = false;
 	int index = 0;
@@ -1382,9 +1437,9 @@ public ParameterizedMethodBinding createGetClassMethod(TypeBinding receiverType,
 	// see if we have already cached this method for the given receiver type.
 	ParameterizedMethodBinding retVal = null;
 	if (this.uniqueGetClassMethodBinding == null) {
-		this.uniqueGetClassMethodBinding = new SimpleLookupTable(3);
+		this.uniqueGetClassMethodBinding = new HashMap<>();
 	} else {
-		retVal = (ParameterizedMethodBinding)this.uniqueGetClassMethodBinding.get(receiverType);
+		retVal = this.uniqueGetClassMethodBinding.get(receiverType);
 	}
 	if (retVal == null) {
 		retVal = ParameterizedMethodBinding.instantiateGetClass(receiverType, originalMethod, scope);
@@ -1476,6 +1531,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 }
 
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
+	bound = normalizeWildcardBound(bound, boundKind);
 	if (genericType != null) {
 		AnnotationBinding[] annotations = genericType.typeAnnotations;
 		if (annotations != Binding.NO_ANNOTATIONS)
@@ -1485,18 +1541,36 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 }
 
 public CaptureBinding createCapturedWildcard(WildcardBinding wildcard, ReferenceBinding contextType, int start, int end, ASTNode cud, Supplier<Integer> idSupplier) {
+	wildcard = normalizeWildcard(wildcard);
 	return this.typeSystem.getCapturedWildcard(wildcard, contextType, start, end, cud, idSupplier);
 }
 
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, AnnotationBinding [] annotations) {
+	bound = normalizeWildcardBound(bound, boundKind);
 	return this.typeSystem.getWildcard(genericType, rank, bound, otherBounds, boundKind, annotations);
+}
+
+private TypeBinding normalizeWildcardBound(TypeBinding bound, int boundKind) {
+	if (boundKind == Wildcard.EXTENDS && bound.getClass() == CaptureBinding.class) {
+		CaptureBinding capture = (CaptureBinding) bound;
+		if (capture.firstBound != null && capture.otherUpperBounds() == Binding.NO_TYPES && capture.wildcard.boundKind() == Wildcard.EXTENDS)
+			return capture.firstBound;
+	}
+	return bound;
+}
+private WildcardBinding normalizeWildcard(WildcardBinding wildcard) {
+	if (wildcard.boundKind == Wildcard.EXTENDS
+			&& wildcard.bound instanceof CaptureBinding wildCap
+			&& wildCap.wildcard != null) // null happens for CaptureBinding18
+		return wildCap.wildcard;
+	return wildcard;
 }
 
 /**
  * Returns the access restriction associated to a given type, or null if none
  */
 public AccessRestriction getAccessRestriction(TypeBinding type) {
-	return (AccessRestriction) this.accessRestrictions.get(type);
+	return this.accessRestrictions.get(type);
 }
 
 /**
@@ -1609,6 +1683,11 @@ public char[][] getNonNullByDefaultAnnotationName() {
 	return this.globalOptions.nonNullByDefaultAnnotationName;
 }
 
+public char[][][] allNullAnnotationNames() {
+	// should we include names of secondary annotations?
+	return new char[][][] { getNullableAnnotationName(), getNonNullAnnotationName(), getNonNullByDefaultAnnotationName() };
+}
+
 public char[][] getOwningAnnotationName() {
 	return this.globalOptions.owningAnnotationName;
 }
@@ -1656,8 +1735,38 @@ int getAnalysisAnnotationBit(char[][] qualifiedTypeName) {
 	Integer typeBit = this.allAnalysisAnnotations.get(qualifiedTypeString);
 	return typeBit == null ? 0 : typeBit;
 }
-public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
-	return this.nonnullAnnotationPackage == pkg || this.nullableAnnotationPackage == pkg || this.nonnullByDefaultAnnotationPackage == pkg;
+
+public boolean isNonNullByDefaultSimpleName(char[] simpleName) {
+	char[][] qualified = this.globalOptions.nonNullByDefaultAnnotationName;
+	if (CharOperation.equals(qualified[qualified.length-1], simpleName))
+		return true;
+	String tail = '.'+String.valueOf(simpleName);
+	for (String qualifiedString : this.globalOptions.nonNullByDefaultAnnotationSecondaryNames) {
+		if (qualifiedString.endsWith(tail))
+			return true;
+	}
+	return false;
+}
+
+/**
+ * Check if the given type is a missing type that could be relevant for static analysis.
+ * @return A bit from {@link ExtendedTagBits} encoding the check result, or {@code 0}.
+ */
+public long checkForMissingAnalysisAnnotation(TypeBinding resolvedType) {
+	if (resolvedType instanceof MissingTypeBinding missing) {
+		if (this.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+			if ((getAnalysisAnnotationBit(missing.compoundName) & TypeIds.BitAnyOwningAnnotation) != 0)
+				return ExtendedTagBits.HasMissingOwningAnnotation;
+			char[] simpleName = missing.compoundName[missing.compoundName.length-1];
+			if (matchesSimpleName(simpleName, this.globalOptions.owningAnnotationName)
+					|| matchesSimpleName(simpleName, this.globalOptions.notOwningAnnotationName))
+				return ExtendedTagBits.HasMissingOwningAnnotation;
+		}
+	}
+	return 0;
+}
+private boolean matchesSimpleName(char[] simpleName, char[][] qualifiedName) {
+	return CharOperation.equals(simpleName, qualifiedName[qualifiedName.length-1]);
 }
 
 public boolean usesNullTypeAnnotations() {
@@ -1871,16 +1980,14 @@ public ReferenceBinding getType(char[][] compoundName, ModuleBinding mod) {
 private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType,
 		char[][][] missingTypeNames, ITypeAnnotationWalker walker)
 {
-	java.util.ArrayList args = new java.util.ArrayList(2);
+	List<TypeBinding> args = new ArrayList<>(2);
 	int rank = 0;
 	do {
 		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, genericType, rank, missingTypeNames,
 					walker.toTypeArgument(rank++)));
 	} while (wrapper.signature[wrapper.start] != '>');
 	wrapper.start++; // skip '>'
-	TypeBinding[] typeArguments = new TypeBinding[args.size()];
-	args.toArray(typeArguments);
-	return typeArguments;
+	return args.toArray(TypeBinding[]::new);
 }
 
 /* Answer the type corresponding to the compound name.
@@ -1949,7 +2056,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 	return binding;
 }
 
-ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames) {
+public ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames) {
 	return getTypeFromConstantPoolName(signature, start, end, isParameterized, missingTypeNames, ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
 }
 
@@ -2253,7 +2360,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 
 boolean isMissingType(char[] typeName) {
 	for (int i = this.missingTypes == null ? 0 : this.missingTypes.size(); --i >= 0;) {
-		MissingTypeBinding missingType = (MissingTypeBinding) this.missingTypes.get(i);
+		MissingTypeBinding missingType = this.missingTypes.get(i);
 		if (CharOperation.equals(missingType.sourceName, typeName))
 			return true;
 	}
@@ -2295,17 +2402,17 @@ public void reset() {
 
 	this.defaultPackage = new PlainPackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
-	this.knownPackages = new HashtableOfPackage();
-	this.accessRestrictions = new HashMap(3);
+	this.knownPackages = new HashtableOfPackage<>();
+	this.accessRestrictions = new HashMap<>();
 
 	this.verifier = null;
 
 	// NOTE: remember to fix #updateCaches(...) when adding unique binding caches
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
-	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
+	this.uniquePolymorphicMethodBindings = new HashMap<>();
 	this.uniqueGetClassMethodBinding = null;
 	this.missingTypes = null;
-	this.typesBeingConnected = new LinkedHashSet();
+	this.typesBeingConnected.clear();
 
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;

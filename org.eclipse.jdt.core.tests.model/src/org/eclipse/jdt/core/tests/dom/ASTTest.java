@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -763,9 +763,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS2));
-				suite.addTest(new ASTTest(methods[i].getName(), JLS3_INTERNAL));
-				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS4));
 				suite.addTest(new ASTTest(methods[i].getName(), getJLS8()));
 				suite.addTest(new ASTTest(methods[i].getName(), AST_INTERNAL_JLS23));
 			}
@@ -809,14 +806,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		return name;
 	}
 
-	/**
-	 * Internal access method to VariableDeclarationFragment#setExtraDimensions for avoiding deprecated warnings.
-	 *
-	 * @deprecated
-	 */
-	private void setExtraDimensions(VariableDeclarationFragment node, int dimensions) {
-		node.setExtraDimensions(dimensions);
-	}
 	/**
 	 * Snippets that show how to...
 	 * @deprecated using deprecated code
@@ -1320,46 +1309,32 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	@SuppressWarnings("deprecation")
 	private static int getApiLevel(String s) {
-		if (s == null)
-			return AST.JLS12;
-		switch (s) {
-		case JavaCore.VERSION_1_2 : return AST.JLS2;
-        case JavaCore.VERSION_1_3: return AST.JLS3;
-        case JavaCore.VERSION_1_4: return AST.JLS4;
-        case JavaCore.VERSION_1_5: return AST.JLS4;
-        case JavaCore.VERSION_1_6: return AST.JLS4;
-        case JavaCore.VERSION_1_7: return AST.JLS4;
-        case JavaCore.VERSION_1_8: return AST.JLS8;
-        case JavaCore.VERSION_9: return AST.JLS9;
-        case JavaCore.VERSION_10: return AST.JLS10;
-        case JavaCore.VERSION_11: return AST.JLS11;
-        case JavaCore.VERSION_12: return AST.JLS12;
-        case JavaCore.VERSION_13: return AST.JLS13;
-        case JavaCore.VERSION_14: return AST.JLS14;
-        case JavaCore.VERSION_15: return AST.JLS15;
-        case JavaCore.VERSION_16: return AST.JLS16;
-        case JavaCore.VERSION_17: return AST.JLS17;
-        case JavaCore.VERSION_18: return AST.JLS18;
-        case JavaCore.VERSION_19: return AST.JLS19;
-        case JavaCore.VERSION_20: return AST.JLS20;
-        default:  return AST.JLS2;
+		if (s.equals(JavaCore.VERSION_1_8)) {
+			return AST.JLS8;
 		}
+		try {
+			int apiLevel = Integer.valueOf(s);
+			if (AST.isSupportedVersion(apiLevel)) {
+				return apiLevel;
+			}
+		} catch (NumberFormatException e) {
+			fail("Invalid AST API level:" + e.getMessage());
+		}
+		return AST.getJLSLatest();
+
 	}
 	/** @deprecated using deprecated code */
 	public void testAST() {
 
-		assertSame(AST.JLS2, 2);
-		assertSame(JLS3_INTERNAL, 3);
-
 		AST a0 = new AST(); // deprecated, now 3 from JavaCore.defaultOptions
-		int apiLevelCal = ASTTest.getApiLevel(JavaCore.getDefaultOptions().get(JavaCore.COMPILER_SOURCE));
+		int apiLevelCal = getApiLevel(JavaCore.getDefaultOptions().get(JavaCore.COMPILER_SOURCE));
 		assertTrue(a0.apiLevel() == apiLevelCal);
 		AST a1 = new AST(new HashMap()); // deprecated, but still 2.0
-		assertTrue(a1.apiLevel() == AST.JLS2);
+		assertEquals(AST.JLS8,a1.apiLevel());
 		AST a2 = AST.newAST(AST.JLS2, false);
-		assertTrue(a2.apiLevel() == AST.JLS2);
+		assertEquals(AST.JLS8, a2.apiLevel());
 		AST a3 = AST.newAST(JLS3_INTERNAL, false);
-		assertTrue(a3.apiLevel() == JLS3_INTERNAL);
+		assertEquals(AST.JLS8, a3.apiLevel());
 
 		// modification count is always non-negative
 		assertTrue(this.ast.modificationCount() >= 0);
@@ -1515,14 +1490,20 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		}
 		// check that "assert" is not considered a keyword
-		// "assert" only became a keyword in J2SE 1.4 and we do *not* want to
-		// preclude the AST API from being used to analyze pre-1.4 code
-		x.setIdentifier("assert"); //$NON-NLS-1$
+		try {
+			x.setIdentifier("assert"); //$NON-NLS-1$
+			fail("Shouldn't accept enum as identifier");
+		} catch (Exception e) {
+			// expected
+		}
 
 		// check that "enum" is not considered a keyword
-		// "enum" only became a keyword in J2SE 1.5 and we do *not* want to
-		// preclude the AST API from being used to analyze pre-1.5 code
-		x.setIdentifier("enum"); //$NON-NLS-1$
+		try {
+			x.setIdentifier("enum"); //$NON-NLS-1$
+			fail("Shouldn't accept enum as identifier");
+		} catch (Exception e) {
+			// expected
+		}
 
 		// check that isDeclaration works
 		QualifiedName y = this.ast.newQualifiedName(this.ast.newSimpleName("a"), x); //$NON-NLS-1$
@@ -3548,7 +3529,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
-	public void testVariableDeclarationFragment() {
+	@SuppressWarnings("deprecation")
+    public void testVariableDeclarationFragment() {
 		long previousCount = this.ast.modificationCount();
 		final VariableDeclarationFragment x = this.ast.newVariableDeclarationFragment();
 		assertTrue(this.ast.modificationCount() > previousCount);
@@ -3567,7 +3549,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		previousCount = this.ast.modificationCount();
 		if (this.ast.apiLevel() < getJLS8()) {
-			setExtraDimensions(x, 1);
+			x.setExtraDimensions(1);
 		} else {
 			x.extraDimensions().add(this.ast.newDimension());
 		}
@@ -3576,7 +3558,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		previousCount = this.ast.modificationCount();
 		if (this.ast.apiLevel() < getJLS8()) {
-			setExtraDimensions(x, 0);
+			x.setExtraDimensions(0);
 		} else {
 			x.extraDimensions().remove(0);
 		}
@@ -3586,7 +3568,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		// check that property cannot be set negative
 		if (this.ast.apiLevel() < getJLS8()) {
 			try {
-				setExtraDimensions(x, -1);
+				x.setExtraDimensions(-1);
 				fail();
 			} catch (IllegalArgumentException e) {
 				// pass
@@ -4902,11 +4884,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() == AST.JLS2) {
-			assertTrue(x.getTypeDeclaration() == x1);
-		} else {
-			assertTrue(x.getDeclaration() == x1);
-		}
+		assertTrue(x.getDeclaration() == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION_STATEMENT);
 		assertTrue(x.structuralPropertiesForType() ==
@@ -4949,7 +4927,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				}
 				@Override
 				public ASTNode get() {
-					return x.getTypeDeclaration();
+					return x.getDeclaration();
 				}
 				@Override
 				public void set(ASTNode value) {
@@ -9578,12 +9556,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertEquals("node types missing in test", Collections.EMPTY_SET, declaredNodeTypes);
 	}
 
-	@SuppressWarnings("deprecation")
 	public void testASTLevels() throws Exception {
-		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11,
-				AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17,AST.JLS18, AST.JLS19,
-				AST.JLS20, AST.JLS21, AST.JLS22, AST.JLS23};
-		for (int level : apilLevels) {
+		for (int level : AST.getAllVersions()) {
 			try {
 				DOMASTUtil.checkASTLevel(level);
 			} catch (IllegalArgumentException e) {

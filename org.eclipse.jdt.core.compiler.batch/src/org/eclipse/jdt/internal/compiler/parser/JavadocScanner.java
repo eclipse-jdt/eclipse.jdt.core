@@ -13,8 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameSingleQuoteStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameStringLiteral;
+
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocScanner extends Scanner{
 
@@ -23,7 +26,7 @@ public class JavadocScanner extends Scanner{
 	public boolean considerRegexInStringLiteral = false;
 
 	public JavadocScanner() {
-		this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
+		this(false /*comment*/, false /*whitespace*/, false /*nls*/, CompilerOptions.getFirstSupportedJdkLevel() /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 	}
 
 	public JavadocScanner(
@@ -123,7 +126,7 @@ public class JavadocScanner extends Scanner{
 	}
 
 	@Override
-	protected int scanForStringLiteral() throws InvalidInputException {
+	protected TerminalToken scanForStringLiteral() throws InvalidInputException {
 		if (this.considerRegexInStringLiteral) {
 			this.unicodeAsBackSlash = false;
 			boolean isUnicode = false;
@@ -250,7 +253,7 @@ public class JavadocScanner extends Scanner{
 	}
 
 	@Override
-	protected int processSingleQuotes(boolean checkIfUnicode) throws InvalidInputException{
+	protected TerminalToken processSingleQuotes(boolean checkIfUnicode) throws InvalidInputException{
 		if (this.tokenizeSingleQuotes) {
 			return scanForSingleQuoteStringLiteral();
 		} else {
@@ -258,7 +261,7 @@ public class JavadocScanner extends Scanner{
 		}
 	}
 
-	protected int scanForSingleQuoteStringLiteral() throws InvalidInputException {
+	protected TerminalToken scanForSingleQuoteStringLiteral() throws InvalidInputException {
 		this.unicodeAsBackSlash = false;
 		boolean isUnicode = false;
 		try {

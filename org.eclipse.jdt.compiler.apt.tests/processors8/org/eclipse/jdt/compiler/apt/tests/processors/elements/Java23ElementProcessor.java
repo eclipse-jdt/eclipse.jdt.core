@@ -27,9 +27,14 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements.DocCommentKind;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
@@ -134,7 +139,7 @@ public class Java23ElementProcessor extends BaseProcessor {
 		kind = _elementUtils.getDocCommentKind(method);
 		assertSame("Incorrect doc kind", DocCommentKind.END_OF_LINE, kind);
 		String docComment = _elementUtils.getDocComment(method);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				"\n/A markdown type comment on a method - line 1\n"
 				+ "//// A markdown type comment on a method - line 2\n"
 				+ "    A markdown type comment on a method - line 3\n", docComment);
@@ -172,40 +177,87 @@ public class Java23ElementProcessor extends BaseProcessor {
 		ExecutableElement foo4 = null;
 		for (Element element : enclosedElements) {
 			switch(element.getSimpleName().toString()) {
-				case "foo1": 
+				case "foo1":
 					foo1 = (ExecutableElement) element;
-				case "foo2": 
+				case "foo2":
 					foo2 = (ExecutableElement) element;
-				case "foo3": 
+				case "foo3":
 					foo3 = (ExecutableElement) element;
-				case "foo4": 
+				case "foo4":
 					foo4 = (ExecutableElement) element;
 				default: break;
 			}
 		}
 		String docComment = _elementUtils.getDocComment(foo1);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				"Doc comment with 3 lines\n"
 				+ "\n"
 				+ "with an empty line in the middle", docComment);
 		docComment = _elementUtils.getDocComment(foo2);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				"This is the actual doc commment.", docComment);
 		docComment = _elementUtils.getDocComment(foo3);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				  "| Code  | Color |\n"
 				+ "|-------|-------|\n"
 				+ "| R     | Red   |\n"
 				+ "| G     | Green |\n"
 				+ "| B     | Blue  |", docComment);
 		docComment = _elementUtils.getDocComment(foo4);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				  "{@inheritDoc}\n"
 				+ "Get the inherited function.\n"
 				+ "\n"
 				+ "@param p parameter", docComment);
 	}
 
+	public void testStripAnnotations() {
+		String typeName = "my.mod.Main3";
+		String annotationName = "my.annot.MyAnnotation";
+		TypeElement typeElement = _elementUtils.getTypeElement(typeName);
+		List<? extends TypeMirror> interfaces = typeElement.getInterfaces();
+		assertEquals("Wrong no of super interfaces", 1, interfaces.size());
+		TypeMirror superclass = interfaces.get(0);
+		List<? extends AnnotationMirror> annotations = superclass.getAnnotationMirrors();
+		assertEquals("Incorrect no of annotations", 1, annotations.size());
+		TypeMirror withoutAnnotations = _typeUtils.stripAnnotations(superclass);
+		assertTrue("Type should not have any annotations", withoutAnnotations.getAnnotationMirrors().isEmpty());
+		assertTrue("Should be of the same type", _typeUtils.isSameType(superclass, withoutAnnotations));
+		List<ExecutableElement> methods = ElementFilter.methodsIn(typeElement.getEnclosedElements());
+		for (ExecutableElement method : methods) {
+			if (method.getSimpleName().toString().equals("run")) {
+				continue;
+			}
+			TypeMirror typeMirror = method.getReturnType();
+
+			TypeMirror expAnnotation = _elementUtils.getTypeElement(annotationName).asType();
+			annotations = typeMirror.getAnnotationMirrors();
+			assertEquals("Incorrect no of annotations", 1, annotations.size());
+			DeclaredType annotationType = typeMirror.getAnnotationMirrors().get(0).getAnnotationType();
+			assertTrue("Incorrecton annotation type", _typeUtils.isSameType(expAnnotation, annotationType));
+
+			// after stripAnnotations() TypeMirror should not have any annotations.
+			withoutAnnotations = _typeUtils.stripAnnotations(typeMirror);
+			assertTrue("Type should not have any annotations", withoutAnnotations.getAnnotationMirrors().isEmpty());
+
+			TypeMirror typeMirror1 = null;
+			if (typeMirror.getKind() != TypeKind.WILDCARD) {
+				assertTrue("Should be of the same type", _typeUtils.isSameType(typeMirror, withoutAnnotations));
+			} else {
+				typeMirror1 = _typeUtils.getWildcardType(typeMirror, null);
+				annotations = typeMirror.getAnnotationMirrors();
+				assertTrue("Type should not have any annotations", typeMirror1.getAnnotationMirrors().isEmpty());
+			}
+
+			typeMirror1 = _typeUtils.erasure(typeMirror);
+			annotations = typeMirror.getAnnotationMirrors();
+			assertEquals("Incorrect no of annotations", 1, annotations.size());
+
+			typeMirror1 = _typeUtils.getArrayType(typeMirror);
+			annotations = typeMirror.getAnnotationMirrors();
+			assertEquals("Incorrect no of annotations", 1, annotations.size());
+		}
+	}
 	@Override
 	public void reportError(String msg) {
 		throw new AssertionFailedError(msg);
@@ -250,6 +302,11 @@ public class Java23ElementProcessor extends BaseProcessor {
 	}
 	public void assertNotNull(String msg, Object obj) {
 		if (obj == null) {
+			reportError(msg);
+		}
+	}
+	public void assertTrue(String msg, boolean result) {
+		if (!result) {
 			reportError(msg);
 		}
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -242,18 +242,14 @@ void checkAndSetImports() {
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
 		if ((importReference.bits & ASTNode.OnDemand) != 0) {
-			 if (importReference.isStatic()) {
-				 if (CharOperation.equals(TypeConstants.JAVA_IO_IO, importReference.tokens)) {
+			 if (!importReference.isStatic()) {
+				 if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
+					 numberOfImports--;
+				 } else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
+						 this.referenceContext.isSimpleCompilationUnit() &&
+						 CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
 					 numberOfImports--;
 				 }
-			 } else {
-					if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
-						numberOfImports--;
-					} else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
-							this.referenceContext.isSimpleCompilationUnit() &&
-							CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
-						numberOfImports--;
-					}
 			 }
 		}
 	}
@@ -268,7 +264,6 @@ void checkAndSetImports() {
 				return false;
 			}
 			return (CharOperation.equals(TypeConstants.JAVA_LANG, imp.tokens) ||
-					(CharOperation.equals(TypeConstants.JAVA_IO_IO, imp.tokens) && imp.isStatic()) ||
 					((imp.modifiers & ClassFileConstants.AccModule) != 0
 						&& CharOperation.equals(TypeConstants.JAVA_BASE, imp.tokens)));
 	};
@@ -339,8 +334,6 @@ private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImpor
  * Perform deferred check specific to parameterized types: bound checks, supertype collisions
  */
 void checkParameterizedTypes() {
-	if (compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return;
-
 	for (SourceTypeBinding topLevelType : this.topLevelTypes) {
 		ClassScope scope = topLevelType.scope;
 		scope.checkParameterizedTypeBounds();
@@ -361,12 +354,9 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 	if (this.constantPoolNameUsage == null)
 		this.constantPoolNameUsage = new HashtableOfType();
 
-	ReferenceBinding outerMostEnclosingType = localType.scope.outerMostClassScope().enclosingSourceType();
-
 	// ensure there is not already such a local type name defined by the user
 	int index = 0;
 	char[] candidateName;
-	boolean isCompliant15 = compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5;
 	while(true) {
 		if (localType.isMemberType()){
 			if (index == 0){
@@ -385,35 +375,18 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 					localType.sourceName);
 			}
 		} else if (localType.isAnonymousType()){
-			if (isCompliant15) {
-				// from 1.5 on, use immediately enclosing type name
-				candidateName = CharOperation.concat(
-					localType.enclosingType.constantPoolName(),
-					String.valueOf(index+1).toCharArray(),
-					'$');
-			} else {
-				candidateName = CharOperation.concat(
-					outerMostEnclosingType.constantPoolName(),
-					String.valueOf(index+1).toCharArray(),
-					'$');
-			}
+			// from 1.5 on, use immediately enclosing type name
+			candidateName = CharOperation.concat(
+				localType.enclosingType.constantPoolName(),
+				String.valueOf(index+1).toCharArray(),
+				'$');
 		} else {
-			// local type
-			if (isCompliant15) {
-				candidateName = CharOperation.concat(
-					CharOperation.concat(
-						localType.enclosingType().constantPoolName(),
-						String.valueOf(index+1).toCharArray(),
-						'$'),
-					localType.sourceName);
-			} else {
-				candidateName = CharOperation.concat(
-					outerMostEnclosingType.constantPoolName(),
-					'$',
+			candidateName = CharOperation.concat(
+				CharOperation.concat(
+					localType.enclosingType().constantPoolName(),
 					String.valueOf(index+1).toCharArray(),
-					'$',
-					localType.sourceName);
-			}
+					'$'),
+				localType.sourceName);
 		}
 		if (this.constantPoolNameUsage.get(candidateName) != null) {
 			index ++;
@@ -432,6 +405,11 @@ void connectTypeHierarchy() {
 void sealTypeHierarchy() {
 	for (SourceTypeBinding sourceType : this.topLevelTypes) {
 		sourceType.scope.connectPermittedTypes();
+	}
+}
+void buildComponents() {
+	for (SourceTypeBinding sourceType : this.topLevelTypes) {
+		sourceType.scope.buildComponents();
 	}
 }
 void integrateAnnotationsInHierarchy() {
@@ -505,8 +483,7 @@ void faultInImports() {
 			}
 		}
 		if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
-			problemReporter().validateJavaFeatureSupport(JavaFeature.MODULE_IMPORTS, importReference.sourceStart, importReference.sourceEnd);
-			if (!(JavaFeature.MODULE_IMPORTS.isSupported(compilerOptions().sourceLevel, compilerOptions().enablePreviewFeatures))) {
+			if (problemReporter().validateJavaFeatureSupport(JavaFeature.MODULE_IMPORTS, importReference.sourceStart, importReference.sourceEnd)) {
 				continue nextImport;
 			}
 			ModuleBinding importedModule = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
@@ -673,12 +650,7 @@ private Binding findImport(char[][] compoundName, int length) {
 			if (inaccessible != null)
 				return inaccessible;
 		}
-		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-			return problemType(compoundName, i, null);
-		type = findType(compoundName[0], this.environment.defaultPackage, this.environment.defaultPackage);
-		if (type == null || !type.isValidBinding())
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
-		i = 1; // reset to look for member types inside the default package type
+		return problemType(compoundName, i, null);
 	} else {
 		type = (ReferenceBinding) binding;
 	}
@@ -702,7 +674,7 @@ private Binding findSingleImport(char[][] compoundName, int mask, boolean findSt
 	if (compoundName.length == 1) {
 		// findType records the reference
 		// the name cannot be a package
-		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4 && !this.referenceContext.isModuleInfo())
+		if (!this.referenceContext.isModuleInfo())
 			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], this.environment.defaultPackage, this.fPackage);
 		if (typeBinding == null)
@@ -771,24 +743,13 @@ private MethodBinding findStaticMethod(ReferenceBinding currentType, char[] sele
 	return null;
 }
 ImportBinding[] getDefaultImports() {
-	ImportBinding javaIOImport = null;
-	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
+	if (JavaFeature.COMPACT_SOURCE_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
 			this.referenceContext.isSimpleCompilationUnit()) {
 		ModuleBinding module = this.environment.getModule(CharOperation.concatWith(TypeConstants.JAVA_BASE, '.'));
-		Binding javaioIO = findSingleImport(TypeConstants.JAVA_IO_IO, Binding.TYPE, false);
-		if (javaioIO != null) {
-			javaIOImport = new ImportBinding(TypeConstants.JAVA_IO_IO, true, javaioIO, null) {
-				@Override
-				public boolean isStatic() {
-					return true;
-				}
-			};
-		}
 		if (module != null) {
 			ImportBinding javaBase = new ImportBinding(TypeConstants.JAVA_BASE, true, module, null);
 			// No need for the java.lang.* as module java.base covers it
-			return javaIOImport != null ? new ImportBinding[] {javaBase, javaIOImport}:
-												new ImportBinding[] {javaBase};
+			return new ImportBinding[] {javaBase};
 			// this module import is not cached, there shouldn't be many files needing it.
 		}
 	}
@@ -798,10 +759,7 @@ ImportBinding[] getDefaultImports() {
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
 		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module(), false);
-	ImportBinding[] implicitImports = javaIOImport != null ? new ImportBinding[2] : new ImportBinding[1];
-	if (javaIOImport != null) {
-		implicitImports[1] = javaIOImport;
-	}
+	ImportBinding[] implicitImports = new ImportBinding[1];
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType
 		problemReporter().isClassPathCorrect(

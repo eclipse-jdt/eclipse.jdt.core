@@ -41,7 +41,7 @@ public class TargetInterface {
 	 * Whether timing info should be printed to stdout
 	 */
 	static final boolean TIMING = false;
-	long sentTime;
+	private long sentTimeNanos;
 
 	/**
 	 * The connection to the target's ide interface.
@@ -59,12 +59,12 @@ public class TargetInterface {
  * Try as long as the given time (in ms) has not expired.
  * Use isConnected() to find out if the connection was successful.
  */
-public void connect(ServerSocket server, int timeout) {
+public void connect(ServerSocket server, int timeoutMs) {
 	if (isConnected()) {
 		return;
 	}
 	if (server != null) {
-		long startTime = System.currentTimeMillis();
+		long timeoutNanos = System.nanoTime() + timeoutMs * 1_000_000L;
 		do {
 			try {
 				this.socket = server.accept();
@@ -79,7 +79,7 @@ public void connect(ServerSocket server, int timeout) {
 				} catch (InterruptedException e) {
 				}
 			}
-		} while (!isConnected() && (System.currentTimeMillis() - startTime) < timeout);
+		} while (!isConnected() && System.nanoTime() < timeoutNanos);
 	}
 }
 /**
@@ -135,7 +135,7 @@ public Result getResult() {
 		}
 	}
 	if (TIMING) {
-		System.out.println("Time to send compiled classes, run on target and get result is " + (System.currentTimeMillis() - this.sentTime) + "ms");
+		System.out.println("Time to send compiled classes, run on target and get result is " + (System.nanoTime() - this.sentTimeNanos) / 1_000_000L + "ms");
 	}
 	Result result = new Result();
 	result.displayString = toString == null ? null : toString.toCharArray();
@@ -178,7 +178,7 @@ public void sendClasses(boolean mustRun, ClassFile[] classes) throws TargetExcep
 		}
 	} else {
 		if (TIMING) {
-			this.sentTime = System.currentTimeMillis();
+			this.sentTimeNanos = System.nanoTime();
 		}
 		if (!isConnected()) {
 			throw new TargetException("Connection to the target VM has been lost");

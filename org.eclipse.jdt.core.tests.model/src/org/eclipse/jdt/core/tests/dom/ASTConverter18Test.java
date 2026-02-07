@@ -1244,39 +1244,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ArrayInitializer initializer = creation.getInitializer();
 		checkSourceRange(initializer, "{{{1, 2, 3}}}", contents.toCharArray());
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
-	// Force to use JLS4 and confirm malformed flags are set.
-	public void test0021() throws JavaModelException {
-		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"public class X {\n" +
-				" 	public void foo() {\n" +
-				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}}; \n" +
-				"	}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}";
-		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
-		CompilationUnit unit = (CompilationUnit) buildAST(getJLS4(), contents, this.workingCopy, true, true, true);
-
-		ASTNode node = getASTNode(unit, 0, 0);
-		assertEquals("Not a Method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
-		MethodDeclaration method = (MethodDeclaration) node;
-		List list = method.getBody().statements();
-		assertEquals("Incorrect no of statements", 1, list.size());
-		VariableDeclarationStatement statement1 = (VariableDeclarationStatement) list.get(0);
-		list = statement1.fragments();
-		assertEquals("Incorrect no of fragments", 1, list.size());
-		VariableDeclarationFragment fragment = (VariableDeclarationFragment) list.get(0);
-		ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
-		Type type = creation.getType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
-	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	 */
@@ -4899,7 +4866,7 @@ public void testBug447062() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
  */
-public void _2551_testBug425601_001() throws JavaModelException {
+public void testBug425601_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_001;\n" +
@@ -4915,7 +4882,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 			"    Outer<String> o;\n"+
 			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
 			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
-			"    @SuppressWarnings(\"rawtypes\")"+
+			"\n"+
 			"    Outer.Middle m3; \n"+
 			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
 			"}\n"+
@@ -4924,7 +4891,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 			"    Outer<String>.Middle<String> m;\n"+
 			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
 			"}\n";
-	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false/*don't report*/);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration[] fields = typedeclaration.getFields();
 	ITypeBinding binding = fields[0].getType().resolveBinding();
@@ -4942,7 +4909,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
  */
-public void _2551_testBug425601_002() throws JavaModelException {
+public void testBug425601_002() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_002/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_002;\n" +
@@ -4958,7 +4925,7 @@ public void _2551_testBug425601_002() throws JavaModelException {
 			"    Outer<String> o;\n"+
 			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
 			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
-			"    @SuppressWarnings(\"rawtypes\")"+
+			"\n"+
 			"    Outer.Middle m3; \n"+
 			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
 			"}\n"+
@@ -4967,7 +4934,7 @@ public void _2551_testBug425601_002() throws JavaModelException {
 			"    Outer<String>.Middle<String> m;\n"+
 			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
 			"}\n";
-	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false/*don't report*/);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration[] fields = typedeclaration.getFields();
 	ITypeBinding binding = fields[0].getType().resolveBinding();
@@ -5474,6 +5441,76 @@ public void testSVDStartPositionIssue_2() throws JavaModelException {
 
 	assertEquals("Single Variable Declaration length is not correct", svd.getLength(), contents.substring(contents.indexOf("/** abc*/ RuntimeException e")).indexOf(')'));
 	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), contents.indexOf("/** abc*/ RuntimeException"));
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4458
+// ArrayIndexOutOfBoundsException in PolyTypeBinding
+@SuppressWarnings("deprecation")
+public void testIssue4458() throws JavaModelException {
+	String contents =
+			"""
+			import java.util.function.Function;
+			import java.lang.Exception;
+			import java.util.stream.Stream;
+
+			public class X {
+				public interface ThrowingRunnable {
+					void run() throws Exception;
+				}
+
+				public static Runnable encode(ThrowingRunnable throwing) {
+					return () -> {
+						try {
+							throwing.run();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					};
+				}
+
+				public interface ThrowingFunction<T, R> {
+					R apply(T t) throws Exception;
+				}
+
+				public static <T,R> Function<T, R> encode(ThrowingFunction<T,R> throwing) {
+					return t -> {
+						try {
+							return throwing.apply(t);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					};
+				}
+
+				public void artifactRefs(String... suites)
+						throws InterruptedException {
+					Stream<Exception> elements = Stream.empty();
+
+					elements
+						.map(encode(  Exception::getMessage)) // a call to overloaded method
+						.forEach(context -> {
+							();  // Syntax error
+					});
+				}
+
+			}
+			""";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/X.java", contents, true/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+	class BindingRequestor extends ASTRequestor {
+		ITypeBinding _result = null;
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+				this._result = (ITypeBinding) binding;
+		}
+	}
+	final BindingRequestor requestor = new BindingRequestor();
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(true);
+	parser.setProject(javaProject);
+	parser.setBindingsRecovery(true);
+	parser.setStatementsRecovery(true);
+	parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
 }
 
 }

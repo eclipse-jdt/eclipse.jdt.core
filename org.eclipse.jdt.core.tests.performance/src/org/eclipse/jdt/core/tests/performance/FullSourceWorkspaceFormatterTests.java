@@ -65,9 +65,9 @@ protected void setUp() throws Exception {
 	File file = fetchFromBinariesProject("GenericTypeTest.java", 1_258_374);
 	String sourceFilePath = file.getAbsolutePath();
 
-	long start = System.currentTimeMillis();
+	long startNanos = System.nanoTime();
 	FORMAT_TYPE_SOURCE = Util.fileContent(sourceFilePath);
-	System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+	System.out.println("(" + (System.nanoTime() - startNanos) / 1_000_000L + "ms)");
 }
 
 @Override
@@ -101,10 +101,11 @@ public void testFormatDefault() throws JavaModelException {
 	String source = PARSER_WORKING_COPY.getSource();
 	int warmup = WARMUP_COUNT;
 	for (int i=0; i<warmup; i++) {
-		long start = System.currentTimeMillis();
+		long startNanos = System.nanoTime();
 		new DefaultCodeFormatter().format(CodeFormatter.K_COMPILATION_UNIT, source, 0, source.length(), 0, null);
 		if (i==0) {
-			System.out.println("	Time to format file ("+source.length()+" chars) = "+(System.currentTimeMillis()-start)+"ms");
+			System.out.println("	Time to format file (" + source.length() + " chars) = "
+					+ (System.nanoTime() - startNanos) / 1_000_000L + "ms");
 		}
 	}
 
@@ -134,10 +135,11 @@ public void testFormatDefaultBigFile() {
 	String source = FORMAT_TYPE_SOURCE;
 	int warmup = WARMUP_COUNT;
 	for (int i=0; i<warmup; i++) {
-		long start = System.currentTimeMillis();
+		long startNanos = System.nanoTime();
 		new DefaultCodeFormatter().format(CodeFormatter.K_COMPILATION_UNIT, source, 0, source.length(), 0, null);
 		if (i==0) {
-			System.out.println("	Time to format big file ("+source.length()+" chars) = "+(System.currentTimeMillis()-start)+"ms");
+			System.out.println("	Time to format big file (" + source.length() + " chars) = "
+					+ (System.nanoTime() - startNanos) / 1_000_000L + "ms");
 		}
 	}
 

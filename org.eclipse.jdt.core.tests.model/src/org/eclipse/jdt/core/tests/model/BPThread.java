@@ -20,7 +20,7 @@ public class BPThread {
 	private final String name;
 	private Thread thread;
 	private final Semaphore sem = new Semaphore();
-	private int breakppoint = -1;
+	private volatile int breakppoint = -1;
 
 	public BPThread(String name) {
 		this.name = name;
@@ -51,17 +51,19 @@ public class BPThread {
 		this.sem.release();
 	}
 	public void runToBP(int bp) {
-		if (isSuspended())
+		if (isSuspended()) {
 			resume();
-		long start = System.currentTimeMillis();
+		}
+		long timeoutNanos = System.nanoTime() + TIMEOUT * 1_000_000L;
 		while (this.breakppoint != bp) {
 			try {
-				Thread.sleep(100);
+				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if ((System.currentTimeMillis() - start) > TIMEOUT)
+			if (System.nanoTime() > timeoutNanos) {
 				throw new RuntimeException(new TimeOutException());
+			}
 		}
 	}
 	public void start(Runnable runnable) {

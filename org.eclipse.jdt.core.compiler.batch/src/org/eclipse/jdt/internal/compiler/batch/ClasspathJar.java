@@ -74,7 +74,7 @@ public List<Classpath> fetchLinkedJars(FileSystem.ClasspathSectionProblemReporte
 			try (InputStream inputStream = this.zipFile.getInputStream(manifest)) {
 				success = analyzer.analyzeManifestContents(inputStream);
 			}
-			List calledFileNames = analyzer.getCalledFileNames();
+			List<String> calledFileNames = analyzer.getCalledFileNames();
 			if (problemReporter != null) {
 				if (!success || analyzer.getClasspathSectionsCount() == 1 &&  calledFileNames == null) {
 					problemReporter.invalidClasspathSection(getPath());
@@ -310,12 +310,7 @@ public char[] normalizedPath() {
 @Override
 public String getPath() {
 	if (this.path == null) {
-		try {
-			this.path = this.file.getCanonicalPath();
-		} catch (IOException e) {
-			// in case of error, simply return the absolute path
-			this.path = this.file.getAbsolutePath();
-		}
+		this.path = this.file.toPath().normalize().toAbsolutePath().toString();
 	}
 	return this.path;
 }

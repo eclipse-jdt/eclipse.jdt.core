@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2024 IBM Corporation and others.
+ * Copyright (c) 2016, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2662,6 +2662,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					if (!path.toFile().exists()) {
+						// No jmod? Then this test is not applicable.
+						return;
+					}
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -2698,6 +2702,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					if (!path.toFile().exists()) {
+						// No jmod? Then this test is not applicable.
+						return;
+					}
 					IClasspathAttribute[] attributes = {
 							JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(),
@@ -6753,8 +6761,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			assertMarkers("Unexpected markers",
 					"Access restriction: The type \'Image\' is not API (restriction on required library '"+ jrtPath + "')\n" +
-					"The type Graphics from module java.desktop may not be accessible to clients due to missing \'requires transitive\'\n" +
-					"Access restriction: The method \'Image.getGraphics()\' is not API (restriction on required library '"+ jrtPath + "')", markers);
+					"The type Graphics from module java.desktop may not be accessible to clients due to missing \'requires transitive\'"
+					, markers);
 		} finally {
 			deleteProject(p1);
 		}
@@ -7258,7 +7266,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addLibraryEntry(p2, file.getFullPath(), false);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "", markers);
+			sortMarkers(markers);
+			assertMarkers(
+					"Should see one marker for missing jar",
+					"""
+					Archive for required library: 'link.jar' in project 'Bug540904' cannot be read or is not a valid ZIP file
+					The project cannot be built until build path errors are resolved""",
+					markers);
 		} finally {
 			this.deleteProject("Bug540904");
 		}
@@ -9028,6 +9042,84 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(p1);
 		}
 	}
+	public void testIssue2786_10() throws CoreException {
+		// module java.smartcardio is not in default root modules according to old rules of JEP 261
+		IJavaProject p10 = createJava10Project("J10", new String[] {"src"});
+		p10.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		try {
+			createFolder("/J10/src/p1");
+			createFile("/J10/src/p1/X.java",
+					"package p1;\n" +
+					"import javax.smartcardio.Card;\n" +
+					"public class X {\n" +
+					"	Card card;\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p10.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p10.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("unexpected markers",
+					"The import javax.smartcardio cannot be resolved\n" +
+					"Card cannot be resolved to a type",
+					markers);
+		} finally {
+			deleteProject(p10);
+		}
+	}
+	public void testIssue2786_11() throws CoreException {
+		// since JDK-8205169 module java.smartcardio is indeed in default root modules
+		IJavaProject p11 = createJava11Project("J11", new String[] {"src"});
+		p11.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		try {
+			createFolder("/J11/src/p1");
+			createFile("/J11/src/p1/X.java",
+					"package p1;\n" +
+					"import javax.smartcardio.Card;\n" +
+					"public class X {\n" +
+					"	Card card;\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p11.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p11.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected Markers",
+					"",
+					markers);
+		} finally {
+			deleteProject(p11);
+		}
+	}
+
+	public void testIssue3797() throws Exception {
+		IJavaProject p1 = null, p2 = null;
+		try {
+			p1 = createJava21Project("AutoMod");
+			createFile("/AutoMod/src/X.java", "public class X { }");
+			createFolder("/AutoMod/src/p");
+			createFile("/AutoMod/src/p/Y.java",
+					"package p;\n" +
+					"public class Y {}\n");
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			p2 = createJava21Project("Client");
+			addModularProjectEntry(p2, p1);
+			createFolder("/Client/src/p");
+			createFile("/Client/src/p/C.java", "package p;\n" + "public class C { }");
+
+			p2.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected Markers", "The package p conflicts with a package accessible from another module: AutoMod", markers);
+		} finally {
+			if (p1 != null)
+				deleteProject(p1);
+			if (p2 != null)
+				deleteProject(p2);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

@@ -250,15 +250,10 @@ static public String getExternalJCLSourcePathString(String compliance) {
  * This path ends with a File.separatorChar.
  */
 static public String getExternalPath() {
-	try {
-		String path = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-		if (path.charAt(path.length()-1) != File.separatorChar)
-			path += File.separatorChar;
-		return path;
-	} catch (IOException e) {
-		e.printStackTrace();
-	}
-	return  null;
+	String path = getWorkspaceRoot().getLocation().toFile().getParentFile().toPath().normalize().toAbsolutePath().toString();
+	if (path.charAt(path.length()-1) != File.separatorChar)
+		path += File.separatorChar;
+	return path;
 }
 
 /**

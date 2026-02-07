@@ -29,6 +29,7 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -52,7 +53,6 @@ import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -194,7 +194,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
 			new ISourceType[] {sourceType}, // ignore secondary types, to improve laziness
-			SourceTypeConverter.MEMBER_TYPE | (this.lookupEnvironment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 ? SourceTypeConverter.METHOD : 0), // need member types
+			SourceTypeConverter.MEMBER_TYPE | SourceTypeConverter.METHOD, // need member types
 			// no need for field initialization
 			this.lookupEnvironment.problemReporter,
 			result);
@@ -710,7 +710,6 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		subMonitor.split(1);
 		// build type bindings
 		Parser parser = new Parser(this.lookupEnvironment.problemReporter, true);
-		final boolean isJava8 = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
 		for (int i = 0; i < openablesLength; i++) {
 			Openable openable = openables[i];
 			if (openable instanceof org.eclipse.jdt.core.ICompilationUnit) {
@@ -744,7 +743,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 						// types/cu exist since cu is opened
 					}
 					int flags = !containsLocalType
-						? SourceTypeConverter.MEMBER_TYPE | (isJava8 ? SourceTypeConverter.METHOD : 0)
+						? SourceTypeConverter.MEMBER_TYPE | SourceTypeConverter.METHOD
 						: SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE | SourceTypeConverter.LOCAL_TYPE;
 					parsedUnit =
 						SourceTypeConverter.buildCompilationUnit(
@@ -967,18 +966,24 @@ public boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 	return false;
 }
 private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBinding) {
+	return subTypeOfType(subType, typeBinding, new IdentityHashMap<>());
+}
+
+private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBinding,
+		Map<ReferenceBinding, Object> visited) {
 	if (typeBinding == null || subType == null) return false;
+	if (visited.put(subType, subType) != null) return false; // don't evaluate the same "subType" twice
 	if (TypeBinding.equalsEquals(subType, typeBinding)) return true;
 	ReferenceBinding superclass = subType.superclass();
 	if (superclass != null) superclass = (ReferenceBinding) superclass.erasure();
 //	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;
-	if (subTypeOfType(superclass, typeBinding)) return true;
+	if (subTypeOfType(superclass, typeBinding, visited)) return true;
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
 	if (superInterfaces != null) {
 		for (ReferenceBinding si : superInterfaces) {
 			ReferenceBinding superInterface = (ReferenceBinding) si.erasure();
 			if (superInterface.isHierarchyInconsistent()) return false;
-			if (subTypeOfType(superInterface, typeBinding)) return true;
+			if (subTypeOfType(superInterface, typeBinding, visited)) return true;
 		}
 	}
 	return false;

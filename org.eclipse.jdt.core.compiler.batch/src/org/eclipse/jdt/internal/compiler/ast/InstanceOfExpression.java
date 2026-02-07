@@ -92,7 +92,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (currentScope.compilerOptions().enableSyntacticNullAnalysisForFields) {
 			FieldBinding field = ((Reference)this.expression).lastFieldBinding();
 			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-				flowContext.recordNullCheckedFieldReference((Reference) this.expression, 1);
+				flowContext.recordNullCheckedFieldReference((Reference) this.expression, 1, FlowInfo.NON_NULL);
 			}
 		}
 	}
@@ -277,15 +277,16 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (expressionType == null || checkedType == null)
 		return null;
 
+	CompilerOptions options = scope.compilerOptions();
 	if (this.pattern != null) {
-		if (this.pattern.isApplicable(expressionType, scope, this)) {
+		if (this.pattern.isApplicable(expressionType, scope, this))
 			checkForPrimitives(scope, checkedType, expressionType);
-		}
+		if (options.complianceLevel < ClassFileConstants.JDK21 && expressionType.isSubtypeOf(checkedType, false))
+			scope.problemReporter().expressionTypeCannotBeSubtypeOfPatternType(this.expression);
 		return this.resolvedType = TypeBinding.BOOLEAN;
 	}
 
 	if (!checkedType.isReifiable()) {
-		CompilerOptions options = scope.compilerOptions();
 		// Report same as before for older compliances
 		if (options.complianceLevel < ClassFileConstants.JDK16) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
@@ -313,7 +314,7 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true);
 	if (!needToCheck)
 		return;
-	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
+	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope, this);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
 	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION
@@ -333,7 +334,7 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 private void checkRefForPrimitivesAndAddSecretVariable(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
 	if (!JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()))
 		return;
-	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
+	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope, this);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 }
 

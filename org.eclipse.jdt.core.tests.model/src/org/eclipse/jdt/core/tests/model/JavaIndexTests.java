@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -181,7 +182,8 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	public void testUseIndexInternalJarAfterRestart() throws IOException, CoreException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = "/P/Test.jar";
-		String fullJarPath = getWorkspacePath() + jarFilePath;
+		String workspacePath = getWorkspacePath();
+		String fullJarPath = Paths.get(workspacePath, jarFilePath).toString();
 		try {
 			IJavaProject p = createJavaProject("P");
 			createJar(new String[] {
@@ -779,7 +781,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 
 	// Test that it works if the index file is in the jar file
-	public void testIndexInJar() throws IOException, CoreException {
+	public void testIndexInJar() throws Exception {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = getExternalResourcePath("Test.jar");
 		String indexZipPath =  getExternalResourcePath("TestIndex.zip");
@@ -797,6 +799,8 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			IJavaProject p = createJavaProject("P");
 			Path libPath = new Path(jarFilePath);
 			String url = "jar:file:"+indexZipPath+"!/Test.index";
+			if (url.indexOf('\\') != -1)
+				url = url.replace('\\', '/');
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME, url);
 			IClasspathEntry entry = JavaCore.newLibraryEntry(libPath, null, null, null, new IClasspathAttribute[]{attribute}, false);
 			setClasspath(p, new IClasspathEntry[] {entry});
@@ -804,7 +808,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 
 			IndexManager indexManager = JavaModelManager.getIndexManager();
 			Index index = indexManager.getIndex(libPath, false, false);
-			assertEquals(url, index.getIndexLocation().getUrl().toString());
+			assertEquals(URIUtil.fromString(url).toString(), index.getIndexLocation().getUrl().toString());
 
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
 			assertSearchResults(getExternalPath() + "Test.jar pkg.Test");
@@ -815,7 +819,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 
 			this.resultCollector = new JavaSearchResultCollector();
 			index = indexManager.getIndex(libPath, false, false);
-			assertEquals(url, index.getIndexLocation().getUrl().toString());
+			assertEquals(URIUtil.fromString(url).toURL().toString(), index.getIndexLocation().getUrl().toString());
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
 			assertSearchResults(getExternalPath() + "Test.jar pkg.Test");
 		} finally {
@@ -880,7 +884,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	// Test shared index location functionality
 	public void testSharedIndexLocation() throws CoreException, IOException {
 		// Create temporary testing folder
-		String sharedIndexDir = Files.createTempDirectory("shared_index").toFile().getCanonicalPath();
+		String sharedIndexDir = Files.createTempDirectory("shared_index").toFile().toPath().normalize().toAbsolutePath().toString();
 		// enable shared index
 		ClasspathEntry.setSharedIndexLocation(sharedIndexDir, getClass());
 		// path of library must be platform neutral

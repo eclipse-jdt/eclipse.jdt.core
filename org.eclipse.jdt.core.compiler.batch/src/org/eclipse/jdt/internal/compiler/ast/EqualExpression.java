@@ -20,7 +20,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -56,7 +55,8 @@ public class EqualExpression extends BinaryExpression {
 		// - method/field annotated @NonNull
 		// - allocation expression, some literals, this reference (see inside expressionNonNullComparison(..))
 		// these checks do not leverage the flowInfo.
-		boolean checkEquality = ((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL;
+		boolean checkEquality = ((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL
+								^ ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0);
 		if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING_MASK) == 0) {
 			if (leftStatus == FlowInfo.NON_NULL && rightStatus == FlowInfo.NULL) {
 				leftNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.left, checkEquality);
@@ -65,7 +65,6 @@ public class EqualExpression extends BinaryExpression {
 			}
 		}
 
-		boolean contextualCheckEquality = checkEquality ^ ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0);
 		// perform flowInfo-based checks for variables and record info for syntactic null analysis for fields:
 		if (!leftNonNullChecked) {
 			LocalVariableBinding local = this.left.localVariableBinding();
@@ -74,12 +73,13 @@ public class EqualExpression extends BinaryExpression {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, rightStatus, this.left);
 				}
 			} else if (this.left instanceof Reference reference
-							&& ((contextualCheckEquality ? rightStatus == FlowInfo.NON_NULL : rightStatus == FlowInfo.NULL))
+							&& (rightStatus == FlowInfo.NON_NULL || rightStatus == FlowInfo.NULL)
 							&& shouldPerformSyntacticAnalsysisFor(scope, reference))
 			{
 				FieldBinding field = reference.lastFieldBinding();
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-					flowContext.recordNullCheckedFieldReference((Reference) this.left, 1);
+					int checkedInfo = checkEquality ? rightStatus : FlowInfo.nullInverse(rightStatus);
+					flowContext.recordNullCheckedFieldReference((Reference) this.left, 1, checkedInfo);
 				}
 			}
 		}
@@ -90,12 +90,13 @@ public class EqualExpression extends BinaryExpression {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, leftStatus, this.right);
 				}
 			} else if (this.right instanceof Reference reference
-							&& ((contextualCheckEquality ? leftStatus == FlowInfo.NON_NULL : leftStatus == FlowInfo.NULL))
+							&& (leftStatus == FlowInfo.NON_NULL || leftStatus == FlowInfo.NULL)
 							&& shouldPerformSyntacticAnalsysisFor(scope, reference))
 			{
 				FieldBinding field = reference.lastFieldBinding();
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-					flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);
+					int checkedInfo = checkEquality ? leftStatus : FlowInfo.nullInverse(leftStatus);
+					flowContext.recordNullCheckedFieldReference((Reference) this.right, 1, checkedInfo);
 				}
 			}
 		}
@@ -133,7 +134,7 @@ public class EqualExpression extends BinaryExpression {
 		{
 			FieldBinding field = ((Reference)this.left).lastFieldBinding();
 			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-				flowContext.recordNullCheckedFieldReference((Reference) this.left, 1);
+				flowContext.recordNullCheckedFieldReference((Reference) this.left, 1, FlowInfo.NON_NULL);
 			}
 		}
 		int leftStatus = this.left.nullStatus(flowInfo, flowContext);
@@ -143,7 +144,7 @@ public class EqualExpression extends BinaryExpression {
 		{
 			FieldBinding field = ((Reference)this.right).lastFieldBinding();
 			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-				flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);
+				flowContext.recordNullCheckedFieldReference((Reference) this.right, 1, FlowInfo.NON_NULL);
 			}
 		}
 	}
@@ -914,17 +915,14 @@ public class EqualExpression extends BinaryExpression {
 			scope.problemReporter().uninternedIdentityComparison(this, originalLeftType, originalRightType, scope.referenceCompilationUnit());
 
 		// autoboxing support
-		boolean use15specifics = compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding leftType = originalLeftType, rightType = originalRightType;
-		if (use15specifics) {
-			if (leftType != TypeBinding.NULL && leftType.isBaseType()) {
-				if (!rightType.isBaseType()) {
-					rightType = scope.environment().computeBoxingType(rightType);
-				}
-			} else {
-				if (rightType != TypeBinding.NULL && rightType.isBaseType()) {
-					leftType = scope.environment().computeBoxingType(leftType);
-				}
+		if (leftType != TypeBinding.NULL && leftType.isBaseType()) {
+			if (!rightType.isBaseType()) {
+				rightType = scope.environment().computeBoxingType(rightType);
+			}
+		} else {
+			if (rightType != TypeBinding.NULL && rightType.isBaseType()) {
+				leftType = scope.environment().computeBoxingType(leftType);
 			}
 		}
 		// both base type

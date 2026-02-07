@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.util.Tuples.Pair;
@@ -56,7 +57,6 @@ class BoundSet {
 		Set<TypeBound> sameBounds;
 		Set<TypeBound> subBounds;
 		TypeBinding	instantiation;
-		Map<InferenceVariable,TypeBound> inverseBounds; // from right inference variable to bound
 		Set<InferenceVariable> dependencies;
 		public ThreeSets() {
 			// empty, the sets are lazily initialized
@@ -137,18 +137,6 @@ class BoundSet {
 			useNullHints(nullHints, rights, variable.environment);
 			InferenceContext18.sortTypes(rights);
 			return rights;
-		}
-		// pre: beta is a prototype
-		public boolean hasDependency(InferenceVariable beta) {
-			if(this.dependencies != null && this.dependencies.contains(beta))
-				return true;
-			if (this.inverseBounds != null) {
-				if (this.inverseBounds.containsKey(beta)) {
-					// TODO: not yet observed in tests
-					return true;
-				}
-			}
-			return false;
 		}
 		/** Total number of type bounds in this container. */
 		public int size() {
@@ -322,6 +310,16 @@ class BoundSet {
 	 * On both sides we only enter types with nonnull arguments.
 	 */
 	HashMap<ParameterizedTypeBinding,ParameterizedTypeBinding> captures = new LinkedHashMap<>();
+	/**
+	 * NON-JLS: maintain a separate set alongside {@link #captures}:
+	 * <dl>
+	 * <dt>captures<dd>IC18.resumeSuspendedInference() will reset these to avoid captures from nested
+	 * 	inference spilling blindly into the current inference.<br>
+	 *  {@link InferenceContext18#collectDependencies(BoundSet, boolean, boolean[])} considers only "local" {@link #captures}.
+	 * <dt>allCaptures<dd>Still {@link #hasCaptureBound(Set)} and {@link #incorporate(InferenceContext18)} will
+	 * 	operate on {@link #allCaptures}.
+	 */
+	HashMap<ParameterizedTypeBinding,ParameterizedTypeBinding> allCaptures = new LinkedHashMap<>();
 	/** 18.1.3 bullet 5: throws α */
 	Set<InferenceVariable> inThrows = new LinkedHashSet<>();
 
@@ -375,6 +373,7 @@ class BoundSet {
 		}
 		copy.inThrows.addAll(this.inThrows);
 		copy.captures.putAll(this.captures);
+		copy.allCaptures.putAll(this.allCaptures);
 		if (this.incorporatedBounds.length > 0)
 			System.arraycopy(this.incorporatedBounds, 0, copy.incorporatedBounds = new TypeBound[this.incorporatedBounds.length], 0, this.incorporatedBounds.length);
 		if (this.unincorporatedBoundsCount > 0)
@@ -435,9 +434,6 @@ class BoundSet {
 				three = this.boundsPerVariable.get(rightIV);
 				if (three == null)
 					this.boundsPerVariable.put(rightIV, (three = new ThreeSets()));
-				if (three.inverseBounds == null)
-					three.inverseBounds = new HashMap<>();
-				three.inverseBounds.put(rightIV, bound);
 			}
 		}
 	}
@@ -451,10 +447,15 @@ class BoundSet {
 		return hasProperBound;
 	}
 
-	public void addBounds(BoundSet that, LookupEnvironment environment) {
+	public void addBounds(BoundSet that, LookupEnvironment environment, boolean includeCaptureBounds) {
 		if (that == null || environment == null)
 			return;
 		addBounds(that.flatten(), environment);
+		this.inThrows.addAll(that.inThrows);
+		if (includeCaptureBounds) {
+			this.captures.putAll(that.captures);
+			this.allCaptures.putAll(that.allCaptures);
+		}
 	}
 
 	public boolean isInstantiated(InferenceVariable inferenceVariable) {
@@ -487,7 +488,7 @@ class BoundSet {
 
 	// Driver for the real workhorse - Implements generational incorporation a la generational garbage collector.
 	boolean incorporate(InferenceContext18 context) throws InferenceFailureException {
-		if (this.unincorporatedBoundsCount == 0 && this.captures.isEmpty())
+		if (this.unincorporatedBoundsCount == 0 && this.allCaptures.isEmpty())
 			return true;
 
 		try {
@@ -531,6 +532,7 @@ class BoundSet {
 		boolean analyzeNull = context.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 		ConstraintTypeFormula [] mostRecentFormulas = new ConstraintTypeFormula[4]; // poor man's cache to toss out duplicates, in pathological cases there are a good quarter million of them.
 		// check each pair, in each way.
+		Map<InferenceVariable,TypeBound> properTypesByInferenceVariable = properTypesByInferenceVariable(first, next);
 		for (TypeBound bound1 : first) {
 			for (TypeBound bound2 : next) {
 				if (bound1 == bound2)
@@ -548,18 +550,18 @@ class BoundSet {
 						case ReductionResult.SAME:
 							switch (bound2.relation) {
 								case ReductionResult.SAME:
-									newConstraint = combineSameSame(bound1, bound2, first, next);
+									newConstraint = combineSameSame(bound1, bound2, properTypesByInferenceVariable);
 									break;
 								case ReductionResult.SUBTYPE:
 								case ReductionResult.SUPERTYPE:
-									newConstraint = combineSameSubSuper(bound1, bound2, first, next);
+									newConstraint = combineSameSubSuper(bound1, bound2, properTypesByInferenceVariable);
 									break;
 							}
 							break;
 						case ReductionResult.SUBTYPE:
 							switch (bound2.relation) {
 								case ReductionResult.SAME:
-									newConstraint = combineSameSubSuper(bound2, bound1, first, next);
+									newConstraint = combineSameSubSuper(bound2, bound1, properTypesByInferenceVariable);
 									break;
 								case ReductionResult.SUPERTYPE:
 									newConstraint = combineSuperAndSub(bound2, bound1);
@@ -573,7 +575,7 @@ class BoundSet {
 						case ReductionResult.SUPERTYPE:
 							switch (bound2.relation) {
 								case ReductionResult.SAME:
-									newConstraint = combineSameSubSuper(bound2, bound1, first, next);
+									newConstraint = combineSameSubSuper(bound2, bound1, properTypesByInferenceVariable);
 									break;
 								case ReductionResult.SUBTYPE:
 									newConstraint = combineSuperAndSub(bound1, bound2);
@@ -629,7 +631,8 @@ class BoundSet {
 				} while (first != next && ++iteration <= 2);
 			}
 		}
-		for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> capt : this.captures.entrySet()) {
+		Set<ParameterizedTypeBinding> capturesToRemove = new HashSet<>();
+		for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> capt : this.allCaptures.entrySet()) {
 			ParameterizedTypeBinding gAlpha = capt.getKey();
 			ParameterizedTypeBinding gA = capt.getValue();
 			ReferenceBinding g = (ReferenceBinding) gA.original();
@@ -688,7 +691,8 @@ class BoundSet {
 										System.arraycopy(otherBounds, 0, allBounds, 1, n-1);
 										bi = context.environment.createIntersectionType18(allBounds);
 									}
-									addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
+									if (addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi))
+										capturesToRemove.add(gAlpha);
 								}
 							}
 						}
@@ -699,33 +703,38 @@ class BoundSet {
 							while (it.hasNext()) {
 								TypeBound bound = it.next();
 								if (!(bound.right instanceof InferenceVariable)) {
-									if (wildcardBinding.boundKind == Wildcard.SUPER)
+									if (wildcardBinding.boundKind == Wildcard.SUPER) {
 										reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE));
-									else
+										capturesToRemove.add(gAlpha);
+									} else {
 										return false;
+									}
 								}
 							}
 						}
 					}
 				} else {
 					addBound(new TypeBound(alpha, ai, ReductionResult.SAME), context.environment);
+					capturesToRemove.add(gAlpha);
 				}
 			}
 		}
 		if (InferenceContext18.DEBUG) {
-			if (!this.captures.isEmpty()) {
-				for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) {
-					System.out.println("Dropping capture bound " + //$NON-NLS-1$
-								String.valueOf(entry.getKey().shortReadableName()) +
-								"=capture("+String.valueOf(entry.getKey().shortReadableName())+")"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (!capturesToRemove.isEmpty()) {
+				for (ParameterizedTypeBinding toRemove : capturesToRemove) {
+					System.out.println("Removing capture bound " + //$NON-NLS-1$
+							String.valueOf(toRemove.shortReadableName()) +
+							"=capture("+String.valueOf(this.captures.get(toRemove).shortReadableName())+")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
-		this.captures.clear();
+		capturesToRemove.stream().forEach(c -> this.allCaptures.remove(c));
 		return true;
 	}
 
-	void addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
+	// try to infer and reduce a new constraint based on details of a given capture bound
+	// return true iff a new constraint has been added indeed
+	boolean addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
 			TypeBinding r, TypeBinding bi) throws InferenceFailureException {
 		ConstraintFormula formula = null;
 		if (boundKind == Wildcard.EXTENDS) {
@@ -736,11 +745,14 @@ class BoundSet {
 		} else {
 			formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE);
 		}
-		if (formula != null)
+		if (formula != null) {
 			reduceOneConstraint(context, formula);
+			return true;
+		}
+		return false;
 	}
 
-	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT, TypeBound[] firstBounds, TypeBound[] nextBounds) {
+	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT, Map<InferenceVariable,TypeBound> properTypesByInferenceVariable) {
 
 		// α = S and α = T imply ⟨S = T⟩
 		if (TypeBinding.equalsEquals(boundS.left, boundT.left))
@@ -748,10 +760,10 @@ class BoundSet {
 
 		// match against more shapes:
 		ConstraintTypeFormula newConstraint;
-		newConstraint = combineSameSameWithProperType(boundS, boundT, firstBounds, nextBounds);
+		newConstraint = combineSameSameWithProperType(boundS, boundT, properTypesByInferenceVariable);
 		if (newConstraint != null)
 			return newConstraint;
-		newConstraint = combineSameSameWithProperType(boundT, boundS, firstBounds, nextBounds);
+		newConstraint = combineSameSameWithProperType(boundT, boundS, properTypesByInferenceVariable);
 		if (newConstraint != null)
 			return newConstraint;
 		return null;
@@ -759,14 +771,14 @@ class BoundSet {
 
 	// pre: boundLeft.left != boundRight.left
 	private ConstraintTypeFormula combineSameSameWithProperType(TypeBound boundLeft, TypeBound boundRight,
-			TypeBound[] firstBounds, TypeBound[] nextBounds) {
+			Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
 		//  α = U and S = T imply ⟨S[α:=U] = T[α:=U]⟩
 		TypeBinding u = boundLeft.right;
 		if (enableOptimizationForBug543480 && isParameterizedDependency(boundRight)) {
 			// Performance optimization: do not incorporate arguments one by one, which yielt 2^n new bounds (n=number of type arguments) in the past.
 			// Instead, all arguments of a parameterized dependency are incorporated at once - but only when they are available.
 			return incorporateIntoParameterizedDependencyIfAllArgumentsAreProperTypes(boundRight,
-					firstBounds, nextBounds);
+					properTypesByInferenceVariable);
 		}
 		if (u.isProperType(true)) {
 			InferenceVariable alpha = boundLeft.left;
@@ -783,7 +795,7 @@ class BoundSet {
 		return null;
 	}
 
-	private ConstraintTypeFormula combineSameSubSuper(TypeBound boundS, TypeBound boundT, TypeBound[] firstBounds, TypeBound[] nextBounds) {
+	private ConstraintTypeFormula combineSameSubSuper(TypeBound boundS, TypeBound boundT, Map<InferenceVariable,TypeBound> properTypesByInferenceVariable) {
 		//  α = S and α <: T imply ⟨S <: T⟩
 		//  α = S and T <: α imply ⟨T <: S⟩
 		InferenceVariable alpha = boundS.left;
@@ -810,13 +822,13 @@ class BoundSet {
 				return ConstraintTypeFormula.create(t, s, boundT.relation, boundT.isSoft||boundS.isSoft);
 			}
 		}
-		return combineSameSubSuperWithProperType(boundS, boundT, alpha, firstBounds, nextBounds);
+		return combineSameSubSuperWithProperType(boundS, boundT, alpha, properTypesByInferenceVariable);
 	}
 
 	// pre: boundLeft.left != boundRight.left
 	// pre: boundLeft.left != boundRight.right
 	private ConstraintTypeFormula combineSameSubSuperWithProperType(TypeBound boundLeft, TypeBound boundRight,
-			InferenceVariable alpha, TypeBound[] firstBounds, TypeBound[] nextBounds) {
+			InferenceVariable alpha, Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
 		//  α = U and S <: T imply ⟨S[α:=U] <: T[α:=U]⟩
 		TypeBinding u = boundLeft.right;
 
@@ -824,7 +836,7 @@ class BoundSet {
 			// Performance optimization: do not incorporate arguments one by one, which yielt 2^n new bounds (n=number of type arguments) in the past.
 			// Instead, all arguments of a parameterized dependency are incorporated at once - but only when they are available.
 			return incorporateIntoParameterizedDependencyIfAllArgumentsAreProperTypes(boundRight,
-								firstBounds, nextBounds);
+					properTypesByInferenceVariable);
 		}
 		if (u.isProperType(true)) {
 			boolean substitute = TypeBinding.equalsEquals(alpha, boundRight.left);
@@ -870,19 +882,20 @@ class BoundSet {
 				&& typeBound.right.isParameterizedTypeWithActualArguments();
 	}
 
-	private ConstraintTypeFormula incorporateIntoParameterizedDependencyIfAllArgumentsAreProperTypes(TypeBound typeBound,
-			TypeBound[] firstBounds, TypeBound[] nextBounds) {
-		Collection<TypeBound> properTypesForAllInferenceVariables = getProperTypesForAllInferenceVariablesOrNull((ParameterizedTypeBinding)typeBound.right, firstBounds, nextBounds);
+	private ConstraintTypeFormula incorporateIntoParameterizedDependencyIfAllArgumentsAreProperTypes(
+			TypeBound typeBound, Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
+		Collection<TypeBound> properTypesForAllInferenceVariables = getProperTypesForAllInferenceVariablesOrNull(
+				(ParameterizedTypeBinding) typeBound.right, properTypesByInferenceVariable);
 		if (null != properTypesForAllInferenceVariables) {
 			return combineWithProperTypes(properTypesForAllInferenceVariables, typeBound);
 		}
 		return null;
 	}
 
-	private Collection<TypeBound> getProperTypesForAllInferenceVariablesOrNull(ParameterizedTypeBinding parameterizedType,
-			TypeBound[] firstBounds, TypeBound[] nextBounds) {
-		final Map<InferenceVariable,TypeBound> properTypesByInferenceVariable = properTypesByInferenceVariable(firstBounds, nextBounds);
-		if(properTypesByInferenceVariable.size() == 0) {
+	private Collection<TypeBound> getProperTypesForAllInferenceVariablesOrNull(
+			ParameterizedTypeBinding parameterizedType,
+			Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
+		if (properTypesByInferenceVariable.isEmpty()) {
 			return null;
 		}
 		final Set<InferenceVariable> inferenceVariables = getInferenceVariables(parameterizedType);
@@ -958,7 +971,7 @@ class BoundSet {
 			return Collections.emptyList();
 		List<ConstraintTypeFormula> result = new ArrayList<>();
 		for (Pair<TypeBinding> pair : superPairs) {
-			// future JLS should apply upwards projection according to https://mail.openjdk.org/pipermail/compiler-dev/2024-May/026579.html
+			// NON-JLS: should apply upwards projection according to https://mail.openjdk.org/pipermail/compiler-dev/2024-May/026579.html
 			TypeBinding g_s = pair.left().upwardsProjection(context.scope);
 			TypeBinding g_t = pair.right().upwardsProjection(context.scope);
 			result.addAll(typeArgumentEqualityConstraints(g_s, g_t, boundS.isSoft || boundT.isSoft));
@@ -1024,85 +1037,9 @@ class BoundSet {
 		return true; // no FALSE encountered
 	}
 
-	/**
-	 * Helper for resolution (18.4):
-	 * Does this bound set define a direct dependency between the two given inference variables?
-	 */
-	public boolean dependsOnResolutionOf(InferenceVariable alpha, InferenceVariable beta) {
-		alpha = alpha.prototype();
-		beta = beta.prototype();
-		if (TypeBinding.equalsEquals(alpha, beta))
-			return true; // An inference variable α depends on the resolution of itself.
-		boolean betaIsInCaptureLhs = false;
-		for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) { // TODO: optimization: consider separate index structure (by IV)
-			ParameterizedTypeBinding g = entry.getKey();
-			for (int i = 0; i < g.arguments.length; i++) {
-				if (TypeBinding.equalsEquals(g.arguments[i], alpha)) {
-					// An inference variable α appearing on the left-hand side of a bound of the form G<..., α, ...> = capture(G<...>)
-					// depends on the resolution of every other inference variable mentioned in this bound (on both sides of the = sign).
-					ParameterizedTypeBinding captured = entry.getValue();
-					if (captured.mentionsAny(new TypeBinding[]{beta}, -1/*don't care about index*/))
-						return true;
-					if (g.mentionsAny(new TypeBinding[]{beta}, i)) // exclude itself
-						return true;
-				} else if (TypeBinding.equalsEquals(g.arguments[i], beta)) {
-					betaIsInCaptureLhs = true;
-				}
-			}
-		}
-		if (betaIsInCaptureLhs) { // swap α and β in the rule text to cover "then β depends on the resolution of α"
-			ThreeSets sets = this.boundsPerVariable.get(beta);
-			if (sets != null && sets.hasDependency(alpha))
-				return true;
-		} else {
-			ThreeSets sets = this.boundsPerVariable.get(alpha);
-			if (sets != null && sets.hasDependency(beta))
-				return true;
-		}
-		return false;
-	}
-
-	List<Set<InferenceVariable>> computeConnectedComponents(InferenceVariable[] inferenceVariables) {
-		// create all dependency edges (as bi-directional):
-		Map<InferenceVariable, Set<InferenceVariable>> allEdges = new HashMap<>();
-		for (int i = 0; i < inferenceVariables.length; i++) {
-			InferenceVariable iv1 = inferenceVariables[i];
-			Set<InferenceVariable> targetSet = new LinkedHashSet<>();
-			allEdges.put(iv1, targetSet); // eventually ensures: forall iv in inferenceVariables : allEdges.get(iv) != null
-			for (int j = 0; j < i; j++) {
-				InferenceVariable iv2 = inferenceVariables[j];
-				if (dependsOnResolutionOf(iv1, iv2) || dependsOnResolutionOf(iv2, iv1)) {
-					targetSet.add(iv2);
-					allEdges.get(iv2).add(iv1);
-				}
-			}
-		}
-		// collect all connected IVs into one component:
-		Set<InferenceVariable> visited = new LinkedHashSet<>();
-		List<Set<InferenceVariable>> allComponents = new ArrayList<>();
-		for (InferenceVariable inferenceVariable : inferenceVariables) {
-			Set<InferenceVariable> component = new LinkedHashSet<>();
-			addConnected(component, inferenceVariable, allEdges, visited);
-			if (!component.isEmpty())
-				allComponents.add(component);
-		}
-		return allComponents;
-	}
-
-	private void addConnected(Set<InferenceVariable> component, InferenceVariable seed,
-			Map<InferenceVariable, Set<InferenceVariable>> allEdges, Set<InferenceVariable> visited)
-	{
-		if (visited.add(seed)) {
-			// add all IVs starting from seed and reachable via any in allEdges:
-			component.add(seed);
-			for (InferenceVariable next : allEdges.get(seed))
-				addConnected(component, next, allEdges, visited);
-		}
-	}
-
 	// helper for 18.4
 	public boolean hasCaptureBound(Set<InferenceVariable> variableSet) {
-		for (ParameterizedTypeBinding g : this.captures.keySet()) {
+		for (ParameterizedTypeBinding g : this.allCaptures.keySet()) {
 			for (TypeBinding argument : g.arguments)
 				if (variableSet.contains(argument))
 					return true;
@@ -1153,6 +1090,13 @@ class BoundSet {
 		// appears as RHS the bound is by construction an inference variable,too.
 	}
 
+	public TypeBinding[] sameBounds(InferenceVariable variable) {
+		ThreeSets three = this.boundsPerVariable.get(variable.prototype());
+		if (three == null || three.sameBounds == null)
+			return Binding.NO_TYPES;
+		return three.sameBounds.stream().map(b -> b.right).collect(Collectors.toList()).toArray(TypeBinding[]::new);
+	}
+
 	// debugging:
 	@Override
 	public String toString() {
@@ -1161,7 +1105,7 @@ class BoundSet {
 		for (TypeBound bound : flattened) {
 			buf.append('\t').append(bound.toString()).append('\n');
 		}
-		buf.append("Capture Bounds:"); //$NON-NLS-1$
+		buf.append("Local Capture Bounds:"); //$NON-NLS-1$
 		if (this.captures.isEmpty()) {
 			buf.append(" <empty>\n"); //$NON-NLS-1$
 		} else {
@@ -1170,6 +1114,20 @@ class BoundSet {
 				String lhs = String.valueOf(entry.getKey().shortReadableName());
 				String rhs = String.valueOf(entry.getValue().shortReadableName());
 				buf.append('\t').append(lhs).append(" = capt(").append(rhs).append(")\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		buf.append("Other Capture Bounds:"); //$NON-NLS-1$
+		if (this.allCaptures.isEmpty()) {
+			buf.append(" <empty>\n"); //$NON-NLS-1$
+		} else {
+			buf.append('\n');
+			for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.allCaptures.entrySet()) {
+				if (this.captures.containsKey(entry.getKey()))
+					continue;
+				String lhs = String.valueOf(entry.getKey().shortReadableName());
+				String rhs = String.valueOf(entry.getValue().shortReadableName());
+				buf.append('\t');
+				buf.append(lhs).append(" = capt(").append(rhs).append(")\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		return buf.toString();
@@ -1264,45 +1222,40 @@ class BoundSet {
 	}
 
 	protected List<Pair<TypeBinding>> allSuperPairsWithCommonGenericType(TypeBinding s, TypeBinding t) {
-		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
-			return Collections.emptyList();
-		List<Pair<TypeBinding>> result = new ArrayList<>();
-		if (TypeBinding.equalsEquals(s.original(), t.original())) {
-			result.add(new Pair<>(s, t));
-		}
-		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
-		if (tSuper != null) {
-			result.add(new Pair<>(s, tSuper));
-		}
-		result.addAll(allSuperPairsWithCommonGenericType(s.superclass(), t));
-		ReferenceBinding[] superInterfaces = s.superInterfaces();
-		if (superInterfaces != null) {
-			for (ReferenceBinding superInterface : superInterfaces) {
-				result.addAll(allSuperPairsWithCommonGenericType(superInterface, t));
-			}
-		}
+		ArrayList<Pair<TypeBinding>> result = new ArrayList<>();
+		allSuperPairsWithCommonGenericTypeRecursive(s, t, result, new HashSet<>());
 		return result;
 	}
 
-	public TypeBinding getEquivalentOuterVariable(InferenceVariable variable, InferenceVariable[] outerVariables) {
-		ThreeSets three = this.boundsPerVariable.get(variable);
-		if (three != null) {
-			for (TypeBound bound : three.sameBounds) {
-				for (InferenceVariable iv : outerVariables)
-					if (TypeBinding.equalsEquals(bound.right, iv))
-						return iv;
+	private void allSuperPairsWithCommonGenericTypeRecursive(TypeBinding s, TypeBinding t, List<Pair<TypeBinding>> result, HashSet<Integer> visited) {
+		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
+			return;
+		if (!visited.add(s.id))
+			return;
+
+		// optimization: nothing interesting above equal types
+		if (TypeBinding.equalsEquals(s,  t))
+			return;
+
+		if (s.isParameterizedType()) { // optimization here and below: clients of this method only want to compare type arguments
+			if (TypeBinding.equalsEquals(s.original(), t.original())) {
+				if (t.isParameterizedType())
+					result.add(new Pair<>(s, t));
+			} else {
+				TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
+				if (tSuper != null && tSuper.isParameterizedType())
+					result.add(new Pair<>(s, tSuper));
 			}
 		}
-		for (InferenceVariable iv : outerVariables) {
-			three = this.boundsPerVariable.get(iv);
-			if (three != null && three.sameBounds != null) {
-				for (TypeBound bound : three.sameBounds)
-					if (TypeBinding.equalsEquals(bound.right, variable))
-						return iv;
+		allSuperPairsWithCommonGenericTypeRecursive(s.superclass(), t, result, visited);
+		ReferenceBinding[] superInterfaces = s.superInterfaces();
+		if (superInterfaces != null) {
+			for (ReferenceBinding superInterface : superInterfaces) {
+				allSuperPairsWithCommonGenericTypeRecursive(superInterface, t, result, visited);
 			}
 		}
-		return null;
 	}
+
 	public TypeBinding condition18_5_5_item_4(
 			ReferenceBinding rAlpha,
 			InferenceVariable[] alpha,

@@ -221,8 +221,10 @@ public class ElementsImpl implements Elements {
 			}
 		}
 		for (MethodBinding method : binding.methods()) {
-			if (!directMembers && method.isStatic())
-				continue;
+			if (!directMembers &&
+				(method.isPrivate() || (binding.isInterface() && method.isStatic()))) {
+					continue;
+			}
 			if (!method.isSynthetic() && (directMembers || (!method.isPrivate() && !method.isConstructor()))) {
 				String methodName = new String(method.selector);
 				Set<MethodBinding> sameNamedMethods = methods.get(methodName);
@@ -615,6 +617,8 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public TypeElement getTypeElement(CharSequence name) {
+		if (name.length() == 0)
+			return null;
 		LookupEnvironment le = this._env.getLookupEnvironment();
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
 		ReferenceBinding binding = le.getType(compoundName);

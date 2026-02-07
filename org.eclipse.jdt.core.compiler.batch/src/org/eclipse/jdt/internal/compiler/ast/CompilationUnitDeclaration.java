@@ -704,7 +704,7 @@ private void reportNLSProblems() {
 			int i = 0;
 			stringLiteralsLoop: for (; i < stringLiteralsLength; i++) {
 				literal = this.stringLiterals[i];
-				final int literalLineNumber = literal instanceof TextBlock ? ((TextBlock)literal).endLineNumber : literal.getLineNumber();
+				final int literalLineNumber = literal instanceof TextBlock textBlock ? textBlock.endLineNumber : literal.getLineNumber();
 				if (lastLineNumber != literalLineNumber) {
 					indexInLine = 1;
 					lastLineNumber = literalLineNumber;

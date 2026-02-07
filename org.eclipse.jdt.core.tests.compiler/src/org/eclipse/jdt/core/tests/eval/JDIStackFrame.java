@@ -261,11 +261,11 @@ public boolean run(String codeSnippetClassName) {
 		ObjectReference codeSnippetRunner;
 		try {
 			// Get the code snippet class
-			long start = System.currentTimeMillis();
+        	long timeoutNanos = System.nanoTime() + this.timeout * 1_000_000L;
 			List classes = this.jdiVM.classesByName(codeSnippetClassName);
 			while (classes.size() == 0) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 				}
 				classes = this.jdiVM.classesByName(codeSnippetClassName);
@@ -280,7 +280,7 @@ public boolean run(String codeSnippetClassName) {
 							break;
 						}
 					}
-					if (classes.size() == 0 && (System.currentTimeMillis()-start) > this.timeout) {
+					if (classes.size() == 0 && System.nanoTime() > timeoutNanos) {
 						return false;
 					}
 				}

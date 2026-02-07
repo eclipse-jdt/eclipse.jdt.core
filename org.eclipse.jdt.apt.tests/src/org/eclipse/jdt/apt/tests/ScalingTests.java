@@ -98,11 +98,11 @@ public class ScalingTests extends APTTestBase {
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.setEnabled(jproj, true);
 
-		long start = System.currentTimeMillis();
+		long startNanos = System.nanoTime();
 		fullBuild( project.getFullPath() );
-		if (VERBOSE)
-			System.out.println("Done with build after " + ((System.currentTimeMillis() - start)/1000L) + " sec");
-
+		if (VERBOSE) {
+			System.out.println("Done with build after " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
+		}
 		expectingNoProblems();
 
 		IPath projPath = jproj.getProject().getLocation();

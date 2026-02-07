@@ -110,8 +110,8 @@ private void setUpBigProject() throws CoreException, IOException {
 	try {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
-		long start = System.currentTimeMillis();
+		String targetWorkspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
+		long startNanos = System.nanoTime();
 
 		// Print for log in case of project creation troubles...
 		File wkspDir = new File(targetWorkspacePath);
@@ -138,26 +138,28 @@ private void setUpBigProject() throws CoreException, IOException {
 			String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
 			for (int i = 0; i < FOLDERS_COUNT; i++) {
 				if (PRINT && i>0 && i%10==0) System.out.print("		+ folder src"+i+"...");
-				long top = System.currentTimeMillis();
+				long topNanos = System.nanoTime();
 				for (int j = 0; j < PACKAGES_COUNT; j++) {
 					new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
 				}
-				if (PRINT && i>0 && i%10==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
+				if (PRINT && i > 0 && i % 10 == 0) {
+					System.out.println("(" + (System.nanoTime() - topNanos) / 1_000_000L + " ms)");
+				}
 			}
-			System.out.println("		=> global time = "+(System.currentTimeMillis()-start)/1000.0+" seconds)");
+			System.out.println("		=> global time = " + (System.nanoTime() - startNanos) / 1_000_000L + " ms)");
 
 			// Add project to workspace
-			start = System.currentTimeMillis();
+			startNanos = System.nanoTime();
 			System.out.print("	- add project to full source workspace...");
 			ENV.addProject(BIG_PROJECT_NAME);
 			BIG_PROJECT = (JavaProject) createJavaProject(BIG_PROJECT_NAME, sourceFolders, "bin", "1.4");
 			BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
 		}
-		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		System.out.println("(" + (System.nanoTime() - startNanos) / 1_000_000L + " ms)");
 
 		// Add CU with secondary type
 		System.out.print("	- Create compilation unit with secondary type...");
-		start = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 		IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
 		if (!file.exists()) {
@@ -187,7 +189,7 @@ private void setUpBigProject() throws CoreException, IOException {
 			file.create(content.getBytes(), true, false, null);
 		}
 		WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
-		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
+		System.out.println("(" + (System.nanoTime() - startNanos) / 1_000_000L + "ms)");
 	} finally {
 		// do not delete project
 	}
@@ -1344,10 +1346,10 @@ public void testReopenSingleProject() throws CoreException {
 	tagAsSummary("Reopen a single project in a workspace", false); // do NOT put in fingerprint
 
 	// First close all Eclipse projects
-	long startTime = 0;
+	long startNanos = 0;
 	if (PRINT) {
 		System.out.print("Close all Eclipse projects...");
-		startTime = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	int length=ALL_PROJECTS.length;
 	for (int j=0; j<length; j++) {
@@ -1356,14 +1358,14 @@ public void testReopenSingleProject() throws CoreException {
 	waitUntilIndexesReady();
 	waitForAutoBuild();
 	if (PRINT) {
-		System.out.println((System.currentTimeMillis()-startTime)+"ms");
+		System.out.println((System.nanoTime() - startNanos) / 1_000_000L + "ms");
 	}
 
 
 	// Warm-up
 	if (PRINT) {
 		System.out.print("Warmup test...");
-		startTime = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	final int warmup = WARMUP_COUNT / 10;
 	for (int i=0; i<warmup; i++) {
@@ -1376,14 +1378,14 @@ public void testReopenSingleProject() throws CoreException {
 		waitForManualRefresh();
 	}
 	if (PRINT) {
-		System.out.println((System.currentTimeMillis()-startTime)+"ms");
+		System.out.println((System.nanoTime() - startNanos) / 1_000_000L + "ms");
 	}
 
 	// Measures
 	if (PRINT) {
 		System.out.println();
 		System.out.println("Start measures:");
-		startTime = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
@@ -1398,14 +1400,14 @@ public void testReopenSingleProject() throws CoreException {
 		stopMeasuring();
 	}
 	if (PRINT) {
-		System.out.println("	total time: "+((System.currentTimeMillis()-startTime)/1000.0)+"s");
+		System.out.println("	total time: " + ((System.nanoTime() - startNanos) / 1_000_000L) + "ms");
 	}
 
 	// Commit
 	if (PRINT) {
 		System.out.println();
 		System.out.println("Commit measures:");
-		startTime = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	commitMeasurements();
 	assertPerformance();
@@ -1413,7 +1415,7 @@ public void testReopenSingleProject() throws CoreException {
 	// Finally reopen all Eclipse projects
 	if (PRINT) {
 		System.out.print("Reopen Eclipse projects...");
-		startTime = System.currentTimeMillis();
+		startNanos = System.nanoTime();
 	}
 	for (int i=0; i<length; i++) {
 		ALL_PROJECTS[i].getProject().open(null);
@@ -1423,7 +1425,7 @@ public void testReopenSingleProject() throws CoreException {
 	waitForManualRefresh();
 	runGc();
 	if (PRINT) {
-		System.out.println((System.currentTimeMillis()-startTime)+"ms");
+		System.out.println((System.nanoTime() - startNanos) / 1_000_000L + "ms");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=354332

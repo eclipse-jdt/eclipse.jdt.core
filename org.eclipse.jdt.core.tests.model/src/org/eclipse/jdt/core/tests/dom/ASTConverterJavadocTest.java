@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
@@ -91,8 +90,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected boolean resolveBinding = true;
 	protected boolean packageBinding = true;
 	// AST Level
-	/** @deprecated using deprecated code */
-	protected int astLevel = AST.JLS2;
+	protected int astLevel = AST.getAllSupportedVersions().getFirst();
 	protected int savedLevel;
 	// Debug
 	protected String prefix = "";
@@ -1201,16 +1199,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Create DOM AST nodes hierarchy
 		List unitComments = null;
-		String sourceLevel = null;
-		String complianceLevel = null;
-		if (this.currentProject != null) {
-			if (this.astLevel == getJLS3()) {
-				complianceLevel = this.currentProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-				sourceLevel = this.currentProject.getOption(JavaCore.COMPILER_SOURCE, true);
-				this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
-				this.currentProject.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
-			}
-		}
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject, options);
 		if (this.compilerOption.equals(JavaCore.ERROR)) {
 			assumeEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
@@ -1266,10 +1254,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 		*/
 
-		if (sourceLevel != null) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, complianceLevel);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, sourceLevel);
-		}
 		// Return compilation unit for possible further verifications
 		return compilUnit;
 	}
@@ -1635,7 +1619,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		methodLength = compilUnit.getExtendedLength(method);
 		assumeEquals("Method declaration "+method+" does not end at the right position",method.getLength(), methodLength);
 	}
-	/** @deprecated using deprecated code */
 	public void testBug55221d() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.d", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
@@ -1653,7 +1636,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		int methodLength = compilUnit.getExtendedLength(method);
 		assumeEquals("Method "+method+" does not have the right length", methodLength, method.getLength());
 		// get return type
-		node = method.getReturnType();
+		node = method.getReturnType2();
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not return type", node.getNodeType() == ASTNode.PRIMITIVE_TYPE); //$NON-NLS-1$
 		PrimitiveType returnType = (PrimitiveType) node;
@@ -1702,7 +1685,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			idx++;
 		}
 	}
-	/** @deprecated using deprecated code */
 	public void testBug55223b() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55223", "TestB.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
@@ -1718,7 +1700,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assumeEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		MethodDeclaration method = (MethodDeclaration) node;
 		// get return type
-		node = method.getReturnType();
+		node = method.getReturnType2();
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not return type", node.getNodeType() == ASTNode.SIMPLE_TYPE); //$NON-NLS-1$
 		SimpleType returnType = (SimpleType) node;
@@ -2115,15 +2097,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
 	 * @deprecated using deprecated code
 	 */
-	public void testBug70892_JLS2() throws JavaModelException {
-		int level = this.astLevel;
-		this.astLevel = AST.JLS2;
-		verifyComments("testBug70892");
-		this.astLevel = level;
-	}
 	public void testBug70892_JLS3() throws JavaModelException {
 		int level = this.astLevel;
-		this.astLevel = getJLS3();
+		this.astLevel = getJLSFirst();
 		verifyComments("testBug70892");
 		this.astLevel = level;
 	}
@@ -2158,7 +2134,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug79809() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
 			"package javadoc.b79809;\n" +
 			"/**\n" +
@@ -2176,7 +2151,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug79809b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
 			"package javadoc.b79809;\n" +
 			"\n" +
@@ -2198,7 +2172,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug79904() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79904/Test.java",
 			"package javadoc.b79904;\n" +
 			"/**\n" +
@@ -2221,7 +2194,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug80221() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b80221/Test.java",
 			"package javadoc.b80221;\n" +
 			"public class Test {\n" +
@@ -2242,7 +2214,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug80257() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b80257/Test.java",
 			"package javadoc.b80257;\n" +
 			"import java.util.*;\n" +
@@ -2299,14 +2270,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
 	 */
 	public void testBug83804() throws CoreException, JavaModelException {
-		this.astLevel = getJLS3();
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "package-info.java");
 		this.workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "Test.java");
 		verifyWorkingCopiesComments();
 	}
 	public void testBug83804a() throws CoreException, JavaModelException {
-		this.astLevel = getJLS3();
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "package-info.java");
 		this.workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "Test.java");
@@ -2319,7 +2288,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug84049() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b84049/Test.java",
 			"package javadoc.b84049;\n" +
 			"public class Test {\n" +
@@ -2355,7 +2323,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug87845() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b87845/Test.java",
 			"package javadoc.b87845;\n" +
 			"public class Test {\n" +
@@ -2430,7 +2397,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug93880_15a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
 			"/**\n" +
 			" * Javadoc\n" +
@@ -2454,7 +2420,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2476,7 +2441,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2498,7 +2462,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2522,7 +2485,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/* (non-javadoc)\n" +
 			" * No comment\n" +
@@ -2546,7 +2508,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
 			"/**\n" +
 			" * Javadoc\n" +
@@ -2567,7 +2528,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2586,7 +2546,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2605,7 +2564,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2626,7 +2584,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/* (non-javadoc)\n" +
 			" * No comment\n" +
@@ -2652,7 +2609,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug94150() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b94150/Category.java",
 			"package javadoc.b94150;\n" +
 			"public enum Category {\n" +
@@ -2703,7 +2659,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug99507b() throws JavaModelException {
         String source = "/**\n@param country*/";
-		ASTParser parser = ASTParser.newParser(getJLS3());
+		ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(source.toCharArray());
 		parser.createAST(null);
@@ -2922,7 +2878,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug106581() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b106581/A.java",
 			"package javadoc.b106581;\n" +
 			"public class A {\n" +
@@ -2957,7 +2912,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug108622() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b108622/Test.java",
 			"package javadoc.b108622;\n" +
 			"/**\n" +
@@ -3006,7 +2960,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug113108a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
 			"package javadoc.b113108;\n" +
 			"/** C0 */\n" +
@@ -3043,7 +2996,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug113108b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
 			"package javadoc.b113108;\n" +
 			"/** C0 */\n" +
@@ -3080,7 +3032,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug113108c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
 			"package javadoc.b113108;\n" +
 			"/** C0 */\n" +
@@ -3122,7 +3073,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug125676() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125676/A.java",
 			"package javadoc.b125676;\n" +
 			"public class A {\n" +
@@ -3185,7 +3135,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug125903() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = getJLS3();
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125903/Test.java",
 			"package javadoc.b125903;\n" +
 			"/**\n" +
@@ -3293,7 +3242,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			"	String b = \"b\"; //$NON-NLS-1$\n" +
 			"}\n"
 		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
 			// Verify comment type
@@ -3390,7 +3339,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			"	public X(String foo, String bar) { }\n" +
 			"}"
 		);
-		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
+		CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
 	}
 	/**
@@ -3404,7 +3353,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				"	Serializable {\n" +
 				"}"
 		);
-		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
+		CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
 	}
 	/**
@@ -3418,7 +3367,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				"	{\n" +
 				"}"
 		);
-		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
+		CompilationUnit unit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
 	}
 
@@ -3455,19 +3404,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
 			TagElement tagElement = (TagElement) docComment.tags().get(0);
 			assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 3, tagElement.fragments().size());
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 2, tagElement.fragments().size());
 			ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
 			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
 			fragment = (ASTNode) tagElement.fragments().get(1);
 			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TAG_ELEMENT, fragment.getNodeType());
 			TagElement inlineTag = (TagElement) fragment;
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 1, inlineTag.fragments().size());
-			fragment = (ASTNode) inlineTag.fragments().get(0);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			fragment = (ASTNode) tagElement.fragments().get(2);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			TextElement textElement = (TextElement) fragment;
-			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 2, inlineTag.fragments().size());
+			ASTNode fragment1 = (ASTNode) inlineTag.fragments().get(0);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment1+"]", ASTNode.TEXT_ELEMENT, fragment1.getNodeType());
+			assumeEquals(this.prefix+"Invalid content for text element ", "{@literal raw text:{@link BadLink} is just text}", fragment.toString());
 		}
 	}
 	/**
@@ -3502,19 +3448,246 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
 			TagElement tagElement = (TagElement) docComment.tags().get(0);
 			assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 3, tagElement.fragments().size());
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 2, tagElement.fragments().size());
 			ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
 			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
 			fragment = (ASTNode) tagElement.fragments().get(1);
 			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TAG_ELEMENT, fragment.getNodeType());
 			TagElement inlineTag = (TagElement) fragment;
-			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 1, inlineTag.fragments().size());
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 2, inlineTag.fragments().size());
 			fragment = (ASTNode) inlineTag.fragments().get(0);
 			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			fragment = (ASTNode) tagElement.fragments().get(2);
-			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
-			TextElement textElement = (TextElement) fragment;
-			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
+			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text", inlineTag.fragments().get(1).toString());
 		}
+	}
+
+	public void testContentOfCodeParsedOutside4615_01() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/X.java",
+				"""
+					/**
+					* {@code public class Example { final int a = 1; } }
+					*/
+					public class X {}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("Wrong number of tags", 1, docComment.tags().size());
+		TagElement tagElement = (TagElement) docComment.tags().get(0);
+		List<TagElement> listFrag = tagElement.fragments();
+		assumeEquals("wrong number of tags", 1, listFrag.size());
+		assumeEquals("Invalid content", "{@code public class Example { final int a = 1; } }", listFrag.get(0).toString());
+		List<TextElement> textElementFrag = listFrag.get(0).fragments();
+		assumeEquals("wrong number of frags", 1, listFrag.size());
+		assumeEquals("Invalid content", " public class Example { final int a = 1; } ", textElementFrag.get(0).getText());
+	}
+
+	public void testContentOfCodeParsedOutside4615_02() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/X.java",
+				"""
+				   /**
+				   * {@code com/{filename:\\w+}.jsp}
+					*/
+					public class X {}
+				"""
+				);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("wrong number of tags", 1, docComment.tags().size());
+		TagElement parentTag = (TagElement) docComment.tags().get(0);
+		List<?> frags = parentTag.fragments();
+		assumeEquals("wrong number of frags", 1, frags.size());
+		TagElement problematicTag = (TagElement) frags.get(0);
+		assumeEquals("invalid content", "{@code com/{filename:\\w+}.jsp}", problematicTag.toString());
+		List<TextElement> textElementFrag = problematicTag.fragments();
+		assumeEquals("wrong number of frags", 1, textElementFrag.size());
+		assumeEquals("Invalid content", " com/{filename:\\w+}.jsp", textElementFrag.get(0).getText());
+	}
+
+	public void testContentOfCodeParsedOutside4615_03() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/X.java",
+				"""
+					/**
+					* {@code public class X { void foo() { int x; } } }
+					*/
+					public class X {}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("Wrong number of tags", 1, docComment.tags().size());
+		TagElement tagElement = (TagElement) docComment.tags().get(0);
+		List<TagElement> listFrag = tagElement.fragments();
+		assumeEquals("wrong number of tags", 1, listFrag.size());
+		assumeEquals("Invalid content", "{@code public class X { void foo() { int x; } } }", listFrag.get(0).toString());
+		List<TextElement> textElementFrag = listFrag.get(0).fragments();
+		assumeEquals("wrong number of frags", 1, textElementFrag.size());
+		assumeEquals("Invalid content", " public class X { void foo() { int x; } } ", textElementFrag.get(0).getText());
+	}
+
+	public void testContentOfCodeParsedOutside4615_04() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/X.java",
+				"""
+					/**
+					* {@code public class Example { final int sasi; } class B{}}
+					*/
+					public class X {}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("Wrong number of tags", 1, docComment.tags().size());
+		TagElement tagElement = (TagElement) docComment.tags().get(0);
+		List<TagElement> listFrag = tagElement.fragments();
+		assumeEquals("wrong number of tags", 1, listFrag.size());
+		assumeEquals("Invalid content", "{@code public class Example { final int sasi; } class B{}}", listFrag.get(0).toString());
+		List<TextElement> textElementFrag = listFrag.get(0).fragments();
+		assumeEquals("wrong number of frags", 1, textElementFrag.size());
+		assumeEquals("Invalid content", " public class Example { final int sasi; } class B{}", textElementFrag.get(0).getText());
+	}
+
+	//code tag in multiple lines
+	public void testContentOfCodeParsedOutside4615_05() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/X.java",
+				"""
+				   /**
+				   * {@code com/{filename:\\w+}
+				   * .jsp}
+					*/
+					public class X {}
+				"""
+				);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("wrong number of tags", 1, docComment.tags().size());
+		TagElement parentTag = (TagElement) docComment.tags().get(0);
+		List<?> frags = parentTag.fragments();
+		assumeEquals("wrong number of frags", 1, frags.size());
+		TagElement problematicTag = (TagElement) frags.get(0);
+		assumeEquals("invalid content", "{@code com/{filename:\\w+}.jsp}", problematicTag.toString());
+		List<TextElement> textElementFrag = problematicTag.fragments();
+		assumeEquals("wrong number of frags", 2, textElementFrag.size());
+		assumeEquals("Invalid first textElement content", " com/{filename:\\w+}", textElementFrag.get(0).getText());
+		assumeEquals("Invalid second textElement content", ".jsp", textElementFrag.get(1).getText());
+	}
+
+	public void testMultulineCodeDropCurlyBrackets4683_01() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/Markdown.java",
+				"""
+				   /**
+					 * Performs:
+					 * <pre>{@code
+					 *    for (String s : strings) {
+					 *        if (s.equals(value)) {
+					 *            return 0;
+					 *        }
+					 *        if (s.startsWith(value)) {
+					 *            return 1;
+					 *        }
+					 *    }
+					 *    return -1;
+					 * }</pre>
+					 */
+					 public class Markdown {}
+				"""
+				);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("wrong number of tags", 1, docComment.tags().size());
+		TagElement parentTag = (TagElement) docComment.tags().get(0);
+		List<?> frags = parentTag.fragments();
+		TagElement thirdTag = (TagElement) frags.get(2);
+		List<TextElement> textFrags = thirdTag.fragments();
+		assumeEquals("wrong number of TextElements", 9, textFrags.size());
+		assumeEquals("Invalid first TextElement content","for (String s : strings) {" , textFrags.get(0).getText());
+		assumeEquals("Invalid second TextElement content","if (s.equals(value)) {" , textFrags.get(1).getText());
+		assumeEquals("Invalid third TextElement content","return 0;" , textFrags.get(2).getText());
+		assumeEquals("Invalid fourth TextElement content","}" , textFrags.get(3).getText());
+		assumeEquals("Invalid fifth TextElement content","if (s.startsWith(value)) {" , textFrags.get(4).getText());
+		assumeEquals("Invalid sixth TextElement content","return 1;" , textFrags.get(5).getText());
+		assumeEquals("Invalid seventh TextElement content","}" , textFrags.get(6).getText());
+		assumeEquals("Invalid eighth TextElement content","}" , textFrags.get(7).getText());
+		assumeEquals("Invalid nineth TextElement content","return -1;" , textFrags.get(8).getText());
+	}
+
+	public void testMultulineCodeDropCurlyBrackets4683_02() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/Markdown.java",
+				"""
+				   /**
+					 * Performs:
+					 * <pre>{@literal
+					 *    for (String s : strings) {
+					 *        if (s.equals(value)) {
+					 *            return 0;
+					 *        }
+					 *        if (s.startsWith(value)) {
+					 *            return 1;
+					 *        }
+					 *    }
+					 *    return -1;
+					 * }</pre>
+					 */
+					 public class Markdown {}
+				"""
+				);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("wrong number of tags", 1, docComment.tags().size());
+		TagElement parentTag = (TagElement) docComment.tags().get(0);
+		List<?> frags = parentTag.fragments();
+		TagElement thirdTag = (TagElement) frags.get(2);
+		List<TextElement> textFrags = thirdTag.fragments();
+		assumeEquals("wrong number of TextElements", 9, textFrags.size());
+		assumeEquals("Invalid first TextElement content","for (String s : strings) {" , textFrags.get(0).getText());
+		assumeEquals("Invalid second TextElement content","if (s.equals(value)) {" , textFrags.get(1).getText());
+		assumeEquals("Invalid third TextElement content","return 0;" , textFrags.get(2).getText());
+		assumeEquals("Invalid fourth TextElement content","}" , textFrags.get(3).getText());
+		assumeEquals("Invalid fifth TextElement content","if (s.startsWith(value)) {" , textFrags.get(4).getText());
+		assumeEquals("Invalid sixth TextElement content","return 1;" , textFrags.get(5).getText());
+		assumeEquals("Invalid seventh TextElement content","}" , textFrags.get(6).getText());
+		assumeEquals("Invalid eighth TextElement content","}" , textFrags.get(7).getText());
+		assumeEquals("Invalid nineth TextElement content","return -1;" , textFrags.get(8).getText());
 	}
 }

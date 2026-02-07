@@ -16,13 +16,21 @@ package org.eclipse.jdt.internal.compiler.codegen;
 public class CaseLabel extends BranchLabel {
 
 	public int instructionPosition = POS_NOT_SET;
+	private BranchLabel branchLabel; // doppelganger
 
-/**
- * CaseLabel constructor comment.
- * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
- */
 public CaseLabel(CodeStream codeStream) {
 	super(codeStream);
+}
+
+public CaseLabel(CodeStream codeStream, boolean allowNarrowBranch) {
+	super(codeStream);
+	if (allowNarrowBranch)
+		this.branchLabel = new BranchLabel(codeStream);
+}
+
+@Override
+void branch() {
+	this.branchLabel.branch();
 }
 
 /*
@@ -30,7 +38,7 @@ public CaseLabel(CodeStream codeStream) {
 * #placeInstruction() must be performed prior to any #branch()
 */
 @Override
-void branch() {
+void branchWide() {
 	if (this.position == POS_NOT_SET) {
 		addForwardReference(this.codeStream.position);
 		// Leave 4 bytes free to generate the jump offset afterwards
@@ -43,14 +51,6 @@ void branch() {
 		this.codeStream.writeSignedWord(this.position - this.instructionPosition);
 	}
 	trackStackDepth(true);
-}
-
-/*
-* No support for wide branches yet
-*/
-@Override
-void branchWide() {
-	branch(); // case label branch is already wide
 }
 
 @Override
@@ -66,11 +66,7 @@ public boolean isStandardLabel(){
 */
 @Override
 public void place() {
-	if ((this.tagBits & USED) != 0) {
-		this.position = this.codeStream.getPosition();
-	} else {
-		this.position = this.codeStream.position;
-	}
+	this.position = this.codeStream.position;
 	if (this.instructionPosition != POS_NOT_SET) {
 		int offset = this.position - this.instructionPosition;
 		int[] forwardRefs = forwardReferences();
@@ -81,6 +77,8 @@ public void place() {
 		this.codeStream.addLabel(this);
 	}
 	trackStackDepth(false);
+	if (this.branchLabel != null)
+		this.branchLabel.place();
 }
 
 /*

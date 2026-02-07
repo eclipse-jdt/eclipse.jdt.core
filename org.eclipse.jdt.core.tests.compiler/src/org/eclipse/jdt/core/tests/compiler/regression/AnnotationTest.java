@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -65,7 +64,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.junit.Assert;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class AnnotationTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -85,16 +83,12 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	public static Test suite() {
-		return buildComparableTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return AnnotationTest.class;
+		return buildComparableTestSuite(AnnotationTest.class);
 	}
 
 	@Override
-	protected Map getCompilerOptions() {
-		Map options = super.getCompilerOptions();
+	protected Map<String, String> getCompilerOptions() {
+		Map<String, String> options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
@@ -120,14 +114,10 @@ public class AnnotationTest extends AbstractComparableTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.reportMissingJavadocComments = null;
-		this.repeatableIntroText = this.complianceLevel >= ClassFileConstants.JDK1_8 ?
-		"Duplicate annotation of non-repeatable type "
-		:
-		"Duplicate annotation ";
-		this.repeatableTrailerText = this.complianceLevel >= ClassFileConstants.JDK1_8 ?
-		". Only annotation types marked @Repeatable can be used multiple times at one target.\n"
-		:
-		". Repeated annotations are allowed only at source level 1.8 or above\n";
+		this.repeatableIntroText =
+		"Duplicate annotation of non-repeatable type ";
+		this.repeatableTrailerText =
+		". Only annotation types marked @Repeatable can be used multiple times at one target.\n";
 		this.javaClassLib = null; // use only in selected tests
 	}
 
@@ -2379,19 +2369,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 	// check @Override annotation - strictly for superclasses (overrides) and not interfaces (implements)
 	public void test077() {
-		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-			?	"----------\n" +
-				"1. ERROR in X.java (at line 14)\n" +
-				"	void foo() {}\n" +
-				"	     ^^^^^\n" +
-				"The method foo() of type X must override a superclass method\n" +
+		String expectedOutput =
 				"----------\n" +
-				"2. ERROR in X.java (at line 18)\n" +
-				"	public void baz() {}\n" +
-				"	            ^^^^^\n" +
-				"The method baz() of type X must override a superclass method\n" +
-				"----------\n"
-			:	"----------\n" +
 				"1. ERROR in X.java (at line 14)\n" +
 				"	void foo() {}\n" +
 				"	     ^^^^^\n" +
@@ -2809,6 +2788,11 @@ public class AnnotationTest extends AbstractComparableTest {
 		"	@Inherited\n" +
 		"	^^^^^^^^^^\n" +
 		"The annotation @Inherited is disallowed for this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 8)\n" +
+		"	class B extends A {\n" +
+		"	                ^\n" +
+		"The type A is deprecated\n" +
 		"----------\n");
 	}
 	// check handling of empty array initializer (binary check)
@@ -2970,42 +2954,6 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}"
 			},
 			"class X");
-
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		String actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED);
-
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		String expectedOutput = null;
-		if (options.targetJDK == ClassFileConstants.JDK1_5) {
-			expectedOutput =
-				"  Inner classes:\n" +
-				"    [inner class info: #66 X$I, outer class info: #1 X\n" +
-				"     inner name: #68 I, accessflags: 1545 public abstract static],\n" +
-				"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" +
-				"     inner name: #69 MyAnon, accessflags: 9737 public abstract static]\n";
-		} else if (options.targetJDK == ClassFileConstants.JDK1_6) {
-			expectedOutput =
-				"  Inner classes:\n" +
-				"    [inner class info: #70 X$I, outer class info: #1 X\n" +
-				"     inner name: #72 I, accessflags: 1545 public abstract static],\n" +
-				"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" +
-				"     inner name: #73 MyAnon, accessflags: 9737 public abstract static]\n";
-		} else {
-			return;
-		}
-
-		int index = actualOutput.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(actualOutput, 3));
-		}
-		if (index == -1) {
-			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
-		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80544
 	public void test100() {
@@ -3386,7 +3334,7 @@ public class AnnotationTest extends AbstractComparableTest {
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84791 - variation
     public void test111() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(
     			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
     			CompilerOptions.ERROR);
@@ -3708,6 +3656,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	Zork z;\n" +
 				"}\n",
             },
+    		"----------\n" +
+			"1. INFO in X.java (at line 3)\n" +
+			"	void foo(){}\n" +
+			"	     ^^^^^\n" +
+			"The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?\n" +
+			"----------\n" +
 			"----------\n" +
 			"1. WARNING in Y.java (at line 1)\n" +
 			"	public class Y extends X {\n" +
@@ -3719,12 +3673,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	     ^^^^^\n" +
 			"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" +
 			"----------\n" +
-			"3. WARNING in Y.java (at line 2)\n" +
-			"	void foo(){ super.foo(); }\n" +
-			"	                  ^^^^^\n" +
-			"The method foo() from the type X is deprecated\n" +
-			"----------\n" +
-			"4. ERROR in Y.java (at line 3)\n" +
+			"3. ERROR in Y.java (at line 3)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
@@ -3745,6 +3694,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	Zork z;\n" +
 				"}\n",
             },
+    		"----------\n" +
+			"1. INFO in X.java (at line 3)\n" +
+			"	void foo(){}\n" +
+			"	     ^^^^^\n" +
+			"The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?\n" +
+			"----------\n" +
 			"----------\n" +
 			"1. WARNING in Y.java (at line 1)\n" +
 			"	public class Y extends X {\n" +
@@ -3755,11 +3710,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	void foo(){ super.foo(); }\n" +
 			"	     ^^^^^\n" +
 			"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" +
-			"----------\n" +
-			"3. WARNING in Y.java (at line 2)\n" +
-			"	void foo(){ super.foo(); }\n" +
-			"	                  ^^^^^\n" +
-			"The method foo() from the type X is deprecated\n" +
 			"----------\n" +
 			"4. ERROR in Y.java (at line 3)\n" +
 			"	Zork z;\n" +
@@ -3950,7 +3900,7 @@ public class AnnotationTest extends AbstractComparableTest {
                 "X.java",
                 "@Deprecated\n" +
                 "public class X {\n" +
-                "   void foo(){}\n" +
+                "   @Deprecated void foo(){}\n" +
                 "}\n",
                 "Y.java",
                 "public class Y extends X {\n" +
@@ -4029,7 +3979,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // check @SuppressWarning support
     public void test130() {
-    	Map customOptions = new Hashtable();
+    	Map<String, String> customOptions = new HashMap<>();
 		String[] warnings = CompilerOptions.warningOptionNames();
 		for (int i = 0, ceil = warnings.length; i < ceil; i++) {
 			customOptions.put(warnings[i], CompilerOptions.WARNING);
@@ -4122,7 +4072,7 @@ public class AnnotationTest extends AbstractComparableTest {
             "----------\n" +
     		"1. WARNING in X.java (at line 7)\n" +
     		"	W.deprecated();\n" +
-    		"	  ^^^^^^^^^^^^\n" +
+    		"	  ^^^^^^^^^^\n" +
     		"The method deprecated() from the type W is deprecated\n" +
     		"----------\n" +
     		"2. WARNING in X.java (at line 8)\n" +
@@ -4309,7 +4259,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // check @SuppressWarning support
     public void test137() {
-    	Map customOptions = new Hashtable();
+    	Map<String, String> customOptions = new HashMap<>();
 		String[] warnings = CompilerOptions.warningOptionNames();
 		for (int i = 0, ceil = warnings.length; i < ceil; i++) {
 			customOptions.put(warnings[i], CompilerOptions.WARNING);
@@ -4362,7 +4312,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n" +
     		"3. WARNING in X.java (at line 8)\n" +
     		"	W.deprecated();\n" +
-    		"	  ^^^^^^^^^^^^\n" +
+    		"	  ^^^^^^^^^^\n" +
     		"The method deprecated() from the type W is deprecated\n" +
     		"----------\n" +
     		"4. WARNING in X.java (at line 9)\n" +
@@ -4395,7 +4345,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // check @SuppressWarning support
     public void test138() {
-    	Map customOptions = new Hashtable();
+    	Map<String, String> customOptions = new HashMap<>();
     	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
         this.runNegativeTest(
 
@@ -4421,7 +4371,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // check @SuppressWarning support
     public void test139() {
-    	Map customOptions = new Hashtable();
+    	Map<String, String> customOptions = new HashMap<>();
     	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
         this.runNegativeTest(
 
@@ -4452,14 +4402,8 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90111 - variation
     public void test140() {
-    	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-		?	"----------\n" +
-    		"1. ERROR in X.java (at line 6)\n" +
-    		"	static void foo(){}	\n" +
-    		"	            ^^^^^\n" +
-    		"The method foo() of type Bar must override a superclass method\n" +
-    		"----------\n"
-		:	"----------\n" +
+    	String expectedOutput =
+    		"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
 			"	static void foo(){}	\n" +
 			"	            ^^^^^\n" +
@@ -4534,7 +4478,7 @@ public class AnnotationTest extends AbstractComparableTest {
                 "package p;\n" +
                 "@Deprecated\n" +
 				"public class OldStuff {\n" +
-				"	public void foo() {\n" +
+				"	@Deprecated public void foo() {\n" +
 				"	}	\n" +
 				"  Zork z;\n" +
 				"}\n",
@@ -4550,8 +4494,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			null);
     }
     public void test142b() {
-		Map raiseInvalidJavadocSeverity =
-			new HashMap(2);
+		Map<String, String> raiseInvalidJavadocSeverity = new HashMap<>(2);
 		raiseInvalidJavadocSeverity.put(
 				CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 		// admittingly, when these are errors, SuppressWarnings is not enough to
@@ -4574,7 +4517,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	            "package p;\n" +
 	            "@Deprecated\n" +
 				"public class OldStuff {\n" +
-				"	public void foo() {\n" +
+				"	@Deprecated public void foo() {\n" +
 				"	}	\n" +
 				"  Zork z;\n" +
 				"}\n",
@@ -4592,8 +4535,7 @@ public class AnnotationTest extends AbstractComparableTest {
 // check that @SuppressWarning is reported as unused when corresponding warning is moved from
 // warning to error
 public void test142c() {
-	Map raiseDeprecationReduceInvalidJavadocSeverity =
-		new HashMap(2);
+	Map<String, String> raiseDeprecationReduceInvalidJavadocSeverity = new HashMap<>(2);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
 			CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
@@ -4633,10 +4575,11 @@ public void test142c() {
 		"	                         ^^^^^^^^\n" +
 		"The type OldStuff is deprecated\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 8)\n" +
-		"	super.foo();\n" +
-		"	      ^^^^^\n" +
-		"The method foo() from the type OldStuff is deprecated\n" +
+		"----------\n" +
+		"1. INFO in p\\OldStuff.java (at line 4)\n" +
+		"	public void foo() {\n" +
+		"	            ^^^^^\n" +
+		"The enclosing type OldStuff is deprecated, perhaps this member should be marked as deprecated, too?\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -4654,7 +4597,7 @@ public void test143() {
             "package p;\n" +
             "@Deprecated\n" +
 			"public class OldStuff {\n" +
-			"	public void foo() {\n" +
+			"	@Deprecated public void foo() {\n" +
 			"	}	\n" +
 			"  Zork z;\n" +
 			"}\n",
@@ -4793,7 +4736,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96974
     public void test147() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -4890,7 +4833,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test151() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -4911,7 +4854,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test152() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -4932,7 +4875,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test153() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
         this.runConformTest(
             new String[] {
@@ -4956,7 +4899,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test154() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -4979,7 +4922,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test155() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -5004,7 +4947,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test156() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -5078,7 +5021,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test158() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -5158,7 +5101,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test161() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -5179,7 +5122,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test162() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
         this.runNegativeTest(
             new String[] {
@@ -5215,7 +5158,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test163() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
@@ -5270,7 +5213,7 @@ public void test143() {
 				"    }\n" +
 				"}"
         };
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
 		if (isMinimumCompliant(ClassFileConstants.JDK11)) { // no synthetic due to nestmate
 			this.runConformTest(testFiles);
@@ -5287,7 +5230,7 @@ public void test143() {
 
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test165() {
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
@@ -5612,19 +5555,8 @@ public void test143() {
     }
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94759
     public void test168() {
-    	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-			?	"----------\n" +
-				"1. ERROR in X.java (at line 2)\n" +
-				"	@Override I clone();\n" +
-				"	            ^^^^^^^\n" +
-				"The method clone() of type I must override a superclass method\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	@Override void foo();\n" +
-				"	               ^^^^^\n" +
-				"The method foo() of type J must override a superclass method\n" +
-				"----------\n"
-			:	"----------\n" +
+    	String expectedOutput =
+    			"----------\n" +
 				"1. ERROR in X.java (at line 2)\n" +
 				"	@Override I clone();\n" +
 				"	            ^^^^^^^\n" +
@@ -5646,7 +5578,7 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
     public void test169() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         this.runConformTest(
         	true,
@@ -5670,7 +5602,7 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test170() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         this.runConformTest(
             new String[] {
@@ -5686,7 +5618,7 @@ public void test143() {
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test171() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         this.runConformTest(
         	true,
@@ -5720,7 +5652,7 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test172() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         this.runConformTest(
         	true,
@@ -5750,7 +5682,7 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test173() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         this.runConformTest(
         	true,
@@ -5789,7 +5721,7 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test174() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         final String source = "@interface Annot {\n" +
     			"    int value() default 0;\n" +
@@ -5826,7 +5758,7 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test175() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         final String source = "@interface Annot {\n" +
     			"    int value() default 0;\n" +
@@ -5867,7 +5799,7 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test176() {
-    	Map customOptions = getCompilerOptions();
+    	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
         final String source = "@interface Annot {\n" +
     			"    int value() default 0;\n" +
@@ -6511,19 +6443,8 @@ public void test193() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130017
 public void test194() {
-	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-	?	"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	@Override\n" +
-		"	^^^^^^^^^\n" +
-		"The annotation @Override is disallowed for this location\n" +
+	String expectedOutput =
 		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	public static void foo() {}\n" +
-		"	                   ^^^^^\n" +
-		"The method foo() of type X must override a superclass method\n" +
-		"----------\n"
-	:	"----------\n" +
 		"1. ERROR in X.java (at line 5)\n" +
 		"	@Override\n" +
 		"	^^^^^^^^^\n" +
@@ -6599,19 +6520,8 @@ public void test196() {
 }
 // no override between package private methods
 public void test197() {
-	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-	?	"----------\n" +
-		"1. WARNING in p\\X.java (at line 4)\n" +
-		"	void foo() {\n" +
-		"	     ^^^^^\n" +
-		"The method X.foo() does not override the inherited method from OldStuff since it is private to a different package\n" +
+	String expectedOutput =
 		"----------\n" +
-		"2. ERROR in p\\X.java (at line 4)\n" +
-		"	void foo() {\n" +
-		"	     ^^^^^\n" +
-		"The method foo() of type X must override a superclass method\n" +
-		"----------\n"
-	:	"----------\n" +
 		"1. WARNING in p\\X.java (at line 4)\n" +
 		"	void foo() {\n" +
 		"	     ^^^^^\n" +
@@ -7136,7 +7046,7 @@ public void test213() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
 public void test214() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 			CompilerOptions.ERROR);
@@ -7144,24 +7054,8 @@ public void test214() {
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 			CompilerOptions.DISABLED);
 
-	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-		?	"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	void foo();\n" +
-			"	     ^^^^^\n" +
-			"The method foo() of type I must override a superclass method\n" +
+	String expectedOutput =
 			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	public void foo() {}\n" +
-			"	            ^^^^^\n" +
-			"The method foo() of type X must override a superclass method\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 13)\n" +
-			"	void foo();\n" +
-			"	     ^^^^^\n" +
-			"The method foo() of type J must override a superclass method\n" +
-			"----------\n"
-		:	"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	void foo();\n" +
 			"	     ^^^^^\n" +
@@ -7207,18 +7101,7 @@ public void test215() {
 		"  @Override\n" +
 		"  public void foo() {}\n" +
 		"}\n"};
-	if (new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6) {
-		this.runNegativeTest(sources,
-			"----------\n" +
-			"1. ERROR in Y.java (at line 3)\n" +
-			"	public void foo() {}\n" +
-			"	            ^^^^^\n" +
-			"The method foo() of type Y must override a superclass method\n" +
-			"----------\n");
-	} else {
-		this.runConformTest(sources,
-			"");
-	}
+	this.runConformTest(sources, "");
 }
 // extending java.lang.annotation.Annotation
 public void test216() {
@@ -7257,7 +7140,7 @@ public void test216() {
 }
 // extending java.lang.annotation.Annotation
 public void test217() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 			CompilerOptions.ERROR);
@@ -7748,7 +7631,7 @@ public void test229() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
 public void test230() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
 	this.runNegativeTest(
@@ -7787,7 +7670,7 @@ public void test230() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
 public void test231() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
 	this.runNegativeTest(
@@ -7823,7 +7706,7 @@ public void test231() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
 public void test232() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		true,
@@ -7977,7 +7860,7 @@ public void test237() {
 }
 public void test238() {
 	// check that if promoted to ERROR, unhandled warning token shouldn't be suppressed by @SuppressWarnings("all")
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		true,
@@ -7999,7 +7882,7 @@ public void test238() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
 public void test239() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.WARNING);
 	this.runNegativeTest(
 		new String[] {
@@ -8045,7 +7928,7 @@ public void test240() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213
 public void test241() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
@@ -8126,7 +8009,7 @@ public void test242() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test243() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
@@ -8150,7 +8033,7 @@ public void test243() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test244() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
@@ -8177,7 +8060,7 @@ public void test244() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test245() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
@@ -8211,7 +8094,7 @@ public void test245() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test245_ignored() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
@@ -8241,7 +8124,7 @@ public void test245_ignored() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test245_error() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
@@ -8276,7 +8159,7 @@ public void test245_error() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test246() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
@@ -8300,11 +8183,8 @@ public void test246() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=211609
 public void test247() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_6) {
-		return;
-	}
 	// only enable in 1.6 mode
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	this.runConformTest(
 			new String[] {
@@ -8644,30 +8524,6 @@ public void test256() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216570
 public void test257() {
-	if (new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6) {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"    static interface IFoo {\n" +
-					"        public boolean eval(String s);\n" +
-					"    }\n" +
-					"    static class Foo implements IFoo {\n" +
-					"        @Override\n" +
-					"        public boolean eval(String s) {\n" +
-					"            return true;\n" +
-					"        }\n" +
-					"    }\n" +
-					"}\n"
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	public boolean eval(String s) {\n" +
-				"	               ^^^^^^^^^^^^^^\n" +
-				"The method eval(String) of type X.Foo must override a superclass method\n" +
-				"----------\n");
-		return;
-	}
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8687,19 +8543,8 @@ public void test257() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=167262
 public void test258() {
-	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-	?	"----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	void bar();//3\n" +
-		"	     ^^^^^\n" +
-		"The method bar() of type Bar must override a superclass method\n" +
+	String expectedOutput =
 		"----------\n" +
-		"2. ERROR in X.java (at line 13)\n" +
-		"	public void bar() {}//4\n" +
-		"	            ^^^^^\n" +
-		"The method bar() of type BarImpl must override a superclass method\n" +
-		"----------\n"
-	:	"----------\n" +
 		"1. ERROR in X.java (at line 9)\n" +
 		"	void bar();//3\n" +
 		"	     ^^^^^\n" +
@@ -8777,7 +8622,7 @@ public void test260() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273
 public void test261() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	this.runConformTest(
 		new String[] {
@@ -8823,7 +8668,7 @@ public void test261() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
 public void test262() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	this.runConformTest(
 		new String[] {
@@ -8869,7 +8714,7 @@ public void test262() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
 public void test263() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	this.runConformTest(
 		new String[] {
@@ -8939,7 +8784,7 @@ public void test265() {
 		public boolean stopOnFirstError() { return false; }
 		public boolean ignoreAllErrors() { return false; }
 	};
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	CompilerOptions compilerOptions = new CompilerOptions(options);
 	compilerOptions.performMethodsFullRecovery = false;
@@ -9006,7 +8851,7 @@ public void test266() {
 // Test to make sure that the use of a static import as an annotation value counts as a use
 // (and consequently that there is no unused static import warning)
 public void test267() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -9065,7 +8910,7 @@ public void test268() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=274917
 public void test269() {
-	Map customOptions = new Hashtable();
+	Map<String, String> customOptions = new HashMap<>();
 	String[] warnings = CompilerOptions.warningOptionNames();
 	for (int i = 0, ceil = warnings.length; i < ceil; i++) {
 		customOptions.put(warnings[i], CompilerOptions.WARNING);
@@ -9126,39 +8971,7 @@ public void test271() throws Exception {
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=289516
-public void test272() throws Exception {
-	if (this.complianceLevel != ClassFileConstants.JDK1_5) {
-		return;
-	}
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"@interface A {}\n" +
-			"public class X {\n" +
-			"	@SuppressWarnings(\"unused\")\n" +
-			"	private void foo(@A Object o) {}\n" +
-			"}"
-		},
-		"",
-		null,
-		true,
-		null,
-		options,
-		null,
-		true);
 
-	String expectedOutput =
-		"  // Method descriptor #15 (Ljava/lang/Object;)V\n" +
-		"  // Stack: 0, Locals: 2\n" +
-		"  private void foo(@A java.lang.Object o);\n";
-
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
-}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=289576
 public void test273() throws Exception {
 	this.runConformTest(
@@ -9194,36 +9007,26 @@ public void test274a() {
 			"        public void m() {}\n" +
 			"}\n"
 			};
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 			CompilerOptions.ERROR);
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 			CompilerOptions.ENABLED);
-	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
-		String expectedOutput =
-				"----------\n" +
-				"1. ERROR in T.java (at line 7)\n" +
-				"	public void m() {}\n" +
-				"	            ^^^\n" +
-				"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
-				"----------\n";
-		this.runNegativeTest(
-				true,
-				testString,
-				null, customOptions,
-				expectedOutput,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	} else {
-		this.runConformTest(
-				true, testString,
-				null,
-				customOptions,
-				null,
-				null, null,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	}
+	String expectedOutput =
+			"----------\n" +
+			"1. ERROR in T.java (at line 7)\n" +
+			"	public void m() {}\n" +
+			"	            ^^^\n" +
+			"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
+			"----------\n";
+	this.runNegativeTest(
+			true,
+			testString,
+			null, customOptions,
+			expectedOutput,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
@@ -9239,36 +9042,26 @@ public void test274b() {
 			"        public void m() {}\n" +
 			"}\n"
 			};
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 			CompilerOptions.ERROR);
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 			CompilerOptions.ENABLED);
-	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
-		String expectedOutput =
-			"----------\n" +
-			"1. ERROR in Over.java (at line 5)\n" +
-			"	public void m() {}\n" +
-			"	            ^^^\n" +
-			"The method m() of type Over should be tagged with @Override since it actually overrides a superinterface method\n" +
-			"----------\n";
-		this.runNegativeTest(
-				true,
-				testString,
-				null, customOptions,
-				expectedOutput,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	} else {
-		this.runConformTest(
-				true, testString,
-				null,
-				customOptions,
-				null,
-				null, null,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	}
+	String expectedOutput =
+		"----------\n" +
+		"1. ERROR in Over.java (at line 5)\n" +
+		"	public void m() {}\n" +
+		"	            ^^^\n" +
+		"The method m() of type Over should be tagged with @Override since it actually overrides a superinterface method\n" +
+		"----------\n";
+	this.runNegativeTest(
+			true,
+			testString,
+			null, customOptions,
+			expectedOutput,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
@@ -9283,36 +9076,26 @@ public void test274c() {
 			"        void m();\n" +
 			"}\n"
 			};
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 			CompilerOptions.ERROR);
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 			CompilerOptions.ENABLED);
-	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
-		String expectedOutput =
-				"----------\n" +
-				"1. ERROR in B.java (at line 5)\n" +
-				"	void m();\n" +
-				"	     ^^^\n" +
-				"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
-				"----------\n";
-		this.runNegativeTest(
-				true,
-				testString,
-				null, customOptions,
-				expectedOutput,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	} else {
-		this.runConformTest(
-				true, testString,
-				null,
-				customOptions,
-				null,
-				null, null,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	}
+	String expectedOutput =
+			"----------\n" +
+			"1. ERROR in B.java (at line 5)\n" +
+			"	void m();\n" +
+			"	     ^^^\n" +
+			"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
+			"----------\n";
+	this.runNegativeTest(
+			true,
+			testString,
+			null, customOptions,
+			expectedOutput,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
@@ -9325,40 +9108,30 @@ public void test274d() {
 			"        String toString();\n" +
 			"}\n"
 			};
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 			CompilerOptions.ERROR);
 	customOptions.put(
 			CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 			CompilerOptions.ENABLED);
-	if (new CompilerOptions(customOptions).sourceLevel >= ClassFileConstants.JDK1_6) {
-		String expectedOutput =
-			"----------\n" +
-			"1. ERROR in A.java (at line 2)\n" +
-			"	String toString();\n" +
-			"	       ^^^^^^^^^^\n" +
-			"The method toString() of type A should be tagged with @Override since it actually overrides a superinterface method\n" +
-			"----------\n";
-		this.runNegativeTest(
-				true,
-				testString,
-				null, customOptions,
-				expectedOutput,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	} else {
-		this.runConformTest(
-				true, testString,
-				null,
-				customOptions,
-				null,
-				null, null,
-				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-	}
+	String expectedOutput =
+		"----------\n" +
+		"1. ERROR in A.java (at line 2)\n" +
+		"	String toString();\n" +
+		"	       ^^^^^^^^^^\n" +
+		"The method toString() of type A should be tagged with @Override since it actually overrides a superinterface method\n" +
+		"----------\n";
+	this.runNegativeTest(
+			true,
+			testString,
+			null, customOptions,
+			expectedOutput,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
 public void test275() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
 
 	runConformTest(
@@ -9391,7 +9164,7 @@ public void test275() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
 public void test276() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
 
 	runConformTest(
@@ -9419,7 +9192,7 @@ public void test276() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
 public void test277() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.DISABLED);
 
 	runConformTest(
@@ -9500,7 +9273,7 @@ public void test279() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
 public void test280() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	String testFiles [] = new String[] {
@@ -9521,7 +9294,7 @@ public void test280() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
 public void test281() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.DISABLED); // this option overrides the next
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -9549,7 +9322,7 @@ public void test281() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
 public void test282() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	String testFiles [] = new String[] {
@@ -9557,7 +9330,7 @@ public void test282() {
 			"import java.util.Map;\n" +
 			"public class A {\n" +
 			"	@SuppressWarnings({\"rawtypes\", \"unused\"})\n" + //suppress a warning and an error
-			"	private Map i;\n" +
+			"	private Map<String, String> i;\n" +
 			"}\n"
 			};
 	runConformTest(
@@ -9571,7 +9344,7 @@ public void test282() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
 public void test283() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	String testFiles [] = new String[] {
@@ -9598,7 +9371,7 @@ public void test283() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=304031
 public void test284() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -9631,7 +9404,7 @@ public void test284() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=304031
 public void test285() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -9664,8 +9437,7 @@ public void test285() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=304031
 public void test286() {
-	Map raiseDeprecationReduceInvalidJavadocSeverity =
-		new HashMap(2);
+	Map<String, String> raiseDeprecationReduceInvalidJavadocSeverity = new HashMap<>(2);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
 			CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
@@ -9702,7 +9474,7 @@ public void test286() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=311849
 public void test287() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	this.runConformTest(
@@ -9732,7 +9504,7 @@ public void test287() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=311849
 public void test288() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	this.runConformTest(
@@ -9756,7 +9528,7 @@ public void test288() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=311849
 public void test289() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -9790,7 +9562,7 @@ public void test289() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109
 public void test290() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -9818,7 +9590,7 @@ public void test290() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109
 public void test291() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -9846,7 +9618,7 @@ public void test291() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109
 public void test292() {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -9889,7 +9661,7 @@ public void test293() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
 public void test294() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.ERROR);
@@ -9913,7 +9685,7 @@ public void test294() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
 public void test295() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.ERROR);
@@ -9940,7 +9712,7 @@ public void test295() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
 public void test296() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.ERROR);
@@ -9984,20 +9756,18 @@ public void test297() {
 		"Comparing identical expressions\n" +
 		"----------\n";
 
-	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
-		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in A.java (at line 10)\n" +
-			"	public final Object build(Class<? super Object>... objects) {\n" +
-			"	                                                   ^^^^^^^\n" +
-			"Type safety: Potential heap pollution via varargs parameter objects\n" +
-			"----------\n" +
-			"2. ERROR in A.java (at line 15)\n" +
-			"	return i == i;\n" +
-			"	       ^^^^^^\n" +
-			"Comparing identical expressions\n" +
-			"----------\n";
-	}
+	runner.expectedCompilerLog =
+		"----------\n" +
+		"1. ERROR in A.java (at line 10)\n" +
+		"	public final Object build(Class<? super Object>... objects) {\n" +
+		"	                                                   ^^^^^^^\n" +
+		"Type safety: Potential heap pollution via varargs parameter objects\n" +
+		"----------\n" +
+		"2. ERROR in A.java (at line 15)\n" +
+		"	return i == i;\n" +
+		"	       ^^^^^^\n" +
+		"Comparing identical expressions\n" +
+		"----------\n";
 	runner.testFiles = new String[] {
 			"A.java",
 			"public class A {\n" +
@@ -10321,7 +10091,7 @@ public void testBug366003e() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 public void testBug365437a() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	String testFiles [] = new String[] {
@@ -10372,7 +10142,7 @@ public void testBug365437a() {
 public void testBug365437b() {
 	if (isJRE11Plus)
 		return;
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_NonNullAnnotationName, "p.NonNull");
@@ -10430,8 +10200,7 @@ public void testBug365437b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // @SafeVarargs
 public void testBug365437c() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	String testFiles [] = new String[] {
@@ -10481,7 +10250,7 @@ public void testBug365437c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // unused constructor
 public void testBug365437d() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -10561,7 +10330,7 @@ public void testBug365437d() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // unused field
 public void testBug365437e() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -10634,7 +10403,7 @@ public void testBug365437e() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // unused type
 public void testBug365437f() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -10708,7 +10477,7 @@ public void testBug365437f() {
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using com.google.inject.Inject
 public void testBug376590a() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	this.runNegativeTest(
@@ -10737,7 +10506,7 @@ public void testBug376590a() {
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using jakarta.inject.Inject - slight variation
 public void testBug376590b() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	this.runNegativeTest(
@@ -10747,17 +10516,17 @@ public void testBug376590b() {
 			JAVAX_INJECT_CONTENT,
 			"Example.java",
 			"class Example {\n" +
-			"  private @jakarta.inject.Inject Object o;\n" +
+			"  private @javax.inject.Inject Object o;\n" +
 			"  private Example() {} // also warn here: no @Inject\n" +
 			"  public Example(Object o) { this.o = o; }\n" +
-			"  private @jakarta.inject.Inject void setO(Object o) { this.o = o;}\n" +
+			"  private @javax.inject.Inject void setO(Object o) { this.o = o;}\n" +
 			"}\n"
 		},
 		null, customOptions,
 		"----------\n" +
 		"1. ERROR in Example.java (at line 2)\n" +
-		"	private @jakarta.inject.Inject Object o;\n" +
-		"	                                      ^\n" +
+		"	private @javax.inject.Inject Object o;\n" +
+		"	                                    ^\n" +
 		"The value of the field Example.o is not used\n" +
 		"----------\n" +
 		"2. ERROR in Example.java (at line 3)\n" +
@@ -10770,7 +10539,7 @@ public void testBug376590b() {
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using jakarta.inject.Inject, combined with standard as well as custom annotations
 public void testBug376590c() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
@@ -10781,7 +10550,7 @@ public void testBug376590c() {
 			JAVAX_INJECT_NAME,
 			JAVAX_INJECT_CONTENT,
 			"Example.java",
-			"import jakarta.inject.Inject;\n" +
+			"import javax.inject.Inject;\n" +
 			"class Example {\n" +
 			"  private @Inject @p.NonNull Object o; // do warn, annotations don't signal a read\n" +
 			"  private @Deprecated @Inject String old; // do warn, annotations don't signal a read\n" +
@@ -10879,7 +10648,7 @@ public void testBug376429b() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=371832
 //Unused imports should be reported even if other errors are suppressed.
 public void testBug371832() throws Exception {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -11007,82 +10776,7 @@ public void testBug386356_2() {
 		this.javaClassLib = save;
 	}
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=398657
-public void test398657() throws Exception {
-	if (this.complianceLevel != ClassFileConstants.JDK1_5) {
-		return;
-	}
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
-	this.runConformTest(
-		new String[] {
-			"p/Annot.java",
-			"package p;\n" +
-			"public @interface Annot {\n" +
-			"   static public enum E { A }\n" +
-			"   E getEnum();\n" +
-			"}",
-			"X.java",
-			"import static p.Annot.E.*;\n" +
-			"import p.Annot;" +
-			"@Annot(getEnum=A)\n" +
-			"public class X {}"
-		},
-		"",
-		null,
-		true,
-		null,
-		options,
-		null,
-		true);
 
-	String expectedOutput =
-		"  Inner classes:\n" +
-		"    [inner class info: #22 p/Annot$E, outer class info: #24 p/Annot\n" +
-		"     inner name: #26 E, accessflags: 16409 public static final]\n";
-
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=398657
-public void test398657_2() throws Exception {
-	if (this.complianceLevel != ClassFileConstants.JDK1_5) {
-		return;
-	}
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
-	this.runConformTest(
-		new String[] {
-			"p/Y.java",
-			"package p;\n" +
-			"public class Y {\n" +
-			"	static public @interface Annot {\n" +
-			"		int id();\n" +
-			"	}\n" +
-			"}",
-			"X.java",
-			"import p.Y.Annot;\n" +
-			"@Annot(id=4)\n" +
-			"public class X {}"
-		},
-		"",
-		null,
-		true,
-		null,
-		options,
-		null,
-		true);
-
-	String expectedOutput =
-			"  Inner classes:\n" +
-			"    [inner class info: #21 p/Y$Annot, outer class info: #23 p/Y\n" +
-			"     inner name: #25 Annot, accessflags: 9737 public abstract static]\n";
-
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
-}
 // check invalid and annotations on package
 public void test384567() {
 	this.runNegativeTest(
@@ -11199,7 +10893,7 @@ public void test416107b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427367
 public void test427367() throws Exception {
 
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11295,8 +10989,6 @@ public void test376977() throws Exception {
 // on enum constants interpreted only as type annotations if the annotation type
 // specifies ElementType.TYPE_USE in @Target along with others.
 public void test438437() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -11422,10 +11114,6 @@ public void test433747() throws Exception {
 			"	String value();\n" +
 			"}\n"
 	};
-	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
-		this.runConformTest(src, "");
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "p123456");
-	} else {
 	this.runNegativeTest(
 			src,
 			"----------\n" +
@@ -11440,11 +11128,10 @@ public void test433747() throws Exception {
 			true, // generate output
 			false,
 			false);
-	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=456960 - Broken classfile generated for incorrect annotation usage - case 2
 public void test456960() throws Exception {
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11509,18 +11196,13 @@ public void test449330() throws Exception {
 		"@X(name=\"HELLO\")\n" +
 		"package p;\n"
 	};
-	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
-		this.runConformTest(testFiles);
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
-	} else {
-		this.runNegativeTest(testFiles,
-			"----------\n" +
-			"1. ERROR in p\\package-info.java (at line 1)\n" +
-			"	@X(name=\"HELLO\")\n" +
-			"	^^\n" +
-			"The annotation @X is disallowed for this location\n" +
-			"----------\n");
-	}
+	this.runNegativeTest(testFiles,
+		"----------\n" +
+		"1. ERROR in p\\package-info.java (at line 1)\n" +
+		"	@X(name=\"HELLO\")\n" +
+		"	^^\n" +
+		"The annotation @X is disallowed for this location\n" +
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
 //Retention Policy set to RUNTIME
@@ -11535,18 +11217,13 @@ public void test449330a() throws Exception {
 		"@X(name=\"HELLO\")\n" +
 		"package p;\n"
 	};
-	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
-		this.runConformTest(testFiles, "");
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
-	} else {
-		this.runNegativeTest(testFiles,
-			"----------\n" +
-			"1. ERROR in p\\package-info.java (at line 1)\n" +
-			"	@X(name=\"HELLO\")\n" +
-			"	^^\n" +
-			"The annotation @X is disallowed for this location\n" +
-			"----------\n");
-	}
+	this.runNegativeTest(testFiles,
+		"----------\n" +
+		"1. ERROR in p\\package-info.java (at line 1)\n" +
+		"	@X(name=\"HELLO\")\n" +
+		"	^^\n" +
+		"The annotation @X is disallowed for this location\n" +
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
 //Annotation target not set
@@ -11564,7 +11241,7 @@ public void test449330b() throws Exception {
 }
 //https://bugs.eclipse.org/386692
 public void testBug386692() {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	this.runNegativeTest(
@@ -11596,7 +11273,7 @@ public void testBug386692() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=464977
 public void testBug464977() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK1_6 || this.complianceLevel > ClassFileConstants.JDK1_8) {
+	if (this.complianceLevel > ClassFileConstants.JDK1_8) {
 		return; // Enough to run in 3 levels rather!
 	}
 	boolean apt = this.enableAPT;
@@ -11606,10 +11283,6 @@ public void testBug464977() throws Exception {
 	String version = "";
 	if  (this.complianceLevel == ClassFileConstants.JDK1_8) {
 		version = "1.8 : 52.0";
-	} else if  (this.complianceLevel == ClassFileConstants.JDK1_7) {
-		version = "1.7 : 51.0";
-	} else if  (this.complianceLevel == ClassFileConstants.JDK1_6) {
-		version = "1.6 : 50.0";
 	}
 	String expectedOutput = "// Compiled from DeprecatedClass.java (version " + version + ", super bit, deprecated)\n" +
 							"@Deprecated\n" +
@@ -11654,9 +11327,6 @@ public void testBug469584() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=472178
 public void test472178() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		return; // Enough to run in 3 levels rather!
-	}
 	String source =
 			"import java.lang.annotation.ElementType;\n" +
 			"import java.lang.annotation.Retention;\n" +
@@ -11770,9 +11440,6 @@ public void test472178() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=470665
 public void testBug470665() throws Exception {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_7) {
-		return; // Enough to run in the last two levels!
-	}
 	boolean apt = this.enableAPT;
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -11832,9 +11499,6 @@ public void testBug470665() throws Exception {
 	}
 }
 public void testBug506888a() throws Exception {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		return;
-	}
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -11861,10 +11525,7 @@ public void testBug506888a() throws Exception {
 	runner.runWarningTest();
 }
 public void testBug506888b() throws Exception {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		return;
-	}
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.IGNORE);
@@ -11884,9 +11545,6 @@ public void testBug506888b() throws Exception {
 		options);
 }
 public void testBug506888c() throws Exception {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		return;
-	}
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.WARNING);
@@ -11917,10 +11575,7 @@ public void testBug506888c() throws Exception {
 	runner.runWarningTest();
 }
 public void testBug506888d() throws Exception {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		return;
-	}
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.IGNORE);
 	this.runNegativeTest(
@@ -11937,10 +11592,7 @@ public void testBug506888d() throws Exception {
 		null, true, options);
 }
 public void testBug506888e() throws Exception {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		return;
-	}
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.WARNING);
 	this.runNegativeTest(
@@ -11972,10 +11624,7 @@ public void testBug506888f() throws Exception {
 		}
 	}
 
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		return;
-	}
-	Map options = getCompilerOptions();
+	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -12010,8 +11659,6 @@ public void testBug506888f() throws Exception {
 	assertEquals(JavaCore.COMPILER_PB_UNUSED_PARAMETER, requestor.problemArguments[0]);
 }
 public void testBug537593_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	class MyCompilerRequestor implements ICompilerRequestor {
 		String[] problemArguments = null;
 
@@ -12027,9 +11674,6 @@ public void testBug537593_001() {
 		}
 	}
 
-	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
-		return;
-	}
 	String[] files = new String[] {
 			"X.java",
 			"\n" +
@@ -12062,8 +11706,8 @@ public void testBug537593_001() {
 			"\n",
 	};
 
-	Map options = getCompilerOptions();
-	Object[] opts = {
+	Map<String, String> options = getCompilerOptions();
+	String[] opts = {
 			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
 			CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
 			CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
@@ -12083,7 +11727,7 @@ public void testBug537593_001() {
 			CompilerOptions.OPTION_ReportRedundantSuperinterface,
 			CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments,
 	};
-	for (Object option : opts)
+	for (String option : opts)
 		options.put(option, CompilerOptions.WARNING);
 	MyCompilerRequestor requestor = new MyCompilerRequestor();
 	runTest(files,
@@ -12180,7 +11824,7 @@ public void testBug542520c() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - missing no-args method source
 public void testBug542520d() throws Exception {
-	Map customOptions = getCompilerOptions();
+	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		true,
@@ -12355,8 +11999,8 @@ public void testIssue2400() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) {
 		return;
 	}
-	Map customOptions = getCompilerOptions();
-	Object bkup = customOptions.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis);
+	Map<String, String> customOptions = getCompilerOptions();
+	String bkup = customOptions.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
 	try {
 		runNegativeTest(
@@ -12392,5 +12036,91 @@ public void testIssue2400() {
 		customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, bkup);
 	}
 }
+public void testIssue4107() {
+	if (this.complianceLevel < ClassFileConstants.JDK9) {
+		return;
+	}
+	runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"
+							+ "	Zork z = null;\n"
+							+ "}\n"
+							+ "\n"
+							+ "@interface MyAnnot {\n"
+							+ "	short values()[];\n"
+							+ "}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	Zork z = null;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 6)\n" +
+			"	short values()[];\n" +
+			"	      ^^^^^^^^^^\n" +
+			"Extended dimensions are discouraged in an annotation attribute declaration\n" +
+			"----------\n",
+			null,
+			true);
+}
+public void testGH4243() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK16) return; // uses records
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	runner.customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "p.nonnullbydefault");
+	runner.testFiles = new String[] {
+			"p/Main.java",
+			"""
+			package p;
+			import java.lang.annotation.*;
 
+			@nonnullbydefault
+			@Main.NeededAnnotation
+			public final class Main {
+
+			   public static void main(String[] args) {
+			      for (Annotation anno : Main.class.getAnnotations()) {
+			         System.out.println(anno);
+			      }
+			   }
+
+			   public record Foo(String needed) {}
+
+			   @Retention(RetentionPolicy.RUNTIME)
+			   @interface NeededAnnotation {}
+			}
+			""",
+			"p/nonnullbydefault.java",
+			"""
+			package p;
+			public @interface nonnullbydefault {}
+			""",
+		};
+	runner.expectedOutputString = "@p.Main.NeededAnnotation()"; // the other annotation is not runtime visible
+	runner.runConformTest();
+
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(
+			new File(OUTPUT_DIR + File.separator  + "p"+ File.separator + "Main.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+		"""
+		@p.nonnullbydefault
+		@p.Main.NeededAnnotation
+		public final class p.Main {
+		""";
+
+	if (actualOutput.indexOf(expectedOutput) == -1) {
+		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+	}
+	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+}
 }

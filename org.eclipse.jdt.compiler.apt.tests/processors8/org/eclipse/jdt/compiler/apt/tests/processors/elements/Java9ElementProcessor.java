@@ -538,7 +538,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		TypeMirror asType = base.asType();
 		assertNotNull("module type should not be null", asType);
 		assertEquals("incorrect type kind", TypeKind.MODULE, asType.getKind());
-		assertEquals("must be a NoType", (asType instanceof NoType));
+		assertTrue("must be a NoType", (asType instanceof NoType));
 	}
 	public void testModuleTypeMirror2() {
 		ModuleElement base = _elementUtils.getModuleElement("mod.a");
@@ -951,7 +951,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		List<? extends Element> elements = module.getEnclosedElements();
 		assertEquals("incorrect no of elements", 2, elements.size());
 		List<Element> packages = filterElements(elements, ElementKind.PACKAGE);
-//		ECJ fails the following tests. 
+//		ECJ fails the following tests.
 		for (Element element : packages) {
 			Element enclosingElement = element.getEnclosingElement();
 			assertNotNull("module should not be null", enclosingElement);
@@ -1101,7 +1101,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
 		if (!this.binary) {
 			Element anotherCls = null;
-			Element anotherInt = null;		
+			Element anotherInt = null;
 			for (Element e : this.roundEnv.getRootElements()) {
 				if ("AnotherClass".equals(e.getSimpleName().toString())) {
 					anotherCls = e;
@@ -1126,7 +1126,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		JavaFileObject fileObject = _elementUtils.getFileObjectOf(topType);
 		String topTypeName = "TypeWithManyElements";
 		if (!fileObject.getName().contains(topTypeName)) {
-			reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+			reportError("Incorrect FileObject name. Expected to contain " + topTypeName +
 					" but was " + fileObject.getName());
 		}
 		List<ExecutableElement> constructors = ElementFilter.constructorsIn(topType.getEnclosedElements());
@@ -1136,7 +1136,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		for (VariableElement field : fields) {
 			fileObject = _elementUtils.getFileObjectOf(field);
 			if (!fileObject.getName().contains(topTypeName)) {
-				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName +
 						" but was " + fileObject.getName());
 			}
 		}
@@ -1144,7 +1144,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		for (ExecutableElement constructor : constructors) {
 			fileObject = _elementUtils.getFileObjectOf(constructor);
 			if (!fileObject.getName().contains(topTypeName)) {
-				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName +
 					" but was " + fileObject.getName());
 			}
 		}
@@ -1152,14 +1152,14 @@ public class Java9ElementProcessor extends BaseProcessor {
 		for (ExecutableElement method : methods) {
 			fileObject = _elementUtils.getFileObjectOf(method);
 			if (!fileObject.getName().contains(topTypeName)) {
-				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName +
 						" but was " + fileObject.getName());
 			}
 			List<? extends VariableElement> methodParams = method.getParameters();
 			for (VariableElement param : methodParams) {
 				JavaFileObject fileObjectForParam = _elementUtils.getFileObjectOf(param);
 				if (!fileObjectForParam.getName().contains(topTypeName)) {
-					reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+					reportError("Incorrect FileObject name. Expected to contain " + topTypeName +
 							" but was " + fileObject.getName());
 				}
 			}
@@ -1169,10 +1169,10 @@ public class Java9ElementProcessor extends BaseProcessor {
 	public void testDeeplyNestedTypes() {
 		final String topmost = "xyz.MultiNestedType";
 		TypeElement topTypeElement = _elementUtils.getTypeElement(topmost);
-		TypeElement[] types = { topTypeElement, 
+		TypeElement[] types = { topTypeElement,
 				_elementUtils.getTypeElement("xyz.NestedRecord"),
-				_elementUtils.getTypeElement("xyz.NestedEnum"), 
-				_elementUtils.getTypeElement("xyz.NestedTypes") 
+				_elementUtils.getTypeElement("xyz.NestedEnum"),
+				_elementUtils.getTypeElement("xyz.NestedTypes")
 		};
 		_elementUtils.getFileObjectOf(topTypeElement);
 		for (TypeElement element : types) {
@@ -1185,7 +1185,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		for (TypeElement t : types) {
 			String topTypeName = _elementUtils.getOutermostTypeElement(t).getSimpleName().toString();
 			if (!_elementUtils.getFileObjectOf(t).getName().contains(topTypeName)) {
-				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName +
 						" but was " + _elementUtils.getFileObjectOf(t));
 			}
 			validateInnerElements(t);
@@ -1306,11 +1306,6 @@ public class Java9ElementProcessor extends BaseProcessor {
 			buf.append(msg);
 			buf.append(", expected " + expected + " but was " + actual);
 			reportError(buf.toString());
-		}
-	}
-	public void assertEquals(Object expected, Object actual) {
-		if (expected != actual) {
-
 		}
 	}
 	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots) {

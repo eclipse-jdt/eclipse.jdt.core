@@ -24,6 +24,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -56,7 +57,7 @@ public char[][][] allSuperDeclaringTypeNames;
 // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=357547
 private char[][][] samePkgSuperDeclaringTypeNames;
 
-private MatchLocator matchLocator;
+protected MatchLocator matchLocator;
 //method declarations which parameters verification fail
 private Map<ASTNode, Boolean> methodDeclarationsWithInvalidParam = new HashMap<>();
 
@@ -664,7 +665,26 @@ protected int referenceType() {
 protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locator, SimpleSet knownMethods) throws CoreException {
 	ReferenceBinding declaringClass = methodBinding.declaringClass;
 	IType type = locator.lookupType(declaringClass);
-	if (type == null) return; // case of a secondary type
+	if (type == null) {
+		if (declaringClass instanceof LocalTypeBinding) {
+			ReferenceBinding refBinding= declaringClass;
+			while (refBinding instanceof LocalTypeBinding localBinding) {
+				MethodBinding enclosingBinding= localBinding.enclosingMethod;
+				refBinding= enclosingBinding.declaringClass;
+			}
+			type= locator.lookupType(refBinding);
+			if (type != null) {
+				if (type.getTypeRoot() instanceof ICompilationUnit cu) {
+					IJavaElement element= cu.getElementAt(methodBinding.sourceStart());
+					if (element instanceof IMethod) {
+						type= ((IMethod) element).getDeclaringType();
+					}
+				}
+			}
+		}
+	}
+	if (type == null)
+		return; // case of a secondary type
 
 	// Report match for binary
 	if (type.isBinary()) {
@@ -701,7 +721,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		if (methodDecl != null) {
 			// Create method handle from method declaration
 			String methodName = new String(methodBinding.selector);
-			Argument[] arguments = methodDecl.arguments;
+			AbstractVariableDeclaration[] arguments = methodDecl.arguments(true);
 			int length = arguments == null ? 0 : arguments.length;
 			String[] parameterTypes = new String[length];
 			for (int i = 0; i  < length; i++) {

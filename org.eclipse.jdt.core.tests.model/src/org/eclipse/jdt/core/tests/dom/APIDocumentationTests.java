@@ -77,13 +77,6 @@ public class APIDocumentationTests extends AbstractASTTests {
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
-	/**
-	 * Internal synonym for deprecated constant AST.JSL3
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-
 /**
  * Helper class able to analyze JavaCore options javadocs.
  */
@@ -196,7 +189,7 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 	// fetch default option values
 	Hashtable<String, String> realDefaultValues = JavaCore.getDefaultOptions();
 	// load documented values in a map
-	ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+	ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().getFirst());
 	parser.setSource(sourceChars);
 	ASTNode rootNode = parser.createAST(null);
 	final JavaCoreJavadocAnalyzer analyzer = new JavaCoreJavadocAnalyzer();

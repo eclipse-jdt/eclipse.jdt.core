@@ -34,7 +34,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.CASTING_CONTEXT;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -183,16 +182,22 @@ public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiv
 	TypeBinding[] rawArgumentTypes = argumentTypes;
 	for (int i = 0; i < length; i++) {
 		Expression argument = arguments[i];
-		if (argument instanceof CastExpression) {
+		if (argument instanceof CastExpression castExpression) {
 			// narrowing conversion on base type may change value, thus necessary
 			if ((argument.bits & ASTNode.UnnecessaryCast) == 0 && argument.resolvedType.isBaseType()) {
 				continue;
 			}
-			TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
+			// See if removing the cast will make the casted expression a poly-expression by virtue of context switch.
+			// If so bail out: `checkAlternateBinding` operates in terms of argument types *already* computed when the
+			// expression featured in a casting context and we don't have the infrastructure in place to reevaluate under
+			// the new target type induced by the invocation context.
+			if (castExpression.expression.isPolyExpression(ExpressionContext.INVOCATION_CONTEXT))
+				return;
+			TypeBinding castedExpressionType = castExpression.expression.resolvedType;
 			if (castedExpressionType == null) return; // cannot do better
 			// obvious identity cast
 			if (TypeBinding.equalsEquals(castedExpressionType, argumentTypes[i])) {
-				scope.problemReporter().unnecessaryCast((CastExpression)argument);
+				scope.problemReporter().unnecessaryCast(castExpression);
 			} else if (castedExpressionType == TypeBinding.NULL){
 				continue; // tolerate null argument cast
 			} else if ((argument.implicitConversion & TypeIds.BOXING) != 0) {
@@ -307,15 +312,23 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			@Override
 			public void setFieldIndex(int depth){ /* ignore */}
 			@Override
-			public int sourceStart() { return 0; }
+			public int sourceStart() { return invocationSite.sourceStart(); }
 			@Override
-			public int sourceEnd() { return 0; }
+			public int sourceEnd() { return invocationSite.sourceEnd(); }
 			@Override
 			public TypeBinding invocationTargetType() { return invocationSite.invocationTargetType(); }
 			@Override
 			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
 			@Override
-			public InferenceContext18 freshInferenceContext(Scope someScope) { return invocationSite.freshInferenceContext(someScope); }
+			public InferenceContext18 freshInferenceContext(Scope someScope) {
+				InferenceContext18 fic = invocationSite.freshInferenceContext(someScope);
+				int argc = arguments == null ? 0 : arguments.length;
+				Expression [] newArguments = new Expression[argc];
+				for (int i = 0; i < argc; i++)
+					newArguments[i] = arguments[i] instanceof CastExpression castExpression ? castExpression.expression : arguments[i];
+				fic.invocationArguments = newArguments;
+				return fic;
+			}
 			@Override
 			public ExpressionContext getExpressionContext() { return invocationSite.getExpressionContext(); }
 			@Override
@@ -459,9 +472,37 @@ public static boolean checkUnsafeCast(Expression expression, Scope scope, TypeBi
 						expression.bits |= ASTNode.UnsafeCast; // upcast since castType is known to be bound paramType
 						return true;
 					default :
-						if (isNarrowing){
-							// match is not parameterized or raw, then any other subtype of match will erase  to |T|
-							expression.bits |= ASTNode.UnsafeCast;
+						if (isNarrowing) {
+							/* So we have a cast `(G<T1, ... Tn>) match` where at least one of the type arguments is NOT an unbounded wildcard
+							   as castType would have been reifiable otherwise and we won't be here. Since `match` is not parameterized or raw,
+							   should the runtime checkcast succeed, match will amount to G<?, ... ?> and so the question distills to whether
+							   the cast `(G<T1, ... Tn>) G<?,...?>` is unsafe
+
+							   JLS 5.1.6.2 states:
+									• A narrowing reference conversion from a type S to a parameterized class or
+									interface type T is unchecked, unless at least one of the following is true:
+									– All of the type arguments of T are unbounded wildcards.
+									– T <: S, and S has no subtype X other than T where the type arguments of X are
+									not contained in the type arguments of T.
+							*/
+
+							ParameterizedTypeBinding ParameterizedCastType = (ParameterizedTypeBinding) castType;
+							TypeBinding [] typeArguments = ParameterizedCastType.typeArgumentsIncludingEnclosing();
+							TypeVariableBinding [] typeVariables = ParameterizedCastType.genericType().typeVariablesIncludingEnclosing();
+
+							if (typeArguments.length != typeVariables.length) { // broken type.
+								expression.bits |= ASTNode.UnsafeCast;
+								return true;
+							}
+							for (int i = 0, length = typeArguments.length; i < length; i++) {
+								TypeVariableBinding tvb = typeVariables[i];
+								TypeBinding checkedTopOfStackTypeArgument =
+										scope.environment().createWildcard((ReferenceBinding) tvb.declaringElement, tvb.rank, null, null, Wildcard.UNBOUND);
+								if (checkedTopOfStackTypeArgument.isTypeArgumentContainedBy(typeArguments[i]))
+									continue;
+								expression.bits |= ASTNode.UnsafeCast;
+								break;
+							}
 							return true;
 						}
 						break;
@@ -524,6 +565,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
+		if (codeStream.operandStack.peek() == TypeBinding.NULL)
+			codeStream.operandStack.cast(this.resolvedType);
 	} else if (annotatedCast || needRuntimeCheckcast) {
 		switch (this.resolvedType.id) {
 			case T_long :
@@ -597,12 +640,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	boolean exprContainCast = false;
 
 	TypeBinding castType = this.resolvedType = this.type.resolveType(scope);
-	if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
-		this.expression.setExpressionContext(CASTING_CONTEXT);
-		if (this.expression instanceof FunctionalExpression) {
-			this.expression.setExpectedType(this.resolvedType);
-			this.bits |= ASTNode.DisableUnnecessaryCastCheck;
-		}
+	this.expression.setExpressionContext(CASTING_CONTEXT);
+	if (this.expression instanceof FunctionalExpression) {
+		this.expression.setExpectedType(this.resolvedType);
+		this.bits |= ASTNode.DisableUnnecessaryCastCheck;
 	}
 	if (this.expression instanceof CastExpression) {
 		this.expression.bits |= ASTNode.DisableUnnecessaryCastCheck;
@@ -683,11 +724,10 @@ public void setExpectedType(TypeBinding expectedType) {
 private boolean isIndirectlyUsed() {
 	if (this.expression instanceof MessageSend) {
 		MethodBinding method = ((MessageSend)this.expression).binding;
-		if (method instanceof ParameterizedGenericMethodBinding
-					&& ((ParameterizedGenericMethodBinding)method).inferredReturnType) {
+		if (method instanceof ParameterizedGenericMethodBinding pgmb && pgmb.wasInferred) {
 			if (this.expectedType == null)
 				return true;
-			if (TypeBinding.notEquals(this.resolvedType, this.expectedType))
+			if (!method.original().returnType.isCompatibleWith(this.expectedType))
 				return true;
 		}
 	}

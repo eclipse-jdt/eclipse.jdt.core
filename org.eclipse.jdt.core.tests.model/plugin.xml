@@ -99,5 +99,19 @@
            id="org.eclipse.jdt.core.tests.model.resolver1">
      </resolver>
   </extension>
-	
+  
+  <extension point="org.eclipse.jdt.core.completionEngineProvider">
+    <resolver
+      class="org.eclipse.jdt.core.tests.model.TestCompletionEngineProvider"
+      id="org.eclipse.jdt.core.tests.model.TestCompletionEngineProvider" />
+  </extension>
+  <extension
+        point="org.eclipse.jdt.core.javaSearchDelegate">
+     <searchDelegate
+           class="org.eclipse.jdt.core.tests.model.TestJavaSearchDelegate"
+           id="org.eclipse.jdt.core.tests.model.TestJavaSearchDelegate">
+     </searchDelegate>
+  </extension>
+
+
 </plugin>

@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -72,8 +73,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 
 	FieldBinding[] nullCheckedFields = null;
-	if (currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled && this.condition instanceof EqualExpression) { // simple checks only
-		nullCheckedFields = flowContext.nullCheckedFields(); // store before info expires
+	Reference[] nullFields = null;
+	CompilerOptions options = currentScope.compilerOptions();
+	if (this.condition instanceof EqualExpression) {
+		if (options.isAnnotationBasedResourceAnalysisEnabled) { // simple checks only
+			nullCheckedFields = flowContext.nullCheckedFields(); // store before info expires
+		}
+		if (options.isAnnotationBasedNullAnalysisEnabled && options.enableSyntacticNullAnalysisForFields) {
+			nullFields = flowContext.nullFieldReferences(FlowInfo.NULL); // store (f==null) before info expires
+		}
 	}
 
 	Constant cst = this.condition.optimizedBooleanConstant();
@@ -103,7 +111,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// No need if the whole if-else construct itself lies in unreachable code
 		this.bits |= ASTNode.IsElseStatementUnreachable;
 	}
-	boolean reportDeadCodeForKnownPattern = !isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement;
+	boolean reportDeadCodeForKnownPattern = !isKnowDeadCodePattern(this.condition) || options.reportDeadCodeInTrivialIfStatement;
 	if (this.thenStatement != null) {
 		// Save info for code gen
 		this.thenInitStateIndex = currentScope.methodScope().recordInitializationStates(thenFlowInfo);
@@ -123,8 +131,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	// any null check from the condition is now expired
 	flowContext.expireNullCheckedFieldInfo();
+	boolean thenExit = (thenFlowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0;
+	if (nullFields != null && (this.elseStatement != null || thenExit)) {
+		// fields known to be null in "then" are safe (a) in "else" or (b) after "if" if then terminates abruptly
+		for (Reference nullField : nullFields) {
+			int ttl = this.elseStatement != null ? 1 : 2;
+			flowContext.recordNullCheckedFieldReference(nullField, ttl, FlowInfo.NON_NULL);
+		}
+	}
 	// code gen: optimizing the jump around the ELSE part
-	if ((thenFlowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0) {
+	if (thenExit) {
 		this.bits |= ASTNode.ThenExit;
 	}
 
@@ -339,15 +355,5 @@ public boolean doesNotCompleteNormally() {
 @Override
 public boolean completesByContinue() {
 	return this.thenStatement != null && this.thenStatement.completesByContinue() || this.elseStatement != null && this.elseStatement.completesByContinue();
-}
-@Override
-public boolean canCompleteNormally() {
-	return ((this.thenStatement == null || this.thenStatement.canCompleteNormally()) ||
-		(this.elseStatement == null || this.elseStatement.canCompleteNormally()));
-}
-@Override
-public boolean continueCompletes() {
-	return this.thenStatement != null && this.thenStatement.continueCompletes() ||
-			this.elseStatement != null && this.elseStatement.continueCompletes();
 }
 }

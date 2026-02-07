@@ -20,7 +20,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -83,8 +82,7 @@ public class WhileStatement extends Statement {
 		LoopingFlowContext loopingContext;
 		FlowInfo actionInfo;
 		FlowInfo exitBranch;
-		if (this.action == null
-			|| (this.action.isEmptyBlock() && currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3)) {
+		if (this.action == null) {
 			condLoopContext.complainOnDeferredFinalChecks(currentScope,
 					condInfo);
 			condLoopContext.complainOnDeferredNullChecks(currentScope,
@@ -242,7 +240,6 @@ public class WhileStatement extends Statement {
 		// generate the action
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		if (this.action != null) {
-			actionLabel.tagBits |= BranchLabel.USED;
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 			if (this.condIfTrueInitStateIndex != -1) {
 				// insert all locals initialized inside the condition into the action generated prior to the condition
@@ -338,22 +335,6 @@ public class WhileStatement extends Statement {
 
 	@Override
 	public boolean completesByContinue() {
-		return this.action.continuesAtOuterLabel();
-	}
-
-	@Override
-	public boolean canCompleteNormally() {
-		Constant cst = this.condition.constant;
-		boolean isConditionTrue = cst == null || cst != Constant.NotAConstant && cst.booleanValue() == true;
-		cst = this.condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst == null ? true : cst != Constant.NotAConstant && cst.booleanValue() == true;
-		if (!(isConditionTrue || isConditionOptimizedTrue))
-			return true;
-		return this.action != null && this.action.breaksOut(null);
-	}
-
-	@Override
-	public boolean continueCompletes() {
 		return this.action.continuesAtOuterLabel();
 	}
 }

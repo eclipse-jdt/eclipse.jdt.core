@@ -26,10 +26,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.MethodReference;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -89,15 +86,21 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	private Parser basicParser;
 	private CompilationUnit compilationUnit;
 	private CompilationUnitDeclaration cud;
+	private org.eclipse.jdt.core.dom.ASTNode dom;
 	private static final boolean DEBUG = false;
 
 	public SourceIndexer(SearchDocument document) {
 		super(document);
 		this.requestor = new SourceIndexerRequestor(this);
 	}
+
+	private boolean usedDomBasedIndexing() {
+		return Boolean.getBoolean(getClass().getSimpleName() + ".DOM_BASED_INDEXER");  //$NON-NLS-1$
+	}
+
 	@Override
 	public void indexDocument() {
-		if (Boolean.getBoolean(getClass().getSimpleName() + ".DOM_BASED_INDEXER")) { //$NON-NLS-1$
+		if (usedDomBasedIndexing()) {
 			indexDocumentFromDOM();
 			return;
 		}
@@ -158,39 +161,128 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	}
 
 	public void resolveDocument() {
-		try {
-			IPath path = new Path(this.document.getPath());
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
-			JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-			JavaProject javaProject = (JavaProject) model.getJavaProject(project);
+		if (usedDomBasedIndexing() && this.dom != null && getUnit() instanceof org.eclipse.jdt.internal.core.CompilationUnit unit) {
+			resolveDocumentDomImpl(unit);
+		} else {
+			try {
+				IPath path = new Path(this.document.getPath());
+				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
+				JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+				JavaProject javaProject = (JavaProject) model.getJavaProject(project);
 
-			this.options = new CompilerOptions(javaProject.getOptions(true));
-			ProblemReporter problemReporter =
-					new ProblemReporter(
-							DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-							this.options,
-							new DefaultProblemFactory());
+				this.options = new CompilerOptions(javaProject.getOptions(true));
+				ProblemReporter problemReporter =
+						new ProblemReporter(
+								DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+								this.options,
+								new DefaultProblemFactory());
 
-			// Re-parse using normal parser, IndexingParser swallows several nodes, see comment above class.
-			this.basicParser = new Parser(problemReporter, false);
-			this.basicParser.reportOnlyOneSyntaxError = true;
-			this.basicParser.scanner.taskTags = null;
-			this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
-			// Use a non model name environment to avoid locks, monitors and such.
-			INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
-			this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
-			reduceParseTree(this.cud);
-			this.lookupEnvironment.buildTypeBindings(this.cud, null);
-			this.lookupEnvironment.completeTypeBindings();
-			this.cud.scope.faultInTypes();
-			this.cud.resolve();
-		} catch (Exception e) {
-			if (JobManager.VERBOSE) {
-				trace("", e); //$NON-NLS-1$
+				// Re-parse using normal parser, IndexingParser swallows several nodes, see comment above class.
+				this.basicParser = new Parser(problemReporter, false);
+				this.basicParser.reportOnlyOneSyntaxError = true;
+				this.basicParser.scanner.taskTags = null;
+				this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
+				// Use a non model name environment to avoid locks, monitors and such.
+				INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
+				this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
+				reduceParseTree(this.cud);
+				this.lookupEnvironment.buildTypeBindings(this.cud, null);
+				this.lookupEnvironment.completeTypeBindings();
+				this.cud.scope.faultInTypes();
+				this.cud.resolve();
+			} catch (Exception e) {
+				if (JobManager.VERBOSE) {
+					trace("", e); //$NON-NLS-1$
+				}
 			}
 		}
 	}
 
+	private void resolveDocumentDomImpl(org.eclipse.jdt.internal.core.CompilationUnit unit) {
+		String reducedDOM = reduceDOM(this.dom);
+		try {
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest()); // we don't seek exact compilation the more tolerant the better here
+			astParser.setSource(unit); // configure projects and so on
+			astParser.setUnitName(unit.getElementName());
+			astParser.setSource(reducedDOM.toCharArray()); // trimmed contents
+			astParser.setStatementsRecovery(true);
+			astParser.setResolveBindings(true);
+			this.dom = astParser.createAST(null);
+		} catch (Exception e) {
+			ILog.get().error(e.getMessage(), e);
+		}
+	}
+
+	private String reduceDOM(org.eclipse.jdt.core.dom.ASTNode domParam) {
+		domParam.accept(new ASTVisitor(false) {
+			private boolean requiresBinding = false;
+			@Override
+			public boolean visit(org.eclipse.jdt.core.dom.TypeDeclaration node) {
+				node.setJavadoc(null);
+				return super.visit(node);
+			}
+			@Override
+			public boolean visit(RecordDeclaration node) {
+				node.setJavadoc(null);
+				return super.visit(node);
+			}
+			@Override
+			public boolean visit(AnnotationTypeDeclaration node) {
+				node.setJavadoc(null);
+				return super.visit(node);
+			}
+			@Override
+			public boolean visit(FieldDeclaration node) {
+				node.setJavadoc(null);
+				return super.visit(node);
+			}
+			@Override
+			public boolean visit(MethodDeclaration node) {
+				node.setJavadoc(null);
+				if (node.getParent() instanceof AbstractTypeDeclaration type &&
+					type.getParent() instanceof org.eclipse.jdt.core.dom.CompilationUnit) {
+					// reset
+					this.requiresBinding = false;
+				}
+				return super.visit(node);
+			}
+			@Override
+			public void endVisit(MethodDeclaration node) {
+				if (!this.requiresBinding &&
+					node.getParent() instanceof AbstractTypeDeclaration type &&
+					type.getParent() instanceof org.eclipse.jdt.core.dom.CompilationUnit &&
+					node.getBody() != null) {
+					node.getBody().statements().clear();
+				}
+			}
+			@Override
+			public boolean visit(ExpressionMethodReference methodRef) {
+				this.requiresBinding = true;
+				return false;
+			}
+			@Override
+			public boolean visit(CreationReference methodRef) {
+				this.requiresBinding = true;
+				return false;
+			}
+			@Override
+			public boolean visit(SuperMethodReference methodRef) {
+				this.requiresBinding = true;
+				return false;
+			}
+			@Override
+			public boolean visit(TypeMethodReference methodRef) {
+				this.requiresBinding = true;
+				return false;
+			}
+			@Override
+			public boolean visit(org.eclipse.jdt.core.dom.LambdaExpression methodRef) {
+				this.requiresBinding = true;
+				return false;
+			}
+		});
+		return domParam.toString();
+	}
 	/**
 	 * Called prior to the unit being resolved. Reduce the parse tree where possible.
 	 */
@@ -226,9 +318,10 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 
 	@Override
 	public void indexResolvedDocument() {
-		if (Boolean.getBoolean(getClass().getSimpleName() + ".DOM_BASED_INDEXER")) { //$NON-NLS-1$
+		if (usedDomBasedIndexing() && this.dom != null) {
 			// just re-run indexing, but with the resolved document (and its bindings)
-			indexDocumentFromDOM();
+			this.dom.accept(new DOMToIndexVisitor(this));
+			this.dom = null;
 			return;
 		}
 
@@ -291,10 +384,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 		}
 	}
 
-	/**
-	 * @return whether the operation was successful
-	 */
-	boolean indexDocumentFromDOM() {
+	private org.eclipse.jdt.core.ICompilationUnit getUnit() {
 		if (this.document instanceof JavaSearchDocument javaSearchDoc) {
 			IFile file = javaSearchDoc.getFile();
 			try {
@@ -304,39 +394,64 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 					// when there are multiple package root/source folders, and then cause deadlock
 					// so we go finer grain by picking the right fragment first (so index call shouldn't happen)
 					IPackageFragment fragment = javaProject.findPackageFragment(file.getFullPath().removeLastSegments(1));
-					if (fragment.getCompilationUnit(file.getName()) instanceof org.eclipse.jdt.internal.core.CompilationUnit modelUnit) {
-						// TODO check element info: if has AST and flags are set sufficiently, just reuse instead of rebuilding
-						ASTParser astParser = ASTParser.newParser(AST.getJLSLatest()); // we don't seek exact compilation the more tolerant the better here
-						astParser.setSource(modelUnit);
-						astParser.setStatementsRecovery(true);
-						astParser.setResolveBindings(this.document.shouldIndexResolvedDocument());
-						astParser.setProject(javaProject);
-						org.eclipse.jdt.core.dom.ASTNode dom = astParser.createAST(null);
-						if (dom != null) {
-							dom.accept(new DOMToIndexVisitor(this));
-							dom.accept(
-									new ASTVisitor() {
-										@Override
-										public boolean preVisit2(org.eclipse.jdt.core.dom.ASTNode node) {
-											if (SourceIndexer.this.document.shouldIndexResolvedDocument()) {
-												return false; // interrupt
-											}
-											if (node instanceof MethodReference || node instanceof org.eclipse.jdt.core.dom.LambdaExpression) {
-												SourceIndexer.this.document.requireIndexingResolvedDocument();
-												return false;
-											}
-											return true;
-										}
-									});
-							return true;
-						}
+					if (fragment != null) {
+						return fragment.getCompilationUnit(file.getName());
 					}
 				}
 			} catch (Exception ex) {
 				ILog.get().error("Failed to index document from DOM for " + this.document.getPath(), ex); //$NON-NLS-1$
 			}
 		}
-		ILog.get().warn("Could not convert DOM to Index for " + this.document.getPath()); //$NON-NLS-1$
+		return null;
+	}
+
+	/**
+	 * @return whether the operation was successful
+	 */
+	boolean indexDocumentFromDOM() {
+		var unit = getUnit();
+		String documentPath = this.document.getPath();
+		char[] source = null;
+		char[] name = null;
+		try {
+			source = this.document.getCharContents();
+			name = documentPath.toCharArray();
+		} catch(Exception e){
+			// ignore
+		}
+		if (source == null || name == null) return false; // could not retrieve document info (e.g. resource was discarded)
+
+		ASTParser astParser = ASTParser.newParser(AST.getJLSLatest()); // we don't seek exact compilation the more tolerant the better here
+		if (unit != null) {
+			astParser.setSource(unit);
+		} else {
+			astParser.setSource(source);
+		}
+		astParser.setStatementsRecovery(true);
+		astParser.setResolveBindings(this.document.shouldIndexResolvedDocument());
+		org.eclipse.jdt.core.dom.ASTNode domLocal = astParser.createAST(null);
+		if (domLocal != null) {
+			domLocal.accept(new DOMToIndexVisitor(this));
+			domLocal.accept(
+					new ASTVisitor() {
+						@Override
+						public boolean preVisit2(org.eclipse.jdt.core.dom.ASTNode node) {
+							if (SourceIndexer.this.document.shouldIndexResolvedDocument()) {
+								return false; // interrupt
+							}
+							if (node instanceof MethodReference || node instanceof org.eclipse.jdt.core.dom.LambdaExpression) {
+								SourceIndexer.this.document.requireIndexingResolvedDocument();
+								return false;
+							}
+							return true;
+						}
+					});
+			if (this.document.shouldIndexResolvedDocument()) {
+				this.dom = domLocal;
+			}
+			return true;
+		}
 		return false;
 	}
+
 }

@@ -136,5 +136,21 @@ public enum DefaultLocation {
 	 * <code>null</code> (at any dimension).
 	 * </p>
 	 */
-	ARRAY_CONTENTS
+	ARRAY_CONTENTS,
+
+	/**
+	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
+	 * record components within the scope of the annotated declaration.
+	 *
+	 * <h2>Example</h2>
+	 * <pre> @NonNullByDefault(RECORD_COMPONENT)
+	 * record Person(String name) {
+	 *
+	 * }</pre>
+	 * <p>
+	 * Here <code>String</code> will be interpreted as <code>@NonNull String</code>.
+	 * </p>
+	 * @since 2.4
+	 */
+	RECORD_COMPONENT,
 }

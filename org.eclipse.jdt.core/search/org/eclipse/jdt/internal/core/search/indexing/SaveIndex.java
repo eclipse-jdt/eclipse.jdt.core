@@ -13,13 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
-
 import java.io.IOException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /*
  * Save the index of a project.
@@ -43,9 +42,7 @@ public class SaveIndex extends IndexRequest {
 			monitor.enterWrite(); // ask permission to write
 			this.manager.saveIndex(index);
 		} catch (IOException e) {
-			if (JobManager.VERBOSE) {
-				trace("-> failed to save index " + this.containerPath + " because of the following exception:", e); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			Util.log(Status.warning("Failed to save index " + this.containerPath + ". The index will not be persisted into disk but it is still available in memory and it is usable: " + e.getMessage(), e)); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		} finally {
 			monitor.exitWrite(); // free write lock

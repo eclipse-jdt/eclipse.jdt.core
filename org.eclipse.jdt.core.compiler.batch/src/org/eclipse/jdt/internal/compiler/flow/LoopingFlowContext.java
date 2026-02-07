@@ -44,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -138,7 +137,7 @@ public void complainOnDeferredFinalChecks(BlockScope scope, FlowInfo flowInfo) {
 			}
 		} else {
 			if (flowInfo.isPotentiallyAssigned((LocalVariableBinding)variable)) {
-				variable.tagBits &= ~TagBits.IsEffectivelyFinal;
+				variable.clearEffectiveFinality(scope, this.finalAssignments[i], true);
 				if (variable.isFinal()) {
 					complained = true;
 					scope.problemReporter().duplicateInitializationOfFinalLocal(

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2020 IBM Corporation.
+ * Copyright (c) 2016, 2025 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,7 +40,7 @@ public class ModuleFinder {
 
 	public static List<FileSystem.Classpath> findModules(File f, String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath, String release) {
 		List<FileSystem.Classpath> collector = new ArrayList<>();
-		scanForModules(destinationPath, parser, options, isModulepath, false, collector, f, release);
+		scanForModules(destinationPath, parser, options, isModulepath, !f.isDirectory(), collector, f, release);
 		return collector;
 	}
 
@@ -70,8 +70,9 @@ public class ModuleFinder {
 			} else {
 				if (file.isDirectory()) {
 					File[] files = file.listFiles();
-					for (File f : files) {
-						scanForModules(destinationPath, parser, options, isModulepath, isModulepath, collector, f, release);
+					if (files != null) {
+						for (File f : files)
+							scanForModules(destinationPath, parser, options, isModulepath, isModulepath, collector, f, release);
 					}
 				}
 			}
@@ -90,14 +91,15 @@ public class ModuleFinder {
 					return false;
 				}
 			});
-			if (list.length > 0) {
+			if (list != null && list.length > 0) { // null results from I/O errors (like missing permission)
 				String fileName = list[0];
 				switch (fileName) {
 					case IModule.MODULE_INFO_CLASS:
 						module = ModuleFinder.extractModuleFromClass(new File(file, fileName), modulePath);
 						break;
 					case IModule.MODULE_INFO_JAVA:
-						module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
+						if (parser != null)
+							module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
 						if (module == null)
 							return null;
 						String modName = new String(module.name());

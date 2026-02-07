@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2023 Mateusz Matela and others.
+ * Copyright (c) 2014, 2026 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,13 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameUNDERSCORE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTextBlock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +32,7 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.linewrap.CommentWrapExecutor;
 
@@ -44,11 +42,16 @@ import org.eclipse.jdt.internal.formatter.linewrap.CommentWrapExecutor;
  */
 public class TokenManager implements Iterable<Token> {
 
+	/**
+	 * This constant can be passed to all the token-finding methods when looking for a token of unspecified (any) type.
+	 */
+	public static final TerminalToken ANY = TerminalToken.TokenNameInvalid;
+
 	private static final Pattern COMMENT_LINE_ANNOTATION_PATTERN = Pattern.compile("^(\\s*\\*?\\s*)(@)"); //$NON-NLS-1$
 
 	private final List<Token> tokens;
 	private final String source;
-	private final int tabSize;
+	private final int confTabSize;
 	private final int tabChar;
 	private final boolean wrapWithSpaces;
 
@@ -61,7 +64,7 @@ public class TokenManager implements Iterable<Token> {
 	public TokenManager(List<Token> tokens, String source, DefaultCodeFormatterOptions options) {
 		this.tokens = tokens;
 		this.source = source;
-		this.tabSize = options.tab_size;
+		this.confTabSize = options.tab_size;
 		this.tabChar = options.tab_char;
 		this.wrapWithSpaces = options.use_tabs_only_for_leading_indentations;
 		this.commentWrapper = new CommentWrapExecutor(this, options);
@@ -70,7 +73,7 @@ public class TokenManager implements Iterable<Token> {
 	public TokenManager(List<Token> tokens, TokenManager parent) {
 		this.tokens = tokens;
 		this.source = parent.source;
-		this.tabSize = parent.tabSize;
+		this.confTabSize = parent.confTabSize;
 		this.tabChar = parent.tabChar;
 		this.wrapWithSpaces = parent.wrapWithSpaces;
 		this.commentWrapper = parent.commentWrapper;
@@ -134,7 +137,7 @@ public class TokenManager implements Iterable<Token> {
 	}
 
 	public int indexOf(Token token) {
-		int index = findIndex(token.originalStart, -1, false);
+		int index = findIndex(token.originalStart, ANY, false);
 		if (get(index) != token)
 			return -1;
 		return index;
@@ -148,7 +151,7 @@ public class TokenManager implements Iterable<Token> {
 		return this.source.length();
 	}
 
-	public int findIndex(int positionInSource, int tokenType, boolean forward) {
+	public int findIndex(int positionInSource, TerminalToken tokenType, boolean forward) {
 		// binary search
 		int left = 0, right = size() - 1;
 		while (left < right) {
@@ -171,12 +174,12 @@ public class TokenManager implements Iterable<Token> {
 		if (forward && get(index).originalEnd < positionInSource)
 			index++;
 		Token t;
-		while (tokenType >= 0 && (t = get(index)).tokenType != tokenType) {
-			if (TerminalTokens.isRestrictedKeyword(tokenType) && t.tokenType == TokenNameIdentifier) {
-				if (tokenType == TerminalTokens.getRestrictedKeyword(toString(t)))
+		while (tokenType != ANY && (t = get(index)).tokenType != tokenType) {
+			if (TerminalToken.isRestrictedKeyword(tokenType) && t.tokenType == TerminalToken.TokenNameIdentifier) {
+				if (tokenType == TerminalToken.getRestrictedKeyword(toString(t)))
 					break;
 			}
-			if (t.tokenType == TokenNameUNDERSCORE && tokenType == TokenNameIdentifier) {
+			if (t.tokenType == TerminalToken.TokenNameUNDERSCORE && tokenType == TerminalToken.TokenNameIdentifier) {
 				break;
 			}
 			index += forward ? 1 : -1;
@@ -193,39 +196,39 @@ public class TokenManager implements Iterable<Token> {
 		return this.tokens.stream();
 	}
 
-	public int firstIndexIn(ASTNode node, int tokenType) {
+	public int firstIndexIn(ASTNode node, TerminalToken tokenType) {
 		int index = findIndex(node.getStartPosition(), tokenType, true);
 		assert tokenInside(node, index);
 		return index;
 	}
 
-	public Token firstTokenIn(ASTNode node, int tokenType) {
+	public Token firstTokenIn(ASTNode node, TerminalToken tokenType) {
 		return get(firstIndexIn(node, tokenType));
 	}
 
-	public int lastIndexIn(ASTNode node, int tokenType) {
+	public int lastIndexIn(ASTNode node, TerminalToken tokenType) {
 		int index = findIndex(node.getStartPosition() + node.getLength() - 1, tokenType, false);
 		assert tokenInside(node, index);
 		return index;
 	}
 
-	public Token lastTokenIn(ASTNode node, int tokenType) {
+	public Token lastTokenIn(ASTNode node, TerminalToken tokenType) {
 		return get(lastIndexIn(node, tokenType));
 	}
 
-	public int firstIndexAfter(ASTNode node, int tokenType) {
+	public int firstIndexAfter(ASTNode node, TerminalToken tokenType) {
 		return findIndex(node.getStartPosition() + node.getLength(), tokenType, true);
 	}
 
-	public Token firstTokenAfter(ASTNode node, int tokenType) {
+	public Token firstTokenAfter(ASTNode node, TerminalToken tokenType) {
 		return get(firstIndexAfter(node, tokenType));
 	}
 
-	public int firstIndexBefore(ASTNode node, int tokenType) {
+	public int firstIndexBefore(ASTNode node, TerminalToken tokenType) {
 		return findIndex(node.getStartPosition() - 1, tokenType, false);
 	}
 
-	public Token firstTokenBefore(ASTNode node, int tokenType) {
+	public Token firstTokenBefore(ASTNode node, TerminalToken tokenType) {
 		return get(firstIndexBefore(node, tokenType));
 	}
 
@@ -353,12 +356,16 @@ public class TokenManager implements Iterable<Token> {
 	 * @return length, considering tabs and escaping characters as HTML entities
 	 */
 	public int getLength(int originalStart, int originalEnd, int startPosition) {
+		return getLength(originalStart, originalEnd, startPosition, this.confTabSize);
+	}
+
+	public int getLength(int originalStart, int originalEnd, int startPosition, int tabSize) {
 		int position = startPosition;
 		for (int i = originalStart; i <= originalEnd; i++) {
 			switch (this.source.charAt(i)) {
 				case '\t':
-					if (this.tabSize > 0)
-						position += this.tabSize - position % this.tabSize;
+					if (tabSize > 0)
+						position += tabSize - position % tabSize;
 					break;
 				case '\r':
 				case '\n':
@@ -378,7 +385,7 @@ public class TokenManager implements Iterable<Token> {
 	 */
 	public int toIndent(int indent, boolean isWrapped) {
 		if (this.tabChar == DefaultCodeFormatterOptions.TAB && !(isWrapped && this.wrapWithSpaces)) {
-			int tab = this.tabSize;
+			int tab = this.confTabSize;
 			if (tab <= 0)
 				return 0;
 			indent = ((indent + tab - 1) / tab) * tab;

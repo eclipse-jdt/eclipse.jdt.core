@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Parser specialized for decoding javadoc comments which includes code selection.
@@ -136,7 +137,7 @@ public class SelectionJavadocParser extends JavadocParser {
 	 * Otherwise return null as we do not need this reference.
 	 */
 	@Override
-	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
+	protected Object createTypeReference(TerminalToken primitiveToken, boolean canBeModule) {
 		// Need to create type ref in case it was needed by members
 		TypeReference typeRef = (TypeReference) super.createTypeReference(primitiveToken, canBeModule);
 

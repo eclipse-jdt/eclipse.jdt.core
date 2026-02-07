@@ -48,4 +48,7 @@ public interface Types {
                                  TypeElement typeElem, TypeMirror... typeArgs);
 
     TypeMirror asMemberOf(DeclaredType containing, Element element);
+    default <T extends TypeMirror> T stripAnnotations(T t) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -51,6 +51,7 @@ import javax.lang.model.SourceVersion;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
@@ -64,11 +65,10 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class BatchCompilerTest extends AbstractBatchCompilerTest {
 
 	static {
-//		TESTS_NAMES = new String[] { "test440477" };
+//		TESTS_NAMES = new String[] { "testBug550255" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -84,7 +84,7 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
-	public static Class testClass() {
+	public static Class<? extends TestCase> testClass() {
 		return BatchCompilerTest.class;
 	}
 	static class StringMatcher extends Matcher {
@@ -1080,6 +1080,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"public\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.memberOfDeprecatedTypeNotDeprecated\" value=\"info\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDefaultCase\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" +
@@ -8187,12 +8188,12 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		assertTrue(this.verifier.getExecutionOutput().startsWith("2")); // skip trailing newline
 		// 2 means we selected src2
 		// recompile and run result using various levels of javac
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String specialOptions = commonOptions + " -Xprefer:source ";
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
 					outputDir, /* directory */
 					commonOptions /* options */,
@@ -8270,11 +8271,11 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		false /* shouldFlushOutputDirectory */,
 		null /* progress */);
 	if (RUN_JAVAC) {
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertFalse(javacCompiler.compile(
 					outputDir /* directory */,
 					commonOptions /* options */,
@@ -8329,11 +8330,11 @@ public void test232_repeated_classpath() throws IOException, InterruptedExceptio
 	if (RUN_JAVAC) {
 		// javac skips all but the last classpath entry (which results into an
 		// error in the split case here)
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
 					outputDir /* directory */,
 					combinedClasspathOptions /* options */,
@@ -8381,12 +8382,12 @@ public void test233_repeated_sourcepath() throws IOException, InterruptedExcepti
 		true /* shouldFlushOutputDirectory */,
 		null /* progress */);
 	if (RUN_JAVAC) {
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNamesZ[] = new String[] {sourceFilePathZ};
 		String sourceFileNamesW[] = new String[] {sourceFilePathW};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			// succeeds because it picks src2 up
 			assertTrue(javacCompiler.compile(
 					outputDir /* directory */,
@@ -8436,11 +8437,11 @@ public void test234_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		// in contrast with test#232 when src1 is on the classpath, javac fails
 		// to find src1/X.java; this is because -sourcepath inhibits source files
 		// search in classpath directories
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertFalse(javacCompiler.compile(
 					outputDir, /* directory */
 					commonOptions /* options */,
@@ -8518,11 +8519,11 @@ public void test235_classpath() throws IOException, InterruptedException {
 	// javac passes, using the most recent file amongst source and class files
 	// present on the classpath
 	if (RUN_JAVAC) {
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
 					outputDir /* directory */,
 					commonOptions /* options */,
@@ -8590,11 +8591,11 @@ public void test236_classpath() throws IOException, InterruptedException {
 	this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
 	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
 	if (RUN_JAVAC) {
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
 					outputDir /* directory */,
 					commonOptions /* options */,
@@ -8657,11 +8658,11 @@ public void test237_classpath() throws IOException, InterruptedException {
 	this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
 	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
 	if (RUN_JAVAC) {
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
 					outputDir /* directory */,
 					commonOptions /* options */,
@@ -8717,11 +8718,11 @@ public void test238_classpath() throws IOException, InterruptedException {
 	this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
 	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
 	if (RUN_JAVAC) {
-		Iterator javacCompilersIterator = javacCompilers.iterator();
+		Iterator<JavacCompiler> javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath};
 		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
-			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			JavacCompiler javacCompiler = javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
 					outputDir /* directory */,
 					commonOptions /* options */,
@@ -10103,8 +10104,8 @@ public void test291_jar_ref_in_jar() throws Exception {
 		"Class-Path: \r\n" +
 		"\r\n"
 		));
-	List calledFileNames = analyzer.getCalledFileNames();
-	String actual = calledFileNames == null ? "<null>" : Util.toString((String[]) calledFileNames.toArray(new String[calledFileNames.size()]), false/*don't add extra new lines*/);
+	List<String> calledFileNames = analyzer.getCalledFileNames();
+	String actual = calledFileNames == null ? "<null>" : Util.toString(calledFileNames.toArray(new String[calledFileNames.size()]), false/*don't add extra new lines*/);
 	assertStringEquals(
 		"<null>",
 		actual,
@@ -13160,5 +13161,326 @@ public void testGH2434(){
 		"",
         "",
         true);
+}
+public void test3445() {
+	final String testScratchArea = "fileSystemTestScratchArea";
+
+	File testScratchAreaFile = new File(Util.getOutputDirectory(), testScratchArea);
+	File packsFile = null;
+	try {
+		if(!testScratchAreaFile.exists()) {
+			testScratchAreaFile.mkdirs();
+		}
+
+
+		assertTrue(testScratchAreaFile.exists());
+
+		String packComponent = "AAAA";
+		final String packs = packComponent + File.separator + packComponent + File.separator + packComponent;
+		 packsFile = new File(testScratchAreaFile,  packs);
+
+		try {
+			if(!packsFile.exists()) {
+				packsFile.mkdirs();
+			}
+		} finally {
+			// do nothing
+		}
+
+		Classpath classpath = FileSystem.getClasspath(testScratchAreaFile.getPath(), null, null);
+		assertNotNull(classpath);
+		assertTrue(classpath instanceof ClasspathDirectory);
+
+		ClasspathDirectory classpathDirectory = (ClasspathDirectory)classpath;
+		classpathDirectory.getModulesDeclaringPackage(packs, ""); // //Just testing the concurrenthashmap implementation.
+
+	} finally {
+		if(packsFile.exists()) {
+			Util.delete(packsFile);
+		}
+
+		if(testScratchAreaFile.exists()) {
+			Util.delete(testScratchAreaFile);
+		}
+	}
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
+// ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+public void testIssue3827() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        int num = 0;
+				        switch(num) {
+				            case 0 ->
+				                System.out.println("Zero");
+				            case 1 ->
+				                System.out.println("One");
+				            default ->
+				                System.out.println("Other");
+				        }
+				    }
+				}
+				"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
+				+ " -failOnWarning"
+				+ " -1.8 "
+				+ "-d \"" + OUTPUT_DIR + "\"",
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+				"	case 0 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+				"	case 1 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+				"	default ->\n" +
+				"	^^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3 problems (3 errors)\n",
+				true);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
+// ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+public void testIssue3827_2() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        int num = 0;
+				        switch(num) {
+				            case 0 ->
+				                System.out.println("Zero");
+				            case 1 ->
+				                System.out.println("One");
+				            default ->
+				                System.out.println("Other");
+				        }
+				    }
+				}
+				"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
+				+ " -failOnWarning"
+				+ " -13 "
+				+ "-d \"" + OUTPUT_DIR + "\"",
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+				"	case 0 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+				"	case 1 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+				"	default ->\n" +
+				"	^^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3 problems (3 errors)\n",
+				true);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
+// ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+public void testIssue3827_3() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        int num = 0;
+				        switch(num) {
+				            case 0 ->
+				                System.out.println("Zero");
+				            case 1 ->
+				                System.out.println("One");
+				            default ->
+				                System.out.println("Other");
+				        }
+				    }
+				}
+				"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
+				+ " -failOnWarning"
+				+ " -14 "
+				+ "-d \"" + OUTPUT_DIR + "\"",
+				"",
+				"",
+				true);
+}
+public void testBug550255() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static int field1;\n" +
+			"	public static int field2;\n" +
+			"	private synchronized String foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public synchronized void foo1() {\n" +
+			"		System.out.println(1);\n" +
+			"	}\n" +
+			"	public final void foo2() {\n" +
+			"		System.out.println(2);\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:all-static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n"
+		+ "	public final void foo2() {\n"
+		+ "	                  ^^^^^^\n"
+		+ "The method foo2() from the type X can be declared as static\n"
+		+ "----------\n"
+		+ "1 problem (1 warning)\n",
+		true);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4750
+// Compilation error not raised with ECJ when warnings are raised
+public void testIssue4750() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				public void testIssue() throws Exception {
+					int N_ITERATIONS = 10;
+					while (N_ITERATIONS-- > 0) {
+						Object index = 0;
+						Runnable thread = new Runnable() {
+							@Override
+							public void run() {
+								System.out.println(index + 1);
+							}
+						};
+					}
+				}
+			}
+			""",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+		"	Object index = 0;\n" +
+		"	       ^^^^^\n" +
+		"The value of the local variable index is not used\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+		"	Runnable thread = new Runnable() {\n" +
+		"	         ^^^^^^\n" +
+		"The value of the local variable thread is not used\n" +
+		"----------\n" +
+		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+		"	System.out.println(index + 1);\n" +
+		"	                   ^^^^^^^^^\n" +
+		"The operator + is undefined for the argument type(s) Object, int\n" +
+		"----------\n" +
+		"3 problems (1 error, 2 warnings)\n",
+		true);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4750
+// Compilation error not raised with ECJ when warnings are raised
+public void testIssue4750_nowarn() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				public void testIssue() throws Exception {
+					int N_ITERATIONS = 10;
+					while (N_ITERATIONS-- > 0) {
+						Object index = 0;
+						Runnable thread = new Runnable() {
+							@Override
+							public void run() {
+								System.out.println(index + 1);
+							}
+						};
+					}
+				}
+			}
+			""",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -nowarn -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+		"	System.out.println(index + 1);\n" +
+		"	                   ^^^^^^^^^\n" +
+		"The operator + is undefined for the argument type(s) Object, int\n" +
+		"----------\n" +
+		"1 problem (1 error)\n",
+		true);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4768
+// Internal Compiler Error when a static field with custom annotation references a generic type parameter T
+public void testIssue4768(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.lang.annotation.*;
+			@interface CompileTimeConstant {}
+
+			class FunctionPointerContainer<T> {
+			    @CompileTimeConstant
+			    public static final T VALUE = null;
+			}
+
+			public class X {
+			    public static void main(String[] args) {
+			        FunctionPointerContainer<Integer> nestedContainer = new FunctionPointerContainer<>();
+			        Integer value = nestedContainer.VALUE;
+			    }
+			}
+			""",
+		},
+
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -nowarn -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+		"	public static final T VALUE = null;\n" +
+		"	                    ^\n" +
+		"Cannot make a static reference to the non-static type T\n" +
+		"----------\n" +
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" +
+		"	Integer value = nestedContainer.VALUE;\n" +
+		"	                                ^^^^^\n" +
+		"VALUE cannot be resolved or is not a field\n" +
+		"----------\n" +
+		"2 problems (2 errors)\n",
+
+		true);
 }
 }

@@ -519,7 +519,7 @@ public class BuilderTests extends TestCase {
 	}
 
 	private static Class[] getAllTestClasses() {
-		Class[] classes = new Class[] {
+		Class<?>[] classes = new Class[] {
 			AbstractMethodTests.class,
 			BasicBuildTests.class,
 			BuildpathTests.class,
@@ -552,7 +552,8 @@ public class BuilderTests extends TestCase {
 			PackageInfoTest.class,
 			ParticipantBuildTests.class,
 			AnnotationDependencyTests.class,
-			Bug544921Test.class
+			Bug544921Test.class,
+			MultiReleaseTests.class
 		};
 		List<Class<?>> list = new ArrayList<>(Arrays.asList(classes));
 		if (matchesCompliance(F_9)) {

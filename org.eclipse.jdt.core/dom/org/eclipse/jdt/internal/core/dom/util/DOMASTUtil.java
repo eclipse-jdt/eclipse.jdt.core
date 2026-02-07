@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2024 IBM Corporation and others.
+ * Copyright (c) 2019, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -199,22 +199,16 @@ public class DOMASTUtil {
 
 
 	public static void checkASTLevel(int level) {
-		// Clients can use AST.getJLSLatest()
-		if(level >=AST.JLS8 && level <= AST.getJLSLatest() )
-			return;
-		switch (level) {
-	        case AST.JLS2 :
-	        case AST.JLS3 :
-	        case AST.JLS4 :
-	        	return;
+		if (!AST.getAllVersions().contains(level)) {
+			throw new IllegalArgumentException(Integer.toString(level));
 		}
-		throw new IllegalArgumentException(Integer.toString(level));
 	}
 
 	private static final String[] AST_COMPLIANCE_MAP = {"-1","-1",JavaCore.VERSION_1_2, JavaCore.VERSION_1_3, JavaCore.VERSION_1_7, //$NON-NLS-1$ //$NON-NLS-2$
 			JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_8, JavaCore.VERSION_9, JavaCore.VERSION_10,
 			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17, JavaCore.VERSION_18,
-			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21, JavaCore.VERSION_22, JavaCore.VERSION_23};
+			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21, JavaCore.VERSION_22, JavaCore.VERSION_23, JavaCore.VERSION_24,
+			JavaCore.VERSION_25};
 
 	/**
 	 * Calculates the JavaCore Option value string corresponding to the input ast level.
@@ -223,7 +217,7 @@ public class DOMASTUtil {
 	 * @return JavaCore Option value string corresponding to the ast level
 	 */
 	public static String getCompliance(int astLevel) {
-		if (astLevel < AST.JLS2 && astLevel > AST.getJLSLatest()) return JavaCore.latestSupportedJavaVersion();
+		if (!AST.getAllVersions().contains(astLevel)) return JavaCore.latestSupportedJavaVersion();
 		return AST_COMPLIANCE_MAP[astLevel];
 	}
 

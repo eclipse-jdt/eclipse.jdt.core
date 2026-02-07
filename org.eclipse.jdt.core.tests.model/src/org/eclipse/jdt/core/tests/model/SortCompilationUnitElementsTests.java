@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,9 +23,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTextElement;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jface.text.BadLocationException;
@@ -53,30 +55,21 @@ public void setUpSuite() throws Exception {
 	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
-/** @deprecated */
+
+@SuppressWarnings("deprecation")
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
-	this.sortUnit(AST.JLS2, unit, expectedResult, true);
+	this.sortUnit(AST.JLS8, unit, expectedResult, true);
 }
 
-private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult) throws CoreException {
-	this.sortUnit(apiLevel, unit, expectedResult, true);
-}
-/** @deprecated */
+@SuppressWarnings("deprecation")
 private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
-	this.sortUnit(AST.JLS2, unit, expectedResult, testPositions);
+	this.sortUnit(AST.JLS8, unit, expectedResult, testPositions);
 }
 private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
 	this.sortUnit(apiLevel, unit, expectedResult, testPositions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9));
 }
 
-/**
- * Internal synonym for deprecated constant AST.JSL3
- * to alleviate deprecation warnings.
- * @deprecated
- */
-/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-
-/** @deprecated */
+@SuppressWarnings("deprecation")
 private void oldAPISortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions, Comparator comparator) throws CoreException {
 	String initialSource = unit.getSource();
 	int[] positions = null;
@@ -1236,7 +1229,7 @@ public void test019() throws CoreException {
 			"public enum X {\n" +
 			"	A, B, C, Z;\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1266,7 +1259,7 @@ public void test020() throws CoreException {
 			"		\n" +
 			"	}\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1312,7 +1305,7 @@ public void test021() throws CoreException {
 			"	\n" +
 			"	public void method2() { }\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1684,7 +1677,7 @@ public void test023() throws CoreException {
 			"	int id() default 0;\n" +
 			"	String name();\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1718,7 +1711,7 @@ public void test024() throws CoreException {
 			"		}\n" +
 			"	}\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit( this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1770,7 +1763,7 @@ public void test025() throws CoreException {
 			"		return null;\n" +
 			"	}\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1856,7 +1849,6 @@ public void test027() throws CoreException {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101453
-/** @deprecated */
 public void test028() throws CoreException {
 	try {
 		this.createFile(
@@ -1885,7 +1877,9 @@ public void test028() throws CoreException {
 				Javadoc javadoc1 = bodyDeclaration1.getJavadoc();
 				Javadoc javadoc2 = bodyDeclaration2.getJavadoc();
 				if (javadoc1 != null && javadoc2 != null) {
-					return javadoc1.getComment().compareTo(javadoc2.getComment());
+				    var comment1 = ((AbstractTextElement)((TagElement)javadoc1.tags().get(0)).fragments().get(0)).getText();
+				    var comment2 = ((AbstractTextElement)((TagElement)javadoc2.tags().get(0)).fragments().get(0)).getText();
+					return comment1.compareTo(comment2);
 				}
 				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
 				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
@@ -1897,6 +1891,7 @@ public void test028() throws CoreException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
+@SuppressWarnings("deprecation")
 public void test029() throws CoreException {
 	try {
 		this.createFile(
@@ -1909,7 +1904,7 @@ public void test029() throws CoreException {
 			"public enum X {\n" +
 			"	Z, A, C, B;\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
+		sortUnit(AST.JLS8, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
 			@Override
 			public int compare(Object o1, Object o2) {
 				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
@@ -1974,7 +1969,7 @@ public void test030() throws CoreException {
 			"	public <K> I<K<K,T> bar3(C<T,K> c);\n" +
 			"	public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/I.java");
 	}
@@ -2004,7 +1999,7 @@ public void test031() throws CoreException {
 			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
 			"	public I<T> foo(A<T> A);\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/I.java");
 	}
@@ -2026,7 +2021,7 @@ public void test032() throws CoreException {
 			"	<K> List<Map<K,T> foo(Map<T,K> m);\n" +
 			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
 			"}";
-		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -2051,7 +2046,8 @@ public void test033() throws CoreException {
 		String source = unit.getSource();
 		Document document = new Document(source);
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
-		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+		@SuppressWarnings("deprecation")
+        ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setCompilerOptions(options.getMap());
 		parser.setSource(unit);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -2103,7 +2099,8 @@ public void test034() throws CoreException {
 		unit = this.getCompilationUnit("/P/src/X.java");
 		unit.becomeWorkingCopy(null);
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
-		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+		@SuppressWarnings("deprecation")
+        ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setCompilerOptions(options.getMap());
 		parser.setSource(unit);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);

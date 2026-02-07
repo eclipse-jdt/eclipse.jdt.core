@@ -111,7 +111,6 @@ $Terminals
 	BeginLambda
 	BeginIntersectionCast
 	BeginTypeArguments
-	ElidedSemicolonAndRightBrace
 	AT308
 	AT308DOTDOTDOT
 	CaseArrow
@@ -209,7 +208,6 @@ Goal ::= '?' PackageDeclaration
 Goal ::= '+' TypeDeclaration
 Goal ::= '/' GenericMethodDeclaration
 Goal ::= '&' ClassBodyDeclarations
-Goal ::= '-' RecordBodyDeclarations
 -- code snippet
 Goal ::= '%' Expression
 Goal ::= '%' ArrayInitializer
@@ -657,7 +655,7 @@ TypeDeclaration ::= ';'
 -----------------------------------------------
 TypeDeclaration -> EnumDeclaration
 TypeDeclaration -> AnnotationTypeDeclaration
--- Java 14 feature
+-- Java 16 feature
 TypeDeclaration -> RecordDeclaration
 /:$readableName TypeDeclaration:/
 
@@ -743,6 +741,7 @@ ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
 ClassBodyDeclaration -> ClassMemberDeclaration
 ClassBodyDeclaration -> StaticInitializer
 ClassBodyDeclaration -> ConstructorDeclaration
+ClassBodyDeclaration -> CompactConstructorDeclaration
 
 ImplicitlyDeclaredClassBodyDeclarations -> ClassMemberDeclaration
 ImplicitlyDeclaredClassBodyDeclarations ::= ClassMemberDeclaration ImplicitlyDeclaredClassBodyDeclarations
@@ -774,7 +773,7 @@ ClassMemberDeclaration -> InterfaceDeclaration
 -- 1.5 feature
 ClassMemberDeclaration -> EnumDeclaration
 ClassMemberDeclaration -> AnnotationTypeDeclaration
--- Java 14 feature
+-- Java 16 feature
 ClassMemberDeclaration -> RecordDeclaration
 /:$readableName ClassMemberDeclaration:/
 
@@ -917,29 +916,44 @@ ConstructorHeader ::= ConstructorHeaderName FormalParameterListopt MethodHeaderR
 ConstructorHeaderName ::= Modifiersopt TypeParameters 'Identifier' '('
 /.$putCase consumeConstructorHeaderNameWithTypeParameters(); $break ./
 ConstructorHeaderName ::= Modifiersopt 'Identifier' '('
-/.$putCase consumeConstructorHeaderName(); $break ./
+/.$putCase consumeConstructorHeaderName(false); $break ./
 /:$readableName ConstructorHeaderName:/
 
-FormalParameterList -> FormalParameter
-FormalParameterList ::= FormalParameterList ',' FormalParameter
-/.$putCase consumeFormalParameterList(); $break ./
-/:$readableName FormalParameterList:/
+CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
+/.$putCase consumeConstructorDeclaration(); $break ./
+/:$readableName CompactConstructorDeclaration:/
+/:$compliance 16:/
+
+CompactConstructorHeader ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt
+/.$putCase consumeConstructorHeader(); $break ./
+/:$readableName CompactConstructorHeader:/
+/:$compliance 16:/
+
+CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
+/.$putCase consumeConstructorHeaderName(true); $break ./
+/:$readableName CompactConstructorHeaderName:/
+/:$compliance 16:/
+
+SingleVariableDeclaratorList -> SingleVariableDeclarator
+SingleVariableDeclaratorList ::= SingleVariableDeclaratorList ',' SingleVariableDeclarator
+/.$putCase consumeSingleVariableDeclaratorList(); $break ./
+/:$readableName SingleVariableDeclaratorList:/
 
 --1.1 feature
-FormalParameter ::= Modifiersopt Type VariableDeclaratorIdOrThis
-/.$putCase consumeFormalParameter(false); $break ./
-FormalParameter ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorIdOrThis
-/.$putCase consumeFormalParameter(true); $break ./
+SingleVariableDeclarator ::= Modifiersopt Type VariableDeclaratorIdOrThis
+/.$putCase consumeSingleVariableDeclarator(false); $break ./
+SingleVariableDeclarator ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorIdOrThis
+/.$putCase consumeSingleVariableDeclarator(true); $break ./
 /:$compliance 1.5:/
-FormalParameter ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorIdOrThis
-/.$putCase consumeFormalParameter(true); $break ./
-/:$readableName FormalParameter:/
+SingleVariableDeclarator ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorIdOrThis
+/.$putCase consumeSingleVariableDeclarator(true); $break ./
+/:$readableName SingleVariableDeclarator:/
 /:$compliance 1.8:/
 /:$recovery_template Identifier Identifier:/
 
 CatchFormalParameter ::= Modifiersopt CatchType VariableDeclaratorId
 /.$putCase consumeCatchFormalParameter(); $break ./
-/:$readableName FormalParameter:/
+/:$readableName CatchFormalParameter:/
 /:$recovery_template Identifier Identifier:/
 
 CatchType ::= UnionType
@@ -1124,115 +1138,49 @@ InterfaceMemberDeclaration -> RecordDeclaration
 /:$readableName InterfaceMemberDeclaration:/
 
 -----------------------------------------------
--- 14 feature : record type
+-- 16 feature : record type
 -----------------------------------------------
 
-RecordDeclaration ::= RecordHeaderPart RecordBody
-/.$putCase consumeRecordDeclaration(); $break ./
+RecordDeclaration ::= RecordHeaderPart ClassBody
+/.$putCase consumeClassDeclaration(); $break ./
 /:$readableName RecordDeclaration:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeaderPart ::= RecordHeaderName RecordHeader ClassHeaderImplementsopt
 /.$putCase consumeRecordHeaderPart(); $break ./
 /:$readableName RecordHeaderPart:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeaderName ::= RecordHeaderName1 TypeParameters
 /.$putCase consumeRecordHeaderNameWithTypeParameters(); $break ./
-/:$compliance 14:/
+/:$compliance 16:/
 
-RecordHeaderName -> RecordHeaderName1
+RecordHeaderName ::= RecordHeaderName1
+/.$putCase consumeRecordHeaderName(); $break ./
 /:$readableName RecordHeaderName:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeaderName1 ::= Modifiersopt RestrictedIdentifierrecord 'Identifier'
 /.$putCase consumeRecordHeaderName1(); $break ./
 /:$readableName RecordHeaderName:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordComponentHeaderRightParen ::= ')'
 /.$putCase consumeRecordComponentHeaderRightParen(); $break ./
 /:$readableName ):/
 /:$recovery_template ):/
-/:$compliance 14:/
+/:$compliance 16:/
 
-RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
-/.$putCase consumeRecordHeader(); $break ./
-/:$readableName RecordHeader:/
-/:$compliance 14:/
+RecordHeader -> '(' RecordComponentListOpt RecordComponentHeaderRightParen
 
-RecordComponentsopt ::= $empty
+RecordComponentListOpt ::= $empty
 /.$putCase consumeRecordComponentsopt(); $break ./
-RecordComponentsopt -> RecordComponents
+RecordComponentListOpt -> SingleVariableDeclaratorList
 /:$readableName RecordComponentsopt:/
-/:$compliance 14:/
-
-RecordComponents -> RecordComponent
-RecordComponents ::= RecordComponents ',' RecordComponent
-/.$putCase consumeRecordComponents(); $break ./
-/:$readableName RecordComponents:/
-/:$compliance 14:/
-
-RecordComponent -> VariableArityRecordComponent
-RecordComponent ::= Modifiersopt Type VariableDeclaratorId
-/.$putCase consumeRecordComponent(false); $break ./
-/:$readableName RecordComponent:/
-/:$compliance 14:/
-
-VariableArityRecordComponent ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorId
-/.$putCase consumeRecordComponent(true); $break ./
-/:$readableName VariableArityRecordComponent:/
-/:$compliance 14:/
-
-VariableArityRecordComponent ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorId
-/.$putCase consumeRecordComponent(true); $break ./
-/:$readableName VariableArityRecordComponent:/
-/:$compliance 14:/
-/:$recovery_template Identifier Identifier:/
-
-RecordBody ::= '{' RecordBodyDeclarationopt '}'
-/.$putCase consumeRecordBody(); $break ./
-/:$readableName RecordBody:/
-/:$compliance 14:/
-
-RecordBodyDeclarationopt ::= $empty
-/.$putCase consumeEmptyRecordBodyDeclaration(); $break ./
-RecordBodyDeclarationopt -> RecordBodyDeclarations
-/:$readableName RecordBodyDeclarationopt:/
-/:$compliance 14:/
-
-RecordBodyDeclarations ::= RecordBodyDeclaration
-RecordBodyDeclarations ::= RecordBodyDeclarations RecordBodyDeclaration
-/.$putCase consumeRecordBodyDeclarations(); $break ./
-/:$readableName RecordBodyDeclarations:/
-/:$compliance 14:/
-
-RecordBodyDeclaration ::=  ClassBodyDeclaration
-/.$putCase consumeRecordBodyDeclaration(); $break ./
-RecordBodyDeclaration ::=  CompactConstructorDeclaration
-/.$putCase consumeRecordBodyDeclaration(); $break ./
-/:$readableName RecordBodyDeclaration:/
-/:$compliance 14:/
-
-CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
-/.$putCase consumeCompactConstructorDeclaration(); $break ./
-/:$readableName CompactConstructorDeclaration:/
-/:$compliance 14:/
-
-CompactConstructorHeader ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt
-/.$putCase consumeCompactConstructorHeader(); $break ./
-/:$readableName CompactConstructorDeclaration:/
-/:$compliance 14:/
-
-CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-/.$putCase consumeCompactConstructorHeaderName(); $break ./
-CompactConstructorHeaderName ::= Modifiersopt TypeParameters 'Identifier'
-/.$putCase consumeCompactConstructorHeaderNameWithTypeParameters(); $break ./
-/:$readableName CompactConstructorHeaderName:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 -----------------------------------------------
--- 14 feature : end of record type
+-- 16 feature : end of record type
 -----------------------------------------------
 
 -----------------------------------------------
@@ -1802,7 +1750,6 @@ PrimaryNoNewArray -> ArrayAccess
 --                   Start of rules for JSR 335
 -----------------------------------------------------------------------
 
-PrimaryNoNewArray -> LambdaExpression
 PrimaryNoNewArray -> ReferenceExpression
 /:$readableName Expression:/
 
@@ -1892,7 +1839,7 @@ LambdaParameterList -> PushLPAREN TypeElidedFormalParameterList PushRPAREN
 
 TypeElidedFormalParameterList -> TypeElidedFormalParameter
 TypeElidedFormalParameterList ::= TypeElidedFormalParameterList ',' TypeElidedFormalParameter
-/.$putCase consumeFormalParameterList(); $break ./
+/.$putCase consumeSingleVariableDeclaratorList(); $break ./
 /:$readableName TypeElidedFormalParameterList:/
 /:$compliance 1.8:/
 
@@ -1908,15 +1855,10 @@ TypeElidedFormalParameter ::= '_'
 /:$readableName TypeElidedFormalParameter:/
 /:$compliance 21:/
 
--- A lambda body of the form x is really '{' return x; '}'
-LambdaBody -> ElidedLeftBraceAndReturn Expression ElidedSemicolonAndRightBrace
+LambdaBody ::= Expression
+/.$putCase consumeLambdaBodyExpression(); $break ./
 LambdaBody -> Block
 /:$readableName LambdaBody:/
-/:$compliance 1.8:/
-
-ElidedLeftBraceAndReturn ::= $empty
-/.$putCase consumeElidedLeftBraceAndReturn(); $break ./
-/:$readableName ElidedLeftBraceAndReturn:/
 /:$compliance 1.8:/
 
 -----------------------------------------------------------------------
@@ -2136,6 +2078,22 @@ CastExpression ::= PushLPAREN Name Dims AdditionalBoundsListOpt PushRPAREN Insid
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
 /:$readableName CastExpression:/
 
+---- Lambda cast rules below are copy + pasted from reference cast rules above - these don't reduce to UnaryExpressionNotPlusMinus or UnaryExpressionNotPlusMinus_NotName
+---- (as does CastExpression) but reduce to top level expression (via NakedOrCastedLambdaExpression) - this is done to avoid grammar ambiguities.
+---- See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1045#issuecomment-1859297833 and https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1045#issuecomment-1859302896
+
+CastedLambdaExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt AdditionalBoundsListOpt PushRPAREN InsideCastExpression NakedOrCastedLambdaExpression
+/.$putCase consumeCastExpressionWithGenericsArray(); $break ./
+CastedLambdaExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt AdditionalBoundsListOpt PushRPAREN InsideCastExpressionWithQualifiedGenerics NakedOrCastedLambdaExpression
+/.$putCase consumeCastExpressionWithQualifiedGenericsArray(); $break ./
+CastedLambdaExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 NakedOrCastedLambdaExpression
+/.$putCase consumeCastExpressionLL1(); $break ./
+CastedLambdaExpression ::=  BeginIntersectionCast PushLPAREN CastNameAndBounds PushRPAREN InsideCastExpressionLL1WithBounds NakedOrCastedLambdaExpression
+/.$putCase consumeCastExpressionLL1WithBounds(); $break ./
+CastedLambdaExpression ::= PushLPAREN Name Dims AdditionalBoundsListOpt PushRPAREN InsideCastExpression NakedOrCastedLambdaExpression
+/.$putCase consumeCastExpressionWithNameArray(); $break ./
+/:$readableName CastedLambdaExpression:/
+
 AdditionalBoundsListOpt ::= $empty
 /.$putCase consumeZeroAdditionalBounds(); $break ./
 /:$readableName AdditionalBoundsListOpt:/
@@ -2239,6 +2197,8 @@ ConditionalOrExpression ::= ConditionalOrExpression '||' ConditionalAndExpressio
 ConditionalExpression -> ConditionalOrExpression
 ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' ConditionalExpression
 /.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
+ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' NakedOrCastedLambdaExpression
+/.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
 /:$readableName Expression:/
 
 AssignmentExpression -> ConditionalExpression
@@ -2246,7 +2206,7 @@ AssignmentExpression -> Assignment
 /:$readableName Expression:/
 /:$recovery_template Identifier:/
 
-Assignment ::= PostfixExpression AssignmentOperator AssignmentExpression
+Assignment ::= PostfixExpression AssignmentOperator Expression
 /.$putCase consumeAssignment(); $break ./
 /:$readableName Assignment:/
 
@@ -2285,10 +2245,11 @@ AssignmentOperator ::= '|='
 /:$readableName AssignmentOperator:/
 /:$recovery_template =:/
 
--- For handling lambda expressions, we need to know when a full Expression
--- has been reduced.
-Expression ::= AssignmentExpression
-/.$putCase consumeExpression(); $break ./
+NakedOrCastedLambdaExpression -> LambdaExpression
+NakedOrCastedLambdaExpression -> CastedLambdaExpression
+
+Expression -> AssignmentExpression
+Expression -> NakedOrCastedLambdaExpression
 /:$readableName Expression:/
 /:$recovery_template Identifier:/
 
@@ -2355,7 +2316,7 @@ MethodHeaderThrowsClauseopt -> MethodHeaderThrowsClause
 
 FormalParameterListopt ::= $empty
 /.$putcase consumeFormalParameterListopt(); $break ./
-FormalParameterListopt -> FormalParameterList
+FormalParameterListopt -> SingleVariableDeclaratorList
 /:$readableName FormalParameterList:/
 
 ClassHeaderImplementsopt ::= $empty
@@ -2885,7 +2846,11 @@ ConditionalOrExpression_NotName ::= Name '||' ConditionalAndExpression
 ConditionalExpression_NotName -> ConditionalOrExpression_NotName
 ConditionalExpression_NotName ::= ConditionalOrExpression_NotName '?' Expression ':' ConditionalExpression
 /.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
+ConditionalExpression_NotName ::= ConditionalOrExpression_NotName '?' Expression ':' NakedOrCastedLambdaExpression
+/.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
 ConditionalExpression_NotName ::= Name '?' Expression ':' ConditionalExpression
+/.$putCase consumeConditionalExpressionWithName(OperatorIds.QUESTIONCOLON) ; $break ./
+ConditionalExpression_NotName ::= Name '?' Expression ':' NakedOrCastedLambdaExpression
 /.$putCase consumeConditionalExpressionWithName(OperatorIds.QUESTIONCOLON) ; $break ./
 /:$readableName Expression:/
 
@@ -2894,6 +2859,7 @@ AssignmentExpression_NotName -> Assignment
 /:$readableName Expression:/
 
 Expression_NotName -> AssignmentExpression_NotName
+Expression_NotName -> NakedOrCastedLambdaExpression
 /:$readableName Expression:/
 -----------------------------------------------
 -- 1.5 features : end of generics
@@ -3170,3 +3136,4 @@ UNDERSCORE ::= '_'
 
 $end
 -- need a carriage return after the $end
+

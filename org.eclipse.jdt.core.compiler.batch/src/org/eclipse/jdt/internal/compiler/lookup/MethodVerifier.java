@@ -27,12 +27,12 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -91,17 +91,13 @@ boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 }
 public static boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two, LookupEnvironment environment) {
 	if (TypeBinding.equalsEquals(one.returnType, two.returnType)) return true;
-	if (environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5) {
-		// short is compatible with int, but as far as covariance is concerned, its not
-		if (one.returnType.isBaseType()) return false;
+	// short is compatible with int, but as far as covariance is concerned, its not
+	if (one.returnType.isBaseType()) return false;
 
-		if (!one.declaringClass.isInterface() && one.declaringClass.id == TypeIds.T_JavaLangObject)
-			return two.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
+	if (!one.declaringClass.isInterface() && one.declaringClass.id == TypeIds.T_JavaLangObject)
+		return two.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
 
-		return one.returnType.isCompatibleWith(two.returnType);
-	} else {
-		return areTypesEqual(one.returnType.erasure(), two.returnType.erasure());
-	}
+	return one.returnType.isCompatibleWith(two.returnType);
 }
 boolean canSkipInheritedMethods() {
 	if (this.type.superclass() != null && this.type.superclass().isAbstract())
@@ -187,8 +183,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			if(inheritedMethod.isSynchronized() && !currentMethod.isSynchronized()) {
 				problemReporter(currentMethod).missingSynchronizedOnInheritedMethod(currentMethod, inheritedMethod);
 			}
-			if (options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-				if (!currentMethod.isViewedAsDeprecated() || options.reportDeprecationInsideDeprecatedCode) {
+			if (options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isDeprecated()) {
+				if (!currentMethod.isDeprecated() || options.reportDeprecationInsideDeprecatedCode) {
 					// check against the other inherited methods to see if they hide this inheritedMethod
 					ReferenceBinding declaringClass = inheritedMethod.declaringClass;
 					if (declaringClass.isInterface())
@@ -321,12 +317,12 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 	}
 
 	ReferenceBinding[] itsInterfaces = null;
-	SimpleSet inheritedInterfaces = new SimpleSet(5);
+	Set<ReferenceBinding> inheritedInterfaces = new LinkedHashSet<>();
 	ReferenceBinding superType = superclass;
 	while (superType != null && superType.isValidBinding()) {
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
 			for (ReferenceBinding inheritedInterface : itsInterfaces) {
-				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
+				if (!inheritedInterfaces.contains(inheritedInterface) && inheritedInterface.isValidBinding()) {
 					if (interfacesToCheck.includes(inheritedInterface)) {
 						if (redundantInterfaces == null) {
 							redundantInterfaces = new SimpleSet(3);
@@ -350,10 +346,9 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 		superType = superType.superclass();
 	}
 
-	int nextPosition = inheritedInterfaces.elementSize;
+	int nextPosition = inheritedInterfaces.size();
 	if (nextPosition == 0) return;
-	ReferenceBinding[] interfacesToVisit = new ReferenceBinding[nextPosition];
-	inheritedInterfaces.asArray(interfacesToVisit);
+	ReferenceBinding[] interfacesToVisit = inheritedInterfaces.toArray(ReferenceBinding[]::new);
 	for (int i = 0; i < nextPosition; i++) {
 		superType = interfacesToVisit[i];
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
@@ -362,7 +357,7 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
 			for (int a = 0; a < itsLength; a++) {
 				ReferenceBinding inheritedInterface = itsInterfaces[a];
-				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
+				if (!inheritedInterfaces.contains(inheritedInterface) && inheritedInterface.isValidBinding()) {
 					if (interfacesToCheck.includes(inheritedInterface)) {
 						if (redundantInterfaces == null) {
 							redundantInterfaces = new SimpleSet(3);

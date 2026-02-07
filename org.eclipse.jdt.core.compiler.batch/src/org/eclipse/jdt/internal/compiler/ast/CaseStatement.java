@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
@@ -40,7 +41,6 @@ public class CaseStatement extends Statement {
 
 	public BranchLabel targetLabel;
 	public Expression[] constantExpressions; // case with multiple expressions - if you want a under-the-hood view, use peeledLabelExpressions()
-	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isSwitchRule = false;
 
 	public SwitchStatement swich; // owning switch
@@ -106,12 +106,15 @@ private boolean essentiallyQualifiedEnumerator(Expression e, TypeBinding selecto
 private void checkDuplicateDefault(BlockScope scope, ASTNode node) {
 	if (this.swich.defaultCase != null)
 		scope.problemReporter().duplicateDefaultCase(node);
-	else if (this.swich.totalPattern != null)
+	else if (this.swich.unconditionalPatternCase != null)
 		scope.problemReporter().illegalTotalPatternWithDefault(this);
 	this.swich.defaultCase = this;
 }
 
 private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, TypeBinding selectorType, Expression expression) {
+
+	if (this.swich.expression.resolvedType != null && this.swich.expression.resolvedType.id == TypeIds.T_void)
+		return Constant.NotAConstant;
 
 	if (expression instanceof NullLiteral) {
 		if (!caseType.isCompatibleWith(selectorType, scope))
@@ -128,10 +131,9 @@ private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, Ty
 
 	CompilerOptions options = scope.compilerOptions();
 	if (caseType.isEnum() && caseType.isCompatibleWith(selectorType)) {
-		if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+		if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0)
 			scope.problemReporter().enumConstantsCannotBeSurroundedByParenthesis(expression);
-			return Constant.NotAConstant;
-		}
+
 		if (expression instanceof NameReference reference && reference.binding instanceof FieldBinding field) {
 			if ((field.modifiers & ClassFileConstants.AccEnum) == 0)
 				 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
@@ -159,7 +161,7 @@ private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, Ty
 		return expression.constant;
 	}
 
-	boolean boxing = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(options) || this.swich.isAllowedType(selectorType);
+	boolean boxing = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(options) || this.swich.integralType(selectorType);
 	if (boxing && isBoxingCompatible(caseType, selectorType, expression, scope)) {
 		if (expression.constant == Constant.NotAConstant)
 			scope.problemReporter().caseExpressionMustBeConstant(expression);
@@ -185,7 +187,7 @@ private Constant resolvePatternLabel(BlockScope scope, TypeBinding caseType, Typ
 		if (!pattern.isApplicable(selectorType, scope, pattern))
 			return Constant.NotAConstant;
 	} else if (caseType.isValidBinding()) { // already complained if invalid
-		if (Pattern.findPrimitiveConversionRoute(caseType, selectorType, scope) == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+		if (pattern.findPrimitiveConversionRoute(caseType, selectorType, scope) == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 			if (caseType.isPrimitiveType() && !JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions())) {
 				scope.problemReporter().unexpectedTypeinSwitchPattern(caseType, pattern);
 				return Constant.NotAConstant;
@@ -201,7 +203,7 @@ private Constant resolvePatternLabel(BlockScope scope, TypeBinding caseType, Typ
 		this.swich.switchBits |= SwitchStatement.Exhaustive;
 		pattern.isTotalTypeNode = true;
 		if (pattern.isUnconditional(selectorType, scope)) // unguarded is implied from 'coversType()' above
-			this.swich.totalPattern = pattern;
+			this.swich.unconditionalPatternCase = this;
 	}
  	return constant;
 }
@@ -216,11 +218,7 @@ public void resolve(BlockScope scope) {
 	this.labelExpressionOrdinal = this.swich.labelExpressionIndex;
 	this.swich.cases[this.swich.caseCount++] = this;
 
-	if (this.isSwitchRule)
-		this.swich.switchBits |= SwitchStatement.LabeledRules;
-	else
-		this.swich.switchBits |= SwitchStatement.LabeledBlockStatementGroup;
-
+	this.swich.switchBits |= this.isSwitchRule ? SwitchStatement.LabeledRules : SwitchStatement.LabeledBlockStatementGroup;
 	if ((this.swich.switchBits & (SwitchStatement.LabeledRules | SwitchStatement.LabeledBlockStatementGroup)) == (SwitchStatement.LabeledRules | SwitchStatement.LabeledBlockStatementGroup))
 		scope.problemReporter().arrowColonMixup(this);
 
@@ -230,6 +228,7 @@ public void resolve(BlockScope scope) {
 		return;
 	}
 
+	this.swich.switchBits |= SwitchStatement.HasNondefaultCase;
 	int count = 0;
 	int nullCaseCount = 0;
 	for (Expression e : this.constantExpressions) {
@@ -246,8 +245,6 @@ public void resolve(BlockScope scope) {
 			if (this.swich.nullCase == null)
 				this.swich.nullCase = this;
 			nullCaseCount++;
-			if (count > 1 && nullCaseCount < 2)
-				scope.problemReporter().patternSwitchNullOnlyOrFirstWithDefault(e);
 		}
 
 		// tag constant name with enum type for privileged access to its members
@@ -258,6 +255,10 @@ public void resolve(BlockScope scope) {
 		if (e instanceof Pattern p) {
 			this.swich.containsPatterns = this.swich.isNonTraditional =  true;
 			p.setOuterExpressionType(selectorType);
+		} else if (count > 1 && nullCaseCount == 1) {
+			// Under if (!pattern) because we anyway issue ConstantWithPatternIncompatible for mixing patterns & null
+			// Also multiple nulls get reported as duplicates and we don't want to complain again.
+			scope.problemReporter().patternSwitchNullOnlyOrFirstWithDefault(e);
 		}
 
 		TypeBinding	caseType = e.resolveType(scope);
@@ -278,25 +279,22 @@ public void resolve(BlockScope scope) {
 				//  - if T is one of long, float, double, or boolean, the type of the case constant is T.
 				//  - if T is one of Long, Float, Double, or Boolean, the type of the case constant is, respectively, long, float, double, or boolean.
 				if (caseType.id != T_null) {
-					TypeBinding expectedCaseType = selectorType.isBoxedPrimitiveType() ? selectorType.unboxedType() : selectorType;
+					TypeBinding expectedCaseType = selectorType.isBoxedPrimitiveType() && JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()) ? selectorType.unboxedType() : selectorType;
 					switch (expectedCaseType.id) {
 						case TypeIds.T_long, TypeIds.T_float, TypeIds.T_double, TypeIds.T_boolean -> {
 							if (caseType.id != expectedCaseType.id) {
 								scope.problemReporter().caseExpressionWrongType(e, selectorType, expectedCaseType);
 								continue;
 							}
-							selectorType = expectedCaseType;
+							if (Pattern.findPrimitiveConversionRoute(caseType, selectorType, scope, this) != Pattern.PrimitiveConversionRoute.NO_CONVERSION_ROUTE)
+								selectorType = expectedCaseType;
 						}
 					}
 				}
 				Constant constant = resolveConstantLabel(scope, caseType, selectorType, e);
 				if (constant != Constant.NotAConstant) {
-					int index = -1;
-					boolean isQualifiedEnum = false;
-					if (essentiallyQualifiedEnumerator(e, selectorType))
-						isQualifiedEnum = true;
-					else if (!(e instanceof NullLiteral))
-						index = this.swich.labelExpressionIndex;
+					int index = e instanceof NullLiteral ? -1 : this.swich.labelExpressionIndex;
+					boolean isQualifiedEnum = essentiallyQualifiedEnumerator(e, selectorType);
 					this.swich.gatherLabelExpression(new LabelExpression(constant, e, caseType, index, isQualifiedEnum));
 				}
 			}
@@ -325,13 +323,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if ((this.bits & ASTNode.IsReachable) == 0)
 		return;
+
 	int pc = codeStream.position;
-	if (this.targetLabels != null) {
-		for (BranchLabel label : this.targetLabels)
-			label.place();
-	}
-	if (this.targetLabel != null)
-		this.targetLabel.place();
+	this.targetLabel.place();
 
 	if (containsPatternVariable(true)) {
 
@@ -342,25 +336,24 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.load(this.swich.selector);
 		pattern.generateCode(currentScope, codeStream, patternMatchLabel, matchFailLabel);
 		codeStream.goto_(patternMatchLabel);
-		matchFailLabel.place();
-
-		if (pattern.matchFailurePossible()) {
+		if (matchFailLabel.forwardReferenceCount() > 0) { // bother with generation of restart trampoline IFF match fail is possible
+			matchFailLabel.place();
 			/* We are generating a "thunk"/"trampoline" of sorts now, that flow analysis has no clue about.
 			   We need to manage the live variables manually. Pattern bindings are not definitely
 			   assigned here as we are in the else region.
 		    */
 			final LocalVariableBinding[] bindingsWhenTrue = pattern.bindingsWhenTrue();
-			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationEndPC(codeStream.position));
+			Stream.of(bindingsWhenTrue).forEach(v -> v.recordInitializationEndPC(codeStream.position));
 			codeStream.load(this.swich.selector);
 			int caseIndex = this.labelExpressionOrdinal + pattern.getAlternatives().length;
 			codeStream.loadInt(this.swich.nullProcessed ? caseIndex - 1 : caseIndex);
 			codeStream.goto_(this.swich.switchPatternRestartTarget);
-			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationStartPC(codeStream.position));
+			Stream.of(bindingsWhenTrue).forEach(v -> v.recordInitializationStartPC(codeStream.position));
 		}
 		patternMatchLabel.place();
 	} else {
-		if (this.swich.containsNull)
-			this.swich.nullProcessed |= true;
+		if (this.swich.nullCase == this)
+			this.swich.nullProcessed = true;
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
@@ -395,5 +388,15 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 			e.traverse(visitor, blockScope);
 	}
 	visitor.endVisit(this, blockScope);
+}
+
+public Boolean getBooleanConstantValue() {
+	if (this.constantExpressions != null) {
+		for (Expression expression : this.constantExpressions) {
+			if (expression.constant instanceof BooleanConstant bc)
+				return bc.booleanValue();
+		}
+	}
+	return null;
 }
 }

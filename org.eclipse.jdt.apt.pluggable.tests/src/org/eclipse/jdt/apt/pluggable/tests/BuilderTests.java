@@ -29,6 +29,7 @@ import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug510118Pro
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue565Processor;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue4446Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
@@ -382,6 +383,19 @@ public class BuilderTests extends TestBase
 		assertTrue("Incorrect status received from annotation processor", Issue565Processor.status());
 	}
 
+    public void testIssue4446() throws Throwable {
+        ProcessorTestStatus.reset();
+        IJavaProject jproj = createJavaProject(_projectName);
+        disableJava5Factories(jproj);
+        IProject proj = jproj.getProject();
+        IdeTestUtils.copyResources(proj, "targets/issue4446", "src/targets/issue4446");
+
+        AptConfig.setEnabled(jproj, true);
+        fullBuild();
+        expectingNoProblems();
+        assertTrue("Incorrect status received from annotation processor", Issue4446Processor.status());
+    }
+
 	public void testBug341298() throws Throwable {
 		ProcessorTestStatus.reset();
 		IJavaProject project = createJavaProject(_projectName);
@@ -397,6 +411,25 @@ public class BuilderTests extends TestBase
 		AptConfig.addProcessorOption(project, "classpath", "%classpath%");
 		AptConfig.addProcessorOption(project, "sourcepath", "%sourcepath%");
 		AptConfig.addProcessorOption(project, "phase", "%test341298%");
+		AptConfig.setEnabled(project, true);
+		fullBuild();
+		assertTrue("Processor should be able to compile with passed options", Bug341298Processor.success());
+	}
+	public void testGHIssue4640() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject project = createJavaProject(_projectName);
+		IPath root = project.getProject().getFullPath().append("src");
+		env.addClass(root, "test341298", "Annotated",
+				"package test341298;\n" +
+				"@Annotation public class Annotated {}"
+		);
+		env.addClass(root, "test341298", "Annotation",
+				"package test341298;\n" +
+				"public @interface Annotation {}"
+		);
+		AptConfig.addProcessorOption(project, "classpath", "%classpath%");
+		AptConfig.addProcessorOption(project, "sourcepath", "%sourcepath%");
+		AptConfig.addProcessorOption(project, "phase", null);
 		AptConfig.setEnabled(project, true);
 		fullBuild();
 		assertTrue("Processor should be able to compile with passed options", Bug341298Processor.success());

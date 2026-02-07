@@ -313,7 +313,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations27");
 	}
-	public void testPackageAnnotations() throws Exception {
+	// This never worked just as the next one for javac. It only passed because of the framework 
+	// ignoring the failure report. 
+	public void _testPackageAnnotations() throws Exception {
 		if (!canRunJava9())
 			return;
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -410,6 +412,24 @@ public class Java8ElementsTests extends TestCase {
 			return;
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testBug544288", null, "bug544288", "9");
+	}
+	public void testGH4617() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testGH4617", null, "GH4617", "9");
+	}
+	public void testGH1752() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testGH1752", null, "GH1752", "9");
+	}
+	public void testGH1752Javac() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testGH1752", null, "GH1752", "9");
 	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);

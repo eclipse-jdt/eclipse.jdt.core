@@ -79,7 +79,7 @@ public class JavadocTestForMethod extends JavadocTest {
 			"----------\n"
 				+ "1. WARNING in X.java (at line 4)\n"
 				+ "	new Z().foo();\n"
-				+ "	        ^^^^^\n"
+				+ "	        ^^^\n"
 				+ "The method foo() from the type Z is deprecated\n"
 				+ "----------\n",
 				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -136,11 +136,6 @@ public class JavadocTestForMethod extends JavadocTest {
 		"	* @see Y#y\n" +
 		"	       ^\n" +
 		"Javadoc: The type Y is deprecated\n" +
-		"----------\n" +
-		"4. ERROR in Z.java (at line 6)\n" +
-		"	* @see Y#y\n" +
-		"	         ^\n" +
-		"Javadoc: The field Y.y is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
@@ -176,7 +171,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n"
 				);
@@ -213,7 +208,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n" +
 		"----------\n" +
@@ -281,7 +276,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n"
 				);
@@ -319,7 +314,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n" +
 		"----------\n" +
@@ -387,7 +382,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n"
 				);
@@ -424,7 +419,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	        ^^^^^^\n" +
+		"	        ^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n" +
 		"----------\n" +
@@ -4130,7 +4125,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see Visibility#avm_private(int) Invalid ref: non-applicable inherited method\n"
 				+ "	                  ^^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_private() in the type AbstractVisibility is not applicable for the arguments (int)\n"
+				+ "Javadoc: The method avm_private() from the type AbstractVisibility is not visible\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see Visibility#avm_public(String) Invalid ref: non-applicable inherited method\n"

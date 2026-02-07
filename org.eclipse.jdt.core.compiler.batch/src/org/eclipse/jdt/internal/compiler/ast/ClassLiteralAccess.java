@@ -14,17 +14,12 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -32,30 +27,12 @@ public class ClassLiteralAccess extends Expression {
 
 	public TypeReference type;
 	public TypeBinding targetType;
-	FieldBinding syntheticField;
 
 	public ClassLiteralAccess(int sourceEnd, TypeReference type) {
 		this.type = type;
 		type.bits |= IgnoreRawTypeCheck; // no need to worry about raw type usage
 		this.sourceStart = type.sourceStart;
 		this.sourceEnd = sourceEnd;
-	}
-
-	@Override
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-
-		// if reachable, request the addition of a synthetic field for caching the class descriptor
-		SourceTypeBinding sourceType = currentScope.outerMostClassScope().enclosingSourceType();
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=22334
-		if (!sourceType.isInterface()
-				&& !this.targetType.isBaseType()
-				&& currentScope.compilerOptions().targetJDK < ClassFileConstants.JDK1_5) {
-			this.syntheticField = sourceType.addSyntheticFieldForClassLiteral(this.targetType, currentScope);
-		}
-		return flowInfo;
 	}
 
 	/**
@@ -74,7 +51,7 @@ public class ClassLiteralAccess extends Expression {
 
 		// in interface case, no caching occurs, since cannot make a cache field for interface
 		if (valueRequired) {
-			codeStream.generateClassLiteralAccessForType(currentScope, this.type.resolvedType, this.syntheticField);
+			codeStream.generateClassLiteralAccessForType(currentScope, this.type.resolvedType);
 			codeStream.generateImplicitConversion(this.implicitConversion);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
@@ -117,21 +94,16 @@ public class ClassLiteralAccess extends Expression {
 			scope.problemReporter().illegalClassLiteralForTypeVariable((TypeVariableBinding)this.targetType, this);
 		}
 		ReferenceBinding classType = scope.getJavaLangClass();
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328689
-		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-			// Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
-			TypeBinding boxedType = null;
-			if (this.targetType.id == T_void) {
-				boxedType = environment.getResolvedJavaBaseType(JAVA_LANG_VOID, scope);
-			} else {
-				boxedType = scope.boxing(this.targetType);
-			}
-			if (environment.usesNullTypeAnnotations())
-				boxedType = environment.createNonNullAnnotatedType(boxedType);
-			this.resolvedType = environment.createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
+		// Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
+		TypeBinding boxedType = null;
+		if (this.targetType.id == T_void) {
+			boxedType = environment.getResolvedJavaBaseType(JAVA_LANG_VOID, scope);
 		} else {
-			this.resolvedType = classType;
+			boxedType = scope.boxing(this.targetType);
 		}
+		if (environment.usesNullTypeAnnotations())
+			boxedType = environment.createNonNullAnnotatedType(boxedType);
+		this.resolvedType = environment.createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
 		return this.resolvedType;
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
 
 public abstract class PackageBinding extends Binding implements TypeConstants {
-	public long tagBits = 0; // See values in the interface TagBits below
 
 	public char[][] compoundName;
 	PackageBinding parent;
@@ -103,8 +102,11 @@ void addType(ReferenceBinding element) {
 		((UnresolvedReferenceBinding) priorType).setResolvedType(element, this.environment);
 	}
 	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled)
-		if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
-			checkIfAnalysisAnnotationType(element);
+		if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) {
+			// check if type is one of the configured null annotation types
+			// if so mark as a well known type using the corresponding typeBit:
+			element.typeBits |= this.environment.getAnalysisAnnotationBit(element.compoundName);
+		}
 
 	if (!element.isUnresolvedType() && this.wrappingSplitPackageBindings != null) {
 		for (SplitPackageBinding splitPackageBinding : this.wrappingSplitPackageBindings) {
@@ -307,8 +309,8 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod, boolean splitPac
 	return problemBinding;
 }
 public final boolean isViewedAsDeprecated() {
-	if ((this.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
-		this.tagBits |= TagBits.DeprecatedAnnotationResolved;
+	if ((this.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) == 0) {
+		this.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
 		if (this.compoundName != CharOperation.NO_CHAR_CHAR) {
 			ReferenceBinding packageInfo = this.getType(TypeConstants.PACKAGE_INFO_NAME, this.enclosingModule);
 			if (packageInfo != null) {
@@ -375,12 +377,12 @@ public int problemId() {
 void checkIfNullAnnotationPackage() {
 	LookupEnvironment env = this.environment;
 	if (env.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-		if (isPackageOfQualifiedTypeName(this.compoundName, env.getNullableAnnotationName()))
-			env.nullableAnnotationPackage = this;
-		if (isPackageOfQualifiedTypeName(this.compoundName, env.getNonNullAnnotationName()))
-			env.nonnullAnnotationPackage = this;
-		if (isPackageOfQualifiedTypeName(this.compoundName, env.getNonNullByDefaultAnnotationName()))
-			env.nonnullByDefaultAnnotationPackage = this;
+		for (char[][] typeName : env.allNullAnnotationNames()) {
+			if (isPackageOfQualifiedTypeName(this.compoundName, typeName)) {
+				this.extendedTagBits |= ExtendedTagBits.IsNullAnnotationPackage;
+				break;
+			}
+		}
 	}
 }
 private boolean isPackageOfQualifiedTypeName(char[][] packageName, char[][] typeName) {
@@ -391,29 +393,6 @@ private boolean isPackageOfQualifiedTypeName(char[][] packageName, char[][] type
 		if (!CharOperation.equals(packageName[i], typeName[i]))
 			return false;
 	return true;
-}
-
-void checkIfAnalysisAnnotationType(ReferenceBinding type) {
-	// check if type is one of the configured null annotation types
-	// if so mark as a well known type using the corresponding typeBit:
-	if (this.environment.nullableAnnotationPackage == this
-			&& CharOperation.equals(type.compoundName, this.environment.getNullableAnnotationName())) {
-		type.typeBits |= TypeIds.BitNullableAnnotation;
-		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
-			this.environment.nullableAnnotationPackage = null; // don't check again
-	} else if (this.environment.nonnullAnnotationPackage == this
-			&& CharOperation.equals(type.compoundName, this.environment.getNonNullAnnotationName())) {
-		type.typeBits |= TypeIds.BitNonNullAnnotation;
-		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
-			this.environment.nonnullAnnotationPackage = null; // don't check again
-	} else if (this.environment.nonnullByDefaultAnnotationPackage == this
-			&& CharOperation.equals(type.compoundName, this.environment.getNonNullByDefaultAnnotationName())) {
-		type.typeBits |= TypeIds.BitNonNullByDefaultAnnotation;
-		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
-			this.environment.nonnullByDefaultAnnotationPackage = null; // don't check again
-	} else {
-		type.typeBits |= this.environment.getAnalysisAnnotationBit(type.compoundName);
-	}
 }
 
 @Override

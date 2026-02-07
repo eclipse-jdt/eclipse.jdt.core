@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -191,7 +191,16 @@ public class InMemoryCompilationTest extends TestCase {
 				throws IOException {
 			List<JavaFileObject> result = new ArrayList<>();
 			if (location == StandardLocation.SOURCE_PATH && kinds.contains(Kind.SOURCE)) {
-				result.addAll(sources);
+				for (InMemoryJavaSourceFileObject sourceFileObject : sources) {
+					String name = sourceFileObject.getAbsClassName();
+					int lastDot = name.lastIndexOf('.');
+					if (lastDot == -1)
+						continue;
+					String packName = name.substring(0, lastDot-1);
+					boolean match = recurse ? packName.startsWith(packageName) : packName.equals(packageName);
+					if (match)
+						result.add(sourceFileObject);
+				}
 			}
 			if (super.hasLocation(location)) {
 				Iterable<JavaFileObject> superResult = super.list(location, packageName, kinds, recurse);

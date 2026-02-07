@@ -25,8 +25,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
 
 public class CompilerToolTests extends TestCase {
 	private static final boolean DEBUG = false;
@@ -1157,7 +1163,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 
 
 	public void testCompilerUnusedVariable() throws Exception {
-		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, "NoWarn.java");
 		BufferedWriter writer = null;
 		try {
@@ -1208,7 +1214,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertEquals("Expected no warnings to be generated.", "", stringWriter.toString());
 	}
 	public void testCompilerUnusedVariable2() throws Exception {
-		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, "NoWarn.java");
 		BufferedWriter writer = null;
 		try {
@@ -1264,7 +1270,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	}
 
 	private void suppressTest(String fileName, String source, String expectedDiagnostics, String expectedOutput) throws Exception {
-		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, fileName);
 		BufferedWriter writer = null;
 		try {
@@ -1430,6 +1436,133 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 					+ "by compiler " + compiler.getClass().getName(), sourceVersions.contains(sourceVersion));
 		}
 	}
+
+	/**
+	 * Compiles a class featuring a possible name collision with another one being present in classpath. This can only
+	 * happen on case insensitive file systems.
+	 * @throws IOException  If I/O failure
+	 */
+	public void testCompilerOneClassWithPackageCollision() throws IOException {
+
+		final String tempDir = System.getProperty("java.io.tmpdir");
+		final String sep = File.separator;
+		final String classes = "clazzes";
+		Path targetDir = Paths.get(tempDir, sep, classes, sep, "de", sep, "tk", sep, "foo");
+		Files.createDirectories(targetDir);
+
+		// ********************************************************************************
+		// 							Compile first source file
+		// ********************************************************************************
+
+		String source1 = """
+			package de.tk.foo;
+
+			public class Test {
+			}""";
+
+		Path sourceFile1 = createSourceFile(targetDir, "Test.java", source1);
+		List<File> sourceFiles = Collections.singletonList(sourceFile1.toFile());
+		EclipseFileManager fileManager = new EclipseFileManager(null, null);
+		Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFiles);
+		List<String> optionList = List.of("-verbose", "-17");
+
+		CompilationTask task1 =
+			new EclipseCompiler().getTask(
+				new PrintWriter(System.out),
+				fileManager, // using 'fileManager' directly works
+				null,
+				optionList,
+				null,
+				compilationUnits
+			);
+
+		assertTrue("Compilation 1 failed", task1.call());
+
+		// ********************************************************************************
+		// 					Compile second source file with classpath
+		// ********************************************************************************
+
+		String source2 = """
+			package de.tk.foo.test;
+
+			import de.tk.foo.Test;
+
+			// This class might cause false-positive collision with package "de.tk.foo.test" present in classpath
+			// on case insensitive file systems.
+			public class Foo {
+				private Test test = new Test();
+
+				@Override
+				public String toString() {
+					return test.toString();
+				}
+			}""";
+
+		Path tempPath = Paths.get(tempDir);
+		Path sourceFile2 = createSourceFile(tempPath, "Foo.java", source2);
+		Path clsDir = tempPath.resolve(classes);
+
+		sourceFiles = Collections.singletonList(sourceFile2.toFile());
+		compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFiles);
+
+		optionList = new ArrayList<>(optionList); // Create a mutable list
+		optionList.add("-classpath");
+		optionList.add(clsDir.toString());
+
+		CompilationTask task2 =
+			new EclipseCompiler().getTask(
+				new PrintWriter(System.out),
+				new MyFileManager(fileManager), // using 'fileManager' directly works, but MyFileManager does not
+				null,
+				optionList,
+				null,
+				compilationUnits
+			);
+
+		assertTrue("Compilation 2 failed", task2.call());
+
+		// ********************************************************************************
+		// 										Cleanup
+		// ********************************************************************************
+
+		Files.walk(clsDir)
+			.sorted(Comparator.reverseOrder())
+			.map(Path::toFile)
+			.forEach(File::delete);
+
+		assertTrue("Delete failed", Files.deleteIfExists(tempPath.resolve("Foo.class")));
+		assertFalse("Delete failed", Files.exists(sourceFile1));
+		assertTrue("Delete failed", Files.deleteIfExists(sourceFile2));
+	}
+
+	/**
+	 * Creates a (source) file in the given directory with content.
+	 * @param dir Target directory
+	 * @param fileName Name of new file
+	 * @param content Content of the file
+	 * @return Created file
+	 * @throws IOException If I/O failure
+	 */
+	private Path createSourceFile(Path dir, String fileName, String content) throws IOException {
+		Path file = dir.resolve(fileName);
+
+		try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+			writer.write(content);
+			writer.flush();
+		}
+		return file;
+	}
+
+	/**
+	 * This class is used for the test {@link #testCompilerOneClassWithPackageCollision()
+	 * testCompilerOneClassWithPackageCollision}.
+	 */
+	class MyFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
+		protected MyFileManager(StandardJavaFileManager fileManager) {
+			super(fileManager);
+		}
+	}
+
 	/*
 	 * Clean up the compiler
 	 */

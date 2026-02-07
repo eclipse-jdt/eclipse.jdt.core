@@ -15,6 +15,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCaseArrow;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameIdentifier;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameRBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameSEMICOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameif;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNamewhile;
+
 /*
  * Parser able to build specific completion parse nodes, given a cursorLocation.
  *
@@ -35,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -64,6 +75,8 @@ public class SelectionParser extends AssistParser {
 
 	protected static final int K_INSIDE_FOR_EACH = SELECTION_PARSER + 14; // whether we are in a for each statement
 
+	protected static final int K_INSIDE_INITIALIZATION = SELECTION_PARSER + 15; // whether we are in an initialization of a field/local declaration
+	protected static final int K_INSIDE_ASSIGNMENT = SELECTION_PARSER + 16; // whether we are in an assignment statement
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -125,7 +138,7 @@ protected void attachOrphanCompletionNode(){
 			else if (this.currentToken == TokenNameRBRACE)
 				this.ignoreNextClosingBrace = true;
 		} else {
-			this.currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
+			this.currentToken = TokenNameNotAToken; // given we are not on an eof, we do not want side effects caused by looked-ahead token
 		}
 	}
 }
@@ -257,6 +270,22 @@ private void buildMoreCompletionContext(Expression expression) {
 					this.assistNodeParent = parentNode;
 				}
 				break;
+			case K_INSIDE_ASSIGNMENT:
+				if (orphan instanceof SwitchExpression) { // ensure switch expression is not mistakenly seen in vanilla context
+					this.expressionLengthPtr--;
+					parentNode = orphan =
+							new Assignment(
+								this.expressionStack[this.expressionPtr--],
+								(Expression) orphan,
+								orphan.sourceEnd);
+					}
+				break;
+			case K_INSIDE_INITIALIZATION:
+				if (orphan instanceof SwitchExpression) { // ensure switch expression is not mistakenly seen in vanilla context
+					AbstractVariableDeclaration variable = (AbstractVariableDeclaration) this.astStack[this.astPtr--];
+					variable.initialization = (Expression) orphan;
+				}
+				break;
 		}
 	}
 
@@ -347,7 +376,7 @@ protected void classInstanceCreation(boolean hasClassBody) {
 		this.lastCheckPoint = alloc.sourceEnd + 1;
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = true;
 	} else {
@@ -371,7 +400,7 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 	if (alloc.type == this.assistNode){
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = true;
 	}
@@ -386,7 +415,7 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 	if (alloc.type == this.assistNode){
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = true;
 	}
@@ -430,7 +459,7 @@ protected void consumeCatchFormalParameter() {
 			if(argument.type == this.assistNode) {
 				this.isOrphanCompletionNode = true;
 				this.restartRecovery	= true;	// force to restart in recovery mode
-				this.lastIgnoredToken = -1;
+				this.lastIgnoredToken = TokenNameInvalid;
 			}
 		}
 	} else {
@@ -470,7 +499,7 @@ protected void consumeCatchFormalParameter() {
 
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 
 		/* if incomplete method header, listLength counter will not have been reset,
@@ -530,7 +559,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		this.lastCheckPoint = alloc.sourceEnd + 1;
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = true;
 	} else {
@@ -595,7 +624,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		this.lastCheckPoint = alloc.sourceEnd + 1;
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = true;
 	} else {
@@ -653,11 +682,11 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	this.lastCheckPoint = alloc.sourceEnd + 1;
 	if (!this.diet){
 		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		if (isIndirectlyInsideLambdaExpression())
 			this.ignoreNextOpeningBrace = true;
 		else
-			this.currentToken = 0; // opening brace already taken into account.
+			this.currentToken = TokenNameNotAToken; // opening brace already taken into account.
 		this.hasReportedError = true;
 	}
 
@@ -670,8 +699,8 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 		if (isIndirectlyInsideLambdaExpression())
 			this.ignoreNextOpeningBrace = true;
 		else
-			this.currentToken = 0; // opening brace already taken into account.
-		this.lastIgnoredToken = -1;
+			this.currentToken = TokenNameNotAToken; // opening brace already taken into account.
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 @Override
@@ -685,14 +714,18 @@ protected void consumeEnterVariable() {
 	if (variable.type == this.assistNode){
 		if (!this.diet && ! variable.type.isTypeNameVar(null)) {
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = false; // already attached inside variable decl
 	}
+
+	if (this.currentToken == TerminalToken.TokenNameEQUAL)
+		pushOnElementStack(K_INSIDE_INITIALIZATION);
 }
 
 @Override
 protected void consumeExitVariableWithInitialization() {
+	popElement(K_INSIDE_INITIALIZATION);
 	super.consumeExitVariableWithInitialization();
 
 	// does not keep the initialization if selection is not inside
@@ -737,14 +770,14 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	this.lastCheckPoint = fieldReference.sourceEnd + 1;
 	if (!this.diet){
 		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	this.isOrphanCompletionNode = true;
 }
 @Override
-protected void consumeFormalParameter(boolean isVarArgs) {
-	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeFormalParameter(isVarArgs);
+protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
+	if (this.indexOfAssistIdentifier() < 0 || this.parsingRecordComponents) {
+		super.consumeSingleVariableDeclarator(isVarArgs);
 	} else {
 		boolean isReceiver = this.intStack[this.intPtr--] == 0;
 	    if (isReceiver) {
@@ -819,7 +852,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 
 		/* if incomplete method header, listLength counter will not have been reset,
@@ -918,6 +951,18 @@ protected void consumeBinaryExpressionWithName(int op) {
 }
 
 @Override
+protected void consumeAssignment() {
+	popElement(K_INSIDE_ASSIGNMENT);
+	super.consumeAssignment();
+}
+@Override
+protected void consumeAssignmentOperator(int pos) {
+	super.consumeAssignmentOperator(pos);
+	if (pos == EQUAL)
+		pushOnElementStack(K_INSIDE_ASSIGNMENT, pos);
+}
+
+@Override
 protected void consumeStatementDo() {
 	super.consumeStatementDo();
 	popUntilElement(K_INSIDE_WHILE);
@@ -982,18 +1027,18 @@ protected void consumeInstanceOfExpressionWithName() {
 					&&  (this.selectionEnd <= pattern.sourceEnd)) {
 				this.isOrphanCompletionNode = true;
 				this.restartRecovery	= true;
-				this.lastIgnoredToken = -1;
+				this.lastIgnoredToken = TokenNameInvalid;
 			}
 		} else if (indexOfAssistIdentifier() >= 0) {
 			this.isOrphanCompletionNode = true;
 			this.restartRecovery = true;
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 	} else {
 		getTypeReference(this.intStack[this.intPtr--]);
 		this.isOrphanCompletionNode = true;
 		this.restartRecovery = true;
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 @Override
@@ -1045,7 +1090,7 @@ protected void consumeLocalVariableDeclarationStatement() {
 		if ((this.selectionStart >= localDeclaration.sourceStart)
 				&&  (this.selectionEnd <= localDeclaration.sourceEnd)) {
 			this.restartRecovery	= true;
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 	}
 }
@@ -1204,7 +1249,7 @@ protected void consumeMethodInvocationName() {
 	if (!this.diet){
 		pushOnAstStack(constructorCall);
 		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	} else {
 		pushOnExpressionStack(new Expression(){
 			@Override
@@ -1256,7 +1301,7 @@ protected void consumeMethodInvocationPrimary() {
 	if (!this.diet){
 		pushOnAstStack(constructorCall);
 		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	} else {
 		pushOnExpressionStack(new Expression(){
 			@Override
@@ -1440,13 +1485,13 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
 @Override
-protected void consumeToken(int token) {
-	int lastToken = this.previousToken; // before super.consumeToken tramples on it
+protected void consumeToken(TerminalToken token) {
+	TerminalToken lastToken = this.previousToken; // before super.consumeToken tramples on it
 	boolean betweenCaseAndColonOrArrow = topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW; // before super.consumeToken tramples on it
 	super.consumeToken(token);
 
@@ -1512,6 +1557,8 @@ protected void consumeToken(int token) {
 					}
 				}
 				break;
+			default:
+				break;
 		}
 	}
 }
@@ -1566,7 +1613,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1690,7 +1737,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		this.lastCheckPoint = reference.sourceEnd + 1;
 		if (!this.diet || this.dietInt != 0){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = true;
 		return new SingleNameReference(CharOperation.NO_CHAR, 0); // dummy reference
@@ -1720,7 +1767,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 	this.lastCheckPoint = nameReference.sourceEnd + 1;
 	if (!this.diet){
 		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	this.isOrphanCompletionNode = true;
 	return nameReference;
@@ -1740,7 +1787,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	if (index >= 0){
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 		this.isOrphanCompletionNode = true;
 	}
@@ -1785,7 +1832,7 @@ protected MessageSend newMessageSend() {
 		// Don't restart recovery, not yet, until variable decl statement has been consumed.
 		// This is to ensure chained method invocations are taken into account for resolution.
 		this.selectionNodeFoundLevel = 1;
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 
 	this.isOrphanCompletionNode = true;
@@ -1813,7 +1860,7 @@ protected MessageSend newMessageSendWithTypeArguments() {
 		// Don't restart recovery, not yet, until variable decl statement has been consumed.
 		// This is to ensure chained method invocations are taken into account for resolution.
 		this.selectionNodeFoundLevel = 1;
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 
 	this.isOrphanCompletionNode = true;

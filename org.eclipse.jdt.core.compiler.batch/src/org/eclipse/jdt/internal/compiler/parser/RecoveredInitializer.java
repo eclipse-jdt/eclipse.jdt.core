@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class RecoveredInitializer extends RecoveredField implements TerminalTokens {
+public class RecoveredInitializer extends RecoveredField {
 
 	public RecoveredType[] localTypes;
 	public int localTypeCount;

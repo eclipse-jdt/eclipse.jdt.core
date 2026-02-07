@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,14 +26,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
-import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 
@@ -44,10 +37,12 @@ public class LocalVariableBinding extends VariableBinding {
 	public static final int UNUSED = 0;
 	public static final int USED = 1;
 	public static final int FAKE_USED = 2;
+	public static final int ILLEGAL_SELF_REFERENCE_IF_USED = 3;
 	public int useFlag; // for flow analysis (default is UNUSED), values < 0 indicate the number of compound uses (postIncrement or compoundAssignment)
+	                    // also used to detect self reference in initializers in LVTI.
 
 	public BlockScope declaringScope; // back-pointer to its declaring scope
-	public LocalDeclaration declaration; // for source-positions
+	public AbstractVariableDeclaration declaration; // for source-positions
 
 	public int[] initializationPCs;
 	public int initializationCount = 0;
@@ -56,8 +51,8 @@ public class LocalVariableBinding extends VariableBinding {
 
 	public Set<MethodScope> uninitializedInMethod;
 
-	// for synthetic local variables
-	// if declaration slot is not positionned, the variable will not be listed in attribute
+	// for synthetic and problem local variables
+	// if declaration slot is not positioned, the variable will not be listed in attribute
 	// note that the name of a variable should be chosen so as not to conflict with user ones (usually starting with a space char is all needed)
 	public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolean isArgument) {
 		super(name, type, modifiers, isArgument ? Constant.NotAConstant : null);
@@ -129,7 +124,7 @@ public class LocalVariableBinding extends VariableBinding {
 			// scope index
 			getScopeKey(scope, buffer);
 
-			// find number of occurences of a variable with the same name in the scope
+			// find number of occurrences of a variable with the same name in the scope
 			LocalVariableBinding[] locals = scope.locals;
 			for (int i = 0; i < scope.localIndex; i++) { // use linear search assuming the number of locals per scope is low
 				LocalVariableBinding local = locals[i];
@@ -145,7 +140,7 @@ public class LocalVariableBinding extends VariableBinding {
 		buffer.append(this.name);
 
 		boolean addParameterRank = this.isParameter() && this.declaringScope != null;
-		// add occurence count to avoid same key for duplicate variables
+		// add occurrence count to avoid same key for duplicate variables
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=149590)
 		if (occurenceCount > 0 || addParameterRank) {
 			buffer.append('#');
@@ -175,7 +170,7 @@ public class LocalVariableBinding extends VariableBinding {
 	@Override
 	public AnnotationBinding[] getAnnotations() {
 		if (this.declaringScope == null) {
-			if ((this.tagBits & TagBits.AnnotationResolved) != 0) {
+			if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0) {
 				// annotation are already resolved
 				if (this.declaration == null) {
 					return Binding.NO_ANNOTATIONS;
@@ -200,7 +195,7 @@ public class LocalVariableBinding extends VariableBinding {
 		if (sourceType == null)
 			return Binding.NO_ANNOTATIONS;
 
-		if ((this.tagBits & TagBits.AnnotationResolved) == 0) {
+		if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0) {
 			if (((this.tagBits & TagBits.IsArgument) != 0) && this.declaration != null) {
 				Annotation[] annotationNodes = this.declaration.annotations;
 				if (annotationNodes != null) {
@@ -334,11 +329,23 @@ public class LocalVariableBinding extends VariableBinding {
 		return null;
 	}
 
-	public void markInitialized() {
-		// Signals that the type is correctly set now - This is for extension in subclasses
+	public void checkEffectiveFinality(Scope scope, Expression node) {
+		if ((this.tagBits & (TagBits.HasToBeEffectivelyFinal | TagBits.IsEffectivelyFinal)) == TagBits.HasToBeEffectivelyFinal) {
+			if ((node.bits & ASTNode.IsCapturedOuterLocal) != 0)
+				scope.problemReporter().localMustBeEffectivelyFinal(this, node, false /* resource ?*/, true /*outer local ?*/);
+			else if ((node.bits & ASTNode.IsUsedInPatternGuard) != 0)
+				scope.problemReporter().cannotReferToNonFinalLocalInGuard(this, node);
+			else if (node.resolvedType != null && node.resolvedType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, false /*AutoCloseable is not a class*/) != null)
+				scope.problemReporter().localMustBeEffectivelyFinal(this, node, true /* resource ?*/, false /*outer local ?*/);
+			else
+				scope.problemReporter().localMustBeEffectivelyFinal(this, node, false /* resource ?*/, false /*outer local ?*/);
+		}
 	}
-	public void markReferenced() {
-		// Signal that the name is used - This is for extension in subclasses
+	@Override
+	public void clearEffectiveFinality(Scope scope, Expression node, boolean complain) {
+		this.tagBits &= ~TagBits.IsEffectivelyFinal;
+		if (complain)
+			checkEffectiveFinality(scope, node);
 	}
 
 	public boolean isUninitializedIn(Scope scope) {
@@ -373,5 +380,9 @@ public class LocalVariableBinding extends VariableBinding {
                      leftCount,
                   right.length);
 		return left;
+	}
+	@Override
+	public void fillInDefaultNonNullness(AbstractVariableDeclaration sourceField, Scope scope) {
+		assert false : "local variables don't accept null defaults"; //$NON-NLS-1$
 	}
 }

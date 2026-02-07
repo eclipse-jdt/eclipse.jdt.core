@@ -67,7 +67,7 @@ public class BatchTestUtils {
 
 	private static String _tmpSrcFolderName;
 	private static File _tmpSrcDir;
-	private static String _tmpBinFolderName;
+	static String _tmpBinFolderName;
 	private static File _tmpBinDir;
 	public static String _tmpGenFolderName;
 	private static File _tmpGenDir;
@@ -137,6 +137,11 @@ public class BatchTestUtils {
 		compileTree(compiler, options, targetFolder, false);
 	}
 
+	public static void compileTree(StringWriter stringWriter, JavaCompiler compiler, List<String> options, File targetFolder,
+			DiagnosticListener<? super JavaFileObject> listener) {
+		compileTree(stringWriter, compiler, options, targetFolder, false, listener);
+	}
+
 	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder,
 			DiagnosticListener<? super JavaFileObject> listener) {
 		compileTree(compiler, options, targetFolder, false, listener);
@@ -147,16 +152,16 @@ public class BatchTestUtils {
 	}
 
 	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
-			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule) throws IOException {
-		compileInModuleMode(compiler, options, processor, targetFolder, listener, multiModule, true);
+			File moduleSrcFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule) throws IOException {
+		compileInModuleMode(compiler, options, processor, moduleSrcFolder, listener, multiModule, true);
 	}
 	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
-			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain) throws IOException {
+			File moduleSrcFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain) throws IOException {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
 		// create new list containing inputfile
 		List<File> files = new ArrayList<>();
-		findFilesUnder(targetFolder, files);
+		findFilesUnder(moduleSrcFolder, files);
 		files.sort(new Comparator<File>() {
 			@Override
 			public int compare(File f1, File f2) {
@@ -177,7 +182,7 @@ public class BatchTestUtils {
 		copyOptions.add(_tmpBinFolderName);
 		copyOptions.add("-s");
 		copyOptions.add(_tmpGenFolderName);
-		addModuleProcessorPath(copyOptions, targetFolder.getAbsolutePath(), multiModule);
+		addModuleProcessorPath(copyOptions, moduleSrcFolder.getAbsolutePath(), multiModule);
 		copyOptions.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, manager, listener, copyOptions, null, units);
 		Boolean result = task.call();
@@ -230,13 +235,18 @@ public class BatchTestUtils {
 	public static void compileTree(JavaCompiler compiler, List<String> options,
 			File targetFolder, boolean useJLS8Processors,
 			DiagnosticListener<? super JavaFileObject> listener) {
+		StringWriter stringWriter = new StringWriter();
+		compileTree(stringWriter, compiler, options, targetFolder, useJLS8Processors, listener);
+	}
+	public static void compileTree(StringWriter stringWriter, JavaCompiler compiler, List<String> options,
+			File targetFolder, boolean useJLS8Processors,
+			DiagnosticListener<? super JavaFileObject> listener) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
 		List<File> files = new ArrayList<>();
 		findFilesUnder(targetFolder, files);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 
 		options.add("-d");
@@ -517,7 +527,7 @@ public class BatchTestUtils {
 		junit.framework.TestCase.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
 	}
 
-	private static void addProcessorPaths(List<String> options, boolean useJLS8Processors, boolean addToNormalClasspath) {
+	public static void addProcessorPaths(List<String> options, boolean useJLS8Processors, boolean addToNormalClasspath) {
 		String path = useJLS8Processors ? _jls8ProcessorJarPath : _processorJarPath;
 		if (addToNormalClasspath) {
 			options.add("-cp");
@@ -526,7 +536,7 @@ public class BatchTestUtils {
 		options.add("-processorpath");
 		options.add(path);
 	}
-	private static void addModuleProcessorPath(List<String> options, String srcFolderName, boolean multiModule) {
+	public static void addModuleProcessorPath(List<String> options, String srcFolderName, boolean multiModule) {
 		options.add("--processor-module-path");
 		options.add(_jls8ProcessorJarPath);
 		options.add("--module-path");
@@ -690,7 +700,7 @@ public class BatchTestUtils {
 		File destinationDir = new File(tmpDir);
 		File destinationFile = new File(destinationDir, processorJar);
 		copyResource(libFile, destinationFile);
-		return destinationFile.getCanonicalPath();
+		return destinationFile.toPath().normalize().toAbsolutePath().toString();
 	}
 
 	/**

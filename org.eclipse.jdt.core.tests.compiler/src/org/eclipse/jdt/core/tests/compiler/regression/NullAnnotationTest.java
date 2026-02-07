@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 GK Software AG and others.
+ * Copyright (c) 2010, 2025 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -4571,7 +4571,7 @@ public void test_nonnull_field_16() {
 		"----------\n");
 }
 
-// Using jakarta.inject.Inject, slight variations
+// Using javax.inject.Inject, slight variations
 // [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
 public void test_nonnull_field_17() {
@@ -4581,7 +4581,7 @@ public void test_nonnull_field_17() {
 			JAVAX_INJECT_CONTENT,
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"import jakarta.inject.Inject;\n" +
+			"import javax.inject.Inject;\n" +
 			"public class X {\n" +
 			"    @NonNull @Inject static String s; // warn since injection of static field is less reliable\n" + // variation: static field
 			"    @NonNull @Inject @Deprecated Object o;\n" +
@@ -4641,6 +4641,32 @@ public void test_nonnull_field_19() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	@NonNull @Inject static String s; // warn since injection of static field is less reliable\n" +
 		"	                               ^\n" +
+		"The @NonNull field s may not have been initialized\n" +
+		"----------\n");
+}
+
+//Using jakarta.inject.Inject and javax.inject.Inject
+public void test_nonnull_field_20() {
+	runNegativeTestWithLibs(
+		new String[] {
+			JAVAX_INJECT_NAME,
+			JAVAX_INJECT_CONTENT,
+			JAKARTA_INJECT_NAME,
+			JAKARTA_INJECT_CONTENT,
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import jakarta.inject.Inject;\n" +
+			"public class X {\n" +
+			"    @NonNull @Inject @javax.inject.Inject static String s; // warn since injection of static field is less reliable\n" + // variation: static field
+			"    @NonNull @Inject @javax.inject.Inject @Deprecated Object o;\n" +
+			"    public X() {}\n" + // variation: with explicit constructor
+			"}\n",
+		},
+		null /*customOptions*/,
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	@NonNull @Inject @javax.inject.Inject static String s; // warn since injection of static field is less reliable\n" +
+		"	                                                    ^\n" +
 		"The @NonNull field s may not have been initialized\n" +
 		"----------\n");
 }
@@ -7032,7 +7058,7 @@ public void testBug418235() {
                     "@NonNullByDefault\n" +
                     "public class Implementation implements GenericInterface<Object> {\n" +
                     "\n" +
-                    (this.complianceLevel < ClassFileConstants.JDK1_6 ? "\n" : "      @Override\n" ) +
+                    "      @Override\n" +
                     "       public Object doSomethingGeneric(Object o) {\n" +
                     "               return o;\n" +
                     "       }\n" +
@@ -7216,12 +7242,8 @@ public void testBug424624a() {
 			"test/Test3.java",
 			"package test;\n" +
 			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
 			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
-			:
-			""
-			)+
+			"@Target(ElementType.TYPE_USE) @interface Marker {}\n" +
 			"\n" +
 			"public class Test3 {\n" +
 			"\n" +
@@ -7283,12 +7305,8 @@ public void testBug424624b() {
 		new String[] {
 			"Test3.java",
 			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
 			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
-			:
-			""
-			)+
+			"@Target(ElementType.TYPE_USE) @interface Marker {}\n" +
 			"\n" +
 			"public class Test3 {\n" +
 			"\n" +
@@ -7410,13 +7428,7 @@ public void testBug403674() {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	switch (computeStringValue()) {}\n" +
 			"	        ^^^^^^^^^^^^^^^^^^^^\n" +
-			(this.complianceLevel < ClassFileConstants.JDK1_7
-			?
-			"Cannot switch on a value of type String for source level below 1.7. " +
-			"Only convertible int values or enum variables are permitted\n"
-			:
-			"Potential null pointer access: The method computeStringValue() may return null\n"
-			) +
+			"Potential null pointer access: The method computeStringValue() may return null\n" +
 			"----------\n");
 }
 // Bug 403674 - [compiler][null] Switching on @Nullable enum value does not trigger "Potential null pointer access" warning
@@ -7598,16 +7610,12 @@ public void testBug434374() {
 			"\n" +
 			"public class AdapterServiceImpl implements AdapterService {\n" +
 			"\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_6
-			? "	@Override\n"
-			: "") +
+			"	@Override\n" +
 			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType) {\n" +
 			"		return false;\n" +
 			"	}\n" +
 			"\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_6
-			? "	@Override\n"
-			: "") +
+			"	@Override\n" +
 			"	@Nullable\n" +
 			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses) {\n" +
 			"		return null;\n" +
@@ -7637,9 +7645,7 @@ public void testBug434374a() {
 			"\n" +
 			"public class AdapterServiceImpl implements AdapterService {\n" +
 			"\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_6
-			? "	@Override\n"
-			: "") +
+			"	@Override\n" +
 			"	@NonNull\n" +
 			"	public <A> Class<A> getClassOfA(A object) {\n" +
 			"		throw new RuntimeException();\n" +
@@ -7869,7 +7875,6 @@ public void testBug445147() {
 		"");
 }
 public void testBug445708() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses switch on string.
 	runNegativeTestWithLibs(
 		new String[] {
 			"SwitchTest.java",
@@ -8255,7 +8260,6 @@ public void testBug457210() {
 		customOptions);
 }
 public void testBug462790() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // multi catch used
 	Map<String,String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runWarningTestWithLibs(
@@ -8768,12 +8772,12 @@ public void testBug418236() {
 }
 public void testBug461878() {
 	Map compilerOptions = getCompilerOptions();
-	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "jakarta.annotation.Nonnull");
+	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "javax.annotation.Nonnull");
 	runNegativeTest(
 		true, /*flush*/
 		new String[] {
-			"jakarta/annotation/Nonnull.java",
-			"package jakarta.annotation;\n" +
+			"javax/annotation/Nonnull.java",
+			"package javax.annotation;\n" +
 			"import java.lang.annotation.Retention;\n" +
 			"import java.lang.annotation.RetentionPolicy;\n" +
 			"@Retention(RetentionPolicy.RUNTIME)\n" +
@@ -8781,7 +8785,7 @@ public void testBug461878() {
 			"}\n",
 			"edu/umd/cs/findbugs/annotations/PossiblyNull.java",
 			"package edu.umd.cs.findbugs.annotations;\n" +
-			"@jakarta.annotation.Nonnull // <-- error!!!\n" +
+			"@javax.annotation.Nonnull // <-- error!!!\n" +
 			"public @interface PossiblyNull {\n" +
 			"}\n"
 		},
@@ -8789,8 +8793,8 @@ public void testBug461878() {
 		compilerOptions,
 		"----------\n" +
 		"1. WARNING in edu\\umd\\cs\\findbugs\\annotations\\PossiblyNull.java (at line 2)\n" +
-		"	@jakarta.annotation.Nonnull // <-- error!!!\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"	@javax.annotation.Nonnull // <-- error!!!\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The nullness annotation \'Nonnull\' is not applicable at this location\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -10931,7 +10935,12 @@ public void testBug548418_001a() {
 			"	^^^^^^^^\n" +
 			"Breaking out of switch expressions not permitted\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 15)\n" +
+			"3. ERROR in X.java (at line 14)\n" +
+			"	}\n" +
+			"	^^\n" +
+			"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 15)\n" +
 			"	default -> null;\n" +
 			"	           ^^^^\n" +
 			"Null type mismatch: required '@NonNull X' but the provided value is null\n" +
@@ -11509,5 +11518,539 @@ public void _testIssue3319() {
 		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Dead code\n" +
 		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_1a() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNullByDefault;
+
+				@NonNullByDefault
+				public record X(String component) {
+
+					public X {
+						component = null;
+					}
+				}
+				"""
+			},
+
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	component = null;\n" +
+			"	            ^^^^\n" +
+			"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
+			"----------\n",
+			this.LIBS,
+			false/*shouldFlush*/);
+}
+public void testIssue3971_1b() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNullByDefault;
+
+				public record X(String component) {
+
+					@NonNullByDefault // not affecting the record component declared above
+					public X {
+						component = null;
+					}
+				}
+				"""
+			},
+			getCompilerOptions(),
+			"");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, RECORD_COMPONENT\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.*;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		},
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+				"X.java",
+				"""
+				import annotation.*;
+
+				@NonNullByDefault(DefaultLocation.RECORD_COMPONENT)
+				public record X(String component) {
+
+					public X {
+						component = null;
+					}
+				}
+				@NonNullByDefault // not effective on record component
+				record Y(String comp) {
+					public Y {
+						comp = null;
+					}
+				}
+				"""
+		},
+		customOptions,
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	component = null;\n" +
+		"	            ^^^^\n" +
+		"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
+		"----------\n"
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		true /* shouldFlush*/,
+		new String[] {
+			"Point.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@interface PA {}\n" +
+			"@interface PB {}\n" +
+			"public record Point(@NonNull @PA Integer x, @PB Integer y) {\n" +
+			"    public Point { x = null; y = null;}\n" +
+			"}\n",
+		},
+		options,
+		"----------\n" +
+		"1. ERROR in Point.java (at line 5)\n" +
+		"	public Point { x = null; y = null;}\n" +
+		"	                   ^^^^\n" +
+		"Null type mismatch: required '@NonNull Integer' but the provided value is null\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.*;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		},
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+				"X.java",
+				"""
+				import annotation.*;
+
+				public record X(@NonNull String component) {
+
+
+					public X {
+						component = null;
+					}
+				}
+				"""
+		},
+		customOptions,
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	component = null;\n" +
+		"	            ^^^^\n" +
+		"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
+		"----------\n"
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_5() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.*;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		},
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+				"X.java",
+				"""
+				import annotation.*;
+
+				public record X(@NonNull String component) {
+
+					@NonNullByDefault
+					public X {
+						component = null;
+					}
+				}
+				"""
+		},
+		customOptions,
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	component = null;\n" +
+		"	            ^^^^\n" +
+		"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
+		"----------\n"
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_6() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(
+			new String[] {
+				"R2.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNull;
+
+				public record R2(@NonNull String s) {
+
+					public R2(String s) {
+						this.s = s;
+					}
+					void foo() {
+					    @NonNull String st = s(); // no warning here
+					}
+				}
+				"""
+			},
+
+			"----------\n" +
+			"1. WARNING in R2.java (at line 6)\n" +
+			"	this.s = s;\n" +
+			"	         ^\n" +
+			"Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'\n" +
+			"----------\n",
+			this.LIBS,
+			false/*shouldFlush*/);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_7() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.*;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		},
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+			new String[] {
+					"R2.java",
+					"""
+					import annotation.*;
+
+					public record R2(@NonNull String s) {
+
+						public R2(String s) {
+							this.s = s;
+						}
+						void foo() {
+						    @NonNull String st = s(); // no warning here
+						}
+					}
+					"""
+			},
+			customOptions,
+			"----------\n" +
+			"1. WARNING in R2.java (at line 6)\n" +
+			"	this.s = s;\n" +
+			"	         ^\n" +
+			"Null type safety: The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'\n" +
+			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971#issuecomment-2863645113
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_8() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(
+			new String[] {
+				"R.java",
+				"""
+				import org.eclipse.jdt.annotation.*;
+
+				@NonNullByDefault
+				public record R(@NonNull String name, @Nullable Integer i, Object obj) {
+
+					void m(@NonNull String n) {
+						@NonNull Integer a = i;
+						@NonNull Integer b = i();
+
+						@NonNull Object o2 = obj();
+						@NonNull Object o1 = obj;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in R.java (at line 4)\n" +
+			"	public record R(@NonNull String name, @Nullable Integer i, Object obj) {\n" +
+			"	                ^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"2. WARNING in R.java (at line 6)\n" +
+			"	void m(@NonNull String n) {\n" +
+			"	       ^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"3. ERROR in R.java (at line 7)\n" +
+			"	@NonNull Integer a = i;\n" +
+			"	                     ^\n" +
+			"Null type mismatch (type annotations): required '@NonNull Integer' but this expression has type '@Nullable Integer'\n" +
+			"----------\n" +
+			"4. ERROR in R.java (at line 8)\n" +
+			"	@NonNull Integer b = i();\n" +
+			"	                     ^^^\n" +
+			"Null type mismatch (type annotations): required '@NonNull Integer' but this expression has type '@Nullable Integer'\n" +
+			"----------\n",
+			this.LIBS,
+			false/*shouldFlush*/);
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+//[Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_9a() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import org.eclipse.jdt.annotation.*;
+
+				@NonNullByDefault
+				public record X(String component, @Nullable Object o) {
+				}
+				class Y {
+					static X create() { return new X(null, null); }
+				}
+				"""
+			},
+
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	static X create() { return new X(null, null); }\n" +
+			"	                                 ^^^^\n" +
+			"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
+			"----------\n",
+			this.LIBS,
+			false/*shouldFlush*/);
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+//[Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_9b() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, RECORD_COMPONENT\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.*;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, RECORD_COMPONENT };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		},
+		customOptions,
+		""
+	);
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import annotation.*;
+
+				@NonNullByDefault
+				public record X(String component, @Nullable Object o) {
+				}
+				class Y {
+					static X create() { return new X(null, null); }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	static X create() { return new X(null, null); }\n" +
+			"	                                 ^^^^\n" +
+			"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
+			"----------\n",
+			null,
+			false,/*shouldFlush*/
+			customOptions);
 }
 }

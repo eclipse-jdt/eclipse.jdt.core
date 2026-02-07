@@ -29,6 +29,7 @@ public class CaptureBinding18 extends CaptureBinding {
 		super(contextType, sourceName, start, end, captureID, environment);
 		this.originalName = originalName;
 		this.prototype = this;
+		this.superInterfaces = Binding.NO_SUPERINTERFACES;
 	}
 
 	private CaptureBinding18(CaptureBinding18 prototype) {
@@ -44,7 +45,7 @@ public class CaptureBinding18 extends CaptureBinding {
 		if (upperBounds.length > 0)
 			this.firstBound = upperBounds[0];
 		int numReferenceInterfaces = 0;
-		if (!isConsistentIntersection(upperBounds))
+		if (!isConsistentIntersection(upperBounds, InferenceContext18.SIMULATE_BUG_JDK_8026527))
 			return false;
 		for (TypeBinding aBound : upperBounds) {
 			if (aBound instanceof ReferenceBinding) {
@@ -65,6 +66,14 @@ public class CaptureBinding18 extends CaptureBinding {
 		if (this.superclass == null)
 			this.superclass = javaLangObject;
 		return true;
+	}
+
+	@Override
+	public ReferenceBinding setSuperClass(ReferenceBinding superclass) {
+		if (this.upperBounds == null) {
+			this.upperBounds = new ReferenceBinding[] { superclass };
+		}
+		return super.setSuperClass(superclass);
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 IBM Corporation and others.
+ * Copyright (c) 2006, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -342,6 +342,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("AbstractMethodMustBeImplementedOverConcreteMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("AbstractMethodsInConcreteClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("AbstractServiceImplementation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("AllocatingLocalInStaticContext", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("AmbiguousConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("AmbiguousConstructorInDefaultConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("AmbiguousConstructorInImplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -440,6 +441,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ConstructorReferenceNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("CyclicModuleDependency", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
+		expectedProblemAttributes.put("CyclicStructureNonNullByDefault", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CorruptedSignature", new ProblemAttributes(CategorizedProblem.CAT_BUILDPATH));
 		expectedProblemAttributes.put("DanglingReference", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -522,6 +524,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("FieldTypeInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("FieldTypeNotFound", DEPRECATED);
 		expectedProblemAttributes.put("FieldTypeNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("FieldWithUnresolvedOwningAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("FinalBoundForTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("FinalFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("FinalMethodCannotBeOverridden", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -811,6 +814,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("MemberOfDeprecatedTypeNotDeprecated", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("MessageSendWithUnresolvedOwningAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
@@ -845,6 +850,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingSynchronizedModifierInInheritedMethod", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingTypeInConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingTypeInLambda", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("ModifierOnRequiresJavaBase", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
+		expectedProblemAttributes.put("ModifierTransitiveOnRequiresJavaBaseBelow25", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
+		expectedProblemAttributes.put("MissingTypeForInference", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("UnterminatedTextBlock", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("MissingTypeInMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -951,6 +959,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ParameterMismatch", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ParameterizedConstructorArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ParameterizedMethodArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ParameterWithUnresolvedOwningAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ParsingError", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorDeleteToken", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorDeleteTokens", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -988,6 +997,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("PatternSwitchCaseDefaultOnlyAsSecond", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("RawTypeReference", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
+		expectedProblemAttributes.put("RecordComponentIncompatibleNullnessVsInheritedAccessor", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RecursiveConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("RedefinedArgument", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("RedefinedLocal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1063,6 +1073,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("SuperclassNotFound", DEPRECATED);
 		expectedProblemAttributes.put("SuperclassNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("SuperfluousSemicolon", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("SwitchExpressionMissingEnumConstantCaseDespiteDefault", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("SwitchOnEnumNotBelow15", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SwitchOnStringsNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("TargetTypeNotAFunctionalInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1247,6 +1258,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("PreviewFeaturesNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("FeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewAPIUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
+	    expectedProblemAttributes.put("PreviewAPIDisabled", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("JavaVersionNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("JavaVersionTooRecent", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1363,6 +1375,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("DisallowedStatementInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("DuplicateExplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SuperFieldAssignInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SuperFieldAssignInEarlyConstructionContextLambda", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("AssignFieldWithInitializerInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("ConstructorCallNotAllowedHere", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1371,6 +1384,10 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 	    expectedProblemAttributes.put("FunctionalInterfaceMayNotbeSealed", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("CompactConstructorOnlyInRecords", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("LocalMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("ResourceLocalMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("RecordAccessorMissingOverrideAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -1477,6 +1494,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("AbstractMethodMustBeImplementedOverConcreteMethod", SKIP);
 		expectedProblemAttributes.put("AbstractMethodsInConcreteClass", SKIP);
 		expectedProblemAttributes.put("AbstractServiceImplementation", SKIP);
+		expectedProblemAttributes.put("AllocatingLocalInStaticContext", SKIP);
 		expectedProblemAttributes.put("AmbiguousConstructor", SKIP);
 		expectedProblemAttributes.put("AmbiguousConstructorInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("AmbiguousConstructorInImplicitConstructorCall", SKIP);
@@ -1576,6 +1594,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
 		expectedProblemAttributes.put("CorruptedSignature", SKIP);
 		expectedProblemAttributes.put("CyclicModuleDependency", SKIP);
+		expectedProblemAttributes.put("CyclicStructureNonNullByDefault", SKIP);
 		expectedProblemAttributes.put("DanglingReference", SKIP);
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(JavaCore.COMPILER_PB_DEAD_CODE));
 		expectedProblemAttributes.put("DefaultMethodNotBelow18", SKIP);
@@ -1656,6 +1675,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("FieldTypeInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("FieldTypeNotFound", SKIP);
 		expectedProblemAttributes.put("FieldTypeNotVisible", SKIP);
+		expectedProblemAttributes.put("FieldWithUnresolvedOwningAnnotation", SKIP);
 		expectedProblemAttributes.put("FinalBoundForTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_FINAL_PARAMETER_BOUND));
 		expectedProblemAttributes.put("FinalFieldAssignment", SKIP);
 		expectedProblemAttributes.put("FinalMethodCannotBeOverridden", SKIP);
@@ -1945,8 +1965,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("LocalVariableIsNeverUsed", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_LOCAL));
 		expectedProblemAttributes.put("LocalVariableMayBeNull", SKIP);
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
-		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
-		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("MemberOfDeprecatedTypeNotDeprecated", new ProblemAttributes(JavaCore.COMPILER_PB_MEMBER_OF_DEPRECATED_TYPE));
+		expectedProblemAttributes.put("MessageSendWithUnresolvedOwningAnnotation", SKIP);
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD));
 		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_STATIC_ON_METHOD));
@@ -1981,8 +2003,11 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingSynchronizedModifierInInheritedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD));
 		expectedProblemAttributes.put("MissingTypeInConstructor", SKIP);
 		expectedProblemAttributes.put("MissingTypeInLambda", SKIP);
+		expectedProblemAttributes.put("ModifierOnRequiresJavaBase", SKIP);
+		expectedProblemAttributes.put("ModifierTransitiveOnRequiresJavaBaseBelow25", SKIP);
 		expectedProblemAttributes.put("UnterminatedTextBlock", SKIP);
 		expectedProblemAttributes.put("MissingTypeInMethod", SKIP);
+		expectedProblemAttributes.put("MissingTypeForInference", SKIP);
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", SKIP);
 		expectedProblemAttributes.put("MissingValueFromLambda", SKIP);
 		expectedProblemAttributes.put("ModuleNotRead", SKIP);
@@ -2087,6 +2112,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ParameterMismatch", SKIP);
 		expectedProblemAttributes.put("ParameterizedConstructorArgumentTypeMismatch", SKIP);
 		expectedProblemAttributes.put("ParameterizedMethodArgumentTypeMismatch", SKIP);
+		expectedProblemAttributes.put("ParameterWithUnresolvedOwningAnnotation", SKIP);
 		expectedProblemAttributes.put("ParsingError", SKIP);
 		expectedProblemAttributes.put("ParsingErrorDeleteToken", SKIP);
 		expectedProblemAttributes.put("ParsingErrorDeleteTokens", SKIP);
@@ -2125,6 +2151,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("PatternSwitchCaseDefaultOnlyAsSecond", SKIP);
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", SKIP);
 		expectedProblemAttributes.put("RawTypeReference", new ProblemAttributes(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE));
+		expectedProblemAttributes.put("RecordComponentIncompatibleNullnessVsInheritedAccessor", SKIP);
 		expectedProblemAttributes.put("RecursiveConstructorInvocation", SKIP);
 		expectedProblemAttributes.put("RedefinedArgument", SKIP);
 		expectedProblemAttributes.put("RedefinedLocal", SKIP);
@@ -2200,6 +2227,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("SuperclassNotFound", SKIP);
 		expectedProblemAttributes.put("SuperclassNotVisible", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("SuperfluousSemicolon", new ProblemAttributes(JavaCore.COMPILER_PB_EMPTY_STATEMENT));
+		expectedProblemAttributes.put("SwitchExpressionMissingEnumConstantCaseDespiteDefault", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH));
 		expectedProblemAttributes.put("SwitchOnEnumNotBelow15", SKIP);
 		expectedProblemAttributes.put("SwitchOnStringsNotBelow17", SKIP);
 		expectedProblemAttributes.put("TargetTypeNotAFunctionalInterface", SKIP);
@@ -2383,6 +2411,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("PreviewFeaturesNotAllowed", SKIP);
 	    expectedProblemAttributes.put("FeatureNotSupported", SKIP);
 	    expectedProblemAttributes.put("PreviewAPIUsed", SKIP);
+	    expectedProblemAttributes.put("PreviewAPIDisabled", SKIP);
 	    expectedProblemAttributes.put("JavaVersionNotSupported", SKIP);
 	    expectedProblemAttributes.put("JavaVersionTooRecent", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", SKIP);
@@ -2500,6 +2529,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("DisallowedStatementInEarlyConstructionContext",  SKIP);
 	    expectedProblemAttributes.put("DuplicateExplicitConstructorCall",  SKIP);
 	    expectedProblemAttributes.put("SuperFieldAssignInEarlyConstructionContext", SKIP);
+	    expectedProblemAttributes.put("SuperFieldAssignInEarlyConstructionContextLambda", SKIP);
 	    expectedProblemAttributes.put("AssignFieldWithInitializerInEarlyConstructionContext", SKIP);
 	    expectedProblemAttributes.put("ConstructorCallNotAllowedHere", SKIP);
 	    expectedProblemAttributes.put("NamedPatternVariablesDisallowedHere", SKIP);
@@ -2508,6 +2538,10 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", SKIP);
 	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", SKIP);
 	    expectedProblemAttributes.put("FunctionalInterfaceMayNotbeSealed", SKIP);
+	    expectedProblemAttributes.put("CompactConstructorOnlyInRecords", SKIP);
+	    expectedProblemAttributes.put("LocalMustBeEffectivelyFinal", SKIP);
+	    expectedProblemAttributes.put("ResourceLocalMustBeEffectivelyFinal", SKIP);
+	    expectedProblemAttributes.put("RecordAccessorMissingOverrideAnnotation", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();

@@ -3443,10 +3443,10 @@ public abstract class ASTNode {
 	 */
 	public final void setSourceRange(int startPosition, int length) {
 		if (startPosition >= 0 && length < 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("negative length=" + length + " startPosition= " + startPosition); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (startPosition < 0 && length != 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("negative startPosition=" + startPosition + " length=" + length); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		// source positions are not considered a structural property
 		// but we protect them nevertheless

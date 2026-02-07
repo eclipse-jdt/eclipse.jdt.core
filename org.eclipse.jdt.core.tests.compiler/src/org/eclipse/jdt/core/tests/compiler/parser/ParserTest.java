@@ -745,7 +745,7 @@ public void test027() {
 		"1. ERROR in X.java (at line 19)\n" +
 		"	catch (\n" +
 		"	      ^\n" +
-		"Syntax error on token \"(\", FormalParameter expected after this token\n" +
+		"Syntax error on token \"(\", CatchFormalParameter expected after this token\n" +
 		"----------\n"
 	);
 }
@@ -810,12 +810,12 @@ public void testBug485477() {
 		"1. ERROR in T.java (at line 2)\n" +
 		"	Object o = T.super; // error: \'.\' expected\n" +
 		"	             ^^^^^\n" +
-		"Syntax error, insert \". Identifier\" to complete Expression\n" +
+		"Syntax error, insert \". Identifier\" to complete VariableInitializer\n" +
 		"----------\n" +
 		"2. ERROR in T.java (at line 7)\n" +
 		"	Object o2 = T.super;\n" +
 		"	              ^^^^^\n" +
-		"Syntax error, insert \". Identifier\" to complete Expression\n" +
+		"Syntax error, insert \". Identifier\" to complete VariableInitializer\n" +
 		"----------\n" +
 		"3. ERROR in T.java (at line 9)\n" +
 		"	o1 = U.super;\n" +

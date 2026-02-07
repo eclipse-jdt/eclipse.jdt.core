@@ -58,7 +58,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.IFoo", "org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer", "targets.filer8.PackageAnnot",
-	                       "java.lang.Deprecated"})
+	                       "java.lang.Deprecated", "org.eclipse.jdt.compiler.apt.tests.annotations.GenClass"})
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
@@ -161,6 +161,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testBug526288();
 		testEnumConstArguments();
 		testBug544288();
+		testGH4617();
 	}
 
 	public void testLambdaSpecifics() {
@@ -1069,6 +1070,34 @@ public class Java8ElementProcessor extends BaseProcessor {
 		TypeMirror asType = field.asType();
 		Element asElement = _typeUtils.asElement(asType);
 		verifyAnnotations(asElement, new String[]{"@Deprecated()"});
+	}
+	public void testGH4617() {
+		TypeElement type = _elementUtils.getTypeElement("targets.GH4617.ParentClass");
+		List<? extends Element> enclosedElements = type.getEnclosedElements();
+		List<ExecutableElement> methodsIn = ElementFilter.methodsIn(enclosedElements);
+		assertEquals("Incorrect number of methods", 3, methodsIn.size());
+		StringBuilder builder = new StringBuilder();
+		for (ExecutableElement executableElement : methodsIn) {
+			builder.append(executableElement.getSimpleName().toString()).append(',');
+		}
+		assertEquals("Incorrect order received", "gamma,alpha,beta,", builder.toString());
+	}
+	public void testGH1752() {
+		TypeElement type = _elementUtils.getTypeElement("targets.GH1752.GH1752SubClass");
+		List<? extends Element> allMembers = _elementUtils.getAllMembers(type);
+		ExecutableElement m1 = null;
+		ExecutableElement m3 = null;
+		for (Element element : allMembers) {
+			if (element.getSimpleName().toString().equals("m1")) {
+				m1 = (ExecutableElement) element;
+			}
+			if (element.getSimpleName().toString().equals("m3")) {
+				m3 = (ExecutableElement) element;
+				break;
+			}
+		}
+		assertNotNull("Method m1 should not be null", m1);
+		assertNull("Method m3 should be null", m3);
 	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');

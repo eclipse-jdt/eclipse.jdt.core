@@ -15,13 +15,18 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import junit.framework.Test;
 import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings("rawtypes")
 public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
-	/** @deprecated using deprecated code */
+	@SuppressWarnings("deprecation")
 	public static Test suite() {
 		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTVisitorTest.class.getName());
@@ -30,10 +35,10 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS2));
-				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS3));
-				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS4));
-				suite.addTest(new ASTVisitorTest(methods[i].getName(), getJLS8()));
+				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS8));
+				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS11));
+				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS17));
+				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS21));
 			}
 		}
 		return suite;
@@ -256,67 +261,58 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.MPARM1.setType(this.ast.newPrimitiveType(PrimitiveType.CHAR));
 		this.MPARM1S = "[(MPARM[(tPcharchartP)]MPARM)]";  //$NON-NLS-1$
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
-			this.PT1 = this.ast.newParameterizedType(this.ast.newSimpleType(this.ast.newSimpleName("Z"))); //$NON-NLS-1$
-			this.PT1S = "[(tM[(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
+		this.PT1 = this.ast.newParameterizedType(this.ast.newSimpleType(this.ast.newSimpleName("Z"))); //$NON-NLS-1$
+		this.PT1S = "[(tM[(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
 
-			this.TP1 = this.ast.newTypeParameter();
-			this.TP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
-			this.TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
+		this.TP1 = this.ast.newTypeParameter();
+		this.TP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
+		this.TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
 
-			this.TP2 = this.ast.newTypeParameter();
-			this.TP2.setName(this.ast.newSimpleName("y")); //$NON-NLS-1$
-			this.TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
+		this.TP2 = this.ast.newTypeParameter();
+		this.TP2.setName(this.ast.newSimpleName("y")); //$NON-NLS-1$
+		this.TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
 
-			this.MVP1 = this.ast.newMemberValuePair();
-			this.MVP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
-			this.MVP1.setValue(this.ast.newSimpleName("y")); //$NON-NLS-1$
-			this.MVP1S = "[(@MVP[(nSxxnS)][(nSyynS)]@MVP)]"; //$NON-NLS-1$
+		this.MVP1 = this.ast.newMemberValuePair();
+		this.MVP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
+		this.MVP1.setValue(this.ast.newSimpleName("y")); //$NON-NLS-1$
+		this.MVP1S = "[(@MVP[(nSxxnS)][(nSyynS)]@MVP)]"; //$NON-NLS-1$
 
-			this.MVP2 = this.ast.newMemberValuePair();
-			this.MVP2.setName(this.ast.newSimpleName("a")); //$NON-NLS-1$
-			this.MVP2.setValue(this.ast.newSimpleName("b")); //$NON-NLS-1$
-			this.MVP2S = "[(@MVP[(nSaanS)][(nSbbnS)]@MVP)]"; //$NON-NLS-1$
+		this.MVP2 = this.ast.newMemberValuePair();
+		this.MVP2.setName(this.ast.newSimpleName("a")); //$NON-NLS-1$
+		this.MVP2.setValue(this.ast.newSimpleName("b")); //$NON-NLS-1$
+		this.MVP2S = "[(@MVP[(nSaanS)][(nSbbnS)]@MVP)]"; //$NON-NLS-1$
 
-			this.MOD1 = this.ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
-			this.MOD1S = "[(MODpublicpublicMOD)]"; //$NON-NLS-1$
-			this.MOD2 = this.ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
-			this.MOD2S = "[(MODfinalfinalMOD)]"; //$NON-NLS-1$
+		this.MOD1 = this.ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+		this.MOD1S = "[(MODpublicpublicMOD)]"; //$NON-NLS-1$
+		this.MOD2 = this.ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
+		this.MOD2S = "[(MODfinalfinalMOD)]"; //$NON-NLS-1$
 
-			this.ANO1 = this.ast.newMarkerAnnotation();
-			this.ANO1.setTypeName(this.ast.newSimpleName("a")); //$NON-NLS-1$
-			this.ANO1S = "[(@MAN[(nSaanS)]@MAN)]"; //$NON-NLS-1$
+		this.ANO1 = this.ast.newMarkerAnnotation();
+		this.ANO1.setTypeName(this.ast.newSimpleName("a")); //$NON-NLS-1$
+		this.ANO1S = "[(@MAN[(nSaanS)]@MAN)]"; //$NON-NLS-1$
 
-			this.ANO2 = this.ast.newNormalAnnotation();
-			this.ANO2.setTypeName(this.ast.newSimpleName("b")); //$NON-NLS-1$
-			this.ANO2S = "[(@NAN[(nSbbnS)]@NAN)]"; //$NON-NLS-1$
+		this.ANO2 = this.ast.newNormalAnnotation();
+		this.ANO2.setTypeName(this.ast.newSimpleName("b")); //$NON-NLS-1$
+		this.ANO2S = "[(@NAN[(nSbbnS)]@NAN)]"; //$NON-NLS-1$
 
-			this.EC1 = this.ast.newEnumConstantDeclaration();
-			this.EC1.setName(this.ast.newSimpleName("c")); //$NON-NLS-1$
-			this.EC1S = "[(ECD[(nSccnS)]ECD)]"; //$NON-NLS-1$
+		this.EC1 = this.ast.newEnumConstantDeclaration();
+		this.EC1.setName(this.ast.newSimpleName("c")); //$NON-NLS-1$
+		this.EC1S = "[(ECD[(nSccnS)]ECD)]"; //$NON-NLS-1$
 
-			this.EC2 = this.ast.newEnumConstantDeclaration();
-			this.EC2.setName(this.ast.newSimpleName("d")); //$NON-NLS-1$
-			this.EC2S = "[(ECD[(nSddnS)]ECD)]"; //$NON-NLS-1$
-		}
-		if (this.ast.apiLevel() >= getJLS8()) {
-			this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("W")); //$NON-NLS-1$
-			this.T3S = "[(tS[(nSWWnS)]tS)]"; //$NON-NLS-1$
-			this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("X")); //$NON-NLS-1$
-			this.T4S = "[(tS[(nSXXnS)]tS)]"; //$NON-NLS-1$
-		}
+		this.EC2 = this.ast.newEnumConstantDeclaration();
+		this.EC2.setName(this.ast.newSimpleName("d")); //$NON-NLS-1$
+		this.EC2S = "[(ECD[(nSddnS)]ECD)]"; //$NON-NLS-1$
+
+		this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("W")); //$NON-NLS-1$
+		this.T3S = "[(tS[(nSWWnS)]tS)]"; //$NON-NLS-1$
+		this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("X")); //$NON-NLS-1$
+		this.T4S = "[(tS[(nSXXnS)]tS)]"; //$NON-NLS-1$
 
 	}
 
 	protected void tearDown() throws Exception {
 		this.ast = null;
 		super.tearDown();
-	}
-	/**
-	 * @deprecated
-	 */
-	protected static int getJLS8() {
-		return AST.JLS8;
 	}
 
 	class TestVisitor extends ASTVisitor {
@@ -1166,15 +1162,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		String expected = this.ast.apiLevel() < getJLS8() ? "[(tA[(tPcharchartP)]tA)]" : "[(tA[(tPcharchartP)][(@ED@ED)]tA)]";
+		String expected = "[(tA[(tPcharchartP)][(@ED@ED)]tA)]";
 		assertTrue(expected.equals(result)); //$NON-NLS-1$
 	}
 
-	/** @deprecated using deprecated code */
 	public void testNameQualifiedType() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		QualifiedName q = this.ast.newQualifiedName(this.N2, this.N3);
 		NameQualifiedType x1 = this.ast.newNameQualifiedType(q, this.N1);
 		TestVisitor v1 = new TestVisitor();
@@ -1264,7 +1256,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		String dim = this.ast.apiLevel() < getJLS8() ? "" : "[(@ED@ED)]";
+		String dim = "[(@ED@ED)]";
 		assertTrue(result.equals("[(eAC"+"[(tA"+this.T1S+ dim +"tA)]"+this.E1S+this.E2S+"[(eAIeAI)]eAC)]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 	public void testArrayInitializer() {
@@ -1370,6 +1362,25 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(eCL'q''q'eCL)]")); //$NON-NLS-1$
 	}
+	public void testCharacterLiteralConcurrent() throws Exception {
+		CharacterLiteral x1 = this.ast.newCharacterLiteral();
+		x1.setCharValue('q');
+
+		ExecutorService executorService = Executors.newFixedThreadPool(10);
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+		for (int i = 0; i < 100; i++) {
+			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				try {
+					x1.charValue();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}, executorService);
+			futures.add(future);
+		}
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+		executorService.shutdown();
+	}
 	/** @deprecated using deprecated code */
 	public void testClassInstanceCreation() {
 		ClassInstanceCreation x1 = this.ast.newClassInstanceCreation();
@@ -1461,8 +1472,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testCreationReference() {
-		if (this.ast.apiLevel() < getJLS8())
-			return;
 		CreationReference x1 = this.ast.newCreationReference();
 		x1.setType(this.T1);
 		TestVisitor v1 = new TestVisitor();
@@ -1533,8 +1542,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(ED"+this.JD1S+this.MOD1S+this.MOD2S+this.N1S+this.T1S+this.T2S+this.EC1S+this.EC2S+this.FD1S+this.FD2S+"ED)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testExpressionMethodReference() {
-		if (this.ast.apiLevel() < getJLS8())
-			return;
 		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference();
 		x1.setExpression(this.E1);
 		x1.setName(this.N1);
@@ -1554,9 +1561,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(sEX"+this.E1S+"sEX)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testExtraDimension() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		Dimension x1 = this.ast.newDimension();
 		x1.annotations().add(this.ANO1);
 		x1.annotations().add(this.ANO2);
@@ -1756,48 +1760,29 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(MBREF"+this.N1S+this.N2S+"MBREF)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	/** @deprecated using deprecated code */
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = this.ast.newMethodDeclaration();
 		x1.setJavadoc(this.JD1);
-		if (this.ast.apiLevel() == AST.JLS2) {
-			x1.setReturnType(this.T1);
-		} else {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-			x1.typeParameters().add(this.TP1);
-			x1.setReturnType2(this.T1);
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
+		x1.typeParameters().add(this.TP1);
+		x1.setReturnType2(this.T1);
 		x1.setName(this.N1);
 		x1.parameters().add(this.V1);
 		x1.parameters().add(this.V2);
-		if (this.ast.apiLevel() < getJLS8()) {
-			x1.thrownExceptions().add(this.N2);
-			x1.thrownExceptions().add(this.N3);
-		} else {
-			x1.thrownExceptionTypes().add(this.T3);
-			x1.thrownExceptionTypes().add(this.T4);
-		}
+		x1.thrownExceptionTypes().add(this.T3);
+		x1.thrownExceptionTypes().add(this.T4);
 		x1.setBody(this.B1);
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		if (this.ast.apiLevel() == AST.JLS2) {
-			assertEquals("[(MD"+this.JD1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (this.ast.apiLevel() < getJLS8()) {
-			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.T3S+this.T4S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.T3S+this.T4S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	/** @deprecated using deprecated code */
 	public void testMethodInvocation() {
 		MethodInvocation x1 = this.ast.newMethodInvocation();
 		x1.setExpression(this.N1);
-		if (this.ast.apiLevel() >= AST.JLS3) {
-			x1.typeArguments().add(this.PT1);
-		}
+		x1.typeArguments().add(this.PT1);
 		x1.setName(this.N2);
 		x1.arguments().add(this.E1);
 		x1.arguments().add(this.E2);
@@ -1805,11 +1790,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		if (this.ast.apiLevel() == AST.JLS2) {
-			assertTrue(result.equals("[(eMI"+this.N1S+this.N2S+this.E1S+this.E2S+"eMI)]")); //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			assertTrue(result.equals("[(eMI"+this.N1S+this.PT1S+this.N2S+this.E1S+this.E2S+"eMI)]")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		assertTrue(result.equals("[(eMI"+this.N1S+this.PT1S+this.N2S+this.E1S+this.E2S+"eMI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testMethodRef() {
@@ -2028,6 +2009,26 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(eSLHHeSL)]")); //$NON-NLS-1$
 	}
+	public void testStringLiteralConcurrent() throws Exception {
+		StringLiteral x1 = this.ast.newStringLiteral();
+		x1.setEscapedValue("\"hello\\nworld\""); //$NON-NLS-1$
+
+		ExecutorService executorService = Executors.newFixedThreadPool(10);
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+		for (int i = 0; i < 100; i++) {
+			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				try {
+					x1.getLiteralValue();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}, executorService);
+			futures.add(future);
+		}
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+		executorService.shutdown();
+	}
+
 	/** @deprecated using deprecated code */
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = this.ast.newSuperConstructorInvocation();
@@ -2078,9 +2079,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		}
 	}
 	public void testSuperMethodReference() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		SuperMethodReference x1 = this.ast.newSuperMethodReference();
 		x1.setQualifier(this.N1);
 		x1.setName(this.N2);
@@ -2093,12 +2091,16 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	@SuppressWarnings("deprecation")
 	public void testSwitchCase() {
 		SwitchCase x1 = this.ast.newSwitchCase();
-		x1.setExpression(this.E1);
+		if (this.ast.apiLevel() >= AST.JLS14) {
+			x1.expressions().add(this.E1);
+		} else {
+			x1.setExpression(this.E1);
+		}
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		assertTrue(result.equals("[(sSC"+this.E1S+"sSC)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("[(sSC"+this.E1S+"sSC)]", result); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testSwitchStatement() {
 		SwitchStatement x1 = this.ast.newSwitchStatement();
@@ -2238,8 +2240,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(eTL"+this.T1S+"eTL)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testTypeMethodReference() {
-		if (this.ast.apiLevel() < getJLS8())
-			return;
 		TypeMethodReference x1 = this.ast.newTypeMethodReference();
 		x1.setType(this.T1);
 		x1.setName(this.N1);
@@ -2253,10 +2253,8 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	/** @deprecated using deprecated code */
 	public void testSingleVariableDeclaration() {
 		SingleVariableDeclaration x1 = this.ast.newSingleVariableDeclaration();
-		if (this.ast.apiLevel() >= AST.JLS3) {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
 		x1.setType(this.T1);
 		x1.setName(this.N1);
 		x1.setInitializer(this.E1);
@@ -2264,11 +2262,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		if (this.ast.apiLevel() == AST.JLS2) {
-			assertTrue(result.equals("[(VD"+this.T1S+this.N1S+this.E1S+"VD)]")); //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			assertTrue(result.equals("[(VD"+this.MOD1S+this.MOD2S+this.T1S+this.N1S+this.E1S+"VD)]")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		assertTrue(result.equals("[(VD"+this.MOD1S+this.MOD2S+this.T1S+this.N1S+this.E1S+"VD)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testVariableDeclarationFragment() {
 		VariableDeclarationFragment x1 = this.ast.newVariableDeclarationFragment();

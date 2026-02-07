@@ -1415,10 +1415,10 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 					" }"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 14)\n" +
-				"	c1.checkWhitespace(i);\n" +
-				"	                   ^\n" +
-				"Local variable i defined in an enclosing scope must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	for (int i = 1; i < args.length; i++) {\n" +
+				"	                                 ^\n" +
+				"Local variable i is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	public void testBug566774_004() {
@@ -1446,17 +1446,17 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 						" }\n"+
 						" }"
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 6)\n" +
-					"	String arg = args[x];\n" +
-					"	             ^^^^\n" +
-					"Cannot make a static reference to the non-static variable args\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 16)\n" +
-					"	c2.checkFlag(i);\n" +
-					"	             ^\n" +
-					"Local variable i defined in an enclosing scope must be final or effectively final\n" +
-					"----------\n");
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	String arg = args[x];\n" +
+				"	             ^^^^\n" +
+				"Cannot make a static reference to the non-static variable args\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 14)\n" +
+				"	for (int i = 1; i < args.length; i++) {\n" +
+				"	                                 ^\n" +
+				"Local variable i is required to be final or effectively final based on its usage\n" +
+				"----------\n");
 	}
 	public void testBug572994_001() {
 		runNegativeTest(
@@ -1704,5 +1704,31 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Hi from Test\n" +
 			"Hi from MyTest\n" +
 			"Hi from EnumTester");
+	}
+	// ECJ reports about non-existing modifiers on a local class in a switch expression
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4584
+	public void testIssue4584() throws Exception {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					public interface X {
+					    int i = switch (0) {
+					        case 2 -> {
+					            class ParentLocal { // This is rejected
+					            }
+					            yield 1;
+					        }
+					        default -> {
+					            yield 0;
+					        }
+					    };
+					    public static void main(String [] args) {
+					        System.out.println("OK!");
+					    }
+					}
+					"""
+				},
+			"OK!");
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,6 +45,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -475,13 +476,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				}
 				File f = new File(fileName);
-				try {
-					HashMap<String, Object> parameters = new HashMap<>();
-					parameters.put(Logger.PATH, f.getCanonicalPath());
-					printTag(Logger.CLASS_FILE, parameters, true, true);
-				} catch (IOException e) {
-					logNoClassFileCreated(outputPath, relativeFileName, e);
-				}
+				HashMap<String, Object> parameters = new HashMap<>();
+				parameters.put(Logger.PATH, f.toPath().normalize().toAbsolutePath().toString());
+				printTag(Logger.CLASS_FILE, parameters, true, true);
 			}
 		}
 		public void logClasspath(FileSystem.Classpath[] classpaths) {
@@ -1783,7 +1780,7 @@ public void configure(String[] argv) {
 
 	boolean didSpecifyDeprecation = false;
 	boolean didSpecifyCompliance = false;
-	boolean didSpecifyDisabledAnnotationProcessing = false;
+	boolean disableAnnotationProcessing = false;
 
 	String customEncoding = null;
 	String customDestinationPath = null;
@@ -2471,6 +2468,7 @@ public void configure(String[] argv) {
 					continue;
 				}
 				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
+					disableAnnotationProcessing = false;
 					this.options.put(
 						CompilerOptions.OPTION_GenerateClassFiles,
 						CompilerOptions.DISABLED);
@@ -2478,10 +2476,19 @@ public void configure(String[] argv) {
 					continue;
 				}
 				if (currentArg.equals("-proc:none")) { //$NON-NLS-1$
-					didSpecifyDisabledAnnotationProcessing = true;
+					disableAnnotationProcessing = true;
 					this.options.put(
 						CompilerOptions.OPTION_Process_Annotations,
 						CompilerOptions.DISABLED);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-proc:full")) { //$NON-NLS-1$
+					// Enable, just in case we had a -proc:only before this that disabled this
+					this.options.put(
+							CompilerOptions.OPTION_GenerateClassFiles,
+							CompilerOptions.ENABLED);
+					disableAnnotationProcessing = false;
 					mode = DEFAULT;
 					continue;
 				}
@@ -2942,8 +2949,7 @@ public void configure(String[] argv) {
 
 	// Enable annotation processing by default in batch mode when compliance is at least 1.6
 	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=185768
-	if (!didSpecifyDisabledAnnotationProcessing
-			&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) >= ClassFileConstants.JDK1_6) {
+	if (!disableAnnotationProcessing) {
 		this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	}
 
@@ -3057,6 +3063,12 @@ private String optionStringToVersion(String currentArg) {
 		case "23": //$NON-NLS-1$
 		case "23.0": //$NON-NLS-1$
 			return CompilerOptions.VERSION_23;
+		case "24": //$NON-NLS-1$
+		case "24.0": //$NON-NLS-1$
+			return CompilerOptions.VERSION_24;
+		case "25": //$NON-NLS-1$
+		case "25.0": //$NON-NLS-1$
+			return CompilerOptions.VERSION_25;
 		default:
 			return null;
 	}
@@ -3077,11 +3089,11 @@ private String validateModuleVersion(String versionString) {
 	return versionString;
 }
 
-private Parser getNewParser() {
+public Parser getNewParser() {
 	return new Parser(new ProblemReporter(getHandlingPolicy(),
 			new CompilerOptions(this.options), getProblemFactory()), false);
 }
-private IModule extractModuleDesc(String fileName) {
+private IModule extractModuleDesc(String fileName, Supplier<CompilationUnit> cuSupplier) {
 	IModule mod = null;
 	if (fileName.toLowerCase().endsWith(IModule.MODULE_INFO_JAVA)) {
 		// this.options may not be completely populated yet, and definitely not
@@ -3091,7 +3103,7 @@ private IModule extractModuleDesc(String fileName) {
 		Parser parser = new Parser(new ProblemReporter(getHandlingPolicy(),
 				new CompilerOptions(opts), getProblemFactory()), false);
 
-		ICompilationUnit cu = new CompilationUnit(null, fileName, null);
+		ICompilationUnit cu = cuSupplier.get();
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
@@ -3543,13 +3555,16 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 	}
 	return result;
 }
-private void handleSingleModuleCompilation() {
+protected void handleSingleModuleCompilation() {
 	if (this.filenames == null) {
 		return;
 	}
 	IModule singleMod = null;
-	for (String filename : this.filenames) {
-		IModule mod = extractModuleDesc(filename);
+	String[] names = this.filenames;
+	for (int i = 0; i < names.length; i++) {
+		String filename = names[i];
+		int idx = i; // idx is used in EclipseCompilerImpl.createCompilationUnit()
+		IModule mod = extractModuleDesc(filename, () -> createCompilationUnit(idx, filename));
 		if (mod != null) {
 			if (singleMod == null) {
 				singleMod = mod;
@@ -3565,6 +3580,20 @@ private void handleSingleModuleCompilation() {
 		}
 		this.module = singleMod;
 	}
+}
+// overridable hook
+protected CompilationUnit createCompilationUnit(int idx, String filename) {
+	return new CompilationUnit(null, filename, null);
+}
+/*
+ * External API
+ */
+public String getDefaultEncoding() {
+	if (this.compilerOptions != null)
+		return this.compilerOptions.defaultEncoding;
+	if (this.options != null)
+		return new CompilerOptions(this.options).defaultEncoding;
+	return null;
 }
 /*
  * External API

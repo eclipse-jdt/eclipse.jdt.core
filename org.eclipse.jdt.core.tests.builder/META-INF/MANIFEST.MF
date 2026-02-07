@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.core.tests.builder; singleton:=true
-Bundle-Version: 3.12.600.qualifier
+Bundle-Version: 3.12.1100.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.jdt.core.tests.builder
@@ -16,6 +16,6 @@ Require-Bundle: org.junit;bundle-version="3.8.1",
  org.eclipse.test.performance;bundle-version="[3.1.0,4.0.0)",
  org.eclipse.jdt.annotation;bundle-version="[2.0.0,3.0.0)";resolution:=optional,
  org.eclipse.jdt.apt.core
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: dir
 Automatic-Module-Name: org.eclipse.jdt.core.tests.builder

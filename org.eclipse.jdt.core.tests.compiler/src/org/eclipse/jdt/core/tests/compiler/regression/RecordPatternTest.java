@@ -28,7 +28,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecPatExhaust018" };
+//		TESTS_NAMES = new String[] { "testRecordTypeInfer_4643" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1708,12 +1708,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 4)\n" +
 				"	case Rectangle(int x, int y) r -> 1;\n" +
 				"	                           ^\n" +
-				"Syntax error, insert \":\" to complete SwitchLabel\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case Rectangle(int x, int y) r -> 1;\n" +
-				"	                                  ^\n" +
-				"Syntax error, insert \"AssignmentOperator Expression\" to complete Expression\n" +
+				"Syntax error on token \")\", -> expected after this token\n" +
 				"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2004
@@ -2013,8 +2008,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 10)\n" +
 				"	if (p instanceof R<>(String a)) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types R<capture#1-of ? extends I> and R\n" +
+				"	                 ^\n" +
+				"Incorrect number of arguments for type R<T>; it cannot be parameterized with arguments <>\n" +
 				"----------\n");
 	}
 	public void testIssue900_1() {
@@ -4788,4 +4783,306 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"Contents");
 	}
+	public void testJEP440Example() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				class A {
+				}
+
+				class B extends A {
+				}
+
+				sealed interface I permits C, D {
+				}
+
+				final class C implements I {
+				}
+
+				final class D implements I {
+				}
+
+				record Pair<T>(T x, T y) {
+				}
+
+				public class X {
+					static Pair<A> p1;
+					static Pair<I> p2;
+
+					public static void main(String[] args) {
+						// As of Java 21
+						switch (p1) {                 // Error!
+						    case Pair<A>(A a, B b) -> System.out.println();
+						    case Pair<A>(B b, A a) -> System.out.println();
+						}
+
+						switch (p2) {
+						    case Pair<I>(I i, C c) -> System.out.println();
+						    case Pair<I>(I i, D d) -> System.out.println();
+						}
+
+						switch (p2) {
+						    case Pair<I>(C c, I i) -> System.out.println();
+						    case Pair<I>(D d, C c) -> System.out.println();
+						    case Pair<I>(D d1, D d2) -> System.out.println();
+						}
+
+						switch (p2) {                        // Error!
+					    	case Pair<I>(C fst, D snd) -> System.out.println();
+					    	case Pair<I>(D fst, C snd) -> System.out.println();
+					    	case Pair<I>(I fst, C snd) -> System.out.println();
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 25)\n" +
+			"	switch (p1) {                 // Error!\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 41)\n" +
+			"	switch (p2) {                        // Error!\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+
+	public void testRecordCoverage() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				sealed interface I permits A, B, C {
+				}
+
+				final class A implements I {
+				}
+
+				final class B implements I {
+				}
+
+				record C(int j) implements I {
+				} // Implicitly final
+
+				record Box(I i) {
+				}
+
+				public class X {
+					int testExhaustiveRecordPatterns(Box b) {
+						return switch (b) { // Exhaustive!
+						case Box(A aa) -> 0;
+						case Box(B bb) -> 1;
+						case Box(C cc) -> 2;
+						};
+					}
+
+					record IPair(I i, I j) {
+					}
+
+					int testExhaustiveRecordPatterns(IPair p) {
+						return switch (p) { // Exhaustive!
+							case IPair(A a1, A a2) -> 0;
+							case IPair(A a1, B b2) -> 1;
+							case IPair(A a1, C c3) -> 2;
+
+							case IPair(B b1, A b2) -> 3;
+							case IPair(B b1, B b2) -> 4;
+							case IPair(B b1, C b2) -> 5;
+
+
+							case IPair(C c1, A c2) -> 6;
+							case IPair(C c1, B c2) -> 7;
+							case IPair(C c1, C c2) -> 8;
+						};
+					}
+					public static void main(String [] args) {
+						X x = new X();
+						System.out.print(x.testExhaustiveRecordPatterns(new Box(new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new Box(new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new Box(new C(42))));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new A(), new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new A(), new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new A(), new C(42))));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new B(), new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new B(), new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new B(), new C(42))));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new C(42), new A())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new C(42), new B())));
+						System.out.print(x.testExhaustiveRecordPatterns(new IPair(new C(42), new C(42))));
+					}
+				}
+				"""
+			},
+			"012012345678");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4065
+	// [Null][Record] Invalid "dead code" warning for record pattern with null-guard on component
+	public void testIssue4065() {
+		runConformTest(new String[] {
+				"InvalidDeadCodeWarning.java",
+				"""
+				public class InvalidDeadCodeWarning {
+
+				    public static void main(String[] args) {
+				        try {
+				            new InvalidDeadCodeWarning(new MyRecord(null));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(new MyRecord("  "));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(null);
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+				    }
+
+
+				    record MyRecord(String value) {
+				    }
+
+				    final MyRecord myRecord;
+
+				    InvalidDeadCodeWarning(MyRecord myRecord) {
+				        this.myRecord = switch (myRecord) {
+				            case MyRecord(var value) when value == null -> throw new IllegalArgumentException("myRecord contained null value"); // "Dead code" warning
+				            case MyRecord(var value) when value.isBlank() -> throw new IllegalArgumentException("myRecord contained blank value '" + value + "'");
+				            case null -> throw new IllegalArgumentException("myRecord was null");
+				            default -> myRecord;
+				        };
+				    }
+				}
+				"""
+			},
+			"java.lang.IllegalArgumentException: myRecord contained null value\n" +
+			"java.lang.IllegalArgumentException: myRecord contained blank value '  '\n" +
+			"java.lang.IllegalArgumentException: myRecord was null");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4163
+	// [LVTI/var] ECJ accepts illegal array dimensions on type pattern declarations with var type
+	public void testIssue4163() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				record R (String s) {
+
+				}
+
+				public class X  {
+					public static void main(String[] args) {
+						Object o = new R("Hello");
+						if (o instanceof R(var [][][] s)) {  // you can use any number of [] pairs actually!
+							System.out.println("R");
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	if (o instanceof R(var [][][] s)) {  // you can use any number of [] pairs actually!\n" +
+			"	                   ^^^^^^^^^^\n" +
+			"'var' is not allowed as an element type of an array\n" +
+			"----------\n");
+	}
+
+	public void testGH4002() {
+		runConformTest(new String[] {
+				"Example.java",
+				"""
+				import java.util.List;
+
+				public class Example {
+
+				    private static boolean matches(ComponentType<?> type, ComponentType.RegularComponentType<?> eventType) {
+				        return switch (type) {
+				            case ComponentType.RegularComponentType<?> regular -> switch (regular) {
+				                case ComponentType.ClassType(var clazz) -> switch (eventType) {
+				                    case ComponentType.ClassType(var eventClazz) -> clazz == eventClazz;
+				                };
+				            };
+				            /* Workaround:
+				            case ComponentType.Wildcard<?> wildcard -> switch (eventType) {
+				                case ComponentType.ClassType(var eventClazz) -> wildcard.bound().isAssignableFrom(eventClazz);
+				            };
+				            /**/
+				            case ComponentType.Wildcard(var bound) -> switch (eventType) {
+				                case ComponentType.ClassType(var eventClazz) -> bound.isAssignableFrom(eventClazz);
+				            };
+				            /**/
+				            default -> false;
+				        };
+				    }
+
+				    sealed interface ComponentType<T> {
+
+				        sealed interface RegularComponentType<T> extends ComponentType<T> {
+				        }
+
+				        record ClassType<T>(Class<T> clazz) implements RegularComponentType<T> {
+				        }
+
+				        // "implements ComponentType<T>" works, javac (JDK 21 & JDK 24) accepts both
+				        record Wildcard<T>(Class<T> bound) implements ComponentType<List<? extends T>> {
+				        }
+
+				    }
+
+				}
+				"""
+		});
+	}
+	public void testRecordTypeInfer_4643_001() {
+		runConformTest(new String[] { "X.java", """
+			public class X {
+
+				private static void foo() {
+					record Box<T>(T t) {}
+
+					Box<Box<String>> bo = new Box<>(new Box<>("str"));
+					if (bo instanceof Box(Box(var sString))) {
+						System.out.println(sString.length());
+					}
+				}
+
+				public static void main(String[] args) {
+					foo();
+				}
+			}
+			""" }, "3");
+	}
+	public void testRecordTypeInfer_4643_002() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+					public class X {
+
+						private static void foo() {
+							  record Box<T>(T t) {}
+							  Box<Box<Integer>> bo = new Box<>(new Box<>(1));
+							  if (bo instanceof Box(Box(String sString))) {}
+							}
+						public static void main(String[] args) {
+							foo();
+						}
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	if (bo instanceof Box(Box(String sString))) {}\n" +
+			"	                          ^^^^^^^^^^^^^^\n" +
+			"Record component with type Integer is not compatible with type String\n" +
+			"----------\n");
+	}
+
 }

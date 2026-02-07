@@ -22,6 +22,9 @@ import java.lang.annotation.Target;
 /**
  * This annotation allows to specify absence of responsibility for certain objects as they are passed from one method to another.
  * <p>This annotation is the direct inverse of {@link Owning} and can be used in all locations, where that annotation is used.
+ *  See {@link Owning} for detailed semantics when applied to different kinds of code locations.
+ * </p>
+ * <p>
  *  {@code @NotOwning} can be used do specify a shared responsibility rather than the clear separation between sources
  *  and sinks of resources given by {@link Owning}.
  * </p>

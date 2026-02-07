@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMA;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameSEMICOLON;
+
 import java.util.HashMap;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -330,30 +334,16 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 	}
 }
 @Override
-protected void consumeConstructorHeaderName() {
+protected void consumeConstructorHeaderName(boolean isCompact) {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
 	int currentAstPtr = this.astPtr;
-	super.consumeConstructorHeaderName();
+	super.consumeConstructorHeaderName(isCompact);
 	if (this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
 		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 		rememberCategories();
 	}
 }
-
-@Override
-protected void consumeCompactConstructorHeaderName() {
-	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
-	int selectorSourceEnd = (int) selectorSourcePositions;
-	int currentAstPtr = this.astPtr;
-	super.consumeCompactConstructorHeaderName();
-	if (this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
-		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
-		rememberCategories();
-	}
-}
-
-
 @Override
 protected void consumeConstructorHeaderNameWithTypeParameters() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
@@ -435,8 +425,8 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	}
 }
 @Override
-protected void consumeFormalParameter(boolean isVarArgs) {
-	super.consumeFormalParameter(isVarArgs);
+protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
+	super.consumeSingleVariableDeclarator(isVarArgs);
 
 	// Flush comments prior to this formal parameter so the declarationSourceStart of the following parameter
 	// is correctly set (see bug 80904)
@@ -669,7 +659,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 	if (this.reportReferenceInfo) {
@@ -717,7 +707,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 	if (this.reportReferenceInfo) {
@@ -763,7 +753,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 	}
 }
 @Override
-public TypeReference getTypeReference(int dim) {
+public TypeReference constructTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
 	 * This variable is a type reference and dim will be its dimensions
 	 */

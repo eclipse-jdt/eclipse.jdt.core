@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -59,6 +59,7 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CONTEXT;
 
 import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -71,7 +72,6 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class AllocationExpression extends Expression implements IPolyExpression, Invocation {
 
@@ -83,15 +83,14 @@ public class AllocationExpression extends Expression implements IPolyExpression,
 	public TypeBinding[] genericTypeArguments;
 	public FieldDeclaration enumConstant; // for enum constant initializations
 	protected TypeBinding typeExpected;	  // for <> inference
-	public boolean inferredReturnType;
+	public boolean wasInferred;
 
 	public FakedTrackingVariable closeTracker;	// when allocation a Closeable store a pre-liminary tracking variable here
 	public ExpressionContext expressionContext = VANILLA_CONTEXT;
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
-	private SimpleLookupTable/*<PMB,IC18>*/ inferenceContexts;
+	private Map<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
 	public HashMap<TypeBinding, MethodBinding> solutionsPerTargetType;
-	private InferenceContext18 outerInferenceContext; // resolving within the context of an outer (lambda) inference?
 	public boolean argsContainCast;
 	public TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 	public boolean argumentsHaveErrors = false;
@@ -131,7 +130,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	ReferenceBinding[] thrownExceptions;
 	if (((thrownExceptions = this.binding.thrownExceptions).length) != 0) {
 		if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643, align with javac on JLS 15.12.2.6
+			// NON-JLS https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643, align with javac on JLS 15.12.2.6
 			thrownExceptions = currentScope.environment().convertToRawTypes(this.binding.thrownExceptions, true, true);
 		}
 		// check exception handling
@@ -311,7 +310,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			TypeBinding.notEquals(currentScope.enclosingSourceType(), (declaringClass = codegenBinding.declaringClass))) {
 
 		// from 1.4 on, local type constructor can lose their private flag to ease emulation
-		if ((declaringClass.tagBits & TagBits.IsLocalType) != 0 && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
+		if ((declaringClass.tagBits & TagBits.IsLocalType) != 0) {
 			// constructor will not be dumped as private, no emulation required thus
 			codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 		} else {
@@ -354,7 +353,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.
 	final boolean isDiamond = this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
 	final CompilerOptions compilerOptions = scope.compilerOptions();
-	long sourceLevel = compilerOptions.sourceLevel;
 	if (this.constant != Constant.NotAConstant) {
 		this.constant = Constant.NotAConstant;
 		if (this.type == null) {
@@ -362,6 +360,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.resolvedType = scope.enclosingReceiverType();
 		} else {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+		}
+		if (this.resolvedType instanceof LocalTypeBinding local && !local.isRecord() && this.enumConstant == null) { // local records are implicitly static and don't have enclosing instance
+			MethodScope allocationStaticEnclosing = scope.nearestEnclosingStaticScope();
+			if (allocationStaticEnclosing != null && allocationStaticEnclosing != local.scope.nearestEnclosingStaticScope())
+				scope.problemReporter().allocationInStaticContext(this, local);
 		}
 		if (this.type != null) {
 			checkIllegalNullAnnotation(scope, this.resolvedType);
@@ -389,7 +392,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		// resolve type arguments (for generic constructor call)
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
-			this.argumentsHaveErrors = sourceLevel < ClassFileConstants.JDK1_5;
+			this.argumentsHaveErrors = false;
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeReference typeReference = this.typeArguments[i];
@@ -483,7 +486,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().cannotInferElidedTypes(this);
 			return this.resolvedType = null;
 		}
-		if (this.typeExpected == null && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.expressionContext.definesTargetType()) {
+		if (this.typeExpected == null && this.expressionContext.definesTargetType()) {
 			return new PolyTypeBinding(this);
 		}
 		this.resolvedType = this.type.resolvedType = this.binding.declaringClass;
@@ -535,8 +538,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.resolvedType = scope.environment().createNonNullAnnotatedType(this.resolvedType);
 		}
 	}
-	if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8 &&
-			this.binding.getTypeAnnotations() != Binding.NO_ANNOTATIONS) {
+	if (this.binding.getTypeAnnotations() != Binding.NO_ANNOTATIONS) {
 		this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 	}
 	checkEarlyConstructionContext(scope);
@@ -556,7 +558,7 @@ protected void checkEarlyConstructionContext(BlockScope scope) {
 		if (uninitialized != null)
 			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);
 	}
-	// if JEP 482 is not enabled, problems will be detected when looking for enclosing instance(s)
+	// if JEP 513 is not enabled, problems will be detected when looking for enclosing instance(s)
 }
 protected boolean isMissingTypeRelevant() {
 	if (this.binding != null && this.binding.isVarargs()) {
@@ -628,12 +630,9 @@ public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope
 		if (cached != null)
 			return cached;
 	}
-	boolean[] inferredReturnTypeOut = new boolean[1];
-	MethodBinding constructor = inferDiamondConstructor(scope, this, this.type.resolvedType, this.argumentTypes, inferredReturnTypeOut);
+	MethodBinding constructor = inferDiamondConstructor(scope, this, this.type.resolvedType, this.argumentTypes);
 	if (constructor != null) {
-		this.inferredReturnType = inferredReturnTypeOut[0];
-		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8
-				&& this.expressionContext == INVOCATION_CONTEXT && this.typeExpected == null) { // not ready for invocation type inference
+		if (this.expressionContext == INVOCATION_CONTEXT && this.typeExpected == null) { // not ready for invocation type inference
 			if (constructor instanceof PolyParameterizedGenericMethodBinding) {
 				return constructor; // keep this placeholder binding, which also serves as a key into #inferenceContexts
 			} else if (constructor instanceof ParameterizedGenericMethodBinding) {
@@ -647,7 +646,7 @@ public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope
 	return constructor;
 }
 
-public static MethodBinding inferDiamondConstructor(Scope scope, InvocationSite site, TypeBinding type, TypeBinding[] argumentTypes, boolean[] inferredReturnTypeOut) {
+public static MethodBinding inferDiamondConstructor(Scope scope, InvocationSite site, TypeBinding type, TypeBinding[] argumentTypes) {
 	ReferenceBinding genericType = ((ParameterizedTypeBinding) type).genericType();
 	ReferenceBinding enclosingType = type.enclosingType();
 	ParameterizedTypeBinding allocationType = scope.environment().createParameterizedType(genericType, genericType.typeVariables(), enclosingType);
@@ -658,7 +657,8 @@ public static MethodBinding inferDiamondConstructor(Scope scope, InvocationSite 
 		if (site.invocationTargetType() == null && site.getExpressionContext().definesTargetType() && factory instanceof PolyParameterizedGenericMethodBinding)
 			return factory; // during applicability inference keep the PolyParameterizedGenericMethodBinding
 		ParameterizedGenericMethodBinding genericFactory = (ParameterizedGenericMethodBinding) factory;
-		inferredReturnTypeOut[0] = genericFactory.inferredReturnType;
+		if (site instanceof AllocationExpression allocation)
+			allocation.wasInferred = genericFactory.wasInferred;
 		SyntheticFactoryMethodBinding sfmb = (SyntheticFactoryMethodBinding) factory.original();
 		TypeVariableBinding[] constructorTypeVariables = sfmb.getConstructor().typeVariables();
 		TypeBinding [] constructorTypeArguments = constructorTypeVariables != null ? new TypeBinding[constructorTypeVariables.length] : Binding.NO_TYPES;
@@ -690,7 +690,7 @@ public TypeBinding[] inferElidedTypes(ParameterizedTypeBinding parameterizedType
 	MethodBinding factory = scope.getStaticFactory(allocationType, enclosingType, this.argumentTypes, this);
 	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
 		ParameterizedGenericMethodBinding genericFactory = (ParameterizedGenericMethodBinding) factory;
-		this.inferredReturnType = genericFactory.inferredReturnType;
+		this.wasInferred = genericFactory.wasInferred;
 		return ((ParameterizedTypeBinding)factory.returnType).arguments;
 	}
 	return null;
@@ -699,7 +699,7 @@ public TypeBinding[] inferElidedTypes(ParameterizedTypeBinding parameterizedType
 public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType, final BlockScope scope) {
 	if (scope.enclosingClassScope().resolvingPolyExpressionArguments) // express arguments may end up influencing the target type
 		return;                                                       // so, conservatively shut off diagnostic.
-	if ((scope.problemReporter().computeSeverity(IProblem.RedundantSpecificationOfTypeArguments) == ProblemSeverities.Ignore) || scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7) return;
+	if ((scope.problemReporter().computeSeverity(IProblem.RedundantSpecificationOfTypeArguments) == ProblemSeverities.Ignore)) return;
 	if (allocationType.arguments == null) return;  // raw binding
 	if (this.genericTypeArguments != null) return; // diamond can't occur with explicit type args for constructor
 	if (this.type == null) return;
@@ -826,7 +826,7 @@ public Expression[] arguments() {
 @Override
 public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18) {
 	if (this.inferenceContexts == null)
-		this.inferenceContexts = new SimpleLookupTable();
+		this.inferenceContexts = new HashMap<>();
 	this.inferenceContexts.put(method, infCtx18);
 }
 
@@ -843,18 +843,17 @@ public void registerResult(TypeBinding targetType, MethodBinding method) {
 public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
 	if (this.inferenceContexts == null)
 		return null;
-	return (InferenceContext18) this.inferenceContexts.get(method);
+	return this.inferenceContexts.get(method);
 }
 
 @Override
 public void cleanUpInferenceContexts() {
 	if (this.inferenceContexts == null)
 		return;
-	for (Object value : this.inferenceContexts.valueTable)
-		if (value != null)
-			((InferenceContext18) value).cleanUp();
+	for (InferenceContext18 value : this.inferenceContexts.values()) {
+		value.cleanUp();
+	}
 	this.inferenceContexts = null;
-	this.outerInferenceContext = null;
 	this.solutionsPerTargetType = null;
 }
 
@@ -865,7 +864,7 @@ public ExpressionContext getExpressionContext() {
 }
 @Override
 public InferenceContext18 freshInferenceContext(Scope scope) {
-	return new InferenceContext18(scope, this.arguments, this, this.outerInferenceContext);
+	return new InferenceContext18(scope, this.arguments, this);
 }
 @Override
 public int nameSourceStart() {

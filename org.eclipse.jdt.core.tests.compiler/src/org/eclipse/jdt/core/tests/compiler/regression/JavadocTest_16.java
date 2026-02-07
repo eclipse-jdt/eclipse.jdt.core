@@ -162,6 +162,26 @@ public void testInlineReturn3() {
 		}
 	);
 }
+public void testInlineReturn4() {
+	if(this.complianceLevel < ClassFileConstants.JDK16) {
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				/** {@return {true} or
+				 *  {false}}
+				 */
+				public boolean sample() {
+					return false;
+				}
+			}
+			""",
+		}
+	);
+}
 public void testInlineReturn_broken1() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -183,7 +203,7 @@ public void testInlineReturn_broken1() {
 		----------
 		1. ERROR in X.java (at line 2)
 			/** {@return with unbalanced brace{} */
-			    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		Javadoc: Missing closing brace for inline tag
 		----------
 		""",

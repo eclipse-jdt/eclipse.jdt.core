@@ -180,13 +180,12 @@ static File createDirectory(File parent, String name) {
  * @return monitor that will answer {@code isCancelled() == true} after one minute
  */
 static NullProgressMonitor createSelfCancellingMonitor() {
+	long timeoutNanos = System.nanoTime() + 60_000 * 1_000_000L;
 	NullProgressMonitor monitor = new NullProgressMonitor() {
-		long start = System.currentTimeMillis();
 
 		public boolean isCanceled() {
-	        long time = System.currentTimeMillis() - this.start;
-	        return time > 60_000; // cancel after 1 minute
-	    }
+			return System.nanoTime() >= timeoutNanos;
+		}
 
 	};
 	return monitor;

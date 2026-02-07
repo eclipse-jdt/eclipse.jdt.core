@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
-
 import java.io.IOException;
 import java.net.URI;
 import org.eclipse.core.filesystem.EFS;
@@ -27,7 +25,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexBinaryFolder extends IndexRequest {
@@ -137,9 +134,7 @@ public class IndexBinaryFolder extends IndexRequest {
 			// request to save index when all class files have been indexed... also sets state to SAVED_STATE
 			this.manager.request(new SaveIndex(this.containerPath, this.manager));
 		} catch (CoreException | IOException e) {
-			if (JobManager.VERBOSE) {
-				trace("-> failed to index " + this.folder + " because of the following exception:", e); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			Util.log(e, "Failed to index " + this.folder + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			this.manager.removeIndex(this.containerPath);
 			return false;
 		} finally {

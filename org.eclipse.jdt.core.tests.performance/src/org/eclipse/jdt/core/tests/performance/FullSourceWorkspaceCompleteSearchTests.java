@@ -201,13 +201,15 @@ protected void search(IJavaElement element, int limitTo, JavaSearchResultCollect
  * @param resultCollector result collector to count the matches found
  */
 protected void cleanCategoryTableCache(boolean type, JavaSearchResultCollector resultCollector) throws CoreException {
-	long time = System.currentTimeMillis();
+	long startNanos = System.nanoTime();
 	if (type) {
 		search("foo", FIELD, DECLARATIONS, resultCollector);
 	} else {
 		search("Foo", TYPE, DECLARATIONS, resultCollector);
 	}
-	if (DEBUG) System.out.println("Time to clean category table cache: "+(System.currentTimeMillis()-time));
+	if (DEBUG) {
+		System.out.println("Time to clean category table cache [ms]: " + (System.nanoTime() - startNanos) / 1_000_000L);
+	}
 }
 
 /**

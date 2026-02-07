@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 GK Software SE and others.
+ * Copyright (c) 2024, 2026 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,7 +33,7 @@ public interface IMarkdownCommentHelper {
 
 	void recordText();
 
-	boolean isInCodeBlock();
+	boolean isInCode();
 
 	/** Retrieve the start of the current text, possibly including significant leading whitespace. */
 	int getTextStart(int textStart);
@@ -76,7 +76,7 @@ class NullMarkdownHelper implements IMarkdownCommentHelper {
 		// nop
 	}
 	@Override
-	public boolean isInCodeBlock() {
+	public boolean isInCode() {
 		return false;
 	}
 	@Override
@@ -105,6 +105,7 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	int fenceLength;
 	boolean isBlankLine = true;
 	boolean previousIsBlankLine = true;
+	boolean inInlineCode = false;
 
 	public MarkdownCommentHelper(int lineStart, int commonIndent) {
 		this.markdownLineStart = lineStart;
@@ -127,14 +128,23 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 			return;
 		}
 		if (this.fenceCharCount == 0) {
-			if (lineStarted)
+			if (lineStarted) {
+				if (next == '`')
+					this.inInlineCode ^= true;
 				return;
+			}
 			this.fenceChar = next;
 			this.fenceCharCount = 1;
 			return;
 		}
-		if (next != this.fenceChar || previous != next)
+		if (next != this.fenceChar)
 			return;
+		if (previous != next) {
+			if (this.insideFencedCodeBlock) {
+				this.fenceCharCount = 1;
+			}
+			return;
+		}
 		int required = this.insideFencedCodeBlock ? this.fenceLength : 3;
 		if (++this.fenceCharCount == required) {
 			this.insideFencedCodeBlock^=true;
@@ -163,8 +173,8 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	}
 
 	@Override
-	public boolean isInCodeBlock() {
-		return this.insideIndentedCodeBlock || this.insideFencedCodeBlock;
+	public boolean isInCode() {
+		return this.insideIndentedCodeBlock || this.insideFencedCodeBlock || this.inInlineCode;
 	}
 
 	@Override
@@ -188,6 +198,7 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 		this.leadingSpaces = 0;
 		this.markdownLineStart = -1;
 		this.fenceCharCount = 0;
+		this.inInlineCode = false;
 		// do not reset `insideFence`
 	}
 }

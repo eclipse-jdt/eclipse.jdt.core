@@ -43,6 +43,18 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
+	// ========= OPT-IN to run.javac mode: ===========
+	@Override
+	protected void setUp() throws Exception {
+		this.runJavacOptIn = true;
+		super.setUp();
+	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacOptIn = false; // do it last, so super can still clean up
+	}
+	// =================================================
 
 	public void testGH1591() {
 		// javac accepts
@@ -251,6 +263,56 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 				"""
 			};
 		runner.javacTestOptions = DubiousOutcome.JDK8319461;
+		runner.runConformTest();
+	}
+
+	public void testGH4226() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"NumberGenerator.java",
+			"""
+			interface Culprit {}
+
+			class EntityInfo<E extends NumberGenerator<?> & Culprit> {}
+
+			class NumberGenerator<N extends Number> implements NumberSupplier<N> {
+
+				@Override
+				public N getNumber() {
+					return null;
+				}
+			}
+
+			interface NumberSupplier<N extends Number>  {
+
+				N getNumber();
+			}
+			"""
+		};
+		runner.javacTestOptions = DubiousOutcome.JDK8364144;
+		runner.runConformTest();
+	}
+	public void testGH4263() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				class AClass<T> {
+					AClass(T t) {}
+				}
+				interface I<T> {}
+				class Concrete<T> implements I<T> {}
+				public class X {
+					public static void main(String args[]) {
+						foo(new AClass<I<? super Integer>>(new Concrete<java.io.Serializable>()));
+					}
+					static <T extends I<? super String>> String foo(AClass<? super T> ac) {
+						return "foo";
+					}
+				}
+				"""
+			};
+		runner.javacTestOptions = DubiousOutcome.JavacErrorsEclipseNone;
 		runner.runConformTest();
 	}
 }

@@ -16,6 +16,7 @@ package org.eclipse.jdt.annotation;
 
 import static org.eclipse.jdt.annotation.DefaultLocation.FIELD;
 import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;
+import static org.eclipse.jdt.annotation.DefaultLocation.RECORD_COMPONENT;
 import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;
 import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_ARGUMENT;
 import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_BOUND;
@@ -69,5 +70,5 @@ public @interface NonNullByDefault {
 	 * @return the locations, or an empty array to cancel any null defaults from enclosing scopes
 	 * @since 2.0
 	 */
-	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };
+	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT, RECORD_COMPONENT };
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9177,7 +9177,7 @@ public void testCompletionKeywordImport7() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:import    completion:import    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"",
 			requestor.getResults());
 }
 public void testCompletionKeywordImport8() throws JavaModelException {
@@ -16236,7 +16236,8 @@ public void testDeprecationCheck15() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"",
+				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, 51}\n" +
+				"foo2[FIELD_REF]{foo2, Ldeprecation.ZZZType1;, I, foo2, null, 51}",
 				requestor.getResults());
 	} finally {
 		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
@@ -21697,32 +21698,42 @@ public void testBug304006e() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325481
 // To verify that when content assist is invoked inside a field initialization,
 // the field being declared and the ones declared after it are not proposed.
-public void test325481() throws JavaModelException {
-    this.workingCopies = new ICompilationUnit[1];
-    this.workingCopies[0] = getWorkingCopy(
-        "/Completion/src3/test/X.java",
-        "package test;\n" +
-        "public class X {\n" +
-        "    void foo(String s) {}\n" +
-        "    String myString = \"\";\n" +
-        "    String myString2 = \"\";\n" +
-        "    String myString3 = (myString = String.format(String.format(my\n" +
-        "	 String myString4 = \"hello\";\n" +		// should not be proposed
-        "}");
+public void test325481() throws CoreException, IOException {
+	try {
+		// this particular test alone needs the full JCLMin to be on the classpath
+		// Only setupJavaProject ensures the jclMin* is available on the test location.
+		// So, delete the original one temporarily and use a new one with full JCL in its classpath
+		deleteProject(COMPLETION_PROJECT);
+		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.8", true);
+		this.workingCopies = new ICompilationUnit[1];
+	    this.workingCopies[0] = getWorkingCopy(
+	        "/Completion/src3/test/X.java",
+	        "package test;\n" +
+	        "public class X {\n" +
+	        "    void foo(String s) {}\n" +
+	        "    String myString = \"\";\n" +
+	        "    String myString2 = \"\";\n" +
+	        "    String myString3 = (myString = String.format(String.format(my\n" +
+	        "	 String myString4 = \"hello\";\n" +		// should not be proposed
+	        "}");
 
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-    String str = this.workingCopies[0].getSource();
-    final String completeBehind = "String.format(my";
-    int cursorLocation = str.lastIndexOf(completeBehind) +
-    completeBehind.length();
-    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.workingCopies[0].getSource();
+	    final String completeBehind = "String.format(my";
+	    int cursorLocation = str.lastIndexOf(completeBehind) +
+	    completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-    assertResults(
-            "MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_DEFAULT + 9) + "}\n" +
-            "mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_DEFAULT + 19) + "}\n" +
-            "myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, " + (R_DEFAULT + 22) + "}\n" +
-            "myString2[FIELD_REF]{myString2, Ltest.X;, Ljava.lang.String;, myString2, null, " + (R_DEFAULT + 22) + "}",
-            requestor.getResults());
+	    assertResults(
+	            "MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_DEFAULT + 9) + "}\n" +
+	            "mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_DEFAULT + 19) + "}\n" +
+	            "myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}\n" +
+	            "myString2[FIELD_REF]{myString2, Ltest.X;, Ljava.lang.String;, myString2, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE  + 22) + "}",
+	            requestor.getResults());
+	} finally {
+		deleteProject(COMPLETION_PROJECT);
+		COMPLETION_PROJECT = setUpJavaProject("Completion");
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=312603
 public void test312603() throws JavaModelException {
@@ -24972,11 +24983,12 @@ public void testBug385858d() throws JavaModelException {
 }
 // Bug 402574 - Autocomplete does not recognize all enum constants when constants override methods
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402574
-public void _2551_testBug402574() throws JavaModelException {
+public void testBug402574() throws JavaModelException {
 	try {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/ExampleEnumNoAutocomplete.java",
+		    "package test;\n" +
 		    "public enum ExampleEnumNoAutocomplete {\n" +
 			"    STUFF(\"a\", \"b\") {\n" +
 			"    @Override\n" +
@@ -25054,6 +25066,7 @@ public void _2551_testBug402574() throws JavaModelException {
 			"	}\n");
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Tester.java",
+			"package test;\n" +
 			"import java.util.EnumMap;\n" +
 			"import java.util.Map;\n" +
 			"public class Tester {\n" +
@@ -26135,11 +26148,11 @@ public void testBug574982() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 69}\n" +
-			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 69}\n" +
-			"A3[TYPE_REF]{A3, , LA3;, null, null, 72}\n" +
-			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 72}\n" +
-			"A[TYPE_REF]{A, , LA;, null, null, 76}",
+			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 49}\n" +
+			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 49}\n" +
+			"A3[TYPE_REF]{A3, , LA3;, null, null, 52}\n" +
+			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 52}\n" +
+			"A[TYPE_REF]{A, , LA;, null, null, 56}",
 			requestor.getResults());
 }
 /**

@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.compiler.tool.tests
-Bundle-Version: 1.4.600.qualifier
+Bundle-Version: 1.4.900.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.eclipse.jdt.core;bundle-version="[3.40.0,4.0.0)",
  org.junit,
  org.eclipse.core.resources,

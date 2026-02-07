@@ -106,6 +106,50 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String output = this.complianceLevel == ClassFileConstants.JDK17 ?
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	Zork z = null;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 4)\n" +
+				"	ABC abc = null;\n" +
+				"	^^^\n" +
+				"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 6)\n" +
+				"	(new ABC()).doSomething();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 6)\n" +
+				"	(new ABC()).doSomething();\n" +
+				"	     ^^^\n" +
+				"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+				"----------\n" :
+					"----------\n" +
+					"1. ERROR in X.java (at line 3)\n" +
+					"	Zork z = null;\n" +
+					"	^^^^\n" +
+					"Zork cannot be resolved to a type\n" +
+					"----------\n" +
+					"2. WARNING in X.java (at line 4)\n" +
+					"	ABC abc = null;\n" +
+					"	^^^\n" +
+					"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+					"----------\n" +
+					"3. WARNING in X.java (at line 6)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+					"----------\n" +
+					"4. WARNING in X.java (at line 6)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	     ^^^\n" +
+					"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+					"----------\n";
+
 		try {
 			runNegativeTest(
 					new String[] {
@@ -119,17 +163,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 							"   }\n"+
 							"}\n",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" +
-					"	Zork z = null;\n" +
-					"	^^^^\n" +
-					"Zork cannot be resolved to a type\n" +
-					"----------\n" +
-					"2. WARNING in X.java (at line 6)\n" +
-					"	(new ABC()).doSomething();\n" +
-					"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"You are using an API that is part of a preview feature and may be removed in future\n" +
-					"----------\n",
+					output,
 					classLibs,
 					true,
 					options);
@@ -148,6 +182,34 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		String[] classLibs = getClasspathWithPreviewAPI();
+		String output = this.complianceLevel == ClassFileConstants.JDK17 ?
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	Zork z = null;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 4)\n" +
+				"	ABC abc = null;\n" +
+				"	^^^\n" +
+				"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 6)\n" +
+				"	(new ABC()).doSomething();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 6)\n" +
+				"	(new ABC()).doSomething();\n" +
+				"	     ^^^\n" +
+				"You are using an API that is part of the preview feature \'Test Feature\' and may be removed in future\n" +
+				"----------\n" :
+					"----------\n" +
+					"1. ERROR in X.java (at line 4)\n" +
+					"	Zork z = null;\n" +
+					"	^^^^\n" +
+					"Zork cannot be resolved to a type\n" +
+					"----------\n";
 		try {
 			runNegativeTest(
 					new String[] {
@@ -162,12 +224,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 									"   }\n"+
 									"}\n",
 					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 4)\n" +
-					"	Zork z = null;\n" +
-					"	^^^^\n" +
-					"Zork cannot be resolved to a type\n" +
-					"----------\n",
+					output,
 					classLibs,
 					true,
 					options);
@@ -203,6 +260,21 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 					"	Zork z = null;\n" +
 					"	^^^^\n" +
 					"Zork cannot be resolved to a type\n" +
+					"----------\n" +
+					"2. WARNING in X.java (at line 4)\n" +
+					"	ABC abc = null;\n" +
+					"	^^^\n" +
+					"You are using an API that is part of the preview feature 'Test Feature' and may be removed in future\n" +
+					"----------\n" +
+					"3. WARNING in X.java (at line 6)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"You are using an API that is part of the preview feature 'Test Feature' and may be removed in future\n" +
+					"----------\n" +
+					"4. WARNING in X.java (at line 6)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	     ^^^\n" +
+					"You are using an API that is part of the preview feature 'Test Feature' and may be removed in future\n" +
 					"----------\n",
 					classLibs,
 					true,

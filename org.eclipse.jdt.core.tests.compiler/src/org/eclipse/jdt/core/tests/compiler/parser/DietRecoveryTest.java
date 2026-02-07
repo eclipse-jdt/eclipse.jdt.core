@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class DietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
-	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
+	public static long sourceLevel = CompilerOptions.getFirstSupportedJdkLevel(); //$NON-NLS-1$
 static {
 //	TESTS_NUMBERS = new int[] { 75 };
 }
@@ -682,7 +682,7 @@ public void test05() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    System.out.println();\n" +
-		(this.complianceLevel < ClassFileConstants.JDK14
+		(this.complianceLevel < ClassFileConstants.JDK16
 		?
 		"    new baz() {\n" +
 		"    };\n"
@@ -2467,20 +2467,8 @@ public void _test32() {
 		"}\n";
 
 	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString;
-	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-			"public class WB2 {\n" +
-			"  public WB2() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  public void foo() {\n" +
-			"    java.util.Locale.java.util.Vector $missing$;\n" +
-			"  }\n" +
-			"}\n";
-	} else {
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-			expectedDietPlusBodyUnitToString;
-	}
+	expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		expectedDietPlusBodyUnitToString;
 
 	String expectedFullUnitToString = expectedDietUnitToString;
 
@@ -4404,26 +4392,26 @@ public void test74() {
 		"}									\n";
 
 	String expectedDietUnitToString =
-		"package pack;\n" +
-		"class A extends IOException {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  A() {\n" +
-		"  }\n" +
-		"}\n";
+			"package pack;\n" +
+			"class A extends IOException {\n" +
+			"  A() {\n" +
+			"  }\n" +
+			"  S() {\n" +
+			"  }\n" +
+			"}\n";
 
 	String expectedDietPlusBodyUnitToString =
-		"package pack;\n" +
-		"class A extends IOException {\n" +
-		"  {\n" +
-		"    int x;\n" +
-		"  }\n" +
-		"  A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+			"package pack;\n" +
+			"class A extends IOException {\n" +
+			"  A() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"  S() {\n" +
+			"    int x;\n" +
+			"  }\n" +
+			"}\n";
 
-	String expectedFullUnitToString = expectedDietUnitToString;
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
 
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
 
@@ -6891,123 +6879,65 @@ public void test117() {
 	String expectedFullUnitToString = null;
 	String expectedCompletionDietUnitToString = null;
 
+	expectedDietUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo1() {\n" +
+		"  }\n" +
+		"}\n";
 
-	if(this.complianceLevel <= ClassFileConstants.JDK1_4) {
+	expectedDietPlusBodyUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  void foo1() {\n" +
+		"  }\n" +
+		"}\n";
 
-		expectedDietUnitToString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"  }\n" +
-			"}\n";
+	expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  void foo1() {\n" +
+		"    class Y {\n" +
+		"      Y() {\n" +
+		"        super();\n" +
+		"      }\n" +
+		"    }\n" +
+		(this.complianceLevel < ClassFileConstants.JDK16
+		?
+		"    new foo2() {\n" +
+		"    };\n" +
+		"    class Z<T> {\n" +
+		"      Z() {\n" +
+		"        super();\n" +
+		"      }\n" +
+		"    }\n"
+		:
+		"    void foo2;\n"
+		) +
+		"  }\n" +
+		"}\n";
 
-		expectedDietPlusBodyUnitToString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"  }\n" +
-			"}\n";
+	expectedFullUnitToString =
+		"public class X {\n" +
+		"  class Z<T> {\n" +
+		"    Z() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo1() {\n" +
+		"  }\n" +
+		"  void foo2() {\n" +
+		"  }\n" +
+		"}\n";
 
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"    class Y {\n" +
-			"      Y() {\n" +
-			"        super();\n" +
-			"      }\n" +
-			"    }\n" +
-			"    class Z<T> {\n" +
-			"      Z() {\n" +
-			"        super();\n" +
-			"      }\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
-
-		expectedFullUnitToString =
-			"public class X {\n" +
-			"  class Z<T> {\n" +
-			"    Z() {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"  }\n" +
-			"  void foo2() {\n" +
-			"  }\n" +
-			"}\n";
-
-		expectedCompletionDietUnitToString =
-			expectedDietUnitToString;
-	} else if(this.complianceLevel >= ClassFileConstants.JDK1_5) {
-
-		expectedDietUnitToString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"  }\n" +
-			"}\n";
-
-		expectedDietPlusBodyUnitToString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"  }\n" +
-			"}\n";
-
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"    class Y {\n" +
-			"      Y() {\n" +
-			"        super();\n" +
-			"      }\n" +
-			"    }\n" +
-			(this.complianceLevel < ClassFileConstants.JDK14
-			?
-			"    new foo2() {\n" +
-			"    };\n" +
-			"    class Z<T> {\n" +
-			"      Z() {\n" +
-			"        super();\n" +
-			"      }\n" +
-			"    }\n"
-			:
-			"    void foo2;\n"
-			) +
-			"  }\n" +
-			"}\n";
-
-		expectedFullUnitToString =
-			"public class X {\n" +
-			"  class Z<T> {\n" +
-			"    Z() {\n" +
-			"    }\n" +
-			"  }\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo1() {\n" +
-			"  }\n" +
-			"  void foo2() {\n" +
-			"  }\n" +
-			"}\n";
-
-		expectedCompletionDietUnitToString =
-			expectedDietUnitToString;
-	}
+	expectedCompletionDietUnitToString =
+		expectedDietUnitToString;
 
 	String testName = "test foreach toString";
 	checkParse(
@@ -7066,7 +6996,7 @@ public void test117_2() {
 		"        super();\n" +
 		"      }\n" +
 		"    }\n" +
-		(this.complianceLevel < ClassFileConstants.JDK14
+		(this.complianceLevel < ClassFileConstants.JDK16
 		?
 		"    new foo2() {\n" +
 		"    };\n" +
@@ -7558,35 +7488,14 @@ public void _test124() {
 		"}\n";
 
 	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = null;
-	if(this.complianceLevel <= ClassFileConstants.JDK1_4) {
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-			"public class Test {\n" +
-			"  public Test() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void aMethod() {\n" +
-			"    m1();\n" +
-			"    {\n" +
-			"      int a;\n" +
-			"      int b;\n" +
-			"    }\n" +
-			"    m2();\n" +
-			"    {\n" +
-			"      int c;\n" +
-			"      int d;\n" +
-			"    }\n" +
-			"  }\n" +
-			"}\n";
-	} else {
-		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
-			"public class Test {\n" +
-			"  public Test() {\n" +
-			"    super();\n" +
-			"  }\n" +
-			"  void aMethod() {\n" +
-			"  }\n" +
-			"}\n";
-	}
+	expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  void aMethod() {\n" +
+		"  }\n" +
+		"}\n";
 
 	String expectedFullUnitToString =
 		"public class Test {\n" +

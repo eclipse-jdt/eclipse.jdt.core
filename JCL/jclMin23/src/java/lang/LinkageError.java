@@ -3,7 +3,9 @@ package java.lang;
 public
 class LinkageError extends Error {
 
-    public LinkageError() {
+	static final long serialVersionUID = 1L;
+
+	public LinkageError() {
         super();
     }
 

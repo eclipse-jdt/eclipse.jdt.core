@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -53,7 +53,6 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 				LocalVMLauncher launcher;
 				try {
 					launcher = LocalVMLauncher.getLauncher();
-					launcher.setVMArguments(new String[]{"-verify"});
 					launcher.setVMPath(JRE_PATH);
 					launcher.setEvalPort(evalPort);
 					launcher.setEvalTargetPath(EVAL_DIRECTORY);

@@ -15,15 +15,16 @@
   <parent>
     <artifactId>tests-pom</artifactId>
     <groupId>org.eclipse.jdt</groupId>
-    <version>4.35.0-SNAPSHOT</version>
+    <version>4.39.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.core.tests.compiler</artifactId>
-  <version>3.13.700-SNAPSHOT</version>
+  <version>3.13.1100-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
+    <surefire.timeout>5400</surefire.timeout><!-- timeout in seconds -->
   </properties>
 
   <build>
@@ -62,70 +63,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,14,17</tycho.surefire.argLine>
-		</properties>
-	</profile>
-	<profile>
-		<id>test-on-javase-18</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-toolchains-plugin</artifactId>
-					<configuration>
-						<toolchains>
-							<jdk>
-								<id>JavaSE-18</id>
-							</jdk>
-						</toolchains>
-					</configuration>
-				</plugin>
-			</plugins>
-		</build>
-		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,15,18</tycho.surefire.argLine>
-		</properties>
-	</profile>
-	<profile>
-		<id>test-on-javase-19</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-toolchains-plugin</artifactId>
-					<configuration>
-						<toolchains>
-							<jdk>
-								<id>JavaSE-19</id>
-							</jdk>
-						</toolchains>
-					</configuration>
-				</plugin>
-			</plugins>
-		</build>
-		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19</tycho.surefire.argLine>
-		</properties>
-	</profile>
-	<profile>
-		<id>test-on-javase-20</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-toolchains-plugin</artifactId>
-					<configuration>
-						<toolchains>
-							<jdk>
-								<id>JavaSE-20</id>
-							</jdk>
-						</toolchains>
-					</configuration>
-				</plugin>
-			</plugins>
-		</build>
-		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,20</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -146,7 +84,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19,21</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -167,7 +105,49 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,21,23</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21,23</tycho.surefire.argLine>
+		</properties>
+	</profile>
+	<profile>
+		<id>test-on-javase-24</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-toolchains-plugin</artifactId>
+					<configuration>
+						<toolchains>
+							<jdk>
+								<id>JavaSE-24</id>
+							</jdk>
+						</toolchains>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+		<properties>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,21,24</tycho.surefire.argLine>
+		</properties>
+	</profile>
+	<profile>
+		<id>test-on-javase-25</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-toolchains-plugin</artifactId>
+					<configuration>
+						<toolchains>
+							<jdk>
+								<id>JavaSE-25</id>
+							</jdk>
+						</toolchains>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+		<properties>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,21,25</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	</profiles>

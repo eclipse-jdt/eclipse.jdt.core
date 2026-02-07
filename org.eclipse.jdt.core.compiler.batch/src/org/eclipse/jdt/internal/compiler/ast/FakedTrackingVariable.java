@@ -342,6 +342,18 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		}
 		return closeTracker;
 	}
+	static void checkMethodForMissingAnnotation(MessageSend messageSend, Scope scope) {
+		if ((messageSend.binding.original().extendedTagBits & ExtendedTagBits.HasMissingOwningAnnotation) != 0)
+			scope.problemReporter().messageWithUnresolvedOwningAnnotation(messageSend, scope.environment());
+	}
+	static void checkParameterForMissingAnnotation(ASTNode location, MethodBinding method, int rank, Scope scope) {
+		if (method != null && method.parameterHasMissingOwningAnnotation(rank))
+			scope.problemReporter().parameterWithUnresolvedOwningAnnotation(location, method.original(), rank, scope.environment());
+	}
+	static void checkFieldForMissingAnnotation(ASTNode location, FieldBinding fieldBinding, Scope scope) {
+		if (fieldBinding != null && (fieldBinding.extendedTagBits & ExtendedTagBits.HasMissingOwningAnnotation) != 0)
+			scope.problemReporter().fieldWithUnresolvedOwningAnnotation(location, fieldBinding, scope.environment());
+	}
 
 	private static boolean containsAllocation(SwitchExpression location) {
 		for (Expression re : location.resultExpressions()) {
@@ -510,6 +522,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		} else { // regular resource
 			FakedTrackingVariable tracker = acquisition.closeTracker;
 			if (scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
+				checkMethodForMissingAnnotation(acquisition, scope);
 				long owningTagBits = acquisition.binding.tagBits & TagBits.AnnotationOwningMASK;
 				int initialNullStatus = (owningTagBits == TagBits.AnnotationNotOwning) ? FlowInfo.NON_NULL : FlowInfo.NULL;
 				if (tracker == null) {
@@ -533,6 +546,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				acquisition.closeTracker = tracker;
 			}
 			tracker.acquisition = acquisition;
+			tracker.globalClosingState |= SHARED_WITH_OUTSIDE;
 			FlowInfo outsideInfo = flowInfo.copy();
 			outsideInfo.markAsDefinitelyNonNull(tracker.binding);
 			tracker.markNullStatus(flowInfo, flowContext, FlowInfo.NULL);
@@ -562,16 +576,14 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	{
 		FakedTrackingVariable trackerIfTrue = retriever.apply(conditionalExpression.valueIfTrue);
 		FakedTrackingVariable trackerIfFalse = retriever.apply(conditionalExpression.valueIfFalse);
-		if (trackerIfTrue == null)
-			return trackerIfFalse;
-		if (trackerIfFalse == null)
-			return trackerIfTrue;
 		return pickMoreUnsafe(trackerIfTrue, trackerIfFalse, flowInfo);
 	}
 
 	private static FakedTrackingVariable pickMoreUnsafe(FakedTrackingVariable tracker1, FakedTrackingVariable tracker2, FlowInfo info) {
 		// whichever of the two trackers has stronger indication to be leaking will be returned,
 		// the other one will be removed from the scope (considered to be merged into the former).
+		if (tracker1 == null) return tracker2;
+		if (tracker2 == null) return tracker1;
 		int status1 = info.nullStatus(tracker1.binding);
 		int status2 = info.nullStatus(tracker2.binding);
 		if (status1 == FlowInfo.NULL || status2 == FlowInfo.NON_NULL) return pick(tracker1, tracker2);
@@ -839,6 +851,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 								field = fieldReference.binding;
 						}
 						if (field != null&& (field.tagBits & TagBits.AnnotationNotOwning) == 0) { // assignment to @NotOwned has no meaning
+							checkFieldForMissingAnnotation(lhs, field, scope);
 							if ((field.tagBits & TagBits.AnnotationOwning) != 0) {
 								rhsTrackVar.markNullStatus(flowInfo, flowContext, FlowInfo.NON_NULL);
 							} else {
@@ -890,10 +903,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			for (Expression result : se.resultExpressions()) {
 				FakedTrackingVariable current = analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations,
 						local, location, result, previousTracker);
-				if (mostRisky == null)
-					mostRisky = current;
-				else
-					mostRisky = pickMoreUnsafe(mostRisky, current, flowInfo);
+				mostRisky = pickMoreUnsafe(mostRisky, current, flowInfo);
 			}
 			return mostRisky;
 		}
@@ -914,6 +924,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if (useAnnotations && (expression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
 				// field read
 				FieldBinding fieldBinding = ((Reference) expression).lastFieldBinding();
+				checkFieldForMissingAnnotation(expression, fieldBinding, scope);
 				long owningBits = 0;
 				if (fieldBinding != null) {
 					owningBits = fieldBinding.getAnnotationTagBits() & TagBits.AnnotationOwningMASK;
@@ -946,7 +957,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if (isBlacklistedMethod(expression)) {
 				initialNullStatus = FlowInfo.NULL;
 			} else if (useAnnotations) {
-				initialNullStatus = getNullStatusFromMessageSend(expression);
+				initialNullStatus = getNullStatusFromMessageSend(expression, scope);
 			}
 			if (initialNullStatus != 0)
 				return new FakedTrackingVariable(local, location, flowInfo, flowContext, initialNullStatus, useAnnotations);
@@ -968,6 +979,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				// leave state as UNKNOWN, the bit OWNED_BY_OUTSIDE will prevent spurious warnings
 				return tracker;
 			}
+		} else if (expression instanceof LambdaExpression) {
+			// treat fresh lambda like a fresh resource
+			return new FakedTrackingVariable(local, location, flowInfo, flowContext, FlowInfo.NULL, useAnnotations);
 		}
 
 		if (local.closeTracker != null)
@@ -992,8 +1006,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 
 	/* pre: usesOwningAnnotations. */
-	protected static int getNullStatusFromMessageSend(Expression expression) {
-		if (expression instanceof MessageSend) {
+	protected static int getNullStatusFromMessageSend(Expression expression, Scope scope) {
+		if (expression instanceof MessageSend message) {
+			checkMethodForMissingAnnotation(message, scope);
 			if ((((MessageSend) expression).binding.tagBits & TagBits.AnnotationNotOwning) != 0)
 				return FlowInfo.NON_NULL;
 			return FlowInfo.NULL; // per default assume responsibility to close

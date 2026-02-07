@@ -69,18 +69,8 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			return patternInfo; // exclude anonymous blokes from flow analysis.
 
 		patternInfo.markAsDefinitelyAssigned(this.local.binding);
-		if (!this.isTotalTypeNode) {
-			// non-total type patterns create a nonnull local:
-			patternInfo.markAsDefinitelyNonNull(this.local.binding);
-		} else {
-			// total type patterns inherit the nullness of the value being switched over, unless ...
-			if (flowContext.associatedNode instanceof SwitchStatement swStmt) {
-				int nullStatus = swStmt.containsNull
-						? FlowInfo.NON_NULL // ... null is handled in a separate case
-						: swStmt.expression.nullStatus(patternInfo, flowContext);
-				patternInfo.markNullStatus(this.local.binding, nullStatus);
-			}
-		}
+		if (this.getEnclosingPattern() == null)
+			patternInfo.markAsDefinitelyNonNull(this.local.binding); // can't say the same for members of a record being deconstructed.
 		return patternInfo;
 	}
 
@@ -101,8 +91,8 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 		} else {
 
 			if (!this.isTotalTypeNode) {
-				boolean checkCast = JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(currentScope.compilerOptions()) ?
-								!this.local.binding.type.isBaseType() : true;
+				boolean checkCast = TypeBinding.notEquals(this.local.binding.type, this.outerExpressionType) &&
+											(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(currentScope.compilerOptions()) ? !this.local.binding.type.isBaseType() : true);
 				if (checkCast)
 					codeStream.checkcast(this.local.binding.type);
 			}
@@ -112,7 +102,7 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 
 	public void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 		generateTypeCheck(this.outerExpressionType, getType(), scope, codeStream,
-				Pattern.findPrimitiveConversionRoute(this.resolvedType, this.accessorMethod.returnType, scope));
+				findPrimitiveConversionRoute(this.resolvedType, this.accessorMethod.returnType, scope));
 	}
 
 	@Override
@@ -120,11 +110,10 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 		this.isTotalTypeNode = true;
 	}
 
-	@Override
 	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
 		TypeBinding provided = this.outerExpressionType;
 		TypeBinding expected = this.resolvedType;
-		PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(expected, provided, scope);
+		PrimitiveConversionRoute route = findPrimitiveConversionRoute(expected, provided, scope);
 		switch (route) {
 			case IDENTITY_CONVERSION:
 				// Do nothing
@@ -216,7 +205,8 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			return this.resolvedType;
 
 		Pattern enclosingPattern = this.getEnclosingPattern();
-		if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
+		boolean varTypedLocal = false;
+		if (this.local.type == null || (varTypedLocal = this.local.type.isTypeNameVar(scope))) {
 			if (enclosingPattern instanceof RecordPattern) {
 				// 14.30.1: The type of a pattern variable declared in a nested type pattern is determined as follows ...
 				ReferenceBinding recType = (ReferenceBinding) enclosingPattern.resolvedType;
@@ -233,9 +223,11 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 							this.local.type.resolvedType = this.resolvedType;
 					}
 				}
+			} else if (varTypedLocal) {
+				this.local.type.resolveType(scope, true); // trigger complaint
 			}
 		}
-		this.local.resolve(scope, true);
+		this.local.resolve(scope);
 		if (this.local.binding != null) {
 			this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
 			CompilerOptions compilerOptions = scope.compilerOptions();

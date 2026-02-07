@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2021 IBM Corporation and others.
+ * Copyright (c) 2007, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,14 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
@@ -76,7 +69,8 @@ public class EclipseCompilerImpl extends Main {
 	private static final String RELEASE_FILE = "release"; //$NON-NLS-1$
 	private static final String JAVA_VERSION = "JAVA_VERSION"; //$NON-NLS-1$
 	private HashMap<CompilationUnit, JavaFileObject> javaFileObjectMap;
-	Iterable<? extends JavaFileObject> compilationUnits;
+	/** Corresponds to filenames in plain batch compilation, indices are synced also with modNames. */
+	List<JavaFileObject> compilationUnits;
 	public JavaFileManager fileManager;
 	protected Processor[] processors;
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
@@ -171,24 +165,20 @@ public class EclipseCompilerImpl extends Main {
 							throw new IllegalArgumentException(this.bind("unit.missing", name)); //$NON-NLS-1$
 					}
 
-					CompilationUnit cu = new CompilationUnit(null,
+					String encoding = getDefaultEncoding();
+					try {
+						CompilationUnit cu = new CompilationUnit(javaFileObject.getCharContent(false).toString().toCharArray(),
 							name,
-							null,
+							encoding,
 							this.destinationPaths[i],
-							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()), this.modNames[i]) {
-
-							@Override
-							public char[] getContents() {
-								try {
-									return javaFileObject.getCharContent(true).toString().toCharArray();
-								} catch(IOException e) {
-									e.printStackTrace();
-									throw new AbortCompilationUnit(null, e, null);
-								}
-							}
-						};
+							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()),
+							this.modNames[i]);
 						units.add(cu);
 						this.javaFileObjectMap.put(cu, javaFileObject);
+					} catch (IOException e) {
+						e.printStackTrace();
+						throw new AbortCompilationUnit(null, e, encoding);
+					}
 				}
 				i++;
 			}
@@ -499,7 +489,12 @@ public class EclipseCompilerImpl extends Main {
 		// The code is now moved to handleLocations() which is invoked just before compilation
 		validateClasspathOptions(bootclasspaths, endorsedDirClasspaths, extdirsClasspaths);
 	}
-
+	@Override
+	protected void handleSingleModuleCompilation() {
+		if (!this.fileManager.hasLocation(StandardLocation.MODULE_SOURCE_PATH)) {
+			super.handleSingleModuleCompilation();
+		}
+	}
 	protected void handleLocations() {
 		ArrayList<FileSystem.Classpath> fileSystemClasspaths = new ArrayList<>();
 		EclipseFileManager eclipseJavaFileManager = null;
@@ -584,9 +579,14 @@ public class EclipseCompilerImpl extends Main {
 			havePlatformPaths = true;
 		}
 		if (eclipseJavaFileManager != null) {
-			if ((eclipseJavaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
-					&& (eclipseJavaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
-				fileSystemClasspaths.addAll(this.handleExtdirs(null));
+			if ((eclipseJavaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0) {
+				if ((eclipseJavaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
+					fileSystemClasspaths.addAll(this.handleExtdirs(null));
+				}
+			} else {
+				if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) >= ClassFileConstants.JDK9) {
+					throw new IllegalArgumentException();
+				}
 			}
 		}
 		if (standardJavaFileManager != null) {
@@ -715,7 +715,7 @@ public class EclipseCompilerImpl extends Main {
 		} else if (javaFileManager != null) {
 			Classpath classpath = null;
 			if (this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
-				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.SOURCE_PATH);
+				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.SOURCE_PATH, new HashSet<>(this.compilationUnits), this::getNewParser);
 				fileSystemClasspaths.add(classpath);
 			}
 			// Add the locations to search for in specific order
@@ -727,12 +727,28 @@ public class EclipseCompilerImpl extends Main {
 				fileSystemClasspaths.add(classpath);
 			}
 			if (this.fileManager.hasLocation(StandardLocation.MODULE_SOURCE_PATH)) {
-				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_SOURCE_PATH);
-				fileSystemClasspaths.add(classpath);
+				try {
+					for (Set<Location> locs: this.fileManager.listLocationsForModules(StandardLocation.MODULE_SOURCE_PATH)) {
+						for (Location loc : locs) {
+							classpath = new ClasspathJsr199(this.fileManager, loc, new HashSet<>(this.compilationUnits), this::getNewParser);
+							fileSystemClasspaths.add(classpath);
+						}
+					}
+				} catch (IOException e) {
+					this.logger.logException(e);
+				}
 			}
 			if (this.fileManager.hasLocation(StandardLocation.MODULE_PATH)) {
-				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_PATH);
-				fileSystemClasspaths.add(classpath);
+				try {
+					for (Set<Location> locs: this.fileManager.listLocationsForModules(StandardLocation.MODULE_PATH)) {
+						for (Location loc : locs) {
+							classpath = new ClasspathJsr199(this.fileManager, loc);
+							fileSystemClasspaths.add(classpath);
+						}
+					}
+				} catch (IOException e) {
+					this.logger.logException(e);
+				}
 			}
 			classpath = new ClasspathJsr199(this.fileManager, StandardLocation.CLASS_PATH);
 			fileSystemClasspaths.add(classpath);
@@ -972,5 +988,24 @@ public class EclipseCompilerImpl extends Main {
 			return this.original.getMarkerType();
 		}
 
+	}
+
+	@Override
+	protected CompilationUnit createCompilationUnit(int idx, String filename) {
+		// NOTE: use of idx relies on same order in these members:
+		// + from Main: filenames, modNames
+		// + here: compilationUnits (see comment at declaration)
+		// I.e., instead of using filenames[idx] we use compilationUnits.get(idx):
+		if (this.compilationUnits != null && idx < this.compilationUnits.size()) {
+			JavaFileObject javaFileObject = this.compilationUnits.get(idx);
+			if (filename.endsWith(javaFileObject.getName())) {
+				try {
+					return ClasspathJsr199.readCompilationUnit(javaFileObject, getDefaultEncoding());
+				} catch (IOException e) {
+					// nop
+				}
+			}
+		}
+		return null;
 	}
 }

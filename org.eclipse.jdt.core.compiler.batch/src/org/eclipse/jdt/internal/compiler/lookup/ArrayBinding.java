@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
-public final class ArrayBinding extends TypeBinding {
+public final class ArrayBinding extends TypeBinding implements HotSwappable {
 	// creation and initialization of the length field
 	// the declaringClass of this field is intentionally set to null so it can be distinguished.
 	public static final FieldBinding ArrayLength = new FieldBinding(TypeConstants.LENGTH, TypeBinding.INT, ClassFileConstants.AccPublic | ClassFileConstants.AccFinal, null, Constant.NotAConstant);
@@ -95,29 +95,6 @@ public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
 		missingTypes = this.leafComponentType.collectMissingTypes(missingTypes);
 	}
 	return missingTypes;
-}
-
-@Override
-public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
-
-	if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
-	if (actualType == TypeBinding.NULL || actualType.kind() == POLY_TYPE) return;
-
-	switch(actualType.kind()) {
-		case Binding.ARRAY_TYPE :
-	        int actualDim = actualType.dimensions();
-	        if (actualDim == this.dimensions) {
-			    this.leafComponentType.collectSubstitutes(scope, actualType.leafComponentType(), inferenceContext, constraint);
-	        } else if (actualDim > this.dimensions) {
-	            ArrayBinding actualReducedType = this.environment.createArrayType(actualType.leafComponentType(), actualDim - this.dimensions);
-	            this.leafComponentType.collectSubstitutes(scope, actualReducedType, inferenceContext, constraint);
-	        }
-			break;
-		case Binding.TYPE_PARAMETER :
-			//TypeVariableBinding variable = (TypeVariableBinding) otherType;
-			// TODO (philippe) should consider array bounds, and recurse
-			break;
-	}
 }
 
 @Override
@@ -557,7 +534,7 @@ public MethodBinding getCloneMethod(final MethodBinding originalMethod) {
 	method.parameters = originalMethod.parameters;
 	method.thrownExceptions = Binding.NO_EXCEPTIONS;
 	method.tagBits = originalMethod.tagBits;
-	method.returnType = this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5 ? this : originalMethod.returnType;
+	method.returnType = this;
 	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 		if (this.environment.usesNullTypeAnnotations())
 			method.returnType = this.environment.createNonNullAnnotatedType(method.returnType);

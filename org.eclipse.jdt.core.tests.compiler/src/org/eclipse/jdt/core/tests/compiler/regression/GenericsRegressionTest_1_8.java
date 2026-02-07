@@ -465,8 +465,7 @@ public void testBug424403() {
 public void testBug401850a() {
 	runNegativeTest(
 		false /* skipJavac */,
-		this.complianceLevel < ClassFileConstants.JDK1_8 ?
-		null : JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"X.java",
 			"import java.util.List;\n" +
@@ -10858,6 +10857,16 @@ public void testBug508834_comment0() {
 				public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
 				                                  ^^^^^^^^^^^^^^^^^^
 			Cycle detected: the type TestClass cannot extend/implement itself or one of its own member types
+			----------
+			2. ERROR in TestClass.java (at line 1)
+				public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+				                                                     ^^^^^^^^^^^^^^^^^^
+			TestClass.Missing2 cannot be resolved to a type
+			----------
+			3. ERROR in TestClass.java (at line 1)
+				public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+				                                                                        ^^^^^^^^^^^^^^^^^^
+			TestClass.Missing3 cannot be resolved to a type
 			----------
 			""";
 		runner.runNegativeTest();

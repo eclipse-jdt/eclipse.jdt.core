@@ -514,7 +514,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 
 			// Launch process
 			compileProcess = Runtime.getRuntime().exec(
-				cmdLine.toString(), null, this.outputTestDirectory);
+				cmdLine.toString().split("\\s"), null, this.outputTestDirectory);
 
 			// Log errors
       Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");
@@ -613,7 +613,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		catch (Throwable e) {
 			System.out.println(testName+": could not launch Sun javadoc compilation!");
 			e.printStackTrace();
-			javacFullLog.println("JAVAC_ERROR: could not launch Sun javac compilation!");
+			javacFullLog.println("JAVAC_ERROR: could not launch OpenJDK javac compilation!");
 			e.printStackTrace(javacFullLog);
 			// PREMATURE failing the javac pass or comparison could also fail
 			//           the test itself
