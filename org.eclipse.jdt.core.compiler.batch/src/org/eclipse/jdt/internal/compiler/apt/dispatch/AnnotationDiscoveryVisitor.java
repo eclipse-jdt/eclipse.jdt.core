@@ -155,7 +155,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			// when we get here, it is guaranteed that class type parameters are connected, but method type parameters may not be.
 			MethodBinding methodBinding = (MethodBinding) binding.declaringElement;
 			((SourceTypeBinding) methodBinding.declaringClass).resolveTypesFor(methodBinding);
-			this.resolveAnnotations(scope, annotations, binding);
+			this.resolveAnnotations(scope, annotations, typeParameter.binding /* treat as volatile as Scope.preprocessTypeVariables() called by resolveTypesFor() may modify!!! */);
 		}
 		return false;
 	}

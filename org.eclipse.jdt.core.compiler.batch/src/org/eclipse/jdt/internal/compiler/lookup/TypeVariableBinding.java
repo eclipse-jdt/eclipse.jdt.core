@@ -871,11 +871,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return this;
 	}
 
-	@Override
-	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-		this.environment.getUnannotatedType(this); // exposes original TVB/capture to type system for id stamping purposes.
-		super.setTypeAnnotations(annotations, evalNullAnnotations);
-	}
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#shortReadableName()
      */
@@ -1085,6 +1080,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 			for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
 				TypeVariableBinding annotatedType = (TypeVariableBinding) annotatedTypes[i];
 				annotatedType.firstBound = firstBound;
+				if (firstBound != null)
+					annotatedType.tagBits |= firstBound.tagBits & (TagBits.HasNullTypeAnnotation|TagBits.HasMissingType);
 			}
 		}
 		if (firstBound != null)
@@ -1098,11 +1095,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if (!isPrototype())
 			return this.prototype.setSuperClass(superclass);
 		this.superclass = superclass;
+		if (superclass != null)
+			this.tagBits |= superclass.tagBits & (TagBits.HasNullTypeAnnotation|TagBits.HasMissingType);
 		if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
 			TypeBinding [] annotatedTypes = getDerivedTypesForDeferredInitialization();
 			for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
 				TypeVariableBinding annotatedType = (TypeVariableBinding) annotatedTypes[i];
 				annotatedType.superclass = superclass;
+				if (superclass != null)
+					annotatedType.tagBits |= superclass.tagBits & (TagBits.HasNullTypeAnnotation|TagBits.HasMissingType);
 			}
 		}
 		return superclass;
