@@ -142,22 +142,12 @@ public class TypeParameter extends AbstractVariableDeclaration {
 							if ((this.binding.tagBits & TagBits.AnnotationNonNull) != 0)
 								scope.problemReporter().nullAnnotationIsRedundant(this);
 						} else { // no explicit type annos, add the default:
-							TypeVariableBinding previousBinding = this.binding;
-							this.binding = (TypeVariableBinding) environment.createNonNullAnnotatedType(this.binding);
-
-							if (scope instanceof MethodScope) {
-								/*
-								 * for method type parameters, references to the bindings have already been copied into
-								 * MethodBinding.typeVariables - update them.
-								 */
-								MethodScope methodScope = (MethodScope) scope;
-								if (methodScope.referenceContext instanceof AbstractMethodDeclaration) {
-									MethodBinding methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding;
-									if (methodBinding != null) {
-										methodBinding.updateTypeVariableBinding(previousBinding, this.binding);
-									}
-								}
-							}
+							annotationBindings = this.binding.getTypeAnnotations();
+							AnnotationBinding [] newAnnotations = new AnnotationBinding[annotationBindings == null ? 1 : annotationBindings.length + 1];
+							if (annotationBindings != null)
+								System.arraycopy(annotationBindings, 0, newAnnotations, 0, annotationBindings.length);
+							newAnnotations[newAnnotations.length - 1] = environment.getNonNullAnnotation();
+							this.binding.setTypeAnnotations(newAnnotations, true);
 						}
 					}
 					this.binding.evaluateNullAnnotations(scope, this);

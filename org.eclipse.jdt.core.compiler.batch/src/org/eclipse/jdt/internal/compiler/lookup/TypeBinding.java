@@ -183,9 +183,13 @@ public String annotatedDebugName() {
 		buffer.append('.');
 	}
 	AnnotationBinding [] annotations = getTypeAnnotations();
-	for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
-		buffer.append(annotations[i]);
-		buffer.append(' ');
+	if (annotations == Binding.AWAITED_ANNOTATIONS) {
+		buffer.append("@<Awaited ...> "); //$NON-NLS-1$
+	} else {
+		for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
+			buffer.append(annotations[i]);
+			buffer.append(' ');
+		}
 	}
 	buffer.append(sourceName());
 	return buffer.toString();
@@ -1644,7 +1648,7 @@ final public AnnotationBinding[] getTypeAnnotations() {
 
 public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
 	this.tagBits |= TagBits.HasTypeAnnotations;
-	if (annotations == null || annotations.length == 0)
+	if (annotations == null || (annotations.length == 0 && annotations != Binding.AWAITED_ANNOTATIONS))
 		return;
 	this.typeAnnotations = annotations;
 	if (evalNullAnnotations) {
