@@ -235,12 +235,16 @@ public class AnnotatableTypeSystem extends TypeSystem {
 				ArrayBinding arrayBinding = (ArrayBinding) type;
 				annotatedType = getArrayType(arrayBinding.leafComponentType, arrayBinding.dimensions, flattenedAnnotations(annotations));
 				break;
+			case Binding.TYPE_PARAMETER:
+				// simplified version given that type parameters have only one level of annotations.
+				// this also spares the below algorithm the need to specifically handle Binding.AWAITED_ANNOTATIONS
+				annotatedType = getAnnotatedType(type, null, annotations[0]);
+				break;
 			case Binding.BASE_TYPE:
 			case Binding.TYPE:
 			case Binding.GENERIC_TYPE:
 			case Binding.PARAMETERIZED_TYPE:
 			case Binding.RAW_TYPE:
-			case Binding.TYPE_PARAMETER:
 			case Binding.WILDCARD_TYPE:
 			case Binding.INTERSECTION_TYPE:
 			case Binding.INTERSECTION_TYPE18:
@@ -372,6 +376,8 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		if (baseType != null && baseType.hasTypeAnnotations())
 			return true;
 		if (someType != null && someType.hasTypeAnnotations())
+			return true;
+		if (annotations == Binding.AWAITED_ANNOTATIONS)
 			return true;
 		for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++)
 			if (annotations [i] != null)
