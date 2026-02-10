@@ -81,6 +81,14 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invocationSite, Scope scope) {
 	if (isPublic()) return true;
 
+	if (isPrivate()) {
+		// JLS 6.6-5: A private class member or constructor is accessible only within the body of the top level
+		// class (§7.6) that encloses the declaration of the member or constructor => we should forbid access from top level class `header`.
+		ClassScope topLevelScope = scope.outerMostClassScope();
+		if (topLevelScope != null && topLevelScope.referenceContext.staticInitializerScope.insideTypeDeclarationAnnotations)
+			return false;
+	}
+
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
 	if (TypeBinding.equalsEquals(invocationType, this.declaringClass) && TypeBinding.equalsEquals(invocationType, receiverType)) return true;
 
@@ -217,12 +225,12 @@ public Constant constant() {
 					TypeDeclaration typeDecl = sourceType.scope.referenceContext;
 					FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
 					MethodScope initScope = originalField.isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
-					boolean old = initScope.insideTypeAnnotation;
+					boolean old = initScope.insideTypeDeclarationAnnotations;
 					try {
-						initScope.insideTypeAnnotation = false;
+						initScope.insideTypeDeclarationAnnotations = false;
 						fieldDecl.resolve(initScope); //side effect on binding
 					} finally {
-						initScope.insideTypeAnnotation = old;
+						initScope.insideTypeDeclarationAnnotations = old;
 					}
 					fieldConstant = originalField.constant == null ? Constant.NotAConstant : originalField.constant;
 				} else {
