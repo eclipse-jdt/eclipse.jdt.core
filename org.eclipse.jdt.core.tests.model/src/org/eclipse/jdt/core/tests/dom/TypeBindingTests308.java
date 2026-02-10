@@ -2672,4 +2672,33 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		IBinding binding = ((QualifiedName) expression).getQualifier().resolveBinding();
 		assertNotNull(binding);
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4219
+	// Type annotations on type variables in the header of a class declaration are not preserved in the corresponding type bindings.
+	public void testIssue4219() throws CoreException, IOException {
+		String contents =
+				"""
+				import java.lang.annotation.*;
+
+				@Target(ElementType.TYPE_USE)
+				@Retention(RetentionPolicy.RUNTIME)
+				@interface TA {}
+
+				public abstract class A<T> implements Comparable<@TA T> {}
+				""";
+
+		this.workingCopy = getWorkingCopy("/Converter18/src/A.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 2, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+		ITypeBinding binding = typeDecl.resolveBinding();
+		var superinterfaceBinding = binding.getInterfaces()[0];
+        var typeArgument = superinterfaceBinding.getTypeArguments()[0];
+        var typeAnnotations = typeArgument.getTypeAnnotations();
+        assertTrue(typeAnnotations[0].getName().equals("TA"));
+	}
 }
