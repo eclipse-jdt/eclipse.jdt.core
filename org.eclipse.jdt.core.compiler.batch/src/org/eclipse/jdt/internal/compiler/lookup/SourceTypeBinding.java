@@ -1179,12 +1179,12 @@ public long getAnnotationTagBits() {
 
 	if (!ExtendedTagBits.areAllAnnotationsResolved(this.extendedTagBits) && this.scope != null) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
-		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		boolean old = typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations;
 		try {
-			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations = true;
 			ASTNode.resolveAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
 		} finally {
-			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+			typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations = old;
 		}
 		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0)
 			this.modifiers |= ClassFileConstants.AccDeprecated;
@@ -1198,13 +1198,13 @@ void initializeNullDefaultAnnotation() {
 	}
 	if ((this.extendedTagBits & ExtendedTagBits.NullDefaultAnnotationResolved) == 0 && this.scope != null) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
-		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		boolean old = typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations;
 		try {
-			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations = true;
 			ASTNode.resolveNullDefaultAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
 			evaluateNullAnnotations();
 		} finally {
-			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+			typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations = old;
 		}
 	}
 }
@@ -1563,13 +1563,13 @@ public void initializeDeprecatedAnnotationTagBits() {
 	}
 	if ((this.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) == 0) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
-		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		boolean old = typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations;
 		try {
-			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations = true;
 			ASTNode.resolveDeprecatedAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
 			this.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
 		} finally {
-			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+			typeDecl.staticInitializerScope.insideTypeDeclarationAnnotations = old;
 		}
 		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
 			this.modifiers |= ClassFileConstants.AccDeprecated;

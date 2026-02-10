@@ -217,12 +217,12 @@ public Constant constant() {
 					TypeDeclaration typeDecl = sourceType.scope.referenceContext;
 					FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
 					MethodScope initScope = originalField.isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
-					boolean old = initScope.insideTypeAnnotation;
+					boolean old = initScope.insideTypeDeclarationAnnotations;
 					try {
-						initScope.insideTypeAnnotation = false;
+						initScope.insideTypeDeclarationAnnotations = false;
 						fieldDecl.resolve(initScope); //side effect on binding
 					} finally {
-						initScope.insideTypeAnnotation = old;
+						initScope.insideTypeDeclarationAnnotations = old;
 					}
 					fieldConstant = originalField.constant == null ? Constant.NotAConstant : originalField.constant;
 				} else {

@@ -2059,7 +2059,7 @@ public abstract class Scope {
 							methodScope = (MethodScope) scope;
 							insideStaticContext |= methodScope.isStatic;
 							insideConstructorCall |= methodScope.isConstructorCall;
-							insideTypeAnnotation = methodScope.insideTypeAnnotation;
+							insideTypeAnnotation = methodScope.insideTypeDeclarationAnnotations;
 
 							//$FALL-THROUGH$ could duplicate the code below to save a cast - questionable optimization
 						case BLOCK_SCOPE :
@@ -2604,7 +2604,7 @@ public abstract class Scope {
 					methodScope = (MethodScope) scope;
 					insideStaticContext |= methodScope.isStatic;
 					insideConstructorCall |= methodScope.isConstructorCall;
-					insideTypeAnnotation = methodScope.insideTypeAnnotation;
+					insideTypeAnnotation = methodScope.insideTypeDeclarationAnnotations;
 					break;
 				case CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) scope;
@@ -3379,7 +3379,7 @@ public abstract class Scope {
 							}
 						}
 						insideStaticContext |= methodScope.isStatic;
-						insideTypeAnnotation = methodScope.insideTypeAnnotation;
+						insideTypeAnnotation = methodScope.insideTypeDeclarationAnnotations;
 						//$FALL-THROUGH$
 					case BLOCK_SCOPE :
 						ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
