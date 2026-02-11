@@ -178,4 +178,72 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 				selected
 			);
 	}
+
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4218
+	// IAE at org.eclipse.jdt.core.Signature.encodeQualifiedName" on hyperlink request
+	public void testIssue4218() throws CoreException {
+		this.wc = getWorkingCopy("/Resolve/src/Test.java",
+		"""
+		@FunctionalInterface
+		interface Callable<V> {
+		    /**
+		     * Computes a result, or throws an exception if unable to do so.
+		     *
+		     * @return computed result
+		     * @throws Exception if unable to compute a result
+		     */
+		    V call() throws Exception;
+		}
+		public class Test {
+
+			public static <T> void createObjectBinding(final Callable<T> func) {
+				return;
+			}
+
+			sealed interface Index {
+				enum SS implements Index {}
+				enum TS implements Index {}
+			}
+
+			public abstract sealed class Entity<S extends Index> permits Struct, Time {}
+
+			final class Struct extends Entity<Index.SS> {}
+
+			final class Time extends Entity<Index.TS> {
+
+				Struct getStruct() {
+					return null;
+				}
+
+				public Object getOther() {
+					return null;
+				}
+			}
+
+			private <T> T createMap(Object other) {
+				return null;
+			}
+
+			private void setMaterials(Time entity) {
+				var selfIllumImage = createObjectBinding(() -> {
+						var entity2 = entity.getStruct() == null ? entity : entity.getStruct();
+						return createMap(entity.getOther());
+				});
+			}
+		}
+		""");
+		String str = this.wc.getSource();
+		String selection = "entity2";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] selected = this.wc.codeSelect(start, length);
+		assertEquals(1, selected.length);
+		assertElementsEqual(
+				"Unexpected elements",
+				"entity2 [in call() [in <lambda #1> [in setMaterials(Time) [in Entity [in Test [in [Working copy] Test.java [in <default> [in src [in Resolve]]]]]]]]]",
+				selected
+			);
+	}
 }
