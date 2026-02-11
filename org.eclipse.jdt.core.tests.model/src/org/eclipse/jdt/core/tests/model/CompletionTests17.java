@@ -649,5 +649,24 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		assertResults("other[LOCAL_VARIABLE_REF]{other, null, LX;, other, null, 52}",
 				requestor.getResults());
 		}
-
+	public void testGH4623() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Foo.java",
+				"""
+				public @interface Foo {
+						String[] groups() default {};
+						Str
+					}
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Str";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 39}\n"
+				+ "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 54}",
+				requestor.getResults());
+	}
 }
