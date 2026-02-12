@@ -159,6 +159,10 @@ public class QualifiedTypeReference extends TypeReference {
 				if (this.annotations != null) {
 					rejectAnnotationsOnStaticMemberQualififer(scope, currentType, this.annotations[i-1]);
 				}
+				if (currentType.isStatic() && (qualifyingType.isParameterizedType() || qualifyingType.isGenericType())) {
+					scope.problemReporter().staticMemberOfParameterizedType(this, currentType, qualifyingType, i);
+					qualifyingType = qualifyingType.actualType(); // avoid raw/parameterized enclosing of static member
+				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
 				if (enclosingType != null && TypeBinding.notEquals(enclosingType.erasure(), qualifyingType.erasure())) {
 					qualifyingType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
@@ -178,7 +182,10 @@ public class QualifiedTypeReference extends TypeReference {
 					}
 				}
 			} else {
-				qualifyingType = currentType.isGenericType() ? (ReferenceBinding)scope.environment().convertToRawType(currentType, false /*do not force conversion of enclosing types*/) : currentType;
+				qualifyingType = currentType.isGenericType() ?
+							(ReferenceBinding)scope.environment().convertToRawType(currentType, false /*do not force conversion of enclosing types*/) :
+							scope.environment().convertToParameterizedType(currentType);
+
 			}
 			recordResolution(scope.environment(), qualifyingType);
 		}

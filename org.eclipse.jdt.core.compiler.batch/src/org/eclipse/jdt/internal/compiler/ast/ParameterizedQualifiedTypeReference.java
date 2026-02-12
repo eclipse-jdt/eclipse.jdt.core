@@ -244,7 +244,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				if (this.annotations != null)
 					rejectAnnotationsOnStaticMemberQualififer(scope, currentType, this.annotations[i-1]);
 				if (typeIsConsistent && currentType.isStatic()
-						&& (qualifyingType.isParameterizedTypeWithActualArguments() || qualifyingType.isGenericType())) {
+						&& (qualifyingType.isParameterizedType() || qualifyingType.isGenericType())) {
 					scope.problemReporter().staticMemberOfParameterizedType(this, currentType, qualifyingType, i);
 					typeIsConsistent = false;
 					qualifyingType = qualifyingType.actualType(); // avoid raw/parameterized enclosing of static member
