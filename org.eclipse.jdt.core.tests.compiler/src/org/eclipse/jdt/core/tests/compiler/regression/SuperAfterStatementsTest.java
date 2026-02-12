@@ -3639,5 +3639,39 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         	"""
 	    });
 	}
+	public void testIssue4700b() {
+		runNegativeTest(new String[] {
+			"Test.java",
+			"""
+			@SuppressWarnings("unused")
+			public class Test {
+				private final Object a;
+				public Test() {
+					a = new Object();
+					class Test2 {
+						private final Object b;
+						public Test2() {
+							System.out.println();
+							super();
+							try {
+								b = new Object();
+							} finally {
+								a = new Object();
+							}
+						}
+					}
+				}
+			}
+			"""
+			},
+			"""
+			----------
+			1. ERROR in Test.java (at line 14)
+				a = new Object();
+				^
+			The final field Test.a cannot be assigned
+			----------
+			""");
+	}
 }
 

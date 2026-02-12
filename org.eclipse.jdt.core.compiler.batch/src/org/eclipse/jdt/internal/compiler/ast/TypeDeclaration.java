@@ -264,7 +264,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 		updateMaxFieldCount(); // propagate down the max field count
-		internalAnalyseCode(flowContext, flowInfo.unconditionalFieldLessCopy());
+		internalAnalyseCode(flowContext, flowInfo.unconditionalFieldLessCopy()); // discards info about fields of enclosing classes
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 	}
@@ -300,7 +300,7 @@ public void analyseCode(ClassScope currentScope, FlowContext flowContext, FlowIn
 		}
 		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 		updateMaxFieldCount(); // propagate down the max field count
-		internalAnalyseCode(flowContext, flowInfo.unconditionalFieldLessCopy());
+		internalAnalyseCode(flowContext, flowInfo.unconditionalFieldLessCopy()); // discards info about fields of enclosing classes
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 	}
