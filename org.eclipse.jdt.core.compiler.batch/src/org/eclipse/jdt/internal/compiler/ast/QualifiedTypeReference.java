@@ -139,7 +139,7 @@ public class QualifiedTypeReference extends TypeReference {
 	    rejectAnnotationsOnPackageQualifiers(scope, packageBinding);
 
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
-	    ReferenceBinding qualifiedType = null;
+	    ReferenceBinding qualifyingType = null;
 		for (int i = typeStart, max = this.tokens.length, last = max-1; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!this.resolvedType.isValidBinding())
@@ -155,34 +155,34 @@ public class QualifiedTypeReference extends TypeReference {
 				if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this)) // must connect hierarchy to find inherited member types
 					return null;
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
-			if (qualifiedType != null) {
+			if (qualifyingType != null) {
 				if (this.annotations != null) {
 					rejectAnnotationsOnStaticMemberQualififer(scope, currentType, this.annotations[i-1]);
 				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
-				if (enclosingType != null && TypeBinding.notEquals(enclosingType.erasure(), qualifiedType.erasure())) {
-					qualifiedType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
+				if (enclosingType != null && TypeBinding.notEquals(enclosingType.erasure(), qualifyingType.erasure())) {
+					qualifyingType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
 				}
 				if (currentType.isGenericType()) {
-					qualifiedType = scope.environment().createRawType(currentType, qualifiedType);
+					qualifyingType = scope.environment().createRawType(currentType, qualifyingType);
 				} else if (!currentType.hasEnclosingInstanceContext()) {
-					qualifiedType = currentType; // parameterization of enclosing is irrelevant in this case
+					qualifyingType = currentType; // parameterization of enclosing is irrelevant in this case
 				} else {
-					boolean rawQualified = qualifiedType.isRawType();
+					boolean rawQualified = qualifyingType.isRawType();
 					if (rawQualified) {
-						qualifiedType = scope.environment().createRawType((ReferenceBinding)currentType.erasure(), qualifiedType);
-					} else if (qualifiedType.isParameterizedType() && TypeBinding.equalsEquals(qualifiedType.erasure(), currentType.enclosingType().erasure())) {
-						qualifiedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType);
+						qualifyingType = scope.environment().createRawType((ReferenceBinding)currentType.erasure(), qualifyingType);
+					} else if (qualifyingType.isParameterizedType() && TypeBinding.equalsEquals(qualifyingType.erasure(), currentType.enclosingType().erasure())) {
+						qualifyingType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType);
 					} else {
-						qualifiedType = currentType;
+						qualifyingType = currentType;
 					}
 				}
 			} else {
-				qualifiedType = currentType.isGenericType() ? (ReferenceBinding)scope.environment().convertToRawType(currentType, false /*do not force conversion of enclosing types*/) : currentType;
+				qualifyingType = currentType.isGenericType() ? (ReferenceBinding)scope.environment().convertToRawType(currentType, false /*do not force conversion of enclosing types*/) : currentType;
 			}
-			recordResolution(scope.environment(), qualifiedType);
+			recordResolution(scope.environment(), qualifyingType);
 		}
-		this.resolvedType = qualifiedType;
+		this.resolvedType = qualifyingType;
 		return this.resolvedType;
 	}
 
