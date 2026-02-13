@@ -486,7 +486,7 @@ public class ClassScope extends Scope {
 		}
 
 		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
-		sourceType.typeVariables = typeParameters == null || typeParameters.length == 0 ? Binding.NO_TYPE_VARIABLES : null;
+		sourceType.setTypeVariables(typeParameters == null || typeParameters.length == 0 ? Binding.NO_TYPE_VARIABLES : null); // don't assign directly!
 		sourceType.fPackage.addType(sourceType);
 		checkAndSetModifiers();
 		buildTypeVariables();
@@ -1376,7 +1376,7 @@ public class ClassScope extends Scope {
 			}
 			if (count != rcbs.length) // remove duplicate or broken components
 				System.arraycopy(rcbs, 0, rcbs = count == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[count], 0, count);
-			sourceType.components = rcbs;
+			sourceType.setComponents(rcbs); // don't assign directly to components!
 		}
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;
 		if (memberTypes != null) {
