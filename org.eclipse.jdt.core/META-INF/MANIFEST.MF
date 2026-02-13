@@ -6,6 +6,16 @@ Bundle-Version: 3.45.0.qualifier
 Bundle-Activator: org.eclipse.jdt.core.JavaCore
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
+Import-Package: org.eclipse.core.internal.runtime;bundle-symbolic-name="org.eclipse.core.runtime";bundle-version="[3.29.0, 4.0)",
+ org.eclipse.core.runtime;bundle-symbolic-name="org.eclipse.core.runtime";bundle-version="[3.29.0, 4.0)",
+ org.eclipse.core.runtime.content;bundle-symbolic-name="org.eclipse.core.contenttype";bundle-version="[3.9.0, 4.0)",
+ org.eclipse.core.runtime.jobs;bundle-symbolic-name="org.eclipse.core.jobs";bundle-version="[3.15.0, 4.0)",
+ org.eclipse.core.runtime.preferences;bundle-symbolic-name="org.eclipse.equinox.preferences";bundle-version="[3.11.0, 4.0)",
+ org.eclipse.equinox.app;bundle-symbolic-name="org.eclipse.equinox.app";bundle-version="[1.7.0, 2.0)",
+ org.eclipse.osgi.service.debug;bundle-symbolic-name="org.eclipse.osgi";bundle-version="[3.22.0, 4.0)",
+ org.eclipse.osgi.util;bundle-symbolic-name="org.eclipse.osgi";bundle-version="[3.22.0, 4.0)",
+ org.osgi.framework;bundle-symbolic-name="org.eclipse.osgi";bundle-version="[3.22.0, 4.0)",
+ org.osgi.service.prefs;bundle-symbolic-name="org.osgi.service.prefs";bundle-version="[1.1.2, 2.0)"
 Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.core.compiler,
  org.eclipse.jdt.core.dom,
@@ -43,7 +53,6 @@ Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.formatter.linewrap;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests",
  org.eclipse.jdt.internal.formatter.old;x-friends:="org.eclipse.jdt.core.tests.model, org.eclipse.jdt.core.tests.compiler, org.eclipse.jdt.core.tests.builder, org.eclipse.jdt.core.tests.performance, org.eclipse.jdt.ui.tests"
 Require-Bundle: org.eclipse.core.resources;bundle-version="[3.22.0,4.0.0)",
- org.eclipse.core.runtime;bundle-version="[3.29.0,4.0.0)",
  org.eclipse.core.filesystem;bundle-version="[1.11.0,2.0.0)",
  org.eclipse.text;bundle-version="[3.6.0,4.0.0)",
  org.eclipse.team.core;bundle-version="[3.1.0,4.0.0)";resolution:=optional,
