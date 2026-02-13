@@ -1524,5 +1524,16 @@ public boolean isAsVisible(ReferenceBinding declaringType) {
 		if (declaringType.isProtected()) return false;
 		return !this.isPrivate();
 }
+
+@Override
+public boolean isJSpecifyNullMarked() {
+	long bits = this.extendedTagBits & ExtendedTagBits.JSpecifyNullMarkAnnotated;
+	if (bits == ExtendedTagBits.IsJSpecifyNullMarked) {
+		return true;
+	} else if (bits == ExtendedTagBits.IsJSpecifyNullUnmarked) {
+		return false;
+	}
+	return this.declaringClass.isJSpecifyNullMarked();
+}
 }
 
