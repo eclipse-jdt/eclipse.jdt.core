@@ -910,7 +910,7 @@ public class Util {
 	}
 
 	/**
-	 * Get the jdk level of this root.
+	 * Get the lowest jdk compliance level required by given library.
 	 * The value can be:
 	 * <ul>
 	 * <li>{@code major<<16 + minor} : see predefined constants on ClassFileConstants </li>
@@ -946,7 +946,9 @@ public class Util {
 							for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
 								ZipEntry member= e.nextElement();
 								String entryName= member.getName();
-								if (isClassFileName(entryName)) {
+								// Ignore class files in META-INF/versions as they are provided for higher JLS and not
+								// relevant to determine the lowest jdk level supported by the multi-release jar
+								if (isClassFileName(entryName) && !entryName.startsWith(METAINF_VERSIONS)) {
 									reader = ClassFileReader.read(jar, entryName);
 									break;
 								}
