@@ -136,6 +136,14 @@ public class Util {
 
 	private static char[][] JAVA_DERIVED_EXTENSIONS;
 
+	/**
+	 * The jar entry path under which JDK expects compiler to place class files for multi-release JARs. See
+	 * https://docs.oracle.com/javase/9/docs/specs/jar/jar.html#multi-release-jar-files.
+	 * <p>
+	 * The value is "META-INF/versions/".
+	 */
+	public static String METAINF_VERSIONS = org.eclipse.jdt.internal.compiler.util.Util.METAINF_VERSIONS;
+
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
 	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
