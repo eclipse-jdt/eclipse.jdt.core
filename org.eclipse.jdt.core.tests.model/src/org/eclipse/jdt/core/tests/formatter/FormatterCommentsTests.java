@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1399,6 +1399,63 @@ public void testSnippet06() {
 		"public class T {\n" +
 		"}"
 	);
+}
+
+public void testAtInSnippet01() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	String source = """
+			/**
+			 * {@snippet :
+			 * @SomeAnnotation
+			 * public class Example {
+			 * 			final int a =1;
+			 * 	final boolean b = 		true;
+			 * }
+			 * }
+			 */
+			class SomeClass3 {
+			}
+			""";
+	String expected = """
+			/**
+			 * {@snippet :
+			 * @SomeAnnotation
+			 * public class Example {
+			 * 	final int a = 1;
+			 * 	final boolean b = true;
+			 * }
+			 * }
+			 */
+			class SomeClass3 {
+			}
+			""";
+	formatSource(source, expected);
+}
+public void testAtInSnippet02() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	String source = """
+			/**
+			 * {@snippet :
+			 * @SomeAnnotation
+			 * void someMethod(@ThisAnnotationWillBeFine blah) {
+			 * }
+			 * }
+			 */
+			class SomeClass {
+			}
+			""";
+	String expected = """
+			/**
+			 * {@snippet :
+			 * @SomeAnnotation
+			 * void someMethod(@ThisAnnotationWillBeFine blah) {
+			 * }
+			 * }
+			 */
+			class SomeClass {
+			}
+			""";
+	formatSource(source, expected);
 }
 public void testJoinLineComment01() {
 	this.formatterPrefs.join_line_comments = true;

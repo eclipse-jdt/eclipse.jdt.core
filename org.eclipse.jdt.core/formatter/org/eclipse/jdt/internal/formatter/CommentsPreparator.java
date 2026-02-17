@@ -990,7 +990,7 @@ public class CommentsPreparator extends ASTVisitor {
 				&& formatCode(codeBlockStartIndex, codeBlockEndIndex + 1, false, true)) {
 			// code formatting successful
 		} else if (openingFence != null && codeBlockStartIndex < codeBlockEndIndex) {
-			disableFormattingExclusively(codeBlockStartIndex, codeBlockEndIndex + 1);
+			disableFormattingExclusively(codeBlockStartIndex, codeBlockEndIndex + 1, false);
 		} else if (codeBlockStartIndex != -1) {
 			disableFormatting(codeBlockStartIndex, codeBlockEndIndex, true);
 		}
@@ -1030,7 +1030,7 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 			if (tableStartIndex != -1 && tableLastIndex != -1) {
 				// TODO fix column alignment and format cells
-				disableFormattingExclusively(tableStartIndex, tableLastIndex);
+				disableFormattingExclusively(tableStartIndex, tableLastIndex, false);
 			}
 		}
 	}
@@ -1297,7 +1297,7 @@ public class CommentsPreparator extends ASTVisitor {
 				}
 			} else if (this.formatCodeOpenTagEndIndex >= startIndex - 1
 					|| !formatCode(this.formatCodeOpenTagEndIndex, startIndex, false, false)) {
-				disableFormattingExclusively(this.formatCodeOpenTagEndIndex, startIndex);
+				disableFormattingExclusively(this.formatCodeOpenTagEndIndex, startIndex, false);
 			}
 			this.formatCodeOpenTagEndIndex = -1;
 			this.lastFormatCodeClosingTagIndex = this.ctm.findIndex(startPos, ANY, true);
@@ -1333,7 +1333,7 @@ public class CommentsPreparator extends ASTVisitor {
 			boolean formatted = (lang == null || lang.matches("['\"]?java['\"]?")) //$NON-NLS-1$
 					&& formatCode(openingIndex, closingIndex, true, false);
 			if (!formatted)
-				disableFormattingExclusively(openingIndex, closingIndex);
+				disableFormattingExclusively(openingIndex, closingIndex, true);
 		}
 	}
 
@@ -1371,15 +1371,18 @@ public class CommentsPreparator extends ASTVisitor {
 		tokensToReplace.addAll(lines);
 	}
 
-	private void disableFormattingExclusively(int openingTagIndex, int closingTagIndex) {
+	private void disableFormattingExclusively(int openingTagIndex, int closingTagIndex, boolean isSnippet) {
 		Token openingTag = this.ctm.get(openingTagIndex);
 		int noFormatStart = openingTag.originalEnd + 1;
 		int noFormatEnd = this.ctm.get(closingTagIndex - 1).originalEnd;
 		if (noFormatStart <= noFormatEnd) {
 			Token noFormatToken = new Token(noFormatStart, noFormatEnd, TokenNameCOMMENT_JAVADOC);
 			List<Token> lines = commentToLines(noFormatToken, findCommentLineIndent(openingTagIndex));
-			for (Token line : lines)
-				line.setToEscape(true);
+			for (Token line : lines) {
+				if(!isSnippet) {
+					line.setToEscape(true);
+				}
+			}
 			fixJavadocTagAlign(openingTag, closingTagIndex);
 			List<Token> tokensToReplace = this.commentStructure.subList(openingTagIndex + 1, closingTagIndex);
 			tokensToReplace.clear();
@@ -1612,7 +1615,8 @@ public class CommentsPreparator extends ASTVisitor {
 			return false;
 		}
 
-		formattedTokens = translateFormattedTokens(codeStartPosition, formattedTokens, positionMapping, null);
+		formattedTokens = translateFormattedTokens(codeStartPosition, formattedTokens, positionMapping, null,
+				snippetTag);
 
 		Token openingToken = this.ctm.get(openingIndex);
 		for (Token token : formattedTokens)
@@ -1764,7 +1768,7 @@ public class CommentsPreparator extends ASTVisitor {
 	}
 
 	private List<Token> translateFormattedTokens(int startPosition, List<Token> formattedTokens, int[] positionMapping,
-			HashMap<Token, Token> translationMap) {
+			HashMap<Token, Token> translationMap, boolean isSnippet) {
 		int previousLineBreaks = 0;
 		List<Token> result = new ArrayList<>();
 		for (Token token : formattedTokens) {
@@ -1794,10 +1798,10 @@ public class CommentsPreparator extends ASTVisitor {
 			List<Token> structure = token.getInternalStructure();
 			if (structure != null && !structure.isEmpty()) {
 				translated.setInternalStructure(translateFormattedTokens(startPosition, structure, positionMapping,
-						translationMap));
+						translationMap, isSnippet));
 			}
 			translated.putLineBreaksBefore(lineBreaks);
-			translated.setToEscape(true);
+			translated.setToEscape(!isSnippet);
 			result.add(translated);
 			previousLineBreaks = token.getLineBreaksAfter();
 		}
