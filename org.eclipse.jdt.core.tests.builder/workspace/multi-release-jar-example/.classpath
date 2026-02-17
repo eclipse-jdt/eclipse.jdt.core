@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src/java8"/>
+	<classpathentry kind="src" output="bin11" path="src/java11">
+		<attributes>
+			<attribute name="release" value="11"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin17" path="src/java17">
+		<attributes>
+			<attribute name="release" value="17"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin21" path="src/java21">
+		<attributes>
+			<attribute name="release" value="21"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin25" path="src/java25">
+		<attributes>
+			<attribute name="release" value="25"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin8"/>
+</classpath>
