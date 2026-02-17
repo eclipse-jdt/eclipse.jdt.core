@@ -112,6 +112,13 @@
            id="org.eclipse.jdt.core.tests.model.TestJavaSearchDelegate">
      </searchDelegate>
   </extension>
+  <extension
+        point="org.eclipse.core.contenttype.contentTypes">
+     <file-association
+           content-type="org.eclipse.jdt.core.javaDerivedSource"
+           file-extensions="kt">
+     </file-association>
+  </extension>
 
 
 </plugin>

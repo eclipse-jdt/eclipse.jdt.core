@@ -2234,4 +2234,203 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("incorrect Fifth tagElement", ASTNode.TAG_ELEMENT, tags.get(4).getNodeType());
 		}
 	}
+
+	public void testIncorrectLinkTagParsing4743_01() throws JavaModelException {
+		String source ="""
+				/// {@link java.lang.String}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@link" ,innerTag.getTagName());
+		}
+	}
+
+	public void testIncorrectLinkTagParsing4743_02() throws JavaModelException {
+		String source ="""
+				/// {@linkplain java.lang.String}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@linkplain" ,innerTag.getTagName());
+		}
+	}
+
+	public void testIncorrectLinkTagParsing4743_03() throws JavaModelException {
+		String source ="""
+				/// {@code List<String>}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@code" ,innerTag.getTagName());
+		}
+	}
+
+	public void testIncorrectLinkTagParsing4743_04() throws JavaModelException {
+		String source ="""
+				/// {@literal List<String>}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@literal" ,innerTag.getTagName());
+		}
+	}
+
+	public void testInconsistencyInCodeAndLiteralTagsMarkdown4609_01() throws JavaModelException {
+		String source = """
+				/// Performs:
+				///
+				/// {@code
+				/// 	for (String s : strings) {
+				/// 		if (s.equals(value)) {
+				/// 			return 0;
+				/// 		}
+				/// 		if (s.startsWith(value)) {
+				/// 		return 1;
+				/// 		}
+				/// 		return -1;
+				/// 	}
+				/// }
+				/// The general contract of `hashCode` is:
+				///
+				///   - Whenever it is invoked on the same object more than once during
+				///     an execution of a Java application, the `hashCode` method
+				///     must consistently return the same integer, provided no information
+				///     used in `equals` comparisons on the object is modified.
+				///     This integer need not remain consistent from one execution of an
+				///     application to another execution of the same application.
+				///   - If two objects are equal according to the
+				///     [equals][#equals(Object)] method, then calling the
+				///     `hashCode` method on each of the two objects must produce the
+				///     same integer result.
+				///   - It is _not_ required that if two objects are unequal
+				///     according to the [equals][#equals(Object)] method, then
+				///     calling the `hashCode` method on each of the two objects
+				///     must produce distinct integer results.  However, the programmer
+				///     should be aware that producing distinct integer results for
+				///     unequal objects may improve the performance of hash tables.
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<ASTNode> frags = tags.get(0).fragments();
+
+			assertEquals("Incorrect Frags", 22, frags.size());
+			assertEquals("Invalid element", ASTNode.TAG_ELEMENT, frags.get(1).getNodeType());
+			assertEquals("Invalid Text element content", "The general contract of `hashCode` is:", frags.get(2).toString());
+		}
+
+	}
+
+	public void testInconsistencyInCodeAndLiteralTagsMarkdown4609_02() throws JavaModelException {
+		String source = """
+				/// Performs:
+				///
+				/// {@literal
+				/// 	for (String s : strings) {
+				/// 		if (s.equals(value)) {
+				/// 			return 0;
+				/// 		}
+				/// 		if (s.startsWith(value)) {
+				/// 		return 1;
+				/// 		}
+				/// 		return -1;
+				/// 	}
+				/// }
+				/// The general contract of `hashCode` is:
+				///
+				///   - Whenever it is invoked on the same object more than once during
+				///     an execution of a Java application, the `hashCode` method
+				///     must consistently return the same integer, provided no information
+				///     used in `equals` comparisons on the object is modified.
+				///     This integer need not remain consistent from one execution of an
+				///     application to another execution of the same application.
+				///   - If two objects are equal according to the
+				///     [equals][#equals(Object)] method, then calling the
+				///     `hashCode` method on each of the two objects must produce the
+				///     same integer result.
+				///   - It is _not_ required that if two objects are unequal
+				///     according to the [equals][#equals(Object)] method, then
+				///     calling the `hashCode` method on each of the two objects
+				///     must produce distinct integer results.  However, the programmer
+				///     should be aware that producing distinct integer results for
+				///     unequal objects may improve the performance of hash tables.
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<ASTNode> frags = tags.get(0).fragments();
+
+			assertEquals("Incorrect Frags", 22, frags.size());
+			assertEquals("Invalid element", ASTNode.TAG_ELEMENT, frags.get(1).getNodeType());
+			assertEquals("Invalid Text element content", "The general contract of `hashCode` is:", frags.get(2).toString());
+		}
+	}
+
+	public void testIncorrectTagWhenMarkdownEndsWithMarkdownTag4786() throws JavaModelException {
+		String source = """
+				/// **Bold**
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<ASTNode> frags = tags.get(0).fragments();
+			assertTrue(frags.get(0) instanceof TextElement);
+			assertEquals("Invalid content", "**Bold**", ((TextElement)frags.get(0)).getText());
+		}
+	}
 }

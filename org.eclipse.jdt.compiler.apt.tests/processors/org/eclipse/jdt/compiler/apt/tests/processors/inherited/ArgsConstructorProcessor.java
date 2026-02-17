@@ -161,6 +161,7 @@ public class ArgsConstructorProcessor extends BaseProcessor {
 		return false;
 	}
 
+	@SuppressWarnings("deprecation")
 	private final TypeVisitor<Boolean, List<TypeMirror>> argsVisitor = new SimpleTypeVisitor6<>() {
 		@Override
 		public Boolean visitExecutable(ExecutableType t,

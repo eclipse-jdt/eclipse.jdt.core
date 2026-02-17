@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -539,6 +539,7 @@ public class SourceMapper
 		}
 		final HashSet<String> firstLevelPackageNames = new HashSet<>();
 		boolean containsADefaultPackage = false;
+		boolean containsJavaDerivedSource= false;
 		boolean containsJavaSource = !pkgFragmentRootPath.equals(this.sourcePath); // used to optimize zip file reading only if source path and root path are equals, otherwise assume that attachment contains Java source
 
 		String sourceLevel = null;
@@ -616,8 +617,12 @@ public class SourceMapper
 								}
 							} else if (Util.isClassFileName(resourceName)) {
 								containsADefaultPackage = true;
-							} else if (!containsJavaSource && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourceName)) {
-								containsJavaSource = true;
+							} else if (!containsJavaSource && !containsJavaDerivedSource) {
+								if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourceName)) {
+									containsJavaSource = true;
+								} else if (org.eclipse.jdt.internal.core.util.Util.isJavaDerivedFileName(resourceName)) {
+									containsJavaDerivedSource= true;
+								}
 							}
 						}
 					} catch (CoreException e) {
@@ -627,7 +632,7 @@ public class SourceMapper
 			}
 		}
 
-		if (containsJavaSource) { // no need to read source attachment if it contains no Java source (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=190840 )
+		if (containsJavaSource || containsJavaDerivedSource) { // no need to read source attachment if it contains no Java source (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=190840 )
 			Object target = JavaModel.getTarget(this.sourcePath, true);
 			if (target instanceof IContainer) {
 				IContainer folder = (IContainer)target;
@@ -640,7 +645,9 @@ public class SourceMapper
 					for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
 						ZipEntry entry = entries.nextElement();
 						String entryName;
-						if (!entry.isDirectory() && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName = entry.getName())) {
+						if (!entry.isDirectory()
+								&& (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName = entry.getName())
+										|| org.eclipse.jdt.internal.core.util.Util.isJavaDerivedFileName(entryName))) {
 							IPath path = new Path(entryName);
 							int segmentCount = path.segmentCount();
 							if (segmentCount > 1) {

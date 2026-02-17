@@ -178,4 +178,58 @@ public void testIssue3050_2() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4217
+// NPE: Cannot invoke org.eclipse.jdt.internal.compiler.lookup.BlockScope.getBinding(char[], int, org.eclipse.jdt.internal.compiler.lookup.InvocationSite, boolean) because scope is null" on hyperlink request
+public void testIssue4217() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve/src/Test.java",
+	"""
+	@FunctionalInterface
+	interface Callable<V> {
+	    /**
+	     * Computes a result, or throws an exception if unable to do so.
+	     *
+	     * @return computed result
+	     * @throws Exception if unable to compute a result
+	     */
+	    V call() throws Exception;
+	}
+
+	public class Test {
+
+		public static <T> void createObjectBinding(final Callable<T> func) {
+			return;
+		}
+
+		sealed interface Index {
+			enum SS implements Index {}
+			enum TS implements Index {}
+		}
+
+		public abstract sealed class Entity<S extends Index> permits Struct, Time {}
+
+		final class Struct extends Entity<Index.SS> {}
+
+		final class Time extends Entity<Index.TS> {
+
+			Struct getStruct() {
+				return null;
+			}
+		}
+
+		private void setMaterials(Time entity) {
+			ObjectBinding<Entity<?>> selfIllumImage = Bindings.<Entity<?>>createObjectBinding(() -> {
+					var entity2 = entity.getStruct() == null ? entity : entity.getStruct();
+					return createSlefIlluminationMap(entity.getSpells());
+			});
+		}
+	}
+	""");
+	String str = this.wc.getSource();
+	String selection = "entity2";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] selected = this.wc.codeSelect(start, length);
+	assertEquals(0, selected.length);
+}
 }
