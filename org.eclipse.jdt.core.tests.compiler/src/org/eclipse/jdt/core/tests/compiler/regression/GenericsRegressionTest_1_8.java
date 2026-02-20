@@ -10964,4 +10964,56 @@ public void testBug508834_comment0() {
 			"The method bar(One<Inner<?>>) in the type Bug is not applicable for the arguments (One<Inner<X>>)\n" +
 			"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4846
+	public void testGH4846() {
+		if (this.complianceLevel < ClassFileConstants.JDK9) {
+			return;
+		}
+		runConformTest(
+			new String[] {
+				"Pairs.java",
+				"""
+				import java.util.Map;
+				import java.util.function.Function;
+
+				public class Pairs<T> {
+
+					public <V> void addMapEntries(Function<T, Map<String, V>> extractor) {
+						add(extractor.andThen(Map::entrySet), Map.Entry::getKey, Map.Entry::getValue);
+					}
+
+					public <E> void add(Function<T, Iterable<E>> elementsExtractor, PairExtractor<E> pairExtractor) {
+						add(elementsExtractor, pairExtractor::getName, pairExtractor::getValue);
+					}
+
+					public <E, V> void add(Function<T, Iterable<E>> elementsExtractor, Function<E, String> nameExtractor,
+							Function<E, V> valueExtractor) {
+					}
+
+					interface PairExtractor<E> {
+						<N> N getName(E element);
+						<V> V getValue(E element);
+						static <T> PairExtractor<T> of(Function<T, ?> nameExtractor, Function<T, ?> valueExtractor) {
+							return new PairExtractor<>() {
+
+								@Override
+								@SuppressWarnings("unchecked")
+								public <N> N getName(T instance) {
+									return (N) nameExtractor.apply(instance);
+								}
+
+								@Override
+								@SuppressWarnings("unchecked")
+								public <V> V getValue(T instance) {
+									return (V) valueExtractor.apply(instance);
+								}
+
+							};
+						}
+					}
+
+				}
+				"""
+		});
+	}
 }
