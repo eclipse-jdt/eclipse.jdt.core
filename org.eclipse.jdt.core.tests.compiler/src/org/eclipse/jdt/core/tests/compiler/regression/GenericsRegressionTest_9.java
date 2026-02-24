@@ -2034,6 +2034,113 @@ public void testGH4810() {
 	});
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4702
+// ecj ignores error "cannot select a static class from a parameterized type"
+public void testIssue4702() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(new String[] {
+		"OuterStaticNestedDemo.java",
+		"""
+		public class OuterStaticNestedDemo<E> {
+		    class Outer {
+		        static class StaticNested {}
+		    }
+
+		    void qualifiedNew(Outer outer) {
+		        new OuterStaticNestedDemo<String>.Outer.StaticNested();
+		    }
+		}
+		"""
+	},
+		"----------\n" +
+		"1. ERROR in OuterStaticNestedDemo.java (at line 7)\n" +
+		"	new OuterStaticNestedDemo<String>.Outer.StaticNested();\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The member type OuterStaticNestedDemo.Outer.StaticNested cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type OuterStaticNestedDemo<String>.Outer\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4702
+// ecj ignores error "cannot select a static class from a parameterized type"
+public void testIssue4702_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(new String[] {
+		"OuterStaticNestedDemo.java",
+		"""
+		public class OuterStaticNestedDemo<E> {
+		    class Outer {
+		        static class StaticNested {}
+		    }
+
+		    void qualifiedNew(Outer outer) {
+		        new Outer.StaticNested();
+		    }
+		}
+		"""
+	},
+		"----------\n" +
+		"1. ERROR in OuterStaticNestedDemo.java (at line 7)\n" +
+		"	new Outer.StaticNested();\n" +
+		"	    ^^^^^^^^^^^^^^^^^^\n" +
+		"The member type OuterStaticNestedDemo.Outer.StaticNested cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type OuterStaticNestedDemo<E>.Outer\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4702
+// ecj ignores error "cannot select a static class from a parameterized type"
+public void testIssue4702_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(new String[] {
+		"OuterStaticNestedDemo.java",
+		"""
+		class OuterStaticNestedBase<E> {
+		    class Outer {
+		        static class StaticNested {}
+		    }
+		}
+		class OuterStaticNestedDemo<E> extends OuterStaticNestedBase<E> {
+
+
+		    void qualifiedNew(Outer outer) {
+		        new Outer.StaticNested();
+		    }
+		}
+		"""
+	},
+		"----------\n" +
+		"1. ERROR in OuterStaticNestedDemo.java (at line 10)\n" +
+		"	new Outer.StaticNested();\n" +
+		"	    ^^^^^^^^^^^^^^^^^^\n" +
+		"The member type OuterStaticNestedBase.Outer.StaticNested cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type OuterStaticNestedBase<E>.Outer\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4702
+// ecj ignores error "cannot select a static class from a parameterized type"
+public void testIssue4702_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(new String[] {
+		"OuterStaticNestedDemo.java",
+		"""
+		public class OuterStaticNestedDemo<E> {
+		    class Outer<T> {
+		        static class StaticNested {}
+		    }
+
+		    void qualifiedNew(Outer outer) {
+		        new Outer.StaticNested();
+		    }
+		}
+		"""
+	},
+			"----------\n" +
+			"1. WARNING in OuterStaticNestedDemo.java (at line 6)\n" +
+			"	void qualifiedNew(Outer outer) {\n" +
+			"	                  ^^^^^\n" +
+			"OuterStaticNestedDemo.Outer is a raw type. References to generic type OuterStaticNestedDemo<E>.Outer<T> should be parameterized\n" +
+			"----------\n");
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
