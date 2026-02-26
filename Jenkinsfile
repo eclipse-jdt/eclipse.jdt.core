@@ -1,7 +1,7 @@
 pipeline {
 	options {
 		timeout(time: 90, unit: 'MINUTES')
-		buildDiscarder(logRotator(numToKeepStr: (env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ 'BETA.*') ? '100':'5', artifactNumToKeepStr: (env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ 'BETA.*') ? '15':'2'))
+		buildDiscarder(logRotator(numToKeepStr: (env.BRANCH_NAME == 'valtypes-26') ? '100':'5', artifactNumToKeepStr: (env.BRANCH_NAME == 'valtypes-26') ? '15':'2'))
 		disableConcurrentBuilds(abortPrevious: true)
 		timestamps()
 	}
@@ -10,7 +10,7 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-latest'
-		jdk 'openjdk-jdk26-latest'
+		jdk 'openjdk-jdk26-jep401ea2+1-1'
 	}
 	stages {
 		stage('Build') {
@@ -35,7 +35,7 @@ pipeline {
 						-Dmaven.test.failure.ignore=true \
 						-Dcompare-version-with-baselines.skip=false \
 						-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
-						-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21,25,26 -Djdt.performance.asserts=disabled" \
+						-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=25,26 -Djdt.performance.asserts=disabled" \
 						-DDetectVMInstallationsJob.disabled=true \
 						-Dtycho.apitools.debug \
 						-Dtycho.debug.artifactcomparator \
