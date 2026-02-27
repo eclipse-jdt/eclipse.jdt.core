@@ -6333,6 +6333,12 @@ protected CompilationUnitDeclaration endParse(int act) {
 						}
 						element = element.parent;
 					}
+				} else if (method.statements != null) {
+					// "double" recovery; base parser recovered statements and assist parser recovered the assist node
+					Statement[] newStatements = new Statement[method.statements.length + 1];
+					System.arraycopy(method.statements, 0, newStatements, 0, method.statements.length);
+					newStatements[method.statements.length] = statement;
+					method.statements = newStatements;
 				}
 			}
 		}
