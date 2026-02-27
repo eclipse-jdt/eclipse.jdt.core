@@ -526,6 +526,19 @@ public final class CompletionEngine
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
 
+	/**
+	 * javadoc inline tags that shall be completed with a blank character at the end
+	 */
+	private final static List<String> JAVADOC_INLINE_TAGS_WITH_TEXT = List.of(
+			"code", //$NON-NLS-1$
+			"index", //$NON-NLS-1$
+			"link", //$NON-NLS-1$
+			"linkplain", //$NON-NLS-1$
+			"literal", //$NON-NLS-1$
+			"summary", //$NON-NLS-1$
+			"systemProperty", //$NON-NLS-1$
+			"value"); //$NON-NLS-1$
+
 	int expectedTypesPtr = -1;
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;
@@ -8936,23 +8949,22 @@ public final class CompletionEngine
 		for (int i=0; i<length; i++) {
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
 
 			this.noProposal = false;
 			if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_INLINE_TAG)) {
 				char[] possibleTag = possibleTags[i];
 				InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_INLINE_TAG, this.actualCompletionPosition);
 				proposal.setName(possibleTag);
-				int tagLength = possibleTag.length;
-//				boolean inlineTagStarted = javadocTag.completeInlineTagStarted();
-				char[] completion = new char[2+tagLength+1];
-				completion[0] = '{';
-				completion[1] = '@';
-				System.arraycopy(possibleTag, 0, completion, 2, tagLength);
-				// do not add space at end of inline tag (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=121026)
-				//completion[tagLength+2] = ' ';
-				completion[tagLength+2] = '}';
-				proposal.setCompletion(completion);
+				StringBuilder completion = new StringBuilder(possibleTag.length + 4);
+				completion.append("{@"); //$NON-NLS-1$
+				completion.append(possibleTag);
+				// additional blank for all tags that contain user provided text
+				if (JAVADOC_INLINE_TAGS_WITH_TEXT.contains(String.valueOf(possibleTag))) {
+					completion.append(' ');
+				}
+				completion.append('}');
+				proposal.setCompletion(completion.toString().toCharArray());
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
