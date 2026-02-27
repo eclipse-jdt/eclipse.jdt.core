@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -45,8 +46,15 @@ import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.builder.ClasspathJrt;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 
 public class ModuleBuilderTests extends ModifyingResourceTests {
+
+	private static final String JAVASE_9 = "JavaSE-9";
+
 	public ModuleBuilderTests(String name) {
 		super(name);
 	}
@@ -691,6 +699,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testConvertToModule() throws CoreException, IOException {
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		IVMInstall vm = prepareExecutionEnvironment(JAVASE_9);
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule");
 			Map<String, String> options = new HashMap<>();
@@ -721,10 +730,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
 		} finally {
 			this.deleteProject("ConvertToModule");
+			restoreExecutionEnvironment(JAVASE_9, vm);
 			 JavaCore.setOptions(javaCoreOptions);
 		}
 	}
 	public void testConvertToModuleWithRelease9() throws CoreException, IOException {
+		IVMInstall vm = prepareExecutionEnvironment(JAVASE_9);
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule");
@@ -756,6 +767,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
 		} finally {
 			this.deleteProject("ConvertToModule");
+			restoreExecutionEnvironment(JAVASE_9, vm);
 			 JavaCore.setOptions(javaCoreOptions);
 		}
 	}
@@ -9135,5 +9147,32 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, Comparator.comparingInt((IMarker a) -> a.getAttribute(IMarker.CHAR_START, 0))
 									   .thenComparing((IMarker a) -> a.getAttribute(IMarker.MESSAGE, "")));
+	}
+
+	/**
+	 * JDT tests run in different environments where different major JVM installations might be selected as "default" JVM for a specific Execution Environment (EE).
+	 * This test cases project requires JavaSE-9 EE, which can be resolved to e.g. Java 11, 17 or 21, depending on the installed JVMs.
+	 * JVM modules vary between Java major versions, while we need a stable set of modules for the test case.
+	 * Therefore we "pin" the JVM used for the JavaSE-9 EE to the JVM on which the tests are executed - to avoid tests failing in different test environments.
+	 */
+	private IVMInstall prepareExecutionEnvironment(String environmentId) {
+		IVMInstall vm = JavaRuntime.getDefaultVMInstall();
+		IExecutionEnvironment environment = getExecutionEnvironment(environmentId);
+		IVMInstall defaultVM9 = environment.getDefaultVM();
+		environment.setDefaultVM(vm);
+		JavaCore.getPlugin().getLog().log(Status.info("Set VM \"" + vm.getName() + "\" for execution environments: " + environment.getId()));
+		return defaultVM9;
+	}
+
+	private void restoreExecutionEnvironment(String environmentId, IVMInstall defaultVM) {
+		IExecutionEnvironment environment = getExecutionEnvironment(environmentId);
+		environment.setDefaultVM(defaultVM);
+		JavaCore.getPlugin().getLog().log(Status.info("Restored default VM for execution environment: " + environment.getId()));
+	}
+
+	private static IExecutionEnvironment getExecutionEnvironment(String id) {
+		IExecutionEnvironmentsManager manager = JavaRuntime.getExecutionEnvironmentsManager();
+		IExecutionEnvironment[] environments = manager.getExecutionEnvironments();
+		return Arrays.stream(environments).filter(e -> id.equals(e.getId())).findFirst().orElseThrow();
 	}
 }
