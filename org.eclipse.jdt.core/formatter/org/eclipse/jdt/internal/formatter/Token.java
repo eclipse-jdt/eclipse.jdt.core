@@ -107,6 +107,10 @@ public class Token {
 
 	private List<Token> internalStructure;
 
+	private boolean columnSeparator;
+	private int markdownColumnLength;
+	private boolean isMarkdownColumnHeader;
+
 	public Token(int sourceStart, int sourceEnd, TerminalToken tokenType) {
 		assert sourceStart <= sourceEnd;
 		this.originalStart = sourceStart;
@@ -337,6 +341,30 @@ public class Token {
 
 	public int countChars() {
 		return this.originalEnd - this.originalStart + 1;
+	}
+
+	public boolean isColumnSeparator() {
+		return this.columnSeparator;
+	}
+
+	public void setColumnSeparator(boolean columnSeparator) {
+		this.columnSeparator = columnSeparator;
+	}
+
+	public int getMarkdownColumnLength() {
+		return this.markdownColumnLength;
+	}
+
+	public void setMarkdownColumnLength(int markdownColumnLength) {
+		this.markdownColumnLength = markdownColumnLength;
+	}
+
+	public boolean isMarkdownColumnHeader() {
+		return this.isMarkdownColumnHeader;
+	}
+
+	public void setMarkdownColumnHeader(boolean isMarkdownColumnHeader) {
+		this.isMarkdownColumnHeader = isMarkdownColumnHeader;
 	}
 
 	/*
