@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
@@ -201,14 +202,11 @@ public class AddJrtToIndex extends BinaryContainer {
 					try {
 						file = Util.toLocalFile(location, progressMonitor);
 					} catch (CoreException e) {
-						if (JobManager.VERBOSE) {
-							trace("-> failed to index " + location.getPath() + " because of the following exception:", e); //$NON-NLS-1$ //$NON-NLS-2$
-						}
+						Util.log(e, "Failed to index " + location.getPath() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					if (file == null) {
-						if (JobManager.VERBOSE) {
-							trace("-> failed to index " + location.getPath() + " because the file could not be fetched"); //$NON-NLS-1$ //$NON-NLS-2$
-						}
+						Util.log(Status.warning(
+								"Failed to index " + location.getPath() + " because the file could not be fetched")); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
 					fileName = file.getAbsolutePath();
