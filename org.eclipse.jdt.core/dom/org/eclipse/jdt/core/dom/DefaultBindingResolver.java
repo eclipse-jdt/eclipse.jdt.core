@@ -1083,25 +1083,42 @@ class DefaultBindingResolver extends BindingResolver {
 				return this.getTypeBinding(qualifiedTypeReference.resolvedType.leafComponentType());
 			} else {
 				if (index >= 0) {
-					BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
-					Binding binding = null;
-					try {
-						if (internalScope == null) {
-							if (this.scope == null) return null;
-							binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
-						} else {
-							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
+					Binding binding = qualifiedTypeReference.resolvedType;
+					for (int i = 0; i < (qualifiedTypeReference.tokens.length - index); i++) {
+						if (!(binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding)) {
+							binding = null;
+							break;
 						}
-					} catch (AbortCompilation e) {
-						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+						binding = typeBinding.enclosingType();
+						if (binding == null) {
+							break;
+						}
 					}
-					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-						return null;
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-						// it is a type
-						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+					if (binding != null) {
+						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 					} else {
-						return null;
+						BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
+						try {
+							if (internalScope == null) {
+								if (this.scope == null)
+									return null;
+								binding = this.scope.getTypeOrPackage(
+										CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
+							} else {
+								binding = internalScope.getTypeOrPackage(
+										CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
+							}
+						} catch (AbortCompilation e) {
+							// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+						}
+						if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
+							return null;
+						} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+							// it is a type
+							return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+						} else {
+							return null;
+						}
 					}
 				}
 			}
@@ -1316,25 +1333,42 @@ class DefaultBindingResolver extends BindingResolver {
 				return this.getTypeBinding(qualifiedTypeReference.resolvedType.leafComponentType());
 			} else {
 				if (index >= 0) {
-					BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
-					Binding binding = null;
-					try {
-						if (internalScope == null) {
-							if (this.scope == null) return null;
-							binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
-						} else {
-							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
+					Binding binding = qualifiedTypeReference.resolvedType;
+					for (int i = 0; i < (qualifiedTypeReference.tokens.length - index); i++) {
+						if (!(binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding)) {
+							binding = null;
+							break;
 						}
-					} catch (AbortCompilation e) {
-						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+						binding = typeBinding.enclosingType();
+						if (binding == null) {
+							break;
+						}
 					}
-					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-						return getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-						// it is a type
+					if (binding != null) {
 						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
 					} else {
-						return null;
+						BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
+						try {
+							if (internalScope == null) {
+								if (this.scope == null)
+									return null;
+								binding = this.scope.getTypeOrPackage(
+										CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
+							} else {
+								binding = internalScope.getTypeOrPackage(
+										CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
+							}
+						} catch (AbortCompilation e) {
+							// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+						}
+						if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
+							return getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+						} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+							// it is a type
+							return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+						} else {
+							return null;
+						}
 					}
 				}
 			}
