@@ -9297,7 +9297,7 @@ public void test0295() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<*>;, (*)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"compareTo[METHOD_REF]{compareTo, Ltest.ComparableTest<*>;, (*)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99928
@@ -14726,20 +14726,20 @@ public void testBug573279() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
-	assertEquals("add[METHOD_REF]{add(), LMyArrayList<Ljava.lang.String;>;, (Ljava.lang.String;)Z, null, null, add, (t), replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, null, null, getClass, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"remove[METHOD_REF]{remove(), LMyArrayList<Ljava.lang.String;>;, (Ljava.lang.Object;)Z, null, null, remove, (o), replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"size[METHOD_REF]{size(), LMyArrayList<Ljava.lang.String;>;, ()I, null, null, size, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), replace[289, 318], token[289, 292], "+relevance+"}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), replace[289, 318], token[289, 292], "+relevance+"}",
+	assertEquals("add[METHOD_REF]{add, LMyArrayList<Ljava.lang.String;>;, (Ljava.lang.String;)Z, null, null, add, (t), replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"clone[METHOD_REF]{clone, Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"equals[METHOD_REF]{equals, Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"finalize[METHOD_REF]{finalize, Ljava.lang.Object;, ()V, null, null, finalize, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"getClass[METHOD_REF]{getClass, Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, null, null, getClass, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"hashCode[METHOD_REF]{hashCode, Ljava.lang.Object;, ()I, null, null, hashCode, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"notify[METHOD_REF]{notify, Ljava.lang.Object;, ()V, null, null, notify, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"notifyAll[METHOD_REF]{notifyAll, Ljava.lang.Object;, ()V, null, null, notifyAll, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"remove[METHOD_REF]{remove, LMyArrayList<Ljava.lang.String;>;, (Ljava.lang.Object;)Z, null, null, remove, (o), replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"size[METHOD_REF]{size, LMyArrayList<Ljava.lang.String;>;, ()I, null, null, size, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait, Ljava.lang.Object;, ()V, null, null, wait, null, replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait, Ljava.lang.Object;, (J)V, null, null, wait, (millis), replace[289, 292], token[289, 292], "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait, Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), replace[289, 292], token[289, 292], "+relevance+"}",
 			requestor.getResults());
 }
 public void testGH969_completeOnFirstArgumentPosition_noToken() throws Exception {
