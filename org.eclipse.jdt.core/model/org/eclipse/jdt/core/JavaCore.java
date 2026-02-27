@@ -145,6 +145,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.ModuleInfoBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
+import org.eclipse.jdt.internal.core.dom.CompilationUnitResolverDiscovery;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -3328,31 +3329,6 @@ public final class JavaCore extends Plugin {
 			VERSION_19, VERSION_20, VERSION_21, VERSION_22, VERSION_23, VERSION_24, VERSION_25));
 
 	/**
-	 * Unordered set of all Java source versions <b>not supported</b> by compiler anymore.
-	 * The values are from {@link JavaCore}{@code #VERSION_*}.
-	 */
-	private static final Set<String> UNSUPPORTED_VERSIONS = CompilerOptions.UNSUPPORTED_VERSIONS;
-
-	/**
-	 * Ordered set (from oldest to latest) of all Java source versions <b>supported</b> by compiler.
-	 * The values are from {@link JavaCore}{@code #VERSION_*}.
-	 */
-	private static final SortedSet<String> SUPPORTED_VERSIONS;
-	static {
-		Comparator<String> byVersion = Comparator.comparingDouble((String v) -> {
-			try {
-				return Double.parseDouble(v);
-			} catch (RuntimeException e) {
-				return 0;
-			}
-		}).thenComparing(Comparator.naturalOrder());
-		SortedSet<String> temp = new TreeSet<>(byVersion);
-		temp.addAll(allVersions);
-		temp.removeAll(UNSUPPORTED_VERSIONS);
-		SUPPORTED_VERSIONS = Collections.unmodifiableSortedSet(temp);
-	}
-
-	/**
 	 * Returns all {@link JavaCore}{@code #VERSION_*} levels in the order of their
 	 * introduction. For e.g., {@link JavaCore#VERSION_1_8} appears before {@link JavaCore#VERSION_10}
 	 *
@@ -3375,7 +3351,16 @@ public final class JavaCore extends Plugin {
 	 * @since 3.39
 	 */
 	public static SortedSet<String> getAllJavaSourceVersionsSupportedByCompiler() {
-		return SUPPORTED_VERSIONS;
+		Comparator<String> byVersion = Comparator.comparingDouble((String v) -> {
+			try {
+				return Double.parseDouble(v);
+			} catch (RuntimeException e) {
+				return 0;
+			}
+		}).thenComparing(Comparator.naturalOrder());
+		var res = new TreeSet<>(byVersion);
+		res.addAll(CompilationUnitResolverDiscovery.getInstance().getSupportedJavaVersions());
+		return res;
 	}
 
 	/**
@@ -3405,7 +3390,7 @@ public final class JavaCore extends Plugin {
 		if(version == null || version.isBlank()) {
 			return false;
 		}
-		return SUPPORTED_VERSIONS.contains(version);
+		return getAllJavaSourceVersionsSupportedByCompiler().contains(version);
 	}
 
 	/**
