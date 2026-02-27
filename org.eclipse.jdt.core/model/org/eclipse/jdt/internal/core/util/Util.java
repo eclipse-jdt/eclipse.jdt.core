@@ -93,7 +93,9 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Annotation;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.MemberValuePair;
 import org.eclipse.jdt.internal.core.PackageFragment;
@@ -1043,6 +1045,9 @@ public class Util {
 		if (jarSeparator != -1) {
 			String jarMemento = new String(fileName, 0, jarSeparator);
 			PackageFragmentRoot root = (PackageFragmentRoot) JavaCore.create(jarMemento);
+			if( root == null ) {
+				root = getJarPkgFragmentRoot(new String(fileName), jarSeparator, jarMemento);
+			}
 			if (pkgEnd == jarSeparator)
 				return root.getPackageFragment(CharOperation.NO_STRINGS);
 			char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, pkgEnd);
@@ -1066,6 +1071,41 @@ public class Util {
 			}
 			return null;
 		}
+	}
+
+	// Copied from org.eclipse.jdt.internal.core.util.HandleFactory
+	private static PackageFragmentRoot getJarPkgFragmentRoot(String resourcePathString, int jarSeparatorIndex, String jarPathString) {
+		IPath jarPath= new Path(jarPathString);
+		Object target = JavaModel.getTarget(jarPath, false);
+		if (target instanceof IFile jarFile) {
+			// internal jar: is it on the classpath of its project?
+			//  e.g. org.eclipse.swt.win32/ws/win32/swt.jar
+			//        is NOT on the classpath of org.eclipse.swt.win32
+			JavaProject javaProject = (JavaProject) JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(jarFile);
+			try {
+				IClasspathEntry entry = javaProject.getClasspathEntryFor(jarPath);
+				if (entry != null) {
+					return (PackageFragmentRoot) javaProject.getPackageFragmentRoot(jarFile);
+				}
+			} catch (JavaModelException e) {
+				// ignore and try to find another project
+			}
+		} else if( target instanceof File) {
+			try {
+				// Have to search, I guess.
+				IJavaProject[] javaProjects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+				for( int i = 0; i < javaProjects.length; i++ ) {
+					IClasspathEntry entry = javaProjects[i].getClasspathEntryFor(jarPath);
+					if (entry != null) {
+						return (PackageFragmentRoot) javaProjects[i].getPackageFragmentRoot(jarPathString);
+					}
+				}
+			} catch(JavaModelException jme) {
+				// TODO ignore
+			}
+
+		}
+		return null;
 	}
 
 	/**
