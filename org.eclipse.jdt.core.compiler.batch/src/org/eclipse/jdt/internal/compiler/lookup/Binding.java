@@ -224,4 +224,7 @@ public abstract class Binding {
 	public void setAnnotations(AnnotationBinding[] annotations, boolean forceStore) {
 		// Left to subtypes.
 	}
+	public boolean isJSpecifyNullMarked() {
+		return false;
+	}
 }

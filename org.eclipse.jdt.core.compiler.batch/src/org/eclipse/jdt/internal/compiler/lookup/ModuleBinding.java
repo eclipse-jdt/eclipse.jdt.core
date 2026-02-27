@@ -924,4 +924,14 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean isJSpecifyNullMarked() {
+		long bits = this.extendedTagBits & ExtendedTagBits.IsJSpecifyNullMarked;
+		if (bits == ExtendedTagBits.IsJSpecifyNullMarked) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
