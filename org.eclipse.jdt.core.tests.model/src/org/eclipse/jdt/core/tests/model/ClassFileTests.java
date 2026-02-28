@@ -971,6 +971,23 @@ public void testGetFullyQualifiedName8() {
 }
 
 /*
+ * "Ensures that getFullyQualifiedName() behaves correctly for a class starting with $
+ */
+public void testGetFullyQualifiedName9() {
+	IType type = getClassFile("/P/lib/p/$Local.class").getType();
+	assertEquals("p.$Local", type.getFullyQualifiedName('.'));
+}
+
+public void testGetFullyQualifiedName10() {
+	IType type = getClassFile("/P/lib/p/Local$.class").getType();
+	assertEquals("p.Local$", type.getFullyQualifiedName('.'));
+}
+
+public void testGetFullyQualifiedName11() {
+	IType type = getClassFile("/P/lib/p/Local$$Generated.class").getType();
+	assertEquals("p.Local$$Generated", type.getFullyQualifiedName('.'));
+}
+/*
  * Ensures that the resource of a .class file in an external folder is null
  */
 public void testGetResource() throws Exception {
