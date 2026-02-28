@@ -37,6 +37,7 @@ public class ClasspathSourceDirectory extends ClasspathLocation implements IModu
 
 	final IContainer sourceFolder;
 	final Map<String, Map<String, IResource>> directoryCache = new ConcurrentHashMap<>();
+	final Map<IFile, ResourceCompilationUnit> cuCache = new ConcurrentHashMap<>();
 	private static final Map<String, IResource> missingPackageHolder = new HashMap<>();
 	final char[][] fullExclusionPatternChars;
 	final char[][] fulInclusionPatternChars;
@@ -50,6 +51,7 @@ ClasspathSourceDirectory(IContainer sourceFolder, char[][] fullExclusionPatternC
 @Override
 public void cleanup() {
 	this.directoryCache.clear();
+	this.cuCache.clear();
 }
 
 Map<String, IResource> directoryTable(String qualifiedPackageName) {
@@ -118,8 +120,12 @@ public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String
 	if (dirTable != null && !dirTable.isEmpty()) {
 		IFile file = (IFile) dirTable.get(sourceFileWithoutExtension);
 		if (file != null) {
-			return new NameEnvironmentAnswer(new ResourceCompilationUnit(file,
-					this.module == null ? null : this.module.name()), null /* no access restriction */);
+			ResourceCompilationUnit cu = this.cuCache.get(file);
+			if (cu == null) {
+				cu = new ResourceCompilationUnit(file, this.module == null ? null : this.module.name());
+				this.cuCache.put(file, cu);
+			}
+			return new NameEnvironmentAnswer(cu, null /* no access restriction */);
 		}
 	}
 	return null;
