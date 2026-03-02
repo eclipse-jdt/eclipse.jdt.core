@@ -93,6 +93,15 @@ public void setUpSuite() throws Exception {
 	setupExternalJCL("jclMin24");
 }
 
+@Override
+protected void tearDown() throws Exception {
+	try {
+		waitForAutoBuild();
+	} finally {
+		super.tearDown();
+	}
+}
+
 void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) throws CoreException {
 	preferences.setAutoBuilding(autoBuild);
 	getWorkspace().setDescription(preferences);
