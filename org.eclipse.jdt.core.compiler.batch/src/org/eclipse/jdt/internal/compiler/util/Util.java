@@ -474,11 +474,15 @@ public class Util implements SuffixConstants {
 
 	public static char[] getBytesAsCharArray(byte[] byteContents, String encoding) {
 		Charset charset;
-		try {
-			charset = Charset.forName(encoding);
-		} catch (IllegalArgumentException e) {
-			// encoding is not supported
+		if (encoding == null) {
 			charset = Charset.defaultCharset();
+		} else {
+			try {
+				charset = Charset.forName(encoding);
+			} catch (IllegalArgumentException e) {
+				// encoding is not supported
+				charset = Charset.defaultCharset();
+			}
 		}
 
 		// check for BOM in encoded byte content
