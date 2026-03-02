@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -38,6 +39,8 @@ import org.eclipse.jdt.core.JavaCore;
  */
 public class JavaModelTests extends ModifyingResourceTests {
 
+private static final IResourceChangeListener LOG_RESOURCE_DELTA = AbstractJavaModelTests::logDeltaEvent;
+
 public static Test suite() {
 	return buildModelTestSuite(JavaModelTests.class);
 }
@@ -49,6 +52,18 @@ static {
 //	TESTS_NAMES = new String[] { "testFindLineSeparator04" };
 //	TESTS_NUMBERS = new int[] { 100772 };
 //	TESTS_RANGE = new int[] { 83304, -1 };
+}
+
+@Override
+protected void setUp() throws Exception {
+	ResourcesPlugin.getWorkspace().addResourceChangeListener(LOG_RESOURCE_DELTA);
+	super.setUp();
+}
+
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	ResourcesPlugin.getWorkspace().removeResourceChangeListener(LOG_RESOURCE_DELTA);
 }
 
 public JavaModelTests(String name) {
