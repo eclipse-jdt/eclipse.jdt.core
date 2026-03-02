@@ -4195,6 +4195,32 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setRawClasspath(classpath, null);
 	}
 
+	protected static void logDeltaEvent(IResourceChangeEvent event) {
+		IResourceDelta delta = event.getDelta();
+		if (delta != null) {
+			StringBuilder s = new StringBuilder();
+			s.append("Logging resource delta");
+			s.append(System.lineSeparator());
+			IResourceDeltaVisitor visitor = new IResourceDeltaVisitor() {
+				@Override
+				public boolean visit(IResourceDelta d) throws CoreException {
+					s.append("\tkind: ");
+					s.append(d.getKind());
+					s.append(", resource: ");
+					s.append(d.getResource());
+					s.append(System.lineSeparator());
+					return true;
+				}
+			};
+			try {
+				delta.accept(visitor);
+			} catch (CoreException e) {
+				logError("Error occurred while visiting delta", e);
+			}
+			logInfo(s.toString());
+		}
+	}
+
 	private static void logError(String errorMessage, CoreException e) {
 		logInfo(errorMessage);
 		e.printStackTrace(System.out);
