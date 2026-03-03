@@ -5671,9 +5671,7 @@ public final class CompletionEngine
 					isQualified ?
 							CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
 								currentType.sourceName();
-				if (this.source != null
-							&& this.source.length > this.endPosition
-							&& this.source[this.endPosition] == '(') {
+				if (omitParanthesis()) {
 					completion = CharOperation.NO_CHAR;
 				} else {
 					completion = new char[] { '(', ')' };
@@ -6054,9 +6052,7 @@ public final class CompletionEngine
 								isQualified ?
 										CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
 											currentType.sourceName();
-							if (this.source != null
-										&& this.source.length > this.endPosition
-										&& this.source[this.endPosition] == '(') {
+							if (omitParanthesis()) {
 								completion = CharOperation.NO_CHAR;
 							} else {
 								completion = new char[] { '(', ')' };
@@ -6217,9 +6213,7 @@ public final class CompletionEngine
 											CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
 												currentType.sourceName();
 
-								if (this.source != null
-											&& this.source.length > this.endPosition
-											&& this.source[this.endPosition] == '(') {
+								if (omitParanthesis()) {
 									completion = CharOperation.NO_CHAR;
 								} else {
 									completion = new char[] { '(', ')' };
@@ -6955,9 +6949,7 @@ public final class CompletionEngine
 					char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
 
 					char[] completion = CharOperation.NO_CHAR;
-					if (this.source != null
-						&& this.source.length > this.endPosition
-						&& this.source[this.endPosition] == '(')
+					if (omitParanthesis())
 						completion = name;
 					else
 						completion = CharOperation.concat(name, new char[] { '(', ')' });
@@ -7576,9 +7568,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
 				}
 				char[] completion;
-				if (this.source != null
-					&& this.source.length > this.endPosition
-					&& this.source[this.endPosition] == '(') {
+				if (omitParanthesis()) {
 					completion = cloneMethod;
 					} else {
 					completion = CharOperation.concat(cloneMethod, new char[] { '(', ')' });
@@ -9550,9 +9540,7 @@ public final class CompletionEngine
 				if (!exactMatch) {
 					if (completionOnReferenceExpressionName)
 						completion = method.selector;
-					else if (this.source != null
-						&& this.source.length > this.endPosition
-						&& this.source[this.endPosition] == '(')
+					else if (omitParanthesis())
 						completion = method.selector;
 					else
 						completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
@@ -9941,9 +9929,7 @@ public final class CompletionEngine
 				int previousStartPosition = this.startPosition;
 				int previousTokenStart = this.tokenStart;
 
-				if (this.source != null
-					&& this.source.length > this.endPosition
-					&& this.source[this.endPosition] == '(') {
+				if (omitParanthesis()) {
 					completion = method.selector;
 				} else {
 					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
@@ -10183,9 +10169,7 @@ public final class CompletionEngine
 			int previousTokenStart = this.tokenStart;
 
 			if (!exactMatch) {
-				if (this.source != null
-					&& this.source.length > this.endPosition
-					&& this.source[this.endPosition] == '(') {
+				if (omitParanthesis()) {
 					completion = method.selector;
 				} else {
 					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
@@ -14060,7 +14044,11 @@ public final class CompletionEngine
 			buffer.append('\t');
 		}
 	}
-
+	private boolean omitParanthesis() {
+		return this.source != null
+				&& this.source.length > this.endPosition
+				&& (this.source[this.endPosition] == '(' || this.source[this.endPosition] == '<');
+	}
 	private void proposeConstructor(AcceptedConstructor deferredProposal, Scope scope) {
 		if (deferredProposal.proposeConstructor) {
 			proposeConstructor(
@@ -14154,9 +14142,7 @@ public final class CompletionEngine
 		}
 
 		char[] completion;
-		if (this.source != null
-					&& this.source.length > this.endPosition
-					&& this.source[this.endPosition] == '(') {
+		if (omitParanthesis()) {
 			completion = CharOperation.NO_CHAR;
 		} else {
 			completion = new char[] { '(', ')' };

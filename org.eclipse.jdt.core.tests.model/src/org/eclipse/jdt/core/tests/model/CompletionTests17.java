@@ -13,6 +13,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -25,7 +26,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 	private static int unqualified_Rel = R_DEFAULT+R_RESOLVED+ R_CASE+ R_INTERESTING +R_UNQUALIFIED+R_NON_RESTRICTED;
 	private static int unqualifiedExact_Rel = R_DEFAULT+R_RESOLVED+R_EXACT_EXPECTED_TYPE+ R_CASE+ R_INTERESTING +R_UNQUALIFIED+R_NON_RESTRICTED;
 	static {
-		 // TESTS_NAMES = new String[]{"test034"};
+//		  TESTS_NAMES = new String[]{"testGH4525_2"};
 	}
 
 	public CompletionTests17(String name) {
@@ -667,6 +668,84 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 39}\n"
 				+ "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 54}",
+				requestor.getResults());
+	}
+	public void testGH4525_1() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						List<> result= new ArrayList<>();
+					}
+				}
+				public interface Collection<E>{}
+				interface List<T> {}
+				class ArrayList<T> implements List<T> {
+					public ArrayList() {}
+					public ArrayList(Collection<? extends E> c) {}
+				}
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ArrayList";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, new NullProgressMonitor());
+		assertResults("ArrayList[CONSTRUCTOR_INVOCATION]{, Ljava.util.ArrayList;, ()V, ArrayList, null, 56}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{, Ljava.util.ArrayList;, (I)V, ArrayList, (initialCapacity), 56}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{, Ljava.util.ArrayList;, (Ljava.util.Collection<+TT;>;)V, ArrayList, (c), 56}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{, LArrayList<TT;>;, ()V, ArrayList, null, 79}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{, LArrayList<TT;>;, (LCollection<+LE;>;)V, ArrayList, (c), 79}",
+				requestor.getResults());
+	}
+	public void testGH4525_2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				import java.util.List;
+				import java.util.ArrayList;
+				public class X {
+					public static void main(String[] args) {
+						List<> result= new ArrayList<>();
+					}
+				}
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ArrayList";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, new NullProgressMonitor());
+		assertResults("ArrayList[CONSTRUCTOR_INVOCATION]{, Ljava.util.ArrayList<TT;>;, ()V, ArrayList, null, 84}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{, Ljava.util.ArrayList<TT;>;, (I)V, ArrayList, (initialCapacity), 84}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{, Ljava.util.ArrayList<TT;>;, (Ljava.util.Collection<+TT;>;)V, ArrayList, (c), 84}",
+				requestor.getResults());
+	}
+	public void testGH4525_3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				import java.util.List;
+				import java.util.ArrayList;
+				public class X {
+					public static void main(String[] args) {
+						List<> result= new ArrayList;
+					}
+				}
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ArrayList";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, new NullProgressMonitor());
+		assertResults("ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList<TT;>;, ()V, ArrayList, null, 84}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList<TT;>;, (I)V, ArrayList, (initialCapacity), 84}\n"
+				+ "ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList<TT;>;, (Ljava.util.Collection<+TT;>;)V, ArrayList, (c), 84}",
 				requestor.getResults());
 	}
 }
