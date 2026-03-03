@@ -7076,5 +7076,47 @@ public void testGH4557() {
         },
         "");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4891
+// "Internal inconsistency" Warning when mixing lambda expressions with bounded wildcards
+public void testIssue4891() {
+	if (this.complianceLevel < ClassFileConstants.JDK22)
+		return;
+
+	Runner runner = new Runner();
+	runner.expectedOutputString =
+			"Compiled and ran fine!";
+	runner.expectedCompilerLog = "";
+
+	runner.testFiles = new String[] {
+		"Bug.java",
+        """
+		import java.util.function.Predicate;
+
+		// Internal inconsistency: Inappropriate operand stack size encountered during translation
+		public class Bug<T>{
+
+			static class Builder<T>{
+				Predicate<? super T> p;
+			}
+
+			final Predicate<? super T> p;
+
+			Bug(Builder<T> builder) {
+				this.p=builder.p==null?_->true:builder.p; //<-- caused by this line
+				// does not happen if passing predicate directly as argument
+				// does not happen without generic bounds <T>
+				// does not happen without ternary expression
+				// does not happen with unbounded wildcard <?>
+			}
+
+			public static void main(String [] args) {
+				System.out.println("Compiled and ran fine!");
+			}
+		}
+         """
+	};
+	runner.runConformTest();
+}
 }
 
