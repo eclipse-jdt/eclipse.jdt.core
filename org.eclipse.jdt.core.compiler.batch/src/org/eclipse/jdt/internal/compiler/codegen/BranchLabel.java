@@ -134,8 +134,8 @@ private boolean compatibleOperandStacks(OperandStack stackNow, OperandStack stac
 		return false;
 	int depth = 0;
 	for (int i = 0, size = stackNow.size(); i < size; i++) {
-		TypeBinding tn = stackNow.get(i);
-		TypeBinding te = stackEarlier.get(i);
+		TypeBinding tn = stackNow.get(i).erasure();
+		TypeBinding te = stackEarlier.get(i).erasure();
 		if (TypeBinding.notEquals(tn, te)) {
 			if (!tn.isCompatibleWith(te) && !te.isCompatibleWith(tn)) {
 				if (this.codeStream.classFile.referenceBinding.scope.lowerUpperBound(new TypeBinding[] {te, tn}) == null)
