@@ -81,6 +81,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		super.setUp();
 		this.resultCollector = new TestCollector();
 		this.resultCollector.showAccuracy(true);
+		waitUntilIndexesReady();
 	}
 
 	/**
@@ -1868,7 +1869,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			if (egit != null) deleteProject(egit);
 		}
 	}
-	public void testBug469965_0001() throws CoreException {
+	public void testBug469965_0001() throws Exception {
 		try {
 
 			IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] { "/P/lib469965.jar", "JCL18_LIB" }, "bin", "1.8");
@@ -1913,11 +1914,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
 					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
 					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			deleteProject("P");
 		}
 	}
