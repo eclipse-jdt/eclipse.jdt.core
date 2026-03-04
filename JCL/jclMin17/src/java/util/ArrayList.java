@@ -1,6 +1,8 @@
 package java.util;
 
 public class ArrayList<T> implements List<T>, java.io.Serializable {
+	private static final long serialVersionUID = 1L;
+
 	public ArrayList(int initialCapacity) {
 	}
 
@@ -28,5 +30,5 @@ public class ArrayList<T> implements List<T>, java.io.Serializable {
 
 	public T[] toArray(T[] a) {
 		return a;
-	}
+	} 
 }
