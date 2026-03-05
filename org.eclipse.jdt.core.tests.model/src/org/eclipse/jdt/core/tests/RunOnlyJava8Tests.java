@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.tests.compiler.parser.ReferenceExpressionSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.TypeAnnotationSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.regression.*;
+import org.eclipse.jdt.core.tests.compiler.unicode.Unicode1_8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
@@ -90,7 +91,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			GenericsRegressionTest_1_8.class,
 			IncrementalTests18.class,
 			ConditionalExpressionTest.class,
-			Unicode18Test.class,
+			Unicode1_8Test.class,
 			JavaElement8Tests.class,
 		};
 	}
