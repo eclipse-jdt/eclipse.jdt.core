@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.compiler.unicode.*;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
@@ -149,7 +150,7 @@ public static Test suite() {
 	standardTests.add(ClassFileReaderTest_1_8.class);
 	standardTests.add(RepeatableAnnotationTest.class);
 	standardTests.add(GenericsRegressionTest_1_8.class);
-	standardTests.add(Unicode18Test.class);
+	standardTests.add(Unicode1_8Test.class);
 	standardTests.add(LambdaShapeTests.class);
 	standardTests.add(StringConcatTest.class);
 	standardTests.add(UseOfUnderscoreTest.class);
@@ -231,8 +232,10 @@ public static Test suite() {
 			JavadocTest_18.class,
 		},
 		{ // 19
+			Unicode14Test.class,
 		},
 		{ // 20
+			Unicode15Test.class,
 		},
 		{ // 21
 			SwitchPatternTest.class,
@@ -246,11 +249,13 @@ public static Test suite() {
 			UnnamedPatternsAndVariablesTest.class,
 			UseOfUnderscoreJava22Test.class,
 			SwitchPatternTest22.class,
+			Unicode15_1Test.class,
 		},
 		{ // 23
 			MarkdownCommentsTest.class,
 		},
 		{ // 24
+			Unicode16Test.class,
 		},
 		{ // 25
 			ModuleImportTests.class,
@@ -261,6 +266,7 @@ public static Test suite() {
 			PreviewFlagTest.class,
 			PrimitiveInPatternsTest.class,
 			PrimitiveInPatternsTestSH.class,
+			Unicode17Test.class,
 		}
 	};
 	assert sinceTests.length == AbstractCompilerTest.NUM_VERSIONS - 1 : "sinceTests should be aligned with NUM_VERSIONS";
