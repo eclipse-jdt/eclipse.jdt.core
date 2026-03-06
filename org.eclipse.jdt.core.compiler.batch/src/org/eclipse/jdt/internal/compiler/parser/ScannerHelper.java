@@ -409,31 +409,31 @@ public static boolean isJavaIdentifierPart(long complianceLevel, int codePoint) 
 		if (Tables15 == null) {
 			initializeTableJava15();
 		}
-		return isJavaIdentifierPart0(codePoint, Tables15);
+		return isJavaIdentifierPart0(codePoint, Tables15, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK19) {
 		// java 19 support Unicode 14
 		if (Tables19 == null) {
 			initializeTableJava19();
 		}
-		return isJavaIdentifierPart0(codePoint, Tables19);
+		return isJavaIdentifierPart0(codePoint, Tables19, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK21) {
 		// java 20 and 21 support Unicode 15
 		if (Tables20 == null) {
 			initializeTableJava20();
 		}
-		return isJavaIdentifierPart0(codePoint, Tables20);
+		return isJavaIdentifierPart0(codePoint, Tables20, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK23) {
-		// java 22 and 23 support Unicode 15
+		// java 22 and 23 support Unicode 15.1
 		if (Tables22 == null) {
 			initializeTableJava22();
 		}
-		return isJavaIdentifierPart0(codePoint, Tables22);
+		return isJavaIdentifierPart0(codePoint, Tables22, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK25) {
-		// java 24 and 25 support Unicode 15
+		// java 24 and 25 support Unicode 16
 		if (Tables24 == null) {
 			initializeTableJava24();
 		}
-		return isJavaIdentifierPart0(codePoint, Tables24);
+		return isJavaIdentifierPart0(codePoint, Tables24, true);
 	} else {
 		// java 26 supports Unicode 17
 		if (Tables26 == null) {
@@ -514,31 +514,31 @@ public static boolean isJavaIdentifierStart(long complianceLevel, int codePoint)
 		if (Tables15 == null) {
 			initializeTableJava15();
 		}
-		return isJavaIdentifierStart0(codePoint, Tables15);
+		return isJavaIdentifierStart0(codePoint, Tables15, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK19) {
 		// java 19 support Unicode 14
 		if (Tables19 == null) {
 			initializeTableJava19();
 		}
-		return isJavaIdentifierStart0(codePoint, Tables19);
+		return isJavaIdentifierStart0(codePoint, Tables19, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK21) {
 		// java 20 and 21 support Unicode 15
 		if (Tables20 == null) {
 			initializeTableJava20();
 		}
-		return isJavaIdentifierStart0(codePoint, Tables20);
+		return isJavaIdentifierStart0(codePoint, Tables20, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK23) {
 		// java 22 and 23 support Unicode 15.1
 		if (Tables22 == null) {
 			initializeTableJava22();
 		}
-		return isJavaIdentifierStart0(codePoint, Tables22);
+		return isJavaIdentifierStart0(codePoint, Tables22, true);
 	} else if (complianceLevel <= ClassFileConstants.JDK25) {
 		// java 24 and 25 support Unicode 16
 		if (Tables24 == null) {
 			initializeTableJava24();
 		}
-		return isJavaIdentifierStart0(codePoint, Tables24);
+		return isJavaIdentifierStart0(codePoint, Tables24, true);
 	} else {
 		// java 26 supports Unicode 17
 		if (Tables26 == null) {
