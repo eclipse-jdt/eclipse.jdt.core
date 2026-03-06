@@ -7118,5 +7118,88 @@ public void testIssue4891() {
 	};
 	runner.runConformTest();
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4900
+// Type interference with generics (and lambdas?) fails in Eclipse but compile in Javac
+public void testIssue4900() {
+
+	Runner runner = new Runner();
+	runner.expectedOutputString =
+			"";
+	runner.expectedCompilerLog = "";
+
+	runner.testFiles = new String[] {
+		"de/ivu/example/typeinference/eclipse/EclipseTypeInferenceExample.java",
+		"""
+		package de.ivu.example.typeinference.eclipse;
+
+		import java.util.List;
+		import java.util.Map;
+		import java.util.Optional;
+		import java.util.function.Function;
+		import java.util.stream.Collectors;
+
+		/**
+		 * Minimal examples to find where Eclipse type inference actually fails.
+		 */
+		public class EclipseTypeInferenceExample {
+
+		    /**
+		     * TEST 1: Generic method with type parameters where Eclipse type interference FAILS
+		     */
+		    public static class Test_1 {
+
+		        static <A, B, C, D> void process(
+		                List<A> items,
+		                Function<A, B> extract,
+		                Function<List<B>, C> aggregate,
+		                Function<C, Map<B, D>> transform) {
+		        }
+
+		        // FAILS in Eclipse: "Cannot infer type argument(s) for <A, B, C, D> process(...)"
+		        public static void test_FAILS(List<String> items) {
+		            process(
+		                items,
+		                String::toLowerCase,
+		                list -> list.stream().distinct().toList(),
+		                list -> list.stream().collect(Collectors.toMap(
+		                    Function.identity(),
+		                    String::length)));
+		        }
+
+		        // WORKS in Eclipse only with explicit type parameters
+		        public static void test_WORKS(List<String> items) {
+		            /* type information for eclipse */Test_1
+		                .<String, String, List<String>, Integer> /* type information for eclipse */
+		                process(
+		                    items,
+		                    String::toLowerCase,
+		                    list -> list.stream().distinct().toList(),
+		                    list -> list.stream().collect(Collectors.toMap(
+		                        Function.identity(),
+		                        String::length)));
+		        }
+
+		        /**
+		         * TEST 2: Generic method with type parameters - simple case works fine in Eclipse
+		         */
+		        public static class Test_2 {
+
+		            static <A, B, C, D> void process(A a, Function<A, B> f1, Function<B, C> f2, Function<C, D> f3) {
+		            }
+
+		            public static void test_WORKS(String input) {
+		                process(
+		                    input,
+		                    String::length,
+		                    len -> Optional.of(len),
+		                    opt -> List.of(opt));
+		            }
+		        }
+		    }
+		}
+	    """
+	};
+	runner.runConformTest();
+}
 }
 
