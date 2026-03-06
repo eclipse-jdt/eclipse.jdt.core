@@ -4108,6 +4108,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} while (wasInterrupted);
 	}
 
+	public static void waitForAutoRefresh() throws CoreException {
+		try {
+			Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_AUTO_REFRESH);
+			Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_REFRESH, null);
+		} catch (OperationCanceledException | InterruptedException e) {
+			throw new CoreException(Status.error("Waiting on auto-refresh interrupted", e));
+		}
+	}
+
 	public static boolean isTouchJobRunning() {
 		Job[] jobs = Job.getJobManager().find(JavaModelManager.class);
 		for (Job job : jobs) {

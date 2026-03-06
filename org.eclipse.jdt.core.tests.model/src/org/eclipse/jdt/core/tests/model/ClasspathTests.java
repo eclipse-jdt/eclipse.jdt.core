@@ -96,6 +96,7 @@ public void setUpSuite() throws Exception {
 @Override
 protected void tearDown() throws Exception {
 	try {
+		waitForAutoRefresh();
 		waitForAutoBuild();
 	} finally {
 		super.tearDown();
