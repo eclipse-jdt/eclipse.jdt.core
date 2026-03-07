@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -37,6 +38,8 @@ import org.eclipse.jdt.core.JavaCore;
  * Tests IJavaModel API.
  */
 public class JavaModelTests extends ModifyingResourceTests {
+
+private static final IResourceChangeListener LOG_RESOURCE_DELTA = AbstractJavaModelTests::logDeltaEvent;
 
 public static Test suite() {
 	return buildModelTestSuite(JavaModelTests.class);
@@ -613,6 +616,7 @@ public void testInitializeAfterLoad2() throws CoreException {
  * @deprecated since using deprecated API
  */
 public void testPreProcessingResourceChangedListener01() throws CoreException {
+	ResourcesPlugin.getWorkspace().addResourceChangeListener(LOG_RESOURCE_DELTA);
 	final int[] eventType = new int[] {0};
 	IResourceChangeListener listener = new IResourceChangeListener(){
 		public void resourceChanged(IResourceChangeEvent event) {
@@ -625,6 +629,7 @@ public void testPreProcessingResourceChangedListener01() throws CoreException {
 		assertEquals("Unexpected event type", IResourceChangeEvent.POST_CHANGE, eventType[0]);
 	} finally {
 		JavaCore.removePreProcessingResourceChangedListener(listener);
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(LOG_RESOURCE_DELTA);
 		deleteProject("Test");
 	}
 }
