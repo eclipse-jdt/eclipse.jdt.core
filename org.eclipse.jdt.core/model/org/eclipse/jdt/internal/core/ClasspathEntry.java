@@ -978,6 +978,16 @@ public class ClasspathEntry implements IClasspathEntry {
 						trace("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				} else {
+					String escapePref = JavaCore.getOptions()
+							.get(JavaCore.CORE_ENABLE_ESACAPING_CP_ENTRIES_IN_JAR_MANIFEST);
+					if (JavaCore.DISABLED.equals(escapePref) && calledFileName.indexOf(DOT_DOT) != -1
+							&& hasDotDot(Path.fromPortableString(calledFileName))) {
+						if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
+							trace("Invalid (escaping jar directory) Class-Path entry " + calledFileName //$NON-NLS-1$
+									+ " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+						}
+						continue;
+					}
 					IPath calledJar = directoryPath.append(new Path(calledFileName));
 					// Ignore if segment count is Zero (https://bugs.eclipse.org/bugs/show_bug.cgi?id=308150)
 					if (calledJar.segmentCount() == 0) {
