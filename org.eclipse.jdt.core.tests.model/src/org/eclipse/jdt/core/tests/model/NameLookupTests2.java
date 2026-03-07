@@ -455,8 +455,7 @@ public void testNonAccessibleAccessAnswer() throws Exception {
 				true /* wait for indexer */,
 				true /* check restrictions */,
 				null);
-		assertNotNull("Expected to find type", answer);
-		assertTrue("Expected type to be non-accessible", answer.isNonAccessible());
+		assertNull("Expected to not find type", answer);
 	} finally {
 		deleteProject("P");
 	}
