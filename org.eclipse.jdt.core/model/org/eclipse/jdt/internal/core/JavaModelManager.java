@@ -2459,6 +2459,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		addDeprecatedOptions(options);
 
 		Util.fixTaskTags(options);
+		if (VERBOSE) {
+			trace("Setting Java options"); //$NON-NLS-1$
+		}
 		// store built map in cache
 		this.optionsCache = new Hashtable<>(options);
 		// return built map
