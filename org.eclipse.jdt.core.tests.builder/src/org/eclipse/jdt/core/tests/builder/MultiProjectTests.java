@@ -1283,7 +1283,7 @@ public void testCycle7() throws JavaModelException {
 		env.waitForManualRefresh();
 		fullBuild();
 		env.waitForAutoBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not accessible (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		env.removeProject(project1Path);
 		env.removeProject(project2Path);
 	}
@@ -1338,7 +1338,7 @@ public void testCycle7() throws JavaModelException {
 
 		incrementalBuild();
 		env.waitForAutoBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not accessible (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		env.removeProject(project1Path);
 		env.removeProject(project2Path);
 	}
@@ -1385,7 +1385,7 @@ public void testCycle7() throws JavaModelException {
 		env.waitForManualRefresh();
 		fullBuild();
 		env.waitForAutoBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not accessible (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		//----------------------------
 		//           Step 2
@@ -1439,7 +1439,7 @@ public void testCycle7() throws JavaModelException {
 
 		fullBuild();
 		env.waitForAutoBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not accessible (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		env.removeProject(project1Path);
 		env.removeProject(project2Path);
 	}
@@ -1494,7 +1494,7 @@ public void testCycle7() throws JavaModelException {
 
 		incrementalBuild();
 		env.waitForAutoBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not accessible (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		env.removeProject(project1Path);
 		env.removeProject(project2Path);
 	}
@@ -1541,7 +1541,7 @@ public void testCycle7() throws JavaModelException {
 		env.waitForManualRefresh();
 		fullBuild();
 		env.waitForAutoBuild();
-		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not accessible (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		//----------------------------
 		//           Step 2
