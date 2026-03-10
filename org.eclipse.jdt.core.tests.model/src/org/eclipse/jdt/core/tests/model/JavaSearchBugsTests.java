@@ -68,6 +68,7 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 import org.eclipse.jdt.internal.core.search.matching.TypeReferencePattern;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
@@ -81,6 +82,8 @@ static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_NAMES = new String[] {"testBug324189d"};
 }
+
+private boolean wasVerbose;
 
 public JavaSearchBugsTests(String name) {
 	super(name);
@@ -186,9 +189,16 @@ public void tearDownSuite() throws Exception {
 }
 @Override
 protected void setUp () throws Exception {
+	this.wasVerbose = JobManager.VERBOSE;
+	JobManager.VERBOSE = true;
 	super.setUp();
 	this.resultCollector = new TestCollector();
 	this.resultCollector.showAccuracy(true);
+}
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	JobManager.VERBOSE = this.wasVerbose;
 }
 
 /**
