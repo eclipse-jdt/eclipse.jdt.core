@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 /**
  * Tests IJavaModel API.
  */
@@ -54,15 +55,20 @@ static {
 //	TESTS_RANGE = new int[] { 83304, -1 };
 }
 
+private boolean wasVerbose;
+
 @Override
 protected void setUp() throws Exception {
 	ResourcesPlugin.getWorkspace().addResourceChangeListener(LOG_RESOURCE_DELTA);
+	this.wasVerbose = JavaModelManager.VERBOSE;
+	JavaModelManager.VERBOSE = true;
 	super.setUp();
 }
 
 @Override
 protected void tearDown() throws Exception {
 	super.tearDown();
+	JavaModelManager.VERBOSE = this.wasVerbose;
 	ResourcesPlugin.getWorkspace().removeResourceChangeListener(LOG_RESOURCE_DELTA);
 }
 
