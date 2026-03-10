@@ -2532,6 +2532,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			PerProjectInfo info= this.perProjectInfos.get(project);
 			if (info == null && create) {
 				info= new PerProjectInfo(project);
+				if (VERBOSE) {
+					trace("Created info for: " + project); //$NON-NLS-1$
+				}
 				this.perProjectInfos.put(project, info);
 			}
 			return info;
@@ -4278,6 +4281,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			PerProjectInfo info= this.perProjectInfos.get(project);
 			if (info != null) {
 				this.perProjectInfos.remove(project);
+				if (VERBOSE) {
+					trace("Removed info for: " + project); //$NON-NLS-1$
+				}
 				if (removeExtJarInfo) {
 					info.forgetExternalTimestampsAndIndexes();
 				}
