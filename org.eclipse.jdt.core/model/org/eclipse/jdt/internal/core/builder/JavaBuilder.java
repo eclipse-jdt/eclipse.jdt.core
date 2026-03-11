@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,8 +75,8 @@ char[][] extraResourceFileFilters;
 String[] extraResourceFolderFilters;
 public static final String SOURCE_ID = "JDT"; //$NON-NLS-1$
 
-public static boolean DEBUG = false;
-public static boolean SHOW_STATS = false;
+public static boolean DEBUG;
+public static boolean SHOW_STATS;
 
 /**
  * Bug 549457: In case auto-building on a JDT core settings change (e.g. compiler compliance) is not desired,
@@ -487,7 +488,7 @@ private Map<IProject, IResourceDelta> findDeltas() {
 				}
 			} else {
 				if (DEBUG) {
-					trace("JavaBuilder: Missing delta for: " + p.getName());	 //$NON-NLS-1$
+					trace("JavaBuilder: Missing delta for: " + p.getName()); //$NON-NLS-1$
 				}
 				this.notifier.subTask(""); //$NON-NLS-1$
 				return null;
@@ -527,13 +528,34 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 				case IClasspathEntry.CPE_LIBRARY :
 					if (includeBinaryPrerequisites && path.segmentCount() > 0) {
 						// some binary resources on the class path can come from projects that are not included in the project references
-						IResource resource = this.workspaceRoot.findMember(path.segment(0));
-						if (resource instanceof IProject) {
-							p = (IProject) resource;
+						IResource resource = null;
+
+						// Try to check first if the full binary entry path exactly matches an external folder,
+						// before assuming its first segment matches some project name in the workspace
+						resource = externalFoldersManager.getFolder(path);
+						if (DEBUG && resource != null && !path.lastSegment().contains("jrt-fs.jar")) { //$NON-NLS-1$
+							trace("JavaBuilder: found resource containing binary classpath entry: \nExternal: " + this.currentProject.getName() + " -> " + path); //$NON-NLS-1$ //$NON-NLS-2$
+						}
+
+						// Second try: it could be a full workspace path, where first segment is the project name.
+						// Note, the path may not exist physically yet, it is allowed to reference not (yet) existing resources.
+						// Unfortunately this can also match fully unrelated projects in the workspace on Linux/Mac,
+						// current .classpath format does not provide possibilities to ensure that
+						// "<classpathentry kind="lib" path="/some/folder/name"/>"
+						// specifies an absolute OS path or full workspace path, both may not exist yet.
+						if (resource == null && path.isAbsolute() && path.getDevice() == null) {
+							resource = this.workspaceRoot.findMember(path.segment(0));
+						}
+
+						if (resource != null) {
+							p = resource.getProject();
+							if (DEBUG && !path.lastSegment().contains("jrt-fs.jar")) { //$NON-NLS-1$
+								trace("JavaBuilder: found workspace project containing binary classpath entry: \nExternal: " + this.currentProject.getName() + " -> " + path); //$NON-NLS-1$ //$NON-NLS-2$
+							}
 						} else {
-							resource = externalFoldersManager.getFolder(path);
-							if (resource != null)
-								p = resource.getProject();
+							if (DEBUG && !path.lastSegment().contains("jrt-fs.jar")) { //$NON-NLS-1$
+								trace("JavaBuilder: Could not find resource containing binary classpath entry: \n" + this.currentProject.getName() + " -> " + path); //$NON-NLS-1$ //$NON-NLS-2$
+							}
 						}
 					}
 			}
@@ -695,7 +717,7 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 		}
 	}
 
-	this.binaryLocationsPerProject = new HashMap<>(3);
+	this.binaryLocationsPerProject = new LinkedHashMap<>(3);
 	this.nameEnvironment = new NameEnvironment(this.workspaceRoot, this.javaProject, this.binaryLocationsPerProject, this.notifier, CompilationGroup.MAIN, JavaProject.NO_RELEASE);
 	this.testNameEnvironment = new NameEnvironment(this.workspaceRoot, this.javaProject, this.binaryLocationsPerProject, this.notifier, CompilationGroup.TEST, JavaProject.NO_RELEASE);
 
