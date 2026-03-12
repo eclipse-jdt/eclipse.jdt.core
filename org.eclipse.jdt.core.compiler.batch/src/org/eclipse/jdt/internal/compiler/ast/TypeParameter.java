@@ -236,9 +236,9 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			this.type.updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
 			if (this.type.resolvedType instanceof ReferenceBinding && prevType != this.type.resolvedType) { //$IDENTITY-COMPARISON$
 				ReferenceBinding newType = (ReferenceBinding) this.type.resolvedType;
-				this.binding.firstBound = newType;
+				this.binding.setFirstBound(newType); // do not assign to firstBound directly!
 				if (newType.isClass())
-					this.binding.superclass = newType;
+					this.binding.setSuperClass(newType); // do not assign to superclass directly!
 			}
 		}
 		if (this.bounds != null) {
