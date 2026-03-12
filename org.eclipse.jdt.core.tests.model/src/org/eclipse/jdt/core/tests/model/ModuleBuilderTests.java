@@ -6721,7 +6721,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 
-			assertMarkers("Unexpected markers", "Access restriction: The type 'Image' is not API (restriction on required library '"+
+			assertMarkers("Unexpected markers", "Access restriction: The type 'Image' is not accessible (restriction on required library '"+
 																							jrtPath + "')", markers);
 		} finally {
 			deleteProject(p1);
@@ -6772,7 +6772,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			sortMarkers(markers);
 
 			assertMarkers("Unexpected markers",
-					"Access restriction: The type \'Image\' is not API (restriction on required library '"+ jrtPath + "')\n" +
+					"Access restriction: The type \'Image\' is not accessible (restriction on required library '"+ jrtPath + "')\n" +
 					"The type Graphics from module java.desktop may not be accessible to clients due to missing \'requires transitive\'"
 					, markers);
 		} finally {
@@ -6814,7 +6814,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 
-			assertMarkers("Unexpected markers", "Access restriction: The type 'Image' is not API (restriction on required library '"+
+			assertMarkers("Unexpected markers", "Access restriction: The type 'Image' is not accessible (restriction on required library '"+
 																							jrtPath + "')", markers);
 		} finally {
 			deleteProject(p1);

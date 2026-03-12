@@ -437,7 +437,7 @@ public void testAccessRestriction4() throws CoreException {
 			"1. ERROR in /P3/src/Y.java (at line 1)\n" +
 			"	public class Y extends p.X {}\n" +
 			"	                       ^^^\n" +
-			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" +
+			"Access restriction: The type \'X\' is not accessible (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -478,7 +478,7 @@ public void testAccessRestriction5() throws CoreException {
 			"1. ERROR in /P2/src/Y.java (at line 1)\n" +
 			"	public class Y extends p.X {}\n" +
 			"	                       ^^^\n" +
-			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" +
+			"Access restriction: The type \'X\' is not accessible (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 
@@ -1593,7 +1593,7 @@ public void testExcludePartOfAnotherProject1() throws CoreException {
 			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
 			"	public class X extends p.internal.Y {\n" +
 			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" +
+			"Access restriction: The type \'Y\' is not accessible (restriction on required project \'P\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1797,7 +1797,7 @@ public void testIncludePartOfAnotherProject2() throws CoreException {
 			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
 			"	public class X extends p.internal.Y {\n" +
 			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" +
+			"Access restriction: The type \'Y\' is not accessible (restriction on required project \'P\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1967,7 +1967,7 @@ public void testIgnoreIfBetterNonAccessibleRule3() throws CoreException {
 			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
 			"	public class X extends p.internal.Y {\n" +
 			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" +
+			"Access restriction: The type \'Y\' is not accessible (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2004,7 +2004,7 @@ public void testIgnoreIfBetterNonAccessibleRule4() throws CoreException {
 			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
 			"	public class X extends p.internal.Y {\n" +
 			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" +
+			"Access restriction: The type \'Y\' is not accessible (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 	} finally {

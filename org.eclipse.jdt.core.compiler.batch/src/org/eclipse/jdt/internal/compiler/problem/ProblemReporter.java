@@ -2541,7 +2541,7 @@ public void forbiddenReference(FieldBinding field, ASTNode location,
 	this.handle(
 		problemId,
 		new String[] { new String(field.readableName()) }, // distinct from msg arg for quickfix purpose
-		getElaborationId(IProblem.ForbiddenReference, (byte) (FIELD_ACCESS | classpathEntryType)),
+		getElaborationId(problemId, (byte) (FIELD_ACCESS | classpathEntryType)),
 		new String[] {
 			classpathEntryName,
 			new String(field.shortReadableName()),
@@ -2560,7 +2560,7 @@ public void forbiddenReference(MethodBinding method, InvocationSite location,
 		this.handle(
 			problemId,
 			new String[] { new String(method.readableName()) }, // distinct from msg arg for quickfix purpose
-			getElaborationId(IProblem.ForbiddenReference, (byte) (CONSTRUCTOR_ACCESS | classpathEntryType)),
+			getElaborationId(problemId, (byte) (CONSTRUCTOR_ACCESS | classpathEntryType)),
 			new String[] {
 				classpathEntryName,
 				new String(method.shortReadableName())},
@@ -2571,7 +2571,7 @@ public void forbiddenReference(MethodBinding method, InvocationSite location,
 		this.handle(
 			problemId,
 			new String[] { new String(method.readableName()) }, // distinct from msg arg for quickfix purpose
-			getElaborationId(IProblem.ForbiddenReference, (byte) (METHOD_ACCESS | classpathEntryType)),
+			getElaborationId(problemId, (byte) (METHOD_ACCESS | classpathEntryType)),
 			new String[] {
 				classpathEntryName,
 				new String(method.shortReadableName()),
@@ -2590,7 +2590,7 @@ public void forbiddenReference(TypeBinding type, ASTNode location,
 	this.handle(
 		problemId,
 		new String[] { new String(type.readableName()) }, // distinct from msg arg for quickfix purpose
-		getElaborationId(IProblem.ForbiddenReference, /* TYPE_ACCESS | */ classpathEntryType), // TYPE_ACCESS values to 0
+		getElaborationId(problemId, /* TYPE_ACCESS | */ classpathEntryType), // TYPE_ACCESS values to 0
 		new String[] {
 			classpathEntryName,
 			new String(type.shortReadableName())},
