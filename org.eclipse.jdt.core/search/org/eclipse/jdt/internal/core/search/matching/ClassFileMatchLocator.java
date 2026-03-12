@@ -109,7 +109,20 @@ static char[] getSearchFullQualifiedSearchName(IBinaryType type) {
 	// nevertheless this at least solves finding normal named inner Types in .class files
 	// "$" is rarely used since jls-3.8 states:
 	// "the $ sign should be used only in mechanically generated source code or, rarely, to access pre-existing names on legacy systems"
-	char[] qualifiedName = CharOperation.replaceOnCopy(binaryName, '$', '.');
+	if (binaryName == null) {
+		return null;
+	}
+	char[] qualifiedName = new char[binaryName.length];
+	char previous = '.';
+	for (int i = 0, length = binaryName.length; i < length; i++) {
+		char c = binaryName[i];
+		if (c == '$' && previous != '.') {
+			qualifiedName[i] = '.';
+		} else {
+			qualifiedName[i] = c;
+		}
+		previous = c;
+	}
 	// Note on how a type name is calculated for the UI:
 	// @see org.eclipse.jdt.internal.core.manipulation.BindingLabelProviderCore#getTypeLabel(ITypeBinding, long, StringBuffer)
 	return qualifiedName;

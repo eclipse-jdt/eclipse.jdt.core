@@ -2565,12 +2565,24 @@ public class Util {
 			buffer.append(Signature.C_UNRESOLVED);
 		else
 			buffer.append(signature[start]);
+		int[] result = getLastDotDollar(signature, start+1);
+		int lastDot = result[0];
+		int lastDollar = result[1];
+		boolean isLastDollar = lastDollar == (signature.length - 2) || lastDollar == (signature.length - 1);
 		for (int i = start+1; i < length; i++) {
+			boolean isPreviousDollar = (i - 1 >= 0) ? (signature[i - 1] == '$') : false;
+			boolean isNextDollar = (i + 1 < signature.length) ? (signature[i + 1] == '$') : false;
 			char c = signature[i];
 			switch (c) {
 			case '/':
-			case Signature.C_DOLLAR:
 				buffer.append(Signature.C_DOT);
+				break;
+			case Signature.C_DOLLAR:
+				if (!isNextDollar && !isPreviousDollar && !isLastDollar && i >= lastDot) {
+					buffer.append(Signature.C_DOT);
+				} else {
+					buffer.append(Signature.C_DOLLAR);
+				}
 				break;
 			case Signature.C_GENERIC_START:
 				buffer.append(Signature.C_GENERIC_START);
@@ -2620,8 +2632,14 @@ public class Util {
 		}
 		int p = start + 1;
 		int checkpoint = buffer.length();
+		int[] result = getLastDotDollar(string, start+1);
+		int lastDot = result[0];
+		int lastDollar = result[1];
+		boolean isLastDollar = lastDollar == (string.length - 2) || lastDollar == (string.length - 1);
 		while (true) {
 			c = string[p];
+			boolean isPreviousDollar = (p - 1 >= 0) ? (string[p - 1] == '$') : false;
+			boolean isNextDollar = (p + 1 < string.length) ? (string[p + 1] == '$') : false;
 			switch(c) {
 				case Signature.C_SEMICOLON :
 					// all done
@@ -2641,8 +2659,13 @@ public class Util {
 					 * NOTE: This assumes that the type signature is an inner type
 					 * signature. This is true in most cases, but someone can define a
 					 * non-inner type name containing a '$'.
+					 * see https://github.com/eclipse-jdt/eclipse.jdt.core/pull/671
 					 */
-					buffer.append('.');
+					if (!isNextDollar && !isPreviousDollar && !isLastDollar && p > 0 && string[p - 1] != Signature.C_DOT && p > lastDot) {
+						buffer.append('.');
+					} else {
+						buffer.append(c);
+					}
 				 	break;
 				 default :
 					buffer.append(c);
@@ -3290,10 +3313,16 @@ public class Util {
 			throw newUnexpectedCharacterException(string, start, c);
 		}
 		int p = start + 1;
+		int[] result = getLastDotDollar(string, start+1);
+		int lastDot = result[0];
+		int lastDollar = result[1];
+		boolean isLastDollar = lastDollar == (string.length - 2) || lastDollar == (string.length - 1);
 		while (true) {
 			if (p >= string.length) {
 				throw newIllegalArgumentException(string, start);
 			}
+			boolean isPreviousDollar = (p - 1 >= 0) ? (string[p - 1] == '$') : false;
+			boolean isNextDollar = (p + 1 < string.length) ? (string[p + 1] == '$') : false;
 			c = string[p];
 			switch(c) {
 				case Signature.C_SEMICOLON :
@@ -3317,14 +3346,35 @@ public class Util {
 					 * NOTE: This assumes that the type signature is an inner type
 					 * signature. This is true in most cases, but someone can define a
 					 * non-inner type name containing a '$'.
+					 * see https://github.com/eclipse-jdt/eclipse.jdt.core/pull/671
 					 */
-					buffer.append('.');
+					if (!isNextDollar && !isPreviousDollar && !isLastDollar && p > 0 && string[p - 1] != Signature.C_DOT && p > lastDot) {
+						buffer.append('.');
+					} else {
+						buffer.append(c);
+					}
 				 	break;
 				 default :
 					buffer.append(c);
 			}
 			p++;
 		}
+	}
+
+	private static int[] getLastDotDollar(char[] array, int startIndex) {
+		if (array == null || startIndex > array.length)
+			return new int[] { 0, 0 };
+		int lastDot = 0;
+		int lastDollar = -1;
+		for (int i = startIndex; i < array.length; i++) {
+			if (array[i] == Signature.C_DOT) {
+				lastDot = i;
+			}
+			if (array[i] == Signature.C_DOLLAR) {
+				lastDollar = i;
+			}
+		}
+		return new int[] { lastDot, lastDollar };
 	}
 
 	private static IllegalArgumentException newIllegalArgumentException(char[] string, int index) {
