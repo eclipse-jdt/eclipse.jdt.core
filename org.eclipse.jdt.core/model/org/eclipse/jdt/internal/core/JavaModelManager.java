@@ -2425,6 +2425,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		if (!Platform.isRunning()) {
 			Hashtable<String, String> defaults = getDefaultOptionsNoInitialization();
+			if (VERBOSE) {
+				trace("Setting Java options cache"); //$NON-NLS-1$
+			}
 			this.optionsCache = defaults;
 			return new Hashtable<>(defaults);
 		}
@@ -2460,7 +2463,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		Util.fixTaskTags(options);
 		if (VERBOSE) {
-			trace("Setting Java options"); //$NON-NLS-1$
+			trace("Setting Java options cache"); //$NON-NLS-1$
 		}
 		// store built map in cache
 		this.optionsCache = new Hashtable<>(options);
@@ -5374,6 +5377,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			getOptions();
 		} else {
 			Util.fixTaskTags(cachedValue);
+			if (VERBOSE) {
+				trace("Setting Java options cache"); //$NON-NLS-1$
+			}
 			// update cache
 			this.optionsCache = cachedValue;
 		}
@@ -5394,6 +5400,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.propertyListener = new IEclipsePreferences.IPreferenceChangeListener() {
 				@Override
 				public void preferenceChange(PreferenceChangeEvent event) {
+					if (VERBOSE) {
+						trace("Invalidating Java options cache"); //$NON-NLS-1$
+					}
 					JavaModelManager.this.optionsCache = null;
 				}
 			};
@@ -5404,6 +5413,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				@Override
 				public void preferenceChange(PreferenceChangeEvent event) {
 					if (ResourcesPlugin.PREF_ENCODING.equals(event.getKey())) {
+						if (VERBOSE) {
+							trace("Invalidating Java options cache"); //$NON-NLS-1$
+						}
 						JavaModelManager.this.optionsCache = null;
 					}
 				}
