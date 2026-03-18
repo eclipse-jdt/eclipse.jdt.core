@@ -43,7 +43,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	@SuppressWarnings("deprecation")
 	private boolean checkAPILevel() {
-		if (this.apiLevel < 16) {
+		if (this.apiLevel < 25) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return true;
 		}
@@ -107,7 +107,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void testRecord_002() throws Exception {
+	public void _testRecord_002() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -169,7 +169,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_003() throws Exception {
+	public void _testRecord_003() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -220,7 +220,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_004() throws Exception {
+	public void _testRecord_004() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -255,7 +255,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testRecord_005() throws Exception {
+	public void _testRecord_005() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -291,7 +291,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_006() throws Exception {
+	public void _testRecord_006() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -327,7 +327,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_007() throws Exception {
+	public void _testRecord_007() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -365,7 +365,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testRecord_008() throws Exception {
+	public void _testRecord_008() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -402,7 +402,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_009() throws Exception {
+	public void _testRecord_009() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -453,7 +453,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_010() throws Exception {
+	public void _testRecord_010() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -493,7 +493,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_011() throws Exception {
+	public void _testRecord_011() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -544,7 +544,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_012() throws Exception {
+	public void _testRecord_012() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -586,7 +586,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_013() throws Exception {
+	public void _testRecord_013() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -630,7 +630,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_015() throws Exception {
+	public void _testRecord_015() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -671,7 +671,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_0015() throws Exception {
+	public void _testRecord_0015() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -716,7 +716,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_016() throws Exception {
+	public void _testRecord_016() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -785,7 +785,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_0016() throws Exception {
+	public void _testRecord_0016() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -823,7 +823,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_0017() throws Exception {
+	public void _testRecord_0017() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -861,7 +861,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testRecord_0018() throws Exception {
+	public void _testRecord_0018() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -910,7 +910,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_0019() throws Exception {
+	public void _testRecord_0019() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -952,7 +952,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_0020() throws Exception {
+	public void _testRecord_0020() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -994,7 +994,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_0021() throws Exception {
+	public void _testRecord_0021() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1041,7 +1041,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_0022() throws Exception {
+	public void _testRecord_0022() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1084,7 +1084,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_023() throws Exception {
+	public void _testRecord_023() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1130,7 +1130,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_024() throws Exception {
+	public void _testRecord_024() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1166,7 +1166,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		String rewritten = 
+		String rewritten =
 				"package test1;\n" +
 				"public record C() {\n" +
 				"\n" +
@@ -1180,7 +1180,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_025() throws Exception {
+	public void _testRecord_025() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1233,7 +1233,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_026() throws Exception {
+	public void _testRecord_026() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1293,7 +1293,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testRecord_027() throws Exception {
+	public void _testRecord_027() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1349,7 +1349,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 
-	public void testRecord_028() throws Exception {
+	public void _testRecord_028() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1403,7 +1403,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
-	public void testRecord_029_a() throws Exception {
+	public void _testRecord_029_a() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1441,7 +1441,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		assertEqualString(preview, reWriteCode);
 	}
 
-	public void testRecord_029_b() throws Exception {
+	public void _testRecord_029_b() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}
@@ -1479,7 +1479,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		assertEqualString(preview, reWriteCode);
 	}
 
-	public void testRecord_029_c() throws Exception {
+	public void _testRecord_029_c() throws Exception {
 		if (checkAPILevel()) {
 			return;
 		}

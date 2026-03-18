@@ -83,8 +83,8 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public boolean dominates(Pattern p) {
-		return isUnguarded() && this.primaryPattern.dominates(p);
+	public boolean dominates(Pattern p, Scope scope) {
+		return isUnguarded() && this.primaryPattern.dominates(p, scope);
 	}
 
 	@Override

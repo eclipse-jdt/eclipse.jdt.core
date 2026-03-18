@@ -96,6 +96,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE23 = false;
 	protected static boolean isJRE24 = false;
 	protected static boolean isJRE25 = false;
+	protected static boolean isJRE26 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -108,6 +109,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK26) {
+			isJRE26 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK25) {
 			isJRE25 = true;
 		}
@@ -253,6 +257,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for constant AST.JSL25
 	 */
 	protected static final int AST_INTERNAL_JLS25 = AST.JLS25;
+	/**
+	 * Internal synonym for constant AST.JSL26
+	 */
+	protected static final int AST_INTERNAL_JLS26 = AST.JLS26;
 	/**
 	 * Internal synonym for the latest AST level.
 	 */
@@ -3490,7 +3498,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_FULL_SRC";
 			}
 		} else {
-			if (compliance.equals("25")) {
+			if (compliance.equals("26")) {
+				newJclLibString = "JCL_26_LIB";
+				newJclSrcString = "JCL_26_SRC";
+			} else if (compliance.equals("25")) {
 				newJclLibString = "JCL_25_LIB";
 				newJclSrcString = "JCL_25_SRC";
 			} else if (compliance.equals("24")) {
@@ -3714,6 +3725,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL_25_LIB", "JCL_25_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("25"), getExternalJCLSourcePath("25"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("26".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL_26_LIB") == null) {
+				setupExternalJCL("jclMin26");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_26_LIB", "JCL_26_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("26"), getExternalJCLSourcePath("26"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

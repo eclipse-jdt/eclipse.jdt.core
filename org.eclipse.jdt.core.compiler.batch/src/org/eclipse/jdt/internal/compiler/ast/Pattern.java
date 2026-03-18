@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -112,6 +113,28 @@ public abstract class Pattern extends Expression {
 		return false;
 	}
 
+	public boolean coversValue(Constant cst, BlockScope scope) {
+		if (!isUnguarded())
+			return false;
+		if (!(this.resolvedType instanceof BaseTypeBinding baseType))
+			return false;
+		if (!cst.isExactTestingConversion(baseType))
+			return false;
+		int constantTypeID = cst.typeID();
+		PrimitiveConversionRoute route = findPrimitiveConversionRoute(this.resolvedType, TypeBinding.wellKnownBaseType(constantTypeID), scope);
+		switch (route) {
+			// JLS §5.7.2:
+			case NARROWING_PRIMITVE_CONVERSION:
+			case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
+				return true;
+			case WIDENING_PRIMITIVE_CONVERSION:
+				return BaseTypeBinding.isWidening(this.resolvedType.id, constantTypeID)
+						&& ! BaseTypeBinding.isExactWidening(this.resolvedType.id, constantTypeID);
+			default:
+				return false;
+		}
+	}
+
 	public boolean isUnconditional(TypeBinding t, Scope scope) {
 		return false;
 	}
@@ -166,7 +189,7 @@ public abstract class Pattern extends Expression {
 		return true;
 	}
 
-	public abstract boolean dominates(Pattern p);
+	public abstract boolean dominates(Pattern p, Scope scope);
 
 	@Override
 	public StringBuilder print(int indent, StringBuilder output) {

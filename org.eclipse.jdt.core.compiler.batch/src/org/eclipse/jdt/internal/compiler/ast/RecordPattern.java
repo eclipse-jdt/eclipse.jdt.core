@@ -176,7 +176,7 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public boolean dominates(Pattern p) {
+	public boolean dominates(Pattern p, Scope scope) {
 		/* 14.30.3: A record pattern with type R and pattern list L dominates another record pattern
 		   with type S and pattern list M if (i) R and S name the same record class, and (ii)
 		   every component pattern, if any, in L dominates the corresponding component
@@ -199,7 +199,7 @@ public class RecordPattern extends Pattern {
 			if (this.patterns.length != rp.patterns.length)
 				return false;
 			for (int i = 0, length = this.patterns.length; i < length; i++) {
-				if (!this.patterns[i].dominates(rp.patterns[i])) {
+				if (!this.patterns[i].dominates(rp.patterns[i], scope)) {
 					return false;
 				}
 			}

@@ -24,8 +24,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.compiler.unicode.*;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
@@ -94,517 +97,201 @@ public static Test suite() {
 	standardTests.add(NameEnvironmentAnswerListenerTest.class);
 	standardTests.add(XtextDependencies.class);
 
+	// 1.5 - 1.7 (always enabled):
+	standardTests.add(AssertionTest.class);
+	standardTests.addAll(RunComparableTests.ALL_CLASSES);
+	standardTests.add(ClassFileReaderTest_1_5.class);
+	standardTests.add(GenericTypeSignatureTest.class);
+	standardTests.add(InternalHexFloatTest.class);
+	standardTests.add(JavadocTest_1_5.class);
+	standardTests.add(BatchCompilerTest.class);
+	standardTests.add(NullAnnotationBatchCompilerTest.class);
+	standardTests.add(ConcurrentBatchCompilerTest.class);
+	standardTests.add(ExternalizeStringLiteralsTest_1_5.class);
+	standardTests.add(Deprecated15Test.class);
+	standardTests.add(InnerEmulationTest_1_5.class);
+	standardTests.add(AssignmentTest_1_5.class);
+	standardTests.add(InnerClass15Test.class);
+	standardTests.add(NullAnnotationTest.class);
+	standardTests.add(XLargeTest2.class);
+	standardTests.add(StackMapAttributeTest.class);
+	standardTests.add(Compliance_1_6.class);
+	standardTests.add(AssignmentTest_1_7.class);
+	standardTests.add(BinaryLiteralTest.class);
+	standardTests.add(UnderscoresInLiteralsTest.class);
+	standardTests.add(TryStatement17Test.class);
+	standardTests.add(TryWithResourcesStatementTest.class);
+	standardTests.add(GenericsRegressionTest_1_7.class);
+	standardTests.add(PolymorphicSignatureTest.class);
+	standardTests.add(Compliance_1_7.class);
+	standardTests.add(MethodHandleTest.class);
+	standardTests.add(ResourceLeakAnnotatedTests.class);
+	// 1.8 (always enabled):
+	standardTests.add(NegativeTypeAnnotationTest.class);
+	standardTests.add(NullTypeAnnotationTest.class);
+	standardTests.add(NegativeLambdaExpressionsTest.class);
+	standardTests.add(LambdaExpressionsTest.class);
+	standardTests.add(LambdaRegressionTest.class);
+	standardTests.add(SerializableLambdaTest.class);
+	standardTests.add(OverloadResolutionTest8.class);
+	standardTests.add(JSR335ClassFileTest.class);
+	standardTests.add(ExpressionContextTests.class);
+	standardTests.add(InterfaceMethodsTest.class);
+	standardTests.add(GrammarCoverageTests308.class);
+	standardTests.add(FlowAnalysisTest8.class);
+	standardTests.add(TypeAnnotationTest.class);
+	standardTests.add(JSR308SpecSnippetTests.class);
+	standardTests.add(Deprecated18Test.class);
+	standardTests.add(MethodParametersAttributeTest.class);
+	standardTests.add(ClassFileReaderTest_1_8.class);
+	standardTests.add(RepeatableAnnotationTest.class);
+	standardTests.add(GenericsRegressionTest_1_8.class);
+	standardTests.add(Unicode1_8Test.class);
+	standardTests.add(LambdaShapeTests.class);
+	standardTests.add(StringConcatTest.class);
+	standardTests.add(UseOfUnderscoreTest.class);
+	standardTests.add(DubiousOutcomeTest.class);
+
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
 		standardTests.add(JavadocTest.ALL_CLASSES.get(i));
 	}
 
-	// Tests to run when compliance is greater than 1.3
-	ArrayList since_1_4 = new ArrayList();
-	since_1_4.add(AssertionTest.class);
+	// specific to ancient versions that are no longer supported:
+	ArrayList legacyTests = new ArrayList();
+	legacyTests.add(Compliance_1_3.class);
+	legacyTests.add(JavadocTest_1_3.class);
+	legacyTests.add(Compliance_CLDC.class);
+	legacyTests.add(Compliance_1_4.class);
+	legacyTests.add(ClassFileReaderTest_1_4.class);
+	legacyTests.add(JavadocTest_1_4.class);
 
-	// Tests to run when compliance is greater than 1.4
-	ArrayList since_1_5 = new ArrayList();
-	since_1_5.addAll(RunComparableTests.ALL_CLASSES);
-	since_1_5.add(ClassFileReaderTest_1_5.class);
-	since_1_5.add(GenericTypeSignatureTest.class);
-	since_1_5.add(InternalHexFloatTest.class);
-	since_1_5.add(JavadocTest_1_5.class);
-	since_1_5.add(BatchCompilerTest.class);
-	since_1_5.add(NullAnnotationBatchCompilerTest.class);
-	since_1_5.add(ConcurrentBatchCompilerTest.class);
-	since_1_5.add(ExternalizeStringLiteralsTest_1_5.class);
-	since_1_5.add(Deprecated15Test.class);
-	since_1_5.add(InnerEmulationTest_1_5.class);
-	since_1_5.add(AssignmentTest_1_5.class);
-	since_1_5.add(InnerClass15Test.class);
-	since_1_5.add(NullAnnotationTest.class);
-	since_1_5.add(XLargeTest2.class);
-
-	// Tests to run when compliance is greater than 1.5
-	ArrayList since_1_6 = new ArrayList();
-	since_1_6.add(StackMapAttributeTest.class);
-	since_1_6.add(Compliance_1_6.class);
-
-	ArrayList since_1_7 = new ArrayList();
-	since_1_7.add(AssignmentTest_1_7.class);
-	since_1_7.add(BinaryLiteralTest.class);
-	since_1_7.add(UnderscoresInLiteralsTest.class);
-	since_1_7.add(TryStatement17Test.class);
-	since_1_7.add(TryWithResourcesStatementTest.class);
-	since_1_7.add(GenericsRegressionTest_1_7.class);
-	since_1_7.add(PolymorphicSignatureTest.class);
-	since_1_7.add(Compliance_1_7.class);
-	since_1_7.add(MethodHandleTest.class);
-	since_1_7.add(ResourceLeakAnnotatedTests.class);
-
-
-	ArrayList since_1_8 = new ArrayList();
-	since_1_8.add(NegativeTypeAnnotationTest.class);
-	since_1_8.add(NullTypeAnnotationTest.class);
-	since_1_8.add(NegativeLambdaExpressionsTest.class);
-	since_1_8.add(LambdaExpressionsTest.class);
-	since_1_8.add(LambdaRegressionTest.class);
-	since_1_8.add(SerializableLambdaTest.class);
-	since_1_8.add(OverloadResolutionTest8.class);
-	since_1_8.add(JSR335ClassFileTest.class);
-	since_1_8.add(ExpressionContextTests.class);
-	since_1_8.add(InterfaceMethodsTest.class);
-	since_1_8.add(GrammarCoverageTests308.class);
-	since_1_8.add(FlowAnalysisTest8.class);
-	since_1_8.add(TypeAnnotationTest.class);
-	since_1_8.add(JSR308SpecSnippetTests.class);
-	since_1_8.add(Deprecated18Test.class);
-	since_1_8.add(MethodParametersAttributeTest.class);
-	since_1_8.add(ClassFileReaderTest_1_8.class);
-	since_1_8.add(RepeatableAnnotationTest.class);
-	since_1_8.add(GenericsRegressionTest_1_8.class);
-	since_1_8.add(Unicode18Test.class);
-	since_1_8.add(LambdaShapeTests.class);
-	since_1_8.add(StringConcatTest.class);
-	since_1_8.add(UseOfUnderscoreTest.class);
-	since_1_8.add(DubiousOutcomeTest.class);
-
-	ArrayList since_9 = new ArrayList();
-	since_9.add(Unicode9Test.class);
-	since_9.add(ModuleCompilationTests.class);
-	since_9.add(GenericsRegressionTest_9.class);
-	since_9.add(InterfaceMethodsTest_9.class);
-	since_9.add(Deprecated9Test.class);
-	since_9.add(ModuleAttributeTests.class);
-	since_9.add(AutomaticModuleNamingTest.class);
-	since_9.add(UnnamedModuleTest.class);
-	since_9.add(NullAnnotationTests9.class);
-	since_9.add(AnnotationTest_9.class);
-	since_9.add(JavadocTestForModule.class);
-	since_9.add(TryStatement9Test.class);
-
-	// add 10 specific test here (check duplicates)
-	ArrayList since_10 = new ArrayList();
-	since_10.add(JEP286Test.class);
-	since_10.add(Unicode10Test.class);
-
-	// add 11 specific test here (check duplicates)
-	ArrayList since_11 = new ArrayList();
-	 since_11.add(JEP323VarLambdaParamsTest.class);
-	 since_11.add(JEP181NestTest.class);
-	 since_11.add(BatchCompilerTest2.class);
-
-	// add 12 specific test here (check duplicates)
-	 ArrayList since_12 = new ArrayList();
-	 since_12.add(Unicode11Test.class);
-
-		// add 13 specific test here (check duplicates)
-	 ArrayList since_13 = new ArrayList();
-	 since_13.add(Unicode12_1Test.class);
-
-	 // add 14 specific test here (check duplicates)
-	 ArrayList since_14 = new ArrayList();
-	 since_14.add(SwitchExpressionsYieldTest.class);
-	 since_14.add(BatchCompilerTest_14.class);
-
-	 // add 15 specific test here (check duplicates)
-	 ArrayList since_15 = new ArrayList();
-	 since_15.add(ClassFileReaderTest_17.class);
-	 since_15.add(JavadocTest_15.class);
-	 since_15.add(Unicode13Test.class);
-	 since_15.add(BatchCompilerTest_15.class);
-	 since_15.add(TextBlockTest.class);
-	 since_15.add(ExternalizeStringLiteralsTest_15.class);
-
-	 // add 16 specific test here (check duplicates)
-	 ArrayList since_16 = new ArrayList();
-	 since_16.add(LocalEnumTest.class);
-	 since_16.add(LocalStaticsTest.class);
-	 since_16.add(PreviewFeatureTest.class);
-	 since_16.add(ValueBasedAnnotationTests.class);
-	 since_16.add(BatchCompilerTest_16.class);
-	 since_16.add(PatternMatching16Test.class);
-	 since_16.add(RecordsRestrictedClassTest.class);
-	 since_16.add(JavadocTestForRecord.class);
-	 since_16.add(JavadocTest_16.class);
-
-	 // add 17 specific test here (check duplicates)
-	 ArrayList since_17 = new ArrayList();
-	 since_17.add(SealedTypesTests.class);
-	 since_17.add(InstanceofPrimaryPatternTest.class);
-	 since_17.add(BatchCompilerTest_17.class);
-
-	 // add 18 specific test here (check duplicates)
-	 ArrayList since_18 = new ArrayList();
-	 since_18.add(JavadocTest_18.class);
-
-	 // add 21 specific test here (check duplicates)
-	 ArrayList since_21 = new ArrayList();
-	 since_21.add(SwitchPatternTest.class);
-	 since_21.add(RecordPatternTest.class);
-	 since_21.add(RecordPatternProjectTest.class);
-	 since_21.add(NullAnnotationTests21.class);
-	 since_21.add(BatchCompilerTest_21.class);
-	 since_21.add(JEP441SnippetsTest.class);
-
-
-	 // add 21 specific test here (check duplicates)
-	 ArrayList since_22 = new ArrayList();
-	 since_22.add(UnnamedPatternsAndVariablesTest.class);
-	 since_22.add(UseOfUnderscoreJava22Test.class);
-	 since_22.add(SwitchPatternTest22.class);
-
-	ArrayList since_23 = new ArrayList();
-	 since_23.add(MarkdownCommentsTest.class);
-
-	ArrayList since_25 = new ArrayList();
-	 since_25.add(ModuleImportTests.class);
-	 since_25.add(SuperAfterStatementsTest.class);
-	 since_25.add(ImplicitlyDeclaredClassesTest.class);
-	 since_25.add(PrimitiveInPatternsTest.class);
-	 since_25.add(PrimitiveInPatternsTestSH.class);
-	 since_25.add(PreviewFlagTest.class);
-
+	Class<?>[][] sinceTests = {
+		{ // 9
+			Unicode9Test.class,
+			ModuleCompilationTests.class,
+			GenericsRegressionTest_9.class,
+			InterfaceMethodsTest_9.class,
+			Deprecated9Test.class,
+			ModuleAttributeTests.class,
+			AutomaticModuleNamingTest.class,
+			UnnamedModuleTest.class,
+			NullAnnotationTests9.class,
+			AnnotationTest_9.class,
+			JavadocTestForModule.class,
+			TryStatement9Test.class,
+		},
+		{ // 10
+			JEP286Test.class,
+			Unicode10Test.class
+		},
+		{ // 11
+			JEP323VarLambdaParamsTest.class,
+			JEP181NestTest.class,
+			BatchCompilerTest2.class,
+		},
+		{ // 12
+			Unicode11Test.class,
+		},
+		{ // 13
+			Unicode12_1Test.class,
+		},
+		{ // 14
+			SwitchExpressionsYieldTest.class,
+			BatchCompilerTest_14.class,
+		},
+		{ // 15
+			ClassFileReaderTest_17.class,
+			JavadocTest_15.class,
+			Unicode13Test.class,
+			BatchCompilerTest_15.class,
+			TextBlockTest.class,
+			ExternalizeStringLiteralsTest_15.class,
+		},
+		{ // 16
+			LocalEnumTest.class,
+			LocalStaticsTest.class,
+			PreviewFeatureTest.class,
+			ValueBasedAnnotationTests.class,
+			BatchCompilerTest_16.class,
+			PatternMatching16Test.class,
+			RecordsRestrictedClassTest.class,
+			JavadocTestForRecord.class,
+			JavadocTest_16.class,
+		},
+		{ // 17
+			SealedTypesTests.class,
+			InstanceofPrimaryPatternTest.class,
+			BatchCompilerTest_17.class,
+		},
+		{ // 18
+			JavadocTest_18.class,
+		},
+		{ // 19
+			Unicode14Test.class,
+		},
+		{ // 20
+			Unicode15Test.class,
+		},
+		{ // 21
+			SwitchPatternTest.class,
+			RecordPatternTest.class,
+			RecordPatternProjectTest.class,
+			NullAnnotationTests21.class,
+			BatchCompilerTest_21.class,
+			JEP441SnippetsTest.class,
+		},
+		{ // 22
+			UnnamedPatternsAndVariablesTest.class,
+			UseOfUnderscoreJava22Test.class,
+			SwitchPatternTest22.class,
+			Unicode15_1Test.class,
+		},
+		{ // 23
+			MarkdownCommentsTest.class,
+		},
+		{ // 24
+			Unicode16Test.class,
+		},
+		{ // 25
+			ModuleImportTests.class,
+			SuperAfterStatementsTest.class,
+			ImplicitlyDeclaredClassesTest.class,
+		},
+		{ // 26
+			PreviewFlagTest.class,
+			PrimitiveInPatternsTest.class,
+			PrimitiveInPatternsTestSH.class,
+			Unicode17Test.class,
+		}
+	};
+	assert sinceTests.length == AbstractCompilerTest.NUM_VERSIONS - 1 : "sinceTests should be aligned with NUM_VERSIONS";
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
 	all.addTest(new TestSuite(HashtableOfObjectTest.class));
 	all.addTest(new TestSuite(JrtUtilTest.class));
+
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_8) != 0) {
-		ArrayList tests_1_8 = (ArrayList)standardTests.clone();
-		tests_1_8.add(Compliance_1_3.class);
-		tests_1_8.add(JavadocTest_1_3.class);
-		tests_1_8.add(Compliance_CLDC.class);
-		tests_1_8.add(Compliance_1_4.class);
-		tests_1_8.add(ClassFileReaderTest_1_4.class);
-		tests_1_8.add(JavadocTest_1_4.class);
-		tests_1_8.addAll(since_1_4);
-		tests_1_8.addAll(since_1_5);
-		tests_1_8.addAll(since_1_6);
-		tests_1_8.addAll(since_1_7);
-		tests_1_8.addAll(since_1_8);
-		TestCase.resetForgottenFilters(tests_1_8);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
+	for (int v=0; v < AbstractCompilerTest.NUM_VERSIONS; v++) {
+		int level = AbstractCompilerTest.F_1_8 << v;
+		if ((possibleComplianceLevels & level) != 0) {
+			ArrayList complianceTests = new ArrayList(standardTests);
+			if (level == AbstractCompilerTest.F_1_8) {
+				// invoke these only when 1.8 has been explicitly requested:
+				TestCase.resetForgottenFilters(legacyTests);
+				complianceTests.addAll(legacyTests);
+			}
+			for (int j=0; j<v; j++) {
+				List<Class<?>> jList = Arrays.asList(sinceTests[j]);
+				complianceTests.addAll(jList);
+			}
+			TestCase.resetForgottenFilters(complianceTests);
+			long complianceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_1_8+v);
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(complianceLevel, complianceTests));
+		}
 	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_9) != 0) {
-		ArrayList tests_9 = (ArrayList)standardTests.clone();
-		tests_9.addAll(since_1_4);
-		tests_9.addAll(since_1_5);
-		tests_9.addAll(since_1_6);
-		tests_9.addAll(since_1_7);
-		tests_9.addAll(since_1_8);
-		tests_9.addAll(since_9);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_9));
-	}
-
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_10) != 0) {
-		ArrayList tests_10 = (ArrayList)standardTests.clone();
-		tests_10.addAll(since_1_4);
-		tests_10.addAll(since_1_5);
-		tests_10.addAll(since_1_6);
-		tests_10.addAll(since_1_7);
-		tests_10.addAll(since_1_8);
-		tests_10.addAll(since_9);
-		tests_10.addAll(since_10);
-		TestCase.resetForgottenFilters(tests_10);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK10, tests_10));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_11) != 0) {
-		ArrayList tests_11 = (ArrayList)standardTests.clone();
-		tests_11.addAll(since_1_4);
-		tests_11.addAll(since_1_5);
-		tests_11.addAll(since_1_6);
-		tests_11.addAll(since_1_7);
-		tests_11.addAll(since_1_8);
-		tests_11.addAll(since_9);
-		tests_11.addAll(since_10);
-		tests_11.addAll(since_11);
-		TestCase.resetForgottenFilters(tests_11);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
-		ArrayList tests_12 = (ArrayList)standardTests.clone();
-		tests_12.addAll(since_1_4);
-		tests_12.addAll(since_1_5);
-		tests_12.addAll(since_1_6);
-		tests_12.addAll(since_1_7);
-		tests_12.addAll(since_1_8);
-		tests_12.addAll(since_9);
-		tests_12.addAll(since_10);
-		tests_12.addAll(since_11);
-		tests_12.addAll(since_12);
-		TestCase.resetForgottenFilters(tests_12);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_13) != 0) {
-		ArrayList tests_13 = (ArrayList)standardTests.clone();
-		tests_13.addAll(since_1_4);
-		tests_13.addAll(since_1_5);
-		tests_13.addAll(since_1_6);
-		tests_13.addAll(since_1_7);
-		tests_13.addAll(since_1_8);
-		tests_13.addAll(since_9);
-		tests_13.addAll(since_10);
-		tests_13.addAll(since_11);
-		tests_13.addAll(since_12);
-		tests_13.addAll(since_13);
-		TestCase.resetForgottenFilters(tests_13);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13), tests_13));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_14) != 0) {
-		ArrayList tests_14 = (ArrayList)standardTests.clone();
-		tests_14.addAll(since_1_4);
-		tests_14.addAll(since_1_5);
-		tests_14.addAll(since_1_6);
-		tests_14.addAll(since_1_7);
-		tests_14.addAll(since_1_8);
-		tests_14.addAll(since_9);
-		tests_14.addAll(since_10);
-		tests_14.addAll(since_11);
-		tests_14.addAll(since_12);
-		tests_14.addAll(since_13);
-		tests_14.addAll(since_14);
-		TestCase.resetForgottenFilters(tests_14);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14), tests_14));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_15) != 0) {
-		ArrayList tests_15 = (ArrayList)standardTests.clone();
-		tests_15.addAll(since_1_4);
-		tests_15.addAll(since_1_5);
-		tests_15.addAll(since_1_6);
-		tests_15.addAll(since_1_7);
-		tests_15.addAll(since_1_8);
-		tests_15.addAll(since_9);
-		tests_15.addAll(since_10);
-		tests_15.addAll(since_11);
-		tests_15.addAll(since_12);
-		tests_15.addAll(since_13);
-		tests_15.addAll(since_14);
-		tests_15.addAll(since_15);
-		TestCase.resetForgottenFilters(tests_15);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15), tests_15));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_16) != 0) {
-		ArrayList tests_16 = (ArrayList)standardTests.clone();
-		tests_16.addAll(since_1_4);
-		tests_16.addAll(since_1_5);
-		tests_16.addAll(since_1_6);
-		tests_16.addAll(since_1_7);
-		tests_16.addAll(since_1_8);
-		tests_16.addAll(since_9);
-		tests_16.addAll(since_10);
-		tests_16.addAll(since_11);
-		tests_16.addAll(since_12);
-		tests_16.addAll(since_13);
-		tests_16.addAll(since_14);
-		tests_16.addAll(since_15);
-		tests_16.addAll(since_16);
-		TestCase.resetForgottenFilters(tests_16);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_16), tests_16));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_17) != 0) {
-		ArrayList tests_17 = (ArrayList)standardTests.clone();
-		tests_17.addAll(since_1_4);
-		tests_17.addAll(since_1_5);
-		tests_17.addAll(since_1_6);
-		tests_17.addAll(since_1_7);
-		tests_17.addAll(since_1_8);
-		tests_17.addAll(since_9);
-		tests_17.addAll(since_10);
-		tests_17.addAll(since_11);
-		tests_17.addAll(since_12);
-		tests_17.addAll(since_13);
-		tests_17.addAll(since_14);
-		tests_17.addAll(since_15);
-		tests_17.addAll(since_16);
-		tests_17.addAll(since_17);
-		TestCase.resetForgottenFilters(tests_17);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_17), tests_17));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_18) != 0) {
-		ArrayList tests_18 = (ArrayList)standardTests.clone();
-		tests_18.addAll(since_1_4);
-		tests_18.addAll(since_1_5);
-		tests_18.addAll(since_1_6);
-		tests_18.addAll(since_1_7);
-		tests_18.addAll(since_1_8);
-		tests_18.addAll(since_9);
-		tests_18.addAll(since_10);
-		tests_18.addAll(since_11);
-		tests_18.addAll(since_12);
-		tests_18.addAll(since_13);
-		tests_18.addAll(since_14);
-		tests_18.addAll(since_15);
-		tests_18.addAll(since_16);
-		tests_18.addAll(since_17);
-		tests_18.addAll(since_18);
-		TestCase.resetForgottenFilters(tests_18);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18), tests_18));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_19) != 0) {
-		ArrayList tests_19 = (ArrayList)standardTests.clone();
-		tests_19.addAll(since_1_4);
-		tests_19.addAll(since_1_5);
-		tests_19.addAll(since_1_6);
-		tests_19.addAll(since_1_7);
-		tests_19.addAll(since_1_8);
-		tests_19.addAll(since_9);
-		tests_19.addAll(since_10);
-		tests_19.addAll(since_11);
-		tests_19.addAll(since_12);
-		tests_19.addAll(since_13);
-		tests_19.addAll(since_14);
-		tests_19.addAll(since_15);
-		tests_19.addAll(since_16);
-		tests_19.addAll(since_17);
-		tests_19.addAll(since_18);
-		TestCase.resetForgottenFilters(tests_19);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_19), tests_19));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_20) != 0) {
-		ArrayList tests_20 = (ArrayList)standardTests.clone();
-		tests_20.addAll(since_1_4);
-		tests_20.addAll(since_1_5);
-		tests_20.addAll(since_1_6);
-		tests_20.addAll(since_1_7);
-		tests_20.addAll(since_1_8);
-		tests_20.addAll(since_9);
-		tests_20.addAll(since_10);
-		tests_20.addAll(since_11);
-		tests_20.addAll(since_12);
-		tests_20.addAll(since_13);
-		tests_20.addAll(since_14);
-		tests_20.addAll(since_15);
-		tests_20.addAll(since_16);
-		tests_20.addAll(since_17);
-		tests_20.addAll(since_18);
-		TestCase.resetForgottenFilters(tests_20);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_20), tests_20));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_21) != 0) {
-		ArrayList tests_21 = (ArrayList)standardTests.clone();
-		tests_21.addAll(since_1_4);
-		tests_21.addAll(since_1_5);
-		tests_21.addAll(since_1_6);
-		tests_21.addAll(since_1_7);
-		tests_21.addAll(since_1_8);
-		tests_21.addAll(since_9);
-		tests_21.addAll(since_10);
-		tests_21.addAll(since_11);
-		tests_21.addAll(since_12);
-		tests_21.addAll(since_13);
-		tests_21.addAll(since_14);
-		tests_21.addAll(since_15);
-		tests_21.addAll(since_16);
-		tests_21.addAll(since_17);
-		tests_21.addAll(since_18);
-		tests_21.addAll(since_21);
-		TestCase.resetForgottenFilters(tests_21);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_21), tests_21));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_22) != 0) {
-		ArrayList tests_22 = (ArrayList)standardTests.clone();
-		tests_22.addAll(since_1_4);
-		tests_22.addAll(since_1_5);
-		tests_22.addAll(since_1_6);
-		tests_22.addAll(since_1_7);
-		tests_22.addAll(since_1_8);
-		tests_22.addAll(since_9);
-		tests_22.addAll(since_10);
-		tests_22.addAll(since_11);
-		tests_22.addAll(since_12);
-		tests_22.addAll(since_13);
-		tests_22.addAll(since_14);
-		tests_22.addAll(since_15);
-		tests_22.addAll(since_16);
-		tests_22.addAll(since_17);
-		tests_22.addAll(since_18);
-		tests_22.addAll(since_21);
-		tests_22.addAll(since_22);
-		TestCase.resetForgottenFilters(tests_22);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_22), tests_22));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_23) != 0) {
-		ArrayList tests_23 = (ArrayList)standardTests.clone();
-		tests_23.addAll(since_1_4);
-		tests_23.addAll(since_1_5);
-		tests_23.addAll(since_1_6);
-		tests_23.addAll(since_1_7);
-		tests_23.addAll(since_1_8);
-		tests_23.addAll(since_9);
-		tests_23.addAll(since_10);
-		tests_23.addAll(since_11);
-		tests_23.addAll(since_12);
-		tests_23.addAll(since_13);
-		tests_23.addAll(since_14);
-		tests_23.addAll(since_15);
-		tests_23.addAll(since_16);
-		tests_23.addAll(since_17);
-		tests_23.addAll(since_18);
-		tests_23.addAll(since_21);
-		tests_23.addAll(since_22);
-		tests_23.addAll(since_23);
-		TestCase.resetForgottenFilters(tests_23);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_24) != 0) {
-		ArrayList tests_24 = (ArrayList)standardTests.clone();
-		tests_24.addAll(since_1_4);
-		tests_24.addAll(since_1_5);
-		tests_24.addAll(since_1_6);
-		tests_24.addAll(since_1_7);
-		tests_24.addAll(since_1_8);
-		tests_24.addAll(since_9);
-		tests_24.addAll(since_10);
-		tests_24.addAll(since_11);
-		tests_24.addAll(since_12);
-		tests_24.addAll(since_13);
-		tests_24.addAll(since_14);
-		tests_24.addAll(since_15);
-		tests_24.addAll(since_16);
-		tests_24.addAll(since_17);
-		tests_24.addAll(since_18);
-		tests_24.addAll(since_21);
-		tests_24.addAll(since_22);
-		tests_24.addAll(since_23);
-		TestCase.resetForgottenFilters(tests_24);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
-	}
-
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_25) != 0) {
-		ArrayList tests_25 = (ArrayList)standardTests.clone();
-		tests_25.addAll(since_1_4);
-		tests_25.addAll(since_1_5);
-		tests_25.addAll(since_1_6);
-		tests_25.addAll(since_1_7);
-		tests_25.addAll(since_1_8);
-		tests_25.addAll(since_9);
-		tests_25.addAll(since_10);
-		tests_25.addAll(since_11);
-		tests_25.addAll(since_12);
-		tests_25.addAll(since_13);
-		tests_25.addAll(since_14);
-		tests_25.addAll(since_15);
-		tests_25.addAll(since_16);
-		tests_25.addAll(since_17);
-		tests_25.addAll(since_18);
-		tests_25.addAll(since_21);
-		tests_25.addAll(since_22);
-		tests_25.addAll(since_23);
-		tests_25.addAll(since_25);
-		TestCase.resetForgottenFilters(tests_25);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_25), tests_25));
-	}
-
 
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
