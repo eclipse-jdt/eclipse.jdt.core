@@ -321,7 +321,7 @@ public class SwitchStatement extends Expression {
 				this.scope.problemReporter().patternDominatedByAnother(pattern);
 			} else {
 				for (int i = 0; i < this.labelExpressionIndex; i++) {
-					if (this.labelExpressions[i].expression instanceof Pattern priorPattern && priorPattern.dominates(pattern)) {
+					if (this.labelExpressions[i].expression instanceof Pattern priorPattern && priorPattern.dominates(pattern, this.scope)) {
 						this.scope.problemReporter().patternDominatedByAnother(pattern);
 						break;
 					}
@@ -334,9 +334,16 @@ public class SwitchStatement extends Expression {
 			} else {
 				TypeBinding boxedType = labelExpression.type.isBaseType() ? this.scope.environment().computeBoxingType(labelExpression.type) : labelExpression.type;
 				for (int i = 0; i < this.labelExpressionIndex; i++) {
-					if (this.labelExpressions[i].expression instanceof Pattern priorPattern && priorPattern.coversType(boxedType, this.scope)) {
-						this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
-						break;
+					if (this.labelExpressions[i].expression instanceof Pattern priorPattern) {
+						if (priorPattern.coversType(boxedType, this.scope)) {
+							this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+							break;
+						}
+						Constant cst = labelExpression.expression.constant;
+						if (cst != null && cst != Constant.NotAConstant && priorPattern.coversValue(cst, this.scope)) {
+							this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+							break;
+						}
 					}
 				}
 			}

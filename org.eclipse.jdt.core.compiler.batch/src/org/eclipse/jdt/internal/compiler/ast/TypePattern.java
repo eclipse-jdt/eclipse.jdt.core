@@ -186,13 +186,16 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 	}
 
 	@Override
-	public boolean dominates(Pattern p) {
+	public boolean dominates(Pattern p, Scope scope) {
 		if (!isUnguarded())
 			return false;
 		if (p.resolvedType == null || this.resolvedType == null)
 			return false;
 
 		if (p.resolvedType.isSubtypeOf(this.resolvedType, false))
+			return true;
+
+		if (this.getEnclosingPattern() == null && isUnconditional(this.outerExpressionType, scope))
 			return true;
 
 		return p.resolvedType.erasure().findSuperTypeOriginatingFrom(this.resolvedType.erasure()) != null;

@@ -208,7 +208,7 @@ public class DOMASTUtil {
 			JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_8, JavaCore.VERSION_9, JavaCore.VERSION_10,
 			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17, JavaCore.VERSION_18,
 			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21, JavaCore.VERSION_22, JavaCore.VERSION_23, JavaCore.VERSION_24,
-			JavaCore.VERSION_25};
+			JavaCore.VERSION_25, JavaCore.VERSION_26};
 
 	/**
 	 * Calculates the JavaCore Option value string corresponding to the input ast level.
