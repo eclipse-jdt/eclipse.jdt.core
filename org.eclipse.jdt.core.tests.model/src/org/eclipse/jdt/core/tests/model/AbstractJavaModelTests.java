@@ -2472,6 +2472,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			project.open(null);
 		}
 		deleteResource(project);
+		waitForSnapShot();
 	}
 	protected void deleteProject(IJavaProject project) throws CoreException {
 		if (project.exists() && !project.isOpen()) { // force opening so that project can be deleted without logging (see bug 23629)
@@ -4215,19 +4216,32 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected static void logDeltaEvent(IResourceChangeEvent event) {
+		StringBuilder s = new StringBuilder();
+		s.append("Logging resource change event");
+		s.append(System.lineSeparator());
+		s.append("type: ");
+		s.append(event.getType());
+		s.append(System.lineSeparator());
+		s.append("buildKind: ");
+		s.append(event.getBuildKind());
+		s.append(System.lineSeparator());
+		s.append("resource: ");
+		s.append(event.getResource());
+		s.append(System.lineSeparator());
+		s.append("source: " );
+		s.append(event.getSource());
 		IResourceDelta delta = event.getDelta();
 		if (delta != null) {
-			StringBuilder s = new StringBuilder();
-			s.append("Logging resource delta");
 			s.append(System.lineSeparator());
+			s.append("Delta:");
 			IResourceDeltaVisitor visitor = new IResourceDeltaVisitor() {
 				@Override
 				public boolean visit(IResourceDelta d) throws CoreException {
+					s.append(System.lineSeparator());
 					s.append("\tkind: ");
 					s.append(d.getKind());
 					s.append(", resource: ");
 					s.append(d.getResource());
-					s.append(System.lineSeparator());
 					return true;
 				}
 			};
@@ -4240,12 +4254,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 
-	private static void logError(String errorMessage, CoreException e) {
+	protected static void logError(String errorMessage, CoreException e) {
 		logInfo(errorMessage);
 		e.printStackTrace(System.out);
 	}
 
-	private static void logInfo(String message) {
+	protected static void logInfo(String message) {
 		System.out.println(new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + " " + message);
 	}
 }
