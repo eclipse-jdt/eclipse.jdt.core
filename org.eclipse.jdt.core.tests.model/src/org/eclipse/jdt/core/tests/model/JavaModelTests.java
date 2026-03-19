@@ -21,7 +21,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -59,7 +58,7 @@ private boolean wasVerbose;
 
 @Override
 protected void setUp() throws Exception {
-	ResourcesPlugin.getWorkspace().addResourceChangeListener(LOG_RESOURCE_DELTA);
+	JavaCore.addPreProcessingResourceChangedListener(LOG_RESOURCE_DELTA, 255 /* all types */);
 	this.wasVerbose = JavaModelManager.VERBOSE;
 	JavaModelManager.VERBOSE = true;
 	super.setUp();
@@ -69,7 +68,7 @@ protected void setUp() throws Exception {
 protected void tearDown() throws Exception {
 	super.tearDown();
 	JavaModelManager.VERBOSE = this.wasVerbose;
-	ResourcesPlugin.getWorkspace().removeResourceChangeListener(LOG_RESOURCE_DELTA);
+	JavaCore.removePreProcessingResourceChangedListener(LOG_RESOURCE_DELTA);
 }
 
 public JavaModelTests(String name) {
