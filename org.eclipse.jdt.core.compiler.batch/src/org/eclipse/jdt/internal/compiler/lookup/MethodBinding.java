@@ -1437,21 +1437,10 @@ public boolean hasPolymorphicSignature(Scope scope) {
 	if ((this.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
 		return true;
 	}
-	if (this.isNative()	&& this.isVarargs() && this.parameters.length == 1) {
-		/*
-		 *  here type will be arrayType we will come here only if the method is of type
-		 *  varargs(represented by arraytype) and with only one parameter.
-		 */
-		if (this.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject) {
-			ReferenceBinding declaringClassLocal = this.declaringClass;
-			if ((declaringClassLocal != null) && (declaringClassLocal.id == scope.getJavaLangInvokeMethodHandle().id
-					|| declaringClassLocal.id == scope.getJavaLangInvokeVarHandle().id)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return this.isNative() && this.isVarargs() && this.parameters.length == 1 &&
+			this.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject &&
+				(TypeBinding.equalsEquals(this.declaringClass, scope.getJavaLangInvokeMethodHandle())
+						|| TypeBinding.equalsEquals(this.declaringClass, scope.getJavaLangInvokeVarHandle()));
 }
 public boolean isClosingMethod() {
 	boolean isCloseMethod = CharOperation.equals(this.selector, TypeConstants.CLOSE) && this.parameters == NO_PARAMETERS;  // close()

@@ -465,6 +465,28 @@ public void testIssue147() throws Exception {
 	String expectedOutput = "java.lang.invoke.MethodHandle.invoke(java.lang.Object)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4955
+// native varargs Object... on user-defined class must NOT be treated as polymorphic
+public void testGH4955() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static native void debug(Object... args);\n" +
+			"    public static void main(String[] args) {\n" +
+			"        debug(\"hello\");\n" +
+			"        debug(\"hello\", 42);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\"",
+		"",
+		"",
+		true);
+	// Verify that calls to native varargs use Object[] descriptor, not direct argument types
+	String expectedOutput = "invokestatic X.debug(java.lang.Object[])";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 public void testGH4744() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK21) {
 		return;
