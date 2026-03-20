@@ -2074,6 +2074,68 @@ public void testIssue4864() {
 	});
 }
 
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4957Eclipse
+ * 2026-03 compiles fine but Java does not: unchecked conversion with Comparator.comparing + raw Comparable
+ */
+public void testGH4957() {
+	this.runNegativeTest(
+			new String[] {
+				"Snippet.java",
+				"import java.util.Comparator;\n"
+				+ "import java.util.Map;\n"
+				+ "\n"
+				+ "public class Snippet {\n"
+				+ "\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "\n"
+				+ "        Comparator<Map<String, Object>> eventComparator = Comparator\n"
+				+ "            .<Map<String, Object>, Comparable>comparing(e -> (Comparable) e.get(\"event_date\"),\n"
+				+ "                Comparator.nullsLast(Comparator.naturalOrder()))\n"
+				+ "            .thenComparing(e -> (String) e.get(\"event_type\"));\n"
+				+ "    }\n"
+				+ "\n"
+				+ "}",
+			},
+			// related to https://docs.oracle.com/javase/specs/jls/se21/html/jls-15.html#jls-15.12.2.6
+			// Eclipse was incorrectly accepting this without warnings/errors;
+		    // javac reports unchecked conversion because raw Comparable is used
+		    // and the resulting Comparator is a raw Comparator (not Comparator<Map<String,Object>>),
+		    // causing thenComparing to operate on raw type Object.
+			"----------\n" +
+			"1. WARNING in Snippet.java (at line 8)\n" +
+			"	Comparator<Map<String, Object>> eventComparator = Comparator\n" +
+			"            .<Map<String, Object>, Comparable>comparing(e -> (Comparable) e.get(\"event_date\"),\n" +
+			"                Comparator.nullsLast(Comparator.naturalOrder()))\n" +
+			"            .thenComparing(e -> (String) e.get(\"event_type\"));\n" +
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: The method thenComparing(Function) belongs to the raw type Comparator. References to generic type Comparator<T> should be parameterized\n" +
+			"----------\n" +
+			"2. WARNING in Snippet.java (at line 8)\n" +
+			"	Comparator<Map<String, Object>> eventComparator = Comparator\n" +
+			"            .<Map<String, Object>, Comparable>comparing(e -> (Comparable) e.get(\"event_date\"),\n" +
+			"                Comparator.nullsLast(Comparator.naturalOrder()))\n" +
+			"            .thenComparing(e -> (String) e.get(\"event_type\"));\n" +
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<Map<String,Object>>\n" +
+			"----------\n" +
+			"3. WARNING in Snippet.java (at line 9)\n" +
+			"	.<Map<String, Object>, Comparable>comparing(e -> (Comparable) e.get(\"event_date\"),\n" +
+			"	                       ^^^^^^^^^^\n" +
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" +
+			"----------\n" +
+			"4. WARNING in Snippet.java (at line 9)\n" +
+			"	.<Map<String, Object>, Comparable>comparing(e -> (Comparable) e.get(\"event_date\"),\n" +
+			"	                                                  ^^^^^^^^^^\n" +
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" +
+			"----------\n" +
+			"5. ERROR in Snippet.java (at line 11)\n" +
+			"	.thenComparing(e -> (String) e.get(\"event_type\"));\n" +
+			"	                               ^^^\n" +
+			"The method get(String) is undefined for the type Object\n" +
+			"----------\n");
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }

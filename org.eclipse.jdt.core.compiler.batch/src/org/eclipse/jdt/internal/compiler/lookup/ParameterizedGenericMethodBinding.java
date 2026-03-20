@@ -26,6 +26,7 @@
  *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *								Bug 446442 - [1.8] merge null annotations from super methods
  *								Bug 457079 - Regression: type inference
+ *     Christoph Rueger         GH4957     - ECJ compiles fine but Java does not: unchecked conversion
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -75,8 +76,17 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			        // incompatible due to wrong arity
 			        return new ProblemMethodBinding(originalMethod, originalMethod.selector, substitutes, ProblemReasons.TypeParameterArityMismatch);
 				}
-				methodSubstitute = environment.createParameterizedGenericMethod(originalMethod, substitutes);
-				break computeSubstitutes;
+				// JLS 15.12.2.6: Check if any explicit type argument is raw.
+				boolean usesUncheckedConversion = false;
+				for (int i = 0; i < typeVariables.length; i++) {
+					if (substitutes[i].isRawType()) {
+						usesUncheckedConversion = true;
+						break;
+					}
+				}
+				methodSubstitute = environment.createParameterizedGenericMethod(originalMethod, substitutes,
+						usesUncheckedConversion, false, null);
+			    break computeSubstitutes;
 			}
 			// perform type argument inference (15.12.2.7)
 			// initializes the map of substitutes (var --> type[][]{ equal, extends, super}
