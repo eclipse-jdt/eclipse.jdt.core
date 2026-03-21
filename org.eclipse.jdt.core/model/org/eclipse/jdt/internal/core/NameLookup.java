@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -99,6 +100,14 @@ public class NameLookup implements SuffixConstants {
 			if (this.restriction == null) return true;
 			return otherAnswer.restriction != null
 				&& this.restriction.getProblemId() < otherAnswer.restriction.getProblemId();
+		}
+		/**
+		 * Returns whether the type in this answer is forbidden/non-accessible
+		 * according to access rules.
+		 * See: {@link IProblem#ForbiddenReference}, {@link org.eclipse.jdt.core.IAccessRule#K_NON_ACCESSIBLE}
+		 */
+		public boolean isNonAccessible() {
+			return this.restriction != null && this.restriction.getProblemId() == IProblem.ForbiddenReference;
 		}
 		@Override
 		public String toString() {
