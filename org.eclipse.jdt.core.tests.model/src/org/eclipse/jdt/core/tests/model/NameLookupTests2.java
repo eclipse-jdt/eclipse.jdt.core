@@ -425,5 +425,41 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 		deleteProject("P");
 	}
 }
+/**
+ * Test for: {@link org.eclipse.jdt.internal.core.NameLookup.Answer#isNonAccessible()}
+ */
+public void testNonAccessibleAccessAnswer() throws Exception {
+	try {
+		JavaProject project = (JavaProject)createJavaProject("P");
+		addLibrary(
+				project, "lib.jar", "libsrc.zip",
+				new String[] {
+					"p/A.java",
+					"""
+					package p;
+					public class A {}
+					""",
+				},
+				null,
+				null,
+				new String[] {"**/*"}, // all types in the jar should be inaccessible for this test
+				CompilerOptions.getFirstSupportedJavaVersion(),
+				null);
+		waitForAutoBuild();
+
+		NameLookup.Answer answer = getNameLookup(project).findType(
+				"p.A",
+				false /* no partial matches */,
+				NameLookup.ACCEPT_ALL,
+				false /* no secondary types */,
+				true /* wait for indexer */,
+				true /* check restrictions */,
+				null);
+		assertNotNull("Expected to find type", answer);
+		assertTrue("Expected type to be non-accessible", answer.isNonAccessible());
+	} finally {
+		deleteProject("P");
+	}
+}
 }
 
