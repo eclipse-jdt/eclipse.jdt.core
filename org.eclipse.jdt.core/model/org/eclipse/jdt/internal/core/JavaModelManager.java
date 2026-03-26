@@ -329,6 +329,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static final String CONTAINER_INITIALIZER_PERF = JavaCore.PLUGIN_ID + "/perf/containerinitializer" ; //$NON-NLS-1$
 	public static final String RECONCILE_PERF = JavaCore.PLUGIN_ID + "/perf/reconcile" ; //$NON-NLS-1$
 
+	public static final String DISABLE_RESTRICTED_FILE_INDEXING_PREFERENCE = "disableRestrictedFileIndexing" ; //$NON-NLS-1$
+
 	public static boolean PERF_VARIABLE_INITIALIZER = false;
 	public static boolean PERF_CONTAINER_INITIALIZER = false;
 	// Non-static, which will give it a chance to retain the default when and if JavaModelManager is restarted.
@@ -348,6 +350,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
+
+	private static volatile boolean disableRestrictedFileIndexing;
 
 	static final Object[][] NO_PARTICIPANTS = new Object[0][];
 
@@ -1762,7 +1766,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					UserLibraryManager manager = JavaModelManager.getUserLibraryManager();
 	        		manager.updateUserLibrary(libName, (String)event.getNewValue());
 	        	}
-	        }
+	        } else if (propertyName.equals(DISABLE_RESTRICTED_FILE_INDEXING_PREFERENCE)) {
+				setDisableRestrictedFileIndexing();
+			}
         	// Reset all project caches (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568 )
         	try {
         		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
@@ -3396,6 +3402,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		};
 		((IEclipsePreferences) this.preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(this.defaultNodeListener);
+
+		setDisableRestrictedFileIndexing();
 	}
 
 	void touchProjectsAsync(final IProject[] projectsToTouch) throws JavaModelException {
@@ -5731,5 +5739,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} finally {
 			getJavaModelManager().flushZipFiles(instance);
 		}
+	}
+
+	private static void setDisableRestrictedFileIndexing() {
+		disableRestrictedFileIndexing =  Platform.getPreferencesService().getBoolean(
+				JavaCore.PLUGIN_ID, DISABLE_RESTRICTED_FILE_INDEXING_PREFERENCE, false, null);
+	}
+
+	public static boolean disableRestrictedFileIndexing() {
+		return disableRestrictedFileIndexing;
 	}
 }
