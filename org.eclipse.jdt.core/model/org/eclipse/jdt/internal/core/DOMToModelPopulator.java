@@ -849,23 +849,23 @@ public class DOMToModelPopulator extends ASTVisitor {
 	private record ValueRadix(String val, Integer radix) {}
 	private ValueRadix numberToStringRadix(String s) {
 		// 1. Remove underscores
-		s = s.replace("_", "");
+		s = s.replace("_", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// 2. Remove long suffix
-		if (s.endsWith("l") || s.endsWith("L")) {
+		if (s.endsWith("l") || s.endsWith("L")) {//$NON-NLS-1$ //$NON-NLS-2$
 		    s = s.substring(0, s.length() - 1);
 		}
 
 		int radix = 10;
 
 		// 3. Detect radix
-		if (s.startsWith("0x") || s.startsWith("0X")) {
+		if (s.startsWith("0x") || s.startsWith("0X")) {//$NON-NLS-1$ //$NON-NLS-2$
 		    radix = 16;
 		    s = s.substring(2);
-		} else if (s.startsWith("0b") || s.startsWith("0B")) {
+		} else if (s.startsWith("0b") || s.startsWith("0B")) {//$NON-NLS-1$ //$NON-NLS-2$
 		    radix = 2;
 		    s = s.substring(2);
-		} else if (s.startsWith("0") && s.length() > 1) {
+		} else if (s.startsWith("0") && s.length() > 1) {//$NON-NLS-1$
 		    radix = 8;
 		    s = s.substring(1);
 		}
