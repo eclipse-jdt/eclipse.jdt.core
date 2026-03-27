@@ -803,6 +803,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 				value = token.substring(0, token.length() - 1);
 			}
 			if (value instanceof String valueString) {
+				ValueRadix valueRadix = null;
 				// I tried using `yield`, but this caused ECJ to throw an AIOOB, preventing compilation
 				switch (type) {
 					case IMemberValuePair.K_INT: {
@@ -810,13 +811,23 @@ public class DOMToModelPopulator extends ASTVisitor {
 							value =  Integer.parseInt(valueString);
 						} catch (NumberFormatException e) {
 							type = IMemberValuePair.K_LONG;
-							value = Long.parseLong(valueString);
+							valueRadix = numberToStringRadix(valueString);
+							value = Long.parseLong(valueRadix.val, valueRadix.radix);
 						}
 						break;
 					}
-					case IMemberValuePair.K_LONG: value = Long.parseLong(valueString); break;
-					case IMemberValuePair.K_SHORT: value = Short.parseShort(valueString); break;
-					case IMemberValuePair.K_BYTE: value = Byte.parseByte(valueString); break;
+					case IMemberValuePair.K_LONG:
+						valueRadix = numberToStringRadix(valueString);
+						value = Long.parseLong(valueRadix.val, valueRadix.radix);
+						break;
+					case IMemberValuePair.K_SHORT:
+						valueRadix = numberToStringRadix(valueString);
+						value = Short.parseShort(valueRadix.val, valueRadix.radix);
+						break;
+					case IMemberValuePair.K_BYTE:
+						valueRadix = numberToStringRadix(valueString);
+						value = Byte.parseByte(valueRadix.val, valueRadix.radix);
+						break;
 					case IMemberValuePair.K_FLOAT: value = Float.parseFloat(valueString); break;
 					case IMemberValuePair.K_DOUBLE: value = Double.parseDouble(valueString); break;
 					default: throw new IllegalArgumentException("Type not (yet?) supported"); //$NON-NLS-1$
@@ -833,6 +844,32 @@ public class DOMToModelPopulator extends ASTVisitor {
 			return new SimpleEntry<>(prefixExpression.getOperator().toString() + entry.getKey(), entry.getValue());
 		}
 		return new SimpleEntry<>(null, IMemberValuePair.K_UNKNOWN);
+	}
+
+	private record ValueRadix(String val, Integer radix) {}
+	private ValueRadix numberToStringRadix(String s) {
+		// 1. Remove underscores
+		s = s.replace("_", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+		// 2. Remove long suffix
+		if (s.endsWith("l") || s.endsWith("L")) {//$NON-NLS-1$ //$NON-NLS-2$
+		    s = s.substring(0, s.length() - 1);
+		}
+
+		int radix = 10;
+
+		// 3. Detect radix
+		if (s.startsWith("0x") || s.startsWith("0X")) {//$NON-NLS-1$ //$NON-NLS-2$
+		    radix = 16;
+		    s = s.substring(2);
+		} else if (s.startsWith("0b") || s.startsWith("0B")) {//$NON-NLS-1$ //$NON-NLS-2$
+		    radix = 2;
+		    s = s.substring(2);
+		} else if (s.startsWith("0") && s.length() > 1) {//$NON-NLS-1$
+		    radix = 8;
+		    s = s.substring(1);
+		}
+		return new ValueRadix(s, radix);
 	}
 
 	private int toAnnotationValuePairType(String token) {
