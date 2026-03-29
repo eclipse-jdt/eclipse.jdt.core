@@ -54,7 +54,7 @@ public class BufferManager {
 protected void addBuffer(IBuffer buffer) {
 	if (VERBOSE) {
 		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
-		System.out.println("Adding buffer for " + owner); //$NON-NLS-1$
+		JavaModelManager.trace("Adding buffer for " + owner); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
 		this.openBuffers.put(buffer.getOwner(), buffer);
@@ -62,7 +62,7 @@ protected void addBuffer(IBuffer buffer) {
 	// close buffers that were removed from the cache if space was needed
 	this.openBuffers.closeBuffers();
 	if (VERBOSE) {
-		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		JavaModelManager.trace("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 public static IBuffer createBuffer(IOpenable owner) {
@@ -134,7 +134,7 @@ public Enumeration<IBuffer> getOpenBuffers() {
 protected void removeBuffer(IBuffer buffer) {
 	if (VERBOSE) {
 		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
-		System.out.println("Removing buffer for " + owner); //$NON-NLS-1$
+		JavaModelManager.trace("Removing buffer for " + owner); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
 		this.openBuffers.remove(buffer.getOwner());
@@ -142,7 +142,7 @@ protected void removeBuffer(IBuffer buffer) {
 	// close buffers that were removed from the cache (should be only one)
 	this.openBuffers.closeBuffers();
 	if (VERBOSE) {
-		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		JavaModelManager.trace("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 }
