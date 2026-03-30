@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -53,7 +57,8 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_24  = 0x200000;
 	public static final int F_25  = 0x400000;
 	public static final int F_26  = 0x800000;
-	public static final int NUM_VERSIONS = 19;
+	public static final int F_27  = 0x1000000;
+	public static final int NUM_VERSIONS = 20;
 	/** Should be adopted if {@link CompilerOptions#getFirstSupportedJdkLevel()} changes */
 	public static final int FIRST_SUPPORTED_JAVA_VERSION = F_1_8;
 
@@ -89,6 +94,7 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE24Plus = false;
 	protected static boolean isJRE25Plus = false;
 	protected static boolean isJRE26Plus = false;
+	protected static boolean isJRE27Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
@@ -111,6 +117,7 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_24, ClassFileConstants.MAJOR_VERSION_24},
 		new int[] {F_25, ClassFileConstants.MAJOR_VERSION_25},
 		new int[] {F_26, ClassFileConstants.MAJOR_VERSION_26},
+		new int[] {F_27, ClassFileConstants.MAJOR_VERSION_27},
 	};
 
 	/**
@@ -355,7 +362,8 @@ public class AbstractCompilerTest extends TestCase {
 			if (spec > Integer.parseInt(CompilerOptions.getLatestVersion())) {
 				specVersion = CompilerOptions.getLatestVersion();
 			}
-			isJRE26Plus = CompilerOptions.VERSION_26.equals(specVersion);
+			isJRE27Plus = CompilerOptions.VERSION_27.equals(specVersion);
+			isJRE26Plus = isJRE27Plus || CompilerOptions.VERSION_26.equals(specVersion);
 			isJRE25Plus = isJRE26Plus || CompilerOptions.VERSION_25.equals(specVersion);
 			isJRE24Plus = isJRE25Plus || CompilerOptions.VERSION_24.equals(specVersion);
 			isJRE23Plus = isJRE24Plus || CompilerOptions.VERSION_23.equals(specVersion);
