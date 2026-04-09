@@ -1232,7 +1232,25 @@ public class InferenceContext18 {
 											}
 										}
 									}
-									tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME), this.environment);
+									boolean addBound = true;
+									if (toResolveSet.contains(variable) && !variable.typeParameter.isRawType()) {
+										boolean add = false;
+										if (this.currentInvocation instanceof MessageSend messageSend) {
+											add = shouldAddBound(messageSend);
+										}
+										if (add && glb.equals(this.object)
+												&& !variable.typeParameter.isWildcard()) {
+											for (TypeBound bound : tmpBoundSet.flatten()) {
+												if (bound.left.equals(variable) && !bound.right.isTypeVariable()) {
+													addBound = false;
+													break;
+												}
+											}
+										}
+									}
+									if (addBound) {
+										tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME), this.environment);
+									}
 								}
 							}
 							toResolveSet.remove(variable);
@@ -1359,6 +1377,44 @@ public class InferenceContext18 {
 			}
 		}
 		return tmpBoundSet;
+	}
+
+	private boolean shouldAddBound(MessageSend messageSend) {
+		boolean hasRawArguments = false;
+		boolean hasArguments = false;
+		TypeBinding[] argumentTypes = messageSend.argumentTypes;
+		if (argumentTypes != null && argumentTypes.length > 0) {
+			hasArguments = argumentTypes.length > 0;
+			for (TypeBinding argumentType : argumentTypes) {
+				if (argumentType == null || argumentType.isRawType() || (argumentType instanceof NullTypeBinding)) {
+					hasRawArguments = true;
+					break;
+				}
+			}
+			if (hasArguments && !hasRawArguments) {
+				for (Expression argument : messageSend.arguments) {
+					if (argument instanceof LambdaExpression || argument instanceof AllocationExpression) {
+						hasRawArguments = true;
+						break;
+					}
+					if (argument instanceof MessageSend ms) {
+						hasRawArguments = !shouldAddBound(ms);
+						if (hasRawArguments) {
+							break;
+						}
+					}
+				}
+			}
+		} else {
+			if (this.seenInnerContexts != null) {
+				for (InferenceContext18 ic : this.seenInnerContexts) {
+					if (Objects.equals(messageSend, ic.currentInvocation)) {
+						return true;
+					}
+				}
+			}
+		}
+		return hasArguments && !hasRawArguments;
 	}
 	/**
 	 * <b>JLS 18.4</b> Resolution
