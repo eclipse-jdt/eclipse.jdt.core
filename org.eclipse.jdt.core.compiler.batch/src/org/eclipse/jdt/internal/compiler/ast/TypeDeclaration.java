@@ -1881,7 +1881,7 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 		}
 	}
 	if (this.superclass != null) {
-		this.binding.superclass = updateWithAnnotations(this.superclass, this.binding.superclass, outerUpdates, updates);
+		this.binding.setSuperClass(updateWithAnnotations(this.superclass, this.binding.superclass, outerUpdates, updates)); // don't assign directly to superclass!
 	}
 	if (this.superInterfaces != null) {
 		ReferenceBinding[] superIfcBindings = this.binding.superInterfaces;
