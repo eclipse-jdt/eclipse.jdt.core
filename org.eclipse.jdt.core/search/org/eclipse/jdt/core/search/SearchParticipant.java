@@ -13,11 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.FileIndexLocation;
@@ -195,6 +197,59 @@ public abstract class SearchParticipant {
 	 * @throws CoreException if the requestor had problem accepting one of the matches
 	 */
 	public abstract void locateMatches(SearchDocument[] documents, SearchPattern pattern, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException;
+
+	/**
+	 * Locates methods and types invoked by the given member. Called by the call
+	 * hierarchy engine when Java AST-based callee analysis is not available
+	 * (i.e., the member's source is not Java).
+	 *
+	 * <p>Each returned {@link SearchMatch} represents a call site within the
+	 * member's body:
+	 * <ul>
+	 *   <li>{@link SearchMatch#getElement()} — an {@link org.eclipse.jdt.core.IMember IMember}
+	 *       representing the callee. At minimum,
+	 *       {@link org.eclipse.jdt.core.IJavaElement#getElementName() getElementName()} and
+	 *       {@link org.eclipse.jdt.core.IJavaElement#getElementType() getElementType()} must
+	 *       return meaningful values. The call hierarchy engine will attempt to resolve this
+	 *       to a full declaration via declaration search.</li>
+	 *   <li>{@link SearchMatch#getOffset()} / {@link SearchMatch#getLength()} —
+	 *       the call site location in the caller's source.</li>
+	 *   <li>{@link SearchMatch#getResource()} — the caller's resource.</li>
+	 * </ul>
+	 *
+	 * <p>The default implementation returns an empty array. Subclasses that
+	 * support non-Java languages should override this method to enable outgoing
+	 * call hierarchy for their language's source files.
+	 *
+	 * @param caller   the member whose callees are requested
+	 * @param document the search document for the caller's source file
+	 * @param monitor  progress monitor, or {@code null}
+	 * @return array of search matches representing call sites (never null)
+	 * @throws CoreException if an error occurs during callee analysis
+	 * @since 3.46
+	 */
+	public SearchMatch[] locateCallees(org.eclipse.jdt.core.IMember caller, SearchDocument document,
+			IProgressMonitor monitor) throws CoreException {
+		return new SearchMatch[0];
+	}
+
+	/**
+	 * Returns an ICompilationUnit for the given source file, or null if this
+	 * participant does not provide structured models. Called by language
+	 * servers to resolve non-Java source files to type roots for features
+	 * like document symbols, hover, go-to-definition, and code lenses.
+	 *
+	 * <p>The default implementation returns null. Subclasses that provide
+	 * structured models for their language should override this to return
+	 * a compilation unit populated with type/method/field children.
+	 *
+	 * @param file the workspace file
+	 * @return compilation unit, or null
+	 * @since 3.46
+	 */
+	public ICompilationUnit getCompilationUnit(IFile file) {
+		return null;
+	}
 
 	/**
 	 * Removes the index for a given path.

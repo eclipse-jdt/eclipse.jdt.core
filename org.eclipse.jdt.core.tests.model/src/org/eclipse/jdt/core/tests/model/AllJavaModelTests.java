@@ -215,6 +215,9 @@ private static Class[] getAllTestClasses() {
 		// Create search participant tests
 		SearchParticipantTests.class,
 
+		// Derived source search participant tests
+		DerivedSourceSearchParticipantTests.class,
+
 		// Class file tests
 		ClassFileTests.class,
 

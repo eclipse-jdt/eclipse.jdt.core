@@ -19,3 +19,5 @@ Snap.*
 # pomless
 .polyglot.*
 /.project
+.idea/
+.claude-tmp/

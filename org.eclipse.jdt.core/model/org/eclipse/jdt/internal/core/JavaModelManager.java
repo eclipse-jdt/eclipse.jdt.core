@@ -80,6 +80,7 @@ import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.indexing.SearchParticipantRegistry;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
@@ -5530,6 +5531,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (contentTypeManager != null) {
 			contentTypeManager.removeContentTypeChangeListener(this);
 		}
+
+		// Stop listening to search participant extension changes
+		SearchParticipantRegistry.disposeInstance();
 
 		// Stop indexing
 		if (this.indexManager != null) {
