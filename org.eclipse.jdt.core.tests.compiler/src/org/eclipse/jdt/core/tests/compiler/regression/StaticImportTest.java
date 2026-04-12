@@ -3559,4 +3559,31 @@ public class StaticImportTest extends AbstractComparableTest {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4986
+	// Test that error message for inaccessible static import field is correctly formatted
+	public void testBug4986() {
+	    this.runNegativeTest(
+	        new String[] {
+	            "p/C.java",
+	            "package p;\n" +
+	            "import static p.C.f;\n" +
+	            "public class C {\n" +
+	            "    private static int f;\n" +
+	            "}\n"
+	        },
+	        "----------\n" +
+	        "1. ERROR in p\\C.java (at line 2)\n" +
+	        "\timport static p.C.f;\n" +
+	        "\t              ^^^^^\n" +
+	        "The field C.f is not visible\n" +
+	        "----------\n" +
+	        "2. WARNING in p\\C.java (at line 4)\n" +
+	        "\tprivate static int f;\n" +
+	        "\t                   ^\n" +
+	        "The value of the field C.f is not used\n" +
+	        "----------\n"
+	    );
+	}
+
 }
