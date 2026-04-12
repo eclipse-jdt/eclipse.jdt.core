@@ -3357,8 +3357,27 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 			case ProblemReasons.NotVisible :
 			case ProblemReasons.NotAccessible :
 				id = (expectedImport.problemId() == ProblemReasons.NotVisible) ? IProblem.NotVisibleField : IProblem.NotAccessibleField;
-				readableArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())};
-				shortArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())};
+				if (importRef.isStatic() && field.declaringClass != null) {
+					// messages.properties uses:
+					// 71 = The field {1}.{0} is not visible
+					readableArguments = new String[] {
+							new String(field.name), // {0}
+							new String(field.declaringClass.readableName()) // {1}
+					};
+					shortArguments = new String[] {
+							new String(field.name), // {0}
+							new String(field.declaringClass.shortReadableName()) // {1}
+					};
+				} else {
+					readableArguments = new String[] {
+							CharOperation.toString(importRef.tokens),
+							new String(field.declaringClass.readableName())
+					};
+					shortArguments = new String[] {
+							CharOperation.toString(importRef.tokens),
+							new String(field.declaringClass.shortReadableName())
+					};
+				}
 				break;
 			case ProblemReasons.Ambiguous :
 				id = IProblem.AmbiguousField;
@@ -5038,6 +5057,7 @@ private boolean isRecoveredName(char[][] qualifiedName) {
 	}
 	return false;
 }
+
 
 public void javadocAmbiguousMethodReference(int sourceStart, int sourceEnd, Binding fieldBinding, int modifiers) {
 	int severity = computeSeverity(IProblem.JavadocAmbiguousMethodReference);
