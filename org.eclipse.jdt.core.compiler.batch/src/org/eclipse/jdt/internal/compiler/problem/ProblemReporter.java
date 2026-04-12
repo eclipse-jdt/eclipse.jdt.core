@@ -3359,6 +3359,16 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 				id = (expectedImport.problemId() == ProblemReasons.NotVisible) ? IProblem.NotVisibleField : IProblem.NotAccessibleField;
 				readableArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())};
 				shortArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())};
+			    if (importRef.isStatic() && isSelfImport(field) && field.declaringClass != null&& field.declaringClass.enclosingType() == null) {
+			        // messages.properties uses:
+			        // 71 = The field {1}.{0} is not visible
+			        // so pass {0}=field name, {1}=declaring type (short name keeps nested types, avoids package noise)
+			        readableArguments = new String[] {
+			                new String(field.name), // {0}
+			                new String(field.declaringClass.shortReadableName()) // {1}
+			        };
+			        shortArguments = readableArguments;
+			    }
 				break;
 			case ProblemReasons.Ambiguous :
 				id = IProblem.AmbiguousField;
@@ -5038,6 +5048,32 @@ private boolean isRecoveredName(char[][] qualifiedName) {
 	}
 	return false;
 }
+
+private boolean isSelfImport(FieldBinding field) {
+    if (!(this.referenceContext instanceof CompilationUnitDeclaration))
+        return false;
+
+    CompilationUnitDeclaration cud = (CompilationUnitDeclaration) this.referenceContext;
+
+    // In your branch, CompilationUnitDeclaration exposes compilationResult (not compilationUnit)
+    if (cud.compilationResult == null)
+        return false;
+
+    char[] currentFile = cud.compilationResult.getFileName();
+    if (currentFile == null)
+        return false;
+
+    if (field.declaringClass == null)
+        return false;
+
+    // Don't access declaringClass.fileName directly (not visible); use getter
+    char[] declaringFile = field.declaringClass.getFileName();
+    if (declaringFile == null)
+        return false;
+
+    return CharOperation.equals(currentFile, declaringFile);
+}
+
 
 public void javadocAmbiguousMethodReference(int sourceStart, int sourceEnd, Binding fieldBinding, int modifiers) {
 	int severity = computeSeverity(IProblem.JavadocAmbiguousMethodReference);
