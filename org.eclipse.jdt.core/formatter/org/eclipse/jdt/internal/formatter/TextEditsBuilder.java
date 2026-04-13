@@ -92,8 +92,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (start > sourceStart) {
 				Token token = this.tm.get(this.tm.findIndex(start, ANY, false));
 				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
-						|| token.tokenType == TokenNameCOMMENT_MARKDOWN)
-						&& start <= token.originalEnd) {
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN) && start <= token.originalEnd) {
 					start = token.originalStart;
 				}
 			}
@@ -101,8 +100,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (end > start && end > sourceStart) {
 				Token token = this.tm.get(this.tm.findIndex(end, ANY, false));
 				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
-						|| token.tokenType == TokenNameCOMMENT_MARKDOWN )
-						&& end < token.originalEnd) {
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN) && end < token.originalEnd) {
 					end = token.originalEnd;
 				}
 			}
@@ -548,6 +546,22 @@ public class TextEditsBuilder extends TokenTraverser {
 		this.sourceLimit = token.originalEnd + 1;
 
 		this.parentTokenIndex = index;
+
+		if (token instanceof TokenTextBlock) {
+			TokenTextBlock tbToken = (TokenTextBlock)token;
+			if (tbToken.hasReplace()) {
+				IRegion region = this.regions.get(this.currentRegion);
+				List<Token> internalTokens = tbToken.getInternalStructure();
+				int empty_spaces_end = internalTokens.get(internalTokens.size()-1).originalStart;
+				int empty_spaces_start = internalTokens.get(internalTokens.size()-2).originalEnd;
+				StringBuilder sb = new StringBuilder();
+				for (int i=empty_spaces_start+1; i < empty_spaces_end; i++) {
+					if(this.tm.charAt(i) != '\n')
+						sb.append(this.tm.charAt(i));
+				}
+				this.edits.add(getReplaceEdit(tbToken.originalEnd-2, tbToken.originalEnd-2, "\\\n" + sb, region));
+			}
+		}
 
 		traverse(structure, 0);
 	}

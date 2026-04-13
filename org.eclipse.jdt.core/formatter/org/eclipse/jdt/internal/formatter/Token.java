@@ -135,7 +135,7 @@ public class Token {
 		this.internalStructure = tokenToCopy.internalStructure;
 	}
 
-	public static Token fromCurrent(Scanner scanner, TerminalToken currentToken) {
+	public static Token fromCurrent(Scanner scanner, TerminalToken currentToken, boolean add_newline_textblock) {
 		int start = scanner.getCurrentTokenStartPosition();
 		int end = scanner.getCurrentTokenEndPosition();
 		if (currentToken == TerminalToken.TokenNameCOMMENT_LINE || currentToken == TerminalToken.TokenNameCOMMENT_MARKDOWN) {
@@ -150,6 +150,9 @@ public class Token {
 			token.breakAfter();
 			return token;
 		} else {
+			if (add_newline_textblock && currentToken == TerminalToken.TokenNameTextBlock) {
+				return new TokenTextBlock(start, end, currentToken);
+			}
 			return new Token(start, end, currentToken);
 		}
 	}
