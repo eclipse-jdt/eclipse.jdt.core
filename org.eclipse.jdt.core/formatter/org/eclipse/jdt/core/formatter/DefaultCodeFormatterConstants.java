@@ -5335,6 +5335,20 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE = JavaCore.PLUGIN_ID + ".formatter.put_empty_statement_on_new_line";	//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to specify whether or not empty statement should be on a new line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.0
+	 */
+	public static final String FORMATTER_PUT_NEW_LINE_ON_TEXT_BLOCK = JavaCore.PLUGIN_ID + ".formatter.put_new_line_on_text_block";	//$NON-NLS-1$
+
 	/**
 	 * <pre>
 	 * FORMATTER / Option to specify the tabulation size
