@@ -548,6 +548,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		this.parentTokenIndex = index;
 
 		if (token instanceof TokenTextBlock) {
+			String stringToAppend = "\\\n"; //$NON-NLS-1$
 			TokenTextBlock tbToken = (TokenTextBlock)token;
 			if (tbToken.hasReplace()) {
 				IRegion region = this.regions.get(this.currentRegion);
@@ -559,7 +560,7 @@ public class TextEditsBuilder extends TokenTraverser {
 					if(this.tm.charAt(i) != '\n')
 						sb.append(this.tm.charAt(i));
 				}
-				this.edits.add(getReplaceEdit(tbToken.originalEnd-2, tbToken.originalEnd-2, "\\\n" + sb, region));
+				this.edits.add(getReplaceEdit(tbToken.originalEnd-2, tbToken.originalEnd-2, stringToAppend + sb, region));
 			}
 		}
 
