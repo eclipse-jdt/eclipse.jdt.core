@@ -585,7 +585,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 		lines.add(new Token(block.originalStart, block.originalStart + 2, TokenNameNotAToken)); // first line; """
 		int blankLines = -1; // will go to 0 on line break after first line
 		if (this.options.put_new_line_on_text_block) {
-			System.out.println(this.options.put_new_line_on_text_block);
 			if (this.tm.charAt(block.originalStart-1) !='\n') {
 				breakLineBefore(node);
 			}

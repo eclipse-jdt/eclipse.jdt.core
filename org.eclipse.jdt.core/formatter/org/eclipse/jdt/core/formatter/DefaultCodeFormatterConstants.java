@@ -5338,7 +5338,7 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to specify whether or not empty statement should be on a new line
+	 * FORMATTER / Option to specify whether or not put block quotes on their own line.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
