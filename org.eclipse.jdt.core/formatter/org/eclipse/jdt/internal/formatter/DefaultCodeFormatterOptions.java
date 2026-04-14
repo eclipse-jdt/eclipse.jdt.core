@@ -954,7 +954,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_JOIN_LINES_IN_COMMENTS, this.join_lines_in_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_JOIN_LINE_COMMENTS, this.join_line_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_NEW_LINE_ON_TEXT_BLOCK, this.put_new_line_on_text_block ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_TEXT_BLOCK_QUOTES_ON_NEW_LINE, this.put_new_line_on_text_block ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		switch(this.tab_char) {
 			case SPACE :
@@ -2541,7 +2541,7 @@ public class DefaultCodeFormatterOptions {
 		if (putEmptyStatementOnNewLineOption != null) {
 			this.put_empty_statement_on_new_line = DefaultCodeFormatterConstants.TRUE.equals(putEmptyStatementOnNewLineOption);
 		}
-		final Object putNewLineOnTextBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PUT_NEW_LINE_ON_TEXT_BLOCK);
+		final Object putNewLineOnTextBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PUT_TEXT_BLOCK_QUOTES_ON_NEW_LINE);
 		if (putNewLineOnTextBlockOption != null) {
 			this.put_new_line_on_text_block = DefaultCodeFormatterConstants.TRUE.equals(putNewLineOnTextBlockOption);
 		}

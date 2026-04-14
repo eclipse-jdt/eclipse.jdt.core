@@ -623,13 +623,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 			}
 		}
 		WrapPolicy wrapPolicy = new WrapPolicy(WrapMode.DISABLED, 0, -1, 0, 0, 1, false, false);
-		/*if (this.tm.charAt(block.originalEnd-3) != '\n') {
-			//System.out.println("Here: " + block.tokenType);
-			Token line = new Token(block.originalEnd-3, block.originalEnd-3, TokenNameTextBlock);
-			line.breakAfter();
-			line.setWrapPolicy(wrapPolicy);
-			lines.add(line);
-		}*/
 		for (i = 1; i < lines.size(); i++) {
 			Token t = lines.get(i);
 			Token line = new Token(t, t.originalStart + incidentalWhitespace, t.originalEnd, TokenNameTextBlock);

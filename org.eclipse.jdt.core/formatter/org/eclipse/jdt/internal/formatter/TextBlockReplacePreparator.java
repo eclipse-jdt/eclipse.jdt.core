@@ -19,7 +19,6 @@ public class TextBlockReplacePreparator extends ASTVisitor {
 	public boolean visit(TextBlock node){
 		Token block = this.tokenManager.firstTokenIn(node, TokenNameTextBlock);
 		if (this.options.put_new_line_on_text_block && block instanceof TokenTextBlock) {
-			System.out.println("Here"); //$NON-NLS-1
 			if (this.tokenManager.charAt(block.originalEnd-3) != '\n') {
 				((TokenTextBlock)block).addNewlineReplace();
 			}
