@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
@@ -1169,19 +1170,14 @@ public class InferenceContext18 {
 			// find a minimal set of dependent variables:
 			Set<InferenceVariable> variableSet;
 			boolean[] hasSkippedSuperBound = { false };
-			while ((variableSet = getSmallestVariableSet(tmpBoundSet, toResolveSet, maySkipSuperBound, hasSkippedSuperBound)) != null) {
+			while ((variableSet = getSmallestVariableSet(tmpBoundSet, toResolveSet, false, hasSkippedSuperBound)) != null) {
 				int oldNumUninstantiated = tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables);
-				final int numVars = variableSet.size();
-				if (numVars > 0) {
-					final InferenceVariable[] variables = variableSet.toArray(new InferenceVariable[numVars]);
-					// NON-JLS: prioritize ivars in 'inThrows' as those may pull in new information by extra rule below (=RuntimeException)
-					BoundSet tSet = tmpBoundSet;
-					Arrays.sort(variables, (v1, v2) -> {
-						int r1 = tSet.inThrows.contains(v1) ? -1 : 0;
-						int r2 = tSet.inThrows.contains(v2) ? -1 : 0;
-						return r1 - r2;
-					});
-					//
+				List<InferenceVariable> ofRank;
+				while ((ofRank = pickIvarsByRank(variableSet, tmpBoundSet)) != null) {
+					final int numVars = ofRank.size();
+					if (numVars == 0)
+						continue;
+					final InferenceVariable[] variables = ofRank.toArray(new InferenceVariable[numVars]);
 					variables: if (!isRecordPatternTypeInference && !tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
 						BoundSet prevBoundSet = tmpBoundSet;
@@ -1190,6 +1186,7 @@ public class InferenceContext18 {
 							InferenceVariable variable = variables[j];
 							if (tmpBoundSet.isInstantiated(variable)) { // NON-JLS: may happen when exception bound has been incorporated
 								toResolveSet.remove(variable);
+								variableSet.remove(variable);
 								continue;
 							}
 							// try lower bounds:
@@ -1236,11 +1233,13 @@ public class InferenceContext18 {
 								}
 							}
 							toResolveSet.remove(variable);
+							variableSet.remove(variable);
 						}
 						if (tmpBoundSet.incorporate(this))
 							continue;
 						tmpBoundSet = prevBoundSet;// clean-up for second attempt
 					}
+
 					if (maySkipSuperBound && hasSkippedSuperBound[0])
 						return resolve(toResolve, isRecordPatternTypeInference, false);
 					// Otherwise, a second attempt is made...
@@ -1348,6 +1347,7 @@ public class InferenceContext18 {
 						if (!typeboundCreated)
 							tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME), this.environment);
 						toResolveSet.remove(variable);
+						variableSet.remove(variable);
 					}
 					if (tmpBoundSet.incorporate(this)) {
 						if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
@@ -1458,7 +1458,9 @@ public class InferenceContext18 {
 			//  "... and ii) there exists no non-empty proper subset of { α1, ..., αn } with this property."
 			// -> find a smallest among candidate sets:
 			if (set == null) {
-				return Collections.singleton(currentVariable);
+				set = new HashSet<>();
+				set.add(currentVariable);
+				return set;
 			}
 			for (Iterator<InferenceVariable> iter = set.iterator(); iter.hasNext();) {
 				InferenceVariable iv = iter.next();
@@ -1474,6 +1476,22 @@ public class InferenceContext18 {
 			}
 		}
 		return result;
+	}
+
+	static List<InferenceVariable> pickIvarsByRank(Set<InferenceVariable> variableSet, BoundSet tmpBoundSet) {
+		// apply the ranking of ivars according to their bounds as explained in
+		// https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/message/GN6RTCGMME6I5JVLSFZRIR32XY6QKOI2/
+		Map<Integer, List<InferenceVariable>> byRank = variableSet.stream().collect(Collectors.groupingBy(tmpBoundSet::rankIVar));
+		for (int rank = 0; rank < 4; rank++) {
+			List<InferenceVariable> ofRank = byRank.get(rank);
+			if (ofRank == null)
+				continue;
+			final int numVars = ofRank.size();
+			if (numVars == 0)
+				continue;
+			return ofRank;
+		}
+		return null;
 	}
 
 	/**
