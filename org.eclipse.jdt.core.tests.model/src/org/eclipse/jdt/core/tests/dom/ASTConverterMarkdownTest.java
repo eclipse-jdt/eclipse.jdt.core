@@ -2433,4 +2433,72 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Invalid content", "**Bold**", ((TextElement)frags.get(0)).getText());
 		}
 	}
+
+	public void testInvalidSnippetForMarkdown_01() throws JavaModelException {
+		String source = """
+					/// {@snippet file:Example.java region:main}
+					public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<TagElement> innerTag = tags.get(0).fragments();
+			TagElement snippetTag = innerTag.get(0);
+			assertTrue((boolean) snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID));
+			assertEquals("Invalid snippet tag name", "@snippet", snippetTag.getTagName());
+		}
+	}
+
+	public void testInvalidSnippetForMarkdown_02() throws JavaModelException {
+		String source = """
+					/// {@snippet class:com.example.Example region:main}
+					public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<TagElement> innerTag = tags.get(0).fragments();
+			TagElement snippetTag = innerTag.get(0);
+			assertTrue((boolean) snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID));
+			assertEquals("Invalid snippet tag name", "@snippet", snippetTag.getTagName());
+		}
+	}
+
+	public void testInvalidSnippetForMarkdown_03() throws JavaModelException {
+		String source = """
+					/// {@snippet :
+					/// var s = "";
+					/// 	int x = 2;
+					/// String name = "eclipse";
+					/// }
+					public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<TagElement> parentTagFrags = tags.get(0).fragments();
+			List<TextElement> texts = parentTagFrags.get(0).fragments();
+			assertTrue(texts.get(0) != null);
+			assertTrue(texts.get(1) != null);
+			assertTrue(texts.get(2) != null);
+			assertEquals("invalid first Text", " var s = \"\";", texts.get(0).getText());
+			assertEquals("invalid second Text", " 	int x = 2;", texts.get(1).getText());
+			assertEquals("invalid third Text", " String name = \"eclipse\";", texts.get(2).getText());
+			assertTrue((boolean) parentTagFrags.get(0).getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID));
+			assertEquals("Invalid snippet tag name", "@snippet", parentTagFrags.get(0).getTagName());
+		}
+
+	}
 }
