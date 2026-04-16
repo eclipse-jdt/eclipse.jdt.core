@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024, 2025 IBM Corporation and others.
+ * Copyright (c) 2024, 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,9 +12,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -27,7 +30,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue3536" };
+//		TESTS_NAMES = new String[] { "testSwitchPrimitiveboolean_01" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -7510,4 +7513,30 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+
+	public void testSwitchPrimitiveboolean_01() throws IOException, ClassFormatException {
+		runConformTest(new String[] { "X.java",
+				"""
+				public class X {
+
+				    public static int primitiveSwitch(boolean b) {
+				    	return switch(b) {
+				    	case true -> 100;
+				    	case false -> 200;
+				    	};
+				    }
+
+				    public static void main(String[] args) {
+				        System.out.println(primitiveSwitch(true));
+				        System.out.println(primitiveSwitch(false));
+					}
+				}
+				"""
+			},
+			"100\n"+
+			"200");
+		String expectedOutput = "invokedynamic 1 typeSwitch(boolean, int)";
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+
 }
