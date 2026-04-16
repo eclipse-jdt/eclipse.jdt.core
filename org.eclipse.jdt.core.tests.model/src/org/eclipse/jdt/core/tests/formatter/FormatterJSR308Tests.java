@@ -365,6 +365,12 @@ public class FormatterJSR308Tests extends AbstractJavaModelTests {
 		runTest("test039", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	public void test040() {
+		this.formatterPrefs.put_new_line_on_text_block = true;
+		runTest("test040", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
+		this.formatterPrefs.put_new_line_on_text_block = false;
+	}
+
 	public void testBug403881() {
 		runTest("testBugs", "Bug403881.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}

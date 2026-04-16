@@ -226,10 +226,10 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			findHeader();
 
 		prepareSpaces();
+		prepareReplaceTextBlocks();
 		prepareLineBreaks();
 		prepareComments();
 		prepareWraps(kind);
-		prepareReplaceTextBlocks();
 
 		return this.tokens;
 	}
