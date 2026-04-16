@@ -83,6 +83,10 @@
 			<param name="compliance" value="25"/>
 			<param name="suffix" value="25"/>
 		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="26"/>
+			<param name="suffix" value="26"/>
+		</antcall>
 	</target>
 	<target name="converterJclMin">
 		<mkdir dir="${jclbase}/converterJclMin${suffix}/bin" />
