@@ -19,11 +19,24 @@ public class TextBlockReplacePreparator extends ASTVisitor {
 	public boolean visit(TextBlock node){
 		Token block = this.tokenManager.firstTokenIn(node, TokenNameTextBlock);
 		if (this.options.put_new_line_on_text_block && block instanceof TokenTextBlock) {
-			if (this.tokenManager.charAt(block.originalEnd-3) != '\n') {
+			if ( needFormat(block)) {
 				((TokenTextBlock)block).addNewlineReplace();
 			}
 		}
-		return false;
+		return true;
+	}
+
+	public boolean needFormat(Token block) {
+		for (int i = block.originalEnd-3; i > block.originalStart; i--) {
+			char ch = this.tokenManager.charAt(i);
+			if ( ch == ' ' || ch == '\t') continue;
+			if ( ch == '\n' ) {
+				return false;
+			} else {
+				break;
+			}
+		}
+		return true;
 	}
 
 }

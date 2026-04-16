@@ -548,7 +548,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		this.parentTokenIndex = index;
 
 		if (token instanceof TokenTextBlock) {
-			String stringToAppend = "\\\n"; //$NON-NLS-1$
+			String stringToAppend = "\\" + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 			TokenTextBlock tbToken = (TokenTextBlock)token;
 			if (tbToken.hasReplace()) {
 				IRegion region = this.regions.get(this.currentRegion);
@@ -556,11 +556,14 @@ public class TextEditsBuilder extends TokenTraverser {
 				int empty_spaces_end = internalTokens.get(internalTokens.size()-1).originalStart;
 				int empty_spaces_start = internalTokens.get(internalTokens.size()-2).originalEnd;
 				StringBuilder sb = new StringBuilder();
+				StringBuilder emptySpaces = new StringBuilder();
 				for (int i=empty_spaces_start+1; i < empty_spaces_end; i++) {
-					if(this.tm.charAt(i) != '\n')
+					char c = this.tm.charAt(i);
+					if(c == ' ' || c == '\t') emptySpaces.append(c);
+					else if(c != '\n')
 						sb.append(this.tm.charAt(i));
 				}
-				this.edits.add(getReplaceEdit(tbToken.originalEnd-2, tbToken.originalEnd-2, stringToAppend + sb, region));
+				this.edits.add(getReplaceEdit(tbToken.originalEnd-2, tbToken.originalEnd-2, stringToAppend + emptySpaces + sb, region));
 			}
 		}
 
