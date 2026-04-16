@@ -5345,7 +5345,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see #TRUE
 	 * @see #FALSE
-	 * @since 3.0
+	 * @since 3.46
 	 */
 	public static final String FORMATTER_PUT_TEXT_BLOCK_QUOTES_ON_NEW_LINE = JavaCore.PLUGIN_ID + ".formatter.put_new_line_on_text_block";	//$NON-NLS-1$
 

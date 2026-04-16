@@ -439,7 +439,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private void prepareReplaceTextBlocks() {
-		TextBlockReplacePreparator tbrPreparator = new TextBlockReplacePreparator(tokenManager, originalOptions);
+		TextBlockReplacePreparator tbrPreparator = new TextBlockReplacePreparator(this.tokenManager, this.originalOptions);
 		this.astRoot.accept(tbrPreparator);
 	}
 
