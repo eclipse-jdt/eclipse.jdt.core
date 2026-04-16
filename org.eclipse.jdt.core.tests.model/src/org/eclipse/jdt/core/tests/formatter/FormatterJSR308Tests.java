@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 import org.eclipse.text.edits.TextEdit;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -368,6 +369,31 @@ public class FormatterJSR308Tests extends AbstractJavaModelTests {
 	public void test040() {
 		this.formatterPrefs.put_new_line_on_text_block = true;
 		runTest("test040", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+		this.formatterPrefs.put_new_line_on_text_block = false;
+	}
+
+	public void test041() {
+		this.formatterPrefs.put_new_line_on_text_block = true;
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_BY_ONE;
+		runTest("test041", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+		this.formatterPrefs.put_new_line_on_text_block = false;
+	}
+
+	public void test042() {
+		this.formatterPrefs.put_new_line_on_text_block = true;
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_PRESERVE;
+		runTest("test042", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+		this.formatterPrefs.put_new_line_on_text_block = false;
+	}
+
+	public void test043() {
+		this.formatterPrefs.put_new_line_on_text_block = true;
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_ON_COLUMN;
+		runTest("test043", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
 		this.formatterPrefs.put_new_line_on_text_block = false;
 	}
 
