@@ -610,7 +610,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(TextBlock node) {
 		int indentOption = this.options.text_block_indentation;
-		if (indentOption == Alignment.M_INDENT_PRESERVE)
+		if (indentOption == Alignment.M_INDENT_PRESERVE && !this.options.put_new_line_on_text_block)
 			return true;
 		Token block = this.tm.firstTokenIn(node, TokenNameTextBlock);
 		int incidentalWhitespace = Integer.MAX_VALUE;
