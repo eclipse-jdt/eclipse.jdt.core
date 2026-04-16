@@ -399,7 +399,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				TerminalToken tokenType = scanner.getNextToken();
 				if (tokenType == TokenNameEOF)
 					break;
-				Token token = Token.fromCurrent(scanner, tokenType, this.workingOptions.put_new_line_on_text_block);
+				Token token = Token.fromCurrent(scanner, tokenType, this.workingOptions.put_text_block_quotes_on_new_line);
 				this.tokens.add(token);
 			} catch (InvalidInputException e) {
 				Token token = Token.fromCurrent(scanner, TokenNameNotAToken, false);
