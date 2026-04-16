@@ -578,7 +578,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(TextBlock node) {
 		int indentOption = this.options.text_block_indentation;
-		if (indentOption == Alignment.M_INDENT_PRESERVE && !this.options.put_new_line_on_text_block)
+		if (indentOption == Alignment.M_INDENT_PRESERVE && !this.options.put_text_block_quotes_on_new_line)
 			return true;
 		Token block = this.tm.firstTokenIn(node, TokenNameTextBlock);
 		int incidentalWhitespace = Integer.MAX_VALUE;
@@ -586,7 +586,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		Token newLine = new Token(block.originalStart, block.originalStart + 2, TokenNameNotAToken); // first line; """
 		lines.add(newLine); // first line; """
 		//boolean needFormatBefore = textBlockNeedNewlineBefore(block);
-		if (this.options.put_new_line_on_text_block) {
+		if (this.options.put_text_block_quotes_on_new_line) {
 				breakLineBefore(node);
 		}
 		int blankLines = -1; // will go to 0 on line break after first line
@@ -620,7 +620,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			}
 		}
 		WrapPolicy wrapPolicy = new WrapPolicy(WrapMode.DISABLED, 0, -1, 0, 0, 1, false, false);
-		if(!this.options.put_new_line_on_text_block || ((TokenTextBlock)block).hasReplace()) {
+		if(!this.options.put_text_block_quotes_on_new_line || ((TokenTextBlock)block).hasReplace()) {
 			for (i = 1; i < lines.size(); i++) {
 				Token t = lines.get(i);
 				Token line = new Token(t, t.originalStart + incidentalWhitespace, t.originalEnd, TokenNameTextBlock);
@@ -629,7 +629,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			}
 			block.setInternalStructure(lines);
 		}
-		if (this.options.put_new_line_on_text_block) {
+		if (this.options.put_text_block_quotes_on_new_line) {
 			breakLineAfter(node);
 		}
 

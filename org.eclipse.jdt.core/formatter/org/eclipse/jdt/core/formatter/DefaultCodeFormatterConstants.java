@@ -5338,8 +5338,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to specify whether or not put block quotes on their own line.
-	 *     - option id:         "org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line"
+	 * FORMATTER / Option to specify whether or not put text block quotes on their own line.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.put_text_block_quotes_on_new_line"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
@@ -5347,7 +5347,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #FALSE
 	 * @since 3.46
 	 */
-	public static final String FORMATTER_PUT_TEXT_BLOCK_QUOTES_ON_NEW_LINE = JavaCore.PLUGIN_ID + ".formatter.put_new_line_on_text_block";	//$NON-NLS-1$
+	public static final String FORMATTER_PUT_TEXT_BLOCK_QUOTES_ON_NEW_LINE = JavaCore.PLUGIN_ID + ".formatter.put_text_block_quotes_on_new_line";	//$NON-NLS-1$
 
 	/**
 	 * <pre>

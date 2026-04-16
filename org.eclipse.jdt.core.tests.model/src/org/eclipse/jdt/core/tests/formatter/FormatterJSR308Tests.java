@@ -367,34 +367,34 @@ public class FormatterJSR308Tests extends AbstractJavaModelTests {
 	}
 
 	public void test040() {
-		this.formatterPrefs.put_new_line_on_text_block = true;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = true;
 		runTest("test040", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
 		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
-		this.formatterPrefs.put_new_line_on_text_block = false;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = false;
 	}
 
 	public void test041() {
-		this.formatterPrefs.put_new_line_on_text_block = true;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = true;
 		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_BY_ONE;
 		runTest("test041", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
 		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
-		this.formatterPrefs.put_new_line_on_text_block = false;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = false;
 	}
 
 	public void test042() {
-		this.formatterPrefs.put_new_line_on_text_block = true;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = true;
 		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_PRESERVE;
 		runTest("test042", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
 		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
-		this.formatterPrefs.put_new_line_on_text_block = false;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = false;
 	}
 
 	public void test043() {
-		this.formatterPrefs.put_new_line_on_text_block = true;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = true;
 		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_ON_COLUMN;
 		runTest("test043", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
 		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
-		this.formatterPrefs.put_new_line_on_text_block = false;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = false;
 	}
 
 	public void testBug403881() {
