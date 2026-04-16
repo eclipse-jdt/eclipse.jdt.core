@@ -575,38 +575,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 		return true;
 	}
 
-	private boolean textBlockNeedNewlineBefore(Token block) {
-
-		// List<Token> internalTokens = block.getInternalStructure();
-		if (this.options.put_new_line_on_text_block) {
-			int counter = block.originalStart - 1;
-			char curChar = this.tm.charAt(counter);
-			while (curChar == ' ' || curChar == '\t') {
-				counter--;
-				curChar = this.tm.charAt(counter);
-			}
-			if (curChar != '\n') {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean textBlockNeedNewLineAfter(Token block) {
-		if (this.options.put_new_line_on_text_block) {
-			int counter = block.originalEnd + 1;
-			char curChar = this.tm.charAt(counter);
-			while (curChar == ' ' || curChar == '\t') {
-				counter++;
-				curChar = this.tm.charAt(counter);
-			}
-			if (curChar != '\n') {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public boolean visit(TextBlock node) {
 		int indentOption = this.options.text_block_indentation;
