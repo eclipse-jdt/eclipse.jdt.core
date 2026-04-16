@@ -1063,6 +1063,23 @@ class BoundSet {
 		return true;
 	}
 
+	public int rankIVar(InferenceVariable ivar) {
+		// implements the ranking of ivars according to their bounds as explained in
+		// https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/message/GN6RTCGMME6I5JVLSFZRIR32XY6QKOI2/
+		ThreeSets three = this.boundsPerVariable.get(ivar.prototype());
+		if (three != null) {
+			if (three.sameBounds != null)
+				for (TypeBound bound :three.sameBounds)
+					if (!(bound.right instanceof InferenceVariable))
+						return 1;
+			if (three.superBounds != null)
+				for (TypeBound bound :three.superBounds)
+					if (!(bound.right instanceof InferenceVariable))
+						return 2;
+		}
+		return 3;
+	}
+
 	/**
 	 * JLS 18.1.3:
 	 * Answer all upper bounds for the given inference variable as defined by any bounds in this set.
