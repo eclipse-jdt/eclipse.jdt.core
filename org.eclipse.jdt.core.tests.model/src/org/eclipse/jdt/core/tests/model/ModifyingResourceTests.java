@@ -111,20 +111,48 @@ protected void assertElementDescendants(String message,  String expected, IJavaE
 		actual);
 }
 protected void assertStatus(String expected, IStatus status) {
-	String actual = status.getMessage();
-	if (!expected.equals(actual)) {
-	 	System.out.print(Util.displayString(actual, 2));
-	 	System.out.println(",");
+	if ("OK".equals(expected)) {
+		assertStatus(IStatus.OK, status);
+		return;
 	}
-	assertEquals(expected, actual);
+	if (status.isOK()) {
+		System.out.print(Util.displayString(status.getMessage(), 2));
+		System.out.println(",");
+	}
+	assertFalse("Unexpected OK status", status.isOK());
 }
 protected void assertStatus(String message, String expected, IStatus status) {
-	String actual = status.getMessage();
-	if (!expected.equals(actual)) {
-	 	System.out.print(Util.displayString(actual, 2));
-	 	System.out.println(",");
+	if ("OK".equals(expected)) {
+		assertStatus(message, IStatus.OK, status);
+		return;
 	}
-	assertEquals(message, expected, actual);
+	if (status.isOK()) {
+		System.out.print(Util.displayString(status.getMessage(), 2));
+		System.out.println(",");
+	}
+	assertFalse(message, status.isOK());
+}
+protected void assertStatus(int expectedSeverity, IStatus status) {
+	if (expectedSeverity != status.getSeverity()) {
+		System.out.print(Util.displayString(status.getMessage(), 2));
+		System.out.println(",");
+	}
+	assertEquals("Unexpected status severity", expectedSeverity, status.getSeverity());
+}
+protected void assertStatus(String message, int expectedSeverity, IStatus status) {
+	if (expectedSeverity != status.getSeverity()) {
+		System.out.print(Util.displayString(status.getMessage(), 2));
+		System.out.println(",");
+	}
+	assertEquals(message, expectedSeverity, status.getSeverity());
+}
+protected void assertStatus(int expectedSeverity, int expectedCode, IStatus status) {
+	assertStatus(expectedSeverity, status);
+	assertEquals("Unexpected status code", expectedCode, status.getCode());
+}
+protected void assertStatus(String message, int expectedSeverity, int expectedCode, IStatus status) {
+	assertStatus(message, expectedSeverity, status);
+	assertEquals(message, expectedCode, status.getCode());
 }
 /**
  * E.g.
