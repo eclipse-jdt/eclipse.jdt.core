@@ -1825,7 +1825,7 @@ public void testPackageFragmentRootRawEntry3() throws CoreException, IOException
 			IClasspathEntry rawEntry = roots[length-1].getRawClasspathEntry();
 			assertNotNull("We should no longer get a null classpath entry:", rawEntry);
 		} catch (JavaModelException jme) {
-			assertStatus(rootPath+" is not on its project's build path", jme.getJavaModelStatus());
+			assertStatus(IStatus.ERROR, IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, jme.getJavaModelStatus());
 		}
 	} finally {
 		if (libDir != null) {
