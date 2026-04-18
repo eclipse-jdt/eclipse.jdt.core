@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.eclipse.jdt.internal.core.builder.State;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.team.core.RepositoryProvider;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -7434,9 +7435,10 @@ public void testBug539998() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		assertStatus("should complain",
-				"Project has only main sources but depends on project 'P1' which has only test sources.",
-				status);
+		final String expected = Messages.bind(Messages.classpath_main_only_project_depends_on_test_only_project,
+				new String[] { proj.getElementName(), proj1TestOnly.getElementName() });
+
+		assertStatus("should complain", expected, status);
 	} finally {
 		this.deleteProjects(new String[] { "P1", "P2" });
 	}
