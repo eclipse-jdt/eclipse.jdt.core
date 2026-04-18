@@ -2074,6 +2074,26 @@ public void testIssue4864() {
 	});
 }
 
+public void testGH4937() {
+	runConformTest(new String[] {
+		"A.java",
+		"""
+		import java.util.List;
+
+		public class A {
+		    public static void foo() {
+		        System.out.println(List.of(BusinessExtractBuilder.create())); // Error here
+		    }
+		    public static class BusinessExtractBuilder<T> {
+		        public static <U extends BusinessExtractBuilder<U>> U create() {
+		            return null;
+		        }
+		    }
+		}
+		"""
+	});
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
