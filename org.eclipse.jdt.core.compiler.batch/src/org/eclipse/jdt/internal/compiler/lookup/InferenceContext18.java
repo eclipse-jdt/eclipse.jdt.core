@@ -1169,6 +1169,9 @@ public class InferenceContext18 {
 					final int numVars = ofRank.size();
 					if (numVars == 0)
 						continue;
+					if (DEBUG) {
+						System.out.println("Resolving ivars: "+ofRank); //$NON-NLS-1$
+					}
 					final InferenceVariable[] variables = ofRank.toArray(new InferenceVariable[numVars]);
 					variables: if (!isRecordPatternTypeInference && !tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
@@ -1266,6 +1269,7 @@ public class InferenceContext18 {
 					};
 					for (int j = 0; j < numVars; j++) {
 						InferenceVariable variable = variables[j];
+						variableSet.remove(variable);
 						CaptureBinding18 yj = ys[j];
 						// NON-JLS: leverage existing same bounds if they become proper by substitution:
 						boolean typeboundCreated = false;
@@ -1336,15 +1340,14 @@ public class InferenceContext18 {
 						if (!typeboundCreated)
 							tmpBoundSet.addBound(new TypeBound(variable, yj, ReductionResult.SAME), this.environment);
 						toResolveSet.remove(variable);
-						variableSet.remove(variable);
 					}
 					if (tmpBoundSet.incorporate(this)) {
-						if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
-							return null; // abort because we made no progress
 						continue;
 					}
 					return null;
 				}
+				if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
+					return null; // abort because we made no progress
 			}
 		}
 		return tmpBoundSet;
@@ -2094,6 +2097,9 @@ public class InferenceContext18 {
 		TypeVariableBinding[] typeVariables = typeBinding.original().typeVariables();// type para
 		if (typeVariables == null)
 			return null;
+		// before adding any bounds signal that we are working on behalf of a record pattern:
+		this.currentBounds = new BoundSet();
+		this.currentBounds.isRecordPatternInference = true;
 		// An initial bound set, B0, is generated from the declared bounds of P1, ..., Pn,
 		// as described in 18.1.3.
 		InferenceVariable[] alphas = createInitialBoundSet(typeVariables); // creates initial bound set B

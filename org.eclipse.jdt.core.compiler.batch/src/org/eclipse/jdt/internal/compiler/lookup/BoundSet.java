@@ -327,6 +327,7 @@ class BoundSet {
 	private TypeBound[] unincorporatedBounds = new TypeBound[8];
 	private int unincorporatedBoundsCount = 0;
 	private final TypeBound[] mostRecentBounds = new TypeBound[4]; // for quick & dirty duplicate elimination
+	public boolean isRecordPatternInference;
 
 	public BoundSet() {}
 
@@ -427,12 +428,17 @@ class BoundSet {
 				three.setInstantiation(typeBinding, variable, environment);
 			if (bound.right instanceof InferenceVariable) {
 				// for a dependency between two IVs make a note about the inverse bound.
-				// this should be needed to determine IV dependencies independent of direction.
-				// TODO: so far no test could be identified which actually needs it ...
-				InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
-				three = this.boundsPerVariable.get(rightIV);
-				if (three == null)
-					this.boundsPerVariable.put(rightIV, (three = new ThreeSets()));
+				int relation = switch (bound.relation) {
+					case ReductionResult.SUBTYPE -> ReductionResult.SUPERTYPE;
+					case ReductionResult.SUPERTYPE -> ReductionResult.SUBTYPE;
+					case ReductionResult.SAME -> this.isRecordPatternInference ? -1 : ReductionResult.SAME;
+					default -> -1;
+				};
+				if (relation != -1) {
+					InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
+					three = this.boundsPerVariable.computeIfAbsent(rightIV, k -> new ThreeSets());
+					three.addBound(new TypeBound(rightIV, bound.left, relation));
+				}
 			}
 		}
 	}
@@ -1088,12 +1094,21 @@ class BoundSet {
 		ThreeSets three = this.boundsPerVariable.get(ivar.prototype());
 		if (three != null) {
 			if (three.sameBounds != null)
-				for (TypeBound bound :three.sameBounds)
-					if (!(bound.right instanceof InferenceVariable))
-						return 1;
+				if (!three.sameBounds.isEmpty())
+					return 1;
+			if (this.isRecordPatternInference) {
+				// workaround for not having inverse bounds of type SAME (see addBound(TypeBound, LookupEnvironment)):
+				for (ThreeSets dep3 : this.boundsPerVariable.values()) {
+					if (dep3 != null && dep3.sameBounds != null) {
+						for (TypeBound depBound : dep3.sameBounds) {
+							if (depBound.right.equals(ivar))
+								return 1;
+						}
+					}
+				}
+			}
 			if (three.superBounds != null)
-				for (TypeBound bound :three.superBounds)
-					if (!(bound.right instanceof InferenceVariable))
+				if (!three.superBounds.isEmpty())
 						return 2;
 		}
 		return 3;

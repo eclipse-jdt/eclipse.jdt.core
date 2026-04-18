@@ -15,8 +15,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -2295,6 +2295,26 @@ public void testGH4731() {
 	runner.javacTestOptions = JavacHasABug.JavacBug8016207;
 	runner.runNegativeTest();
 }
+public void testGH4937() {
+	runConformTest(new String[] {
+		"A.java",
+		"""
+		import java.util.List;
+
+		public class A {
+		    public static void foo() {
+		        System.out.println(List.of(BusinessExtractBuilder.create())); // Error here
+		    }
+		    public static class BusinessExtractBuilder<T> {
+		        public static <U extends BusinessExtractBuilder<U>> U create() {
+		            return null;
+		        }
+		    }
+		}
+		"""
+	});
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
