@@ -4219,6 +4219,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		StringBuilder s = new StringBuilder();
 		s.append("Logging resource change event");
 		s.append(System.lineSeparator());
+		s.append("thread: ");
+		s.append(Thread.currentThread().getName());
+		s.append(System.lineSeparator());
 		s.append("type: ");
 		s.append(event.getType());
 		s.append(System.lineSeparator());
