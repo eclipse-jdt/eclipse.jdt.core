@@ -356,6 +356,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_comma_in_type_parameters;
 	public boolean insert_space_after_ellipsis;
 	public boolean insert_space_after_lambda_arrow;
+	public boolean insert_space_before_lambda_empty_paren;
 	public boolean insert_space_after_not_operator;
 	public boolean insert_space_after_opening_angle_bracket_in_parameterized_type_reference;
 	public boolean insert_space_after_opening_angle_bracket_in_type_arguments;
@@ -954,6 +955,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_JOIN_LINE_COMMENTS, this.join_line_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_LAMBDA_EMPTY_PARENTHESES, this.insert_space_before_lambda_empty_paren ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		switch(this.tab_char) {
 			case SPACE :
 				options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
@@ -1936,6 +1938,10 @@ public class DefaultCodeFormatterOptions {
 		final Object insertSpaceAfterLambdaArrowOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_LAMBDA_ARROW);
 		if (insertSpaceAfterLambdaArrowOption != null) {
 			this.insert_space_after_lambda_arrow = JavaCore.INSERT.equals(insertSpaceAfterLambdaArrowOption);
+		}
+		final Object insertSpaceBeforeLambdaParenthesis = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_LAMBDA_EMPTY_PARENTHESES);
+		if (insertSpaceBeforeLambdaParenthesis != null) {
+			this.insert_space_before_lambda_empty_paren = JavaCore.INSERT.equals(insertSpaceBeforeLambdaParenthesis);
 		}
 		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_NOT_OPERATOR, JavaCore.INSERT,
 				v -> this.insert_space_after_not_operator = v);
@@ -3377,6 +3383,7 @@ public class DefaultCodeFormatterOptions {
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;
 		this.wrap_outer_expressions_when_nested = true;
+		this.insert_space_before_lambda_empty_paren = false;
 	}
 
 	public void setEclipseDefaultSettings() {
@@ -3783,5 +3790,6 @@ public class DefaultCodeFormatterOptions {
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;
 		this.wrap_outer_expressions_when_nested = true;
+		this.insert_space_before_lambda_empty_paren = false;
 	}
 }
