@@ -41313,7 +41313,7 @@ public void test1228()  throws Exception {
 		"");
 	// check $new$ method generic signature
 	String expectedOutput =
-		"  // Method descriptor #22 ()LX$Binner$BinnerInner;\n" +
+		"  // Method descriptor #24 ()LX$Binner$BinnerInner;\n" +
 		"  // Signature: <J:Ljava/lang/Object;>()LX<TU;>.Binner.BinnerInner<TJ;>;\n" +
 		"  // Stack: 3, Locals: 1\n" +
 		"  public X.Binner.BinnerInner $new$();\n" +
@@ -41321,7 +41321,7 @@ public void test1228()  throws Exception {
 		"     3  dup\n" +
 		"     4  aload_0 [this]\n" +
 		"     5  getfield X$Binner$BinnerInner.this$1 : X.Binner [10]\n" +
-		"     8  invokespecial X$Binner$BinnerInner(X$Binner) [25]\n" +
+		"     8  invokespecial X$Binner$BinnerInner(X$Binner) [27]\n" +
 		"    11  areturn\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 7]\n" +
