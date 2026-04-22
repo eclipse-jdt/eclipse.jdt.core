@@ -388,7 +388,8 @@ public class TextEditsBuilder extends TokenTraverser {
 			buffered = buffered.substring(bestSplit);
 			this.counter = regionEnd;
 		}
-		if(sourceMatch) checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
+		if (sourceMatch)
+			checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
 		this.buffer.setLength(0);
 		this.counter = currentPosition;
 	}
@@ -396,14 +397,14 @@ public class TextEditsBuilder extends TokenTraverser {
 	private boolean checkClosingQuotes(int position, IRegion region) {
 		Token token = this.getCurrent();
 		String closingQuotes = "\"\"\""; //$NON-NLS-1$
-		if (this.options.put_text_block_quotes_on_new_line
-				&& !(token instanceof TokenTextBlock)
+		if (this.options.put_text_block_quotes_on_new_line && !(token instanceof TokenTextBlock)
 				&& position < token.originalEnd + 1
 				&& this.source.substring(position, token.originalEnd + 1).endsWith(closingQuotes)) {
-			String stringToCheck = this.source.substring(position, token.originalEnd+1);
+			String stringToCheck = this.source.substring(position, token.originalEnd + 1);
 			int splitPlace = stringToCheck.indexOf(closingQuotes);
 			if (splitPlace > 0) {
-				this.edits.add(getReplaceEdit(position+splitPlace, position+splitPlace, "\\" + this.buffer.toString(), region));
+				this.edits.add(getReplaceEdit(position + splitPlace, position + splitPlace,
+						'\\' + this.buffer.toString(), region));
 			}
 
 		}
