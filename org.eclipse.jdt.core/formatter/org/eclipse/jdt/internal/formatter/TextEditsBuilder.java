@@ -388,21 +388,20 @@ public class TextEditsBuilder extends TokenTraverser {
 			buffered = buffered.substring(bestSplit);
 			this.counter = regionEnd;
 		}
-		/*if (currentPosition < this.getCurrent().originalEnd) {*/
 		if(sourceMatch) checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
-		//}
 		this.buffer.setLength(0);
 		this.counter = currentPosition;
 	}
 
 	private boolean checkClosingQuotes(int position, IRegion region) {
 		Token token = this.getCurrent();
+		String closingQuotes = "\"\"\""; //$NON-NLS-1$
 		if (this.options.put_text_block_quotes_on_new_line
-				&& this.source.substring(position, token.originalEnd + 1).endsWith("\"\"\"")
-				&& !(token instanceof TokenTextBlock)) {
+				&& !(token instanceof TokenTextBlock)
+				&& position < token.originalEnd + 1
+				&& this.source.substring(position, token.originalEnd + 1).endsWith(closingQuotes)) {
 			String stringToCheck = this.source.substring(position, token.originalEnd+1);
-			int splitPlace = stringToCheck.indexOf("\"\"\"");
-
+			int splitPlace = stringToCheck.indexOf(closingQuotes);
 			if (splitPlace > 0) {
 				this.edits.add(getReplaceEdit(position+splitPlace, position+splitPlace, "\\" + this.buffer.toString(), region));
 			}
@@ -566,33 +565,6 @@ public class TextEditsBuilder extends TokenTraverser {
 		this.sourceLimit = token.originalEnd + 1;
 
 		this.parentTokenIndex = index;
-
-		/*if (token instanceof TokenTextBlock) {
-			String stringToAppend = "\\" + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
-			TokenTextBlock tbToken = (TokenTextBlock)token;
-			int numOfTabs = tbToken.getIndent() / this.options.indentation_size;
-			StringBuilder defaultIndentation = new StringBuilder();
-			for (int i =0; i< numOfTabs;  i++) {
-				defaultIndentation.append('\t');
-				System.out.println(defaultIndentation.length());
-			}
-
-			if (tbToken.hasReplace()) {
-				IRegion region = this.regions.get(this.currentRegion);
-				List<Token> internalTokens = tbToken.getInternalStructure();
-				int empty_spaces_end = internalTokens.get(internalTokens.size()-1).originalStart;
-				int empty_spaces_start = internalTokens.get(internalTokens.size()-2).originalEnd;
-				StringBuilder sb = new StringBuilder();
-				StringBuilder emptySpaces = new StringBuilder();
-				for (int i=empty_spaces_start+1; i < empty_spaces_end; i++) {
-					char c = this.tm.charAt(i);
-					if(c == ' ' || c == '\t') emptySpaces.append(c);
-					else if(c != '\n')
-						sb.append(this.tm.charAt(i));
-				}
-				this.edits.add(getReplaceEdit(tbToken.originalEnd-2, tbToken.originalEnd-2, stringToAppend + emptySpaces + sb, region));
-			}
-		}*/
 
 		traverse(structure, 0);
 	}
