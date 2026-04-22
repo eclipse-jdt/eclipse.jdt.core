@@ -367,7 +367,9 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (this.currentRegion == this.regions.size() - 1
 					|| this.regions.get(this.currentRegion + 1).getOffset() > currentPosition) {
 				this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
-				checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
+				System.out.println("++++");
+				if (this.currentRegion < this.regions.size())
+					checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
 				break;
 			}
 
@@ -388,17 +390,21 @@ public class TextEditsBuilder extends TokenTraverser {
 			buffered = buffered.substring(bestSplit);
 			this.counter = regionEnd;
 		}
-		if (sourceMatch)
+		if (sourceMatch && this.currentRegion < this.regions.size()) {
+			System.out.println("---- " + this.regions.size() + ":  " + this.currentRegion);
 			checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
+		}
 		this.buffer.setLength(0);
 		this.counter = currentPosition;
 	}
 
-	private boolean checkClosingQuotes(int position, IRegion region) {
+	private void checkClosingQuotes(int position, IRegion region) {
 		Token token = this.getCurrent();
+		if (token == null) return;
 		String closingQuotes = "\"\"\""; //$NON-NLS-1$
+		System.out.println(position + " : " + token.originalEnd);
 		if (this.options.put_text_block_quotes_on_new_line && !(token instanceof TokenTextBlock)
-				&& position < token.originalEnd + 1
+				&& position < token.originalEnd
 				&& this.source.substring(position, token.originalEnd + 1).endsWith(closingQuotes)) {
 			String stringToCheck = this.source.substring(position, token.originalEnd + 1);
 			int splitPlace = stringToCheck.indexOf(closingQuotes);
@@ -406,9 +412,8 @@ public class TextEditsBuilder extends TokenTraverser {
 				this.edits.add(getReplaceEdit(position + splitPlace, position + splitPlace,
 						'\\' + this.buffer.toString(), region));
 			}
-
 		}
-		return false;
+		System.out.println("End");
 	}
 
 	private ReplaceEdit getReplaceEdit(int editStart, int editEnd, String text, IRegion region) {
