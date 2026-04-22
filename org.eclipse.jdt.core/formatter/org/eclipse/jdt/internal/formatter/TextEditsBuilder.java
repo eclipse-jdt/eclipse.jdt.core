@@ -367,6 +367,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (this.currentRegion == this.regions.size() - 1
 					|| this.regions.get(this.currentRegion + 1).getOffset() > currentPosition) {
 				this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
+				checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
 				break;
 			}
 
@@ -387,8 +388,27 @@ public class TextEditsBuilder extends TokenTraverser {
 			buffered = buffered.substring(bestSplit);
 			this.counter = regionEnd;
 		}
+		/*if (currentPosition < this.getCurrent().originalEnd) {*/
+		if(sourceMatch) checkClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
+		//}
 		this.buffer.setLength(0);
 		this.counter = currentPosition;
+	}
+
+	private boolean checkClosingQuotes(int position, IRegion region) {
+		Token token = this.getCurrent();
+		if (this.options.put_text_block_quotes_on_new_line
+				&& this.source.substring(position, token.originalEnd + 1).endsWith("\"\"\"")
+				&& !(token instanceof TokenTextBlock)) {
+			String stringToCheck = this.source.substring(position, token.originalEnd+1);
+			int splitPlace = stringToCheck.indexOf("\"\"\"");
+
+			if (splitPlace > 0) {
+				this.edits.add(getReplaceEdit(position+splitPlace, position+splitPlace, "\\" + this.buffer.toString(), region));
+			}
+
+		}
+		return false;
 	}
 
 	private ReplaceEdit getReplaceEdit(int editStart, int editEnd, String text, IRegion region) {
@@ -547,9 +567,16 @@ public class TextEditsBuilder extends TokenTraverser {
 
 		this.parentTokenIndex = index;
 
-		if (token instanceof TokenTextBlock) {
+		/*if (token instanceof TokenTextBlock) {
 			String stringToAppend = "\\" + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 			TokenTextBlock tbToken = (TokenTextBlock)token;
+			int numOfTabs = tbToken.getIndent() / this.options.indentation_size;
+			StringBuilder defaultIndentation = new StringBuilder();
+			for (int i =0; i< numOfTabs;  i++) {
+				defaultIndentation.append('\t');
+				System.out.println(defaultIndentation.length());
+			}
+
 			if (tbToken.hasReplace()) {
 				IRegion region = this.regions.get(this.currentRegion);
 				List<Token> internalTokens = tbToken.getInternalStructure();
@@ -565,7 +592,7 @@ public class TextEditsBuilder extends TokenTraverser {
 				}
 				this.edits.add(getReplaceEdit(tbToken.originalEnd-2, tbToken.originalEnd-2, stringToAppend + emptySpaces + sb, region));
 			}
-		}
+		}*/
 
 		traverse(structure, 0);
 	}
