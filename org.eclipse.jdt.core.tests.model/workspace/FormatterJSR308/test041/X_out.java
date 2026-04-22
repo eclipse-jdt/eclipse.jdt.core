@@ -4,6 +4,6 @@ public class X {
 				subd3
 				ospl
 				test\
-			"""
+				"""
 			+ "osd\n";
 }
