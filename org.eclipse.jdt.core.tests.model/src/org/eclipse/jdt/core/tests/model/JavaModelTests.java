@@ -486,23 +486,26 @@ public void testGetJavaProjects2() throws CoreException {
 /*
  * Test retrieving non-Java projects.
  */
-public void testGetNonJavaResources() throws CoreException {
+public void testGetNonJavaResources() throws Exception {
 	try {
 		IJavaModel model = getJavaModel();
 
 		this.createJavaProject("JP", new String[]{}, "");
+		waitForAutoBuild();
 		assertResourceNamesEqual(
 			"Unexpected non-Java resources",
 			"",
 			model.getNonJavaResources());
 
 		createProject("SP1");
+		waitForAutoBuild();
 		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP1",
 			"SP1",
 			model.getNonJavaResources());
 
 		createProject("SP2");
+		waitForAutoBuild();
 		assertResourceNamesEqual(
 			"Unexpected non-Java resources after creation of SP2",
 			"SP1\n" +
@@ -510,6 +513,7 @@ public void testGetNonJavaResources() throws CoreException {
 			model.getNonJavaResources());
 
 		this.deleteProject("SP1");
+		waitForAutoBuild();
 		assertResourceNamesEqual(
 			"Unexpected non-Java resources after deletion of SP1",
 			"SP2",
