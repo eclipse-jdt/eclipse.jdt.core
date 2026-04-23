@@ -401,6 +401,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		if (token == null) return;
 		String closingQuotes = "\"\"\""; //$NON-NLS-1$
 		if (this.options.put_text_block_quotes_on_new_line && !(token instanceof TokenTextBlock)
+				&& token.tokenType == TokenNameTextBlock
 				&& position < token.originalEnd
 				&& this.source.substring(position, token.originalEnd + 1).endsWith(closingQuotes)) {
 			String stringToCheck = this.source.substring(position, token.originalEnd + 1);
