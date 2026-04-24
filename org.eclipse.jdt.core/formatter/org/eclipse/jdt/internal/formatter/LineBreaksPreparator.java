@@ -127,7 +127,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 		if (previous != null) {
 			ASTNode parent = previous.getParent();
-			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent) || parent instanceof ImplicitTypeDeclaration)) {
+			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent)
+					|| parent instanceof ImplicitTypeDeclaration)) {
 				Token lastToken = this.tm.lastTokenIn(parent, ANY);
 				putBlankLinesBefore(lastToken, this.options.blank_lines_after_last_class_body_declaration);
 			}
@@ -349,7 +350,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private void doSwitchStatementsLineBreaks(List<Statement> statements) {
 		boolean arrowMode = statements.stream()
-				.anyMatch(s -> s instanceof SwitchCase &&((SwitchCase) s).isSwitchLabeledRule());
+				.anyMatch(s -> s instanceof SwitchCase && ((SwitchCase) s).isSwitchLabeledRule());
 		Statement previous = null;
 		for (Statement statement : statements) {
 			boolean skip = statement instanceof Block // will add break in visit(Block) if necessary
@@ -577,12 +578,17 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(TextBlock node) {
 		int indentOption = this.options.text_block_indentation;
-		if (indentOption == Alignment.M_INDENT_PRESERVE)
+		if (indentOption == Alignment.M_INDENT_PRESERVE && !this.options.put_text_block_quotes_on_new_line)
 			return true;
 		Token block = this.tm.firstTokenIn(node, TokenNameTextBlock);
-		ArrayList<Token> lines = new ArrayList<>();
-		lines.add(new Token(block.originalStart, block.originalStart + 2, TokenNameNotAToken)); // first line; """
 		int incidentalWhitespace = Integer.MAX_VALUE;
+		ArrayList<Token> lines = new ArrayList<>();
+		Token newLine = new Token(block.originalStart, block.originalStart + 2, TokenNameNotAToken); // first line; """
+		lines.add(newLine); // first line; """
+		//boolean needFormatBefore = textBlockNeedNewlineBefore(block);
+		if (this.options.put_text_block_quotes_on_new_line) {
+				breakLineBefore(node);
+		}
 		int blankLines = -1; // will go to 0 on line break after first line
 		int i = block.originalStart + 3;
 		while (i <= block.originalEnd) {
@@ -614,18 +620,28 @@ public class LineBreaksPreparator extends ASTVisitor {
 			}
 		}
 		WrapPolicy wrapPolicy = new WrapPolicy(WrapMode.DISABLED, 0, -1, 0, 0, 1, false, false);
-		for (i = 1; i < lines.size(); i++) {
-			Token t = lines.get(i);
-			Token line = new Token(t, t.originalStart + incidentalWhitespace, t.originalEnd, TokenNameTextBlock);
-			line.setWrapPolicy(wrapPolicy);
-			lines.set(i, line);
+		if(!this.options.put_text_block_quotes_on_new_line || ((TokenTextBlock)block).hasReplace()) {
+			for (i = 1; i < lines.size(); i++) {
+				Token t = lines.get(i);
+				Token line = new Token(t, t.originalStart + incidentalWhitespace, t.originalEnd, TokenNameTextBlock);
+				line.setWrapPolicy(wrapPolicy);
+				lines.set(i, line);
+			}
+			block.setInternalStructure(lines);
 		}
-		block.setInternalStructure(lines);
+		if (this.options.put_text_block_quotes_on_new_line) {
+			breakLineAfter(node);
+		}
+
 		return true;
 	}
 
 	private void breakLineBefore(ASTNode node) {
 		this.tm.firstTokenIn(node, ANY).breakBefore();
+	}
+
+	private void breakLineAfter(ASTNode node) {
+		this.tm.firstTokenIn(node, ANY).breakAfter();
 	}
 
 	private void putBlankLinesBefore(ASTNode node, int linesCount) {
@@ -659,8 +675,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private void handleBracedCode(ASTNode node, ASTNode nodeBeforeOpenBrace, String bracePosition, boolean indentBody,
 			int blankLinesAfterOpeningBrace, int blankLinesBeforeClosingBrace) {
-		int openBraceIndex = nodeBeforeOpenBrace == null
-				? this.tm.firstIndexIn(node, TokenNameLBRACE)
+		int openBraceIndex = nodeBeforeOpenBrace == null ? this.tm.firstIndexIn(node, TokenNameLBRACE)
 				: this.tm.firstIndexAfter(nodeBeforeOpenBrace, TokenNameLBRACE);
 		int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
 		Token openBraceToken = this.tm.get(openBraceIndex);
