@@ -626,6 +626,24 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IModuleDescription getModuleDescription() throws JavaModelException;
 
 	/**
+	 * Returns the {@link IModuleDescription} this project represents or null if the Java project doesn't represent any
+	 * named module. A Java project is said to represent a module if any of its source package fragment roots (see
+	 * {@link IPackageFragmentRoot#K_SOURCE}) contains a valid Java module descriptor, or if one of its classpath
+	 * entries has a valid {@link IClasspathAttribute#PATCH_MODULE} attribute affecting the current project. In the
+	 * latter case the corresponding module description of the location referenced by that classpath entry is returned.
+	 *
+	 * @param release
+	 *                    specify the upper bound for the target multi-release, source folders that specify a release
+	 *                    attribute are searched in descending order, starting with the value given by this parameter
+	 * @return the {@link IModuleDescription} this project represents.
+	 * @exception JavaModelException
+	 *                                   if this element does not exist or if an exception occurs while accessing its
+	 *                                   corresponding resource
+	 * @since 3.44
+	 */
+	IModuleDescription getModuleDescription(int release) throws JavaModelException;
+
+	/**
 	 * Returns the <code>IModuleDescription</code> owned by this project or
 	 * null if the Java project doesn't own a valid Java module descriptor.
 	 * This method considers only module descriptions contained in any of the
@@ -639,6 +657,23 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @since 3.20
 	 */
 	IModuleDescription getOwnModuleDescription() throws JavaModelException;
+
+	/**
+	 * Returns the multi-release specific <code>IModuleDescription</code> owned by this project or <code>null</code> if
+	 * the Java project doesn't own a valid Java module descriptor. This method considers only module descriptions
+	 * contained in any of the project's source package fragment roots (see {@link IPackageFragmentRoot#K_SOURCE}). In
+	 * particular any {@link IClasspathAttribute#PATCH_MODULE} attribute is not considered.
+	 *
+	 * @param release
+	 *                    specify the upper bound for the target multi-release, source folders that specify a release
+	 *                    attribute are searched in descending order, starting with the value given by this parameter
+	 * @return the {@link IModuleDescription} this project owns.
+	 * @exception JavaModelException
+	 *                                   if this element does not exist or if an exception occurs while accessing its
+	 *                                   corresponding resource
+	 * @since 3.44
+	 */
+	IModuleDescription getOwnModuleDescription(int release) throws JavaModelException;
 
 	/**
 	 * Returns the raw classpath for the project, as a list of classpath
