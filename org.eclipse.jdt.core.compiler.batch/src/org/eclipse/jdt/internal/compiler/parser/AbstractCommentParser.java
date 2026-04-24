@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -548,7 +548,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
 					pushText(this.textStart, textEndPosition);
 				}
-				refreshInlineTagPosition(textEndPosition);
+				refreshInlineTagPosition((this.markdown && this.tagValue == TAG_SNIPPET_VALUE) ? textEndPosition - 2 : textEndPosition);
 				setInlineTagStarted(false);
 			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition && (this.textStart < this.starPosition || this.starPosition == lastStarPosition || this.markdown)) {
 				if (!(invalidInlineTagLineEnd > 0 && nextCharacter == '}' && this.markdown && this.index == this.javadocEnd))
@@ -1663,6 +1663,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		int openBraces = 1;
 		boolean parsingJava18Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK18 : false;
 		boolean valid = true;
+		boolean markdownSnippetIsValid = false;
 		if (!parsingJava18Plus) {
 			throw Scanner.invalidInput();
 		}
@@ -1713,6 +1714,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								}
 							}
 							if (snippetTag != null) {
+								if (snippetType.toString().equals(FILE) && this.markdown) {
+									valid = true;
+								}
 								this.setSnippetIsValid(snippetTag, valid);
 							}
 							break;
@@ -1746,6 +1750,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								}
 							}
 							if (snippetTag != null) {
+								if (snippetType.toString().equals(CLASS) && this.markdown) {
+									valid = true;
+								}
 								this.setSnippetIsValid(snippetTag, valid);
 							}
 							break;
@@ -1855,6 +1862,36 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							this.textStart = -1;
 						}
 						break;
+					case TokenNameCOMMENT_MARKDOWN:
+						if (this.markdown) {
+							String markdownTokenString = this.scanner.getCurrentTokenString();
+							String[] elements = markdownTokenString.split("\\r?\\n", -1); //$NON-NLS-1$
+							int elmentStart = this.scanner.getCurrentTokenStartPosition();
+							int elementEnd = 0;
+							try {
+								for (int i = 0; i < elements.length; i++) {
+									if (elementEnd != 0 ) {
+										elmentStart = elementEnd + 1; // +1 because of new line
+									}
+									int pos = elements[i].indexOf("///"); //$NON-NLS-1$
+									if (pos != -1) {
+										elmentStart = elmentStart + 3 + pos;
+										String element = elements[i].substring(3 + pos);
+										elementEnd = elmentStart + element.length();
+										if (element.stripLeading().startsWith("}")) { //$NON-NLS-1$
+											break;
+										}
+									}
+									pushText(elmentStart, elementEnd);
+								}
+								if (elements.length > 0)
+									markdownSnippetIsValid = true;
+							} catch (Exception e) {
+								markdownSnippetIsValid = false;
+							}
+
+						}
+						break;
 					case TokenNameCOMMENT_LINE:
 						String tokenString = this.scanner.getCurrentTokenString();
 						boolean handleNow = handleCommentLineForCurrentLine(tokenString);
@@ -1868,6 +1905,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							this.inlineTagCount = 0;
 						}
 						Object innerTag = parseSnippetInlineTags(indexOfLastComment == -1 ? tokenString : tokenString.substring(indexOfLastComment+2), snippetTag, this.scanner);
+						if (this.markdown) {
+							markdownSnippetIsValid = true;
+						}
 						if (innerTag != null) {
 							lvalid = true;
 						}
@@ -1898,7 +1938,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								addSnippetInnerTag(innerTag, snippetTag);
 							this.snippetInlineTagStarted = true;
 						}
-						//valid = valid & lvalid;
 						break;
 					default:
 						if (!this.lineStarted || this.textStart == -1) {
@@ -1936,7 +1975,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.index = lastRBracePosition - 1;
 		}
 		if (snippetTag != null) {
-			this.setSnippetIsValid(snippetTag, retVal);
+			this.setSnippetIsValid(snippetTag, (markdownSnippetIsValid) ? markdownSnippetIsValid : retVal);
 		}
 		return retVal;
 	}
