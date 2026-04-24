@@ -230,7 +230,7 @@ private Map<String, String> getSecondaryTypes(String qualifiedPackageName) {
 		Parser parser = new Parser(problemReporter, false);
 		parser.reportSyntaxErrorIsRequired = false;
 
-		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
+		CompilationUnitDeclaration unit = parser.dietParse(cu, compilationResult);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit != null ? unit.types : null;
 		if (types == null) continue;
 		for (TypeDeclaration type : types) {
