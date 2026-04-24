@@ -119,6 +119,21 @@
            file-extensions="kt">
      </file-association>
   </extension>
+  <extension
+        point="org.eclipse.core.contenttype.contentTypes">
+     <file-association
+           content-type="org.eclipse.jdt.core.javaDerivedSource"
+           file-extensions="langx">
+     </file-association>
+  </extension>
+  <extension
+        point="org.eclipse.jdt.core.searchParticipant">
+     <searchParticipant
+           class="org.eclipse.jdt.core.tests.model.TestDerivedSourceSearchParticipant"
+           id="org.eclipse.jdt.core.tests.model.testDerivedSourceSearchParticipant"
+           fileExtensions="langx">
+     </searchParticipant>
+  </extension>
 
 
 </plugin>
