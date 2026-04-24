@@ -2309,14 +2309,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 											() -> allTypeAnnotationContexts);
 		}
 		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0 ||
-				binding.isConstructor() &&  binding.declaringClass.isRecord()) {
+				binding.isConstructor() && mayContainGeneratedMethod(binding.declaringClass)) {
 			attributesNumber += generateMethodParameters(binding);
 		}
 		// update the number of attributes
 		this.contents[methodAttributeOffset++] = (byte) (attributesNumber >> 8);
 		this.contents[methodAttributeOffset] = (byte) attributesNumber;
 	}
-
+	private boolean mayContainGeneratedMethod(ReferenceBinding binding) {
+		return (binding.isRecord() || binding.isMemberType() || binding.isEnum());
+	}
 	private void dumpLocations(int[] locations) {
 		if (locations == null) {
 			// no type path
