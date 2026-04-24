@@ -325,5 +325,12 @@
          name="%defaultJavaFormatterName">
    </javaFormatter>
 </extension>
+<extension
+      point="org.eclipse.jdt.core.compilationUnitResolver">
+   <resolver
+         class="org.eclipse.jdt.core.dom.CompilationUnitResolver$ECJCompilationUnitResolver"
+         id="org.eclipse.jdt.core.compilationUnitResolver.ecj">
+   </resolver>
+</extension>
 
 </plugin>
