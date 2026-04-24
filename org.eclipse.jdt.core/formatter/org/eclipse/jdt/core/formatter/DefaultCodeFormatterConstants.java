@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5588,6 +5588,20 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.6
 	 */
 	public static final String FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED = JavaCore.PLUGIN_ID + ".formatter.wrap_outer_expressions_when_nested"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before lambda parenthesis ->
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_lambda_empty_paren"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.46
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_LAMBDA_EMPTY_PARENTHESES = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_lambda_empty_paren";	//$NON-NLS-1$
+
 	/**
 	 * <pre>
 	 * FORMATTER / The wrapping is done by indenting by one compare to the current indentation.

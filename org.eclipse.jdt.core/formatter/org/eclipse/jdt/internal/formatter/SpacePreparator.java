@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2025 Mateusz Matela and others.
+ * Copyright (c) 2014, 2026 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -597,8 +597,7 @@ public class SpacePreparator extends ASTVisitor {
 		List<VariableDeclaration> parameters = node.parameters();
 		if (node.hasParentheses()) {
 			if (handleEmptyParens(node, this.options.insert_space_between_empty_parens_in_method_declaration)) {
-				handleToken(node, TokenNameLPAREN,
-						this.options.insert_space_before_opening_paren_in_method_declaration, false);
+				handleToken(node, TokenNameLPAREN,this.options.insert_space_before_lambda_empty_paren, false);
 			} else {
 				handleToken(node, TokenNameLPAREN,
 						this.options.insert_space_before_opening_paren_in_method_declaration,

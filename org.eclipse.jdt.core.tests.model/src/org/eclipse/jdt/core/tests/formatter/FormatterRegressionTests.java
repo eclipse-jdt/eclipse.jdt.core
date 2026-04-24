@@ -16554,4 +16554,24 @@ public void testIssue2977() {
 				""";
 		formatSource(input, expected);
 	}
+
+	public void testLambdaWithSpaceBeforeEmptyParenthesisOption() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_16);
+		this.formatterPrefs.insert_space_before_lambda_empty_paren = true;
+		String input = """
+					class Test {
+						void test() {
+							String value = java.util.Optional.ofNullable("x").orElseThrow(() -> new IllegalStateException());
+						}
+					}
+				""";
+		String expected = """
+				class Test {
+					void test() {
+						String value = java.util.Optional.ofNullable("x").orElseThrow( () -> new IllegalStateException());
+					}
+				}
+				""";
+		formatSource(input, expected);
+	}
 }
