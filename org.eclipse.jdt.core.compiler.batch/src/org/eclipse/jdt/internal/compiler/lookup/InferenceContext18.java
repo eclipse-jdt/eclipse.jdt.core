@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
@@ -429,7 +430,7 @@ public class InferenceContext18 {
 				return null;
 			// 5. bullet: determine B4 from C
 			while (!c.isEmpty()) {
-				Map<InferenceVariable,Set<InferenceVariable>> dependencies = collectDependencies(this.currentBounds, false, new boolean[1]);
+				Map<InferenceVariable,Set<InferenceVariable>> dependencies = collectDependencies(this.currentBounds);
 				List<Set<InferenceVariable>> components = new ArrayList<>(dependencies.values());
 				// *
 				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c), components);
@@ -1151,13 +1152,6 @@ public class InferenceContext18 {
 	private /*@Nullable*/ BoundSet resolve(
 			InferenceVariable[] toResolve,
 			boolean isRecordPatternTypeInference) throws InferenceFailureException {
-		return resolve(toResolve, isRecordPatternTypeInference, true);
-	}
-	private /*@Nullable*/ BoundSet resolve(
-			InferenceVariable[] toResolve,
-			boolean isRecordPatternTypeInference,
-			boolean maySkipSuperBound) throws InferenceFailureException {
-
 		this.captureId = 0;
 		// NOTE: 18.5.2 ...
 		// "(While it was necessary to demonstrate that the inference variables in B1 could be resolved
@@ -1168,20 +1162,14 @@ public class InferenceContext18 {
 			Set<InferenceVariable> toResolveSet = new LinkedHashSet<>(Arrays.asList(toResolve));
 			// find a minimal set of dependent variables:
 			Set<InferenceVariable> variableSet;
-			boolean[] hasSkippedSuperBound = { false };
-			while ((variableSet = getSmallestVariableSet(tmpBoundSet, toResolveSet, maySkipSuperBound, hasSkippedSuperBound)) != null) {
+			while ((variableSet = getSmallestVariableSet(tmpBoundSet, toResolveSet)) != null) {
 				int oldNumUninstantiated = tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables);
-				final int numVars = variableSet.size();
-				if (numVars > 0) {
-					final InferenceVariable[] variables = variableSet.toArray(new InferenceVariable[numVars]);
-					// NON-JLS: prioritize ivars in 'inThrows' as those may pull in new information by extra rule below (=RuntimeException)
-					BoundSet tSet = tmpBoundSet;
-					Arrays.sort(variables, (v1, v2) -> {
-						int r1 = tSet.inThrows.contains(v1) ? -1 : 0;
-						int r2 = tSet.inThrows.contains(v2) ? -1 : 0;
-						return r1 - r2;
-					});
-					//
+				List<InferenceVariable> ofRank;
+				while ((ofRank = pickIvarsByRank(variableSet, tmpBoundSet)) != null) {
+					final int numVars = ofRank.size();
+					if (numVars == 0)
+						continue;
+					final InferenceVariable[] variables = ofRank.toArray(new InferenceVariable[numVars]);
 					variables: if (!isRecordPatternTypeInference && !tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
 						BoundSet prevBoundSet = tmpBoundSet;
@@ -1190,6 +1178,7 @@ public class InferenceContext18 {
 							InferenceVariable variable = variables[j];
 							if (tmpBoundSet.isInstantiated(variable)) { // NON-JLS: may happen when exception bound has been incorporated
 								toResolveSet.remove(variable);
+								variableSet.remove(variable);
 								continue;
 							}
 							// try lower bounds:
@@ -1236,13 +1225,12 @@ public class InferenceContext18 {
 								}
 							}
 							toResolveSet.remove(variable);
+							variableSet.remove(variable);
 						}
 						if (tmpBoundSet.incorporate(this))
 							continue;
 						tmpBoundSet = prevBoundSet;// clean-up for second attempt
 					}
-					if (maySkipSuperBound && hasSkippedSuperBound[0])
-						return resolve(toResolve, isRecordPatternTypeInference, false);
 					// Otherwise, a second attempt is made...
 					Sorting.sortInferenceVariables(variables); // ensure stability of capture IDs
 					final CaptureBinding18[] zs = new CaptureBinding18[numVars];
@@ -1348,6 +1336,7 @@ public class InferenceContext18 {
 						if (!typeboundCreated)
 							tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME), this.environment);
 						toResolveSet.remove(variable);
+						variableSet.remove(variable);
 					}
 					if (tmpBoundSet.incorporate(this)) {
 						if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
@@ -1432,11 +1421,11 @@ public class InferenceContext18 {
 	 * Find the smallest set of uninstantiated inference variables not depending
 	 * on any uninstantiated variable outside the set.
 	 */
-	public Set<InferenceVariable> getSmallestVariableSet(BoundSet bounds, Set<InferenceVariable> subSet, boolean maySkipSuperBound, boolean[] hasSkippedSuperBound) {
+	public Set<InferenceVariable> getSmallestVariableSet(BoundSet bounds, Set<InferenceVariable> subSet) {
 		// "Given a set of inference variables to resolve, let V be the union of this set and
 		//  all variables upon which the resolution of at least one variable in this set depends."
 		Set<InferenceVariable> v = new LinkedHashSet<>(subSet);
-		Map<InferenceVariable,Set<InferenceVariable>> dependencies = collectDependencies(bounds, maySkipSuperBound, hasSkippedSuperBound);
+		Map<InferenceVariable,Set<InferenceVariable>> dependencies = collectDependencies(bounds);
 		for (InferenceVariable iv : subSet) {
 			Set<InferenceVariable> tmp = dependencies.get(iv);
 			if (tmp != null)
@@ -1458,7 +1447,9 @@ public class InferenceContext18 {
 			//  "... and ii) there exists no non-empty proper subset of { α1, ..., αn } with this property."
 			// -> find a smallest among candidate sets:
 			if (set == null) {
-				return Collections.singleton(currentVariable);
+				set = new HashSet<>();
+				set.add(currentVariable);
+				return set;
 			}
 			for (Iterator<InferenceVariable> iter = set.iterator(); iter.hasNext();) {
 				InferenceVariable iv = iter.next();
@@ -1476,14 +1467,28 @@ public class InferenceContext18 {
 		return result;
 	}
 
+	static List<InferenceVariable> pickIvarsByRank(Set<InferenceVariable> variableSet, BoundSet tmpBoundSet) {
+		// apply the ranking of ivars according to their bounds as explained in
+		// https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/message/GN6RTCGMME6I5JVLSFZRIR32XY6QKOI2/
+		Map<Integer, List<InferenceVariable>> byRank = variableSet.stream().collect(Collectors.groupingBy(tmpBoundSet::rankIVar));
+		for (int rank = 0; rank < 4; rank++) {
+			List<InferenceVariable> ofRank = byRank.get(rank);
+			if (ofRank == null)
+				continue;
+			final int numVars = ofRank.size();
+			if (numVars == 0)
+				continue;
+			return ofRank;
+		}
+		return null;
+	}
+
 	/**
 	 * Collect dependencies of all our ivars based on TypeBounds of 'bounds'
 	 * @param bounds consider all its TypeBounds
-	 * @param maySkipSuperBound if true, then α :> β bounds will not be treated as a dependency from α to β (only the inverse)
-	 * @param hasSkippedSuperBound output parameter to signal to the caller if maySkipSuperBound has been used
 	 * @return a map from an ivar to the set of all its dependencies including itself.
 	 */
-	Map<InferenceVariable,Set<InferenceVariable>> collectDependencies(BoundSet bounds, boolean maySkipSuperBound, boolean[] hasSkippedSuperBound) {
+	Map<InferenceVariable,Set<InferenceVariable>> collectDependencies(BoundSet bounds) {
 		// Implements the definition of dependencies from JLS §18.4:
 		Map<InferenceVariable,Set<InferenceVariable>> dependsOn = new LinkedHashMap<>();
 		// "An inference variable α depends on the resolution of itself."
@@ -1499,38 +1504,31 @@ public class InferenceContext18 {
 			// T = α  -- encoded as α = T
 			// T <: α -- encoded as α :> T
 			for (int i=0; i<2; i++) { // 2 attempts, reading the bound left-to-right, then right-to-left
-				if (maySkipSuperBound && typeBound.relation == ReductionResult.SUPERTYPE && typeBound.right instanceof InferenceVariable) {
-					// NON-JLS: first try to ignore any dependencies resulting from a supertype bound,
-					// i.e., given α :> β do not consider α to depend on β
-					hasSkippedSuperBound[0] = true; // signal the application of this tweak to upstream,
-													// so they can retry with the tweak disabled (maySkip=false)
-				} else {
-					Set<InferenceVariable> betas = new LinkedHashSet<>();
-					typeBound.right.collectInferenceVariables(betas);
-					if (!betas.isEmpty()) {
-						InferenceVariable alpha = typeBound.left;
-						// Determine the direction of dependencies to add:
-						// "If α appears on the left-hand side of another bound of the form G<..., α, ...> = capture(G<...>),
-						// then β depends on the resolution of α. Otherwise, α depends on the resolution of β."
-						boolean alphaDependsOnBeta = true;
-						captureTest: for (ParameterizedTypeBinding gCap : bounds.captures.keySet()) {
-							for (TypeBinding arg : gCap.arguments) {
-								if (TypeBinding.equalsEquals(arg, alpha)) {
-									alphaDependsOnBeta = false;
-									break captureTest;
-								}
+				Set<InferenceVariable> betas = new LinkedHashSet<>();
+				typeBound.right.collectInferenceVariables(betas);
+				if (!betas.isEmpty()) {
+					InferenceVariable alpha = typeBound.left;
+					// Determine the direction of dependencies to add:
+					// "If α appears on the left-hand side of another bound of the form G<..., α, ...> = capture(G<...>),
+					// then β depends on the resolution of α. Otherwise, α depends on the resolution of β."
+					boolean alphaDependsOnBeta = true;
+					captureTest: for (ParameterizedTypeBinding gCap : bounds.captures.keySet()) {
+						for (TypeBinding arg : gCap.arguments) {
+							if (TypeBinding.equalsEquals(arg, alpha)) {
+								alphaDependsOnBeta = false;
+								break captureTest;
 							}
 						}
-						if (alphaDependsOnBeta) {
-							Set<InferenceVariable> deps = dependsOn.computeIfAbsent(alpha, iv -> new LinkedHashSet<>());
-							deps.addAll(betas);
-							deps.add(alpha); // add self-dependency, alpha might not yet be recorded if its from inner inference
-						} else {
-							for (InferenceVariable beta : betas) {
-								Set<InferenceVariable> deps = dependsOn.computeIfAbsent(beta, iv -> new LinkedHashSet<>());
-								deps.add(alpha);
-								deps.add(beta); // add self-dependency, beta might not yet be recorded if its from inner inference
-							}
+					}
+					if (alphaDependsOnBeta) {
+						Set<InferenceVariable> deps = dependsOn.computeIfAbsent(alpha, iv -> new LinkedHashSet<>());
+						deps.addAll(betas);
+						deps.add(alpha); // add self-dependency, alpha might not yet be recorded if its from inner inference
+					} else {
+						for (InferenceVariable beta : betas) {
+							Set<InferenceVariable> deps = dependsOn.computeIfAbsent(beta, iv -> new LinkedHashSet<>());
+							deps.add(alpha);
+							deps.add(beta); // add self-dependency, beta might not yet be recorded if its from inner inference
 						}
 					}
 				}

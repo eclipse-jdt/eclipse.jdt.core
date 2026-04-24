@@ -315,7 +315,7 @@ class BoundSet {
 	 * <dl>
 	 * <dt>captures<dd>IC18.resumeSuspendedInference() will reset these to avoid captures from nested
 	 * 	inference spilling blindly into the current inference.<br>
-	 *  {@link InferenceContext18#collectDependencies(BoundSet, boolean, boolean[])} considers only "local" {@link #captures}.
+	 *  {@link InferenceContext18#collectDependencies(BoundSet)} considers only "local" {@link #captures}.
 	 * <dt>allCaptures<dd>Still {@link #hasCaptureBound(Set)} and {@link #incorporate(InferenceContext18)} will
 	 * 	operate on {@link #allCaptures}.
 	 */
@@ -430,10 +430,16 @@ class BoundSet {
 				// for a dependency between two IVs make a note about the inverse bound.
 				// this should be needed to determine IV dependencies independent of direction.
 				// TODO: so far no test could be identified which actually needs it ...
-				InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
-				three = this.boundsPerVariable.get(rightIV);
-				if (three == null)
-					this.boundsPerVariable.put(rightIV, (three = new ThreeSets()));
+				int relation = switch (bound.relation) {
+					case ReductionResult.SUBTYPE -> ReductionResult.SUPERTYPE;
+					case ReductionResult.SUPERTYPE -> ReductionResult.SUBTYPE;
+					default -> -1;
+				};
+				if (relation != -1) {
+					InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
+					three = this.boundsPerVariable.computeIfAbsent(rightIV, k -> new ThreeSets());
+					three.addBound(new TypeBound(rightIV, bound.left, relation));
+				}
 			}
 		}
 	}
@@ -722,7 +728,8 @@ class BoundSet {
 		if (InferenceContext18.DEBUG) {
 			if (!capturesToRemove.isEmpty()) {
 				for (ParameterizedTypeBinding toRemove : capturesToRemove) {
-					System.out.println("Removing capture bound " + //$NON-NLS-1$
+					if (this.captures.containsKey(toRemove))
+						System.out.println("Removing capture bound " + //$NON-NLS-1$
 							String.valueOf(toRemove.shortReadableName()) +
 							"=capture("+String.valueOf(this.captures.get(toRemove).shortReadableName())+")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
@@ -1061,6 +1068,22 @@ class BoundSet {
 			}
 		}
 		return true;
+	}
+
+	public int rankIVar(InferenceVariable ivar) {
+		// implements the ranking of ivars according to their bounds as explained in
+		// https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/message/GN6RTCGMME6I5JVLSFZRIR32XY6QKOI2/
+		ThreeSets three = this.boundsPerVariable.get(ivar.prototype());
+		if (three != null) {
+			if (three.sameBounds != null)
+				for (TypeBound bound :three.sameBounds)
+					if (!(bound.right instanceof InferenceVariable))
+						return 1;
+			if (three.superBounds != null)
+				if (!three.superBounds.isEmpty())
+						return 2;
+		}
+		return 3;
 	}
 
 	/**
