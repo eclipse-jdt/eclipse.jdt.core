@@ -164,7 +164,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		for (int i = 0; i < enumConstants.size(); i++) {
 			EnumConstantDeclaration declaration = enumConstants.get(i);
 			if (declaration.getJavadoc() != null)
-				this.tm.firstTokenIn(declaration, TokenNameCOMMENT_JAVADOC).breakBefore();
+				this.tm.firstTokenIn(declaration.getJavadoc(), ANY).breakBefore();
 			if (declaration.getAnonymousClassDeclaration() != null && i < enumConstants.size() - 1)
 				this.tm.firstTokenAfter(declaration, TokenNameCOMMA).breakAfter();
 		}

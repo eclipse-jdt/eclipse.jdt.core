@@ -16554,4 +16554,21 @@ public void testIssue2977() {
 				""";
 		formatSource(input, expected);
 	}
+
+	public void testEnumJavaDocBreak() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				public enum TestEnum  {
+					/// A
+					A;
+				}
+				""";
+		String expected = """
+				public enum TestEnum {
+					/// A
+					A;
+				}
+				""";
+		formatSource(input, expected);
+	}
 }
