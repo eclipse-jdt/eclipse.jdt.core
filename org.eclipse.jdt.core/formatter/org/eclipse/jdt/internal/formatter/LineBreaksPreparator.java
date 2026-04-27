@@ -585,7 +585,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 		ArrayList<Token> lines = new ArrayList<>();
 		Token newLine = new Token(block.originalStart, block.originalStart + 2, TokenNameNotAToken); // first line; """
 		lines.add(newLine); // first line; """
-		//boolean needFormatBefore = textBlockNeedNewlineBefore(block);
 		if (this.options.put_text_block_quotes_on_new_line) {
 				breakLineBefore(node);
 		}
