@@ -71,12 +71,12 @@ public static Test suite() {
  */
 @Override
 public void tearDown() throws Exception {
-	getWorkspace().removeResourceChangeListener(LOG_RESOURCE_DELTA);
 	this.deleteProject("P");
 	super.tearDown();
 }
 @Override
 public void tearDownSuite() throws Exception {
+	getWorkspace().removeResourceChangeListener(LOG_RESOURCE_DELTA);
 	this.deleteProject("BinaryProject");
 	super.tearDownSuite();
 }
