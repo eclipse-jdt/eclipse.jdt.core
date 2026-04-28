@@ -27,7 +27,7 @@ public class TokenTextBlock extends Token {
 		return this.hasReplace;
 	}
 
-	public void addNewlineReplace() {
-		this.hasReplace = true;
+	public void setReplace(boolean value) {
+		this.hasReplace = value;
 	}
 }

@@ -150,9 +150,6 @@ public class Token {
 			token.breakAfter();
 			return token;
 		} else {
-			if (add_newline_textblock && currentToken == TerminalToken.TokenNameTextBlock) {
-				return new TokenTextBlock(start, end, currentToken);
-			}
 			return new Token(start, end, currentToken);
 		}
 	}

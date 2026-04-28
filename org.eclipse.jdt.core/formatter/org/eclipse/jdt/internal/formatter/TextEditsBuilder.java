@@ -366,7 +366,10 @@ public class TextEditsBuilder extends TokenTraverser {
 			}
 			if (this.currentRegion == this.regions.size() - 1
 					|| this.regions.get(this.currentRegion + 1).getOffset() > currentPosition) {
-				this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
+				if (this.parent == null || this.parent.getCurrent().tokenType != TokenNameTextBlock
+						|| region.getOffset() <= this.parent.getCurrent().originalStart) {
+					this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
+				}
 				if (this.currentRegion < this.regions.size())
 					checkTextBlockClosingQuotes(currentPosition, this.regions.get(this.currentRegion));
 				break;
@@ -403,12 +406,12 @@ public class TextEditsBuilder extends TokenTraverser {
 		String closingQuotes = "\"\"\""; //$NON-NLS-1$
 		// We need to check if we need to add the newline to the closing quotes when the option is enabled
 		// Since the buffer is flushed for the whole textblock first, and then for the internal structure,
-		// we want to make sure that this is not the whole textblock. Then we check that the current token
-		// string ends with the closing quotes.
+		// we want to make sure that this is not the whole textblock. Then we check that the parent text block
+		// token has indicated a needed replace.
 		if (this.options.put_text_block_quotes_on_new_line && !(token instanceof TokenTextBlock)
-				&& token.tokenType == TokenNameTextBlock
-				&& position < token.originalEnd
-				&& this.source.substring(position, token.originalEnd + 1).endsWith(closingQuotes)) {
+				&& this.parent != null
+				&& this.parent.getCurrent() instanceof TokenTextBlock tokenTextBlock
+				&& tokenTextBlock.hasReplace()) {
 			String stringToCheck = this.source.substring(position, token.originalEnd + 1);
 			int splitPlace = stringToCheck.indexOf(closingQuotes);
 			if (splitPlace > 0) {

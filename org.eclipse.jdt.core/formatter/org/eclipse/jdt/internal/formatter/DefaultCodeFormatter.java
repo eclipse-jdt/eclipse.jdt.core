@@ -400,6 +400,15 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				if (tokenType == TokenNameEOF)
 					break;
 				Token token = Token.fromCurrent(scanner, tokenType, this.workingOptions.put_text_block_quotes_on_new_line);
+				if (this.workingOptions.put_text_block_quotes_on_new_line && token.tokenType == TerminalToken.TokenNameTextBlock) {
+					for (IRegion region : this.formatRegions) {
+						if (region.getOffset() <= token.originalStart &&
+								region.getOffset() + region.getLength() >= token.originalEnd) {
+							token = new TokenTextBlock(token.originalStart, token.originalEnd,TerminalToken.TokenNameTextBlock);
+							break;
+						}
+					}
+				}
 				this.tokens.add(token);
 			} catch (InvalidInputException e) {
 				Token token = Token.fromCurrent(scanner, TokenNameNotAToken, false);

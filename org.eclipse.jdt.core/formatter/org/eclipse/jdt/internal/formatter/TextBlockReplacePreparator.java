@@ -33,7 +33,7 @@ public class TextBlockReplacePreparator extends ASTVisitor {
 		Token block = this.tokenManager.firstTokenIn(node, TokenNameTextBlock);
 		if (this.options.put_text_block_quotes_on_new_line && block instanceof TokenTextBlock) {
 			if ( needFormat(block)) {
-				((TokenTextBlock)block).addNewlineReplace();
+				((TokenTextBlock)block).setReplace(true);
 			}
 		}
 		return true;
