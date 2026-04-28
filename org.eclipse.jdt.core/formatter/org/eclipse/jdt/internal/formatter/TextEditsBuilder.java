@@ -366,7 +366,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			}
 			if (this.currentRegion == this.regions.size() - 1
 					|| this.regions.get(this.currentRegion + 1).getOffset() > currentPosition) {
-				if (this.parent == null || this.parent.getCurrent().tokenType != TokenNameTextBlock
+				if (this.parent == null || this.parent.getCurrent() == null || this.parent.getCurrent().tokenType != TokenNameTextBlock
 						|| region.getOffset() <= this.parent.getCurrent().originalStart) {
 					this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
 				}
