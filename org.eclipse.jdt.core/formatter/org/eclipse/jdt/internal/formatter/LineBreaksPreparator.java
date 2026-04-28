@@ -626,10 +626,26 @@ public class LineBreaksPreparator extends ASTVisitor {
 			block.setInternalStructure(lines);
 		}
 		if (this.options.put_text_block_quotes_on_new_line) {
-			breakLineAfter(node);
+			if (!checkSemicolonTextBlock(block)) {
+				breakLineAfter(node);
+			}
 		}
 
 		return true;
+	}
+
+	private boolean checkSemicolonTextBlock(Token token) {
+		boolean semicolonFound = false;;
+		if (token instanceof TokenTextBlock) {
+			String source = this.tm.getSource();
+			for(int i=token.originalEnd+1; i < source.length(); i++) {
+				char curChar = source.charAt(i);
+				if (curChar == ' ' || curChar == '\t') continue;
+				if (curChar == ';') semicolonFound = true;
+				break;
+			}
+		}
+		return semicolonFound;
 	}
 
 	private void breakLineBefore(ASTNode node) {
