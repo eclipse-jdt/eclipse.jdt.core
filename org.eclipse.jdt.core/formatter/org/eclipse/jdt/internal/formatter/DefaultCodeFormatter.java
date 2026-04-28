@@ -399,7 +399,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				TerminalToken tokenType = scanner.getNextToken();
 				if (tokenType == TokenNameEOF)
 					break;
-				Token token = Token.fromCurrent(scanner, tokenType, this.workingOptions.put_text_block_quotes_on_new_line);
+				Token token = Token.fromCurrent(scanner, tokenType);
 				if (this.workingOptions.put_text_block_quotes_on_new_line && token.tokenType == TerminalToken.TokenNameTextBlock) {
 					for (IRegion region : this.formatRegions) {
 						if (region.getOffset() <= token.originalStart &&
@@ -411,7 +411,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				}
 				this.tokens.add(token);
 			} catch (InvalidInputException e) {
-				Token token = Token.fromCurrent(scanner, TokenNameNotAToken, false);
+				Token token = Token.fromCurrent(scanner, TokenNameNotAToken);
 				this.tokens.add(token);
 			}
 		}
