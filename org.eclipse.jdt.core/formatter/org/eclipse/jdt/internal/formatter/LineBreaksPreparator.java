@@ -626,7 +626,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			block.setInternalStructure(lines);
 		}
 		if (this.options.put_text_block_quotes_on_new_line) {
-			if (!checkSemicolonTextBlock(block)) {
+			if (block instanceof TokenTextBlock && !checkSemicolonTextBlock(block)) {
 				breakLineAfter(node);
 			}
 		}
