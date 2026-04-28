@@ -127,8 +127,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 		if (previous != null) {
 			ASTNode parent = previous.getParent();
-			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent)
-					|| parent instanceof ImplicitTypeDeclaration)) {
+			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent) || parent instanceof ImplicitTypeDeclaration)) {
 				Token lastToken = this.tm.lastTokenIn(parent, ANY);
 				putBlankLinesBefore(lastToken, this.options.blank_lines_after_last_class_body_declaration);
 			}
@@ -350,7 +349,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private void doSwitchStatementsLineBreaks(List<Statement> statements) {
 		boolean arrowMode = statements.stream()
-				.anyMatch(s -> s instanceof SwitchCase && ((SwitchCase) s).isSwitchLabeledRule());
+				.anyMatch(s -> s instanceof SwitchCase &&((SwitchCase) s).isSwitchLabeledRule());
 		Statement previous = null;
 		for (Statement statement : statements) {
 			boolean skip = statement instanceof Block // will add break in visit(Block) if necessary
@@ -672,7 +671,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private void handleBracedCode(ASTNode node, ASTNode nodeBeforeOpenBrace, String bracePosition, boolean indentBody,
 			int blankLinesAfterOpeningBrace, int blankLinesBeforeClosingBrace) {
-		int openBraceIndex = nodeBeforeOpenBrace == null ? this.tm.firstIndexIn(node, TokenNameLBRACE)
+		int openBraceIndex = nodeBeforeOpenBrace == null
+				? this.tm.firstIndexIn(node, TokenNameLBRACE)
 				: this.tm.firstIndexAfter(nodeBeforeOpenBrace, TokenNameLBRACE);
 		int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
 		Token openBraceToken = this.tm.get(openBraceIndex);

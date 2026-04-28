@@ -92,7 +92,8 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (start > sourceStart) {
 				Token token = this.tm.get(this.tm.findIndex(start, ANY, false));
 				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
-						|| token.tokenType == TokenNameCOMMENT_MARKDOWN) && start <= token.originalEnd) {
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN)
+						&& start <= token.originalEnd) {
 					start = token.originalStart;
 				}
 			}
@@ -100,7 +101,8 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (end > start && end > sourceStart) {
 				Token token = this.tm.get(this.tm.findIndex(end, ANY, false));
 				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
-						|| token.tokenType == TokenNameCOMMENT_MARKDOWN) && end < token.originalEnd) {
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN )
+						&& end < token.originalEnd) {
 					end = token.originalEnd;
 				}
 			}

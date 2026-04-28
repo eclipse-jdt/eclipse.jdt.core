@@ -135,7 +135,7 @@ public class Token {
 		this.internalStructure = tokenToCopy.internalStructure;
 	}
 
-	public static Token fromCurrent(Scanner scanner, TerminalToken currentToken, boolean add_newline_textblock) {
+	public static Token fromCurrent(Scanner scanner, TerminalToken currentToken) {
 		int start = scanner.getCurrentTokenStartPosition();
 		int end = scanner.getCurrentTokenEndPosition();
 		if (currentToken == TerminalToken.TokenNameCOMMENT_LINE || currentToken == TerminalToken.TokenNameCOMMENT_MARKDOWN) {
