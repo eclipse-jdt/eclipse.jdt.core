@@ -635,7 +635,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	private boolean checkSemicolonTextBlock(Token token) {
-		boolean semicolonFound = false;;
+		boolean semicolonFound = false;
 		if (token instanceof TokenTextBlock) {
 			String source = this.tm.getSource();
 			for(int i=token.originalEnd+1; i < source.length(); i++) {
