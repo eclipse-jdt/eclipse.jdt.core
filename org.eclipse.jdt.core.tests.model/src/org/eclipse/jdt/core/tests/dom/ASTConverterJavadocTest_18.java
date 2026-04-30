@@ -1057,4 +1057,315 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		assertEquals("Tag element fragment should be TextElement", true, tagElem.fragments().get(0) instanceof TextElement);
 		assertEquals("Fourth fragment should be TextElement", true, fragments.get(3) instanceof TextElement);
 	}
+
+	public void testSnippetMultilineOnlyJavadoc5() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
+				"""
+					package javadoc;
+					public class X {
+						/**
+						 * {@snippet :
+						 * 	int a = 1;
+						 * 	int b = 2;
+						 * }
+						 */
+						 public static void foo(Object object) {}
+					}
+				"""
+			);
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		List<TextElement> snippetFrags = snippetTag.fragments();
+		assertEquals("Invalid snippet elements", 3, snippetFrags.size());
+		assertEquals("Incorrect content for firstElemnt", " 	int a = 1;\n", snippetFrags.get(0).getText());
+		assertEquals("Incorrect content for secondElemnt", " 	int b = 2;\n", snippetFrags.get(1).getText());
+
+	}
+
+	public void testSnippetNestedBlocksJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet:
+				 *   if (a) {
+				 *      while (b) {
+				 *         foo();
+				 *      }
+				 *   }
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit cu = verifyComments(this.workingCopies[0]);
+		List unitComments = cu.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+		assertTrue( "Snippet should contain multiple text elements",fragments.size() >= 3);
+		assertTrue("Snippet should contain if block", ((TextElement) fragments.get(0)).getText().contains("if (a)"));
+		assertTrue("Snippet should contain while loop", ((TextElement) fragments.get(1)).getText().contains("while (b)"));
+		assertTrue("Snippet should contain method call", ((TextElement) fragments.get(2)).getText().contains("foo();"));
+	}
+
+	public void testSnippetEmptyBodyJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet :
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List<?> fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+
+		String empty_text = ((TextElement) fragments.get(0)).getText();
+		assertTrue("Empty snippet should not contain non-empty text",empty_text.trim().isEmpty());
+	}
+
+	public void testSnippetSingleElementJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet :
+				 * int a = 10;
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List<?> fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+		assertTrue("Snippet should contain the statement", ((TextElement) fragments.get(0)).getText().contains("int a = 10;"));
+	}
+
+	public void testSnippetBlankLineInsideBodyJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet :
+				 *
+				 * int a = 1;
+				 *
+				 * int b = 2;
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List<?> fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+
+		assertTrue("Snippet should contain first statement", ((TextElement) fragments.get(1)).getText().contains("int a = 1;"));
+		assertTrue("Snippet should contain second statement", ((TextElement) fragments.get(3)).getText().contains("int b = 2;"));
+	}
+
+	public void testSnippetMultipleAttributesJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet id="x1" lang=java region="main" :
+				 *   int a;
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List<?> fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+		assertTrue("Snippet should contain the statement", ((TextElement) fragments.get(0)).getText().contains("int a;"));
+	}
+
+	public void testSnippetSingleQuoteAttributesJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet id='demo' lang='java' :
+				 *   int a;
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List<?> fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+		assertTrue("Snippet should contain the statement", ((TextElement) fragments.get(0)).getText().contains("int a;"));
+	}
+
+
+	public void testSnippetReplaceTagJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet :
+				 * System.out.println("abc"); // @replace substring="abc" replacement="xyz"
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List<?> fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+		TagElement firstTag = (TagElement) fragments.get(0);
+		assertEquals(
+				"Unexpected tag inside snippet",
+				"@replace",
+				firstTag.getTagName()
+			);
+		List<?> tagFragments = firstTag.fragments();
+		assertFalse("Tag should have inner fragments", tagFragments.isEmpty());
+		TextElement textElement = (TextElement) tagFragments.get(0);
+		assertTrue(
+			    "Snippet should contain System.out.println(\"abc\")",
+			    textElement.getText().contains("System.out.println(\"abc\")")
+			);
+		assertFalse(
+			    "Snippet should contain System.out.println(\"xyz\")",
+			    textElement.getText().contains("System.out.println(\"xyz\")")
+			);
+	}
+
+	public void testSnippetLinkTagJavadoc() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet :
+				 * System.out.println("abc"); // @link substring="System" target="System"
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should be present", snippetTag);
+
+		List<?> fragments = snippetTag.fragments();
+		assertFalse("Snippet should have fragments", fragments.isEmpty());
+
+		TagElement firstTag = (TagElement) fragments.get(0);
+		assertEquals(
+				"Unexpected tag inside snippet",
+				"@link",
+				firstTag.getTagName()
+			);
+		List<?> tagFragments = firstTag.fragments();
+		assertFalse("Tag should have inner fragments", tagFragments.isEmpty());
+		TextElement textElement = (TextElement) tagFragments.get(0);
+		assertTrue(
+			    "Original text should be preserved in AST",
+			    textElement.getText().contains("System.out.println(\"abc\")")
+			);
+	}
 }
