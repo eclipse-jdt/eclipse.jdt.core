@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -406,6 +406,7 @@ public class CompilerOptions {
 	public static final int IncompatibleOwningContract = IrritantSet.GROUP3 | ASTNode.Bit2;
 	public static final int UnusedLambdaParameter = IrritantSet.GROUP3 | ASTNode.Bit3;
 	public static final int MemberOfDeprecatedType = IrritantSet.GROUP3 | ASTNode.Bit4;
+	public static final int NullAnnotationUnsupportedLocation = IrritantSet.GROUP3 | ASTNode.Bit5;
 
 
 	// Severity level for handlers
@@ -1213,6 +1214,7 @@ public class CompilerOptions {
 			case PessimisticNullAnalysisForFreeTypeVariables:
 			case NonNullTypeVariableFromLegacyInvocation:
 			case AnnotatedTypeArgumentToUnannotated:
+			case NullAnnotationUnsupportedLocation:
 				return "null"; //$NON-NLS-1$
 			case FallthroughCase :
 				return "fallthrough"; //$NON-NLS-1$

@@ -402,6 +402,11 @@ public static int getIrritant(int problemID) {
 		case IProblem.RecordComponentIncompatibleNullnessVsInheritedAccessor:
 			return CompilerOptions.NullSpecViolation;
 
+		case IProblem.NullAnnotationUnsupportedLocation:
+		case IProblem.NullAnnotationAtQualifyingType:
+		case IProblem.NullAnnotationUnsupportedLocationAtType:
+			return CompilerOptions.NullAnnotationUnsupportedLocation;
+
 		case IProblem.NullNotCompatibleToFreeTypeVariable:
 		case IProblem.NullityMismatchAgainstFreeTypeVariable:
 		case IProblem.UncheckedAccessOfValueOfFreeTypeVariable:
@@ -6225,7 +6230,7 @@ public void nullAnnotationUnsupportedLocation(TypeReference type) {
 	}
 
 	handle(IProblem.NullAnnotationUnsupportedLocationAtType,
-		NoArgument, NoArgument, type.sourceStart, sourceEnd);
+		NoArgument, NoArgument, ProblemSeverities.Error|ProblemSeverities.Fatal, type.sourceStart, sourceEnd);
 }
 private char[][] missingAnalysisAnnotationName(AnnotationBinding[] annotations, LookupEnvironment environment) {
 	for (AnnotationBinding annotationBinding : annotations) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2021 GK Software AG and others.
+ * Copyright (c) 2012, 2026 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19879,5 +19879,29 @@ public void testGH4494() throws Exception {
 			}
 			"""
 	});
+}
+
+public void testGH5042() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+	runConformTestWithLibs(new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class X {
+				@SuppressWarnings("null")
+				static void create(Object o) {
+					@Nullable X x = new @Nullable X();
+					@NonNull X.Inner inner = null;
+					if (o instanceof @Nullable String)
+						System.out.print("nullable string");
+				}
+				class Inner {
+				}
+			}
+			"""
+		},
+		options,
+		"");
 }
 }
