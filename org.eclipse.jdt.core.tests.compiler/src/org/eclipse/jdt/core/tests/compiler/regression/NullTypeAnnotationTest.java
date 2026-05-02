@@ -2326,22 +2326,27 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Null type safety: Unchecked cast from List<X> to List<@NonNull X>\n" +
 			"----------\n" +
-			"4. WARNING in p\\X.java (at line 11)\n" +
+			"4. WARNING in p\\X.java (at line 8)\n" +
+			"	return arg;\n" +
+			"	       ^^^\n" +
+			"Null type safety (type annotations): The expression of type \'List<X>\' needs unchecked conversion to conform to \'List<@NonNull X>\'\n" +
+			"----------\n" +
+			"5. WARNING in p\\X.java (at line 11)\n" +
 			"	if (!(arg instanceof X @NonNull[]))\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"The expression of type X[] is already an instance of type X[]\n" +
 			"----------\n" +
-			"5. ERROR in p\\X.java (at line 11)\n" +
+			"6. ERROR in p\\X.java (at line 11)\n" +
 			"	if (!(arg instanceof X @NonNull[]))\n" +
 			"	                     ^^^^^^^^^^^^\n" +
 			"Nullness annotations are not applicable at this location\n" +
 			"----------\n" +
-			"6. WARNING in p\\X.java (at line 12)\n" +
+			"7. WARNING in p\\X.java (at line 12)\n" +
 			"	return (p.X @NonNull[])arg;\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^\n" +
 			"Null type safety: Unchecked cast from X[] to X @NonNull[]\n" +
 			"----------\n" +
-			"7. WARNING in p\\X.java (at line 18)\n" +
+			"8. WARNING in p\\X.java (at line 18)\n" +
 			"	return (ArrayList<String>) l;\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'ArrayList<@NonNull String>\'\n" +

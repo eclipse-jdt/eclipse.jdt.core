@@ -6189,7 +6189,7 @@ public void nullAnnotationUnsupportedLocation(Annotation annotation) {
 	String[] shortArguments = new String[] {
 		String.valueOf(annotation.resolvedType.shortReadableName())
 	};
-	int severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
+	int severity = ProblemSeverities.Error;
 	if (annotation.recipient instanceof ReferenceBinding) {
 		if (((ReferenceBinding) annotation.recipient).isAnnotationType())
 			severity = ProblemSeverities.Warning; // special case for https://bugs.eclipse.org/461878
@@ -6206,7 +6206,7 @@ public void nullAnnotationAtQualifyingType(Annotation annotation) {
 	String[] shortArguments = new String[] {
 		String.valueOf(annotation.resolvedType.shortReadableName())
 	};
-	int severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
+	int severity = ProblemSeverities.Error;
 	handle(IProblem.NullAnnotationAtQualifyingType,
 			arguments, shortArguments,
 			severity,
@@ -6230,7 +6230,7 @@ public void nullAnnotationUnsupportedLocation(TypeReference type) {
 	}
 
 	handle(IProblem.NullAnnotationUnsupportedLocationAtType,
-		NoArgument, NoArgument, ProblemSeverities.Error|ProblemSeverities.Fatal, type.sourceStart, sourceEnd);
+		NoArgument, NoArgument, ProblemSeverities.Error, type.sourceStart, sourceEnd);
 }
 private char[][] missingAnalysisAnnotationName(AnnotationBinding[] annotations, LookupEnvironment environment) {
 	for (AnnotationBinding annotationBinding : annotations) {
