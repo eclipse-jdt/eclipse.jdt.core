@@ -147,7 +147,8 @@ public class IrritantSet {
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
-				|CompilerOptions.NullAnnotationInferenceConflict);
+				|CompilerOptions.NullAnnotationInferenceConflict)
+			.set(CompilerOptions.NullAnnotationUnsupportedLocation);
 
 		ALL.setAll();
 		HIDING
