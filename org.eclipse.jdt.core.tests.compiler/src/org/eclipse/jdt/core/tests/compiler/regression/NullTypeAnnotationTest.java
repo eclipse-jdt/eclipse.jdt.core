@@ -878,7 +878,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in Test.java (at line 9)\n" +
 			"	public void foo( @A X. @NonNull Y this) {}\n" +
 			"	                 ^^^^^^^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n");
 	}
 
@@ -2265,7 +2265,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"2. ERROR in X.java (at line 4)\n" +
 			"	if (!(arg instanceof @NonNull X))\n" +
 			"	                     ^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n" +
 			"3. WARNING in X.java (at line 5)\n" +
 			"	return (@NonNull X)arg;\n" +
@@ -2319,7 +2319,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"2. ERROR in p\\X.java (at line 6)\n" +
 			"	if (!(arg instanceof List<@NonNull X>))\n" +
 			"	                     ^^^^^^^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n" +
 			"3. WARNING in p\\X.java (at line 7)\n" +
 			"	return (java.util.List<@NonNull X>)arg;\n" +
@@ -2334,7 +2334,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"5. ERROR in p\\X.java (at line 11)\n" +
 			"	if (!(arg instanceof X @NonNull[]))\n" +
 			"	                     ^^^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n" +
 			"6. WARNING in p\\X.java (at line 12)\n" +
 			"	return (p.X @NonNull[])arg;\n" +
@@ -2367,7 +2367,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	return o instanceof List<@Nullable ?>;\n" +
 			"	                    ^^^^^^^^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n");
 	}
 
@@ -2411,7 +2411,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	void receiver(@Nullable X this, Object o) {}\n" +
 			"	              ^^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n");
 	}
 
@@ -2435,12 +2435,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	consume(@NonNull X::supply);\n" +
 			"	        ^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 8)\n" +
 			"	consume(@NonNull X::new);\n" +
 			"	        ^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n");
 	}
 
@@ -2464,12 +2464,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	void throwsDecl() throws @Nullable IOException {}\n" +
 			"	                         ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 8)\n" +
 			"	} catch (@NonNull IOException ioe) {}\n" +
 			"	                  ^^^^^^^^^^^\n" +
-			"Nullness annotations are not applicable at this location \n" +
+			"Nullness annotations are not applicable at this location\n" +
 			"----------\n");
 	}
 
@@ -8528,7 +8528,7 @@ public void testBug466713d() {
 		"2. ERROR in Bug.java (at line 3)\n" +
 		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" +
 		"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Nullness annotations are not applicable at this location \n" +
+		"Nullness annotations are not applicable at this location\n" +
 		"----------\n",
 		this.LIBS,
 		true/*flush*/);
