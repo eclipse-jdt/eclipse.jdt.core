@@ -17,6 +17,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /* AnnotatableTypeSystem: Keep track of annotated types so as to provide unique bindings for identically annotated versions identical underlying "naked" types.
@@ -186,6 +187,20 @@ public class AnnotatableTypeSystem extends TypeSystem {
 
 		if (genericType.hasTypeAnnotations())
 			throw new IllegalStateException();
+
+		checkUnbounded: if (boundKind == Wildcard.EXTENDS && bound != null && bound.id == TypeIds.T_JavaLangObject) {
+			if ((bound.tagBits & TagBits.AnnotationNullMASK) != 0)
+				break checkUnbounded;
+			if (otherBounds != null) {
+				for (TypeBinding otherBound : otherBounds) {
+					if ((otherBound.tagBits & TagBits.AnnotationNullMASK) != 0)
+						break checkUnbounded;
+				}
+			}
+			boundKind = Wildcard.UNBOUND;
+			bound = null;
+			otherBounds = null;
+		}
 
 		WildcardBinding nakedType = null;
 		boolean useDerivedTypesOfBound = bound instanceof TypeVariableBinding || (bound instanceof ParameterizedTypeBinding && !(bound instanceof RawTypeBinding)) ;

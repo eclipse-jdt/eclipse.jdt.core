@@ -2104,6 +2104,42 @@ public void testGH5052() {
 		},
 		"map.consume");
 }
+public void testGH5028() {
+	runConformTest(new String[] {
+			"InferredGenerics.java",
+			"""
+			import java.util.Map;
+
+			public class InferredGenerics {
+			    public static void main(String[] args) {
+			        var child1 = new ParentGeneric<String>();
+			        var child2 = new ParentGeneric<Integer>();
+
+			        var wrappedChild1 = new WrapperGeneric<ParentGeneric<String>>();
+			        var wrappedChild2 = new WrapperGeneric<ParentGeneric<Object>>();
+
+			        var generics = Map.of(
+			                "wrap1", wrappedChild1,
+			                "wrap2", wrappedChild2);
+			        System.out.println(new GenericRegistry(generics));
+			    }
+
+			    static class GenericRegistry {
+			        Map<String, WrapperGeneric<? extends ParentGeneric<?>>> registry;
+
+			        public GenericRegistry(Map<String, WrapperGeneric<? extends ParentGeneric<?>>> registry) {
+			            this.registry = registry;
+			        }
+			    }
+
+			    static class WrapperGeneric<T> {}
+			    static class ParentGeneric<T> { }
+			    static class ChildOne extends ParentGeneric<String> {}
+			    static class ChildTwo extends ParentGeneric<Integer> {}
+			}
+			"""});
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
