@@ -2325,11 +2325,14 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	return (java.util.List<@NonNull X>)arg;\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Null type safety: Unchecked cast from List<X> to List<@NonNull X>\n" +
+			(this.complianceLevel >= ClassFileConstants.JDK16
+			?
 			"----------\n" +
 			"4. WARNING in p\\X.java (at line 8)\n" +
 			"	return arg;\n" +
 			"	       ^^^\n" +
-			"Null type safety (type annotations): The expression of type \'List<X>\' needs unchecked conversion to conform to \'List<@NonNull X>\'\n" +
+			"Null type safety (type annotations): The expression of type \'List<X>\' needs unchecked conversion to conform to \'List<@NonNull X>\'\n"
+			: "") +
 			"----------\n" +
 			"5. WARNING in p\\X.java (at line 11)\n" +
 			"	if (!(arg instanceof X @NonNull[]))\n" +
@@ -2347,6 +2350,11 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type safety: Unchecked cast from X[] to X @NonNull[]\n" +
 			"----------\n" +
 			"8. WARNING in p\\X.java (at line 18)\n" +
+			"	return (ArrayList<String>) l;\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Null type safety: Unchecked cast from List<@NonNull String> to ArrayList<String>\n" +
+			"----------\n" +
+			"9. WARNING in p\\X.java (at line 18)\n" +
 			"	return (ArrayList<String>) l;\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'ArrayList<@NonNull String>\'\n" +
@@ -19908,5 +19916,67 @@ public void testGH5042() throws Exception {
 		},
 		options,
 		"");
+}
+
+public void testGH5042b() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	// documents reporting against instanceof and cast
+	runNegativeTestWithLibs(new String[] {
+			"X.java",
+			"""
+			import java.util.Collection;
+			import org.eclipse.jdt.annotation.*;
+			interface MyList<T> extends Collection<T> {
+				T get(int i);
+			}
+			public class X {
+				static @NonNull X casting1(@Nullable Object o) {
+					if (o instanceof @NonNull X)
+						return (@NonNull X) o;
+					throw new NullPointerException();
+				}
+				static @NonNull X instanceofAndCast(Collection<X> l) {
+					if (l instanceof MyList<@NonNull X>)
+						return ((MyList<@NonNull X>) l).get(0);
+					throw new NullPointerException();
+				}
+				static @NonNull X instanceofPattern(Collection<X> l) {
+					if (l instanceof MyList<@NonNull X> lnn)
+						return lnn.get(0);
+					throw new NullPointerException();
+				}
+			}
+			"""
+		},
+		getCompilerOptions(),
+		"""
+		----------
+		1. ERROR in X.java (at line 8)
+			if (o instanceof @NonNull X)
+			                 ^^^^^^^^^^
+		Nullness annotations are not applicable at this location
+		----------
+		2. WARNING in X.java (at line 9)
+			return (@NonNull X) o;
+			       ^^^^^^^^^^^^^^
+		Null type safety: Unchecked cast from @Nullable Object to @NonNull X
+		----------
+		3. ERROR in X.java (at line 13)
+			if (l instanceof MyList<@NonNull X>)
+			                 ^^^^^^^^^^^^^^^^^^
+		Nullness annotations are not applicable at this location
+		----------
+		4. WARNING in X.java (at line 14)
+			return ((MyList<@NonNull X>) l).get(0);
+			       ^^^^^^^^^^^^^^^^^^^^^^^^
+		Null type safety: Unchecked cast from Collection<X> to MyList<@NonNull X>
+		----------
+		6. ERROR in X.java (at line 18)
+			if (l instanceof MyList<@NonNull X> lnn)
+			                 ^^^^^^^^^^^^^^^^^^
+		Nullness annotations are not applicable at this location
+		----------
+		""");
 }
 }
