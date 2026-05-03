@@ -402,6 +402,11 @@ public static int getIrritant(int problemID) {
 		case IProblem.RecordComponentIncompatibleNullnessVsInheritedAccessor:
 			return CompilerOptions.NullSpecViolation;
 
+		case IProblem.NullAnnotationUnsupportedLocation:
+		case IProblem.NullAnnotationAtQualifyingType:
+		case IProblem.NullAnnotationUnsupportedLocationAtType:
+			return CompilerOptions.NullAnnotationUnsupportedLocation;
+
 		case IProblem.NullNotCompatibleToFreeTypeVariable:
 		case IProblem.NullityMismatchAgainstFreeTypeVariable:
 		case IProblem.UncheckedAccessOfValueOfFreeTypeVariable:
@@ -6184,7 +6189,7 @@ public void nullAnnotationUnsupportedLocation(Annotation annotation) {
 	String[] shortArguments = new String[] {
 		String.valueOf(annotation.resolvedType.shortReadableName())
 	};
-	int severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
+	int severity = ProblemSeverities.Error;
 	if (annotation.recipient instanceof ReferenceBinding) {
 		if (((ReferenceBinding) annotation.recipient).isAnnotationType())
 			severity = ProblemSeverities.Warning; // special case for https://bugs.eclipse.org/461878
@@ -6201,7 +6206,7 @@ public void nullAnnotationAtQualifyingType(Annotation annotation) {
 	String[] shortArguments = new String[] {
 		String.valueOf(annotation.resolvedType.shortReadableName())
 	};
-	int severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
+	int severity = ProblemSeverities.Error;
 	handle(IProblem.NullAnnotationAtQualifyingType,
 			arguments, shortArguments,
 			severity,
@@ -6225,7 +6230,7 @@ public void nullAnnotationUnsupportedLocation(TypeReference type) {
 	}
 
 	handle(IProblem.NullAnnotationUnsupportedLocationAtType,
-		NoArgument, NoArgument, type.sourceStart, sourceEnd);
+		NoArgument, NoArgument, ProblemSeverities.Error, type.sourceStart, sourceEnd);
 }
 private char[][] missingAnalysisAnnotationName(AnnotationBinding[] annotations, LookupEnvironment environment) {
 	for (AnnotationBinding annotationBinding : annotations) {
