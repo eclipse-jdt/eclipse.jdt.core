@@ -5279,10 +5279,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// cast to type variable allowed, can be diagnosed as unnecessary
 	public void test0177() {
-		Map options = getCompilerOptions();
-		runConformTest(
-	 		// test directory preparation
-			true /* flush output directory */,
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] { /* test files */
 				"X.java",
 				"public class X <T> {\n" +
@@ -5291,22 +5289,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"		return (T) t;\n" +
 				"	}\n" +
 				"}\n",
-			},
-			// compiler options
-			null /* no class libraries */,
-			options /* custom options - happen to be the default not changed by the test suite */,
-			// compiler results
+			};
+		runner.expectedCompilerLog =
 			"----------\n" + /* expected compiler log */
 			"1. WARNING in X.java (at line 4)\n" +
 			"	return (T) t;\n" +
 			"	       ^^^^^\n" +
 			"Unnecessary cast from T to T\n" +
-			"----------\n",
-			// runtime results
-			null /* do not check output string */,
-			null /* do not check error string */,
-			// javac options
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
+			"----------\n";
+		runner.runWarningTest();
 	}
 	// reject instanceof type variable or parameterized type
 	public void test0178() {
@@ -6431,10 +6422,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69135 - unnecessary cast operation
 	public void test0217() {
-		Map customOptions = getCompilerOptions();
-		runConformTest(
-			// test directory preparation
-			true /* flush output directory */,
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] { /* test files */
 				"X.java",
 				"import java.util.ArrayList;\n" +
@@ -6444,22 +6433,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"		String string = (String) l.get(0);\n" +
 				"    }\n" +
 				"}\n",
-			},
-			// compiler options
-			null /* no class libraries */,
-			customOptions /* custom options */,
-			// compiler results
+			};
+		runner.expectedCompilerLog =
 			"----------\n" + /* expected compiler log */
 			"1. WARNING in X.java (at line 5)\n" +
 			"	String string = (String) l.get(0);\n" +
 			"	                ^^^^^^^^^^^^^^^^^\n" +
 			"Unnecessary cast from String to String\n" +
-			"----------\n",
-			// runtime results
-			null /* do not check output string */,
-			"java.lang.IndexOutOfBoundsException" /* do not check error string */,
-			// javac options
-			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
+			"----------\n";
+		runner.expectedErrorString =
+			"java.lang.IndexOutOfBoundsException";
+		runner.runWarningTest();
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=64154 visibility issue due to invalid use of parameterized binding
 	public void test0218() {
@@ -6623,11 +6607,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	MX<Class> mx2 = new MX<Class>();\n" +
 			"	                       ^^^^^\n" +
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 18)\n" +
-			"	mx1.foo(mx2.get());\n" +
-			"	        ^^^^^^^^^\n" +
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<? extends Object>\n" +
 			"----------\n",
 			null,
 			true,
@@ -7236,11 +7215,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"----------\n" +
 			"1. WARNING in X.java (at line 8)\n" +
-			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" +
-			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: Unchecked cast from Class to Class<?>\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
 			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" +
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Unnecessary cast from Class to Class<?>\n" +
@@ -22132,20 +22106,17 @@ public void test0702() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	lhs = rhs; // 1\n" +
-		"	      ^^^\n" +
-		"Type mismatch: cannot convert from X<X<? extends Object>> to X<X<?>>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
 		"	lhs = rhs; // 2\n" +
 		"	      ^^^\n" +
-		"Type mismatch: cannot convert from X<X<? extends Object>> to X<X<? extends Cloneable>>\n" +
+		"Type mismatch: cannot convert from X<X<?>> to X<X<? extends Cloneable>>\n" +
+/* this is reported by javac despite equivalence of ? with ? extends Object, see case // 4
 		"----------\n" +
 		"3. ERROR in X.java (at line 13)\n" +
 		"	lhs = rhs; // 3\n" +
 		"	      ^^^\n" +
 		"Type mismatch: cannot convert from X<X<? extends Object>> to X<X<? extends Runnable>>\n" +
+*/
 		"----------\n" +
 		"4. ERROR in X.java (at line 19)\n" +
 		"	lhs = rhs; // 5\n" +
@@ -32404,21 +32375,25 @@ public void test1000() {
 		"	                                                                   ^^\n" +
 		"Type safety: Potential heap pollution via varargs parameter it\n" +
 		"----------\n" +
+/* javac reports (2) & (4), although chain() resolves as Iterator#RAW chain(Iterator<?>[]), where the wildcard is unbounded (bounded by Object)
 		"2. WARNING in X.java (at line 9)\n" +
 		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" +
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked invocation chain(Iterator[]) of the generic method chain(Iterator<? extends T>...) of type X\n" +
 		"----------\n" +
+ */
 		"3. WARNING in X.java (at line 9)\n" +
 		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" +
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<Number>\n" +
 		"----------\n" +
+/*
 		"4. WARNING in X.java (at line 9)\n" +
 		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" +
 		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Object>[]\n" +
 		"----------\n" +
+*/
 		"5. WARNING in X.java (at line 14)\n" +
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" +
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
@@ -42193,7 +42168,7 @@ public void test1257() {
 				"        static interface Sub<T> extends Foo<T> {\n" +
 				"            static XList<Sub<? extends Object>> LIST = asList(ARRAY); \n" +
 				"       }\n" +
-				"        static Sub<? extends Object>[] ARRAY = new Sub[] { };\n" +
+				"        static Sub<? extends Object>[] ARRAY = new Sub[] { };\n" + // javac reports: warning: [rawtypes] found raw type: Sub
 				"    }\n" +
 				"}\n" +
 				"\n" +
@@ -42202,12 +42177,7 @@ public void test1257() {
 				"}\n", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	static Sub<? extends Object>[] ARRAY = new Sub[] { };\n" +
-		"	                                       ^^^^^^^^^^^^^\n" +
-		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<?>[]\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
+		"1. ERROR in X.java (at line 12)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -43863,12 +43833,7 @@ public void test1313() {
 					"}\n", // =================
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	List<?>[] l2 = new List<? extends Object>[2];\n" +
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot create a generic array of List<? extends Object>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
+			"1. ERROR in X.java (at line 7)\n" +
 			"	List<? extends Object> l3 = new List<?>[3];\n" +
 			"	                            ^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from List<?>[] to List<?>\n" +
@@ -47652,11 +47617,8 @@ public void test1420() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=257849
-// FIXME javac8 doesn't find the error
 public void test1421() {
 	this.runNegativeTest(
-			false /* skipJavac */,
-			JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
@@ -48994,12 +48956,10 @@ public void test1459() {
 		""); // no specific success output string
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643
-// SHOULD FAIL AT 1.8 (18.2.3): The method get(Class<W>, T) in the type Test is not applicable for the arguments (Class<Test.W_Description>, Object)
-// FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test277643() {
 	this.runNegativeTest(
 		false /* skipJavac */,
-		JavacTestOptions.EclipseHasABug.EclipseBug428061,
+		JavacTestOptions.JavacHasABug.JavacBugFixed_901,
 		new String[] {
 	    "Test.java",
 	    "public class Test {\n" +
@@ -49092,12 +49052,8 @@ public void test280054() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=283306
-// SHOULD FAIL AT 1.8 (18.2.3): The method get(Class<V>, Class<S>) in the type X.L is not applicable for the arguments (Class<V>, Class<X.B>)
-// FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test283306() {
 	this.runNegativeTest(
-		false /* skipJavac */,
-		JavacTestOptions.EclipseHasABug.EclipseBug428061,
 		new String[] {
 	    "Test.java",
 	    "public class Test {\n" +
