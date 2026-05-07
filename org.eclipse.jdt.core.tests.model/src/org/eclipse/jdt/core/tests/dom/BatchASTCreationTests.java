@@ -941,12 +941,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class X<T> {\n" +
 				"  void foo() {\n" +
 				"  }\n" +
-				"  void bar(X<? extends Object> x) {\n" +
+				"  void bar(X<? extends Exception> x) {\n" +
 				"    x.foo();\n" +
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X;{0}+Ljava/lang/Object;>;.foo()V");
+			"Lp1/X<Lp1/X;{0}+Ljava/lang/Exception;>;.foo()V");
 	}
 
 	/*
@@ -979,12 +979,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class X<T, U, V, W> {\n" +
 				"  void foo() {\n" +
 				"  }\n" +
-				"  void bar(X<? super Error, ?, String, ? extends Object> x) {\n" +
+				"  void bar(X<? super Error, ?, String, ? extends Exception> x) {\n" +
 				"    x.foo();\n" +
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X;{0}-Ljava/lang/Error;Lp1/X;{1}*Ljava/lang/String;Lp1/X;{2}+Ljava/lang/Object;>;.foo()V");
+			"Lp1/X<Lp1/X;{0}-Ljava/lang/Error;Lp1/X;{1}*Ljava/lang/String;Lp1/X;{2}+Ljava/lang/Exception;>;.foo()V");
 	}
 
 	/*
