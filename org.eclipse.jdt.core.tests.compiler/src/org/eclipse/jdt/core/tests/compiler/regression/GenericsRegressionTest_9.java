@@ -2140,6 +2140,33 @@ public void testGH5028() {
 			"""});
 }
 
+public void testListRewrite() {
+	// previously this triggered an unchecked warning
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			import java.util.*;
+			public class X {
+				public List getOriginalList(List list) {
+					return Collections.unmodifiableList(list);
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. WARNING in X.java (at line 3)
+			public List getOriginalList(List list) {
+			       ^^^^
+		List is a raw type. References to generic type List<E> should be parameterized
+		----------
+		2. WARNING in X.java (at line 3)
+			public List getOriginalList(List list) {
+			                            ^^^^
+		List is a raw type. References to generic type List<E> should be parameterized
+		----------
+		""");
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
