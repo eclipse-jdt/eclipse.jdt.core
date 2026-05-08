@@ -2074,6 +2074,36 @@ public void testIssue4864() {
 	});
 }
 
+public void testGH5052() {
+	runConformTest(new String[] {
+			"Freeze.java",
+			"""
+			import java.util.function.Function;
+
+			public class Freeze {
+				interface Ifc<S> {}
+				class Val implements Ifc<Val> {}
+
+				public static void main(String... args) {
+					Val v = null; // specific value doesn't matter here
+					consume(v, t -> someMapper(t));
+				}
+
+				static <T> void consume(T t, Function<T,T> mapper) {
+					mapper.apply(null);
+					System.out.print("consume");
+					// impl doesn't matter here
+				}
+
+				static <U extends Ifc<U>> U someMapper(U u) {
+					System.out.print("map.");
+					return null; // impl doesn't matter here
+				}
+			}
+			"""
+		},
+		"map.consume");
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
