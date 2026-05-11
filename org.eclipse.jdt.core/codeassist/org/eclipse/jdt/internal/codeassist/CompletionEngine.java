@@ -3285,8 +3285,16 @@ public final class CompletionEngine
 			CompletionOnMessageSendName messageSend = (CompletionOnMessageSendName) astNode;
 
 			setTokenRange(messageSend.sourceStart, messageSend.sourceEnd);
-			if (messageSend.statementEnd > messageSend.sourceStart)
-				setSourceRange(messageSend.sourceStart, messageSend.statementEnd);
+
+			if (messageSend.statementEnd > messageSend.sourceStart) {
+				// we ensure any existing arguments are preserved
+				boolean existingMethodCallHasBeenProvidedArguments = (messageSend.arguments != null);
+				if (existingMethodCallHasBeenProvidedArguments) {
+					setSourceRange(messageSend.sourceStart, messageSend.sourceEnd);
+				} else {
+					setSourceRange(messageSend.sourceStart, messageSend.statementEnd);
+				}
+			}
 
 			this.completionToken = messageSend.selector;
 
@@ -3602,7 +3610,33 @@ public final class CompletionEngine
 	private void internalCompletionOnQualifiedReference(ASTNode ref, ASTNode enclosingNode, Binding qualifiedBinding, Scope scope,
 			boolean insideTypeAnnotation, boolean isInsideAnnotationAttribute, InvocationSite site, char[][] tokens, long[] sourcePositions)
 	{
-		long completionPosition = sourcePositions[sourcePositions.length - 1];
+		// we take the cursor location into consideration regarding segments of a qualified name,
+		//
+		// Example:
+		// void x(TreeNode node) {
+		//   TreeNode other = node.ch|.child.child.parent;
+		//   // ...
+		// }
+		//
+		// in the above example, completionPosition will match against the cursor after 'ch', i.e. sourcePositions[1].
+		// (sourcePositions[0] points to 'node', sourcePositions[4] to 'parent')
+		long completionPosition = sourcePositions[sourcePositions.length - 1]; // use last segment as a fallback for resilience
+		for (long p : sourcePositions) {
+			int start = (int) (p >>> 32);
+			int end = (int) (p);
+			if (start > end) { // in specific cases like "node.|.child" the start might be larger than the end (see GH-2620)
+				// swap them for sanity / resilience
+				int tmp = start;
+				start = end;
+				end = tmp;
+			}
+			boolean cursorWithinBounds = (start <= this.actualCompletionPosition && this.actualCompletionPosition <= end);
+			if (cursorWithinBounds) {
+				completionPosition = p;
+				break;
+			}
+		}
+
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
 			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 			// complete field members with missing fields type

@@ -606,7 +606,7 @@ public void testCamelCaseField1() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseLocalVariable1() throws JavaModelException {
-	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -26223,5 +26223,201 @@ public void testGH1021OnSourceTypeArrayExpectArrayCompletion() throws JavaModelE
 							+ R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED)
 					+ "}",
 			requestor.getResults());
+}
+public void testGH2620_1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local.ref.test();
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test() {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.ref.te";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	assertResults(
+		"test[METHOD_REF]{test(), LGH2620$Test;, ()V, null, null, test, null, [157, 164], "+relevance+"}",
+		requestor.getResults()
+	);
+}
+public void testGH2620_1a() throws JavaModelException {
+	// to observe the difference when cursor is right to '('
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local.ref.test();
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test() {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.ref.test(";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+		"test[METHOD_REF]{, LGH2620$Test;, ()V, null, null, test, null, [163, 163], "+relevance+"}",
+		requestor.getResults()
+	);
+}
+public void testGH2620_1b() throws JavaModelException {
+	// to observe argument proposal
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					int j = 1;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local.ref.test();
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test(int i) {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.ref.test";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_NON_RESTRICTED;
+	assertResults(
+		"test[METHOD_REF]{test(), LGH2620$Test;, (I)V, null, null, test, (i), [170, 177], "+relevance+"}",
+		requestor.getResults()
+	);
+}
+public void testGH2620_1c() throws JavaModelException {
+	// to observe argument preservation
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					int j = 1;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local.ref.test(1);
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test(int i) {}
+					public static void test2() {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.ref.test";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	// argument preservation can be observed by the replacement range which should only cover the method name:
+	assertResults(
+		"""
+		test2[METHOD_REF]{test2, LGH2620$Test;, ()V, null, null, test2, null, [170, 174], 49}
+		test[METHOD_REF]{test, LGH2620$Test;, (I)V, null, null, test, (i), [170, 174], 53}
+		""".strip()
+		,
+		requestor.getResults()
+	);
+}
+public void testGH2620_2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					/*x*/local..test(); // cursor is tested for between the dots: "local.|.test();"
+				}
+				public static class Test {
+					public Test ref;
+					public static void test() {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("""
+		test[METHOD_REF]{test(), LGH2620$Test;, ()V, null, null, test, null, [92, 92], 49}
+		clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [92, 92], 60}
+		equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [92, 92], 60}
+		finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [92, 92], 60}
+		getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, null, null, getClass, null, [92, 92], 60}
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [92, 92], 60}
+		notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [92, 92], 60}
+		notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [92, 92], 60}
+		ref[FIELD_REF]{ref, LGH2620$Test;, LGH2620$Test;, null, null, ref, null, [92, 92], 60}
+		toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [92, 92], 60}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [92, 92], 60}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [92, 92], 60}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [92, 92], 60}
+		""".strip()
+		,
+		requestor.getResults()
+	);
+}
+public void testGH2620_3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local..test(); // cursor is tested for between the dots: "local.|.test();"
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test() {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("""
+		test[METHOD_REF]{test(), LGH2620$Test;, ()V, null, null, test, null, [153, 153], 49}
+		clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [153, 153], 60}
+		equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [153, 153], 60}
+		finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [153, 153], 60}
+		getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, null, null, getClass, null, [153, 153], 60}
+		hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [153, 153], 60}
+		notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [153, 153], 60}
+		notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [153, 153], 60}
+		ref[FIELD_REF]{ref, LGH2620$Test;, LGH2620$Test;, null, null, ref, null, [153, 153], 60}
+		toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [153, 153], 60}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [153, 153], 60}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [153, 153], 60}
+		wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [153, 153], 60}
+		""".strip()
+		,
+		requestor.getResults()
+	);
 }
 }
