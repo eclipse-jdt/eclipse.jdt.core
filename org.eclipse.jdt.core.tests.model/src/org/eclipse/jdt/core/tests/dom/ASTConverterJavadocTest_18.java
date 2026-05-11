@@ -1081,8 +1081,8 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		TagElement snippetTag = getSnippetTag(javadoc);
 		List<TextElement> snippetFrags = snippetTag.fragments();
 		assertEquals("Invalid snippet elements", 3, snippetFrags.size());
-		assertEquals("Incorrect content for firstElemnt", " 	int a = 1;\n", snippetFrags.get(0).getText());
-		assertEquals("Incorrect content for secondElemnt", " 	int b = 2;\n", snippetFrags.get(1).getText());
+		assertEquals("Incorrect content for firstElemnt", " 	int a = 1;\n", snippetFrags.get(0).getText().replaceAll("\\R", "\n"));
+		assertEquals("Incorrect content for secondElemnt", " 	int b = 2;\n", snippetFrags.get(1).getText().replaceAll("\\R", "\n"));
 
 	}
 
