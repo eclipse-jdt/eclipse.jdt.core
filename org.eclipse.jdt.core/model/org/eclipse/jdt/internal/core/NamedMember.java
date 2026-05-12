@@ -208,12 +208,25 @@ public abstract class NamedMember extends Member {
 					return null;
 				String classFileName = this.getParent().getElementName();
 				String typeName;
-				if (classFileName.indexOf('$') == -1) {
+				if (classFileName.indexOf('$') <= 0) {
 					// top level class file: name of type is same as name of class file
 					typeName = this.name;
 				} else {
 					// anonymous or local class file
-					typeName = classFileName.substring(0, classFileName.lastIndexOf('.'))/*remove .class*/.replace('$', enclosingTypeSeparator);
+					// see https://github.com/eclipse-jdt/eclipse.jdt.core/pull/671
+					typeName = classFileName.substring(0, classFileName.lastIndexOf('.'));/*remove .class*/
+					char[] chars = typeName.toCharArray();
+					for (int i = 0; i < chars.length; i++) {
+						if (i == chars.length - 1) {
+							continue;
+						}
+						boolean isPrevDollar = (i > 0) ? (chars[i - 1] == '$') : false;
+						boolean isNextDollar = (i + 1 < chars.length) ? (chars[i + 1] == '$') : false;
+						if (chars[i] == '$' && !isNextDollar && !isPrevDollar) {
+							chars[i] = enclosingTypeSeparator;
+						}
+					}
+					typeName = new String(chars);
 				}
 				if (showParameters) {
 					StringBuilder buffer = new StringBuilder(typeName);

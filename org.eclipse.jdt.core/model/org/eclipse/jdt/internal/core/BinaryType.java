@@ -272,7 +272,7 @@ public IType getDeclaringType() {
 				lastDollar = i;
 			}
 		}
-		if (lastDollar == -1) {
+		if (lastDollar <= 0 ) {
 			return null;
 		} else {
 			String enclosingName = classFileName.substring(0, lastDollar);

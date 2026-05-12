@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
@@ -302,5 +303,10 @@ public class LambdaExpression extends SourceType {
 	@Override
 	public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 		return new String[] { this.interphase };
+	}
+
+	@Override
+	public boolean isBinary() {
+		return (getParent() instanceof IMember) ? ((IMember)getParent()).isBinary() : super.isBinary();
 	}
 }
