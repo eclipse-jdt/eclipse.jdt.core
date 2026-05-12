@@ -800,7 +800,7 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 							"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, "+DEFAULT_RELEVANCE+"}\n" +
 							"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, "+DEFAULT_RELEVANCE+"}\n" +
 							"fld[FIELD_REF]{fld, Lp1.ABC;, I, fld, "+DEFAULT_RELEVANCE+"}\n" +
-							"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, "+DEFAULT_RELEVANCE+"}\n" +
+							"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, "+DEFAULT_RELEVANCE+"}\n" +
 							"getVal[METHOD_REF]{getVal(), Lp1.ABC;, ()Ljava.lang.String;, getVal, "+DEFAULT_RELEVANCE+"}\n" +
 							"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, "+DEFAULT_RELEVANCE+"}\n" +
 							"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, "+DEFAULT_RELEVANCE+"}\n" +
