@@ -4173,6 +4173,33 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
+	public void testNonNullBoundedWildcard() {
+		runNegativeTestWithLibs(new String[] {
+				"X.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNull;
+				interface MyList<T> {
+					T get(int i);
+				}
+				public class X {
+					@NonNull Object first(MyList<?> list1, MyList<? extends @NonNull Object> list2, boolean flag) {
+						if (flag)
+							return list1.get(1); // error
+						return list2.get(0); // ok
+					}
+				}
+				"""
+			},
+			getCompilerOptions(),
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				return list1.get(1); // error
+				       ^^^^^^^^^^^^
+			Null type safety: required '@NonNull' but this expression has type 'capture#1-of ?', a free type variable that may represent a '@Nullable' type
+			----------
+			""");
+	}
 	public void testLocalArrays() {
 		runNegativeTestWithLibs(
 			new String[] {

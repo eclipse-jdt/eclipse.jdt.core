@@ -67,7 +67,7 @@ public void testCodeSnippetAssistForBug132665() throws JavaModelException {
 
 	assertResults(
 		"foo1[METHOD_REF]{foo1(), Lbug132665.Bug132665<TT;>;, ()V, foo1, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"foo2[METHOD_REF]{foo2(), Lbug132665.Bug132665<TT;>;, ()Lbug132665.Bug132665<+Ljava.lang.Object;>;, foo2, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"foo2[METHOD_REF]{foo2(), Lbug132665.Bug132665<TT;>;, ()Lbug132665.Bug132665<*>;, foo2, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 		"foo3[METHOD_REF]{foo3(), Lbug132665.Bug132665<TT;>;, ()V, foo3, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
@@ -87,7 +87,7 @@ public void testCodeSnippetAssistForBug223878() throws JavaModelException {
 
 	assertResults(
 		"foo1[METHOD_REF]{foo1(), Lbug223878.Bug223878<TT;>;, ()V, foo1, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"foo2[METHOD_REF]{foo2(), Lbug223878.Bug223878<TT;>;, (Lbug223878.Bug223878<+Ljava.lang.Object;>;)V, foo2, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"foo2[METHOD_REF]{foo2(), Lbug223878.Bug223878<TT;>;, (Lbug223878.Bug223878<*>;)V, foo2, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 		"foo3[METHOD_REF]{foo3(), Lbug223878.Bug223878<TT;>;, ()V, foo3, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
