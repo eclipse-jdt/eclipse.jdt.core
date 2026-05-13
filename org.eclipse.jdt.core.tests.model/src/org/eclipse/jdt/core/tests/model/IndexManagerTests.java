@@ -29,9 +29,17 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.EntryResult;
@@ -174,6 +182,45 @@ public class IndexManagerTests extends ModifyingResourceTests {
 		Optional<Set<String>> indexNames = searchInMetaIndex("app.Q1");
 		assertTrue("No meta index", indexNames.isPresent());
 		assertEquals("No results found", 1, indexNames.get().size());
+	}
+
+	public void testDisableIndexingForRestrictedFile() throws Exception {
+		if (SKIP_TESTS) return;
+		this.indexDisabledForTest = true;
+		IEclipsePreferences node = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+		String pref = JavaModelManager.DISABLE_RESTRICTED_FILE_INDEXING_PREFERENCE;
+		node.putBoolean(pref, true);
+		node.flush();
+		boolean wasIndexerEnabled = JavaModelManager.getIndexManager().isEnabled();
+		try {
+			disableIndexer();
+
+			createFolder("/IndexProject/src/p");
+			IFile file1 = createFile("/IndexProject/src/p/TestClass1.java", "package p;\n public class TestClass1 {\n" + "}");
+			createFile("/IndexProject/src/p/TestClass2.java", "package p;\n public class TestClass2 {\n" + "}");
+			file1.setContentRestricted(true);
+			JavaModelManager.getIndexManager().indexAll(this.project.getProject());
+			waitUntilIndexesReady();
+
+			JavaSearchResultCollector collector = new JavaSearchResultCollector();
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.project});
+			search("TestClass1", IJavaSearchConstants.TYPE, IJavaSearchConstants.ALL_OCCURRENCES, scope, collector);
+			assertSearchResults(
+				"",
+				collector);
+
+			collector = new JavaSearchResultCollector();
+			search("TestClass2", IJavaSearchConstants.TYPE, IJavaSearchConstants.ALL_OCCURRENCES, scope, collector);
+			assertSearchResults(
+				"src/p/TestClass2.java p.TestClass2 [TestClass2]",
+				collector);
+		} finally {
+			if (wasIndexerEnabled) {
+				enableIndexer();
+			}
+			node.remove(pref);
+			node.flush();
+		}
 	}
 
 	private void changeFile(String path, String content) {

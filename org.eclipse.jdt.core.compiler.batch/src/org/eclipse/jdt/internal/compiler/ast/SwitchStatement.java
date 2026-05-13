@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -540,7 +540,7 @@ public class SwitchStatement extends Expression {
 		switch (eType.id) {
 			case TypeIds.T_JavaLangLong, TypeIds.T_JavaLangFloat, TypeIds.T_JavaLangDouble:
 				return true;
-			case TypeIds.T_long, TypeIds.T_double, TypeIds.T_float :
+			case TypeIds.T_boolean, TypeIds.T_long, TypeIds.T_double, TypeIds.T_float :
 				if (this.isPrimitiveSwitch)
 					return true;
 			// note: if no patterns are present we optimize Boolean to use unboxing rather than indy typeSwitch
@@ -925,7 +925,7 @@ public class SwitchStatement extends Expression {
 				this.swich.breakLabel.initialize(codeStream);
 				this.caseLabels = new BranchLabel[this.swich.nConstants];
 				gatherLabels(codeStream, BranchLabel::new);
-				this.swich.defaultLabel = new CaseLabel(codeStream, true /* allow narrow branch to */);
+				this.swich.defaultLabel = new CaseLabel(codeStream, true /* reachable also via goto[_w] */);
 				if (this.swich.defaultCase != null)
 					this.swich.defaultCase.targetLabel = this.swich.defaultLabel; // Replace the vanilla branch label with a case label that doubles as a branch label.
 			}
@@ -980,7 +980,7 @@ public class SwitchStatement extends Expression {
 					if (i == 0 || hashCode != lastHashCode) {
 						lastHashCode = hashCode;
 						if (i != 0)
-							codeStream.goto_(this.swich.defaultLabel);
+							codeStream.goto_(this.swich.defaultLabel.branchLabel);
 						this.caseLabels[j++].place();
 					}
 					codeStream.load(this.swich.selector);
@@ -988,7 +988,7 @@ public class SwitchStatement extends Expression {
 					codeStream.invokeStringEquals();
 					codeStream.ifne(this.stringCaseConstants[i].label);
 				}
-				codeStream.goto_(this.swich.defaultLabel);
+				codeStream.goto_(this.swich.defaultLabel.branchLabel);
 			}
 		}
 

@@ -217,7 +217,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
 				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
 				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
-				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
 				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
 				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
 				requestor.getResults());
@@ -278,7 +278,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
 				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
 				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
-				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
 				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
 				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
 				requestor.getResults());
@@ -314,7 +314,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
 				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
 				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
-				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
 				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
 				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
 				requestor.getResults());
@@ -350,7 +350,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
 				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
 				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
-				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
 				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
 				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
 				requestor.getResults());
@@ -387,7 +387,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
 				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
 				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
-				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
 				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
 				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
 				requestor.getResults());
@@ -422,7 +422,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				"codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (index), 60}\n" +
 				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
 				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
+				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n" +
 				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
 				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}\n" +
 				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
@@ -632,7 +632,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				+ "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n"
 				+ "foo[FIELD_REF]{foo, Ltest.FooBar;, Ljava.lang.String;, foo, null, 60}\n"
 				+ "foo[METHOD_REF]{foo(), Ltest.FooBar;, ()Ljava.lang.String;, foo, null, 60}\n"
-				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n"
 				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n"
 				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n"
 				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n"

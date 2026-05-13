@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -21,6 +22,9 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class CopyMoveElementsTests extends CopyMoveTests {
+
+private static final IResourceChangeListener LOG_RESOURCE_DELTA = AbstractJavaModelTests::logDeltaEvent;
+
 public CopyMoveElementsTests(String name) {
 	super(name);
 }
@@ -39,6 +43,7 @@ public void setUpSuite() throws Exception {
 	);
 	project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 	waitForAutoBuild();
+	getWorkspace().addResourceChangeListener(LOG_RESOURCE_DELTA);
 }
 /**
  * Setup for the next test.
@@ -71,6 +76,7 @@ public void tearDown() throws Exception {
 }
 @Override
 public void tearDownSuite() throws Exception {
+	getWorkspace().removeResourceChangeListener(LOG_RESOURCE_DELTA);
 	this.deleteProject("BinaryProject");
 	super.tearDownSuite();
 }

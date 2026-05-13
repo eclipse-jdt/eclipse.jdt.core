@@ -829,7 +829,7 @@ public void test0028() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -1407,7 +1407,7 @@ public void testBug311022a() throws JavaModelException {
 		"enclosingElement=bar() {key=Ltest/X;.bar<T:Ljava/lang/Object;>()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]\n" +
 		"visibleElements={\n" +
 		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"}",
 		result.context);
@@ -1445,7 +1445,7 @@ public void testBug311022b() throws JavaModelException {
 			"enclosingElement=bar() {key=Ltest/X;.bar<T:Ljava/lang/Object;>()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]\n" +
 			"visibleElements={\n" +
 			"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-			"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 			"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 			"}",
 			result.context);

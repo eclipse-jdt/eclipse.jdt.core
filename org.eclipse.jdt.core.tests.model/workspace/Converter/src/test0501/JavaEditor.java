@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -429,15 +429,14 @@ public abstract class JavaEditor extends ExtendedTextEditor implements IViewPart
 			if (text == null || text.isDisposed())
 				return;
 
-			Display display= text.getDisplay();
-			fColor= createColor(getPreferenceStore(), JavaEditor.LINK_COLOR, display);
+			fColor= createColor(getPreferenceStore(), JavaEditor.LINK_COLOR);
 		}
 
 		/**
 		 * Creates a color from the information stored in the given preference store.
 		 * Returns <code>null</code> if there is no such information available.
 		 */
-		private Color createColor(IPreferenceStore store, String key, Display display) {
+		private Color createColor(IPreferenceStore store, String key) {
 		
 			RGB rgb= null;		
 			
@@ -449,7 +448,7 @@ public abstract class JavaEditor extends ExtendedTextEditor implements IViewPart
 					rgb= PreferenceConverter.getColor(store, key);
 			
 				if (rgb != null)
-					return new Color(display, rgb);
+					return new Color(rgb);
 			}
 			
 			return null;
