@@ -1598,6 +1598,15 @@ public void testCreateIntersectionTypeSignature2() {
 			Signature.getIntersectionTypeBounds(signature)
 		);
 }
+
+public void testDollarPackage() {
+	String signature = Signature.getTypeErasure("Ljava.util.$foo$.Optional");
+	assertEquals(
+			"Ljava.util.$foo$.Optional",
+			new String(signature.toCharArray())
+			);
+}
+
 // Bug 380048 - error popup when navigating to source files
 public void testSourceMapperSigConversion01() {
 	SourceMapper mapper = new SourceMapper();
