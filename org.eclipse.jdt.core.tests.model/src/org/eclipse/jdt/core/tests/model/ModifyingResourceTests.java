@@ -196,6 +196,11 @@ protected void createExternalFile(String relativePath, String contents) {
 protected IFile createFile(String path, byte[] content) throws CoreException {
 	IFile file = super.createFile(path, content);
 	if(!isIndexDisabledForTest()) {
+		/*
+		 * Its possible that the RefreshJob picks up the file delta and requests indexing,
+		 * instead of the main thread (in which tests run). Make sure we don't miss that index request in the wait below.
+		 */
+		waitForAutoRefresh();
 		JavaModelManager.getIndexManager().waitForIndex(false, null);
 	}
 	return file;
