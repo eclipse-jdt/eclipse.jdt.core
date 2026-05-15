@@ -36,7 +36,7 @@ import org.eclipse.text.edits.TextEditGroup;
  * @see ASTRewrite#getListRewrite(ASTNode, ChildListPropertyDescriptor)
  * @since 3.0
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings("rawtypes")
 public final class ListRewrite {
 
 	private final ASTNode parent;

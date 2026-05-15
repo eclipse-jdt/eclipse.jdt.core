@@ -10,7 +10,7 @@ package test.wksp.eclipse;
  * Here is an example of using a ControlEditor: <code><pre>
 * Canvas canvas = new Canvas(shell, SWT.BORDER);
 * canvas.setBounds(10, 10, 300, 300);	
-* Color color = new Color(null, 255, 0, 0);
+* Color color = new Color(255, 0, 0);
 * canvas.setBackground(color);
 * ControlEditor editor = new ControlEditor (canvas);
 * // The editor will be a button in the bottom right corner of the canvas.
@@ -25,7 +25,7 @@ package test.wksp.eclipse;
 * 		RGB rgb = dialog.getRGB();
 * 		if (rgb != null) {
 * 			if (color != null) color.dispose();
-* 			color = new Color(null, rgb);
+* 			color = new Color(rgb);
 * 			canvas.setBackground(color);
 * 		}
 * 		

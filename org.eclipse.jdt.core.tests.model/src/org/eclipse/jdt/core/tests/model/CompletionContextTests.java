@@ -4016,7 +4016,7 @@ public void test0145() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -4059,7 +4059,7 @@ public void test0146() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -4105,7 +4105,7 @@ public void test0147() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -4166,7 +4166,7 @@ public void test0148() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -4218,7 +4218,7 @@ public void test0149() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -4288,7 +4288,7 @@ public void test0150() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -4381,7 +4381,7 @@ public void test0151() throws CoreException, IOException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
@@ -4974,7 +4974,7 @@ public void test0167() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5026,7 +5026,7 @@ public void test0168() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5084,7 +5084,7 @@ public void test0169() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5135,7 +5135,7 @@ public void test0170() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5187,7 +5187,7 @@ public void test0171() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5241,7 +5241,7 @@ public void test0172() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5289,7 +5289,7 @@ public void test0173() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5334,7 +5334,7 @@ public void test0174() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5379,7 +5379,7 @@ public void test0175() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5424,7 +5424,7 @@ public void test0176() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5473,7 +5473,7 @@ public void test0177() throws JavaModelException {
 		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
@@ -5519,7 +5519,7 @@ public void testRegressionBug574267() throws Exception {
 			"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 			"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 			"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
-			"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+			"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<*>;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 			"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 			"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
 			"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
