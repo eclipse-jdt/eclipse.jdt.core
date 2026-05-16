@@ -21,3 +21,6 @@ Snap.*
 /.project
 .idea/
 .claude-tmp/
+
+# build
+/tools/
