@@ -10,7 +10,11 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-latest'
-		jdk 'openjdk-jdk26-latest'
+	}
+	environment {
+		// Latest Valhalla EA JDK from https://jdk.java.net/valhalla/
+		JAVA_HOME = installTool('jdk', 'https://download.java.net/java/early_access/valhalla/27/1/openjdk-27-jep401ea3+1-1_linux-x64_bin.tar.gz')
+		PATH = "${JAVA_HOME}/bin:${PATH}"
 	}
 	stages {
 		stage('Build') {
@@ -61,5 +65,16 @@ pipeline {
 				}
 			}
 		}
+	}
+}
+
+// Adapted copy from https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/blob/814451c7b05e2f11b0783656f3fb0cda50c8df6f/JenkinsJobs/shared/utilities.groovy#L270-L280
+def installTool(String toolType, String url) {
+	dir("${WORKSPACE}/tools/${toolType}") {
+		def dirContent = sh(script: 'ls -A .', returnStdout: true).trim()
+		if (dirContent.isEmpty()) { // Prevent repeated downloads
+			sh "curl --fail --location ${url} | tar -xzf -"
+		}
+		return "${pwd()}/" + sh(script: 'ls', returnStdout: true).strip()
 	}
 }
