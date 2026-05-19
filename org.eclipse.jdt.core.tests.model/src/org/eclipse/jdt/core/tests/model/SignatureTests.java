@@ -1600,9 +1600,17 @@ public void testCreateIntersectionTypeSignature2() {
 }
 
 public void testDollarPackage() {
-	String signature = Signature.getTypeErasure("Ljava.util.$foo$.Optional");
+	String signature = new String(Signature.toCharArray(new String("Ljava.util.$foo$.Optional;").toCharArray()));
 	assertEquals(
-			"Ljava.util.$foo$.Optional",
+			"java.util.$foo$.Optional",
+			new String(signature.toCharArray())
+			);
+}
+
+public void testDollarPackageDollarClass() {
+	String signature = new String(Signature.toCharArray(new String("Ljava.util.$foo$.$Optional;").toCharArray()));
+	assertEquals(
+			"java.util.$foo$..Optional",
 			new String(signature.toCharArray())
 			);
 }
