@@ -438,7 +438,7 @@ class BoundSet {
 				if (relation != -1) {
 					InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
 					three = this.boundsPerVariable.computeIfAbsent(rightIV, k -> new ThreeSets());
-					three.addBound(new TypeBound(rightIV, bound.left, relation));
+					three.addBound(new TypeBound(rightIV, bound.left, relation, bound.isSoft));
 				}
 			}
 		}
@@ -606,8 +606,11 @@ class BoundSet {
 						mostRecentFormulas[1] = mostRecentFormulas[0];
 						mostRecentFormulas[0] = newConstraint;
 
-						if (!reduceOneConstraint(context, newConstraint))
+						if (!reduceOneConstraint(context, newConstraint)) {
+							if (InferenceContext18.DEBUG)
+								System.out.println("Incorporation failed to reduce new constraint "+newConstraint); //$NON-NLS-1$
 							return false;
+						}
 
 						if (analyzeNull) {
 							// not per JLS: if the new constraint relates types where at least one has a null annotations,
@@ -625,8 +628,11 @@ class BoundSet {
 					}
 					if (deriveTypeArgumentConstraints) {
 						for (ConstraintTypeFormula typeArgumentConstraint : deriveTypeArgumentConstraints(bound1, bound2, context)) {
-							if (!reduceOneConstraint(context, typeArgumentConstraint))
+							if (!reduceOneConstraint(context, typeArgumentConstraint)) {
+								if (InferenceContext18.DEBUG)
+									System.out.println("Incorporation failed to reduce new constraint "+newConstraint); //$NON-NLS-1$
 								return false;
+							}
 						}
 					}
 					if (iteration == 2) {
@@ -746,11 +752,11 @@ class BoundSet {
 		ConstraintFormula formula = null;
 		if (boundKind == Wildcard.EXTENDS) {
 			if (bi.id == TypeIds.T_JavaLangObject)
-				formula = ConstraintTypeFormula.create(t, r, ReductionResult.SUBTYPE);
+				formula = ConstraintTypeFormula.create(t, r, ReductionResult.SUBTYPE, true);
 			if (t.id == TypeIds.T_JavaLangObject)
-				formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE);
+				formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE, true);
 		} else {
-			formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE);
+			formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE, true);
 		}
 		if (formula != null) {
 			reduceOneConstraint(context, formula);
@@ -882,7 +888,7 @@ class BoundSet {
 			innerSame = true; // came in as: S REL α and α REL T imply ⟨S REL T⟩
 		if (outerSame) {
 			if (innerSame) // NON-JLS bidirectional subtyping implies equality:
-				return ConstraintTypeFormula.create(boundS.left, boundS.right, ReductionResult.SAME, false);
+				return ConstraintTypeFormula.create(boundS.left, boundS.right, ReductionResult.SAME, boundT.isSoft||boundS.isSoft);
 			return ConstraintTypeFormula.create(boundT.left, boundS.right, boundS.relation, boundT.isSoft||boundS.isSoft);
 		} else if (innerSame) {
 			return ConstraintTypeFormula.create(boundS.left, boundT.right, boundS.relation, boundT.isSoft||boundS.isSoft);
