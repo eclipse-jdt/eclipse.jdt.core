@@ -181,6 +181,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			boolean isDomParser = (this.kind & DOM_PARSER) != 0;
 			boolean isFormatterParser = (this.kind & FORMATTER_COMMENT_PARSER) != 0;
 			int lastStarPosition = -1;
+			boolean annotationAtSymbolHandling = false;
 
 			// Init scanner position
 			this.markdown = this.source[this.javadocStart + 1] == '/';
@@ -260,7 +261,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: ignore all tags when inside @literal or @code tags
 						if (considerTagAsPlainText || this.markdownHelper.isInCode()) {
 							// new tag found
-							if (!this.lineStarted) {
+							if (!this.lineStarted && !checkInlineTagForAnnotaion()) {
 								// we may want to report invalid syntax when no closing brace found,
 								// or when incoherent number of closing braces found
 								if (openingBraces > 0 && this.reportProblems) {
@@ -341,9 +342,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								textEndPosition = previousPosition;
 							}
 							if (this.textStart != -1 && this.textStart < textEndPosition) {
-								pushText(this.textStart, textEndPosition);
+								pushText(annotationAtSymbolHandling ? this.textStart - 1 : this.textStart, textEndPosition);
 							}
 						}
+						annotationAtSymbolHandling = false;
 						this.lineStarted = false;
 						lineHasStar = false;
 						// Fix bug 51650
@@ -529,6 +531,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (!this.lineStarted || this.textStart == -1) {
 							this.textStart = previousPosition;
 						}
+						if (previousChar == '@' && checkInlineTagForAnnotaion()) {
+							annotationAtSymbolHandling = true;
+						}
 						this.lineStarted = true;
 						textEndPosition = this.index;
 						break;
@@ -588,6 +593,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	        pos--;
 	    }
 	    return false;
+	}
+
+	protected boolean checkInlineTagForAnnotaion() {
+		return (this.tagValue == TAG_SNIPPET_VALUE || this.tagValue == TAG_CODE_VALUE || this.tagValue == TAG_LITERAL_VALUE);
 	}
 
 	protected void addFragmentToInlineReturn() {
