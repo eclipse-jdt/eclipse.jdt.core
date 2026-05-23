@@ -2315,6 +2315,43 @@ public void testGH4937() {
 	});
 }
 
+public void testGH3351() {
+	// error message is bogus (see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5078)
+	// but rejecting is in line with javac
+	runNegativeTest(new String[] {
+			"PassThroughGenerics.java",
+			"""
+			import java.util.List;
+			public class PassThroughGenerics {
+			    private class MyComp implements Comparable<MyComp> {
+			        @Override public int compareTo(MyComp other) { return 0; }
+			    }
+
+			    static <E extends Comparable<E>> List<E> sort(List<E> list) {
+			        return list;
+			    }
+
+			    static <T> List<T> genericList() {
+			        return null;
+			    }
+
+			    public static void main(String[] args) {
+			        List<MyComp> sorted = sort(genericList());
+			        System.out.println(sorted);
+			    }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in PassThroughGenerics.java (at line 16)
+			List<MyComp> sorted = sort(genericList());
+			                      ^^^^
+		The method sort(java.util.List<E extends java.lang.Comparable<E>>) in the type PassThroughGenerics is not applicable for the arguments (java.util.List<E extends java.lang.Comparable<E>>)
+		----------
+		""");
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
