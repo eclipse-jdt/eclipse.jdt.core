@@ -121,6 +121,7 @@ $Terminals
 	BeginCasePattern
 	RestrictedIdentifierWhen
 	UNDERSCORE
+	RestrictedIdentifiervalue
 
 --    BodyMarker
 
@@ -230,6 +231,8 @@ Goal ::= RestrictedIdentifierpermits PermittedTypes
 -- jsr 427 --
 Goal ::= BeginCasePattern Pattern
 Goal ::= RestrictedIdentifierWhen Expression
+-- JEP 401 Value Objects and Classes Disambiguation
+Goal ::= RestrictedIdentifiervalue Modifiersopt
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -680,6 +683,7 @@ Modifier -> 'transient'
 Modifier -> 'volatile'
 Modifier -> 'strictfp'
 Modifier ::= Annotation
+Modifier -> RestrictedIdentifiervalue
 /.$putCase consumeAnnotationAsModifier(); $break ./
 /:$readableName Modifier:/
 
