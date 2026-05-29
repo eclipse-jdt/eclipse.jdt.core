@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -3929,6 +3933,14 @@ private TerminalToken internalScanIdentifierOrKeyword(int index, int length, cha
 						return TokenNamevoid;
 					else
 						return TokenNameIdentifier;
+				case 5:
+					if ((data[++index] == 'a')
+							&& (data[++index] == 'l')
+							&& (data[++index] == 'u')
+							&& (data[++index] == 'e')) {
+						return disambiguatesRestrictedIdentifierWithLookAhead(TokenNameRestrictedIdentifiervalue);
+					} else
+						return TokenNameIdentifier;
 				case 8 :
 					if ((data[++index] == 'o')
 						&& (data[++index] == 'l')
@@ -4423,6 +4435,8 @@ public String toStringAction(TerminalToken act) {
 			return "return"; //$NON-NLS-1$
 		case TokenNameRestrictedIdentifiersealed:
 			return "sealed"; //$NON-NLS-1$
+		case TokenNameRestrictedIdentifiervalue:
+			return "value"; //$NON-NLS-1$
 		case TokenNameshort :
 			return "short"; //$NON-NLS-1$
 		case TokenNamestatic :
@@ -4680,6 +4694,7 @@ public static boolean isKeyword(TerminalToken token) {
 		case TokenNameRestrictedIdentifierrecord:
 		case TokenNameRestrictedIdentifiersealed:
 		case TokenNameRestrictedIdentifierpermits:
+		case TokenNameRestrictedIdentifiervalue:
 		case TokenNameRestrictedIdentifierWhen:
 		case TokenNamenon_sealed:
 			// making explicit - not a (restricted) keyword but restricted identifier.
@@ -4752,11 +4767,13 @@ private static class Goal {
 	static Goal SealedModifierGoal;
 	static Goal PermittedTypesGoal;
 	static Goal PatternGoal;
+	static Goal ValueModifierGoal;
 
 	static TerminalToken[] SealedModifierFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
 	static TerminalToken[] PermittedTypesFollow =  { TokenNameLBRACE };
 	static TerminalToken[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameCaseArrow, TokenNameRestrictedIdentifierWhen};
+	static TerminalToken[] ValueModifierFollow =  { TokenNameclass, TokenNameenum, TokenNameRestrictedIdentifierrecord };
 
 	static {
 
@@ -4805,6 +4822,7 @@ private static class Goal {
 		SealedModifierGoal = new Goal(TokenNameRestrictedIdentifiersealed, SealedModifierFollow, ModifiersoptRules);
 		PermittedTypesGoal = new Goal(TokenNameRestrictedIdentifierpermits, PermittedTypesFollow, PermittedTypesRule);
 		PatternGoal = new Goal(TokenNameBeginCasePattern, PatternCaseLabelFollow, PatternRules);
+		ValueModifierGoal = new Goal(TokenNameRestrictedIdentifiervalue, ValueModifierFollow, ModifiersoptRules);
 	}
 
 
@@ -5052,6 +5070,7 @@ protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw jus
 				case TokenNamenew:        // new ArrayList<String>();
 				case TokenNamenon_sealed: // non-sealed X<T>
 				case TokenNameRestrictedIdentifiersealed: // sealed X<T>
+				case TokenNameRestrictedIdentifiervalue: // value X
 				case TokenNamepublic:     // public List<String> foo() {}
 				case TokenNameabstract:   // abstract List<String> foo() {}
 				case TokenNameprivate:    // private List<String> foo() {}
@@ -5340,6 +5359,11 @@ TerminalToken disambiguatesRestrictedIdentifierWithLookAhead(TerminalToken restr
 				return TokenNameIdentifier;
 			goal = Goal.PermittedTypesGoal;
 			break;
+		case TokenNameRestrictedIdentifiervalue:
+			if (this.sourceLevel < ClassFileConstants.JDK26)
+				return TokenNameIdentifier;
+			goal = Goal.ValueModifierGoal;
+			break;
 		default:
 			throw new UnsupportedOperationException("Unhandled contextual keyword"); //$NON-NLS-1$
 	}
@@ -5464,6 +5488,7 @@ public TerminalToken fastForward(Statement unused) {
 			case TokenNameprotected:
 			case TokenNamepublic:
 			case TokenNameRestrictedIdentifiersealed:
+			case TokenNameRestrictedIdentifiervalue:
 			case TokenNamereturn:
 			case TokenNameshort:
 			case TokenNamestatic:
