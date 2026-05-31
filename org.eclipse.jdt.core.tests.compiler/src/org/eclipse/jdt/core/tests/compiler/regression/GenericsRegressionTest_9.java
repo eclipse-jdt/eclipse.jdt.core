@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -2105,6 +2106,7 @@ public void testGH5052() {
 		"map.consume");
 }
 public void testGH5028() {
+	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
 	runConformTest(new String[] {
 			"InferredGenerics.java",
 			"""
@@ -2166,6 +2168,81 @@ public void testListRewrite() {
 		List is a raw type. References to generic type List<E> should be parameterized
 		----------
 		""");
+}
+public void testGH4774() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK16) return; // uses records
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			import java.util.List;
+			public class Test {
+				public static void main(String[] args) {
+					Z<B> z = new Z<>(List.of(
+							new Y<>(new A()),
+							new Y<>(new B()),
+							new Y<>(new C())));
+				}
+
+				public static record Z<T>(List<? extends X<? super T>> l) {}
+				public static record Y<T>(T t) implements X<T> {}
+				public static interface X<T> {}
+
+				public static class A {}
+				public static class B extends A {}
+				public static class C extends B {}
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. ERROR in Test.java (at line 4)
+			Z<B> z = new Z<>(List.of(
+						new Y<>(new A()),
+						new Y<>(new B()),
+						new Y<>(new C())));
+			         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Cannot infer type arguments for Z<>
+		----------
+		""";
+	runner.javacTestOptions = JavacHasABug.JavacBug6573446;
+	runner.runNegativeTest();
+}
+public void testGH4774b() throws Exception {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			import java.util.List;
+			public class Test {
+			    public void test() {
+			        List<Z> l = consume(List.of(
+			                new B(),
+			                new C()));
+			    }
+			    public <U> List<U> consume(List<? extends A<? super U>> l) {
+			        return null;
+			    }
+			    public interface A<T> {}
+			    public class B implements A<Z> {}
+			    public class C implements A<Y> {}
+			    public class Y {}
+			    public class Z extends Y {}
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in Test.java (at line 4)
+				List<Z> l = consume(List.of(
+				            ^^^^^^^
+			The method consume(List<? extends Test.A<? super U>>) in the type Test is not applicable for the arguments (List<Test.A<? extends Test.Y>>)
+			----------
+			""";
+	runner.javacTestOptions = JavacHasABug.JavacBug6573446;
+	runner.runNegativeTest();
 }
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
