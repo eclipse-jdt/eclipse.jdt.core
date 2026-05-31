@@ -2320,7 +2320,7 @@ public void detectWrapperResource() {
 	}
 }
 
-private MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
+public MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
 
 	LookupEnvironment environment = scope.environment();
 	boolean isAnnotationBasedNullAnalysisEnabled = environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;

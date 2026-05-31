@@ -8259,12 +8259,37 @@ public void testBug459967_Array_constructor_b() {
 		"----------\n");
 }
 public void testBug459967_Array_clone() {
-	runConformTestWithLibs(
+	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"interface FI<T> {\n" +
 			"	T @NonNull[] getArray(T[] orig);" +
+			"}\n" +
+			"public class X {\n" +
+			"	void consumer(FI<String> fis) {}\n" +
+			"	void test() {\n" +
+			"		consumer(String[]::clone);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"""
+		----------
+		1. WARNING in X.java (at line 7)
+			consumer(String[]::clone);
+			         ^^^^^^^^^^^^^^^
+		Null type safety: parameter 'this' provided via method descriptor FI<String>.getArray(String[]) needs unchecked conversion to conform to '@NonNull Object'
+		----------
+		""");
+}
+public void testBug459967_Array_clone_fixed() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface FI<T> {\n" +
+			"	T @NonNull[] getArray(T @NonNull[] orig);" +
 			"}\n" +
 			"public class X {\n" +
 			"	void consumer(FI<String> fis) {}\n" +
@@ -8283,7 +8308,7 @@ public void testBug459967_Array_clone_b() {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"interface FI<T> {\n" +
-			"	@NonNull T @NonNull[] getArray(T[] orig);" +
+			"	@NonNull T @NonNull[] getArray(T @NonNull[] orig);" +
 			"}\n" +
 			"public class X {\n" +
 			"	void consumer(FI<String> fis) {}\n" +
@@ -15763,7 +15788,7 @@ public void testBug513495() {
 			"		Function<@Nullable Integer, Object> sam = Integer::intValue;\n" +
 			"		sam.apply(null); // <- NullPointerExpection\n" +
 			"		Function<Integer, Object> sam2 = Integer::intValue;\n" +
-			"		sam2.apply(null); // variation: unchecked, so intentionally no warning reported, but would give NPE too \n" +
+			"		sam2.apply(null); // variation: unchecked, warning above\n" +
 			"	}\n" +
 			"	void wildcards(Class<?>[] params) { // unchecked case with wildcards\n" +
 			"		java.util.Arrays.stream(params).map(Class::getName).toArray(String[]::new);\n" +
@@ -15777,6 +15802,16 @@ public void testBug513495() {
 		"	Function<@Nullable Integer, Object> sam = Integer::intValue;\n" +
 		"	                                          ^^^^^^^^^^^^^^^^^\n" +
 		"Null type mismatch at parameter 'this': required \'@NonNull Integer\' but provided \'@Nullable Integer\' via method descriptor Function<Integer,Object>.apply(Integer)\n" +
+		"----------\n" +
+		"2. WARNING in test\\Test3.java (at line 11)\n" +
+		"	Function<Integer, Object> sam2 = Integer::intValue;\n" +
+		"	                                 ^^^^^^^^^^^^^^^^^\n" +
+		"Null type safety: parameter \'this\' provided via method descriptor Function<Integer,Object>.apply(Integer) needs unchecked conversion to conform to \'@NonNull Integer\'\n" +
+		"----------\n" +
+		"3. WARNING in test\\Test3.java (at line 15)\n" +
+		"	java.util.Arrays.stream(params).map(Class::getName).toArray(String[]::new);\n" +
+		"	                                    ^^^^^^^^^^^^^^\n" +
+		"Null type safety: parameter \'this\' provided via method descriptor Function<Class<?>,String>.apply(Class<?>) needs unchecked conversion to conform to \'@NonNull Class<capture#of ?>\'\n" +
 		"----------\n"
 	);
 }
@@ -20006,4 +20041,126 @@ public void testGH5042b() throws Exception {
 		----------
 		""");
 }
+public void testGH4297_1() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			"GenericsOrder.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+
+			public class GenericsOrder {
+				public <T extends b & a> void test(@NonNull T my) {
+					my.method(null);
+				}
+
+				public <T extends I> void test(@NonNull T my) {
+					my.method(null); // The call goes through here
+				}
+
+				public static void main(String[] args) {
+					new GenericsOrder().test(String::length); // problem against implicit param 'this'
+				}
+			}
+
+			interface a { int method(@NonNull String a); }
+
+			interface b { int method(String a); }
+
+			interface I extends b, a { }
+			"""
+
+		},
+		options,
+		"""
+		----------
+		1. ERROR in GenericsOrder.java (at line 13)
+			new GenericsOrder().test(String::length); // problem against implicit param 'this'
+			                         ^^^^^^^^^^^^^^
+		Null type safety: parameter 'this' provided via method descriptor b.method(String) needs unchecked conversion to conform to '@NonNull String'
+		----------
+		""");
+}
+public void testGH4297_2() {
+	runNegativeTestWithLibs(new String[] {
+			"GenericsOrder.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+
+			public class GenericsOrder {
+				public <T extends b & a> void test(@NonNull T my) {
+					my.method(null);
+				}
+
+				public <T extends I> void test(@NonNull T my) {
+					my.method(null); // The call goes through here
+				}
+
+				public static void main(String[] args) {
+					new GenericsOrder().test(String::length);
+				}
+			}
+
+			interface a { int method(@NonNull String a); }
+
+			interface b { int method(@Nullable String a); }
+
+			interface I extends b, a { }
+			"""
+
+		},
+		"""
+		----------
+		1. ERROR in GenericsOrder.java (at line 13)
+			new GenericsOrder().test(String::length);
+			                         ^^^^^^^^^^^^^^
+		Null type mismatch at parameter 'this': required '@NonNull String' but provided '@Nullable String' via method descriptor b.method(String)
+		----------
+		""");
+}
+public void testGH4297_3() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			"GenericsOrder.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+
+			public class GenericsOrder {
+				public <T extends b & a> void test(@NonNull T my) {
+					my.method(null);
+				}
+
+				public <T extends I> void test(@NonNull T my) {
+					my.method(null); // The call goes through here
+				}
+
+				public static void main(String[] args) {
+					new GenericsOrder().test(GenericsOrder::mImpl); // problem against regular param 's'
+				}
+
+				public static int mImpl(@NonNull String s) { return 0; }
+			}
+
+			interface a { int method(@NonNull String a); }
+
+			interface b { int method(String a); }
+
+			interface I extends b, a { }
+			"""
+
+		},
+		options,
+		"""
+		----------
+		1. ERROR in GenericsOrder.java (at line 13)
+			new GenericsOrder().test(GenericsOrder::mImpl); // problem against regular param 's'
+			                         ^^^^^^^^^^^^^^^^^^^^
+		Null type safety: parameter 1 provided via method descriptor b.method(String) needs unchecked conversion to conform to '@NonNull String'
+		----------
+		""");
+}
+
 }
