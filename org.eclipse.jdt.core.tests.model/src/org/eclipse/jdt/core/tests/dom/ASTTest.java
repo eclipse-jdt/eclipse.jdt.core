@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -9184,6 +9188,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertSame(Modifier.VOLATILE ,0x0040);
 		assertSame(Modifier.SEALED ,0x0200);
 		assertSame(Modifier.NON_SEALED ,0x1000);
+		assertSame(Modifier.VALUE ,0x2000);
 
 		// check that all
 		final int[] mods =
@@ -9201,6 +9206,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				Modifier.VOLATILE,
 				Modifier.SEALED,
 				Modifier.NON_SEALED,
+				Modifier.VALUE
 				};
 
 		for (int i=0; i< mods.length; i++) {
@@ -9218,6 +9224,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(Modifier.isVolatile(m) == (m == Modifier.VOLATILE));
 			assertTrue(Modifier.isSealed(m) == (m == Modifier.SEALED));
 			assertTrue(Modifier.isNonSealed(m) == (m == Modifier.NON_SEALED));
+			assertTrue(Modifier.isValue(m) == (m == Modifier.VALUE));
 		}
 
 		if (this.ast.apiLevel() == AST.JLS2) {
@@ -9270,6 +9277,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(Modifier.ModifierKeyword.SEALED_KEYWORD.toString().equals("sealed")); //$NON-NLS-1$
 		} else if (DOMASTUtil.isFeatureSupportedinAST(this.ast, Modifier.NON_SEALED)) {
 			assertTrue(Modifier.ModifierKeyword.NON_SEALED_KEYWORD.toString().equals("non-sealed")); //$NON-NLS-1$
+		} else if (DOMASTUtil.isFeatureSupportedinAST(this.ast, Modifier.VALUE)) {
+			assertTrue(Modifier.ModifierKeyword.VALUE_KEYWORD.toString().equals("value")); //$NON-NLS-1$
 		}
 
 		final Modifier.ModifierKeyword[] known = {
@@ -9286,7 +9295,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			Modifier.ModifierKeyword.STRICTFP_KEYWORD,
 			Modifier.ModifierKeyword.DEFAULT_KEYWORD,
 			Modifier.ModifierKeyword.SEALED_KEYWORD,
-			Modifier.ModifierKeyword.NON_SEALED_KEYWORD
+			Modifier.ModifierKeyword.NON_SEALED_KEYWORD,
+			Modifier.ModifierKeyword.VALUE_KEYWORD
 		};
 
 		// check all modifiers are distinct

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -45,7 +49,8 @@ class TypeBinding implements ITypeBinding {
 	protected static final IVariableBinding[] NO_VARIABLE_BINDINGS = new IVariableBinding[0];
 
 	private static final int VALID_MODIFIERS = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
-		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.STRICTFP | Modifier.SEALED | Modifier.NON_SEALED;
+		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.STRICTFP | Modifier.SEALED | Modifier.NON_SEALED |
+		Modifier.VALUE;
 
 	org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 	private TypeBinding prototype = null;
@@ -596,6 +601,9 @@ class TypeBinding implements ITypeBinding {
 			if (referenceBinding.isNonSealed()) {
 				return accessFlags | Modifier.NON_SEALED;
 			}
+			if (referenceBinding.isValue()) {
+				return accessFlags | Modifier.VALUE;
+			}
 			if (referenceBinding.isAnonymousType()) {
 				return accessFlags & ~Modifier.FINAL;
 			}
@@ -616,6 +624,9 @@ class TypeBinding implements ITypeBinding {
 			}
 			if (referenceBinding.isNonSealed()) {
 				return accessFlags | Modifier.NON_SEALED;
+			}
+			if (referenceBinding.isValue()) {
+				return accessFlags | Modifier.VALUE;
 			}
 			return accessFlags;
 		} else if (isEnum()) {

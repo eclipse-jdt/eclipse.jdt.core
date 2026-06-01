@@ -144,6 +144,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/Modifier.java" type="org.eclipse.jdt.core.dom.Modifier$ModifierKeyword">
+        <filter comment="value types (classes and objects) modifier" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
+                <message_argument value="VALUE_KEYWORD"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/ModuleQualifiedName.java" type="org.eclipse.jdt.core.dom.ModuleQualifiedName">
         <filter comment="Java 15 Merge" id="576778288">
             <message_arguments>
