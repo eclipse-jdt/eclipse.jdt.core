@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -912,9 +912,16 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	        		providedLen--; // one parameter is 'consumed' as the receiver
 
 	        		TypeBinding descriptorParameter = this.descriptor.parameters[0];
-	    			if((descriptorParameter.tagBits & TagBits.AnnotationNullable) != 0) { // Note: normal dereferencing of 'unchecked' values is not reported, either
-		    			final TypeBinding receiver = scope.environment().createNonNullAnnotatedType(this.binding.declaringClass);
-    					scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, receiver, descriptorParameter, this.descriptor, -1, NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH);
+	        		if((descriptorParameter.tagBits & TagBits.AnnotationNonNull) == 0) {
+						NullAnnotationMatching mismatch = (descriptorParameter.tagBits & TagBits.AnnotationNullable) != 0
+								? NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH : NullAnnotationMatching.NULL_ANNOTATIONS_UNCHECKED;
+						LookupEnvironment environment = scope.environment();
+						ReferenceBinding nonNull = environment.getType(environment.getNonNullAnnotationName());
+						if (nonNull != null) { // tolerate misconfigured annotations
+							AnnotationBinding nnAnnot = environment.createAnnotation(nonNull, Binding.NO_ELEMENT_VALUE_PAIRS);
+							final TypeBinding receiver = environment.createAnnotatedType(this.binding.declaringClass, new AnnotationBinding[] { nnAnnot });
+							reportParameterNullProblem(scope, descriptorParameter, 0, receiver, -1, mismatch);
+						}
 	    			}
 	        	}
 	        	boolean isVarArgs = false;
@@ -927,7 +934,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	        		len = Math.min(expectedlen, providedLen);
 	        	}
 	    		for (int i = 0; i < len; i++) {
-	    			TypeBinding descriptorParameter = this.descriptor.parameters[i + (this.receiverPrecedesParameters ? 1 : 0)];
+	    			int descriptorIdx = i + (this.receiverPrecedesParameters ? 1 : 0);
+					TypeBinding descriptorParameter = this.descriptor.parameters[descriptorIdx];
 	    			TypeBinding bindingParameter = InferenceContext18.getParameter(this.binding.parameters, i, isVarArgs);
 					TypeBinding bindingParameterToCheck;
 					if (bindingParameter.isPrimitiveType() && !descriptorParameter.isPrimitiveType()) {
@@ -940,7 +948,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameterToCheck, descriptorParameter, FlowInfo.UNKNOWN);
 	    			if (annotationStatus.isAnyMismatch()) {
 	    				// immediate reporting:
-	    				scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, bindingParameter, descriptorParameter, this.descriptor, i, annotationStatus);
+	    				reportParameterNullProblem(scope, descriptorParameter, descriptorIdx, bindingParameter, i, annotationStatus);
 	    			}
 	    		}
 	    		TypeBinding returnType = this.binding.returnType;
@@ -955,6 +963,20 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	    		}
         	}
         }
+	}
+
+	private void reportParameterNullProblem(BlockScope scope, TypeBinding descriptorParameter, int descriptorParamIdx,
+			TypeBinding implParameter, int implIdx, NullAnnotationMatching mismatchKind) {
+		if (this.expectedType instanceof ReferenceBinding expectedRef) {
+			// recover the real inherited method having the constrained parameter
+			for (MethodBinding contract : expectedRef.getFunctionalInterfaceAbstractContracts(scope, argumentsTypeElided())) {
+				if (contract.parameters[descriptorParamIdx] == descriptorParameter) { //$IDENTITY-COMPARISON$
+					scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, implParameter, descriptorParameter,
+							contract, implIdx, mismatchKind);
+					break;
+				}
+			}
+		}
 	}
 
 	private TypeBinding[] descriptorParametersAsArgumentExpressions() {

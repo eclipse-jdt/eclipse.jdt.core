@@ -1598,6 +1598,23 @@ public void testCreateIntersectionTypeSignature2() {
 			Signature.getIntersectionTypeBounds(signature)
 		);
 }
+
+public void testDollarPackage() {
+	String signature = new String(Signature.toCharArray(new String("Ljava.util.$foo$.Optional;").toCharArray()));
+	assertEquals(
+			"java.util.$foo$.Optional",
+			new String(signature.toCharArray())
+			);
+}
+
+public void testDollarPackageDollarClass() {
+	String signature = new String(Signature.toCharArray(new String("Ljava.util.$foo$.$Optional;").toCharArray()));
+	assertEquals(
+			"java.util.$foo$..Optional",
+			new String(signature.toCharArray())
+			);
+}
+
 // Bug 380048 - error popup when navigating to source files
 public void testSourceMapperSigConversion01() {
 	SourceMapper mapper = new SourceMapper();
