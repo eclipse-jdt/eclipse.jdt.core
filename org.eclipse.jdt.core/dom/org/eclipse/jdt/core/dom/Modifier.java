@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -36,6 +40,7 @@ import java.util.Map;
  *    <b>default</b>
  *    <b>sealed</b>
  *    <b>non-sealed</b>
+ *    <b>value<b>
  * </pre>
  * <p>
  * The numeric values of these flags match the ones for class
@@ -122,6 +127,11 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 */
 		public static final ModifierKeyword MODULE_KEYWORD = new ModifierKeyword("module", MODULE);//$NON-NLS-1$
 
+		/**
+		 * @since 3.46
+		 * @noreference preview feature
+		 */
+		public static final ModifierKeyword VALUE_KEYWORD = new ModifierKeyword("value", VALUE);//$NON-NLS-1$
 		static {
 			KEYWORDS = new HashMap(20);
 			ModifierKeyword[] ops = {
@@ -139,7 +149,8 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 					DEFAULT_KEYWORD,
 					SEALED_KEYWORD,
 					NON_SEALED_KEYWORD,
-					MODULE_KEYWORD
+					MODULE_KEYWORD,
+					VALUE_KEYWORD
 				};
 			for (ModifierKeyword op : ops) {
 				KEYWORDS.put(op.toString(), op);
@@ -354,6 +365,13 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	public static final int MODULE = 0x8000;
 
 	/**
+	 * "value" modifier constant (bit mask).
+	 * Applicable only to types.
+	 * @since 3.46
+	 */
+
+	public static final int VALUE = 0x2000;
+	/**
 	 * "default" modifier constant (bit mask) (added in JLS8 API).
 	 * Applicable only to methods in interfaces (but not for annotation methods with a default value).
 	 * <p>
@@ -552,6 +570,20 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	public static boolean isNonSealed(int flags) {
 		return (flags & NON_SEALED) != 0;
 	}
+
+	/**
+	 * Returns whether the given flags includes the "VALUE" modifier.
+	 * Applicable only to types.
+	 *
+	 * @param flags the modifier flags
+	 * @return <code>true</code> if the <code>VALUE</code> bit is set
+	 * and <code>false</code> otherwise
+	 * @since 3.46
+	 */
+	public static boolean isValue(int flags) {
+		return (flags & VALUE) != 0;
+	}
+
 
 	/**
 	 * Returns a list of structural property descriptors for this node type.
@@ -802,6 +834,17 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	public static boolean isModule(int flags) {
 		return (flags & Modifier.MODULE) != 0;
 	}
+
+	/**
+	 * Answer true if the receiver is the value modifier, false otherwise.
+	 *
+	 * @return true if the receiver is the value modifier, false otherwise
+	 * @since 3.46
+	 */
+	public boolean isValue() {
+		return this.modifierKeyword == ModifierKeyword.VALUE_KEYWORD;
+	}
+
 
 	@Override
 	int memSize() {
