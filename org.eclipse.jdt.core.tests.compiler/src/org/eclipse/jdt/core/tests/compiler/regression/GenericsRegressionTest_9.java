@@ -2261,6 +2261,40 @@ public void testGH4774b() throws Exception {
 	runner.javacTestOptions = JavacHasABug.JavacBug6573446;
 	runner.runNegativeTest();
 }
+public void testGH4731() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"TestWildcard.java",
+			"""
+			import java.util.Collection;
+			import java.util.Iterator;
+
+			public class TestWildcard {
+
+				private Collection<? extends Collection<? extends Runnable>> _parts;
+
+				public Iterator<Runnable> iterator() {
+					return TestWildcard.concat(_parts).iterator();
+				}
+
+				public static <T> Iterable<T> concat(Iterable<? extends Iterable<? extends T>> entries) {
+					return null;
+				}
+
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. ERROR in TestWildcard.java (at line 9)
+				return TestWildcard.concat(_parts).iterator();
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from Iterator<capture#2-of ? extends Runnable> to Iterator<Runnable>
+			----------
+			""";
+	runner.javacTestOptions = JavacHasABug.JavacBug8016207;
+	runner.runNegativeTest();
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
