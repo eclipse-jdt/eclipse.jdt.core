@@ -702,7 +702,10 @@ class BoundSet {
 										System.arraycopy(otherBounds, 0, allBounds, 1, n-1);
 										bi = context.environment.createIntersectionType18(allBounds);
 									}
-									if (addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi))
+									ReductionResult result = addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
+									if (result == ReductionResult.FALSE)
+										return false;
+									else if (result == ReductionResult.TRUE)
 										capturesToRemove.add(gAlpha);
 								}
 							}
@@ -715,7 +718,8 @@ class BoundSet {
 								TypeBound bound = it.next();
 								if (!(bound.right instanceof InferenceVariable)) {
 									if (wildcardBinding.boundKind == Wildcard.SUPER) {
-										reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE));
+										if (!reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE)))
+											return false;
 										capturesToRemove.add(gAlpha);
 									} else {
 										return false;
@@ -745,8 +749,8 @@ class BoundSet {
 	}
 
 	// try to infer and reduce a new constraint based on details of a given capture bound
-	// return true iff a new constraint has been added indeed
-	boolean addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
+	// return TRUE or FALSE iff a new constraint has been added indeed
+	ReductionResult addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
 			TypeBinding r, TypeBinding bi) throws InferenceFailureException {
 		ConstraintFormula formula = null;
 		if (boundKind == Wildcard.EXTENDS) {
@@ -758,10 +762,11 @@ class BoundSet {
 			formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE, true);
 		}
 		if (formula != null) {
-			reduceOneConstraint(context, formula);
-			return true;
+			if (!reduceOneConstraint(context, formula))
+				return ReductionResult.FALSE;
+			return ReductionResult.TRUE;
 		}
-		return false;
+		return null;
 	}
 
 	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT, Map<InferenceVariable,TypeBound> properTypesByInferenceVariable) {
