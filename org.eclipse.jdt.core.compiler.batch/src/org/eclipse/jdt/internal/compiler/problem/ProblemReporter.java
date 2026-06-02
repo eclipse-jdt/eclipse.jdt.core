@@ -144,7 +144,7 @@ public class ProblemReporter extends ProblemHandler {
 	private static String PERMITS = "permits"; //$NON-NLS-1$
 	private static String PREVIEW_KEYWORD_NON_SEALED = "non-sealed"; //$NON-NLS-1$
 	private static String VALUE = "value"; //$NON-NLS-1$
-	private static String RESTRICTED_IDENTIFIER_VALUE = "value"; //$NON-NLS-1$
+	private static String RESTRICTED_IDENTIFIER_VALUE = "RestrictedIdentifiervalue"; //$NON-NLS-1$
 
 	private static Map<String, String> permittedRestrictedKeyWordMap;
 
