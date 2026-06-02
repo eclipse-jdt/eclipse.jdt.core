@@ -4435,8 +4435,6 @@ public String toStringAction(TerminalToken act) {
 			return "return"; //$NON-NLS-1$
 		case TokenNameRestrictedIdentifiersealed:
 			return "sealed"; //$NON-NLS-1$
-		case TokenNameRestrictedIdentifiervalue:
-			return "value"; //$NON-NLS-1$
 		case TokenNameshort :
 			return "short"; //$NON-NLS-1$
 		case TokenNamestatic :
@@ -4459,6 +4457,8 @@ public String toStringAction(TerminalToken act) {
 			return "true"; //$NON-NLS-1$
 		case TokenNametry :
 			return "try"; //$NON-NLS-1$
+		case TokenNameRestrictedIdentifiervalue:
+			return "value"; //$NON-NLS-1$
 		case TokenNamevoid :
 			return "void"; //$NON-NLS-1$
 		case TokenNamevolatile :
@@ -5360,7 +5360,7 @@ TerminalToken disambiguatesRestrictedIdentifierWithLookAhead(TerminalToken restr
 			goal = Goal.PermittedTypesGoal;
 			break;
 		case TokenNameRestrictedIdentifiervalue:
-			if (this.sourceLevel < ClassFileConstants.JDK26)
+			if (!JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(this.complianceLevel, this.previewEnabled))
 				return TokenNameIdentifier;
 			goal = Goal.ValueModifierGoal;
 			break;
