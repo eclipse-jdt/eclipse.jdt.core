@@ -1225,13 +1225,14 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertNotNull(classFile);
 			IType type = classFile.getType();
 			IFile sourceFile = (IFile) this.project.getProject().findMember("UTF8doc3/p/TestBug394382.txt");
+			assertNotNull("source file cannot be null", sourceFile); //$NON-NLS-1$
 			String javadoc = null;
 			try {
 				javadoc = type.getAttachedJavadoc(new NullProgressMonitor());
 			} catch(JavaModelException e) {
 				assertTrue("Should not happen", false);
 			}
-			assertNotNull("Shouldhave a javadoc", javadoc); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
 			char[] charArray = encodedContents.toCharArray();
 			encodedContents = new String(CharOperation.remove(charArray, '\r'));
