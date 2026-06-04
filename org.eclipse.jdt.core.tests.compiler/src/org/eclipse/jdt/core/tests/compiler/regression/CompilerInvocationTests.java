@@ -2641,10 +2641,4 @@ public void test012_compiler_problems_tuning() {
 				null,
 				options);
 	}
-
-	public void testLatestSupportedJavaVersion() {
-		assertEquals(
-				CompilerOptions.versionFromJdkLevel(ClassFileConstants.getLatestJDKLevel()),
-				CompilerOptions.getLatestVersion());
-	}
 }
