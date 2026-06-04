@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7841,5 +7841,137 @@ public void testIssue3372() {
 		}
 		""";
 	formatSource(source);
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4874
+ */
+public void testBug4874a() {
+	this.formatterPrefs.comment_format_source = false;
+	String source ="""
+		  /**
+		   * <pre>
+		   * {@code
+		   * @MyAnnotation
+		   * public class Example {
+		   *
+		   *    @AnotherAnnotation
+		   *  private String field;
+		   * }
+		   * }
+		   * </pre>
+		   */
+		  public interface ExampleService {
+
+		      /**
+		       * Another method with annotation in javadoc.
+		       *
+		       * <pre>
+		       * {@code
+		       * @Override
+		       * public void doSomething() {
+		       *     // implementation
+		       * }
+		       * }
+		       * </pre>
+		       */
+		      void doSomething();
+		  }
+			""";
+	String expected = """
+			/**
+			 * <pre>
+			 * {@code
+			 * @MyAnnotation
+			 * public class Example {
+			 *
+			 *    @AnotherAnnotation
+			 *  private String field;
+			 * }
+			 * }
+			 * </pre>
+			 */
+			public interface ExampleService {
+
+				/**
+				 * Another method with annotation in javadoc.
+				 *
+				 * <pre>
+				 * {@code
+				 * @Override
+				 * public void doSomething() {
+				 *     // implementation
+				 * }
+				 * }
+				 * </pre>
+				 */
+				void doSomething();
+			}
+			""";
+	formatSource(source,expected);
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4874
+ */
+public void testBug4874b() {
+	this.formatterPrefs.comment_format_source = true;
+	String source ="""
+		  /**
+		   * <pre>
+		   * {@code
+		   * @MyAnnotation
+		   * public class Example {
+		   *
+		   *    @AnotherAnnotation
+		   *  private String field;
+		   * }
+		   * }
+		   * </pre>
+		   */
+		  public interface ExampleService {
+
+		      /**
+		       * Another method with annotation in javadoc.
+		       *
+		       * <pre>
+		       * {@snippet
+		       * @Override
+		       * public void doSomething() {
+		       *     // implementation
+		       * }
+		       * }
+		       * </pre>
+		       */
+		      void doSomething();
+		  }
+			""";
+	String expected = """
+			/**
+			 * <pre>
+			 * {@code @MyAnnotation
+			 * public class Example { @AnotherAnnotation
+			 * 	private String field;
+			 * }
+			 * }
+			 * </pre>
+			 */
+			public interface ExampleService {
+
+				/**
+				 * Another method with annotation in javadoc.
+				 *
+				 * <pre>
+				 * {@snippet
+				 * @Override
+				 * public void doSomething() {
+				 *     // implementation
+				 * }
+				 * }
+				 * </pre>
+				 */
+				void doSomething();
+			}
+			""";
+	formatSource(source,expected);
 }
 }

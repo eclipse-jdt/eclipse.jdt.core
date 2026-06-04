@@ -34,8 +34,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -98,6 +100,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private final static Pattern MARKDOWN_FENCE_PATTERN = Pattern.compile("(`{3,}|~{3,})(.*)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_TABLE_START = Pattern.compile("(?m)(?<=^[ \\t]*)\\|"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_TABLE_END = Pattern.compile("(?m)\\|(?!.*\\|)"); //$NON-NLS-1$
+	private final static Pattern CODE_ANNOTATION_PATTERN = Pattern.compile("^\\s*\\*\\s*@\\p{javaJavaIdentifierStart}[\\p{javaJavaIdentifierPart}.$]*"); //$NON-NLS-1$
 
 	// Param tags list copied from IJavaDocTagConstants in legacy formatter for compatibility.
 	// There were the following comments:
@@ -1352,8 +1355,16 @@ public class CommentsPreparator extends ASTVisitor {
 
 		Token noFormatToken = new Token(startToken.originalStart, endToken.originalEnd, TokenNameCOMMENT_JAVADOC);
 		List<Token> lines = commentToLines(noFormatToken, findCommentLineIndent(startIndex));
-		for (Token line : lines)
-			line.setToEscape(isHtml);
+		if (isHtml) {
+			Set<Token> codeAnnotationLines = extractCodeAnnotationLines(lines);
+			for (Token line : lines) {
+				if (!codeAnnotationLines.contains(line))
+					line.setToEscape(isHtml);
+			}
+		} else {
+			for (Token line : lines)
+				line.setToEscape(isHtml);
+		}
 		Token first = lines.get(0);
 		if (startToken.isSpaceBefore())
 			first.spaceBefore();
@@ -1369,6 +1380,50 @@ public class CommentsPreparator extends ASTVisitor {
 		List<Token> tokensToReplace = this.commentStructure.subList(startIndex, endIndex + 1);
 		tokensToReplace.clear();
 		tokensToReplace.addAll(lines);
+	}
+
+	private Set<Token> extractCodeAnnotationLines(List<Token> lines) {
+		Set<Token> result = new HashSet<>();
+
+		Token firstLine = lines.get(0);
+		Token lastLine = lines.get(lines.size() - 1);
+
+		int blockStart = firstLine.originalStart;
+		String source = this.ctm.getSource().substring(blockStart, lastLine.originalEnd + 1);
+
+		for (int i = 0; i < lines.size(); i++) {
+			Token startLine = lines.get(i);
+			String text = this.tm.toString(startLine);
+
+			if (!text.contains("{@code") && !text.contains("{@snippet")) { //$NON-NLS-1$ //$NON-NLS-2$
+				continue;
+			}
+
+			int openingPos = startLine.originalStart - blockStart;
+			int closingBracePos = openingPos + 1;
+
+			for (int braces = 1; braces > 0 && closingBracePos < source.length(); closingBracePos++) {
+				if (source.charAt(closingBracePos) == '{')
+					braces++;
+				if (source.charAt(closingBracePos) == '}')
+					braces--;
+			}
+			closingBracePos--;
+
+			int absoluteClosingPos = blockStart + closingBracePos;
+
+			for (int j = i + 1; j < lines.size(); j++) {
+				Token line = lines.get(j);
+
+				if (line.originalStart >= absoluteClosingPos)
+					break;
+
+				if (CODE_ANNOTATION_PATTERN.matcher(this.tm.toString(line)).find())
+					result.add(line);
+			}
+		}
+
+		return result;
 	}
 
 	private void disableFormattingExclusively(int openingTagIndex, int closingTagIndex, boolean isSnippet) {
