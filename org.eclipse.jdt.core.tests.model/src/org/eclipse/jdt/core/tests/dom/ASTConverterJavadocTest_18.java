@@ -1399,6 +1399,6 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		List<TextElement> frags = snippetTag.fragments();
 		assertEquals("Invalid snippet fragments", 6, frags.size());
 		assertEquals("Invalid content for first Element", " @MyAnnotation\n", frags.get(0).getText());
-		assertEquals("Invalid content for third Element", "     @AnotherAnnotation\n", frags.get(2).getText());
+		assertEquals("Invalid content for third Element", "     @AnotherAnnotation" + System.lineSeparator(), frags.get(2).getText());
 	}
 }
