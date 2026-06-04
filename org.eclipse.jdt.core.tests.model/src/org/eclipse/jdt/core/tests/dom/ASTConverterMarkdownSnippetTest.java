@@ -594,7 +594,6 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 					/// {@snippet :
 					///   {@code int a = 0;}
 					/// }
-					public class Markdown {}
 				""";
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter_26/src/markdown/Markdown.java", source, null);
@@ -608,33 +607,6 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 			List<TextElement> frags = snippetTag.fragments();
 			assertEquals("Fragments should be 1", 1, frags.size());
 			assertEquals("Incorrect text content", "   {@code int a = 0;}", frags.get(0).getText());
-		}
-	}
-
-	// this is an invalid test, should be corrected later(https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5075)
-	public void testJavadocIncorrectlyParsingAnnotationInlineTag5055() throws JavaModelException {
-		String source = """
-				/// Example showing formatter bug with {@code @} in snippet blocks.
-				/// {@snippet :
-				/// 	@MyAnnotation
-				///		public class Example {
-				///			@AnotherAnnotation
-				///			private String field;
-				///		}
-				/// }
-				public class Markdown {}
-			""";
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_26/src/markdown/Markdown.java", source, null);
-		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-			CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
-			List unitComments = compilUnit.getCommentList();
-			int size = unitComments.size();
-			assertEquals("Wrong number of comments", 1, size);
-			Javadoc javadoc = (Javadoc) unitComments.get(0);
-			TagElement snippetTag = getSnippetTag(javadoc);
-			assertFalse("Wrong number of elements", snippetTag.fragments().size() == 5);
-			System.out.println("sasi");
 		}
 	}
 }

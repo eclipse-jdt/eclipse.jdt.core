@@ -4328,16 +4328,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			IProject project = javaProject.getProject();
 			PerProjectInfo info= this.perProjectInfos.get(project);
 			if (info != null) {
-				if (VERBOSE) {
-					StringBuilder buffer = new StringBuilder();
-					buffer.append('(');
-					buffer.append(Thread.currentThread());
-					buffer.append(')');
-					buffer.append(" JavaModelManager.resetProjectPreferences("); //$NON-NLS-1$
-					buffer.append(project.getName());
-					buffer.append(')');
-					trace(buffer.toString());
-				}
 				info.preferences = null;
 			}
 		}
