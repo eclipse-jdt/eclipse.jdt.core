@@ -38,6 +38,19 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_9);
 }
 
+// ========= OPT-IN to run.javac mode: ===========
+@Override
+protected void setUp() throws Exception {
+	this.runJavacOptIn = true;
+	super.setUp();
+}
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	this.runJavacOptIn = false; // do it last, so super can still clean up
+}
+// =================================================
+
 // vanilla test case
 public void testBug488663_001() {
 	this.runConformTest(
@@ -1139,7 +1152,8 @@ public void testGH3457c() {
 	});
 }
 public void testGH3948() {
-	runConformTest(new String[] {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
 			"Foo.java",
 			"""
 			import java.util.Collections;
@@ -1169,7 +1183,9 @@ public void testGH3948() {
 			    public static interface Bar{}
 			}
 			"""
-		});
+		};
+	runner.javacTestOptions = JavacHasABug.JavacBug8297428;
+	runner.runConformTest();
 }
 public void testGH4022a() {
 	runConformTest(new String[] {
@@ -1254,7 +1270,8 @@ public void testGH4033() {
 		});
 }
 public void testGH4039() {
-	runConformTest(new String[] {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
 		"CollectionsSortReproducer.java",
 		"""
 		import java.util.Collection;
@@ -1274,7 +1291,9 @@ public void testGH4039() {
 			}
 		}
 		"""
-	});
+	};
+	runner.javacTestOptions = JavacHasABug.JavacBugIvarInterning;
+	runner.runConformTest();
 }
 
 public void testGH4003() {
