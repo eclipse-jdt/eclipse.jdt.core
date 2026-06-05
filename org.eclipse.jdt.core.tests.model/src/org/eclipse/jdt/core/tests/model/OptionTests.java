@@ -997,6 +997,12 @@ public void testBug550081() {
 	assertEquals("latest should be unchanged", latestVersion, JavaCore.latestSupportedJavaVersion());
 }
 
+public void testLatestJavaVersion27() {
+	assertEquals("Unexpected latest Java model version", JavaCore.VERSION_27, JavaCore.latestSupportedJavaVersion());
+	assertTrue("Java model versions should include Java 27", JavaCore.getAllVersions().contains(JavaCore.VERSION_27));
+	assertEquals("Unexpected latest compiler version", CompilerOptions.VERSION_27, CompilerOptions.getLatestVersion());
+}
+
 public void testReleasePersistedInOptions() {
 	for (String value : List.of(CompilerOptions.ENABLED, CompilerOptions.DISABLED)) {
 		CompilerOptions options = new CompilerOptions(Map.of(CompilerOptions.OPTION_Release, value));

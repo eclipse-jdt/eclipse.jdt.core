@@ -263,6 +263,8 @@ public static Test suite() {
 			PrimitiveInPatternsTest.class,
 			PrimitiveInPatternsTestSH.class,
 			Unicode17Test.class,
+		},
+		{ // 27
 		}
 	};
 	assert sinceTests.length == AbstractCompilerTest.NUM_VERSIONS - 1 : "sinceTests should be aligned with NUM_VERSIONS";

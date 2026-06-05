@@ -104,6 +104,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_24, ClassFileConstants.JDK24, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_25, ClassFileConstants.JDK25, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_26, ClassFileConstants.JDK26, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_27, ClassFileConstants.JDK27, (list) -> {addJava16Tests(list);}));
 
 	for (TestsAddition testVersionMap : testAdditionsList) {
 		if ((possibleComplianceLevels & testVersionMap.complianceTestLevel) != 0) {
