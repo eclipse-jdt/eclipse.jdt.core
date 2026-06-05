@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -298,6 +302,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_26);
 			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_26);
 			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_26);
+		}
+		setUpProjectAbove27();
+	}
+	protected void setUpProjectAbove27() throws Exception {
+		if (this.apiLevel == AST_INTERNAL_JLS27) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_27);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_27);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_27);
 		}
 	}
 
