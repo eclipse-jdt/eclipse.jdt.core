@@ -1199,9 +1199,8 @@ protected static class JavacTestOptions {
 			JavacBug8348410 = // https://bugs.openjdk.org/browse/JDK-8348410
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK25, 0000),
 			JavacBug8016196 = // https://bugs.openjdk.org/browse/JDK-8016196
-					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
-			JavacBug8016207 = // https://bugs.openjdk.org/browse/JDK-8016207 Widening of capture vars occurs at unspecified times
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone);
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone);
+
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
