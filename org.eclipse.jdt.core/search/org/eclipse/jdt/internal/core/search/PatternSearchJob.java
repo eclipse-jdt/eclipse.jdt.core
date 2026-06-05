@@ -21,11 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
-import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -66,34 +62,6 @@ protected final AtomicLong executionTime;
 
 public static final String ENABLE_PARALLEL_SEARCH = "enableParallelJavaIndexSearch";//$NON-NLS-1$
 public static final boolean ENABLE_PARALLEL_SEARCH_DEFAULT = true;
-
-private static final ForkJoinWorkerThreadFactory SEARCH_THREAD_FACTORY = new ForkJoinWorkerThreadFactory() {
-	private final AtomicInteger threadIndex = new AtomicInteger(1);
-
-	@Override
-	public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
-		// Use privileged thread creation to avoid SecurityManager permission issues:
-		// threads inherit the access control context of their creator. By creating
-		// them here (inside the plugin) they get the same permissions as the plugin,
-		// rather than the permissions of whichever caller submitted the first task.
-		ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-		thread.setName("PatternSearchJob-worker-" + this.threadIndex.getAndIncrement()); //$NON-NLS-1$
-		thread.setDaemon(true);
-		return thread;
-	}
-};
-
-private static final ForkJoinPool SEARCH_POOL = createExecutor(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
-
-private static ForkJoinPool createExecutor(int threadCount) {
-	return new ForkJoinPool(threadCount, SEARCH_THREAD_FACTORY, /* UncaughtExceptionHandler */ null, //
-			/* asyncMode */ false, //
-			/* corePoolSize */ 0, //
-			/* maximumPoolSize */ threadCount, //
-			/* minimumRunnable */ 0, //
-			pool -> true, // allow compensation threads when a worker blocks, avoiding RejectedExecutionException
-			/* keepAliveTime */ 5, TimeUnit.MINUTES); // terminate idle threads after 5 minutes of inactivity
-}
 
 public PatternSearchJob(SearchPattern pattern, SearchParticipant participant, IJavaSearchScope scope, IndexQueryRequestor requestor) {
 	this(pattern, participant, scope, true, true, requestor);
@@ -155,7 +123,7 @@ public boolean execute(IProgressMonitor progressMonitor) {
 			if (parallel) {
 				long wallClockTime = System.currentTimeMillis() - startTime;
 				trace("-> execution time: " + wallClockTime + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
-				trace("-> cumulative execution time (" + SEARCH_POOL.getParallelism() + "): " //$NON-NLS-1$//$NON-NLS-2$
+				trace("-> cumulative execution time (" + ForkJoinPool.getCommonPoolParallelism() + "): " //$NON-NLS-1$//$NON-NLS-2$
 						+ this.executionTime.get() + "ms - " + this);//$NON-NLS-1$
 			} else {
 				trace("-> execution time: " + this.executionTime.get() + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
@@ -169,7 +137,7 @@ public boolean execute(IProgressMonitor progressMonitor) {
 private boolean performParallelSearch(Index[] indexes, SubMonitor loopMonitor) {
 	boolean isComplete = true;
 	List<Future<IndexResult>> futures = new ArrayList<>(indexes.length);
-	ForkJoinPool searchPool = SEARCH_POOL;
+	ForkJoinPool commonPool = ForkJoinPool.commonPool();
 	ParallelSearchMonitor monitor = new ParallelSearchMonitor(loopMonitor);
 
 	try {
@@ -177,7 +145,7 @@ private boolean performParallelSearch(Index[] indexes, SubMonitor loopMonitor) {
 			((IParallelizable) this.scope).initBeforeSearch(monitor);
 		}
 		for (Index index : indexes) {
-			futures.add(searchPool.submit(() -> search(index, monitor, true)));
+			futures.add(commonPool.submit(() -> search(index, monitor, true)));
 		}
 
 		for (Future<IndexResult> future : futures) {
