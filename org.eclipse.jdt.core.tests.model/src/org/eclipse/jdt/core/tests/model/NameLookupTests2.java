@@ -482,11 +482,9 @@ public void testMRJarIssue2495() throws Exception {
 
 		// now that we know that lookup works, try a full build (should not find an error in t/T.java)
 
-		if (isJRE25) {
-			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "", markers);
-		}
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "", markers);
 	} finally {
 		deleteProject("MultiReleaseJar");
 	}
