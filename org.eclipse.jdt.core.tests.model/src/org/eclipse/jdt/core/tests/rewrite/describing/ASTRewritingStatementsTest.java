@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
@@ -44,6 +45,18 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	public static Test suite() {
 		return createSuite(ASTRewritingStatementsTest.class);
+	}
+
+	@Override
+	public void setUpSuite() throws Exception {
+		super.setUpSuite();
+		JavaModelManager.VERBOSE = true;
+	}
+
+	@Override
+	public void tearDownSuite() throws Exception {
+		JavaModelManager.VERBOSE = false;
+		super.tearDownSuite();
 	}
 
 	@SuppressWarnings("deprecation")

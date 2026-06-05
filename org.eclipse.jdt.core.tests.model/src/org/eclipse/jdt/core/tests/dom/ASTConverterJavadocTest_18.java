@@ -724,7 +724,8 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 			// Verify javdoc tags positions and bindings
 			if (comment.isDocComment()) {
 				Javadoc docComment = (Javadoc)comment;
-				assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), allTags(docComment));
+				int counter = (int) tags.stream().filter(s -> s != null && !((String) s).trim().isEmpty()).count();
+				assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", counter, allTags(docComment));
 			}
 		}
 
@@ -1367,5 +1368,37 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 			    "Original text should be preserved in AST",
 			    textElement.getText().contains("System.out.println(\"abc\")")
 			);
+	}
+
+	public void testJavadocIncorrectlyParsingAnnotationInlineTag5055() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			"""
+			package javadoc;
+			public class X {
+				/**
+				 * {@snippet :
+				 * @MyAnnotation
+				 * public class Example {
+				 *     @AnotherAnnotation
+				 *     private String field;
+				 * }
+				 * }
+				 */
+				public static void foo(Object o) {}
+			}
+			"""
+		);
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		List<TextElement> frags = snippetTag.fragments();
+		assertEquals("Invalid snippet fragments", 6, frags.size());
+		assertEquals("Invalid content for first Element", " @MyAnnotation\n", frags.get(0).getText());
+		assertEquals("Invalid content for third Element", "     @AnotherAnnotation\n", frags.get(2).getText());
 	}
 }
