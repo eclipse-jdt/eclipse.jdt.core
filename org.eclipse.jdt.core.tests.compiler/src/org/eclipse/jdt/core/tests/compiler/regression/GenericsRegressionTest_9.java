@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -381,10 +380,9 @@ public void testBug488663_012() {
 }
 // Redundant type argument specification - TODO - confirm that this is correct
 public void testBug488663_013() {
-	Runner runner = new Runner();
-	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-	runner.testFiles =
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -408,16 +406,14 @@ public void testBug488663_013() {
 			"interface I<T> {\n" +
 			"	String toString(T t);\n" +
 			"}"
-		};
-	runner.expectedCompilerLog =
+		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 11)\n" +
 		"	I<X> i = new I<X>() {\n" +
 		"	             ^\n" +
 		"Redundant specification of type arguments <X>\n" +
-		"----------\n";
-	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
-	runner.runNegativeTest();
+		"----------\n",
+		null, true, options);
 }
 // All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
 public void testBug488663_014() {
@@ -606,8 +602,7 @@ public void testBug521815b() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
 		return;
 	}
-	Runner runner = new Runner();
-	runner.testFiles =
+	runNegativeTest(
 			new String[] {
 					"a/b/X.java",
 					"package a.b;\n" +
@@ -623,16 +618,13 @@ public void testBug521815b() {
 					"import static a.b.X.Inner;\n" +
 					"public class Y {;\n" +
 					"}\n"
-			};
-	runner.expectedCompilerLog =
+			},
 			"----------\n" +
 			"1. WARNING in a\\Y.java (at line 2)\n" +
 			"	import static a.b.X.Inner;\n" +
 			"	              ^^^^^^^^^^^\n" +
 			"The import a.b.X.Inner is never used\n" +
-			"----------\n";
-	runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
-	runner.runWarningTest();
+			"----------\n");
 }
 public void testBug533644() {
 	runConformTest(
@@ -710,10 +702,9 @@ public void testBug551913_001() {
 // "Remove redundant type arguments" diagnostic should be reported ONLY if all the non-private methods defined in the anonymous class
 // are also present in the parent class.
 public void testBug551913_002() {
-	Runner runner = new Runner();
-	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-	runner.testFiles =
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -725,25 +716,22 @@ public void testBug551913_002() {
 			"		};\n" +
 			"	}\n" +
 			"}",
-		};
-	runner.expectedCompilerLog =
+		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
 		"	                                            ^^^^^^^\n" +
 		"Redundant specification of type arguments <String>\n" +
-		"----------\n";
-	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
-	runner.runNegativeTest();
+		"----------\n",
+		null, true, options);
 }
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=551913
 public void testBug551913_003() {
-	Runner runner = new Runner();
-	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-	runner.testFiles =
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -756,16 +744,14 @@ public void testBug551913_003() {
 			"		};\n" +
 			"	}\n" +
 			"}",
-		};
-	runner.expectedCompilerLog =
+		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	java.util.HashSet<String> b = new java.util.HashSet<String>(a) {\n" +
 		"	                                            ^^^^^^^\n" +
 		"Redundant specification of type arguments <String>\n" +
-		"----------\n";
-	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
-	runner.runNegativeTest();
+		"----------\n",
+		null, true, options);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=551913
@@ -825,10 +811,9 @@ public void testGH1506() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // Recommendation from compiler to drop type arguments leads to compile error
 public void testGH1506_2() {
-	Runner runner = new Runner();
-	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-	runner.testFiles =
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"import java.io.File;\n" +
@@ -852,16 +837,14 @@ public void testGH1506_2() {
 			"		};\n" +
 			"	}\n" +
 			"}\n",
-		};
-	runner.expectedCompilerLog =
+		},
 		"----------\n"
 		+ "1. ERROR in X.java (at line 8)\n"
 		+ "	return new Iterable<File>() {\n"
 		+ "	           ^^^^^^^^\n"
 		+ "Redundant specification of type arguments <File>\n"
-		+ "----------\n";
-	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
-	runner.runNegativeTest();
+		+ "----------\n",
+		null, true, options);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // Recommendation from compiler to drop type arguments leads to compile error
