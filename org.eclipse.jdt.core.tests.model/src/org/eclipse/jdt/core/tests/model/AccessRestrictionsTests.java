@@ -1108,28 +1108,13 @@ public void test011() throws CoreException {
 			"----------\n" +
 			"1. ERROR in /P1/src/q/Y.java (at line 4)\n" +
 			"	p.X x = new p.X();\n" +
-			"	^^^\n" +
-			"Access restriction: The type \'X\' is not accessible (restriction on required library \'AccessRestrictions/lib.jar\')\n" +
+			"	^\n" +
+			"p cannot be resolved to a type\n" +
 			"----------\n" +
 			"2. ERROR in /P1/src/q/Y.java (at line 4)\n" +
 			"	p.X x = new p.X();\n" +
-			"	            ^^^\n" +
-			"Access restriction: The type \'X\' is not accessible (restriction on required library \'AccessRestrictions/lib.jar\')\n" +
-			"----------\n" +
-			"3. ERROR in /P1/src/q/Y.java (at line 4)\n" +
-			"	p.X x = new p.X();\n" +
-			"	            ^^^\n" +
-			"Access restriction: The constructor \'X()\' is not accessible (restriction on required library \'AccessRestrictions/lib.jar\')\n" +
-			"----------\n" +
-			"4. ERROR in /P1/src/q/Y.java (at line 5)\n" +
-			"	x.foo();\n" +
-			"	  ^^^\n" +
-			"Access restriction: The method \'X.foo()\' is not accessible (restriction on required library \'AccessRestrictions/lib.jar\')\n" +
-			"----------\n" +
-			"5. ERROR in /P1/src/q/Y.java (at line 6)\n" +
-			"	if (x.m > 0) {}\n" +
-			"	      ^\n" +
-			"Access restriction: The field \'X.m\' is not accessible (restriction on required library \'AccessRestrictions/lib.jar\')\n" +
+			"	            ^\n" +
+			"p cannot be resolved to a type\n" +
 			"----------\n"
 		);
 	} finally {
