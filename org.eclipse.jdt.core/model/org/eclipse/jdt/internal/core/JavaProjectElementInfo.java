@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.resources.IContainer;
@@ -26,6 +27,9 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.env.AccessRule;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.util.HashSetOfArray;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -240,7 +244,10 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					roots[i] = root = (IPackageFragmentRoot) manager.getExistingElement(root);
 					// compute fragment cache
 					HashSetOfArray fragmentsCache = new HashSetOfArray();
-					initializePackageNames(root, fragmentsCache);
+					if (!(reverseMap.get(root) instanceof ClasspathEntry cpEntry)
+							|| !isCompletelyNonAccessible(cpEntry)) {
+						initializePackageNames(root, fragmentsCache);
+					}
 					pkgFragmentsCaches.put(root, fragmentsCache);
 				}
 			}
@@ -253,6 +260,22 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			}
 		}
 		return cache;
+	}
+
+	private static final char[] ALL_ELEMENTS = {'*', '*', '/', '*'};
+
+	private boolean isCompletelyNonAccessible(ClasspathEntry cpEntry) {
+		AccessRuleSet accessRules = cpEntry.getAccessRuleSet();
+		if (accessRules != null) {
+			AccessRule[] rules = accessRules.getAccessRules();
+			if (rules.length == 1) {
+				AccessRule rule = rules[0];
+				if (rule.getProblemId() == IProblem.ForbiddenReference && Arrays.equals(ALL_ELEMENTS, rule.pattern)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
