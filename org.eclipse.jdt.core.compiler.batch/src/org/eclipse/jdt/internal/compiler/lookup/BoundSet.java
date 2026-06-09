@@ -383,10 +383,6 @@ class BoundSet {
 	}
 
 	public void addBound(TypeBound bound, LookupEnvironment environment) {
-		if (InferenceContext18.DEBUG) {
-			System.out.println("Adding "+bound); //$NON-NLS-1$
-		}
-
 		if (bound.relation == ReductionResult.SUBTYPE && bound.right.id == TypeIds.T_JavaLangObject)
 			return;
 		if (bound.left == bound.right) //$IDENTITY-COMPARISON$
@@ -418,6 +414,9 @@ class BoundSet {
 		if (three == null)
 			this.boundsPerVariable.put(variable, (three = new ThreeSets()));
 		if (three.addBound(bound)) {
+			if (InferenceContext18.DEBUG) {
+				System.out.println("Added "+bound); //$NON-NLS-1$
+			}
 			int unincorporatedBoundsLength = this.unincorporatedBounds.length;
 			if (this.unincorporatedBoundsCount >= unincorporatedBoundsLength)
 				System.arraycopy(this.unincorporatedBounds, 0, this.unincorporatedBounds = new TypeBound[unincorporatedBoundsLength * 2], 0, unincorporatedBoundsLength);
@@ -600,8 +599,11 @@ class BoundSet {
 						mostRecentFormulas[1] = mostRecentFormulas[0];
 						mostRecentFormulas[0] = newConstraint;
 
-						if (!reduceOneConstraint(context, newConstraint))
+						if (!reduceOneConstraint(context, newConstraint)) {
+							if (InferenceContext18.DEBUG)
+								System.out.println("Incorporation failed to reduce new constraint "+newConstraint); //$NON-NLS-1$
 							return false;
+						}
 
 						if (analyzeNull) {
 							// not per JLS: if the new constraint relates types where at least one has a null annotations,
@@ -619,8 +621,11 @@ class BoundSet {
 					}
 					if (deriveTypeArgumentConstraints) {
 						for (ConstraintTypeFormula typeArgumentConstraint : deriveTypeArgumentConstraints(bound1, bound2, context)) {
-							if (!reduceOneConstraint(context, typeArgumentConstraint))
+							if (!reduceOneConstraint(context, typeArgumentConstraint)) {
+								if (InferenceContext18.DEBUG)
+									System.out.println("Incorporation failed to reduce new constraint "+newConstraint); //$NON-NLS-1$
 								return false;
+							}
 						}
 					}
 					if (iteration == 2) {
@@ -722,7 +727,8 @@ class BoundSet {
 		if (InferenceContext18.DEBUG) {
 			if (!capturesToRemove.isEmpty()) {
 				for (ParameterizedTypeBinding toRemove : capturesToRemove) {
-					System.out.println("Removing capture bound " + //$NON-NLS-1$
+					if (this.captures.containsKey(toRemove))
+						System.out.println("Removing capture bound " + //$NON-NLS-1$
 							String.valueOf(toRemove.shortReadableName()) +
 							"=capture("+String.valueOf(this.captures.get(toRemove).shortReadableName())+")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
@@ -1014,7 +1020,13 @@ class BoundSet {
 	public boolean reduceOneConstraint(InferenceContext18 context, ConstraintFormula currentConstraint) throws InferenceFailureException {
 		Object result = currentConstraint.reduce(context);
 		if (InferenceContext18.DEBUG_FINE) {
-			System.out.println("Reduced\t"+currentConstraint+"\n  to   \t"+result); //$NON-NLS-1$ //$NON-NLS-2$
+			if (result instanceof ReductionResult[] array) {
+				System.out.println("Reduced\t"+currentConstraint); //$NON-NLS-1$
+				for (ReductionResult res1 : array)
+					System.out.println("  to   \t"+res1); //$NON-NLS-1$
+			} else {
+				System.out.println("Reduced\t"+currentConstraint+"\n  to   \t"+result); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 		if (result == ReductionResult.FALSE) {
 			if (InferenceContext18.DEBUG) {
