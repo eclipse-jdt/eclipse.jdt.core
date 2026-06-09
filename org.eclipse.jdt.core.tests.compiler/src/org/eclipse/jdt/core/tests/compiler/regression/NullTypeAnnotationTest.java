@@ -7248,7 +7248,7 @@ public void testBug445227() {
 		"1. WARNING in Bar.java (at line 6)\n" +
 		"	this((Iterable<E>) emptyList());\n" +
 		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Iterable<Bar.Foo<Bar.Foo<X>>> to Iterable<E>\n" +
+		"Type safety: Unchecked cast from Iterable<capture-Y#0-of X extends Bar.Foo<capture-Y#0-of X>> to Iterable<E>\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446715, [compiler] org.eclipse.jdt.internal.compiler.lookup.TypeSystem.cacheDerivedType

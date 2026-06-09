@@ -16481,7 +16481,7 @@ public void test0500(){
 			"6. WARNING in X.java (at line 10)\n" +
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" +
 			"	                                   ^\n" +
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<capture-Y#0-of E extends Enum<capture-Y#0-of E>>\n" +
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
@@ -16564,7 +16564,7 @@ public void test0500(){
 			"4. WARNING in X.java (at line 10)\n" +
 			"	EnumSet<?> eSet = (EnumSet<?>) EnumSet.allOf(c);\n" +
 			"	                                             ^\n" +
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<capture-Y#0-of E extends Enum<capture-Y#0-of E>>\n" +
 			"----------\n" +
 			"5. ERROR in X.java (at line 12)\n" +
 			"	Zork z;\n" +
@@ -16606,7 +16606,7 @@ public void test0500(){
 			"3. WARNING in X.java (at line 10)\n" +
 			"	EnumSet<?> eSet = EnumSet.allOf(c);\n" +
 			"	                                ^\n" +
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<capture-Y#0-of E extends Enum<capture-Y#0-of E>>\n" +
 			"----------\n" +
 			"4. ERROR in X.java (at line 12)\n" +
 			"	Zork z;\n" +
@@ -16656,7 +16656,7 @@ public void test0500(){
 			"5. WARNING in X.java (at line 10)\n" +
 			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" +
 			"	                                      ^\n" +
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<capture-Y#0-of E extends Enum<capture-Y#0-of E>>\n" +
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
@@ -28092,7 +28092,7 @@ public void test0881() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	String s = (String) Foo.foo();\n" +
 		"	           ^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot cast from List<List<U>> to String\n" +
+		"Cannot cast from capture-Y#0-of U extends List<capture-Y#0-of U> to String\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
@@ -31001,7 +31001,7 @@ public void test0961() {
 		"5. WARNING in X.java (at line 7)\n" +
 		"	Comparable c = newInstance2(x);\n" +
 		"	                            ^\n" +
-		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable<Comparable<B>>>\n" +
+		"Type safety: The expression of type X needs unchecked conversion to conform to X<capture-Y#0-of B extends Comparable<capture-Y#0-of B>>\n" +
 		"----------\n" +
 		"6. ERROR in X.java (at line 9)\n" +
 		"	Zork z;\n" +

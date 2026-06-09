@@ -7021,7 +7021,7 @@ public void testBug502350() {
 		"1. ERROR in makeCompilerFreeze\\EclipseJava8Bug.java (at line 20)\n" +
 		"	Stuff.func(Comparator.naturalOrder());\n" +
 		"	      ^^^^\n" +
-		"The method func(Comparator<T>) in the type Stuff is not applicable for the arguments (Comparator<Comparable<Comparable<B>>>)\n" +
+		"The method func(Comparator<T>) in the type Stuff is not applicable for the arguments (Comparator<capture-Y#0-of B extends Comparable<capture-Y#0-of B>>)\n" +
 		"----------\n"
 	);
 }

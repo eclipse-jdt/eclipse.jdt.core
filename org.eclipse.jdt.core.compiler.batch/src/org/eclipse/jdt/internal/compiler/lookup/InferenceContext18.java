@@ -1245,9 +1245,9 @@ public class InferenceContext18 {
 						return resolve(toResolve, isRecordPatternTypeInference, false);
 					// Otherwise, a second attempt is made...
 					Sorting.sortInferenceVariables(variables); // ensure stability of capture IDs
-					final CaptureBinding18[] zs = new CaptureBinding18[numVars];
+					final CaptureBinding18[] ys = new CaptureBinding18[numVars];
 					for (int j = 0; j < numVars; j++)
-						zs[j] = freshCapture(variables[j]);
+						ys[j] = freshCapture(variables[j]);
 					final BoundSet kurrentBoundSet = tmpBoundSet;
 					Substitution theta = new Substitution() {
 						@Override
@@ -1261,8 +1261,8 @@ public class InferenceContext18 {
 						@Override
 						public TypeBinding substitute(TypeVariableBinding typeVariable) {
 							for (int j = 0; j < numVars; j++)
-								if (TypeBinding.equalsEquals(variables[j], typeVariable) && zs[j] != null)
-									return zs[j];
+								if (TypeBinding.equalsEquals(variables[j], typeVariable) && ys[j] != null)
+									return ys[j];
 							/* If we have an instantiation, lower it to the instantiation. We don't want downstream abstractions to be confused about multiple versions of bounds without
 							   and with instantiations propagated by incorporation. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=430686. There is no value whatsoever in continuing
 							   to speak in two tongues. Also fixes https://bugs.eclipse.org/bugs/show_bug.cgi?id=425031.
@@ -1278,7 +1278,7 @@ public class InferenceContext18 {
 					};
 					for (int j = 0; j < numVars; j++) {
 						InferenceVariable variable = variables[j];
-						CaptureBinding18 zsj = zs[j];
+						CaptureBinding18 yj = ys[j];
 						// NON-JLS: leverage existing same bounds if they become proper by substitution:
 						boolean typeboundCreated = false;
 						TypeBinding[] sameBounds = tmpBoundSet.sameBounds(variable);
@@ -1296,7 +1296,7 @@ public class InferenceContext18 {
 								if (sameBounds != null && sameBounds.length == 1) {
 									tmpBoundSet.addBound(new TypeBound(variable, sameBounds[0], ReductionResult.SAME), this.environment);
 									typeboundCreated = true;
-									zs[j] = null;
+									ys[j] = null;
 								}
 							}
 						}
@@ -1308,17 +1308,17 @@ public class InferenceContext18 {
 							if (lowerBounds != Binding.NO_TYPES) {
 								TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
 								if (lub != TypeBinding.VOID && lub != null)
-									zsj.lowerBound = lub;
+									yj.lowerBound = lub;
 							}
 							// add upper bounds:
 							TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, false/*onlyProper*/);
 							if (upperBounds != Binding.NO_TYPES) {
 								for (int k = 0; k < upperBounds.length; k++)
 									upperBounds[k] = Scope.substitute(theta, upperBounds[k]);
-								if (!setUpperBounds(zsj, upperBounds))
+								if (!setUpperBounds(yj, upperBounds))
 									continue; // at violation of well-formedness skip this candidate and proceed
 							} else {
-								zsj.setSuperClass(this.object);
+								yj.setSuperClass(this.object);
 							}
 						}
 						if (tmpBoundSet == this.currentBounds)
@@ -1346,7 +1346,7 @@ public class InferenceContext18 {
 							}
 						}
 						if (!typeboundCreated)
-							tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME), this.environment);
+							tmpBoundSet.addBound(new TypeBound(variable, yj, ReductionResult.SAME), this.environment);
 						toResolveSet.remove(variable);
 					}
 					if (tmpBoundSet.incorporate(this)) {
@@ -1385,10 +1385,10 @@ public class InferenceContext18 {
 
 	int captureId = 0;
 
-	/** For 18.4: "Let Z1, ..., Zn be fresh type variables" use capture bindings. */
+	/** For 18.4: "Let Y1, ..., Yn be fresh type variables" use capture bindings. */
 	private CaptureBinding18 freshCapture(InferenceVariable variable) {
 		int id = this.captureId++;
-		char[] sourceName = CharOperation.concat("Z".toCharArray(), '#', String.valueOf(id).toCharArray(), '-', variable.sourceName); //$NON-NLS-1$
+		char[] sourceName = CharOperation.concat("Y".toCharArray(), '#', String.valueOf(id).toCharArray(), '-', variable.sourceName); //$NON-NLS-1$
 		int start = this.currentInvocation != null ? this.currentInvocation.sourceStart() : 0;
 		int end = this.currentInvocation != null ? this.currentInvocation.sourceEnd() : 0;
 		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, variable.typeParameter.shortReadableName(),
