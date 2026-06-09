@@ -148,6 +148,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return this.resultExpressions;
 	}
 
+
 	public void setArrowPosition(int arrowPosition) {
 		this.arrowPosition = arrowPosition;
 	}
