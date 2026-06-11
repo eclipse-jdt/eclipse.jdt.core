@@ -418,11 +418,20 @@ public class TextEditsBuilder extends TokenTraverser {
 			int splitPlace = stringToCheck.indexOf(closingQuotes);
 			if (splitPlace > 0) {
 				// There is no new line because it is already present in the buffer field.
+				String newBuffer = getClosingQuotesBuffer(this.buffer.toString());
 				this.edits.add(getReplaceEdit(position + splitPlace, position + splitPlace,
-						'\\' + this.buffer.toString(), region));
+						'\\' + newBuffer, region));
 			}
 		}
 		return;
+	}
+
+	private String getClosingQuotesBuffer(String curBuffer) {
+		// FOr the closing quote buffer, we want to ensure that there is only a single newline.
+		// But this can't be the case if the line before the last contains an extra newline (one or more).
+		// So we need to strip any extra newline.
+		StringBuilder newBuffer = new StringBuilder (this.options.line_separator + curBuffer.replace(this.options.line_separator, "")); //$NON-NLS-1$
+		return newBuffer.toString();
 	}
 
 	private ReplaceEdit getReplaceEdit(int editStart, int editEnd, String text, IRegion region) {
