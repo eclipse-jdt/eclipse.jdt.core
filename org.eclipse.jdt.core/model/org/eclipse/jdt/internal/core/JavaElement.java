@@ -63,8 +63,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 //	private static final QualifiedName PROJECT_JAVADOC= new QualifiedName(JavaCore.PLUGIN_ID, "project_javadoc_location"); //$NON-NLS-1$
 
 	private static final int HTML_HEAD_PREFIX_LENGTH = 4096;
-	private static final Pattern META_TAG_PATTERN = Pattern.compile("<meta\\s+[^>]*>", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
-	private static final Pattern META_CHARSET_PATTERN = Pattern.compile("(?<![A-Za-z0-9_-])charset\\s*=\\s*([\\\"']?)([^\\s\\\"'/>;]+)\\1", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+	private static final Pattern META_TAG_PATTERN = Pattern.compile("<meta\\s[^>]*+>", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+	private static final Pattern META_CHARSET_PATTERN = Pattern.compile("(?<![A-Za-z0-9_-])charset\\s*+=\\s*+([\"']?)([^\\s\"'/>;]+)\\1", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
 	public static final char JEM_ESCAPE = '\\';
 	public static final char JEM_JAVAPROJECT = '=';
 	public static final char JEM_PACKAGEFRAGMENTROOT = '/';

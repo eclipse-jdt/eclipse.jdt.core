@@ -1096,7 +1096,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			} catch(JavaModelException e) {
 				assertTrue("Should not happen", false);
 			}
-			assertNotNull("Shouldhave a javadoc", javadoc); //$NON-NLS-1$
+				assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
 			char[] charArray = encodedContents.toCharArray();
 			encodedContents = new String(CharOperation.remove(charArray, '\r'));
@@ -1170,7 +1170,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			} catch(JavaModelException e) {
 				assertTrue("Should not happen", false);
 			}
-			assertNotNull("Shouldhave a javadoc", javadoc); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
 			char[] charArray = encodedContents.toCharArray();
 			encodedContents = new String(CharOperation.remove(charArray, '\r'));
@@ -1179,8 +1179,11 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(javadoc));
 		}
 		finally {
-			this.project.getProject().setDefaultCharset(oldEncoding, null);
-			this.project.setRawClasspath(oldClasspath, null);
+			try {
+				this.project.getProject().setDefaultCharset(oldEncoding, null);
+			} finally {
+				this.project.setRawClasspath(oldClasspath, null);
+			}
 		}
 	}
 	public void testAttachedJavadocWithModernMetaCharset() throws Exception {
@@ -1241,8 +1244,11 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertEquals("Sources should be decoded the same way", encodedContents, javadoc);
 		}
 		finally {
-			this.project.getProject().setDefaultCharset(oldEncoding, null);
-			this.project.setRawClasspath(oldClasspath, null);
+			try {
+				this.project.getProject().setDefaultCharset(oldEncoding, null);
+			} finally {
+				this.project.setRawClasspath(oldClasspath, null);
+			}
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403154
