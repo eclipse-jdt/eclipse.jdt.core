@@ -456,7 +456,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				public class main {
 					void main() {
 					}
-					public static void main(String[] args) {}
 				}"""};
 		runner.expectedCompilerLog =
 				"----------\n" +
