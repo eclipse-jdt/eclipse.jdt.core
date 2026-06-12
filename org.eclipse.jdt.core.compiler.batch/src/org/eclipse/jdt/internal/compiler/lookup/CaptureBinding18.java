@@ -311,56 +311,45 @@ public class CaptureBinding18 extends CaptureBinding {
 
 	@Override
 	public char[] readableName() {
-		if (this.lowerBound == null && this.firstBound != null) {
-			if (this.prototype().recursionLevel < 2) {
-				try {
-					this.prototype().recursionLevel++;
-					if (this.upperBounds != null && this.upperBounds.length > 1) {
-						StringBuilder sb = new StringBuilder();
-						sb.append(this.upperBounds[0].readableName());
-						for (int i = 1; i < this.upperBounds.length; i++)
-							sb.append('&').append(this.upperBounds[i].readableName());
-						int len = sb.length();
-						char[] name = new char[len];
-						sb.getChars(0, len, name, 0);
-						return name;
-					}
-					return this.firstBound.readableName();
-				} finally {
-					this.prototype().recursionLevel--;
-				}
-			} else {
-				return this.originalName;
-			}
-		}
-		return super.readableName();
+		return genericReadableName(false);
 	}
 
 	@Override
 	public char[] shortReadableName() {
-		if (this.lowerBound == null && this.firstBound != null) {
-			if (this.prototype().recursionLevel < 2) {
-				try {
-					this.prototype().recursionLevel++;
-					if (this.upperBounds != null && this.upperBounds.length > 1) {
-						StringBuilder sb = new StringBuilder();
-						sb.append(this.upperBounds[0].shortReadableName());
-						for (int i = 1; i < this.upperBounds.length; i++)
-							sb.append('&').append(this.upperBounds[i].shortReadableName());
-						int len = sb.length();
-						char[] name = new char[len];
-						sb.getChars(0, len, name, 0);
-						return name;
+		return genericReadableName(true);
+
+	}
+
+	private char[] genericReadableName(boolean makeShort) {
+		int dash = CharOperation.indexOf('-', this.sourceName);
+		StringBuilder sb = new StringBuilder();
+		sb.append("capture-").append(CharOperation.subarray(this.sourceName, 0, dash)); //$NON-NLS-1$
+		sb.append("-of ").append(this.originalName); //$NON-NLS-1$
+		if (this.prototype().recursionLevel == 0) {
+			try {
+				this.prototype().recursionLevel++;
+				if (this.upperBounds != null && this.upperBounds.length > 1) {
+					sb.append(" extends "); //$NON-NLS-1$
+					for (int i = 0; i < this.upperBounds.length; i++) {
+						if (i > 0) sb.append('&');
+						TypeBinding bound = this.upperBounds[i];
+						sb.append(makeShort ? bound.shortReadableName() : bound.readableName());
 					}
-					return this.firstBound.shortReadableName();
-				} finally {
-					this.prototype().recursionLevel--;
+				} else if (this.firstBound != null) {
+					sb.append(" extends "); //$NON-NLS-1$
+					sb.append(makeShort ? this.firstBound.shortReadableName() : this.firstBound.readableName());
 				}
-			} else {
-				return this.originalName;
+				if (this.lowerBound != null) {
+					sb.append(" super ").append(makeShort ? this.lowerBound.shortReadableName() : this.lowerBound.readableName()); //$NON-NLS-1$
+				}
+			} finally {
+				this.prototype().recursionLevel--;
 			}
 		}
-		return super.shortReadableName();
+		int len = sb.length();
+		char[] name = new char[len];
+		sb.getChars(0, len, name, 0);
+		return name;
 	}
 
 	@Override

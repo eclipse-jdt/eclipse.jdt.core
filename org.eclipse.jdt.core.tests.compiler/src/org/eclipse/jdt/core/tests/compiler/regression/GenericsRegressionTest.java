@@ -2467,7 +2467,7 @@ public void test366131b() {
 		"4. WARNING in X.java (at line 13)\n" +
 		"	return castTo((Class) null).containsNC((Comparable) null);\n" +
 		"	              ^^^^^^^^^^^^\n" +
-		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Comparable<? super Comparable<? super N>&Number>&Number>\n" +
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<capture-Y#0-of N extends Comparable<? super capture-Y#0-of N>&Number>\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 13)\n" +
 		"	return castTo((Class) null).containsNC((Comparable) null);\n" +
@@ -5337,7 +5337,7 @@ public void testBug454644() {
 		"5. WARNING in example\\CollectionFactory.java (at line 87)\n" +
 		"	return EnumSet.noneOf((Class) elementType);\n" +
 		"	                      ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<capture-Y#0-of E extends Enum<capture-Y#0-of E>>\n" +
 		"----------\n" +
 		"6. WARNING in example\\CollectionFactory.java (at line 87)\n" +
 		"	return EnumSet.noneOf((Class) elementType);\n" +
@@ -5393,7 +5393,7 @@ public void testBug456459a() {
 		"5. WARNING in EnumTest.java (at line 9)\n" +
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" +
 		"	                                         ^^^^^^^^\n" +
-		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<capture-Y#0-of E extends Enum<capture-Y#0-of E>>\n" +
 		"----------\n" +
 		"6. ERROR in EnumTest.java (at line 10)\n" +
 		"	return set.iterator().next();\n" +
