@@ -1210,7 +1210,9 @@ public class InferenceContext18 {
 										} else {
 											TypeBinding[] glbs = Scope.greaterLowerBound(upperBounds, this.scope, this.environment);
 											if (glbs == null) {
-												return null;
+												// inconsistent intersection
+												tmpBoundSet = prevBoundSet; // clean up
+												break variables; // and start over
 											} else if (glbs.length == 1) {
 												glb = glbs[0];
 											} else {
