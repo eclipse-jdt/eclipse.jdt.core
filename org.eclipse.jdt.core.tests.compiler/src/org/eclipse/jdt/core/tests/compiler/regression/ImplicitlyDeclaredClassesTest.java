@@ -434,4 +434,16 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		VMARGS,
 		JavacTestOptions.SKIP);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5135
+	// Implicitly declared class main.java warns about main() looking like a constructor
+	public void testGH5135() {
+		runConformTest(new String[] {
+				"main.java",
+				"""
+				void main() {
+					System.out.println("Hello World");
+				}"""
+		},
+		"Hello World");
+	}
 }
