@@ -30,7 +30,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testDominanceIssue4979_001" };
+//		TESTS_NAMES = new String[] { "testDominanceIssue4979_002" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -7648,4 +7648,38 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	public void testDominanceIssue4979_002() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+				public class X {
+					public int foo1(Short c) {
+						int result = 0;
+						switch (c) {
+						  case Short c1 -> {
+							result = c1;
+							break;
+						  }
+						  case (byte) 0 -> {
+							result = 0;
+							break;
+						  }
+						}
+						return result;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	case Short c1 -> {\n" +
+			"	     ^^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	case (byte) 0 -> {\n" +
+			"	     ^^^^^^^^\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
+			"----------\n");
+	}
 }

@@ -118,10 +118,11 @@ public abstract class Pattern extends Expression {
 			return false;
 		if (!(this.resolvedType.unboxedType() instanceof BaseTypeBinding baseType))
 			return false;
-		if (!cst.isExactTestingConversion(baseType))
-			return false;
 		int constantTypeID = cst.typeID();
+		// find route as well as flag preview
 		PrimitiveConversionRoute route = findPrimitiveConversionRoute(baseType, TypeBinding.wellKnownBaseType(constantTypeID), scope);
+		if (cst.isExactTestingConversion(baseType))
+			return true; // flagging a preview already taken care above - let's return.
 		switch (route) {
 			// JLS §5.7.2:
 			case NARROWING_PRIMITVE_CONVERSION:
