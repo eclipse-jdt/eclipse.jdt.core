@@ -446,4 +446,26 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		},
 		"Hello World");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5135
+	// Verify that the constructor-name warning is still reported for regular compilation units
+	public void testGH5135_regularClass() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"main.java",
+				"""
+				public class main {
+					void main() {
+					}
+					public static void main(String[] args) {}
+				}"""};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. WARNING in main.java (at line 2)\n" +
+				"	void main() {\n" +
+				"	     ^^^^^^\n" +
+				"This method has a constructor name\n" +
+				"----------\n";
+		runner.customOptions = getCompilerOptions();
+		runner.runWarningTest();
+	}
 }
