@@ -38316,7 +38316,7 @@ public void test1141() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945
 public void test1142() {
-	runNegativeTest(
+	runConformTest(
 		// test directory preparation
 		new String[] { /* test files */
 			"X.java",
@@ -38334,16 +38334,7 @@ public void test1142() {
 			"    return null;\n" +
 			"  }\n" +
 			"}\n", // =================
-		},
-		// compiler results
-		"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java (at line 5)\n" +
-		"	return compound(asList(a, b));\n" +
-		"	       ^^^^^^^^\n" +
-		"The method compound(Iterable<? extends Comparator<? super T>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" +
-		"----------\n",
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBug6573446 /* javac test options */);
+		});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
 public void test1143() {

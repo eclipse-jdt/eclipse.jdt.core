@@ -104,6 +104,8 @@ public class InferenceContext18 {
 
 	static final boolean SHOULD_WORKAROUND_BUG_JDK_8153748 = true; // NON-JLS emulating javac behaviour after private email communication
 
+	static final boolean SHOULD_WORKAROUND_BUG_JDK_6573446 = true; // NON-JLS, see also https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/thread/TLIVNI7SPUVX646O7RTGG7IOYJVWSV47/
+
 	/**
 	 * NON-JLS: Detail flag to control the extent of {@link #SIMULATE_BUG_JDK_8026527}.
 	 * A setting of 'false' implements the advice from http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000447.html
@@ -1144,19 +1146,31 @@ public class InferenceContext18 {
 		return this.currentBounds.reduceOneConstraint(this, constraint); // TODO(SH): should we immediately call a diat incorporate, or can we simply wait for the next round?
 	}
 
-	 /** <b>JLS 18.4 </b> Resolution
-	  * @param isRecordPatternTypeInference for 18.5.5_item_3_bullet_5
+	/** <b>JLS 18.4 </b> Resolution
+	 * @param isRecordPatternTypeInference for 18.5.5_item_3_bullet_5
 	 * @return answer null if some constraint resolved to FALSE, otherwise the boundset representing the solution
 	 */
 	private /*@Nullable*/ BoundSet resolve(
 			InferenceVariable[] toResolve,
 			boolean isRecordPatternTypeInference) throws InferenceFailureException {
 		this.captureId = 0;
+		BoundSet result = resolve(toResolve, isRecordPatternTypeInference, true);
+		if (result == FAIL_AFTER_USING_LOWER_BOUNDS && SHOULD_WORKAROUND_BUG_JDK_6573446) {
+			result = resolve(toResolve, isRecordPatternTypeInference, false);
+		}
+		return result;
+	}
+	/** Marker Object for a failed resolution where lower bounds have been used. */
+	private static BoundSet FAIL_AFTER_USING_LOWER_BOUNDS = new BoundSet();
+	private /*@Nullable*/ BoundSet resolve(InferenceVariable[] toResolve, boolean isRecordPatternTypeInference, boolean useLowerBounds)
+			throws InferenceFailureException
+	{
 		// NOTE: 18.5.2 ...
 		// "(While it was necessary to demonstrate that the inference variables in B1 could be resolved
 		//   in order to establish applicability, the resulting instantiations are not considered part of B1.)
 		// For this reason, resolve works on a temporary copy of the bound set.
 		BoundSet tmpBoundSet = this.currentBounds.copy();
+		boolean lowerBoundUsed = false;
 		if (this.inferenceVariables != null) {
 			Set<InferenceVariable> toResolveSet = new LinkedHashSet<>(Arrays.asList(toResolve));
 			// find a minimal set of dependent variables:
@@ -1175,7 +1189,9 @@ public class InferenceContext18 {
 					if (!isRecordPatternTypeInference && !tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in tmpBoundSet, but keep a copy for roll-back
 						BoundSet prevBoundSet = tmpBoundSet.copy();
-						if (resolveFirstAttempt(tmpBoundSet, toResolveSet, variableSet, variables)) {
+						ResolveOutcome firstAttempt = resolveFirstAttempt(tmpBoundSet, toResolveSet, variableSet, variables, useLowerBounds);
+						lowerBoundUsed |= firstAttempt.lowerBoundUsed;
+						if (firstAttempt.success) {
 							continue;
 						}
 						// roll back for second attempt:
@@ -1186,7 +1202,7 @@ public class InferenceContext18 {
 							continue;
 						}
 					}
-					return null;
+					return lowerBoundUsed ? FAIL_AFTER_USING_LOWER_BOUNDS : null;
 				}
 				if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
 					return null; // abort because we made no progress
@@ -1195,8 +1211,11 @@ public class InferenceContext18 {
 		return tmpBoundSet;
 	}
 
-	 private boolean resolveFirstAttempt(BoundSet tmpBoundSet, Set<InferenceVariable> toResolveSet,
-			Set<InferenceVariable> variableSet, final InferenceVariable[] variables) throws InferenceFailureException {
+	record ResolveOutcome(boolean success, boolean lowerBoundUsed) {}
+	private ResolveOutcome resolveFirstAttempt(BoundSet tmpBoundSet, Set<InferenceVariable> toResolveSet,
+			Set<InferenceVariable> variableSet, final InferenceVariable[] variables, boolean useLowerBounds)
+					throws InferenceFailureException {
+		boolean lowerBoundsUsed = false;
 		for (int j = 0; j < variables.length; j++) {
 			InferenceVariable variable = variables[j];
 			if (tmpBoundSet.isInstantiated(variable)) { // NON-JLS: may happen when exception bound has been incorporated
@@ -1206,11 +1225,12 @@ public class InferenceContext18 {
 			}
 			// try lower bounds:
 			TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
-			if (lowerBounds != Binding.NO_TYPES) {
+			if (lowerBounds != Binding.NO_TYPES && useLowerBounds) {
 				TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
 				if (lub == TypeBinding.VOID || lub == null)
-					return false; // TODO: directly fail entire resolution?
+					return new ResolveOutcome(false, lowerBoundsUsed);
 				tmpBoundSet.addBound(new TypeBound(variable, lub, ReductionResult.SAME), this.environment);
+				lowerBoundsUsed = true;
 			} else {
 				TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, true/*onlyProper*/);
 				// check exception bounds:
@@ -1219,7 +1239,7 @@ public class InferenceContext18 {
 					tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME), this.environment);
 					// NON-JLS: propagate RuntimeException to equivalent ivars:
 					if (!tmpBoundSet.incorporate(this)) {
-						return false; // go for second attempt
+						return new ResolveOutcome(false, lowerBoundsUsed); // go for second attempt
 					}
 				} else {
 					// try upper bounds:
@@ -1231,14 +1251,14 @@ public class InferenceContext18 {
 							TypeBinding[] glbs = Scope.greaterLowerBound(upperBounds, this.scope, this.environment);
 							if (glbs == null) {
 								// inconsistent intersection
-								return false; // go for second attempt
+								return new ResolveOutcome(false, lowerBoundsUsed); // go for second attempt
 							} else if (glbs.length == 1) {
 								glb = glbs[0];
 							} else {
 								glb = intersectionFromGlb(glbs);
 								if (glb == null) {
 									// inconsistent intersection
-									return false; // go for second attempt
+									return new ResolveOutcome(false, lowerBoundsUsed); // go for second attempt
 								}
 							}
 						}
@@ -1250,8 +1270,8 @@ public class InferenceContext18 {
 			variableSet.remove(variable);
 		}
 		if (tmpBoundSet.incorporate(this))
-			return true; // success!
-		return false; // go for second attempt
+			return new ResolveOutcome(true, lowerBoundsUsed); // success!
+		return new ResolveOutcome(false, lowerBoundsUsed); // go for second attempt
 	}
 
 	private boolean resolveSecondAttempt(BoundSet tmpBoundSet, Set<InferenceVariable> toResolveSet,
