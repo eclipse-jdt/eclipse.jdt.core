@@ -15,8 +15,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -37,6 +37,19 @@ public GenericsRegressionTest_9(String name) {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_9);
 }
+
+// ========= OPT-IN to run.javac mode: ===========
+@Override
+protected void setUp() throws Exception {
+	this.runJavacOptIn = true;
+	super.setUp();
+}
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	this.runJavacOptIn = false; // do it last, so super can still clean up
+}
+// =================================================
 
 // vanilla test case
 public void testBug488663_001() {
@@ -1139,7 +1152,8 @@ public void testGH3457c() {
 	});
 }
 public void testGH3948() {
-	runConformTest(new String[] {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
 			"Foo.java",
 			"""
 			import java.util.Collections;
@@ -1169,7 +1183,9 @@ public void testGH3948() {
 			    public static interface Bar{}
 			}
 			"""
-		});
+		};
+	runner.javacTestOptions = JavacHasABug.JavacBug8297428;
+	runner.runConformTest();
 }
 public void testGH4022a() {
 	runConformTest(new String[] {
@@ -1254,7 +1270,8 @@ public void testGH4033() {
 		});
 }
 public void testGH4039() {
-	runConformTest(new String[] {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
 		"CollectionsSortReproducer.java",
 		"""
 		import java.util.Collection;
@@ -1274,7 +1291,9 @@ public void testGH4039() {
 			}
 		}
 		"""
-	});
+	};
+	runner.javacTestOptions = JavacHasABug.JavacBugIvarInterning;
+	runner.runConformTest();
 }
 
 public void testGH4003() {
@@ -2295,6 +2314,63 @@ public void testGH4731() {
 	runner.javacTestOptions = JavacHasABug.JavacBug8016207;
 	runner.runNegativeTest();
 }
+public void testGH4937() {
+	runConformTest(new String[] {
+		"A.java",
+		"""
+		import java.util.List;
+
+		public class A {
+		    public static void foo() {
+		        System.out.println(List.of(BusinessExtractBuilder.create())); // Error here
+		    }
+		    public static class BusinessExtractBuilder<T> {
+		        public static <U extends BusinessExtractBuilder<U>> U create() {
+		            return null;
+		        }
+		    }
+		}
+		"""
+	});
+}
+
+public void testGH3351() {
+	// error message is bogus (see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5078)
+	// but rejecting is in line with javac
+	runNegativeTest(new String[] {
+			"PassThroughGenerics.java",
+			"""
+			import java.util.List;
+			public class PassThroughGenerics {
+			    private class MyComp implements Comparable<MyComp> {
+			        @Override public int compareTo(MyComp other) { return 0; }
+			    }
+
+			    static <E extends Comparable<E>> List<E> sort(List<E> list) {
+			        return list;
+			    }
+
+			    static <T> List<T> genericList() {
+			        return null;
+			    }
+
+			    public static void main(String[] args) {
+			        List<MyComp> sorted = sort(genericList());
+			        System.out.println(sorted);
+			    }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in PassThroughGenerics.java (at line 16)
+			List<MyComp> sorted = sort(genericList());
+			                      ^^^^
+		The method sort(java.util.List<E extends java.lang.Comparable<E>>) in the type PassThroughGenerics is not applicable for the arguments (java.util.List<E extends java.lang.Comparable<E>>)
+		----------
+		""");
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
