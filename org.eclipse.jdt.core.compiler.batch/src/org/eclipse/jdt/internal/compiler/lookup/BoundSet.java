@@ -315,7 +315,7 @@ class BoundSet {
 	 * <dl>
 	 * <dt>captures<dd>IC18.resumeSuspendedInference() will reset these to avoid captures from nested
 	 * 	inference spilling blindly into the current inference.<br>
-	 *  {@link InferenceContext18#collectDependencies(BoundSet, boolean, boolean[])} considers only "local" {@link #captures}.
+	 *  {@link InferenceContext18#collectDependencies(BoundSet)} considers only "local" {@link #captures}.
 	 * <dt>allCaptures<dd>Still {@link #hasCaptureBound(Set)} and {@link #incorporate(InferenceContext18)} will
 	 * 	operate on {@link #allCaptures}.
 	 */
@@ -327,6 +327,7 @@ class BoundSet {
 	private TypeBound[] unincorporatedBounds = new TypeBound[8];
 	private int unincorporatedBoundsCount = 0;
 	private final TypeBound[] mostRecentBounds = new TypeBound[4]; // for quick & dirty duplicate elimination
+	public boolean isRecordPatternInference;
 
 	public BoundSet() {}
 
@@ -427,12 +428,17 @@ class BoundSet {
 				three.setInstantiation(typeBinding, variable, environment);
 			if (bound.right instanceof InferenceVariable) {
 				// for a dependency between two IVs make a note about the inverse bound.
-				// this should be needed to determine IV dependencies independent of direction.
-				// TODO: so far no test could be identified which actually needs it ...
-				InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
-				three = this.boundsPerVariable.get(rightIV);
-				if (three == null)
-					this.boundsPerVariable.put(rightIV, (three = new ThreeSets()));
+				int relation = switch (bound.relation) {
+					case ReductionResult.SUBTYPE -> ReductionResult.SUPERTYPE;
+					case ReductionResult.SUPERTYPE -> ReductionResult.SUBTYPE;
+					case ReductionResult.SAME -> this.isRecordPatternInference ? -1 : ReductionResult.SAME;
+					default -> -1;
+				};
+				if (relation != -1) {
+					InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
+					three = this.boundsPerVariable.computeIfAbsent(rightIV, k -> new ThreeSets());
+					three.addBound(new TypeBound(rightIV, bound.left, relation, bound.isSoft));
+				}
 			}
 		}
 	}
@@ -696,7 +702,10 @@ class BoundSet {
 										System.arraycopy(otherBounds, 0, allBounds, 1, n-1);
 										bi = context.environment.createIntersectionType18(allBounds);
 									}
-									if (addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi))
+									ReductionResult result = addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
+									if (result == ReductionResult.FALSE)
+										return false;
+									else if (result == ReductionResult.TRUE)
 										capturesToRemove.add(gAlpha);
 								}
 							}
@@ -709,7 +718,8 @@ class BoundSet {
 								TypeBound bound = it.next();
 								if (!(bound.right instanceof InferenceVariable)) {
 									if (wildcardBinding.boundKind == Wildcard.SUPER) {
-										reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE));
+										if (!reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE)))
+											return false;
 										capturesToRemove.add(gAlpha);
 									} else {
 										return false;
@@ -739,23 +749,24 @@ class BoundSet {
 	}
 
 	// try to infer and reduce a new constraint based on details of a given capture bound
-	// return true iff a new constraint has been added indeed
-	boolean addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
+	// return TRUE or FALSE iff a new constraint has been added indeed
+	ReductionResult addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
 			TypeBinding r, TypeBinding bi) throws InferenceFailureException {
 		ConstraintFormula formula = null;
 		if (boundKind == Wildcard.EXTENDS) {
 			if (bi.id == TypeIds.T_JavaLangObject)
-				formula = ConstraintTypeFormula.create(t, r, ReductionResult.SUBTYPE);
+				formula = ConstraintTypeFormula.create(t, r, ReductionResult.SUBTYPE, true);
 			if (t.id == TypeIds.T_JavaLangObject)
-				formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE);
+				formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE, true);
 		} else {
-			formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE);
+			formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE, true);
 		}
 		if (formula != null) {
-			reduceOneConstraint(context, formula);
-			return true;
+			if (!reduceOneConstraint(context, formula))
+				return ReductionResult.FALSE;
+			return ReductionResult.TRUE;
 		}
-		return false;
+		return null;
 	}
 
 	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT, Map<InferenceVariable,TypeBound> properTypesByInferenceVariable) {
@@ -881,7 +892,7 @@ class BoundSet {
 			innerSame = true; // came in as: S REL α and α REL T imply ⟨S REL T⟩
 		if (outerSame) {
 			if (innerSame) // NON-JLS bidirectional subtyping implies equality:
-				return ConstraintTypeFormula.create(boundS.left, boundS.right, ReductionResult.SAME, false);
+				return ConstraintTypeFormula.create(boundS.left, boundS.right, ReductionResult.SAME, boundT.isSoft||boundS.isSoft);
 			return ConstraintTypeFormula.create(boundT.left, boundS.right, boundS.relation, boundT.isSoft||boundS.isSoft);
 		} else if (innerSame) {
 			return ConstraintTypeFormula.create(boundS.left, boundT.right, boundS.relation, boundT.isSoft||boundS.isSoft);
@@ -1080,6 +1091,32 @@ class BoundSet {
 			}
 		}
 		return true;
+	}
+
+	public int rankIVar(InferenceVariable ivar) {
+		// implements the ranking of ivars according to their bounds as explained in
+		// https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/message/GN6RTCGMME6I5JVLSFZRIR32XY6QKOI2/
+		ThreeSets three = this.boundsPerVariable.get(ivar.prototype());
+		if (three != null) {
+			if (three.sameBounds != null)
+				if (!three.sameBounds.isEmpty())
+					return 1;
+			if (this.isRecordPatternInference) {
+				// workaround for not having inverse bounds of type SAME (see addBound(TypeBound, LookupEnvironment)):
+				for (ThreeSets dep3 : this.boundsPerVariable.values()) {
+					if (dep3 != null && dep3.sameBounds != null) {
+						for (TypeBound depBound : dep3.sameBounds) {
+							if (depBound.right.equals(ivar))
+								return 1;
+						}
+					}
+				}
+			}
+			if (three.superBounds != null)
+				if (!three.superBounds.isEmpty())
+						return 2;
+		}
+		return 3;
 	}
 
 	/**
