@@ -87,7 +87,7 @@ public class CaptureBinding18 extends CaptureBinding {
 
 	@Override
 	public MethodBinding[] getMethods(char[] selector) {
-		if (this.upperBounds.length == 1 && this.upperBounds[0] instanceof ReferenceBinding)
+		if (this.upperBounds != null && this.upperBounds.length == 1 && this.upperBounds[0] instanceof ReferenceBinding)
 			return ((ReferenceBinding)this.upperBounds[0]).getMethods(selector);
 		return super.getMethods(selector);
 	}
@@ -175,6 +175,26 @@ public class CaptureBinding18 extends CaptureBinding {
 
 				for (int i = 0; i < length; i++) {
 					if (this.upperBounds[i].isCompatibleWith(otherType, captureScope))
+						return true;
+				}
+			}
+			return false;
+		} finally {
+			this.inRecursiveFunction = false;
+		}
+	}
+
+	@Override
+	public boolean isSubtypeOf(TypeBinding other, boolean simulatingBugJDK8026527) {
+		if (this.inRecursiveFunction)
+			return true;
+		this.inRecursiveFunction = true;
+		try {
+			if (super.isSubtypeOf(other, simulatingBugJDK8026527))
+				return true;
+			if (this.upperBounds != null) {
+				for (TypeBinding upper : this.upperBounds) {
+					if (upper.isSubtypeOf(other, simulatingBugJDK8026527))
 						return true;
 				}
 			}
