@@ -380,6 +380,7 @@ class BoundSet {
 		if (this.unincorporatedBoundsCount > 0)
 			System.arraycopy(this.unincorporatedBounds, 0, copy.unincorporatedBounds = new TypeBound[this.unincorporatedBounds.length], 0, this.unincorporatedBounds.length);
 		copy.unincorporatedBoundsCount = this.unincorporatedBoundsCount;
+		copy.isRecordPatternInference = this.isRecordPatternInference;
 		return copy;
 	}
 
