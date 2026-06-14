@@ -2230,20 +2230,7 @@ public void testGH4774() throws Exception {
 			}
 			"""
 		};
-	runner.expectedCompilerLog =
-		"""
-		----------
-		1. ERROR in Test.java (at line 4)
-			Z<B> z = new Z<>(List.of(
-						new Y<>(new A()),
-						new Y<>(new B()),
-						new Y<>(new C())));
-			         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		Cannot infer type arguments for Z<>
-		----------
-		""";
-	runner.javacTestOptions = JavacHasABug.JavacBug6573446;
-	runner.runNegativeTest();
+	runner.runConformTest();
 }
 public void testGH4774b() throws Exception {
 	Runner runner = new Runner();
@@ -2268,17 +2255,7 @@ public void testGH4774b() throws Exception {
 			}
 			"""
 		};
-	runner.expectedCompilerLog =
-			"""
-			----------
-			1. ERROR in Test.java (at line 4)
-				List<Z> l = consume(List.of(
-				            ^^^^^^^
-			The method consume(List<? extends Test.A<? super U>>) in the type Test is not applicable for the arguments (List<Test.A<? extends Test.Y>>)
-			----------
-			""";
-	runner.javacTestOptions = JavacHasABug.JavacBug6573446;
-	runner.runNegativeTest();
+	runner.runConformTest();
 }
 public void testGH4731() {
 	Runner runner = new Runner();
@@ -2369,6 +2346,26 @@ public void testGH3351() {
 		The method sort(java.util.List<E extends java.lang.Comparable<E>>) in the type PassThroughGenerics is not applicable for the arguments (java.util.List<E extends java.lang.Comparable<E>>)
 		----------
 		""");
+}
+public void testGH3367() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			class A<S> {}
+			class B<T> {}
+			public interface Test {
+			   <U> B<U> b(U t);
+			   <V> B<A<? super V>> bOfA(B<? super V> t);
+			   <W> void errors(W t, B<? super W> m);
+
+			   default void test(A<String> a) {
+			      errors(a, bOfA(b(a)));
+			   }
+			}
+			"""
+		};
+	runner.runConformTest();
 }
 
 public static Class<GenericsRegressionTest_9> testClass() {
