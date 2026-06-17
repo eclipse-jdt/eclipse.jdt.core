@@ -314,9 +314,9 @@ public class SwitchStatement extends Expression {
 		return false;
 	}
 
-	void gatherLabelExpression(LabelExpression labelExpression) {
+	void gatherLabelExpression(LabelExpression candidateLabelExpression) {
 		// domination check
-		if (labelExpression.expression instanceof Pattern pattern) {
+		if (candidateLabelExpression.expression instanceof Pattern pattern) {
 			if (this.defaultCase != null) {
 				this.scope.problemReporter().patternDominatedByAnother(pattern);
 			} else {
@@ -328,20 +328,21 @@ public class SwitchStatement extends Expression {
 				}
 			}
 		} else {
-			if (labelExpression.expression instanceof NullLiteral) {
+			if (candidateLabelExpression.expression instanceof NullLiteral) {
 				if (this.defaultCase != null)
-					this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+					this.scope.problemReporter().patternDominatedByAnother(candidateLabelExpression.expression);
 			} else {
-				TypeBinding boxedType = labelExpression.type.isBaseType() ? this.scope.environment().computeBoxingType(labelExpression.type) : labelExpression.type;
+//				TypeBinding boxedType = labelExpression.type.isBaseType() ? this.scope.environment().computeBoxingType(labelExpression.type) : labelExpression.type;
+				TypeBinding candidateType = candidateLabelExpression.type;
 				for (int i = 0; i < this.labelExpressionIndex; i++) {
 					if (this.labelExpressions[i].expression instanceof Pattern priorPattern) {
-						if (priorPattern.coversType(boxedType, this.scope)) {
-							this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+						if (priorPattern.coversType(candidateType, this.scope)) {
+							this.scope.problemReporter().patternDominatedByAnother(candidateLabelExpression.expression);
 							break;
 						}
-						Constant cst = labelExpression.expression.constant;
+						Constant cst = candidateLabelExpression.expression.constant;
 						if (cst != null && cst != Constant.NotAConstant && priorPattern.coversValue(cst, this.scope)) {
-							this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+							this.scope.problemReporter().patternDominatedByAnother(candidateLabelExpression.expression);
 							break;
 						}
 					}
@@ -349,13 +350,13 @@ public class SwitchStatement extends Expression {
 			}
 			// duplicate constant check
 			for (int i = 0; i < this.labelExpressionIndex; i++) {
-				if (duplicateConstant(labelExpression, this.labelExpressions[i])) {
-					this.scope.problemReporter().duplicateCase(labelExpression.expression);
+				if (duplicateConstant(candidateLabelExpression, this.labelExpressions[i])) {
+					this.scope.problemReporter().duplicateCase(candidateLabelExpression.expression);
 					break;
 				}
 			}
 		}
-		this.labelExpressions[this.labelExpressionIndex++] = labelExpression;
+		this.labelExpressions[this.labelExpressionIndex++] = candidateLabelExpression;
 	}
 
 	private void complainIfNotExhaustiveSwitch(BlockScope upperScope, TypeBinding selectorType, CompilerOptions compilerOptions) {
