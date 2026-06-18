@@ -36,21 +36,21 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		super(testName);
 	}
 	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-
-	@Override
-	protected JavacTestOptions getJavacTestOptions() {
-		return JAVAC_OPTIONS;
-	}
+//	@Override
+//	protected void setUp() throws Exception {
+//		this.runJavacOptIn = true;
+//		super.setUp();
+//	}
+//	@Override
+//	protected void tearDown() throws Exception {
+//		super.tearDown();
+//		this.runJavacOptIn = false; // do it last, so super can still clean up
+//	}
+//
+//	@Override
+//	protected JavacTestOptions getJavacTestOptions() {
+//		return JAVAC_OPTIONS;
+//	}
 	// =================================================
 	// https://cr.openjdk.org/~dlsmith/jep401/latest/
   public void testValueTypes_001() {
