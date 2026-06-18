@@ -213,10 +213,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType() || !isPolyExpression) {
 				// ---- 18.5.2 (Invocation type): ----
 				provisionalResult = result;
-				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
 				if (InferenceContext18.DEBUG) {
 					System.out.println("Infer invocation type for "+invocationSite+ " with target " //$NON-NLS-1$ //$NON-NLS-2$
 							+(expectedType == null ? "<no type>" : expectedType.debugName())); //$NON-NLS-1$
+				}
+				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
+				if (InferenceContext18.DEBUG) {
 					System.out.println("Result=\n"+result); //$NON-NLS-1$
 				}
 				invocationTypeInferred = infCtx18.stepCompleted == InferenceContext18.TYPE_INFERRED_FINAL;

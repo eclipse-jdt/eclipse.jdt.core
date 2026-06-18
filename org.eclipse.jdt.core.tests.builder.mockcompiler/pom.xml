@@ -16,15 +16,14 @@
   <parent>
     <artifactId>tests-pom</artifactId>
     <groupId>org.eclipse.jdt</groupId>
-    <version>4.40.0-SNAPSHOT</version>
+    <version>4.41.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.core.tests.builder.mockcompiler</artifactId>
   <version>1.0.200-SNAPSHOT</version>
-  <!-- Workaround for API baselines tycho problem: don't add this bundle to baselines check -->
-  <packaging>eclipse-test-plugin</packaging>
+  <packaging>eclipse-plugin</packaging>
   <properties>
-    <!-- This plugin is used by tests but has no tests itself, see packaging comment above -->
-    <failIfNoTests>false</failIfNoTests>
+    <!-- This bundle is not published and therefore not in the baseline. -->
+    <version.baseline.check.skip>true</version.baseline.check.skip>
   </properties>
 </project>

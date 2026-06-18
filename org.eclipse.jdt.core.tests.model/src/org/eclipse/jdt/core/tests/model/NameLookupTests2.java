@@ -17,20 +17,15 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 import java.nio.file.Files;
 import junit.framework.Test;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -459,6 +454,41 @@ public void testNonAccessibleAccessAnswer() throws Exception {
 		assertTrue("Expected type to be non-accessible", answer.isNonAccessible());
 	} finally {
 		deleteProject("P");
+	}
+}
+
+public void testMRJarIssue2495() throws Exception {
+	JavaProject project = (JavaProject) setUpJavaProject("MultiReleaseJar", "25");
+	try {
+		waitForAutoBuild();
+		NameLookup.Answer answer = getNameLookup(project).findType(
+				"a.A",
+				false /* no partial matches */,
+				NameLookup.ACCEPT_ALL,
+				false /* no secondary types */,
+				true /* wait for indexer */,
+				true /* check restrictions */,
+				null);
+		assertNotNull("Expected to find type", answer);
+		answer = getNameLookup(project).findType(
+				"a.B",
+				false /* no partial matches */,
+				NameLookup.ACCEPT_ALL,
+				false /* no secondary types */,
+				true /* wait for indexer */,
+				true /* check restrictions */,
+				null);
+		assertNotNull("Expected to find type", answer);
+
+		// now that we know that lookup works, try a full build (should not find an error in t/T.java)
+
+		if (isJRE25) {
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		}
+	} finally {
+		deleteProject("MultiReleaseJar");
 	}
 }
 }
