@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.tests.util.PreviewTest;
 
 @PreviewTest
 public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 26");
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -49,7 +48,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 //
 //	@Override
 //	protected JavacTestOptions getJavacTestOptions() {
-//		return JAVAC_OPTIONS;
+//		return getPreviewJavacTestOptions();
 //	}
 	// =================================================
 	// https://cr.openjdk.org/~dlsmith/jep401/latest/
