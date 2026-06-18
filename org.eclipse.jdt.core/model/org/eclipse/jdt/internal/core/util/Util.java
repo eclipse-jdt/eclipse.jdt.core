@@ -80,6 +80,7 @@ import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -948,7 +949,14 @@ public class Util {
 								String entryName= member.getName();
 								// Ignore class files in META-INF/versions as they are provided for higher JLS and not
 								// relevant to determine the lowest jdk level supported by the multi-release jar
-								if (isClassFileName(entryName) && !entryName.startsWith(METAINF_VERSIONS)) {
+								// Also ignore "module-info.class" as it is not relevant to determine the lowest jdk
+								// level supported,
+								// compare with https://openjdk.org/projects/jigsaw/spec/sotms/#module-artifacts:
+								// "A modular JAR file can be used as a module, in which case its module-info.class file
+								// is taken to contain the module’s declaration. It can, alternatively, be placed on the
+								// ordinary class path, in which case its module-info.class file is ignored."
+								if (isClassFileName(entryName) && !entryName.startsWith(METAINF_VERSIONS)
+										&& !entryName.equals(IModule.MODULE_INFO_CLASS)) {
 									reader = ClassFileReader.read(jar, entryName);
 									break;
 								}
