@@ -626,16 +626,24 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IModuleDescription getModuleDescription() throws JavaModelException;
 
 	/**
-	 * Returns the {@link IModuleDescription} this project represents or null if the Java project doesn't represent any
+	 * Returns an {@link IModuleDescription} this project represents or null if the Java project doesn't represent any
 	 * named module. A Java project is said to represent a module if any of its source package fragment roots (see
 	 * {@link IPackageFragmentRoot#K_SOURCE}) contains a valid Java module descriptor, or if one of its classpath
 	 * entries has a valid {@link IClasspathAttribute#PATCH_MODULE} attribute affecting the current project. In the
 	 * latter case the corresponding module description of the location referenced by that classpath entry is returned.
 	 *
+	 * <p>Furthermore, if the project is multi-release aware, then the specified <code>release</code>
+	 * selects the most specific suitable module description. For this purpose the {@link IClasspathAttribute#RELEASE}
+	 * attribute of each source folder is inspected, if present. Source folders are then search from the requested release down
+	 * to the lowest release and finally to a source folder with no {@link IClasspathAttribute#RELEASE} attribute.
+	 * The first valid module description found in a source folder visited during this search is then returned.</p>
+	 *
+	 * <p>A module description contributed via {@link IClasspathAttribute#PATCH_MODULE} is considered only if the
+	 * regular search finds no module description</p>
+	 *
 	 * @param release
-	 *                    specify the upper bound for the target multi-release, source folders that specify a release
-	 *                    attribute are searched in descending order, starting with the value given by this parameter
-	 * @return the {@link IModuleDescription} this project represents.
+	 *                    Specify the upper bound for version specific source folders to be searched.
+	 * @return a {@link IModuleDescription} this project represents.
 	 * @exception JavaModelException
 	 *                                   if this element does not exist or if an exception occurs while accessing its
 	 *                                   corresponding resource
@@ -659,15 +667,20 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IModuleDescription getOwnModuleDescription() throws JavaModelException;
 
 	/**
-	 * Returns the multi-release specific <code>IModuleDescription</code> owned by this project or <code>null</code> if
-	 * the Java project doesn't own a valid Java module descriptor. This method considers only module descriptions
-	 * contained in any of the project's source package fragment roots (see {@link IPackageFragmentRoot#K_SOURCE}). In
+	 * Returns an {@link IModuleDescription} owned by this project or <code>null</code> if
+	 * the Java project doesn't own a suitable Java module descriptor.
+	 * This method considers only module descriptions contained in any of the project's source package fragment roots
+	 * (see {@link IPackageFragmentRoot#K_SOURCE}). In
 	 * particular any {@link IClasspathAttribute#PATCH_MODULE} attribute is not considered.
+	 * <p>Furthermore, if the project is multi-release aware, then the specified <code>release</code>
+	 * selects the most specific suitable module description. For this purpose the {@link IClasspathAttribute#RELEASE}
+	 * attribute of each source folder is inspected, if present. Source folders are then search from the requested release down
+	 * to the lowest release and finally to a source folder with no {@link IClasspathAttribute#RELEASE} attribute.
+	 * The first valid module description found in a source folder visited during this search is then returned.</p>
 	 *
 	 * @param release
-	 *                    specify the upper bound for the target multi-release, source folders that specify a release
-	 *                    attribute are searched in descending order, starting with the value given by this parameter
-	 * @return the {@link IModuleDescription} this project owns.
+	 *                    Specify the upper bound for version specific source folders to be searched.
+	 * @return a {@link IModuleDescription} this project owns.
 	 * @exception JavaModelException
 	 *                                   if this element does not exist or if an exception occurs while accessing its
 	 *                                   corresponding resource

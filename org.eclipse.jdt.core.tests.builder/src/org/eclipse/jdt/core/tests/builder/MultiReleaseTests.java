@@ -35,6 +35,10 @@ public class MultiReleaseTests extends BuilderTests {
 	private static final String JAVA9_SRC_FOLDER = "src9";
 	private static final String DEFAULT_SRC_FOLDER = "src";
 
+//	static {
+//		TESTS_NAMES = new String[] { "testMultiReleaseModuleInfoPerRelease" };
+//	}
+
 	public MultiReleaseTests(String name) {
 		super(name);
 	}

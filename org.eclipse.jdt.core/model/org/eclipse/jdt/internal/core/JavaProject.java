@@ -3800,26 +3800,30 @@ public class JavaProject
 	@Override
 	public IModuleDescription getOwnModuleDescription(int release) throws JavaModelException {
 		if (release >= FIRST_MULTI_RELEASE) {
-			IModuleDescription releaseSpecificDescriptor = Arrays.stream(getRawClasspath()).map(e -> {
-				String attribute = ClasspathEntry.getExtraAttribute(e, IClasspathAttribute.RELEASE);
-				if (attribute != null) {
-					try {
-						return new ReleaseClasspathEntry(e, Integer.parseInt(attribute));
-					} catch (NumberFormatException nfe) {
-						// can't use then
-					}
-				}
-				return null;
-			}).filter(Objects::nonNull).filter(entry -> entry.release() <= release)
-					.sorted(Comparator.comparingInt(ReleaseClasspathEntry::release).reversed()).map(entry -> {
-						for (IPackageFragmentRoot root : findPackageFragmentRoots(entry.entry())) {
-							IModuleDescription module = root.getModuleDescription();
-							if (module != null) {
-								return module;
-							}
+			IModuleDescription releaseSpecificDescriptor = Arrays.stream(getRawClasspath())
+				.map(e -> {
+					String attribute = ClasspathEntry.getExtraAttribute(e, IClasspathAttribute.RELEASE);
+					if (attribute != null) {
+						try {
+							return new ReleaseClasspathEntry(e, Integer.parseInt(attribute));
+						} catch (NumberFormatException nfe) {
+							// can't use then
 						}
-						return null;
-					}).filter(Objects::nonNull).findFirst().orElse(null);
+					}
+					return null;
+				})
+				.filter(Objects::nonNull).filter(entry -> entry.release() <= release)
+				.sorted(Comparator.comparingInt(ReleaseClasspathEntry::release).reversed())
+				.map(entry -> {
+					for (IPackageFragmentRoot root : findPackageFragmentRoots(entry.entry())) {
+						IModuleDescription module = root.getModuleDescription();
+						if (module != null) {
+							return module;
+						}
+					}
+					return null;
+				})
+				.filter(Objects::nonNull).findFirst().orElse(null);
 			if (releaseSpecificDescriptor != null) {
 				return releaseSpecificDescriptor;
 			}
