@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -465,6 +466,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"This method has a constructor name\n" +
 				"----------\n";
 		runner.customOptions = getCompilerOptions();
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
 		runner.runWarningTest();
 	}
 }
