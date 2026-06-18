@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class AbstractRegressionTestCommon extends AbstractRegressionTest9 {
+public abstract class AbstractRegressionTestCommon extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 26");
 	private String extraLibPath;
