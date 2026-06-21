@@ -361,7 +361,8 @@ public void testBug488663_011() {
 }
 // Nested anonymous diamonds - TODO - confirm that this is indeed correct as per spec
 public void testBug488663_012() {
-	this.runConformTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -389,8 +390,11 @@ public void testBug488663_012() {
 			"		i.doSomething(t);\n" +
 			"	}\n" +
 			"}",
-		},
-		"Done");
+		};
+	runner.expectedOutputString =
+		"Done";
+	runner.javacTestOptions = JavacHasABug.JavacBug8361641;
+	runner.runConformTest();
 }
 // Redundant type argument specification - TODO - confirm that this is correct
 public void testBug488663_013() {
@@ -1892,7 +1896,8 @@ public void testGH4463b() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4550
 // Static interface methods excluded from type variable membership
 public void testIssue4550() {
-	runNegativeTest(new String[] {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
 			"Tester.java",
 			"""
 			public class Tester<T extends Thing> {
@@ -1916,14 +1921,16 @@ public void testIssue4550() {
 			class OtherThing implements Thing {
 			}
 			""",
-	    },
+	    };
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. ERROR in Tester.java (at line 3)\n" +
 		"	System.out.println(\"Testing: \" + T.getStuff());  // Error is here\n" +
 		"	                                   ^^^^^^^^\n" +
 		"The method getStuff() is undefined for the type T\n" +
-		"----------\n"
-		);
+		"----------\n";
+	runner.javacTestOptions = JavacHasABug.JavacBug8365676;
+	runner.runNegativeTest();
 }
 
 public void testGH4635() {
