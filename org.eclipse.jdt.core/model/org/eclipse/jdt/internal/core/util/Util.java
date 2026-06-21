@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -3456,5 +3458,24 @@ public class Util {
 			throw new ZipException("Zip Slip Vulnerability: Bad zip entry: " + entryName + " in " + zipfileName); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return entryName; // did not escape
+	}
+
+	public static boolean isMultiRelease(Manifest manifest) {
+		if (manifest != null) {
+			Attributes attributes = manifest.getMainAttributes();
+			if (attributes != null)
+				return "true".equals(attributes.getValue("Multi-Release")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return false;
+	}
+
+	public static int parseIntOrElse(String version, int fallback) {
+		try {
+			if (version != null)
+				return Integer.parseInt(version);
+		} catch (NumberFormatException ex) {
+			// fall through
+		}
+		return fallback;
 	}
 }
