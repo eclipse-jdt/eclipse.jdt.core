@@ -480,6 +480,10 @@ public void testMRJarIssue2495() throws Exception {
 				null);
 		assertNotNull("Expected to find type", answer);
 
+		IMethod[] methods = answer.type.getMethods();
+		IMethod method = methods[1]; // [0] is the default constructor
+		assertEquals("foo", method.getElementName()); // available only at 25
+
 		// now that we know that lookup works, try a full build (should not find an error in t/T.java)
 
 		if (isJRE25) {
