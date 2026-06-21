@@ -1199,7 +1199,11 @@ protected static class JavacTestOptions {
 			JavacBugIvarInterning = // https://mail.openjdk.org/pipermail/compiler-dev/2025-October/031866.html
 					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
 			JavacBug8297428 = // https://bugs.openjdk.org/browse/JDK-8297428
-					new JavacHasABug(MismatchType.JavacErrorsEclipseNone);
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
+			JavacBug8365676 = // https://bugs.openjdk.org/browse/JDK-8365676
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK26, 0000),
+			JavacBug8361641 = // https://bugs.openjdk.org/browse/JDK-8361641
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK25, 0000);
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
