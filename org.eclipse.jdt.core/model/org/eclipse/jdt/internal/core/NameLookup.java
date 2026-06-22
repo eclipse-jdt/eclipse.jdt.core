@@ -914,19 +914,7 @@ public class NameLookup implements SuffixConstants {
 	}
 
 	private int getRelease(IPackageFragmentRoot root) {
-		IClasspathEntry entry = this.rootToResolvedEntries.get(root);
-		if (entry != null) {
-			String extraAttributes = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.RELEASE);
-			if (extraAttributes != null) {
-				try {
-					return Integer.parseInt(extraAttributes);
-				} catch (NumberFormatException e) {
-					// we can't determine the release from the classpath so assume default release,
-					// this would already be reported at other places.
-				}
-			}
-		}
-		return JavaProject.NO_RELEASE;
+		return JavaProject.getRelease(this.rootToResolvedEntries.get(root));
 	}
 
 	public static IModule getModuleDescriptionInfo(IModuleDescription moduleDesc) {

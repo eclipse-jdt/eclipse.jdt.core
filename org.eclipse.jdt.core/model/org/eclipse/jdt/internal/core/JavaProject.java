@@ -2853,7 +2853,35 @@ public class JavaProject
 		return newSearchableNameEnvironment(owner, false);
 	}
 	public SearchableEnvironment newSearchableNameEnvironment(WorkingCopyOwner owner, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, owner, excludeTestCode, NO_RELEASE);
+		return newSearchableNameEnvironment(owner, excludeTestCode, NO_RELEASE);
+	}
+	/*
+	 * Returns a new search name environment for this project that resolves types and modules as seen from a source
+	 * folder targeting the given {@code release} (see {@link IClasspathAttribute#RELEASE}). This is needed for
+	 * multi-release projects where a release specific source folder may declare its own {@code module-info.java}.
+	 */
+	public SearchableEnvironment newSearchableNameEnvironment(WorkingCopyOwner owner, boolean excludeTestCode, int release) throws JavaModelException {
+		return new SearchableEnvironment(this, owner, excludeTestCode, release);
+	}
+
+	/*
+	 * Returns the release a source folder represented by the given classpath entry targets by inspecting its
+	 * {@link IClasspathAttribute#RELEASE} attribute, or {@link #NO_RELEASE} if the entry has no (valid) release
+	 * attribute.
+	 */
+	public static int getRelease(IClasspathEntry entry) {
+		if (entry != null) {
+			String attribute = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.RELEASE);
+			if (attribute != null) {
+				try {
+					return Integer.parseInt(attribute);
+				} catch (NumberFormatException e) {
+					// can't determine the release from the classpath so assume default release,
+					// this would already be reported at other places.
+				}
+			}
+		}
+		return NO_RELEASE;
 	}
 
 	/*
