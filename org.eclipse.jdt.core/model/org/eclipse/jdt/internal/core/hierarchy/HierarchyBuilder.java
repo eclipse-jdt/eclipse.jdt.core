@@ -94,7 +94,8 @@ public abstract class HierarchyBuilder {
 			unitsToLookInside = workingCopies;
 		}
 		if (project != null) {
-			SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside);
+			int release = JavaProject.getRelease(focusType);
+			SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside, false, release);
 			this.nameLookup = searchableEnvironment.nameLookup;
 			this.hierarchyResolver =
 				new HierarchyResolver(

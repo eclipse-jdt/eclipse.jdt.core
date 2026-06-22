@@ -2842,7 +2842,14 @@ public class JavaProject
 	 * Returns a new search name environment for this project. This name environment first looks in the given working copies.
 	 */
 	public SearchableEnvironment newSearchableNameEnvironment(ICompilationUnit[] workingCopies, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, workingCopies, excludeTestCode, NO_RELEASE);
+		return newSearchableNameEnvironment(workingCopies, excludeTestCode, NO_RELEASE);
+	}
+	/*
+	 * Returns a new search name environment for this project that resolves types and modules as seen from a source
+	 * folder targeting the given {@code release} (see {@link IClasspathAttribute#RELEASE}).
+	 */
+	public SearchableEnvironment newSearchableNameEnvironment(ICompilationUnit[] workingCopies, boolean excludeTestCode, int release) throws JavaModelException {
+		return new SearchableEnvironment(this, workingCopies, excludeTestCode, release);
 	}
 
 	/*
@@ -2879,6 +2886,46 @@ public class JavaProject
 					// can't determine the release from the classpath so assume default release,
 					// this would already be reported at other places.
 				}
+			}
+		}
+		return NO_RELEASE;
+	}
+
+	/*
+	 * Returns the release the source folder containing the given element targets (see
+	 * {@link IClasspathAttribute#RELEASE}), or {@link #NO_RELEASE} if the element is not contained in a release
+	 * specific source folder (e.g. it lives in a library or in a folder without a release attribute).
+	 */
+	public static int getRelease(IJavaElement element) {
+		if (element == null) {
+			return NO_RELEASE;
+		}
+		IPackageFragmentRoot root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		if (root == null) {
+			return NO_RELEASE;
+		}
+		try {
+			return getRelease(root.getResolvedClasspathEntry());
+		} catch (JavaModelException e) {
+			return NO_RELEASE;
+		}
+	}
+
+	/*
+	 * Returns the release the source folder of this project containing the given resource path targets (see
+	 * {@link IClasspathAttribute#RELEASE}), or {@link #NO_RELEASE} if the path is not located in a release specific
+	 * source folder.
+	 */
+	public int getRelease(IPath sourcePath) {
+		if (sourcePath != null) {
+			try {
+				for (IClasspathEntry entry : getRawClasspath()) {
+					if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && entry.getPath().isPrefixOf(sourcePath)) {
+						return getRelease(entry);
+					}
+				}
+			} catch (JavaModelException e) {
+				// can't determine the release, assume default release
 			}
 		}
 		return NO_RELEASE;

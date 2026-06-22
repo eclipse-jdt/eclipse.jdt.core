@@ -128,7 +128,8 @@ protected void codeComplete(
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
 	JavaProject project = getJavaProject();
-	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner, requestor.isTestCodeExcluded());
+	int release = JavaProject.getRelease(this);
+	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner, requestor.isTestCodeExcluded(), release);
 
 	// set unit to skip
 	environment.unitToSkip = unitToSkip;
@@ -154,18 +155,9 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
 	}
 
 	JavaProject project = getJavaProject();
-	int release = JavaProject.NO_RELEASE;
-	IPackageFragmentRoot root = getPackageFragmentRoot();
-	if (root != null) {
-		try {
-			// resolve types and modules as seen from the source folder the unit lives in, so that a
-			// release specific module-info.java (multi-release project) is honoured (see bug fix for
-			// duplicate selection results on multi-release modular projects).
-			release = JavaProject.getRelease(root.getResolvedClasspathEntry());
-		} catch (JavaModelException e) {
-			// not on the classpath, fall back to the default (release unaware) behavior
-		}
-	}
+	// resolve types and modules as seen from the source folder the unit lives in, so that a release specific
+	// module-info.java (multi-release project) is honoured (avoids duplicate selection results).
+	int release = JavaProject.getRelease(this);
 	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner, false, release);
 	SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, this);
 	IBuffer buffer = getBuffer();

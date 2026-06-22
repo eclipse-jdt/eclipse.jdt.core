@@ -19,6 +19,11 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 /**
  * Tests that reconciling (problem detection in working copies) of a multi-release
@@ -146,5 +151,45 @@ public class ReconcilerModuleMultiReleaseTests extends ModifyingResourceTests {
 				"	^^^^^^^^^^^^^^^^^^^\n" +
 				"The type org.w3c.dom.Element is not accessible\n" +
 				"----------\n");
+	}
+
+	private ITypeBinding resolveFieldType(String path, String source) throws Exception {
+		ICompilationUnit wc = getWorkingCopy(path, source);
+		try {
+			ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+			parser.setResolveBindings(true);
+			parser.setSource(wc);
+			org.eclipse.jdt.core.dom.CompilationUnit ast =
+					(org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+			TypeDeclaration type = (TypeDeclaration) ast.types().get(0);
+			FieldDeclaration field = type.getFields()[0];
+			return field.getType().resolveBinding();
+		} finally {
+			wc.discardWorkingCopy();
+		}
+	}
+
+	// ASTParser.createAST (resolved DOM AST) must resolve org.w3c.dom.Element as seen from src21.
+	public void testCreateASTUsesReleaseModuleInfo21() throws Exception {
+		ITypeBinding binding = resolveFieldType("/ReconcilerModuleMR/src21/p/Use.java", """
+				package p;
+				public class Use {
+					org.w3c.dom.Element element;
+				}
+				""");
+		assertNotNull("Type binding should be resolved", binding);
+		assertEquals("org.w3c.dom.Element", binding.getQualifiedName());
+	}
+
+	// java.desktop reads java.xml transitively, so the binding resolves in src17 as well.
+	public void testCreateASTUsesReleaseModuleInfo17() throws Exception {
+		ITypeBinding binding = resolveFieldType("/ReconcilerModuleMR/src17/p/Use.java", """
+				package p;
+				public class Use {
+					org.w3c.dom.Element element;
+				}
+				""");
+		assertNotNull("Type binding should be resolved", binding);
+		assertEquals("org.w3c.dom.Element", binding.getQualifiedName());
 	}
 }
