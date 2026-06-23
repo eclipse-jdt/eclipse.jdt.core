@@ -94,7 +94,7 @@ public abstract class Pattern extends Expression {
 				case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
 					return true;
 				case WIDENING_PRIMITIVE_CONVERSION:
-					return BaseTypeBinding.isExactWidening(this.resolvedType.id, type.id);
+					return BaseTypeBinding.isExactWidening(this.resolvedType.unboxedType().id, type.id);
 				case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
 					return false; // char->byte
 				/* §14.11.1.1 "CE contains a type pattern with a primitive type P,
@@ -118,9 +118,10 @@ public abstract class Pattern extends Expression {
 			return false;
 		if (!(this.resolvedType.unboxedType() instanceof BaseTypeBinding baseType))
 			return false;
-		if (!cst.isExactTestingConversion(baseType))
-			return false;
 		int constantTypeID = cst.typeID();
+		// find route as well as flag preview
+		if (!cst.isExactTestingConversion(baseType))
+			return false; // flagging a preview already taken care above - let's return.
 		PrimitiveConversionRoute route = findPrimitiveConversionRoute(baseType, TypeBinding.wellKnownBaseType(constantTypeID), scope);
 		switch (route) {
 			// JLS §5.7.2:
