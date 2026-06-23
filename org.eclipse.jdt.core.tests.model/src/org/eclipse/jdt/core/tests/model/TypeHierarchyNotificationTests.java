@@ -536,6 +536,7 @@ public void testAddPackageFragmentRoot() throws CoreException {
 		// now create the actual resource for the root and populate it
 		reset();
 		project.getProject().getFolder("extra").create(false, true, null);
+		waitForAutoRefresh();
 		IPackageFragmentRoot newRoot= getPackageFragmentRoot("TypeHierarchyNotification", "extra");
 		assertTrue("New root should now be visible", newRoot != null);
 		assertOneChange(h);
