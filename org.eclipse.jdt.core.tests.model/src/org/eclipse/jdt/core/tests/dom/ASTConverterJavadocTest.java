@@ -3737,22 +3737,22 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.astLevel = AST.JLS25;
 		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/Javadoc.java",
 			"""
-			  /**
-			   * Example showing formatter bug with {@code @} in pre blocks.
-			   *
-			   * <pre>
-			   * {@literal
-			   * @MyAnnotation
-			   * public class Example {
-			   *	 @AnotherAnnotation
-			   *     private String field;
-			   * }
-			   * }
-			   * </pre>
-			   */
-			   public class Javadoc{}
+				/**
+				 * Example showing formatter bug with {@code @} in pre blocks.
+				 *
+				 * <pre>
+				 * {@literal
+				 * @MyAnnotation
+				 * public class Example {
+				 *	 @AnotherAnnotation
+				 *     private String field;
+				 * }
+				 * }
+				 * </pre>
+				 */
+				public class Javadoc{}
 			"""
-		);
+				);
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
 		List unitComments = compilUnit.getCommentList();
 		assertEquals("Wrong number of comments", 1, unitComments.size());
@@ -3771,5 +3771,48 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assumeEquals("wrong number of Child elements", 5, innerFrags.size());
 		assumeEquals("Incorrect child content", "@MyAnnotation", innerFrags.get(0).getText());
 		assumeEquals("Incorrect child content", "@AnotherAnnotation", innerFrags.get(2).getText());
+	}
+
+	public void testJavadocIncorrectlyParsingAnnotationInlineTag5055_03() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter25/src/javadoc/Javadoc.java",
+			"""
+			  /**
+			   * Example showing parsing bug with {@code @} at end of lines.
+			   *
+			   * {@code @X}, {@code @Y}, {@code @Z},
+			   * are imaginary tags
+			   */
+			   public class Javadoc{}
+			"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals("wrong number of tags", 1, docComment.tags().size());
+		TagElement parentTag = (TagElement) docComment.tags().get(0);
+		List<?> frags = parentTag.fragments();
+		assumeEquals("wrong number of Parent elements", 1, docComment.tags().size());
+		TagElement firstInnerTag = (TagElement) frags.get(1);
+		TagElement secondInnerTag = (TagElement) frags.get(3);
+		TextElement textTag1 = (TextElement) frags.get(4);
+		TagElement thirdInnerTag = (TagElement) frags.get(5);
+		TextElement textTag2 = (TextElement) frags.get(6);
+		TagElement fourthInnerTag = (TagElement) frags.get(7);
+		TextElement textTag3 = (TextElement) frags.get(8);
+		TextElement textTag4 = (TextElement) frags.get(9);
+
+		assertTrue(firstInnerTag.getNodeType() == ASTNode.TAG_ELEMENT && firstInnerTag.toString().contains("{@code @}"));
+		assertTrue(secondInnerTag.getNodeType() == ASTNode.TAG_ELEMENT && secondInnerTag.toString().contains("{@code @X}"));
+		assertTrue(thirdInnerTag.getNodeType() == ASTNode.TAG_ELEMENT && thirdInnerTag.toString().contains("{@code @Y}"));
+		assertTrue(fourthInnerTag.getNodeType() == ASTNode.TAG_ELEMENT && fourthInnerTag.toString().contains("{@code @Z}"));
+		assertTrue(textTag1.toString().equals(", "));
+		assertTrue(textTag2.toString().equals(", "));
+		assertTrue(textTag3.toString().equals(","));
+		assertTrue(textTag4.toString().startsWith("are imaginary tags"));
 	}
 }
