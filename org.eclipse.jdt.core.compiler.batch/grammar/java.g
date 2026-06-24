@@ -682,8 +682,8 @@ Modifier -> 'synchronized'
 Modifier -> 'transient'
 Modifier -> 'volatile'
 Modifier -> 'strictfp'
-Modifier ::= Annotation
 Modifier -> RestrictedIdentifiervalue
+Modifier ::= Annotation
 /.$putCase consumeAnnotationAsModifier(); $break ./
 /:$readableName Modifier:/
 

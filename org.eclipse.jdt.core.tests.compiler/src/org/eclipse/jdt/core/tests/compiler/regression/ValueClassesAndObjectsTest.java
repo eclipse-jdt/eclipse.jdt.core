@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.tests.util.PreviewTest;
 
 @PreviewTest
 public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 26");
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -48,7 +49,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 //
 //	@Override
 //	protected JavacTestOptions getJavacTestOptions() {
-//		return getPreviewJavacTestOptions();
+//		return JAVAC_OPTIONS;
 //	}
 	// =================================================
 	// https://cr.openjdk.org/~dlsmith/jep401/latest/

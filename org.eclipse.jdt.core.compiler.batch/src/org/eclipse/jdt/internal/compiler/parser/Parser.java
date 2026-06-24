@@ -6730,7 +6730,7 @@ protected void consumeRule(int act) {
     case 194 : if (DEBUG) { System.out.println("Modifiers ::= Modifiers Modifier"); }  //$NON-NLS-1$
 		    consumeModifiers2(); 			break;
 
-    case 209 : if (DEBUG) { System.out.println("Modifier -> RestrictedIdentifiervalue"); }  //$NON-NLS-1$
+    case 209 : if (DEBUG) { System.out.println("Modifier ::= Annotation"); }  //$NON-NLS-1$
 		    consumeAnnotationAsModifier(); 			break;
 
     case 210 : if (DEBUG) { System.out.println("ClassDeclaration ::= ClassHeader ClassBody"); }  //$NON-NLS-1$

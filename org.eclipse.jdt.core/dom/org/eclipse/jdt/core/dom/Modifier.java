@@ -40,7 +40,7 @@ import java.util.Map;
  *    <b>default</b>
  *    <b>sealed</b>
  *    <b>non-sealed</b>
- *    <b>value<b>
+ *    <b>value</b>
  * </pre>
  * <p>
  * The numeric values of these flags match the ones for class

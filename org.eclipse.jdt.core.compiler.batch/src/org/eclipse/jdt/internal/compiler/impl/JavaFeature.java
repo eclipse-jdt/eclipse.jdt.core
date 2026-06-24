@@ -120,7 +120,7 @@ public enum JavaFeature {
 			CharOperation.NO_CHAR_CHAR,
 			false),
 	VALUE_CLASSES_AND_OBJECTS(ClassFileConstants.JDK26,
-			Messages.bind(Messages.primitives_in_patterns),
+			Messages.bind(Messages.value_classes_and_objects),
 			new char[][] {TypeConstants.VALUE_RESTRICTED_IDENTIFIER},
 			true),
 	;
