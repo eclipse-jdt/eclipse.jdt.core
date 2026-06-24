@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
@@ -23,26 +23,19 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class AbstractRegressionTestCommon extends AbstractRegressionTest9 {
 
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 26");
 	private String extraLibPath;
 
 	public AbstractRegressionTestCommon(String name) {
 		super(name);
 	}
 
-	/**
-	 * Javac options for these preview tests, derived from the compliance level configured
-	 * by the (minimal) compliance test suite, so the source/target stays in sync with ecj.
-	 */
-	protected JavacTestOptions getPreviewJavacTestOptions() {
-		return JavacTestOptions.forReleaseWithPreview(CompilerOptions.versionFromJdkLevel(this.complianceLevel));
-	}
-
-	@Override
-	protected Map<String, String> getCompilerOptions() {
-		// Compliance/Source/Target are driven by the (minimal) compliance test suite setup.
-		// Here we only enable preview, which is the constant requirement of these tests.
-		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	protected Map<String, String> getCompilerOptions(boolean preview, String version) {
+		Map<String, String> defaultOptions = getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, version);
+		defaultOptions.put(CompilerOptions.OPTION_Source, version);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, version);
+		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
 	}
@@ -73,11 +66,11 @@ public abstract class AbstractRegressionTestCommon extends AbstractRegressionTes
 	}
 
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		Map<String, String> customOptions = getCompilerOptions();
+		Map<String, String> customOptions = getCompilerOptions(true, CompilerOptions.VERSION_26);
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
-		runner.javacTestOptions = getPreviewJavacTestOptions();
+		runner.javacTestOptions = JAVAC_OPTIONS;
 		runner.customOptions = customOptions;
 		runner.expectedJavacOutputString = null;
 		runner.runNegativeTest();
