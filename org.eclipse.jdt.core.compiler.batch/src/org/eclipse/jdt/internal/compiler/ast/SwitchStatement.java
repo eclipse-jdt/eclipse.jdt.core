@@ -331,6 +331,8 @@ public class SwitchStatement extends Expression {
 			if (labelExpression.expression instanceof NullLiteral) {
 				if (this.defaultCase != null)
 					this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+			} else if (this.unconditionalPatternCase != null) {
+				this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
 			} else {
 				TypeBinding boxedType = labelExpression.type.isBaseType() ? this.scope.environment().computeBoxingType(labelExpression.type) : labelExpression.type;
 				for (int i = 0; i < this.labelExpressionIndex; i++) {
