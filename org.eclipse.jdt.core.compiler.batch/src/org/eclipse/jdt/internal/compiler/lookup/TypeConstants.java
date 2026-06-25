@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -134,6 +138,8 @@ public interface TypeConstants {
 	char[] NON_SEALED = "non-sealed".toCharArray(); //$NON-NLS-1$
 	String KEYWORD_EXTENDS = "extends"; //$NON-NLS-1$
 	String IMPLEMENTS = "implements"; //$NON-NLS-1$
+	// JEP 401 Value Classes and Objects
+	char[] VALUE_RESTRICTED_IDENTIFIER = "value".toCharArray(); //$NON-NLS-1$
 
     // jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
