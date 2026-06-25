@@ -75,6 +75,6 @@ def installTool(String toolType, String url) {
 		if (dirContent.isEmpty()) { // Prevent repeated downloads
 			sh "curl --fail --location ${url} | tar -xzf -"
 		}
-		return "${pwd()}/" + sh(script: 'ls', returnStdout: true).strip()
+		return "${pwd()}/" + sh(script: 'ls', returnStdout: true).trim()
 	}
 }
