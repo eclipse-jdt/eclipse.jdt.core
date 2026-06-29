@@ -2112,7 +2112,7 @@ public class CompletionParser extends AssistParser {
 	 * a completion node.
 	 */
 	private boolean checkMethodResult() {
-		if (this.previousToken == TokenNameRPAREN) {
+		if (this.previousToken == TokenNameRPAREN && this.expressionPtr >= 0) {
 			if (this.expressionStack[this.expressionPtr] instanceof MessageSend
 					|| this.expressionStack[this.expressionPtr] instanceof AllocationExpression) {
 				// the receiver is an expression
