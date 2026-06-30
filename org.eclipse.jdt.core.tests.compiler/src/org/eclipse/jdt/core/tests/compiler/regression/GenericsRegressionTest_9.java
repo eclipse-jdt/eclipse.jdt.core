@@ -1188,7 +1188,7 @@ public void testGH3948() {
 			}
 			"""
 		};
-	runner.javacTestOptions = JavacHasABug.JavacBug8297428;
+	runner.javacTestOptions = JavacHasABug.JavacBug8387487;
 	runner.runConformTest();
 }
 public void testGH4022a() {
