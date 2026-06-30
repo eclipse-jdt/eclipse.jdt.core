@@ -26252,9 +26252,7 @@ public void testIssue832a() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"clone[METHOD_REF]{.clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}\n" +
 			"equals[METHOD_REF]{.equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
-			"finalize[METHOD_REF]{.finalize(), Ljava.lang.Object;, ()V, finalize, null, 52}\n" +
 			"getClass[METHOD_REF]{.getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 52}\n" +
 			"getFoo[METHOD_REF]{.getFoo(), LK;, ()I, getFoo, null, 52}\n" +
 			"getThis[METHOD_REF]{.getThis(), LK;, ()LK;, getThis, null, 52}\n" +
@@ -26295,9 +26293,7 @@ public void testIssue832b() throws Exception {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"clone[METHOD_REF]{.clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}\n" +
 			"equals[METHOD_REF]{.equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
-			"finalize[METHOD_REF]{.finalize(), Ljava.lang.Object;, ()V, finalize, null, 52}\n" +
 			"getClass[METHOD_REF]{.getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 52}\n" +
 			"getFoo[METHOD_REF]{.getFoo(), LK;, ()I, getFoo, null, 52}\n" +
 			"getThis[METHOD_REF]{.getThis(), LK;, ()LK;, getThis, null, 52}\n" +
