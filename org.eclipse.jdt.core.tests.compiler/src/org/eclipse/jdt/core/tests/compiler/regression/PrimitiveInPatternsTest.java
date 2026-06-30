@@ -30,7 +30,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testDominanceIssue4979_002" };
+//		TESTS_NAMES = new String[] { "testDominanceIssue4979_004" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -7697,6 +7697,40 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 				"----------\n" +
 				"1. ERROR in X.java (at line 15)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n"
+			);
+	}
+	public void testDominanceIssue4979_004() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					static final byte Z = 0;
+
+					static int firstBulletOnly(int x) {
+					    return switch (x) {
+					        case short s -> s;
+					        case Z -> 999;      // Error - dominated
+					        default -> -1;
+					    };
+					}
+					public static void main(String[] args) {
+						Zork();
+					}
+				}
+				"""
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case Z -> 999;      // Error - dominated\n" +
+				"	     ^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 13)\n" +
 				"	Zork();\n" +
 				"	^^^^\n" +
 				"The method Zork() is undefined for the type X\n" +
