@@ -214,7 +214,8 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 			}
 		}
 
-		SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside);
+		int release = inProjectOfFocusType ? JavaProject.getRelease(focusType) : JavaProject.NO_RELEASE;
+		SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside, false, release);
 		this.nameLookup = searchableEnvironment.nameLookup;
 		Map options = project.getOptions(true);
 		// disable task tags to speed up parsing
