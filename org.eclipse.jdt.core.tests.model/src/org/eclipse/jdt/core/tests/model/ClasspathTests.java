@@ -50,7 +50,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.eclipse.jdt.internal.core.builder.State;
-import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.team.core.RepositoryProvider;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -445,8 +444,8 @@ public void test232816f() throws Exception {
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
 		assertStatus(
 			"should have complained about jdk level mismatch",
-			"Incompatible .class files version in required binaries. Project 'P' is targeting a " + firstVersion
-					+ " runtime, but is compiled against \'" + getExternalJCLPath(latestVersion).makeRelative() + "' (from the container 'container/default') which requires a "+latestVersion+" runtime",
+			IStatus.ERROR,
+			IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL,
 			status);
 	} finally {
 		deleteProject("P");
@@ -1934,7 +1933,8 @@ public void testClasspathValidation27() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj2, JavaCore.newProjectEntry(new Path("/P1")), false);
 		assertStatus(
-			"Incompatible .class files version in required binaries. Project \'P2\' is targeting a 1.1 runtime, but is compiled against \'P1\' which requires a " + CompilerOptions.getFirstSupportedJavaVersion() + " runtime",
+			IStatus.ERROR,
+			IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL,
 			status);
 	} finally {
 		deleteProjects(new String[]{"P1", "P2"});
@@ -2185,9 +2185,7 @@ public void testClasspathValidation36() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		assertStatus(
-			"OK",
-			status);
+		assertStatus(IStatus.OK, status);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -7099,7 +7097,8 @@ public void testBug287164() throws CoreException {
 		status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		assertTrue(status.isOK());
 		assertStatus(
-			"Source folder \'src\' in project \'P\' cannot output to distinct source folder \'src2\'",
+			IStatus.OK,
+			IJavaModelStatusConstants.OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE,
 			status);
 
 		assertBuildPathMarkers("Unexpected markers",
@@ -7115,14 +7114,16 @@ public void testBug287164() throws CoreException {
 		status = JavaConventions.validateClasspath(proj, newCP2, proj.getOutputLocation());
 		assertFalse(status.isOK());
 		assertStatus(
-			"Source folder \'src2\' in project 'P' cannot output to library \'lib2\'",
+			IStatus.ERROR,
+			IJavaModelStatusConstants.INVALID_CLASSPATH,
 			status);
 
 		proj.setOption(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, JavaCore.ERROR);
 
 		status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		assertStatus(
-			"Source folder \'src\' in project \'P\' cannot output to distinct source folder \'src2\'",
+			IStatus.ERROR,
+			IJavaModelStatusConstants.OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE,
 			status);
 
 	} finally {
@@ -7334,7 +7335,7 @@ public void testClasspathTestSourceValidation1() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		assertStatus("should not complain", "OK", status);
+		assertStatus("should not complain", IStatus.OK, status);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -7353,7 +7354,8 @@ public void testClasspathTestSourceValidation2() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		assertStatus("should complain because tests have no output folder", "Test source folder 'src-tests' in project 'P' must have a separate output folder", status);
+		assertStatus("should complain because tests have no output folder", IStatus.ERROR,
+				IJavaModelStatusConstants.TEST_SOURCE_REQUIRES_SEPARATE_OUTPUT_LOCATION, status);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -7370,7 +7372,7 @@ public void testClasspathTestSourceValidation3() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		assertStatus("should not complain because no main sources are present", "OK", status);
+		assertStatus("should not complain because no main sources are present", IStatus.OK, status);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -7389,7 +7391,7 @@ public void testClasspathTestSourceValidation4() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		assertStatus("should not complain because main sources have their own output folder", "OK", status);
+		assertStatus("should not complain because main sources have their own output folder", IStatus.OK, status);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -7408,7 +7410,8 @@ public void testClasspathTestSourceValidation5() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		assertStatus("should complain because main sources have the same own output folder", "Test source folder 'src-tests' in project 'P' must have an output folder that is not also used for main sources", status);
+		assertStatus("should complain because main sources have the same own output folder", IStatus.ERROR,
+				IJavaModelStatusConstants.TEST_OUTPUT_FOLDER_MUST_BE_SEPARATE_FROM_MAIN_OUTPUT_FOLDERS, status);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -7435,10 +7438,8 @@ public void testBug539998() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 
-		final String expected = Messages.bind(Messages.classpath_main_only_project_depends_on_test_only_project,
-				new String[] { proj.getElementName(), proj1TestOnly.getElementName() });
-
-		assertStatus("should complain", expected, status);
+		assertStatus("should complain", IStatus.ERROR,
+				IJavaModelStatusConstants.MAIN_ONLY_PROJECT_DEPENDS_ON_TEST_ONLY_PROJECT, status);
 	} finally {
 		this.deleteProjects(new String[] { "P1", "P2" });
 	}

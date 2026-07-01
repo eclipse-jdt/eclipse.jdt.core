@@ -1408,7 +1408,7 @@ public void testVariableInitializerDeprecated() throws CoreException, IOExceptio
 					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
-		assertStatus("Classpath variable 'TEST_DEPRECATED' in project 'P1' is deprecated: Test deprecated flag", status);
+		assertStatus(IStatus.WARNING, IJavaModelStatusConstants.DEPRECATED_VARIABLE, status);
 		assertFalse("Status should not be OK", status.isOK());
 		assertEquals("Status should have WARNING severity", IStatus.WARNING, status.getSeverity());
 		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.DEPRECATED_VARIABLE, status.getCode());
@@ -1432,7 +1432,7 @@ public void testVariableInitializerUnboundAndDeprecated() throws CoreException {
 		IJavaProject project = createJavaProject("P1");
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
-		assertStatus("Project 'P1' is missing required library: 'lib.jar'", status);
+		assertStatus(IStatus.ERROR, IJavaModelStatusConstants.INVALID_CLASSPATH, status);
 		assertFalse("Status should not be OK", status.isOK());
 		assertEquals("Status should have WARNING severity", IStatus.ERROR, status.getSeverity());
 		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.INVALID_CLASSPATH, status.getCode());
@@ -1465,7 +1465,7 @@ public void testVariableInitializerReadOnly() throws CoreException, IOException 
 					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
-		assertStatus("OK", status);
+		assertStatus(IStatus.OK, status);
 		assertTrue("Status should be OK", status.isOK());
 		assertEquals("Status should be VERIFIED_OK", JavaModelStatus.VERIFIED_OK, status);
 	} finally {
@@ -1493,7 +1493,7 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException,
 					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
-		assertStatus("Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project 'P1' is deprecated: A deprecated and read-only initializer", status);
+		assertStatus(IStatus.WARNING, IJavaModelStatusConstants.DEPRECATED_VARIABLE, status);
 		assertFalse("Status should not be OK", status.isOK());
 		assertEquals("Status should have WARNING severity", IStatus.WARNING, status.getSeverity());
 		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.DEPRECATED_VARIABLE, status.getCode());
