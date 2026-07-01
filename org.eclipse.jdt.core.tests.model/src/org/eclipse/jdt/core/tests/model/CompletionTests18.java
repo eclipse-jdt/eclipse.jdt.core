@@ -1457,6 +1457,7 @@ public void test402081a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"interface I {\n" +
 				"    String foo(String x);\n" +
 				"}\n" +
@@ -1488,6 +1489,7 @@ public void test402081b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"interface I {\n" +
 				"    String foo(X<String> xs, String x);\n" +
 				"}\n" +
@@ -1514,6 +1516,7 @@ public void test402081c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"interface I {\n" +
 				"    String foo(String x);\n" +
 				"}\n" +
@@ -1543,6 +1546,7 @@ public void test402081d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"interface I {\n" +
 				"    String foo(String x);\n" +
 				"}\n" +
@@ -1572,6 +1576,7 @@ public void test431402() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"import java.util.function.Predicate;\n" +
 				"public class X {\n" +
 				"	private static void writeIt(Object list) {\n" +
@@ -1599,6 +1604,7 @@ public void test432527() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 						"/Completion/src/test/X.java",
+						"package test;\n" +
 						"import java.util.LinkedList;\n" +
 						"import java.util.List;\n" +
 						"public class X {\n" +
@@ -1691,6 +1697,7 @@ public void test430656() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"import java.util.ArrayList;\n" +
 				"import java.util.Collections;\n" +
 				"import java.util.Comparator;\n" +
