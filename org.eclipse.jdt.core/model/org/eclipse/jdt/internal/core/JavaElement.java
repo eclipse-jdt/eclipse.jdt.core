@@ -28,11 +28,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -59,13 +62,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
 //	private static final QualifiedName PROJECT_JAVADOC= new QualifiedName(JavaCore.PLUGIN_ID, "project_javadoc_location"); //$NON-NLS-1$
 
-	private static final byte[] CLOSING_DOUBLE_QUOTE = new byte[] { 34 };
-	/* To handle the pre - HTML 5 format: <META http-equiv="Content-Type" content="text/html; charset=UTF-8">  */
-	private static final byte[] CHARSET = new byte[] { 99, 104, 97, 114, 115, 101, 116, 61 };
-	/* To handle the HTML 5 format: <meta http-equiv="Content-Type" content="text/html" charset="UTF-8"> */
-	private static final byte[] CHARSET_HTML5 = new byte[] { 99, 104, 97, 114, 115, 101, 116, 61, 34 };
-	private static final byte[] META_START = new byte[] { 60, 109, 101, 116, 97 };
-	private static final byte[] META_END = new byte[] { 34, 62 };
+	private static final int HTML_HEAD_PREFIX_LENGTH = 4096;
+	private static final Pattern META_TAG_PATTERN = Pattern.compile("<meta\\s[^>]*+>", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+	private static final Pattern META_CHARSET_PATTERN = Pattern.compile("(?<![A-Za-z0-9_-])charset\\s*+=\\s*+([\"']?)([^\\s\"'/>;]+)\\1", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
 	public static final char JEM_ESCAPE = '\\';
 	public static final char JEM_JAVAPROJECT = '=';
 	public static final char JEM_PACKAGEFRAGMENTROOT = '/';
@@ -765,29 +764,19 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return null;
 	}
 
-	int getIndexOf(byte[] array, byte[] toBeFound, int start, int end) {
-		if (array == null || toBeFound == null)
-			return -1;
-		final int toBeFoundLength = toBeFound.length;
-		final int arrayLength = (end != -1 && end < array.length) ? end : array.length;
-		if (arrayLength < toBeFoundLength)
-			return -1;
-		loop: for (int i = start, max = arrayLength - toBeFoundLength + 1; i < max; i++) {
-			if (isSameCharacter(array[i], toBeFound[0])) {
-				for (int j = 1; j < toBeFoundLength; j++) {
-					if (!isSameCharacter(array[i + j], toBeFound[j]))
-						continue loop;
-				}
-				return i;
+	private String getCharsetFromMetaTag(byte[] contents) {
+		if (contents == null) {
+			return null;
+		}
+		String prefix = new String(contents, 0, Math.min(contents.length, HTML_HEAD_PREFIX_LENGTH), StandardCharsets.UTF_8);
+		Matcher metaTagMatcher = META_TAG_PATTERN.matcher(prefix);
+		while (metaTagMatcher.find()) {
+			Matcher charsetMatcher = META_CHARSET_PATTERN.matcher(metaTagMatcher.group());
+			if (charsetMatcher.find()) {
+				return charsetMatcher.group(2);
 			}
 		}
-		return -1;
-	}
-	boolean isSameCharacter(byte b1, byte b2) {
-		if (b1 == b2 || Character.toUpperCase((char) b1) == Character.toUpperCase((char) b2)) {
-			return true;
-		}
-		return false;
+		return null;
 	}
 
 	/*
@@ -854,25 +843,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			String encoding = connection.getContentEncoding();
 			byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
 			if (encoding == null) {
-				int index = getIndexOf(contents, META_START, 0, -1);
-				if (index != -1) {
-					int end = getIndexOf(contents, META_END, index, -1);
-					if (end != -1) {
-						if ((end + 1) <= contents.length) end++;
-						int charsetIndex = getIndexOf(contents, CHARSET_HTML5, index, end);
-						if (charsetIndex == -1) {
-							charsetIndex = getIndexOf(contents, CHARSET, index, end);
-							if (charsetIndex != -1)
-								charsetIndex = charsetIndex + CHARSET.length;
-						} else {
-							charsetIndex = charsetIndex + CHARSET_HTML5.length;
-						}
-						if (charsetIndex != -1) {
-							end = getIndexOf(contents, CLOSING_DOUBLE_QUOTE, charsetIndex, end);
-							encoding = new String(contents, charsetIndex, end - charsetIndex, org.eclipse.jdt.internal.compiler.util.Util.UTF_8);
-						}
-					}
-				}
+				encoding = getCharsetFromMetaTag(contents);
 			}
 			try {
 				if (encoding == null) {
