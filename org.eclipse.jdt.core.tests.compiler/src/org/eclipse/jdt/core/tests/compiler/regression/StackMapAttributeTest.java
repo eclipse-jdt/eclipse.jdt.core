@@ -1550,14 +1550,14 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
                  ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"  // Method descriptor #40 ()I\n" +
+			"  // Method descriptor #43 ()I\n" +
 			"  // Stack: 2, Locals: 7\n" +
 			"  public static int foo();\n" +
 			"     0  iconst_0\n" +
 			"     1  istore_1 [res]\n" +
 			"     2  iconst_0\n" +
 			"     3  istore_2 [n]\n" +
-			"     4  invokestatic X.values() : X[] [46]\n" +
+			"     4  invokestatic X.values() : X[] [49]\n" +
 			"     7  astore_3 [vals]\n" +
 			"     8  iconst_0\n" +
 			"     9  istore 4 [i]\n" +
@@ -1574,11 +1574,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"    26  if_icmpne 32\n" +
 			"    29  goto 45\n" +
 			"    32  aload 6 [e]\n" +
-			"    34  invokevirtual X.value() : int [50]\n" +
+			"    34  invokevirtual X.value() : int [53]\n" +
 			"    37  istore_0 [val]\n" +
-			"    38  getstatic java.lang.System.out : java.io.PrintStream [52]\n" +
+			"    38  getstatic java.lang.System.out : java.io.PrintStream [55]\n" +
 			"    41  iload_0 [val]\n" +
-			"    42  invokevirtual java.io.PrintStream.println(int) : void [58]\n" +
+			"    42  invokevirtual java.io.PrintStream.println(int) : void [61]\n" +
 			"    45  iinc 4 1 [i]\n" +
 			"    48  iload 4 [i]\n" +
 			"    50  iload 5 [max]\n" +
@@ -1661,14 +1661,14 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
                  ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"  // Method descriptor #40 ()I\n" +
+			"  // Method descriptor #43 ()I\n" +
 			"  // Stack: 2, Locals: 7\n" +
 			"  public static int foo();\n" +
 			"     0  iconst_0\n" +
 			"     1  istore_1 [res]\n" +
 			"     2  iconst_0\n" +
 			"     3  istore_2 [n]\n" +
-			"     4  invokestatic X.values() : X[] [46]\n" +
+			"     4  invokestatic X.values() : X[] [49]\n" +
 			"     7  dup\n" +
 			"     8  astore 6\n" +
 			"    10  arraylength\n" +
@@ -1685,11 +1685,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"    27  if_icmpne 33\n" +
 			"    30  goto 45\n" +
 			"    33  aload_3 [e]\n" +
-			"    34  invokevirtual X.value() : int [50]\n" +
+			"    34  invokevirtual X.value() : int [53]\n" +
 			"    37  istore_0 [val]\n" +
-			"    38  getstatic java.lang.System.out : java.io.PrintStream [52]\n" +
+			"    38  getstatic java.lang.System.out : java.io.PrintStream [55]\n" +
 			"    41  iload_0 [val]\n" +
-			"    42  invokevirtual java.io.PrintStream.println(int) : void [58]\n" +
+			"    42  invokevirtual java.io.PrintStream.println(int) : void [61]\n" +
 			"    45  iinc 4 1\n" +
 			"    48  iload 4\n" +
 			"    50  iload 5\n" +
