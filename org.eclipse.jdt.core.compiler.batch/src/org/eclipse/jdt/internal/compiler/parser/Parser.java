@@ -1115,6 +1115,13 @@ public RecoveredElement buildInitialRecoveryState(){
 	}
 
 	if (this.statementRecoveryActivated) {
+		if (this.expressionPtr >= 0 && this.expressionStack[0] instanceof FieldReference fr) {
+			var snr = new SingleNameReference(new char[0], fr.sourceEnd);
+			snr.sourceStart = fr.sourceEnd;
+			var assignment = new Assignment(fr, snr, fr.sourceEnd);
+			assignment.statementEnd = assignment.sourceEnd;
+			element = element.add(assignment, 0);
+		}
 		if (this.pendingRecoveredType != null &&
 				this.scanner.startPosition - 1 <= this.pendingRecoveredType.declarationSourceEnd) {
 			// Add the pending type to the AST if this type isn't already added in the AST.
@@ -11740,7 +11747,7 @@ try {
 		this.scanner.checkUninternedIdentityComparison = false;
 	}
 
-	if (this.reportSyntaxErrorIsRequired && this.hasError && !this.statementRecoveryActivated) {
+	if (this.reportSyntaxErrorIsRequired && this.hasError) {
 		if(!this.options.performStatementsRecovery) {
 			reportSyntaxErrors(isDietParse, oldFirstToken);
 		} else {
@@ -12056,12 +12063,18 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 		return;
 
 	boolean oldMethodRecoveryActivated = this.methodRecoveryActivated;
+
 	if(this.options.performMethodsFullRecovery) {
 		// we should not relocate bodyStart if there is a block within the statements
 		this.ignoreNextOpeningBrace = true;
 		this.methodRecoveryActivated = true;
 		this.rParenPos = md.sourceEnd;
 	}
+	boolean oldStatementRecoveryActivated = this.statementRecoveryActivated;
+	if (this.options.performStatementsRecovery) {
+		this.statementRecoveryActivated = true;
+	}
+
 	initialize();
 	goForBlockStatementsopt();
 	this.nestedMethod[this.nestedType]++;
@@ -12078,8 +12091,11 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 		this.lastAct = ERROR_ACTION;
 	} finally {
 		this.nestedMethod[this.nestedType]--;
-		if(this.options.performStatementsRecovery) {
+		if (this.options.performStatementsRecovery) {
 			this.methodRecoveryActivated = oldMethodRecoveryActivated;
+		}
+		if (this.options.performStatementsRecovery) {
+			this.statementRecoveryActivated = oldStatementRecoveryActivated;
 		}
 	}
 
