@@ -3065,7 +3065,7 @@ public abstract class Scope {
 		}
 		if (memberType != null) return memberType;
 		char[][] compoundName = new char[][] { typeName };
-		return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
+		return new ProblemReferenceBinding(compoundName, environment().createMissingType(null, compoundName), ProblemReasons.NotFound);
 	}
 
 	public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
