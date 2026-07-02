@@ -2375,6 +2375,35 @@ public void testGH3367() {
 	runner.runConformTest();
 }
 
+public void testGH4984() throws Exception {
+	runConformTest(new String[] {
+		"MyCall.java",
+		"""
+		import java.util.function.Predicate;
+
+		public class MyCall {
+		  public Predicate<String> callOk() {
+			// OK javac
+			// KO ecj (eclipse >= 2026.03)
+		    return MyCall.notNullAnd(MyCall.and(predicate(), predicate()));
+		  }
+
+		  public Predicate<String> predicate() {
+			  return null;
+		  }
+
+		  @SafeVarargs
+		  public static <T> Predicate<? super T> and(Predicate<? super T>... predicates) {
+		    return null;
+		  }
+
+		  public static <T> Predicate<T> notNullAnd(Predicate<? super T> predicate) {
+		    return null;
+		  }
+		}
+		""" });
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
