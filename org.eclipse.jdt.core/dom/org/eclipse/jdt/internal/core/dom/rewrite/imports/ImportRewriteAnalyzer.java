@@ -419,6 +419,9 @@ public final class ImportRewriteAnalyzer {
 
 	private final boolean reportAllResultantImportsAsCreated;
 
+	private final boolean keepExistingOnDemandImports;
+	private final Set<ImportName> originalOnDemandImports;
+
 	private final Set<String> typeExplicitSimpleNames;
 	private final Set<String> staticExplicitSimpleNames;
 
@@ -442,13 +445,19 @@ public final class ImportRewriteAnalyzer {
 
 		List<ImportName> importsList = new ArrayList<>(this.originalImportEntries.size());
 		Set<ImportName> importsSet = new HashSet<>();
+		Set<ImportName> onDemandImports = new HashSet<>();
 		for (ImportEntry originalImportEntry : this.originalImportEntries) {
 			ImportName importName = originalImportEntry.importName;
 			importsList.add(importName);
 			importsSet.add(importName);
+			if (importName.isOnDemand() && !importName.isModule) {
+				onDemandImports.add(importName);
+			}
 		}
 		this.originalImportsList = Collections.unmodifiableList(importsList);
 		this.originalImportsSet = Collections.unmodifiableSet(importsSet);
+		this.originalOnDemandImports = Collections.unmodifiableSet(onDemandImports);
+		this.keepExistingOnDemandImports = configuration.keepExistingOnDemandImports;
 
 		this.importsToAdd = new LinkedHashSet<>();
 
@@ -477,7 +486,8 @@ public final class ImportRewriteAnalyzer {
 
 		this.onDemandComputer = new OnDemandComputer(
 				configuration.typeOnDemandThreshold,
-				configuration.staticOnDemandThreshold);
+				configuration.staticOnDemandThreshold,
+				configuration.collapseSingleImportsToOnDemand);
 
 		this.conflictIdentifier = new ConflictIdentifier(
 				this.onDemandComputer,
@@ -568,6 +578,23 @@ public final class ImportRewriteAnalyzer {
 		Set<ImportName> importsWithAdditionsAndRemovals = new HashSet<>(this.originalImportsSet);
 		importsWithAdditionsAndRemovals.addAll(this.importsToAdd);
 		importsWithAdditionsAndRemovals.removeAll(this.importsToRemove);
+
+		if (this.keepExistingOnDemandImports && !this.originalOnDemandImports.isEmpty()) {
+			// Re-introduce each existing on-demand import whose container is still referenced, so that
+			// it is preserved as an on-demand import instead of being expanded into single imports. The
+			// referenced single imports are then folded back into it by the on-demand reduction below.
+			Set<ImportName> referencedContainers = new HashSet<>();
+			for (ImportName importToAdd : this.importsToAdd) {
+				if (!importToAdd.isModule) {
+					referencedContainers.add(importToAdd.getContainerOnDemand());
+				}
+			}
+			for (ImportName onDemandImport : this.originalOnDemandImports) {
+				if (referencedContainers.contains(onDemandImport)) {
+					importsWithAdditionsAndRemovals.add(onDemandImport);
+				}
+			}
+		}
 
 		Set<ImportName> touchedContainers = determineTouchedContainers();
 

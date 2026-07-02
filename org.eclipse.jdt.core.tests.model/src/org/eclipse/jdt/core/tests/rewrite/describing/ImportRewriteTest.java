@@ -4997,6 +4997,200 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEquals("pack1.X", actualType.toString());
 	}
 
+	public void testKeepExistingOnDemandImport() throws Exception {
+		StringBuilder contents = new StringBuilder();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import java.util.*;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		ImportRewrite imports = newImportsRewrite(cu, new String[0], 99, 99, false);
+		imports.setKeepExistingOnDemandImports(true);
+		imports.addImport("java.util.List");
+		imports.addImport("java.util.Map");
+
+		apply(imports);
+
+		// The existing on-demand import is preserved and the referenced types fold into it.
+		StringBuilder expected = new StringBuilder();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.util.*;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	public void testExistingOnDemandImportExpandedByDefault() throws Exception {
+		StringBuilder contents = new StringBuilder();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import java.util.*;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		// keepExistingOnDemandImports defaults to false, so the on-demand import is expanded.
+		ImportRewrite imports = newImportsRewrite(cu, new String[0], 99, 99, false);
+		imports.addImport("java.util.List");
+		imports.addImport("java.util.Map");
+
+		apply(imports);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.util.List;\n");
+		expected.append("import java.util.Map;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	public void testUnreferencedExistingOnDemandImportIsRemoved() throws Exception {
+		StringBuilder contents = new StringBuilder();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import java.util.*;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		// The existing on-demand import is no longer referenced, so it is removed as unused.
+		ImportRewrite imports = newImportsRewrite(cu, new String[0], 99, 99, false);
+		imports.setKeepExistingOnDemandImports(true);
+		imports.addImport("java.io.File");
+
+		apply(imports);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.io.File;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	public void testKeepExistingStaticOnDemandImport() throws Exception {
+		StringBuilder values = new StringBuilder();
+		values.append("package statics;\n");
+		values.append("\n");
+		values.append("public class Values {\n");
+		values.append("    public static final int A = 0;\n");
+		values.append("    public static final int B = 0;\n");
+		values.append("}\n");
+		createCompilationUnit("statics", "Values", values.toString());
+
+		StringBuilder contents = new StringBuilder();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import static statics.Values.*;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		ImportRewrite imports = newImportsRewrite(cu, new String[0], 99, 99, false);
+		imports.setKeepExistingOnDemandImports(true);
+		imports.addStaticImport("statics.Values", "A", true);
+		imports.addStaticImport("statics.Values", "B", true);
+
+		apply(imports);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import static statics.Values.*;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	public void testCollapseSingleImportsToOnDemandByDefault() throws Exception {
+		StringBuilder contents = new StringBuilder();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		// collapseSingleImportsToOnDemand defaults to true: the threshold still applies.
+		ImportRewrite imports = newImportsRewrite(cu, new String[0], 2, 2, false);
+		imports.addImport("java.util.List");
+		imports.addImport("java.util.Map");
+		imports.addImport("java.util.Set");
+
+		apply(imports);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.util.*;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	public void testCollapseSingleImportsToOnDemandDisabled() throws Exception {
+		StringBuilder contents = new StringBuilder();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		// With collapsing disabled, the threshold is ignored and single imports are kept.
+		ImportRewrite imports = newImportsRewrite(cu, new String[0], 2, 2, false);
+		imports.setCollapseSingleImportsToOnDemand(false);
+		imports.addImport("java.util.List");
+		imports.addImport("java.util.Map");
+		imports.addImport("java.util.Set");
+
+		apply(imports);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.util.List;\n");
+		expected.append("import java.util.Map;\n");
+		expected.append("import java.util.Set;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	public void testKeepExistingOnDemandImportWithoutCollapsingOtherGroups() throws Exception {
+		StringBuilder contents = new StringBuilder();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import java.util.*;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		// Existing on-demand import is kept; a different group stays as single imports (no new star).
+		ImportRewrite imports = newImportsRewrite(cu, new String[0], 2, 2, false);
+		imports.setKeepExistingOnDemandImports(true);
+		imports.setCollapseSingleImportsToOnDemand(false);
+		imports.addImport("java.util.List");
+		imports.addImport("java.io.File");
+		imports.addImport("java.io.InputStream");
+		imports.addImport("java.io.OutputStream");
+
+		apply(imports);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.io.File;\n");
+		expected.append("import java.io.InputStream;\n");
+		expected.append("import java.io.OutputStream;\n");
+		expected.append("import java.util.*;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
 	private ICompilationUnit createCompilationUnit(String packageName, String className) throws JavaModelException {
 		StringBuilder contents = new StringBuilder();
 		contents.append("package " + packageName + ";\n");
