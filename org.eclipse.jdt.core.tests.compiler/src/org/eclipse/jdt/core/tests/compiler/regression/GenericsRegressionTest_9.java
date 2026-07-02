@@ -2404,6 +2404,45 @@ public void testGH4984() throws Exception {
 		""" });
 }
 
+public void testGH4893() throws Exception  {
+	runConformTest(new String[] {
+		"Bug.java",
+		"""
+		public class Bug {
+			public static <K1 extends Key<? extends P1>, P1 extends Provider> P1 getProvider(K1 key) {
+				return null;
+			}
+			interface Key<P2 extends Provider> { }
+			interface Provider { }
+
+			interface AnObject<K2 extends Key<? extends AnObjectProvider<?>>> {
+				default K2 getKey() {
+					return null;
+				}
+
+				public default AnObjectProvider<?> getObjectProvider() {
+					// OK for all javac and all eclipse compilers
+					return getProvider(getKey());
+				}
+			}
+
+			interface AnObjectProvider<P3 extends AnObjectProvider<P3>> extends Provider { }
+			interface SubKey<P4 extends SubProvider> extends Key<P4> { }
+			interface SubProvider extends Provider { }
+
+			interface AnSubObject<K3 extends SubKey<? extends AnSubObjectProvider<?>>> extends AnObject<K3> {
+				public default AnSubObjectProvider<?> getObjectProvider() {
+					// OK for all javac compilers and all eclipse compilers up to 2025-09
+					return getProvider(getKey()); // fails with eclipse 2025-12 and 2026-03 RC2
+				}
+			}
+
+			interface AnSubObjectProvider<P5 extends AnSubObjectProvider<P5>> extends AnObjectProvider<P5> { }
+		}
+		"""
+	});
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
