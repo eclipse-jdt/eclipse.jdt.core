@@ -336,9 +336,7 @@ public class SwitchStatement extends Expression {
 				if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(this.scope.compilerOptions())
 						&& this.unconditionalPatternCase != null) {
 					Constant cst = labelExpression.expression.constant;
-					TypeBinding resolvedType1 = labelExpression.expression.resolvedType;
-					if (cst != null && cst != Constant.NotAConstant && resolvedType1 != null
-							&& resolvedType1.isPrimitiveType()) {
+					if (cst != null && cst != Constant.NotAConstant) {
 						this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
 						dominatedByUnconditional = true;
 					}
