@@ -361,7 +361,8 @@ public void testBug488663_011() {
 }
 // Nested anonymous diamonds - TODO - confirm that this is indeed correct as per spec
 public void testBug488663_012() {
-	this.runConformTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -389,8 +390,11 @@ public void testBug488663_012() {
 			"		i.doSomething(t);\n" +
 			"	}\n" +
 			"}",
-		},
-		"Done");
+		};
+	runner.expectedOutputString =
+		"Done";
+	runner.javacTestOptions = JavacHasABug.JavacBug8361641;
+	runner.runConformTest();
 }
 // Redundant type argument specification - TODO - confirm that this is correct
 public void testBug488663_013() {
@@ -1184,7 +1188,7 @@ public void testGH3948() {
 			}
 			"""
 		};
-	runner.javacTestOptions = JavacHasABug.JavacBug8297428;
+	runner.javacTestOptions = JavacHasABug.JavacBug8387487;
 	runner.runConformTest();
 }
 public void testGH4022a() {
@@ -1892,7 +1896,8 @@ public void testGH4463b() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4550
 // Static interface methods excluded from type variable membership
 public void testIssue4550() {
-	runNegativeTest(new String[] {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
 			"Tester.java",
 			"""
 			public class Tester<T extends Thing> {
@@ -1916,14 +1921,16 @@ public void testIssue4550() {
 			class OtherThing implements Thing {
 			}
 			""",
-	    },
+	    };
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. ERROR in Tester.java (at line 3)\n" +
 		"	System.out.println(\"Testing: \" + T.getStuff());  // Error is here\n" +
 		"	                                   ^^^^^^^^\n" +
 		"The method getStuff() is undefined for the type T\n" +
-		"----------\n"
-		);
+		"----------\n";
+	runner.javacTestOptions = JavacHasABug.JavacBug8365676;
+	runner.runNegativeTest();
 }
 
 public void testGH4635() {
@@ -2366,6 +2373,74 @@ public void testGH3367() {
 			"""
 		};
 	runner.runConformTest();
+}
+
+public void testGH4984() throws Exception {
+	runConformTest(new String[] {
+		"MyCall.java",
+		"""
+		import java.util.function.Predicate;
+
+		public class MyCall {
+		  public Predicate<String> callOk() {
+			// OK javac
+			// KO ecj (eclipse >= 2026.03)
+		    return MyCall.notNullAnd(MyCall.and(predicate(), predicate()));
+		  }
+
+		  public Predicate<String> predicate() {
+			  return null;
+		  }
+
+		  @SafeVarargs
+		  public static <T> Predicate<? super T> and(Predicate<? super T>... predicates) {
+		    return null;
+		  }
+
+		  public static <T> Predicate<T> notNullAnd(Predicate<? super T> predicate) {
+		    return null;
+		  }
+		}
+		""" });
+}
+
+public void testGH4893() throws Exception  {
+	runConformTest(new String[] {
+		"Bug.java",
+		"""
+		public class Bug {
+			public static <K1 extends Key<? extends P1>, P1 extends Provider> P1 getProvider(K1 key) {
+				return null;
+			}
+			interface Key<P2 extends Provider> { }
+			interface Provider { }
+
+			interface AnObject<K2 extends Key<? extends AnObjectProvider<?>>> {
+				default K2 getKey() {
+					return null;
+				}
+
+				public default AnObjectProvider<?> getObjectProvider() {
+					// OK for all javac and all eclipse compilers
+					return getProvider(getKey());
+				}
+			}
+
+			interface AnObjectProvider<P3 extends AnObjectProvider<P3>> extends Provider { }
+			interface SubKey<P4 extends SubProvider> extends Key<P4> { }
+			interface SubProvider extends Provider { }
+
+			interface AnSubObject<K3 extends SubKey<? extends AnSubObjectProvider<?>>> extends AnObject<K3> {
+				public default AnSubObjectProvider<?> getObjectProvider() {
+					// OK for all javac compilers and all eclipse compilers up to 2025-09
+					return getProvider(getKey()); // fails with eclipse 2025-12 and 2026-03 RC2
+				}
+			}
+
+			interface AnSubObjectProvider<P5 extends AnSubObjectProvider<P5>> extends AnObjectProvider<P5> { }
+		}
+		"""
+	});
 }
 
 public static Class<GenericsRegressionTest_9> testClass() {

@@ -628,7 +628,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				String endKeyword,
 				int offset) {
 			this.startPos= offset;
-			this.nodeIndentPos= offset;
+			this.nodeIndentPos= parent.getStartPosition();
 			this.list= getEvent(parent, property).getChildren();
 
 			if (parent.getLocationInParent() == TryStatement.BODY_PROPERTY) {

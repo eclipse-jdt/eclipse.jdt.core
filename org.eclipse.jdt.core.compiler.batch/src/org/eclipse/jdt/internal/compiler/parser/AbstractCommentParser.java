@@ -384,6 +384,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								this.textStart = this.index;
 							if (shouldCloseInlineTag) {
 								setInlineTagStarted(false);
+								annotationAtSymbolHandling= false;
 							}
 							if (this.inlineReturn) {
 								if (this.inlineReturnOpenBraces > 0) {
