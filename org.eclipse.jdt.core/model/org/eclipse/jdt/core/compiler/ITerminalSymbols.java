@@ -221,7 +221,7 @@ public interface ITerminalSymbols {
 	/** @since 3.38 */
 	int TokenNameUNDERSCORE = 416;
 
-	/** @since 3.46 */
+	/** @since 3.47 BETA_JAVA28 */
 	int TokenNameRestrictedIdentifiervalue = 417;
 
 }

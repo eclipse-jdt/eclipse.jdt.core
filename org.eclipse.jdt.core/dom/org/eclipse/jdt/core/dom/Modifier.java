@@ -128,7 +128,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		public static final ModifierKeyword MODULE_KEYWORD = new ModifierKeyword("module", MODULE);//$NON-NLS-1$
 
 		/**
-		 * @since 3.46
+		 * @since 3.47 BETA_JAVA28
 		 * @noreference preview feature
 		 */
 		public static final ModifierKeyword VALUE_KEYWORD = new ModifierKeyword("value", VALUE);//$NON-NLS-1$
@@ -367,7 +367,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	/**
 	 * "value" modifier constant (bit mask).
 	 * Applicable only to types.
-	 * @since 3.46
+	 * @since 3.47 BETA_JAVA28
 	 */
 
 	public static final int VALUE = 0x2000;
@@ -578,7 +578,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @param flags the modifier flags
 	 * @return <code>true</code> if the <code>VALUE</code> bit is set
 	 * and <code>false</code> otherwise
-	 * @since 3.46
+	 * @since 3.47 BETA_JAVA28
 	 */
 	public static boolean isValue(int flags) {
 		return (flags & VALUE) != 0;
@@ -839,7 +839,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Answer true if the receiver is the value modifier, false otherwise.
 	 *
 	 * @return true if the receiver is the value modifier, false otherwise
-	 * @since 3.46
+	 * @since 3.47 BETA_JAVA28
 	 */
 	public boolean isValue() {
 		return this.modifierKeyword == ModifierKeyword.VALUE_KEYWORD;
