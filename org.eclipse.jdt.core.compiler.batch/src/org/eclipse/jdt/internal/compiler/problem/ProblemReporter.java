@@ -9592,7 +9592,6 @@ public void previewAPIUsed(Scope scope, int sourceStart, int sourceEnd, IBinaryA
 	if (!this.options.enablePreviewFeatures) {
 		if (this.options.complianceLevel < ClassFileConstants.getLatestJDKLevel()) {
 			problemId = IProblem.PreviewAPIUsed;
-			severity = ProblemSeverities.Warning;
 		} else {
 			problemId = IProblem.PreviewAPIDisabled;
 			severity = isReflective ? ProblemSeverities.Warning : ProblemSeverities.Error;
@@ -9600,11 +9599,12 @@ public void previewAPIUsed(Scope scope, int sourceStart, int sourceEnd, IBinaryA
 	} else {
 		this.referenceContext.compilationResult().usesPreview = true;
 		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			severity = ProblemSeverities.Warning;
 			problemId = IProblem.PreviewAPIUsed;
 		}
 	}
-	if (problemId == -1 || severity == -1) return;
+	if (problemId == -1) return;
+	if (severity == -1)
+		severity = computeSeverity(IProblem.PreviewAPIUsed);
 	String[] arguments = { featureName };
 	this.handle(problemId, arguments, arguments, severity, sourceStart, sourceEnd);
 }

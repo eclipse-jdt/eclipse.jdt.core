@@ -247,7 +247,7 @@ public class Util implements SuffixConstants {
 	 * <p>
 	 * The value is "META-INF/versions/".
 	 */
-	public static String METAINF_VERSIONS = "META-INF/versions/"; //$NON-NLS-1$
+	public static final String METAINF_VERSIONS = "META-INF/versions/"; //$NON-NLS-1$
 
 	/**
 	 * Build all the directories and subdirectories corresponding to the packages names

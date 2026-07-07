@@ -332,17 +332,28 @@ public class SwitchStatement extends Expression {
 				if (this.defaultCase != null)
 					this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
 			} else {
-				TypeBinding boxedType = labelExpression.type.isBaseType() ? this.scope.environment().computeBoxingType(labelExpression.type) : labelExpression.type;
-				for (int i = 0; i < this.labelExpressionIndex; i++) {
-					if (this.labelExpressions[i].expression instanceof Pattern priorPattern) {
-						if (priorPattern.coversType(boxedType, this.scope)) {
-							this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
-							break;
-						}
-						Constant cst = labelExpression.expression.constant;
-						if (cst != null && cst != Constant.NotAConstant && priorPattern.coversValue(cst, this.scope)) {
-							this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
-							break;
+				boolean dominatedByUnconditional = false;
+				if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(this.scope.compilerOptions())
+						&& this.unconditionalPatternCase != null) {
+					Constant cst = labelExpression.expression.constant;
+					if (cst != null && cst != Constant.NotAConstant) {
+						this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+						dominatedByUnconditional = true;
+					}
+				}
+				if (!dominatedByUnconditional) {
+					TypeBinding boxedType = labelExpression.type.isBaseType() ? this.scope.environment().computeBoxingType(labelExpression.type) : labelExpression.type;
+					for (int i = 0; i < this.labelExpressionIndex; i++) {
+						if (this.labelExpressions[i].expression instanceof Pattern priorPattern) {
+							if (priorPattern.coversType(boxedType, this.scope)) {
+								this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+								break;
+							}
+							Constant cst = labelExpression.expression.constant;
+							if (cst != null && cst != Constant.NotAConstant && priorPattern.coversValue(cst, this.scope)) {
+								this.scope.problemReporter().patternDominatedByAnother(labelExpression.expression);
+								break;
+							}
 						}
 					}
 				}

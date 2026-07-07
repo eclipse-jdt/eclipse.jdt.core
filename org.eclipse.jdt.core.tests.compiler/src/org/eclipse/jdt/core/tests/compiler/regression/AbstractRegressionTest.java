@@ -1154,6 +1154,8 @@ protected static class JavacTestOptions {
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone),
 			JavacBug6573446 = // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6573446 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945
+							// updated link https://bugs.openjdk.org/browse/JDK-6573446
+							// see also confirmation https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/thread/TLIVNI7SPUVX646O7RTGG7IOYJVWSV47/
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone),
 			JavacBug6575821 = // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6575821
@@ -1191,8 +1193,17 @@ protected static class JavacTestOptions {
 			JavacBug8348410 = // https://bugs.openjdk.org/browse/JDK-8348410
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK25, 0000),
 			JavacBug8016196 = // https://bugs.openjdk.org/browse/JDK-8016196
-					new JavacHasABug(MismatchType.JavacErrorsEclipseNone);
-
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
+			JavacBug8016207 = // https://bugs.openjdk.org/browse/JDK-8016207 Widening of capture vars occurs at unspecified times
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone),
+			JavacBugIvarInterning = // https://mail.openjdk.org/pipermail/compiler-dev/2025-October/031866.html
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
+			JavacBug8387487 = // https://bugs.openjdk.org/browse/JDK-8297428 and https://bugs.openjdk.org/browse/JDK-8387487
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
+			JavacBug8365676 = // https://bugs.openjdk.org/browse/JDK-8365676
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK26, 0000),
+			JavacBug8361641 = // https://bugs.openjdk.org/browse/JDK-8361641
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK25, 0000);
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug

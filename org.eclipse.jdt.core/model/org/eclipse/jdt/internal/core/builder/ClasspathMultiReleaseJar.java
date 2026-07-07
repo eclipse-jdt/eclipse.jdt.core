@@ -1,31 +1,32 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathMultiReleaseJar extends ClasspathJar {
 	private static final String META_INF_VERSIONS = Util.METAINF_VERSIONS;
 	private static final int META_INF_LENGTH = META_INF_VERSIONS.length();
-	private volatile String[] supportedVersions;
+	private volatile List<String> supportedVersions;
 
 	ClasspathMultiReleaseJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
 			boolean isOnModulePath, String compliance) {
@@ -50,8 +51,8 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		try (ZipFile file = new ZipFile(this.zipFilename)){
 			ClassFileReader classfile = null;
 			try {
-				for (String path : supportedVersions(file)) {
-					classfile = ClassFileReader.read(file, path.toString() + '/' + IModule.MODULE_INFO_CLASS);
+				for (String version : supportedVersions(file)) {
+					classfile = ClassFileReader.read(file, Util.METAINF_VERSIONS + version + '/' + IModule.MODULE_INFO_CLASS);
 					if (classfile != null) {
 						break;
 					}
@@ -73,25 +74,38 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		return mod;
 	}
 
-	private static String[] initializeVersions(ZipFile zipFile, String compliance) {
-		int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
-		long latestJDK = CompilerOptions.versionToJdkLevel(compliance);
-		int latestJavaVer = (int) (latestJDK >> 16);
-		List<String> versions = new ArrayList<>();
-		for (int i = latestJavaVer; i >= earliestJavaVersion; i--) {
-			String name = META_INF_VERSIONS + (i - 44);
-			ZipEntry entry = zipFile.getEntry(name);
-			if (entry != null) {
-				versions.add(name);
-			}
-		}
-		return versions.toArray(new String[versions.size()]);
+	/**
+	 * Retrieve versions contained in a multi-release jar in descending order.
+	 * @param projectVersion this version sets the upper limit of versions to consider
+	 */
+	private List<String> scanMultiReleaseVersions(ZipFile jar, String projectVersion) {
+		int maxVersion = Util.parseIntOrElse(projectVersion, Integer.parseInt(JavaCore.latestSupportedJavaVersion()));
+		int prefixLength = Util.METAINF_VERSIONS.length();
+		List<String> versions = jar.stream()
+			.map(ZipEntry::getName)
+			.filter(n -> n.startsWith(Util.METAINF_VERSIONS))
+			.map(name -> {
+				int filterMe = maxVersion + 1; // to be filtered out at the next stage
+				int delim = name.indexOf('/', prefixLength);
+				if (delim == -1 )
+					return filterMe; // ignore the directory entry "META-INF/versions/"
+				String version = name.substring(prefixLength, delim);
+				return Util.parseIntOrElse(version, filterMe);
+			})
+			.filter(v -> v <= maxVersion)
+			.sorted(Comparator.reverseOrder())
+			.distinct()
+			.map(v -> Integer.toString(v))
+			.collect(Collectors.toList());
+		return versions;
 	}
 
-	private String[] supportedVersions(ZipFile file) {
-		String[] versions = this.supportedVersions;
+	private List<String> supportedVersions(ZipFile file) {
+		List<String> versions = this.supportedVersions;
 		if (versions == null) {
-			versions = initializeVersions(file, this.compliance);
+			versions = Util.isMultiRelease(getManifest())
+						? scanMultiReleaseVersions(file, this.compliance)
+						: Collections.emptyList();
 			this.supportedVersions = versions;
 		}
 		return versions;
@@ -119,10 +133,9 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		if (!isPackage(qualifiedPackageName, moduleName)) {
 			return null; // most common case
 		}
-		for (String path : supportedVersions(this.zipFile)) {
-			String s = null;
+		for (String version : supportedVersions(this.zipFile)) {
+			String s = Util.METAINF_VERSIONS + version + '/' + qualifiedBinaryFileName;
 			try {
-				s = META_INF_VERSIONS + path + "/" + binaryFileName;  //$NON-NLS-1$
 				ZipEntry entry = this.zipFile.getEntry(s);
 				if (entry == null)
 					continue;

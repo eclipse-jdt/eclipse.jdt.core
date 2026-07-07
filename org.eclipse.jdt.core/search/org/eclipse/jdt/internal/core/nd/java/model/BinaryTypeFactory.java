@@ -67,8 +67,8 @@ public class BinaryTypeFactory {
 		String name = Util.concatWith(pkg.names, classFile.getName(), '/');
 		String overridePath = root.getClassFilePath(entryName);
 		if (overridePath != entryName) {
-			entryName = overridePath;
 			String versionPath = overridePath.substring(0, overridePath.indexOf(entryName));
+			entryName = overridePath;
 			name = versionPath + name;
 		}
 		char[] fieldDescriptor = CharArrayUtils.concat(new char[] { 'L' },
