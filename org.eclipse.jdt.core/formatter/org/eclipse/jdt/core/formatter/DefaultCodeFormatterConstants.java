@@ -2360,7 +2360,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.4
+	 * @since 3.46.100
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_RECORD_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_parameter";//$NON-NLS-1$
 
