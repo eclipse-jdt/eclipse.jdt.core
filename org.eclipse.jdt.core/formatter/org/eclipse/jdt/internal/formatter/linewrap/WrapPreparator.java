@@ -1191,10 +1191,14 @@ public class WrapPreparator extends ASTVisitor {
 	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, int wrappingOption) {
 		Annotation last = null;
 		int i;
+		boolean shouldWrapAnnotation = true;
 		for (i = 0; i < modifiers.size(); i++) {
 			if (modifiers.get(i).isModifier())
 				break;
 			Annotation annotation = (Annotation) modifiers.get(i);
+			/*if (annotation.getParent() instanceof RecordDeclaration) {
+				shouldWrapAnnotation = this.options.insert_new_line_after_annotation_on_record_parameter;
+			} */
 			if (i == 0) {
 				this.wrapParentIndex = this.tm.firstIndexIn(annotation, ANY);
 			} else {
