@@ -433,10 +433,16 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SingleVariableDeclaration node) {
-		handleAnnotations(node.modifiers(),
-				node.getParent() instanceof EnhancedForStatement
-						? this.options.insert_new_line_after_annotation_on_local_variable
-						: this.options.insert_new_line_after_annotation_on_parameter);
+		boolean parameterConfigValue = false;
+		if (node.getParent() instanceof RecordDeclaration) {
+			parameterConfigValue = this.options.insert_new_line_after_annotation_on_record_parameter;
+		} else if (node.getParent() instanceof EnhancedForStatement) {
+			parameterConfigValue = this.options.insert_new_line_after_annotation_on_local_variable;
+		} else {
+			parameterConfigValue = this.options.insert_new_line_after_annotation_on_parameter;
+		}
+		handleAnnotations(node.modifiers(), parameterConfigValue);
+
 		return true;
 	}
 
@@ -471,10 +477,16 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (modifiers.get(i).isModifier())
 				break;
 			last = (Annotation) modifiers.get(i);
+			if ( last != null && breakAfter) {
+				breakLineBefore(last);
+				if (i == modifiers.size()-1) this.tm.lastTokenIn(last, ANY).breakAfter();
+			}
 		}
+
 		if (last != null && breakAfter) {
 			this.tm.lastTokenIn(last, ANY).breakAfter();
 		}
+
 
 		if (i < modifiers.size()) {
 			// any annotations following other modifiers will be associated with declaration type
