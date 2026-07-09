@@ -6074,7 +6074,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				this.ast.newModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD),
 				this.ast.newModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD),
 				this.ast.newModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD),
-				this.ast.newModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD)
+				this.ast.newModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD),
+				this.ast.newModifier(Modifier.ModifierKeyword.VALUE_KEYWORD)
 		};
 		return allMods;
 	}
@@ -9352,6 +9353,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				Modifier.ModifierKeyword.VOLATILE_KEYWORD,
 				Modifier.ModifierKeyword.SEALED_KEYWORD,
 				Modifier.ModifierKeyword.NON_SEALED_KEYWORD,
+				Modifier.ModifierKeyword.VALUE_KEYWORD,
 			};
 		int all = 0;
 		for (int i = 0; i < mods.length; i++) {
@@ -9386,6 +9388,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				assertEquals(Modifier.ModifierKeyword.VOLATILE_KEYWORD, modifier.getKeyword());
 			} else if (modifier.isSealed()) {
 				assertEquals(Modifier.ModifierKeyword.SEALED_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isValue()) {
+				assertEquals(Modifier.ModifierKeyword.VALUE_KEYWORD, modifier.getKeyword());
 			} else {
 				assertEquals(Modifier.ModifierKeyword.NON_SEALED_KEYWORD, modifier.getKeyword());
 			}
