@@ -753,6 +753,8 @@ public void test012(){
         "                       problem methods\n" +
         "                       With \":Fatal\", all optional errors are treated as fatal\n" +
         "    -failOnWarning     fail compilation if there are warnings\n" +
+        "    -detectZipMagic    ignore ZIP archive classpath candidates whose first\n" +
+        "                       bytes are not a ZIP signature\n" +
         "    -verbose           enable verbose output\n" +
         "    -referenceInfo     compute reference info\n" +
         "    -progress          show progress (only in -log mode)\n" +
@@ -1399,6 +1401,32 @@ public void test017b(){
         + " -verbose -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         TWO_FILES_GENERATED_MATCHER,
+        EMPTY_STRING_MATCHER,
+        true);
+}
+// optional ZIP magic detection skips existing non-ZIP classpath entries before ZipFile opens them
+public void test017d(){
+	this.runTest(
+		true,
+		new String[] {
+			"X.java",
+			"/** */\n" +
+			"public class X {\n" +
+			"	// empty\n" +
+			"}",
+			"not.zip",
+			"not a zip archive\n",
+			"classlist",
+			"not a zip archive\n"
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.8 -g -preserveAllLocals"
+        + " -bootclasspath \"" + OUTPUT_DIR + File.separator + "not.zip\""
+        + File.pathSeparator + "\"" + OUTPUT_DIR + File.separator + "classlist\""
+        + File.pathSeparator + getLibraryClassesAsQuotedString()
+        + " -detectZipMagic -verbose -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"",
+        ONE_FILE_GENERATED_MATCHER,
         EMPTY_STRING_MATCHER,
         true);
 }
