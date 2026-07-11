@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,8 +19,10 @@ package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -69,6 +71,19 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 	 * Sub types of classpath are responsible for appropriate behavior based on this.
 	 */
 	public interface Classpath extends IModulePathEntry {
+		enum PathKind {
+			BOOT("-bootclasspath"), CP("-classpath"), //$NON-NLS-1$ //$NON-NLS-2$
+			ENDORSED("-endorseddirs"), EXT("-extdirs"), //$NON-NLS-1$ //$NON-NLS-2$
+			MODULE("--module-path"), MODULE_SOURCE("--module-source-path"), RELEASE("--release"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String arg;
+			PathKind(String arg) { this.arg = arg; }
+			@Override
+			public String toString() {
+				return this.arg;
+			}
+		}
+		void setPathKind(PathKind kind);
+		PathKind getPathKind();
 		char[][][] findTypeNames(String qualifiedPackageName, String moduleName);
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName);
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly);
@@ -222,7 +237,7 @@ protected FileSystem(String[] classpathNames, String[] initialFileNames, String 
 	}
 	initializeKnownFileNames(initialFileNames);
 }
-protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annotationsFromClasspath, Set<String> limitedModules) {
+protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annotationsFromClasspath, Set<String> limitedModules, PrintWriter err) {
 	final int length = paths.length;
 	int counter = 0;
 	this.classpaths = new FileSystem.Classpath[length];
@@ -241,12 +256,16 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 			// we don't warn about inexisting jars (javac does the same as us)
 			// see org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.test017b()
 		} catch (IOException e) {
-			String error = "Failed to init " + classpath; //$NON-NLS-1$
+			String error = MessageFormat.format(
+					"File provided via {0} is not a valid jar: {1}",//$NON-NLS-1$
+					classpath.getPathKind().toString(), classpath.getPath());
 			if (JRTUtil.PROPAGATE_IO_ERRORS) {
 				throw new IllegalStateException(error, e);
 			} else {
-				System.err.println(error);
-				e.printStackTrace();
+				if (err != null)
+					err.println(error);
+				else
+					System.err.println(error);
 			}
 		}
 	}
@@ -282,8 +301,8 @@ private void initializeModuleLocations(Set<String> limitedModules) {
 		}
 	}
 }
-protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annotationsFromClasspath) {
-	this(paths, initialFileNames, annotationsFromClasspath, null);
+protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annotationsFromClasspath, PrintWriter err) {
+	this(paths, initialFileNames, annotationsFromClasspath, null, err);
 }
 public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null, null, null);
