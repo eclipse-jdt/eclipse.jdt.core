@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -36,6 +40,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccRestrictedAccess = ASTNode.Bit19;
 	final int AccFromClassFile = ASTNode.Bit20;
 	final int AccDefaultAbstract = ASTNode.Bit20;
+	final int AccValue = ASTNode.Bit20; // class that is a value class (ref ACC_IDENTITY of JVM)
 	// bit21 - use by ClassFileConstants.AccDeprecated
 	// bit22 was used for AccDeprecatedImplicitly
 	final int AccAlternateModifierProblem = ASTNode.Bit23;
