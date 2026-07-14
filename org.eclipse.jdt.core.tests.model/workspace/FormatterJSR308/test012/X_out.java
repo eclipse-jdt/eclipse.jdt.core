@@ -1,11 +1,13 @@
 public class X {
 	int x() {
-		for (@Marker
+		for (
+		Z@Marker
 		int i : new int[3]) {
 		}
 		for (final @Marker int i : new int[3]) {
 		}
-		for (@Marker
+		for (
+		@Marker
 		final int i : new int[3]) {
 		}
 		return 10;

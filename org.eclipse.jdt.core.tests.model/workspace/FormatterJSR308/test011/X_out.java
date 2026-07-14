@@ -1,8 +1,11 @@
 public class X {
 	int x() {
-		try (@Marker
-		Integer p = null; final @Marker Integer q = null; @Marker
-		final Integer r = null) {
+		try (
+				@Marker
+				Integer p = null;
+				final @Marker Integer q = null;
+				@Marker
+				final Integer r = null) {
 		}
 		return 10;
 	}
