@@ -2535,6 +2535,16 @@ public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes, 
 		else
 			return false;
 	}
+	if (mostSpecific.isArrayType()) {
+		// Apart from array supertypes, an array subtype implements only Cloneable and Serializable.
+		for (TypeBinding intersectingType : intersectingTypes) {
+			if (intersectingType.isTypeVariable() || intersectingType.isWildcard()
+					|| !intersectingType.isProperType(true))
+				return false;
+			if (!mostSpecific.isCompatibleWith(intersectingType))
+				return false;
+		}
+	}
 	return true;
 }
 public ModuleBinding module() {

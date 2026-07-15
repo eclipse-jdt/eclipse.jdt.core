@@ -111,27 +111,18 @@ class BoundSet {
 		// pre: this.subBounds != null
 		public TypeBinding[] upperBounds(boolean onlyProper, InferenceVariable variable) {
 			TypeBinding[] rights = new TypeBinding[this.subBounds.size()];
-			TypeBinding simpleUpper = null;
 			Iterator<TypeBound> it = this.subBounds.iterator();
 			long nullHints = variable.nullHints;
 			int i = 0;
 			while(it.hasNext()) {
 				TypeBinding right=it.next().right;
 				if (!onlyProper || right.isProperType(true)) {
-					if (right instanceof ReferenceBinding) {
-						rights[i++] = right;
-						nullHints |= right.tagBits & TagBits.AnnotationNullMASK;
-					} else {
-						if (simpleUpper != null)
-							return Binding.NO_TYPES; // shouldn't
-						simpleUpper = right;
-					}
+					rights[i++] = right;
+					nullHints |= right.tagBits & TagBits.AnnotationNullMASK;
 				}
 			}
 			if (i == 0)
-				return simpleUpper != null ? new TypeBinding[] { simpleUpper } : Binding.NO_TYPES;
-			if (i == 1 && simpleUpper != null)
-				return new TypeBinding[] { simpleUpper }; // no nullHints since not a reference type
+				return Binding.NO_TYPES;
 			if (i < rights.length)
 				System.arraycopy(rights, 0, rights=new TypeBinding[i], 0, i);
 			useNullHints(nullHints, rights, variable.environment);
@@ -1287,6 +1278,12 @@ class BoundSet {
 	private void allSuperPairsWithCommonGenericTypeRecursive(TypeBinding s, TypeBinding t, List<Pair<TypeBinding>> result, HashSet<Integer> visited) {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
 			return;
+		if (s.isArrayType() && t.isArrayType()) {
+			// Common generic supertypes of array types are found through their component types.
+			allSuperPairsWithCommonGenericTypeRecursive(
+					((ArrayBinding) s).elementsType(), ((ArrayBinding) t).elementsType(), result, visited);
+			return;
+		}
 		if (!visited.add(s.id))
 			return;
 
