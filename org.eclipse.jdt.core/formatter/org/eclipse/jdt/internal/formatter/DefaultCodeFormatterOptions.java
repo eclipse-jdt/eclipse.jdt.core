@@ -289,6 +289,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_at_end_of_file_if_missing;
 	public boolean insert_new_line_before_catch_in_try_statement;
 	public boolean insert_new_line_before_closing_brace_in_array_initializer;
+	public boolean insert_new_line_before_closing_brace_in_array_initializer_on_wrap;
 	public boolean insert_new_line_before_else_in_if_statement;
 	public boolean insert_new_line_before_finally_in_try_statement;
 	public boolean insert_new_line_before_while_in_do_statement;
@@ -729,7 +730,9 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, this.insert_new_line_at_end_of_file_if_missing ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CATCH_IN_TRY_STATEMENT, this.insert_new_line_before_catch_in_try_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_before_closing_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER,
+			this.insert_new_line_before_closing_brace_in_array_initializer_on_wrap ? DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP
+					: (this.insert_new_line_before_closing_brace_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_ELSE_IN_IF_STATEMENT, this.insert_new_line_before_else_in_if_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_FINALLY_IN_TRY_STATEMENT, this.insert_new_line_before_finally_in_try_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT, this.insert_new_line_before_while_in_do_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1729,6 +1732,7 @@ public class DefaultCodeFormatterOptions {
 		final Object insertNewLineBeforeClosingBraceInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER);
 		if (insertNewLineBeforeClosingBraceInArrayInitializerOption != null) {
 			this.insert_new_line_before_closing_brace_in_array_initializer = JavaCore.INSERT.equals(insertNewLineBeforeClosingBraceInArrayInitializerOption);
+			this.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP.equals(insertNewLineBeforeClosingBraceInArrayInitializerOption);
 		}
 		final Object insertNewLineBeforeElseInIfStatementOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_ELSE_IN_IF_STATEMENT);
 		if (insertNewLineBeforeElseInIfStatementOption != null) {
@@ -3140,6 +3144,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_at_end_of_file_if_missing = false;
 		this.insert_new_line_before_catch_in_try_statement = false;
 		this.insert_new_line_before_closing_brace_in_array_initializer = false;
+		this.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = false;
 		this.insert_new_line_before_else_in_if_statement = false;
 		this.insert_new_line_before_finally_in_try_statement = false;
 		this.insert_new_line_before_while_in_do_statement = false;
@@ -3547,6 +3552,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_at_end_of_file_if_missing = false;
 		this.insert_new_line_before_catch_in_try_statement = false;
 		this.insert_new_line_before_closing_brace_in_array_initializer = false;
+		this.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = false;
 		this.insert_new_line_before_else_in_if_statement = false;
 		this.insert_new_line_before_finally_in_try_statement = false;
 		this.insert_new_line_before_while_in_do_statement = false;

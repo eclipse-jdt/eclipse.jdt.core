@@ -2416,13 +2416,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_NEW_LINE_BEFORE_CATCH_IN_TRY_STATEMENT = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_before_catch_in_try_statement";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a new line before the closing brace in an array initializer
+	 * FORMATTER / Option to insert a new line before the closing brace in an array initializer.
+	 * When set to NEXT_LINE_ON_WRAP, the new line is inserted only if the array initializer's
+	 * content itself was wrapped onto multiple lines; otherwise the closing brace stays on the
+	 * same line as the last element, mirroring brace_position_for_array_initializer's NEXT_LINE_ON_WRAP.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_before_closing_brace_in_array_initializer"
-	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - possible values:   { INSERT, DO_NOT_INSERT, NEXT_LINE_ON_WRAP }
 	 *     - default:           DO_NOT_INSERT
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
+	 * @see #NEXT_LINE_ON_WRAP
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_before_closing_brace_in_array_initializer";//$NON-NLS-1$
