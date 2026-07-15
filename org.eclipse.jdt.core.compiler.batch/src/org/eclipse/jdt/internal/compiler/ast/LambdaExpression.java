@@ -47,6 +47,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1116,12 +1117,64 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (copy != null) { // ==> syntax errors == null
 			if (copy.sourceStart != this.sourceStart || copy.sourceEnd != this.sourceEnd)
 				return null; // something wrong
-			copy.original = this;
+			shareInferenceCaches(copy);
 			copy.assistNode = this.assistNode;
 			copy.enclosingScope = this.enclosingScope;
 			copy.text = this.text; // discard redundant textual copy
 		}
 		return copy;
+	}
+
+	private void shareInferenceCaches(LambdaExpression copy) {
+		// A speculative copy can contain nested lambdas. Keep each nested copy linked to its
+		// source lambda when no enclosing lambda declares parameters, so overload checks can
+		// reuse the existing per-target inference cache without reusing parameter bindings.
+		List<CollectedLambda> sourceLambdas = collectLambdas(this);
+		List<CollectedLambda> copiedLambdas = collectLambdas(copy);
+		if (sourceLambdas.size() != copiedLambdas.size())
+			throw new CopyFailureException();
+		for (int i = 0; i < sourceLambdas.size(); i++) {
+			CollectedLambda source = sourceLambdas.get(i);
+			LambdaExpression sourceLambda = source.lambda();
+			LambdaExpression copiedLambda = copiedLambdas.get(i).lambda();
+			if (sourceLambda.sourceStart != copiedLambda.sourceStart || sourceLambda.sourceEnd != copiedLambda.sourceEnd)
+				throw new CopyFailureException();
+			if (!source.cacheShareable()) {
+				if (i == 0)
+					copiedLambda.original = this;
+				continue;
+			}
+			LambdaExpression originalLambda = sourceLambda.original;
+			copiedLambda.original = originalLambda;
+			if (originalLambda.copiesPerTargetType == null)
+				originalLambda.copiesPerTargetType = new HashMap<>();
+			sourceLambda.copiesPerTargetType = originalLambda.copiesPerTargetType;
+			copiedLambda.copiesPerTargetType = originalLambda.copiesPerTargetType;
+		}
+	}
+
+	private record CollectedLambda(LambdaExpression lambda, boolean cacheShareable) {}
+
+	private static List<CollectedLambda> collectLambdas(LambdaExpression root) {
+		List<CollectedLambda> lambdas = new ArrayList<>();
+		root.traverse(new ASTVisitor() {
+			private int parameterizedLambdaDepth;
+
+			@Override
+			public boolean visit(LambdaExpression lambda, BlockScope skope) {
+				if (lambda.arguments.length > 0)
+					this.parameterizedLambdaDepth++;
+				lambdas.add(new CollectedLambda(lambda, this.parameterizedLambdaDepth == 0));
+				return true;
+			}
+
+			@Override
+			public void endVisit(LambdaExpression lambda, BlockScope skope) {
+				if (lambda.arguments.length > 0)
+					this.parameterizedLambdaDepth--;
+			}
+		}, root.enclosingScope);
+		return lambdas;
 	}
 
 	public void returnsExpression(Expression expression, TypeBinding resultType) {

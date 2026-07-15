@@ -131,6 +131,7 @@ public static Test suite() {
 	standardTests.add(NullTypeAnnotationTest.class);
 	standardTests.add(NegativeLambdaExpressionsTest.class);
 	standardTests.add(LambdaExpressionsTest.class);
+	standardTests.add(NestedLambdaInferenceTest.class);
 	standardTests.add(LambdaRegressionTest.class);
 	standardTests.add(SerializableLambdaTest.class);
 	standardTests.add(OverloadResolutionTest8.class);
