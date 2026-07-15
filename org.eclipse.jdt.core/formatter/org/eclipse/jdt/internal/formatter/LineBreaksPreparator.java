@@ -421,6 +421,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 				openBraceToken.breakAfter();
 			if (this.options.insert_new_line_before_closing_brace_in_array_initializer)
 				closeBraceToken.breakBefore();
+			else if (this.options.insert_new_line_before_closing_brace_in_array_initializer_on_wrap)
+				closeBraceToken.setNextLineOnWrap();
 		}
 		return true;
 	}
