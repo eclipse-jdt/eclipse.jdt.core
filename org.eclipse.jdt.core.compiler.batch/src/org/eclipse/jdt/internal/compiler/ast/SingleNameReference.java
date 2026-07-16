@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1060,12 +1060,17 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 
 private void checkLocalStaticClassVariables(BlockScope scope, VariableBinding variable) {
+	// Compile-time constant variables are inlined and can be legally accessed from a static
+	// context (e.g. an annotation on a local class, or a static method of a local class), so
+	// they are not subject to the outer-local reference restriction of JLS 8.1.3.
+	if (variable.constant(scope) != Constant.NotAConstant)
+		return;
 	// Check if we're in a local type (either static local class OR non-static local class with static method)
 	if (this.actualReceiverType.isLocalType()) {
 		MethodScope currentMethodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
 		// Check if either the local class is static OR the current method is static
 		boolean inStaticContext = this.actualReceiverType.isStatic() || (currentMethodScope != null && currentMethodScope.isStatic);
-		
+
 		if (inStaticContext &&
 				(variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
 				(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
