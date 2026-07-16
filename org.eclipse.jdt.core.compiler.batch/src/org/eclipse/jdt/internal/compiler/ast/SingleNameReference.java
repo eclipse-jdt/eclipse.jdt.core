@@ -1059,32 +1059,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	return this.resolvedType = reportError(scope);
 }
 
-private void checkLocalStaticClassVariables(BlockScope scope, VariableBinding variable) {
-	// Compile-time constant variables are inlined and can be legally accessed from a static
-	// context (e.g. an annotation on a local class, or a static method of a local class), so
-	// they are not subject to the outer-local reference restriction of JLS 8.1.3.
-	if (variable.constant(scope) != Constant.NotAConstant)
-		return;
-	// Check if we're in a local type (either static local class OR non-static local class with static method)
-	if (this.actualReceiverType.isLocalType()) {
-		MethodScope currentMethodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
-		// Check if either the local class is static OR the current method is static
-		boolean inStaticContext = this.actualReceiverType.isStatic() || (currentMethodScope != null && currentMethodScope.isStatic);
-
-		if (inStaticContext &&
-				(variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
-				(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
-			BlockScope declaringScope = ((LocalVariableBinding) this.binding).declaringScope;
-			MethodScope declaringMethodScope = declaringScope instanceof MethodScope ? (MethodScope)declaringScope :
-				declaringScope.enclosingMethodScope();
-			ClassScope declaringClassScope = declaringMethodScope != null ? declaringMethodScope.classScope() : null;
-			ClassScope currentClassScope = currentMethodScope != null ? currentMethodScope.classScope() : null;
-			if (declaringClassScope != currentClassScope)
-				scope.problemReporter().recordStaticReferenceToOuterLocalVariable((LocalVariableBinding)variable, this);
-		}
-	}
-}
-
 @Override
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	visitor.visit(this, scope);
