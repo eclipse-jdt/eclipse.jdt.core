@@ -28,7 +28,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -1015,10 +1014,7 @@ public TypeBinding resolveType(BlockScope scope) {
 							localVariable.type = null;
 							localVariable.useFlag = LocalVariableBinding.UNUSED; // quell further errors.
 						}
-						// Only check for static methods accessing outer locals in Java 16+ (when static methods in local classes are allowed)
-						if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK16) {
-							checkLocalStaticClassVariables(scope, variable);
-						}
+						checkLocalStaticClassVariables(scope, variable);
 						variableType = variable.type;
 						this.constant = (this.bits & ASTNode.IsStrictlyAssigned) == 0 ? variable.constant(scope) : Constant.NotAConstant;
 					} else {

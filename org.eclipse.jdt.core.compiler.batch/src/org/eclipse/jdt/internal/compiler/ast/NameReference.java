@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -43,6 +43,10 @@ public NameReference() {
 }
 
 protected void checkLocalStaticClassVariables(BlockScope scope, VariableBinding variable) {
+	// Only check for static methods accessing outer locals in Java 16+ (when static methods in local classes are allowed)
+	if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK16)
+		return;
+
 	// Compile-time constant variables are inlined and can be legally accessed from a static
 	// context (e.g. an annotation on a local class, or a static method of a local class), so
 	// they are not subject to the outer-local reference restriction of JLS 8.1.3.

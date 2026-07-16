@@ -1018,10 +1018,9 @@ public TypeBinding resolveType(BlockScope scope) {
 						// only complain if field reference (for local, its type got flagged already)
 						return null;
 					}
-					// Only check for static methods accessing outer locals in Java 16+ (when static methods in local classes are allowed)
-					if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK16) {
-						checkLocalStaticClassVariables(scope, local);
-					}
+
+					checkLocalStaticClassVariables(scope, local);
+
 					this.resolvedType = getOtherFieldBindings(scope);
 					if (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {
 						FieldBinding lastField = this.otherBindings[this.otherBindings.length - 1];
