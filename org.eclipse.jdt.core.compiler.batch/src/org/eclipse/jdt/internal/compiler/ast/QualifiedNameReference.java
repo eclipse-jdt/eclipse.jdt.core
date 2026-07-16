@@ -1018,6 +1018,10 @@ public TypeBinding resolveType(BlockScope scope) {
 						// only complain if field reference (for local, its type got flagged already)
 						return null;
 					}
+					// Only check for static methods accessing outer locals in Java 16+ (when static methods in local classes are allowed)
+					if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK16) {
+						checkLocalStaticClassVariables(scope, local);
+					}
 					this.resolvedType = getOtherFieldBindings(scope);
 					if (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {
 						FieldBinding lastField = this.otherBindings[this.otherBindings.length - 1];
@@ -1181,5 +1185,26 @@ public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotatio
 		}
 	}
 	return null;
+}
+
+private void checkLocalStaticClassVariables(BlockScope scope, VariableBinding variable) {
+	// Check if we're in a local type (either static local class OR non-static local class with static method)
+	if (this.actualReceiverType.isLocalType()) {
+		MethodScope currentMethodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
+		// Check if either the local class is static OR the current method is static
+		boolean inStaticContext = this.actualReceiverType.isStatic() || (currentMethodScope != null && currentMethodScope.isStatic);
+		
+		if (inStaticContext &&
+				(variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
+				(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+			BlockScope declaringScope = ((LocalVariableBinding) this.binding).declaringScope;
+			MethodScope declaringMethodScope = declaringScope instanceof MethodScope ? (MethodScope)declaringScope :
+				declaringScope.enclosingMethodScope();
+			ClassScope declaringClassScope = declaringMethodScope != null ? declaringMethodScope.classScope() : null;
+			ClassScope currentClassScope = currentMethodScope != null ? currentMethodScope.classScope() : null;
+			if (declaringClassScope != currentClassScope)
+				scope.problemReporter().recordStaticReferenceToOuterLocalVariable((LocalVariableBinding)variable, this);
+		}
+	}
 }
 }

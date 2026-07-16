@@ -1015,7 +1015,10 @@ public TypeBinding resolveType(BlockScope scope) {
 							localVariable.type = null;
 							localVariable.useFlag = LocalVariableBinding.UNUSED; // quell further errors.
 						}
-						checkLocalStaticClassVariables(scope, variable);
+						// Only check for static methods accessing outer locals in Java 16+ (when static methods in local classes are allowed)
+						if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK16) {
+							checkLocalStaticClassVariables(scope, variable);
+						}
 						variableType = variable.type;
 						this.constant = (this.bits & ASTNode.IsStrictlyAssigned) == 0 ? variable.constant(scope) : Constant.NotAConstant;
 					} else {
@@ -1057,17 +1060,22 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 
 private void checkLocalStaticClassVariables(BlockScope scope, VariableBinding variable) {
-	if (this.actualReceiverType.isStatic() && this.actualReceiverType.isLocalType()) {
-		if ((variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
+	// Check if we're in a local type (either static local class OR non-static local class with static method)
+	if (this.actualReceiverType.isLocalType()) {
+		MethodScope currentMethodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
+		// Check if either the local class is static OR the current method is static
+		boolean inStaticContext = this.actualReceiverType.isStatic() || (currentMethodScope != null && currentMethodScope.isStatic);
+		
+		if (inStaticContext &&
+				(variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
 				(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 			BlockScope declaringScope = ((LocalVariableBinding) this.binding).declaringScope;
 			MethodScope declaringMethodScope = declaringScope instanceof MethodScope ? (MethodScope)declaringScope :
 				declaringScope.enclosingMethodScope();
-			MethodScope currentMethodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
 			ClassScope declaringClassScope = declaringMethodScope != null ? declaringMethodScope.classScope() : null;
 			ClassScope currentClassScope = currentMethodScope != null ? currentMethodScope.classScope() : null;
 			if (declaringClassScope != currentClassScope)
-			scope.problemReporter().recordStaticReferenceToOuterLocalVariable((LocalVariableBinding)variable, this);
+				scope.problemReporter().recordStaticReferenceToOuterLocalVariable((LocalVariableBinding)variable, this);
 		}
 	}
 }
