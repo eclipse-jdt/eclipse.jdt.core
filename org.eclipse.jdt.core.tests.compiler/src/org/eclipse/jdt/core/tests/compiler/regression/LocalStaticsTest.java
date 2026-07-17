@@ -1807,7 +1807,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	static class Foo2 {}\n" +
 			"	             ^^^^\n" +
-			"The member type Foo2 cannot be declared static; static types can only be declared in static or top level types\n" +
+			"Illegal modifier for the local class Foo2; only abstract or final is permitted\n" +
 			"----------\n",
 			null,
 			true,
