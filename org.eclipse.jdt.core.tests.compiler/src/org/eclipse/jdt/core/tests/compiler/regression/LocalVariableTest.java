@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class LocalVariableTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug537033" };
+	TESTS_NAMES = new String[] { "testStaticInitializerInLocalClassAccessingOuterLocalVariable" };
 }
 public LocalVariableTest(String name) {
 	super(name);
@@ -1136,6 +1136,41 @@ public void testStaticInitializerInLocalClassAccessingOuterLocal() {
 		"Cannot make a static reference to the non-static variable parameter\n" +
 		"----------\n");
 }
+
+public void testStaticInitializerInLocalClassAccessingOuterLocalVariable() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+			    public static void main(String[] strArr) {
+			        int NUM = 10;
+			        class C {
+			            static {
+			                int a = NUM;
+			            }
+			        }
+			    }
+			}
+			"""
+		},
+		this.complianceLevel < ClassFileConstants.JDK16
+		?
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	static {\n" +
+		"	       ^\n" +
+		"Cannot define static initializer in inner type C\n" +
+		"----------\n"
+		:
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	int a = NUM;\n" +
+		"	        ^^^\n" +
+		"Cannot make a static reference to the non-static variable NUM\n" +
+		"----------\n");
+}
+
 public static Class testClass() {
 	return LocalVariableTest.class;
 }
