@@ -254,6 +254,11 @@ public class ClassScope extends Scope {
 		// build the binding or the local type
 		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, enclosingSwitchLabel());
 		this.referenceContext.binding = localType;
+		// A local type declared as a member of another (local/anonymous) type is a member type (JLS 16 8.1.3);
+		// mark it as such up-front so that checkAndSetModifiers() classifies it correctly. Such an inner class
+		// may declare and inherit static members even though it is not itself static.
+		if (this.parent instanceof ClassScope)
+			localType.setAsMemberType();
 		checkAndSetModifiers();
 		buildTypeVariables();
 
