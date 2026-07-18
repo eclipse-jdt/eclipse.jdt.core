@@ -2483,7 +2483,45 @@ public void testGH4893() throws Exception  {
 		"""
 	});
 }
+public void testJDK8375572() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Runner runner = new Runner();
+	runner.testFiles = new String[] { "MethodRefStuck3.java",
+			"""
+			class MethodRefStuck3 {
+				interface Interface<A> {
+					interface Factory<A extends Interface<B>,B> {
+						Interface<B> create(B obj);
+					}
+				}
 
+				record Klass(String value, int otherValue) implements Interface<String> {
+					public Klass(String thing) {
+						this(thing, -1);
+					}
+				}
+
+				interface InterfaceB<A extends Interface<B>,B> {}
+
+				record KlassB<A extends Interface<B>,B>(Class<A> cls, Interface.Factory<A,B> factory) implements InterfaceB<A,B> {}
+
+				private interface InterfaceC<A extends Interface<B>,B> {
+					InterfaceB<A,B> getInterfaceB();
+				}
+
+				private static class KlassC implements InterfaceC<Klass,String> {
+					@Override
+					public InterfaceB<Klass, String> getInterfaceB() {
+						return new KlassB<>(Klass.class, Klass::new);
+					}
+				}
+			}
+			"""
+		};
+	runner.javacTestOptions = JavacHasABug.JavacBug8375572;
+	runner.runConformTest();
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
