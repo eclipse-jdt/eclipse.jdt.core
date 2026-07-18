@@ -17,8 +17,12 @@ import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 
 /**
  * Test class originally capturing issues specific to Java9, but meanwhile also just a continuation
@@ -36,6 +40,43 @@ public GenericsRegressionTest_9(String name) {
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_9);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5193
+public void testGH5193() {
+	if (this.complianceLevel < ClassFileConstants.JDK10)
+		return; // uses 'var'
+	runNegativeTest(
+		new String[] {
+			"Sample.java",
+			"""
+			class Sample {
+			  void test() throws Exception {
+			    try (var value = new Missing<>() {}) {}
+			  }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in Sample.java (at line 3)
+			try (var value = new Missing<>() {}) {}
+			     ^^^
+		The resource type Object does not implement java.lang.AutoCloseable
+		----------
+		2. ERROR in Sample.java (at line 3)
+			try (var value = new Missing<>() {}) {}
+			                     ^^^^^^^
+		Missing cannot be resolved to a type
+		----------
+		""");
+}
+
+public void testGH5193ProblemBindingCannotInferDiamondConstructor() {
+	ProblemReferenceBinding missingType = new ProblemReferenceBinding(
+		new char[][] { "Missing".toCharArray() }, null, ProblemReasons.NotFound);
+
+	assertNull(AllocationExpression.inferDiamondConstructor(null, null, missingType, Binding.NO_TYPES));
 }
 
 // ========= OPT-IN to run.javac mode: ===========
