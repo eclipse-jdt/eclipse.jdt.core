@@ -43,9 +43,11 @@ public class X {
 	}
 
 	@OnMember
-	public void bar(@OnParameter("unused value")
-	final int i, @OnParameter("unused value")
-	String s) {
+	public void bar(
+			@OnParameter("unused value")
+			final int i,
+			@OnParameter("unused value")
+			String s) {
 		@OnLocalVariable @Retention String localString = "string";
 	}
 }
