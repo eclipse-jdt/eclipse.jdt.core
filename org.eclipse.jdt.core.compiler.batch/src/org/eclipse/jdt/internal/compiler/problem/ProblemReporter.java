@@ -93,6 +93,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -9580,31 +9581,38 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 public void previewAPIUsed(Scope scope, int sourceStart, int sourceEnd, IBinaryAnnotation previewAnnotation) {
 	String featureName = null; // FIXME: do we need a default string to use if the name is not found below?
 	boolean isReflective = false;
-	for (IBinaryElementValuePair valuePair : previewAnnotation.getElementValuePairs()) {
-		if (valuePair.getValue() instanceof EnumConstantSignature enumSig) {
-			// extract the feature title from the enum constant:
-			char[] typeName = enumSig.getTypeName();
-			ReferenceBinding enumType = scope.environment().getTypeFromConstantPoolName(typeName, 1, typeName.length-1, false, null);
-			if (enumType.isUnresolvedType())
-				enumType = (ReferenceBinding) BinaryTypeBinding.resolveType(enumType, scope.environment(), false);
-			FieldBinding field = enumType.getField(enumSig.getEnumConstantName(), true);
-			for (AnnotationBinding annotationBinding : field.getAnnotations()) {
-				if (CharOperation.equals(annotationBinding.getAnnotationType().constantPoolName(),
-						ConstantPool.PREVIEW_FEATURE_JEP, 1, ConstantPool.PREVIEW_FEATURE_JEP.length-1)) { // skip 'L' and ';'
-					for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
-						if (CharOperation.equals(ConstantPool.TITLE, elementValuePair.getName())
-								&& elementValuePair.value instanceof StringConstant constant) {
-							featureName = constant.stringValue();
-							break;
+	IErrorHandlingPolicy oldPolicy = scope.problemReporter().switchErrorHandlingPolicy(DefaultErrorHandlingPolicies.ignoreAllProblems());
+	try {
+		for (IBinaryElementValuePair valuePair : previewAnnotation.getElementValuePairs()) {
+			if (valuePair.getValue() instanceof EnumConstantSignature enumSig) {
+				// extract the feature title from the enum constant:
+				char[] typeName = enumSig.getTypeName();
+				ReferenceBinding enumType = scope.environment().getTypeFromConstantPoolName(typeName, 1, typeName.length-1, false, null);
+				if (enumType.isUnresolvedType())
+					enumType = (ReferenceBinding) BinaryTypeBinding.resolveType(enumType, scope.environment(), false);
+				FieldBinding field = enumType.getField(enumSig.getEnumConstantName(), true);
+				if (field == null)
+					continue;
+				for (AnnotationBinding annotationBinding : field.getAnnotations()) {
+					if (CharOperation.equals(annotationBinding.getAnnotationType().constantPoolName(),
+							ConstantPool.PREVIEW_FEATURE_JEP, 1, ConstantPool.PREVIEW_FEATURE_JEP.length-1)) { // skip 'L' and ';'
+						for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
+							if (CharOperation.equals(ConstantPool.TITLE, elementValuePair.getName())
+									&& elementValuePair.value instanceof StringConstant constant) {
+								featureName = constant.stringValue();
+								break;
+							}
 						}
 					}
 				}
+			} else
+				if (CharOperation.equals(valuePair.getName(), ConstantPool.REFLECTIVE)) {
+					if (valuePair.getValue() instanceof BooleanConstant bool)
+						isReflective = bool.booleanValue();
 			}
-		} else
-			if (CharOperation.equals(valuePair.getName(), ConstantPool.REFLECTIVE)) {
-				if (valuePair.getValue() instanceof BooleanConstant bool)
-					isReflective = bool.booleanValue();
 		}
+	} finally {
+		scope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 	}
 
 	int problemId = -1;
