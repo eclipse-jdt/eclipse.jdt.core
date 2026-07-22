@@ -1452,7 +1452,7 @@ public void test017d(){
 		new Matcher() {
 			@Override
 			boolean match(String effective) {
-				lines: for (String line : effective.split("\n")) {
+				lines: for (String line : effective.replace("\r\n", "\n").split("\n")) {
 					if (line.startsWith("File provided via -endorseddirs is not a valid jar:")) {
 						for (String suffix : new String[] {"test017dout.txt", "test017derr.txt", "not.zip"} ) {
 							if (line.endsWith(suffix))
