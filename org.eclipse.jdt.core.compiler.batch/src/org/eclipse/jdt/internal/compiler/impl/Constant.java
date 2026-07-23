@@ -1629,4 +1629,30 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	private static boolean isNegativeZero(double n) {
 		return Double.doubleToRawLongBits(n) == Long.MIN_VALUE;
 	}
+	public boolean compareAfterPromoting(Constant otherConstant) {
+		if (this == otherConstant)
+			return true;
+		if (otherConstant == null)
+			return false;
+		// Preserve the per-kind semantics (incl. float/double zero & NaN handling) for same-typed constants.
+		if (equals(otherConstant))
+			return true;
+		// Case label constants of the integral types byte, short, char and int are compared after
+		// binary numeric promotion to int (JLS 5.6, 14.11.1). Two such constants denoting the same int
+		// value are therefore duplicate case labels even if their compile-time constant kinds differ,
+		// e.g. (byte)0 (ByteConstant) and 0 (IntConstant), or 'A' (CharConstant) and 65 (IntConstant).
+		return comparesAsInt(this) && comparesAsInt(otherConstant) && intValue() == otherConstant.intValue();
+	}
+
+	private static boolean comparesAsInt(Constant constant) {
+		switch (constant.typeID()) {
+			case T_byte:
+			case T_short:
+			case T_char:
+			case T_int:
+				return true;
+			default:
+				return false;
+		}
+	}
 }

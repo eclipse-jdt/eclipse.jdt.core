@@ -309,7 +309,7 @@ public class SwitchStatement extends Expression {
 			return false; // apples and oranges
 		if (current.expression instanceof NullLiteral ^ prior.expression instanceof NullLiteral) // I actually got to use XOR! :)
 			return false;
-		if (current.constant.equals(prior.constant))
+		if (current.constant.compareAfterPromoting(prior.constant))
 			return true;
 		if (current.type.id == TypeIds.T_boolean)
 			this.switchBits |= Exhaustive; // 2 different boolean constants => exhaustive :)
