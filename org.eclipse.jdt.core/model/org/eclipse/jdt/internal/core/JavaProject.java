@@ -1749,7 +1749,7 @@ public class JavaProject
 	 * Internal findModule with instantiated name lookup
 	 */
 	IModuleDescription findModule(String moduleName, NameLookup lookup) throws JavaModelException {
-		NameLookup.Answer answer = lookup.findModule(moduleName.toCharArray());
+		NameLookup.Answer answer = lookup.findModule(moduleName.toCharArray(), NO_RELEASE);
 		if (answer != null)
 			return answer.module;
 		return null;
@@ -2842,7 +2842,14 @@ public class JavaProject
 	 * Returns a new search name environment for this project. This name environment first looks in the given working copies.
 	 */
 	public SearchableEnvironment newSearchableNameEnvironment(ICompilationUnit[] workingCopies, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, workingCopies, excludeTestCode, NO_RELEASE);
+		return newSearchableNameEnvironment(workingCopies, excludeTestCode, NO_RELEASE);
+	}
+	/*
+	 * Returns a new search name environment for this project that resolves types and modules as seen from a source
+	 * folder targeting the given {@code release} (see {@link IClasspathAttribute#RELEASE}).
+	 */
+	public SearchableEnvironment newSearchableNameEnvironment(ICompilationUnit[] workingCopies, boolean excludeTestCode, int release) throws JavaModelException {
+		return new SearchableEnvironment(this, workingCopies, excludeTestCode, release);
 	}
 
 	/*
@@ -2853,7 +2860,75 @@ public class JavaProject
 		return newSearchableNameEnvironment(owner, false);
 	}
 	public SearchableEnvironment newSearchableNameEnvironment(WorkingCopyOwner owner, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, owner, excludeTestCode, NO_RELEASE);
+		return newSearchableNameEnvironment(owner, excludeTestCode, NO_RELEASE);
+	}
+	/*
+	 * Returns a new search name environment for this project that resolves types and modules as seen from a source
+	 * folder targeting the given {@code release} (see {@link IClasspathAttribute#RELEASE}). This is needed for
+	 * multi-release projects where a release specific source folder may declare its own {@code module-info.java}.
+	 */
+	public SearchableEnvironment newSearchableNameEnvironment(WorkingCopyOwner owner, boolean excludeTestCode, int release) throws JavaModelException {
+		return new SearchableEnvironment(this, owner, excludeTestCode, release);
+	}
+
+	/*
+	 * Returns the release a source folder represented by the given classpath entry targets by inspecting its
+	 * {@link IClasspathAttribute#RELEASE} attribute, or {@link #NO_RELEASE} if the entry has no (valid) release
+	 * attribute.
+	 */
+	public static int getRelease(IClasspathEntry entry) {
+		if (entry != null) {
+			String attribute = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.RELEASE);
+			if (attribute != null) {
+				try {
+					return Integer.parseInt(attribute);
+				} catch (NumberFormatException e) {
+					// can't determine the release from the classpath so assume default release,
+					// this would already be reported at other places.
+				}
+			}
+		}
+		return NO_RELEASE;
+	}
+
+	/*
+	 * Returns the release the source folder containing the given element targets (see
+	 * {@link IClasspathAttribute#RELEASE}), or {@link #NO_RELEASE} if the element is not contained in a release
+	 * specific source folder (e.g. it lives in a library or in a folder without a release attribute).
+	 */
+	public static int getRelease(IJavaElement element) {
+		if (element == null) {
+			return NO_RELEASE;
+		}
+		IPackageFragmentRoot root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		if (root == null) {
+			return NO_RELEASE;
+		}
+		try {
+			return getRelease(root.getResolvedClasspathEntry());
+		} catch (JavaModelException e) {
+			return NO_RELEASE;
+		}
+	}
+
+	/*
+	 * Returns the release the source folder of this project containing the given resource path targets (see
+	 * {@link IClasspathAttribute#RELEASE}), or {@link #NO_RELEASE} if the path is not located in a release specific
+	 * source folder.
+	 */
+	public int getRelease(IPath sourcePath) {
+		if (sourcePath != null) {
+			try {
+				for (IClasspathEntry entry : getRawClasspath()) {
+					if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && entry.getPath().isPrefixOf(sourcePath)) {
+						return getRelease(entry);
+					}
+				}
+			} catch (JavaModelException e) {
+				// can't determine the release, assume default release
+			}
+		}
+		return NO_RELEASE;
 	}
 
 	/*
@@ -3759,10 +3834,15 @@ public class JavaProject
 
 	@Override
 	public IModuleDescription getModuleDescription() throws JavaModelException {
-		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
-		IModuleDescription module = info.getModule();
-		if (module != null)
+		return getModuleDescription(NO_RELEASE);
+	}
+
+	@Override
+	public IModuleDescription getModuleDescription(int release) throws JavaModelException {
+		IModuleDescription module = getOwnModuleDescription(release);
+		if (module != null) {
 			return module;
+		}
 		for(IClasspathEntry entry : getRawClasspath()) {
 			List<String> patchedModules = getPatchedModules(entry);
 			if (patchedModules.size() == 1) { // > 1 is malformed, 0 means not affecting this project
@@ -3770,7 +3850,7 @@ public class JavaProject
 				switch (entry.getEntryKind()) {
 					case IClasspathEntry.CPE_PROJECT:
 						IJavaProject referencedProject = getJavaModel().getJavaProject(entry.getPath().toString());
-						module = referencedProject.getModuleDescription();
+						module = referencedProject.getModuleDescription(release);
 						if (module != null && module.getElementName().equals(mainModule))
 							return module;
 						break;
@@ -3789,6 +3869,40 @@ public class JavaProject
 
 	@Override
 	public IModuleDescription getOwnModuleDescription() throws JavaModelException {
+		return getOwnModuleDescription(NO_RELEASE);
+	}
+
+	@Override
+	public IModuleDescription getOwnModuleDescription(int release) throws JavaModelException {
+		if (release >= FIRST_MULTI_RELEASE) {
+			IModuleDescription releaseSpecificDescriptor = Arrays.stream(getRawClasspath())
+				.map(e -> {
+					String attribute = ClasspathEntry.getExtraAttribute(e, IClasspathAttribute.RELEASE);
+					if (attribute != null) {
+						try {
+							return new ReleaseClasspathEntry(e, Integer.parseInt(attribute));
+						} catch (NumberFormatException nfe) {
+							// can't use then
+						}
+					}
+					return null;
+				})
+				.filter(Objects::nonNull).filter(entry -> entry.release() <= release)
+				.sorted(Comparator.comparingInt(ReleaseClasspathEntry::release).reversed())
+				.map(entry -> {
+					for (IPackageFragmentRoot root : findPackageFragmentRoots(entry.entry())) {
+						IModuleDescription module = root.getModuleDescription();
+						if (module != null) {
+							return module;
+						}
+					}
+					return null;
+				})
+				.filter(Objects::nonNull).findFirst().orElse(null);
+			if (releaseSpecificDescriptor != null) {
+				return releaseSpecificDescriptor;
+			}
+		}
 		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
 		return info.getModule();
 	}
@@ -3830,11 +3944,16 @@ public class JavaProject
 	}
 
 	public void setModuleDescription(IModuleDescription module) throws JavaModelException {
+		IPackageFragmentRoot newRoot = (IPackageFragmentRoot) module.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		IClasspathEntry classpathEntry = newRoot.getRawClasspathEntry();
+		if (ClasspathEntry.getExtraAttribute(classpathEntry, IClasspathAttribute.RELEASE) != null) {
+			// Do not update the projects module descriptor with something from a release folder!
+			return;
+		}
 		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
 		IModuleDescription current = info.getModule();
 		if (current != null) {
 			IPackageFragmentRoot root = (IPackageFragmentRoot) current.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-			IPackageFragmentRoot newRoot = (IPackageFragmentRoot) module.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			if (!root.equals(newRoot))
 				throw new JavaModelException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID,
 						Messages.bind(Messages.classpath_duplicateEntryPath, TypeConstants.MODULE_INFO_FILE_NAME_STRING, getElementName())));
@@ -3869,5 +3988,9 @@ public class JavaProject
 	@Override
 	public Set<String> determineModulesOfProjectsWithNonEmptyClasspath() throws JavaModelException {
 		return ModuleUpdater.determineModulesOfProjectsWithNonEmptyClasspath(this, getExpandedClasspath());
+	}
+
+	private static final record ReleaseClasspathEntry(IClasspathEntry entry, int release) {
+
 	}
 }

@@ -80,7 +80,11 @@ private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IPro
 
 			try {
 				// resolve
-				SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.hierarchy.workingCopies);
+				IType focusType = this.hierarchy.focusType;
+				int release = focusType != null && project.equals(focusType.getJavaProject())
+						? JavaProject.getRelease(focusType)
+						: JavaProject.NO_RELEASE;
+				SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.hierarchy.workingCopies, false, release);
 				this.nameLookup = searchableEnvironment.nameLookup;
 				this.hierarchyResolver.resolve(openables, null, monitor);
 			} catch (JavaModelException e) {
