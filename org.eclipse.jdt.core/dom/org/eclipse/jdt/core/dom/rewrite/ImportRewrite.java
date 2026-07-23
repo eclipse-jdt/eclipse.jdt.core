@@ -291,6 +291,8 @@ public final class ImportRewrite {
 	private String[] importOrder;
 	private int importOnDemandThreshold;
 	private int staticImportOnDemandThreshold;
+	private boolean keepExistingOnDemandImports;
+	private boolean collapseSingleImportsToOnDemand;
 
 	private List<String> addedImports;
 	private List<String> removedImports;
@@ -559,6 +561,8 @@ public final class ImportRewrite {
 		this.importOrder= CharOperation.NO_STRINGS;
 		this.importOnDemandThreshold= 99;
 		this.staticImportOnDemandThreshold= 99;
+		this.keepExistingOnDemandImports= false;
+		this.collapseSingleImportsToOnDemand= true;
 
 		this.importsKindMap = new HashMap();
 	}
@@ -607,6 +611,39 @@ public final class ImportRewrite {
 		if (threshold <= 0)
 			throw new IllegalArgumentException("Threshold must be positive."); //$NON-NLS-1$
 		this.staticImportOnDemandThreshold= threshold;
+	}
+
+	/**
+	 * Sets whether existing on-demand (star) import declarations should be preserved as
+	 * on-demand imports instead of being expanded into single imports.
+	 * <p>
+	 * This applies to both normal and static on-demand imports. It only has an effect on
+	 * on-demand imports whose container (package or type) is still referenced; an on-demand
+	 * import which is no longer used is removed as usual. The default is <code>false</code>.
+	 *
+	 * @param keepExistingOnDemandImports <code>true</code> to preserve existing on-demand
+	 * imports, <code>false</code> to allow them to be expanded into single imports
+	 * @since 3.47
+	 */
+	public void setKeepExistingOnDemandImports(boolean keepExistingOnDemandImports) {
+		this.keepExistingOnDemandImports= keepExistingOnDemandImports;
+	}
+
+	/**
+	 * Sets whether single imports may be collapsed into a new on-demand (star) import once the
+	 * corresponding on-demand threshold is reached.
+	 * <p>
+	 * When set to <code>false</code>, the on-demand thresholds are ignored and no new on-demand
+	 * import is created from single imports; single imports are still folded into an on-demand
+	 * import which is already present in their container. The default is <code>true</code>.
+	 *
+	 * @param collapseSingleImportsToOnDemand <code>true</code> to collapse single imports into a
+	 * new on-demand import when the threshold is reached, <code>false</code> to keep single
+	 * imports even beyond the threshold
+	 * @since 3.47
+	 */
+	public void setCollapseSingleImportsToOnDemand(boolean collapseSingleImportsToOnDemand) {
+		this.collapseSingleImportsToOnDemand= collapseSingleImportsToOnDemand;
 	}
 
 	/**
@@ -1538,6 +1575,8 @@ public final class ImportRewrite {
 		configBuilder.setImportOrder(Arrays.asList(this.importOrder));
 		configBuilder.setTypeOnDemandThreshold(this.importOnDemandThreshold);
 		configBuilder.setStaticOnDemandThreshold(this.staticImportOnDemandThreshold);
+		configBuilder.setKeepExistingOnDemandImports(this.keepExistingOnDemandImports);
+		configBuilder.setCollapseSingleImportsToOnDemand(this.collapseSingleImportsToOnDemand);
 
 		configBuilder.setTypeContainerSorting(this.useContextToFilterImplicitImports ?
 				ImportContainerSorting.BY_PACKAGE : ImportContainerSorting.BY_PACKAGE_AND_CONTAINING_TYPE);
