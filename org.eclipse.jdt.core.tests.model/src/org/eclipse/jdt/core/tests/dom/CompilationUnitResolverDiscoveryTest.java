@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import junit.framework.Test;
@@ -143,11 +144,28 @@ public class CompilationUnitResolverDiscoveryTest extends ConverterTestSetup {
 		}
 	}
 
+	public void testCompilationUnitResolverInfluencesSupportedJavaVersions() throws JavaModelException {
+		String SELECTED_SYSPROP = "ICompilationUnitResolver";
+		String original = System.getProperty(SELECTED_SYSPROP);
+		try {
+			System.setProperty(SELECTED_SYSPROP, "org.eclipse.jdt.core.tests.model.resolver1");
+			assertEquals(Integer.toString(TEST_RESOLVER.DUMMY_VERSION), JavaCore.getAllJavaSourceVersionsSupportedByCompiler().last());
+		} finally {
+			if (original == null) {
+				System.clearProperty(SELECTED_SYSPROP);
+			} else {
+				System.setProperty(SELECTED_SYSPROP, original);
+			}
+		}
+	}
+
 
 	/*
 	 * Custom made interface that implements exactly to the test
 	 */
 	public static final class TEST_RESOLVER implements ICompilationUnitResolver {
+		public static final int DUMMY_VERSION = new java.util.Random().nextInt(1000, 2000);
+
 		@Override
 		public CompilationUnit toCompilationUnit(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 				boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths,
@@ -186,6 +204,11 @@ public class CompilationUnitResolverDiscoveryTest extends ConverterTestSetup {
 				int apiLevel, Map<String, String> compilerOptions, IJavaProject project,
 				WorkingCopyOwner workingCopyOwner, int flags, IProgressMonitor monitor) {
 			// irrelevant for test
+		}
+
+		@Override
+		public Collection<String> getSupportedJavaVersions() {
+			return List.of("8", "9", "10", "11", "14", "17", "21", "24", Integer.toString(Runtime.version().feature()), Integer.toString(DUMMY_VERSION));
 		}
 	}
 }
