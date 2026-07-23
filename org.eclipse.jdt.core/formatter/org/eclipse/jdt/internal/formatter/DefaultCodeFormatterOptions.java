@@ -283,6 +283,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_after_annotation_on_method;
 	public boolean insert_new_line_after_annotation_on_package;
 	public boolean insert_new_line_after_annotation_on_parameter;
+	public boolean insert_new_line_after_annotation_on_record_parameter;
 	public boolean insert_new_line_after_annotation_on_local_variable;
 	public boolean insert_new_line_after_label;
 	public boolean insert_new_line_after_opening_brace_in_array_initializer;
@@ -725,6 +726,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, this.insert_new_line_after_annotation_on_method ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, this.insert_new_line_after_annotation_on_package ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, this.insert_new_line_after_annotation_on_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_RECORD_PARAMETER, this.insert_new_line_after_annotation_on_record_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE, this.insert_new_line_after_annotation_on_local_variable ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, this.insert_new_line_at_end_of_file_if_missing ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -2749,6 +2751,7 @@ public class DefaultCodeFormatterOptions {
 		final Object insertNewLineAfterAnnotationOnPackageOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE);
 
 		final Object insertNewLineAfterAnnotationOnParameterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER);
+		final Object insertNewLineAfterAnnotationOnRecordParameterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_RECORD_PARAMETER);
 		final Object insertNewLineAfterAnnotationOnLocalVariableOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE);
 
 		if (insertNewLineAfterAnnotationOnTypeOption == null
@@ -2769,6 +2772,9 @@ public class DefaultCodeFormatterOptions {
 				if (insertNewLineAfterAnnotationOnParameterOption != null) {
 					this.insert_new_line_after_annotation_on_parameter = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnParameterOption);
 				}
+				if (insertNewLineAfterAnnotationOnRecordParameterOption != null) {
+					this.insert_new_line_after_annotation_on_record_parameter = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnRecordParameterOption);
+				}
 				if (insertNewLineAfterAnnotationOnLocalVariableOption != null) {
 					this.insert_new_line_after_annotation_on_local_variable = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnLocalVariableOption);
 				}
@@ -2783,6 +2789,7 @@ public class DefaultCodeFormatterOptions {
 					this.insert_new_line_after_annotation_on_method = insert;
 					this.insert_new_line_after_annotation_on_package = insert;
 					this.insert_new_line_after_annotation_on_parameter = insert;
+					this.insert_new_line_after_annotation_on_record_parameter = insert;
 					this.insert_new_line_after_annotation_on_local_variable = insert;
 					int alignment = insert ? Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT
 							: Alignment.M_NO_ALIGNMENT;
@@ -2814,6 +2821,9 @@ public class DefaultCodeFormatterOptions {
 			// and the other 3.4 options if available
 			if (insertNewLineAfterAnnotationOnParameterOption != null) {
 				this.insert_new_line_after_annotation_on_parameter = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnParameterOption);
+			}
+			if (insertNewLineAfterAnnotationOnRecordParameterOption != null) {
+				this.insert_new_line_after_annotation_on_record_parameter = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnRecordParameterOption);
 			}
 			if (insertNewLineAfterAnnotationOnLocalVariableOption != null) {
 				this.insert_new_line_after_annotation_on_local_variable = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnLocalVariableOption);
@@ -3135,6 +3145,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;
 		this.insert_new_line_after_annotation_on_parameter = false;
+		this.insert_new_line_after_annotation_on_record_parameter = false;
 		this.insert_new_line_after_annotation_on_local_variable = true;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;
 		this.insert_new_line_at_end_of_file_if_missing = false;
@@ -3542,6 +3553,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;
 		this.insert_new_line_after_annotation_on_parameter = false;
+		this.insert_new_line_after_annotation_on_record_parameter = false;
 		this.insert_new_line_after_annotation_on_local_variable = true;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;
 		this.insert_new_line_at_end_of_file_if_missing = false;

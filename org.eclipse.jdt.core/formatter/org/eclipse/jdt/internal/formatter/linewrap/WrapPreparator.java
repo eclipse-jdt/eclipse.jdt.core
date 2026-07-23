@@ -977,10 +977,18 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SingleVariableDeclaration node) {
-		handleAnnotations(node.modifiers(),
+		if (node.getParent() instanceof RecordDeclaration) {
+			handleAnnotations(node.modifiers(),
+				node.getParent() instanceof EnhancedForStatement
+						? this.options.alignment_for_annotations_on_local_variable
+						: this.options.alignment_for_annotations_on_parameter,
+				this.options.insert_new_line_after_annotation_on_record_parameter);
+		} else {
+			handleAnnotations(node.modifiers(),
 				node.getParent() instanceof EnhancedForStatement
 						? this.options.alignment_for_annotations_on_local_variable
 						: this.options.alignment_for_annotations_on_parameter);
+		}
 		return true;
 	}
 
@@ -1189,17 +1197,23 @@ public class WrapPreparator extends ASTVisitor {
 	}
 
 	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, int wrappingOption) {
+		handleAnnotations(modifiers, wrappingOption, true);
+	}
+
+	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, int wrappingOption, boolean shouldWrap) {
 		Annotation last = null;
 		int i;
 		for (i = 0; i < modifiers.size(); i++) {
 			if (modifiers.get(i).isModifier())
 				break;
 			Annotation annotation = (Annotation) modifiers.get(i);
-			if (i == 0) {
-				this.wrapParentIndex = this.tm.firstIndexIn(annotation, ANY);
-			} else {
-				this.wrapIndexes.add(this.tm.firstIndexIn(annotation, ANY));
-				this.wrapGroupEnd = this.tm.lastIndexIn(annotation, ANY);
+			if (shouldWrap) {
+				if (i == 0) {
+					this.wrapParentIndex = this.tm.firstIndexIn(annotation, ANY);
+				} else {
+					this.wrapIndexes.add(this.tm.firstIndexIn(annotation, ANY));
+					this.wrapGroupEnd = this.tm.lastIndexIn(annotation, ANY);
+				}
 			}
 			last = annotation;
 		}
