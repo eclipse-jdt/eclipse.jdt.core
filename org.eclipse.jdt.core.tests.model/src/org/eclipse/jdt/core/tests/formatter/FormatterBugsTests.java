@@ -13408,4 +13408,40 @@ public void testIssue4122() {
 		""";
 	formatSource(source);
 }
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5195
+ * insert_new_line_before_closing_brace_in_array_initializer should support NEXT_LINE_ON_WRAP,
+ * mirroring brace_position_for_array_initializer: closing brace goes on its own line only if
+ * the array initializer's content itself wrapped across multiple lines.
+ */
+public void testIssue5195_shortArrayStaysInline() {
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = true;
+	String source =
+		"""
+		public class A {
+			int[] shortArr = { 1, 2, 3 };
+		}
+		""";
+	formatSource(source);
+}
+public void testIssue5195_wrappedArrayGetsOwnLine() {
+	this.formatterPrefs.page_width = 40;
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = true;
+	String source =
+		"""
+		public class A {
+			int[] longArr = { 1111111111, 2222222222, 3333333333, 4444444444 };
+		}
+		""";
+	formatSource(source,
+		"""
+		public class A {
+			int[] longArr = { 1111111111,
+					2222222222, 3333333333,
+					4444444444
+			};
+		}
+		""");
+}
 }
