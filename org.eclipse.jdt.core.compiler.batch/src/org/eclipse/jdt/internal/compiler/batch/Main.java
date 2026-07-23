@@ -1381,6 +1381,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public long startTime;
 	public ArrayList<String> pendingErrors;
 	public boolean systemExitWhenFinished = true;
+	public boolean detectZipMagic = false;
 
 	public static final int TIMING_DISABLED = 0;
 	public static final int TIMING_ENABLED = 1;
@@ -1583,6 +1584,10 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 		destPath = NONE; // keep == comparison valid
 	}
 
+	if (shouldSkipClasspathEntryByZipMagic(currentClasspathName)) {
+		return;
+	}
+
 	if (rejectDestinationPathOnJars && destPath != null &&
 			Util.archiveFormat(currentClasspathName) > -1) {
 		throw new IllegalArgumentException(
@@ -1604,6 +1609,43 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 		addPendingErrors(this.bind("configure.incorrectClasspath", currentClasspathName));//$NON-NLS-1$
 	}
 }
+
+/**
+ * Returns true if ZIP magic detection is enabled and the classpath entry is an
+ * existing non-ZIP regular file that should not be opened as a ZIP archive.
+ */
+private boolean shouldSkipClasspathEntryByZipMagic(String classpathName) {
+	if (!this.detectZipMagic || Util.archiveFormat(classpathName) == Util.JMOD_FILE) {
+		return false;
+	}
+	File file = new File(FileSystem.convertPathSeparators(classpathName));
+	if (!file.isFile()) {
+		return false;
+	}
+	try {
+		return !hasZipMagic(file);
+	} catch (IOException e) {
+		return false;
+	}
+}
+
+/**
+ * Returns true if the file starts with one of the recognized ZIP signatures.
+ */
+private static boolean hasZipMagic(File file) throws IOException {
+	byte[] header = new byte[4];
+	try (InputStream input = new FileInputStream(file)) {
+		if (input.read(header) != header.length) {
+			return false;
+		}
+	}
+	return header[0] == 0x50 // 'P'
+			&& header[1] == 0x4B // 'K'
+			&& ((header[2] == 0x03 && header[3] == 0x04) // local file header
+					|| (header[2] == 0x05 && header[3] == 0x06) // empty archive
+					|| (header[2] == 0x07 && header[3] == 0x08)); // spanned archive
+}
+
 void addPendingErrors(String message) {
 	if (this.pendingErrors == null) {
 		this.pendingErrors = new ArrayList<>();
@@ -2142,6 +2184,11 @@ public void configure(String[] argv) {
 				if (currentArg.equals("-failOnWarning")) { //$NON-NLS-1$
 					mode = DEFAULT;
 					this.failOnWarning = true;
+					continue;
+				}
+				if (currentArg.equals("-detectZipMagic")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.detectZipMagic = true;
 					continue;
 				}
 				if (currentArg.equals("-time")) { //$NON-NLS-1$
@@ -3625,6 +3672,9 @@ protected ArrayList<FileSystem.Classpath> handleClasspath(ArrayList<String> clas
 			String token;
 			while (tokenizer.hasMoreTokens()) {
 				token = tokenizer.nextToken();
+				if (shouldSkipClasspathEntryByZipMagic(token)) {
+					continue;
+				}
 				FileSystem.Classpath currentClasspath = FileSystem
 						.getClasspath(token, customEncoding, null, this.options, this.releaseVersion);
 				if (currentClasspath != null) {
@@ -3704,6 +3754,9 @@ protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> e
 				File[] current = endorsedDirsJars[i];
 				if (current != null) {
 					for (File file : current) {
+						if (shouldSkipClasspathEntryByZipMagic(file.getAbsolutePath())) {
+							continue;
+						}
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
 									file.getAbsolutePath(),
@@ -3766,6 +3819,9 @@ protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdir
 				File[] current = extdirsJars[i];
 				if (current != null) {
 					for (File file : current) {
+						if (shouldSkipClasspathEntryByZipMagic(file.getAbsolutePath())) {
+							continue;
+						}
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
 									file.getAbsolutePath(),

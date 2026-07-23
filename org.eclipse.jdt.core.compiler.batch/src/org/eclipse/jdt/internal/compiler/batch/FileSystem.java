@@ -452,7 +452,7 @@ public void cleanup() {
 	for (Classpath classpath : this.classpaths)
 		classpath.reset();
 }
-private static String convertPathSeparators(String path) {
+static String convertPathSeparators(String path) {
 	return File.separatorChar == '/'
 		? path.replace('\\', '/')
 		 : path.replace('/', '\\');
