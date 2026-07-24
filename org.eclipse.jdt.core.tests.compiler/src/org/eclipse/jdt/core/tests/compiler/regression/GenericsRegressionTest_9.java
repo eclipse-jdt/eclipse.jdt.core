@@ -2522,6 +2522,27 @@ public void testJDK8375572() {
 	runner.javacTestOptions = JavacHasABug.JavacBug8375572;
 	runner.runConformTest();
 }
+public void testGH5219() {
+	runConformTest(new String[] {"Test.java",
+			"""
+			import java.util.Collection;
+			import java.util.List;
+
+			public abstract class Test {
+
+				public void test() {
+					assertThat(getRawValue(Collection.class));
+			        assertThat(getRawValue(List.class));
+				}
+
+				static <S> void assertThat(S actual) { }
+				static <E> void assertThat(Collection<? extends E> actual) { }
+
+				abstract <T> T getRawValue(Class<T> type);
+			}
+			"""},
+			"");
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
