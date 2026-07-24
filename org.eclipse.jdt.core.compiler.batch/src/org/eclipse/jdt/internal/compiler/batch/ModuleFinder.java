@@ -243,12 +243,24 @@ public class ModuleFinder {
 	private static IModule extractModuleFromArchive(File file, Classpath pathEntry, String path, String release) {
 		try (ZipFile zipFile = new ZipFile(file)) {
 			if (release != null) {
-				String releasePath = Util.METAINF_VERSIONS + release + "/" + path; //$NON-NLS-1$
-				ZipEntry entry = zipFile.getEntry(releasePath);
-				if (entry != null) {
-					path = releasePath;
+				// A versioned module descriptor is selected like any other entry in an MR-JAR:
+				// https://docs.oracle.com/en/java/javase/17/docs/specs/jar/jar.html#modular-multi-release-jar-files
+				int releaseVersion;
+				try {
+					releaseVersion = Integer.parseInt(release);
+				} catch (NumberFormatException e) {
+					releaseVersion = 0;
+				}
+				for (int version = releaseVersion; version >= 9; version--) {
+					String releasePath = Util.METAINF_VERSIONS + version + "/" + path; //$NON-NLS-1$
+					ZipEntry entry = zipFile.getEntry(releasePath);
+					if (entry != null) {
+						path = releasePath;
+						break;
+					}
 				}
 			}
+			// If no applicable versioned descriptor was found, path still names module-info.class in the JAR root.
 			ClassFileReader reader = ClassFileReader.read(zipFile, path);
 			IModule module = getModule(reader);
 			if (module != null) {
