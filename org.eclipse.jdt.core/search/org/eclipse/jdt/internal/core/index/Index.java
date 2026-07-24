@@ -139,14 +139,40 @@ private static final long REGEXP_MATCH_TIMEOUT_MS =
  * </p>
  */
 private static boolean regexpMatch(char[] pattern, char[] word) {
-	Pattern regexPattern;
-	try {
-		regexPattern = Pattern.compile(new String(pattern));
-	} catch (PatternSyntaxException e) {
-		// Invalid regex supplied by the caller: do not match and do not let the unchecked
-		// exception propagate and abort the enclosing search.
+	Pattern regexPattern = compileRegexp(pattern);
+	if (regexPattern == null) {
 		return false;
 	}
+	return regexpMatch(regexPattern, word);
+}
+
+/**
+ * Compiles the given regular expression, returning {@code null} instead of propagating a
+ * {@link PatternSyntaxException} when the pattern is invalid. Callers should treat a {@code null}
+ * result as "no possible match" rather than letting the unchecked exception abort the search.
+ * <p>
+ * Provided as a shared entry point so that every regex-matching path in the index (both
+ * {@link #isMatch(char[], char[], int)} and {@code DiskIndex.addQueryResults}) benefits from the
+ * same ReDoS protection.
+ * </p>
+ */
+static Pattern compileRegexp(char[] pattern) {
+	try {
+		return Pattern.compile(new String(pattern));
+	} catch (PatternSyntaxException e) {
+		return null;
+	}
+}
+
+/**
+ * Matches {@code word} against an already-compiled {@code regexPattern} under the ReDoS time
+ * guard. Compiling once and reusing the {@link Pattern} across many words (as callers iterating
+ * over a category table do) avoids repeated compilation while still bounding each individual
+ * match. A timeout is reported as a non-match.
+ *
+ * @see #compileRegexp(char[])
+ */
+static boolean regexpMatch(Pattern regexPattern, char[] word) {
 	CharSequence input = REGEXP_MATCH_TIMEOUT_MS > 0
 			? DeadlineCharSequence.withTimeout(new String(word), REGEXP_MATCH_TIMEOUT_MS)
 			: new String(word);
