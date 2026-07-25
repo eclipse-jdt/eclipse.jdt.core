@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -86,8 +88,7 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 		case SearchPattern.R_PREFIX_MATCH :
 			return patternLength <= wordLength && CharOperation.prefixEquals(pattern, word, false);
 		case SearchPattern.R_REGEXP_MATCH :
-			Pattern regexPattern = Pattern.compile(new String(pattern));
-			return regexPattern.matcher(new String(word)).matches();
+			return regexpMatch(pattern, word);
 		case SearchPattern.R_PATTERN_MATCH :
 			return CharOperation.match(pattern, word, false);
 		case SearchPattern.R_CAMELCASE_MATCH:
@@ -109,6 +110,130 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 			return (pattern[0] == word[0] && CharOperation.camelCaseMatch(pattern, word, false));
 	}
 	return false;
+}
+
+/**
+ * Default time budget (in milliseconds) allowed for a single {@link SearchPattern#R_REGEXP_MATCH}
+ * match against one index entry. Since {@link #isMatch(char[], char[], int)} is invoked once per
+ * indexed word in a tight loop, this is intentionally a per-entry (not per-query) budget.
+ * <p>
+ * Can be overridden with the system property {@code jdt.core.index.regexpMatchTimeoutMillis}.
+ * A value {@code <= 0} disables the guard (not recommended).
+ * </p>
+ */
+private static final long REGEXP_MATCH_TIMEOUT_MS =
+		Long.getLong("jdt.core.index.regexpMatchTimeoutMillis", 1000L).longValue(); //$NON-NLS-1$
+
+/**
+ * Matches {@code word} against the user-supplied regular expression {@code pattern} while
+ * guarding against ReDoS (Regular Expression Denial of Service).
+ * <p>
+ * Java's {@link Pattern} engine is NFA-based and uses backtracking, so pathological patterns
+ * such as {@code (a+)+$} can trigger catastrophic (exponential) backtracking on non-matching
+ * input. To bound the cost without the overhead of spawning a thread per call, the input is
+ * wrapped in a {@link DeadlineCharSequence} which throws once a time budget is exceeded: the
+ * matcher probes the input via {@link CharSequence#charAt(int)} during backtracking, so this
+ * effectively interrupts a runaway match. On timeout, or when the pattern is syntactically
+ * invalid, the entry is treated as a non-match rather than propagating an exception that could
+ * abort the whole search.
+ * </p>
+ */
+private static boolean regexpMatch(char[] pattern, char[] word) {
+	Pattern regexPattern = compileRegexp(pattern);
+	if (regexPattern == null) {
+		return false;
+	}
+	return regexpMatch(regexPattern, word);
+}
+
+/**
+ * Compiles the given regular expression, returning {@code null} instead of propagating a
+ * {@link PatternSyntaxException} when the pattern is invalid. Callers should treat a {@code null}
+ * result as "no possible match" rather than letting the unchecked exception abort the search.
+ * <p>
+ * Provided as a shared entry point so that every regex-matching path in the index (both
+ * {@link #isMatch(char[], char[], int)} and {@code DiskIndex.addQueryResults}) benefits from the
+ * same ReDoS protection.
+ * </p>
+ */
+static Pattern compileRegexp(char[] pattern) {
+	try {
+		return Pattern.compile(new String(pattern));
+	} catch (PatternSyntaxException e) {
+		return null;
+	}
+}
+
+/**
+ * Matches {@code word} against an already-compiled {@code regexPattern} under the ReDoS time
+ * guard. Compiling once and reusing the {@link Pattern} across many words (as callers iterating
+ * over a category table do) avoids repeated compilation while still bounding each individual
+ * match. A timeout is reported as a non-match.
+ *
+ * @see #compileRegexp(char[])
+ */
+static boolean regexpMatch(Pattern regexPattern, char[] word) {
+	CharSequence input = REGEXP_MATCH_TIMEOUT_MS > 0
+			? DeadlineCharSequence.withTimeout(new String(word), REGEXP_MATCH_TIMEOUT_MS)
+			: new String(word);
+	try {
+		return regexPattern.matcher(input).matches();
+	} catch (RegexpTimeoutException e) {
+		// A pathological pattern caused catastrophic backtracking beyond the allotted budget.
+		// Treat as a non-match to avoid a denial-of-service.
+		return false;
+	}
+}
+
+/**
+ * Signals that a regular expression match exceeded its allotted time budget.
+ * Carries no stack trace to keep throwing cheap on the regex hot path.
+ */
+private static final class RegexpTimeoutException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
+	RegexpTimeoutException() {
+		super(null, null, false, false);
+	}
+}
+
+/**
+ * A {@link CharSequence} wrapper that aborts (by throwing {@link RegexpTimeoutException}) once a
+ * deadline has passed. Used to bound the running time of a regex match without a helper thread.
+ * The deadline is only sampled every so often to keep {@link #charAt(int)} cheap.
+ */
+private static final class DeadlineCharSequence implements CharSequence {
+	/** Sample the clock only once per this many {@code charAt} calls (power-of-two mask). */
+	private static final int CHECK_MASK = 0x3FF;
+	private final CharSequence inner;
+	private final long deadlineNanos;
+	private int checkCounter;
+
+	static DeadlineCharSequence withTimeout(CharSequence inner, long timeoutMillis) {
+		return new DeadlineCharSequence(inner, System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis));
+	}
+	private DeadlineCharSequence(CharSequence inner, long deadlineNanos) {
+		this.inner = inner;
+		this.deadlineNanos = deadlineNanos;
+	}
+	@Override
+	public int length() {
+		return this.inner.length();
+	}
+	@Override
+	public char charAt(int index) {
+		if ((this.checkCounter++ & CHECK_MASK) == 0 && System.nanoTime() > this.deadlineNanos) {
+			throw new RegexpTimeoutException();
+		}
+		return this.inner.charAt(index);
+	}
+	@Override
+	public CharSequence subSequence(int start, int end) {
+		return new DeadlineCharSequence(this.inner.subSequence(start, end), this.deadlineNanos);
+	}
+	@Override
+	public String toString() {
+		return this.inner.toString();
+	}
 }
 
 
