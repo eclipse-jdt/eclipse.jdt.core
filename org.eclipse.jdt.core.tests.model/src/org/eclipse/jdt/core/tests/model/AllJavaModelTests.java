@@ -258,6 +258,8 @@ private static Class[] getAllTestClasses() {
 
 		CharArrayMapperTest.class,
 
+		CharArrayBufferTest.class,
+
 		CharDeduplicationTest.class,
 
 		DeduplicationUtilTest.class,
