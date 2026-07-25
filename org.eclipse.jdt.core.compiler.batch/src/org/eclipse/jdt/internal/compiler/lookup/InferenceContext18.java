@@ -374,9 +374,12 @@ public class InferenceContext18 {
 	}
 
 	/** Perform steps from JLS 18.5.2. needed for computing the bound set B3. */
-	boolean computeB3(InvocationSite invocationSite, TypeBinding targetType, MethodBinding method)
+	boolean computeB3(InvocationSite invocationSite, TypeBinding targetType, MethodBinding method, boolean resetBoundSet)
 				throws InferenceFailureException
 	{
+		if (resetBoundSet)
+			this.currentBounds = this.b2.copy();
+
 		boolean result = ConstraintExpressionFormula.inferPolyInvocationType(this, invocationSite, targetType, method);
 		if (result) {
 			mergeInnerBounds();
@@ -406,7 +409,7 @@ public class InferenceContext18 {
 					&& ((Expression)invocationSite).isPolyExpression(method))
 			{
 				// 3. bullet: special treatment for poly expressions
-				if (!computeB3(invocationSite, expectedType, method)) {
+				if (!computeB3(invocationSite, expectedType, method, false)) {
 					return null;
 				}
 			} else {
@@ -725,7 +728,7 @@ public class InferenceContext18 {
 				innerContext.outerContext = this;
 				if (innerContext.stepCompleted < InferenceContext18.APPLICABILITY_INFERRED) // shouldn't happen, but let's play safe
 					innerContext.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
-				if (!innerContext.computeB3(invocation, substF, shallowMethod))
+				if (!innerContext.computeB3(invocation, substF, shallowMethod, true))
 					return false;
 				if (innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation)) {
 					return true;
@@ -1204,7 +1207,7 @@ public class InferenceContext18 {
 					}
 					return lowerBoundUsed ? FAIL_AFTER_USING_LOWER_BOUNDS : null;
 				}
-				if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
+				if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated && oldNumUninstantiated != 0)
 					return null; // abort because we made no progress
 			}
 		}
