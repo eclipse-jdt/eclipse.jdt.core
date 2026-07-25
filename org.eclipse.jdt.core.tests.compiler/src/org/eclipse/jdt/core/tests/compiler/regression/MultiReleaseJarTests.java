@@ -131,6 +131,51 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		return jarPath;
 	}
 
+	private static String createJarWithoutMultiReleaseHeader() throws IOException {
+		File baseClasses = new File(LIB_DIR, "mrjar-base");
+		File version9Classes = new File(LIB_DIR, "mrjar-version9");
+		File jarContent = new File(LIB_DIR, "mrjar-content");
+		Util.createClassFolder(
+				new String[] {
+						"base/Root.java",
+						"package base;\n" +
+						"public class Root {\n" +
+						"}\n"
+				},
+				baseClasses.getAbsolutePath(),
+				JavaCore.VERSION_1_8);
+		Util.createClassFolder(
+				new String[] {
+						"module-info.java",
+						"module org.slf4j {\n" +
+						"}\n"
+				},
+				version9Classes.getAbsolutePath(),
+				JavaCore.VERSION_9);
+
+		if (jarContent.exists()) {
+			if (!Util.flushDirectoryContent(jarContent)) {
+				throw new IOException("Could not clear " + jarContent);
+			}
+		} else if (!jarContent.mkdirs()) {
+			throw new IOException("Could not create " + jarContent);
+		}
+		Util.copy(baseClasses.getAbsolutePath(), jarContent.getAbsolutePath());
+		File version9Content = new File(jarContent, "META-INF" + File.separator + "versions" + File.separator + "9");
+		if (!version9Content.mkdirs()) {
+			throw new IOException("Could not create " + version9Content);
+		}
+		Util.copy(version9Classes.getAbsolutePath(), version9Content.getAbsolutePath());
+		Util.createFile(
+				new File(jarContent, "META-INF" + File.separator + "MANIFEST.MF").getAbsolutePath(),
+				"Manifest-Version: 1.0\n" +
+				"Automatic-Module-Name: slf4j.api\n");
+
+		String jarPath = LIB_DIR + File.separator + "missing-multi-release-header.jar";
+		Util.zip(jarContent, jarPath);
+		return jarPath;
+	}
+
 	public void test001() {
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
@@ -388,6 +433,30 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			" \"" + OUTPUT_DIR + File.separator + "src" + File.separator + "module-info.java\"" +
 			" \"" + OUTPUT_DIR + File.separator + "src" + File.separator + "test" + File.separator + "X.java\"" +
 			" --module-path \"" + path + "\" --release 17 ",
+			"",
+			"",
+			false);
+	}
+
+	public void test011_missingHeaderIgnoresVersionedModuleDescriptor() throws IOException {
+		String path = createJarWithoutMultiReleaseHeader();
+		runConformTest(
+			new String[] {
+				"src/module-info.java",
+				"module consumer {\n" +
+				"  requires slf4j.api;\n" +
+				"}\n",
+				"src/test/X.java",
+				"package test;\n" +
+				"import base.Root;\n" +
+				"public class X {\n" +
+				"  Root value;\n" +
+				"}\n"
+			},
+			" -d \"" + OUTPUT_DIR + File.separator + "out\"" +
+			" \"" + OUTPUT_DIR + File.separator + "src" + File.separator + "module-info.java\"" +
+			" \"" + OUTPUT_DIR + File.separator + "src" + File.separator + "test" + File.separator + "X.java\"" +
+			" --module-path \"" + path + "\" --release 9 ",
 			"",
 			"",
 			false);

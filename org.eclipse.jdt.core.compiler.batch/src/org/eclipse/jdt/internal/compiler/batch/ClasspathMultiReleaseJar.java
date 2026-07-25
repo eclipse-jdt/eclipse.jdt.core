@@ -52,9 +52,10 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		this.packageCache.add(Util.EMPTY_STRING);
 		int prefixLength = Util.METAINF_VERSIONS.length();
 		Set<Integer> versions = new HashSet<>();
+		boolean multiRelease = Util.isMultiRelease(this.zipFile);
 		for (Enumeration<? extends ZipEntry> entries = this.zipFile.entries(); entries.hasMoreElements();) {
 			String fileName = entries.nextElement().getName();
-			if (fileName.startsWith(Util.METAINF_VERSIONS)) {
+			if (multiRelease && fileName.startsWith(Util.METAINF_VERSIONS)) {
 				int separator = fileName.indexOf('/', prefixLength);
 				if (separator == -1) {
 					continue;

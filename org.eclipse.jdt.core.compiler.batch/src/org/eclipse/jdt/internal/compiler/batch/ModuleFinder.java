@@ -242,7 +242,7 @@ public class ModuleFinder {
 	}
 	private static IModule extractModuleFromArchive(File file, Classpath pathEntry, String path, String release) {
 		try (ZipFile zipFile = new ZipFile(file)) {
-			if (release != null) {
+			if (release != null && Util.isMultiRelease(zipFile)) {
 				// A versioned module descriptor is selected like any other entry in an MR-JAR:
 				// https://docs.oracle.com/en/java/javase/17/docs/specs/jar/jar.html#modular-multi-release-jar-files
 				int releaseVersion;
