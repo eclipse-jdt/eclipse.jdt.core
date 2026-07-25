@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -598,6 +601,29 @@ public class Util implements SuffixConstants {
 			if (inputStream == null)
 				throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
 			return inputStream.readAllBytes();
+		}
+	}
+
+	/**
+	 * Returns whether the given archive is identified as a multi-release JAR.
+	 * The JAR specification requires {@code Multi-Release: true} in the main
+	 * section of the manifest, with the value compared case-insensitively.
+	 *
+	 * @see <a href="https://openjdk.org/jeps/238">JEP 238: Multi-Release JAR Files</a>
+	 * @see <a href="https://docs.oracle.com/en/java/javase/17/docs/specs/jar/jar.html#multi-release-jar-files">
+	 *      JAR File Specification: Multi-release JAR files</a>
+	 */
+	public static boolean isMultiRelease(ZipFile zipFile) {
+		ZipEntry manifestEntry = zipFile.getEntry(JarFile.MANIFEST_NAME);
+		if (manifestEntry == null) {
+			return false;
+		}
+		try (InputStream inputStream = zipFile.getInputStream(manifestEntry)) {
+			Manifest manifest = new Manifest(inputStream);
+			String value = manifest.getMainAttributes().getValue(Attributes.Name.MULTI_RELEASE);
+			return Boolean.parseBoolean(value);
+		} catch (IOException e) {
+			return false;
 		}
 	}
 
