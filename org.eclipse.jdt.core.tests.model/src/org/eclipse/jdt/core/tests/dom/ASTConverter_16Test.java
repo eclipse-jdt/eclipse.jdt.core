@@ -888,4 +888,86 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		assertEquals("Not a MethodDeclaration", ASTNode.METHOD_DECLARATION, md.getNodeType());
 		assertEquals("Not a TypeDeclaration", ASTNode.TYPE_DECLARATION, td.getNodeType());
 	}
+
+	// IVariableBinding.getRecordComponentField(): a record component resolves to
+	// the synthesized private final field with the same name and type.
+	public void testRecordComponentField001() throws CoreException {
+		if (!isJRE16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
+			return;
+		}
+		String contents =
+			"public record X(int first, String second) {\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_16/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		AbstractTypeDeclaration type = (AbstractTypeDeclaration) compilationUnit.types().get(0);
+		assertEquals("Not a RecordDeclaration", ASTNode.RECORD_DECLARATION, type.getNodeType());
+		RecordDeclaration record = (RecordDeclaration) type;
+		List<SingleVariableDeclaration> recordComponents = record.recordComponents();
+		assertEquals("There should be 2 record components", 2, recordComponents.size());
+
+		ITypeBinding recordBinding = record.resolveBinding();
+
+		String[] names = { "first", "second" };
+		String[] typeNames = { "int", "String" };
+		for (int i = 0; i < recordComponents.size(); i++) {
+			IVariableBinding componentBinding = recordComponents.get(i).resolveBinding();
+			assertNotNull("component binding should not be null", componentBinding);
+			assertTrue("should be a record component", componentBinding.isRecordComponent());
+			assertFalse("record component is not a field", componentBinding.isField());
+
+			IVariableBinding fieldBinding = componentBinding.getRecordComponentField();
+			assertNotNull("field binding should not be null for " + names[i], fieldBinding);
+			assertTrue("corresponding binding must be a field", fieldBinding.isField());
+			assertFalse("field must not be a record component", fieldBinding.isRecordComponent());
+			assertEquals("field name mismatch", names[i], fieldBinding.getName());
+			assertEquals("field type mismatch", typeNames[i], fieldBinding.getType().getName());
+			int modifiers = fieldBinding.getModifiers();
+			assertTrue("field must be private", Modifier.isPrivate(modifiers));
+			assertTrue("field must be final", Modifier.isFinal(modifiers));
+			assertTrue("declaring class must be the record",
+					fieldBinding.getDeclaringClass().isEqualTo(recordBinding));
+		}
+	}
+
+	// IVariableBinding.getRecordComponentField(): returns null for a non record-component variable.
+	public void testRecordComponentField002() throws CoreException {
+		if (!isJRE16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
+			return;
+		}
+		String contents =
+			"public record X(int first) {\n" +
+			"	static int plain = 0;\n" +
+			"	void m(int local) {\n" +
+			"		int x = local;\n" +
+			"		System.out.println(x);\n" +
+			"	}\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_16/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		RecordDeclaration record = (RecordDeclaration) compilationUnit.types().get(0);
+
+		// a plain (non-component) field
+		FieldDeclaration[] fields = record.getFields();
+		assertEquals("expected one plain field", 1, fields.length);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fields[0].fragments().get(0);
+		IVariableBinding plainField = fragment.resolveBinding();
+		assertNotNull(plainField);
+		assertTrue("plain field is a field", plainField.isField());
+		assertNull("plain field has no record component field", plainField.getRecordComponentField());
+
+		// the synthesized field of the component itself is not a record component -> null
+		SingleVariableDeclaration component = (SingleVariableDeclaration) record.recordComponents().get(0);
+		IVariableBinding componentBinding = component.resolveBinding();
+		IVariableBinding fieldBinding = componentBinding.getRecordComponentField();
+		assertNotNull(fieldBinding);
+		assertNull("field's getRecordComponentField() must be null", fieldBinding.getRecordComponentField());
+	}
 }

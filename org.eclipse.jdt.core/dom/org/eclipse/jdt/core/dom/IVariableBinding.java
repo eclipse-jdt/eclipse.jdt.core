@@ -92,6 +92,26 @@ public interface IVariableBinding extends IBinding {
 	public ITypeBinding getDeclaringClass();
 
 	/**
+	 * Returns the field binding for the field that corresponds to this record
+	 * component.
+	 * <p>
+	 * For each record component, the compiler synthesizes a corresponding
+	 * <code>private final</code> field with the same name and type. This method
+	 * returns the binding of that field.
+	 * </p>
+	 *
+	 * @return the binding of the field corresponding to this record component,
+	 *    or <code>null</code> if this variable binding is not a record component
+	 *    (see {@link #isRecordComponent()}), or if the corresponding field cannot
+	 *    be resolved
+	 * @see #isRecordComponent()
+	 * @since 3.47
+	 */
+	public default IVariableBinding getRecordComponentField() {
+		return null;
+	}
+
+	/**
 	 * Returns the binding for the type of this field or local variable.
 	 *
 	 * @return the binding for the type of this field or local variable

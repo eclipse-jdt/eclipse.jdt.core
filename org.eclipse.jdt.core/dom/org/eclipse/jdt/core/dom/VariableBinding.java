@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -194,6 +195,22 @@ class VariableBinding implements IVariableBinding {
 			this.name = new String(this.binding.name);
 		}
 		return this.name;
+	}
+
+	@Override
+	public IVariableBinding getRecordComponentField() {
+		if (!(this.binding instanceof RecordComponentBinding recordComponentBinding)) {
+			return null;
+		}
+		ReferenceBinding declaringRecord = recordComponentBinding.declaringRecord;
+		if (declaringRecord == null) {
+			return null;
+		}
+		FieldBinding fieldBinding = declaringRecord.getField(recordComponentBinding.name, true /* needResolve */);
+		if (fieldBinding == null || !fieldBinding.isValidBinding()) {
+			return null;
+		}
+		return this.resolver.getVariableBinding(fieldBinding);
 	}
 
 	@Override
