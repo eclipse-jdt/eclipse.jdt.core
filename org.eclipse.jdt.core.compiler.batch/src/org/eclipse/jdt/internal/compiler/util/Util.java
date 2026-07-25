@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1587,5 +1587,65 @@ public class Util implements SuffixConstants {
 
 	private static IllegalArgumentException newIllegalArgumentException(char[] string, int start) {
 		return new IllegalArgumentException("\"" + String.valueOf(string) + "\" at " + start); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * Tells whether the given relative path is safe to resolve against a base
+	 * directory, i.e. it is not absolute and does not contain any {@code ".."}
+	 * segment that could be used to escape the base directory (path traversal).
+	 * <p>
+	 * The check is performed purely on the textual/logical form of the path and
+	 * does not touch the file system.
+	 * </p>
+	 *
+	 * @param relativeFileName a '/'-separated relative file name, may be {@code null}
+	 * @return {@code true} if the name is a safe relative path, {@code false} otherwise
+	 */
+	public static boolean isSafeRelativePath(String relativeFileName) {
+		if (relativeFileName == null || relativeFileName.isEmpty())
+			return false;
+		// Reject any traversal irrespective of platform separators:
+		if (relativeFileName.indexOf("..") != -1) { //$NON-NLS-1$
+			java.nio.file.Path path;
+			try {
+				path = java.nio.file.Paths.get(relativeFileName);
+			} catch (java.nio.file.InvalidPathException e) {
+				return false;
+			}
+			for (java.nio.file.Path segment : path.normalize()) {
+				if (segment.toString().equals("..")) //$NON-NLS-1$
+					return false;
+			}
+		}
+		try {
+			return !java.nio.file.Paths.get(relativeFileName).isAbsolute();
+		} catch (java.nio.file.InvalidPathException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Safely resolve a relative file name against a base directory, guarding
+	 * against path traversal. The returned file is guaranteed to be contained
+	 * within the (normalized) base directory.
+	 *
+	 * @param baseDirPath the base directory path
+	 * @param relativeFileName a '/'-separated relative file name
+	 * @return the resolved {@link File} if it stays within {@code baseDirPath},
+	 *         or {@code null} if the relative name is unsafe or would escape the
+	 *         base directory
+	 */
+	public static File getFileWithinBaseDir(String baseDirPath, String relativeFileName) {
+		if (baseDirPath == null || !isSafeRelativePath(relativeFileName))
+			return null;
+		try {
+			java.nio.file.Path base = java.nio.file.Paths.get(baseDirPath).normalize();
+			java.nio.file.Path resolved = base.resolve(relativeFileName).normalize();
+			if (!resolved.startsWith(base))
+				return null;
+			return resolved.toFile();
+		} catch (java.nio.file.InvalidPathException e) {
+			return null;
+		}
 	}
 }
