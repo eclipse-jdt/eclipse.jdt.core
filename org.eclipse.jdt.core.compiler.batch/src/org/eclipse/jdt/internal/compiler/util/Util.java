@@ -23,6 +23,9 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1606,20 +1609,20 @@ public class Util implements SuffixConstants {
 			return false;
 		// Reject any traversal irrespective of platform separators:
 		if (relativeFileName.indexOf("..") != -1) { //$NON-NLS-1$
-			java.nio.file.Path path;
+			Path path;
 			try {
-				path = java.nio.file.Paths.get(relativeFileName);
-			} catch (java.nio.file.InvalidPathException e) {
+				path = Paths.get(relativeFileName);
+			} catch (InvalidPathException e) {
 				return false;
 			}
-			for (java.nio.file.Path segment : path.normalize()) {
+			for (Path segment : path.normalize()) {
 				if (segment.toString().equals("..")) //$NON-NLS-1$
 					return false;
 			}
 		}
 		try {
-			return !java.nio.file.Paths.get(relativeFileName).isAbsolute();
-		} catch (java.nio.file.InvalidPathException e) {
+			return !Paths.get(relativeFileName).isAbsolute();
+		} catch (InvalidPathException e) {
 			return false;
 		}
 	}
@@ -1639,12 +1642,12 @@ public class Util implements SuffixConstants {
 		if (baseDirPath == null || !isSafeRelativePath(relativeFileName))
 			return null;
 		try {
-			java.nio.file.Path base = java.nio.file.Paths.get(baseDirPath).normalize();
-			java.nio.file.Path resolved = base.resolve(relativeFileName).normalize();
+			Path base = Paths.get(baseDirPath).normalize();
+			Path resolved = base.resolve(relativeFileName).normalize();
 			if (!resolved.startsWith(base))
 				return null;
 			return resolved.toFile();
-		} catch (java.nio.file.InvalidPathException e) {
+		} catch (InvalidPathException e) {
 			return null;
 		}
 	}
