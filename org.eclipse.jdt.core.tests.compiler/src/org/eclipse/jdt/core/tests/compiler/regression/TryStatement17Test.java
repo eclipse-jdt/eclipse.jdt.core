@@ -1321,6 +1321,35 @@ public void testBug488569_001() {
 	}
 }
 
+public void testMultiCatchMapIndexing() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.io.IOException;
+			public class X {
+			        static int m(int which) throws IOException {
+			                final int a;
+			                try {
+			                        if (which == 0) throw new IOException();
+			                        if (which == 1) throw new IllegalStateException();
+			                        throw new NumberFormatException();
+			                } catch (IOException | IllegalStateException e) { // 2 handled types -> 1 catch block
+			                        a = 1;
+			                } catch (RuntimeException e) {
+			                        a = 2;
+			                }
+			                return a; // definite assignment across all catch blocks must hold
+			        }
+			        public static void main(String[] args) throws IOException {
+			                System.out.print("" + m(0) + m(1) + m(2));
+			        }
+			}
+
+			"""
+		},
+		"112"); // IOException->1, IllegalStateException->1, NumberFormatException(RuntimeException)->2
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }
