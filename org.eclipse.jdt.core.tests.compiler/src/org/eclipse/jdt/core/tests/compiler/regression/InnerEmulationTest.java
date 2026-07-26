@@ -6358,6 +6358,33 @@ public void testbug481793() {
 	};
 	this.runConformTest(sources);
 }
+// Test for Guards the hardened next-index computation in SyntheticMethodBinding
+public void testSyntheticAccessorIndexAssignment() {
+	String[] sources = new String[] {
+		"Outer.java",
+		"""
+		public class Outer {
+	        private int f1 = 1;
+	        private int f2 = 2;
+	        private int f3 = 3;
+	        private int add(int a, int b) { return a + b; }
+	        class Inner {
+	                int run() {
+	                        Outer.this.f1 = Outer.this.f1 + 10;
+	                        int s = Outer.this.add(Outer.this.f2, Outer.this.f3);
+	                        return Outer.this.f1 + s;
+	                }
+	        }
+	        public static void main(String[] args) {
+	                Outer o = new Outer();
+	                System.out.print(o.new Inner().run());
+	        }
+		}
+
+		"""
+	};
+	this.runConformTest(sources, "16"); // (1+10) + (2+3) = 16
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
