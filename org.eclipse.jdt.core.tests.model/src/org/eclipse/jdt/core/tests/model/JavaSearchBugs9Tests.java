@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation and others.
+ * Copyright (c) 2016, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,6 +19,12 @@ import static org.eclipse.jdt.core.search.IJavaSearchScope.SOURCES;
 import static org.eclipse.jdt.core.search.IJavaSearchScope.SYSTEM_LIBRARIES;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
@@ -3801,6 +3807,55 @@ public void testBug528059_001() throws Exception {
 	finally {
 		deleteProject("JavaSearchBugs9");
 		deleteProject("second");
+	}
+}
+
+public void testReDoSModuleSearchViaSearchEngine() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		// Module name = 40 'a's + ".b": a valid module name that is a NON-match for (a+)+$ and
+		// therefore forces exponential backtracking in an unguarded regex engine.
+		StringBuilder name = new StringBuilder();
+		for (int i = 0; i < 40; i++) {
+			name.append('a');
+		}
+		name.append(".b");
+		String moduleName = name.toString();
+		createFile("/JavaSearchBugs9/src/module-info.java",
+				"module " + moduleName + " {\n}\n");
+
+		String needle = "(a+)+$"; // user-typed pathological regex
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_REGEXP_MATCH);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] { project1 });
+
+		// Run the search on a background thread so a regression (a hang) fails the test via timeout
+		// instead of blocking the whole suite indefinitely.
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			Future<Void> future = executor.submit(() -> {
+				search(pattern, scope, this.resultCollector);
+				return null;
+			});
+			try {
+				future.get(30, TimeUnit.SECONDS);
+			} catch (TimeoutException e) {
+				future.cancel(true);
+				fail("ReDoS via SearchEngine: a module search with the pathological regex '(a+)+$' " +
+					"did not complete within 30 seconds. The index regex path must be ReDoS-guarded.");
+			} catch (ExecutionException e) {
+				throw (e.getCause() instanceof Exception) ? (Exception) e.getCause() : e;
+			}
+		} finally {
+			executor.shutdownNow();
+		}
+		// The pathological pattern must not match the module name; the search simply completes.
+		assertSearchResults("", this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
 	}
 }
 

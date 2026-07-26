@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 GK Software AG.
+ * Copyright (c) 2016, 2026 GK Software AG.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.util.Messages;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Used for superimposing external annotations (served by an {@link ITypeAnnotationWalker})
@@ -39,13 +40,28 @@ class ExternalAnnotationSuperimposer extends TypeBindingVisitor {
 				String binaryTypeName = String.valueOf(typeBinding.constantPoolName());
 				String relativeFileName = binaryTypeName.replace('.', '/')+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 
+				// Guard against path traversal: the relative file name is derived from the type's
+				// name and must never be able to escape the configured annotation base (bug: reading
+				// arbitrary files if the name were to contain "../" segments).
+				if (!Util.isSafeRelativePath(relativeFileName)) {
+					return;
+				}
+
 				try (ZipFile zipFile = annotationBase.isDirectory() ? null : new ZipFile(externalAnnotationPath)) {
 					ZipEntry zipEntry = (zipFile == null) ? null : zipFile.getEntry(relativeFileName);
 					if (zipFile != null && zipEntry == null) {
 						return;
 					}
+					InputStream fileInput = null;
+					if (zipFile == null) {
+						File annotationFile = Util.getFileWithinBaseDir(externalAnnotationPath, relativeFileName);
+						if (annotationFile == null) {
+							return; // unsafe or escaping path
+						}
+						fileInput = new FileInputStream(annotationFile);
+					}
 					try (InputStream input = (zipFile == null)
-							? new FileInputStream(externalAnnotationPath + '/' + relativeFileName)
+							? fileInput
 							: zipFile.getInputStream(zipEntry)) {
 						annotateType(typeBinding, new ExternalAnnotationProvider(input, binaryTypeName),
 								typeBinding.environment);

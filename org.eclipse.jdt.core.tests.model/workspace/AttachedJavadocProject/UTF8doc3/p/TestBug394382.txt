@@ -1,0 +1,8 @@
+<div class="block">こんにちは世界 ! This class <code>TestBug394382</code> is to test bug 426058</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><code>https://bugs.eclipse.org/bugs/show_bug.cgi?id=394382</code></dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">

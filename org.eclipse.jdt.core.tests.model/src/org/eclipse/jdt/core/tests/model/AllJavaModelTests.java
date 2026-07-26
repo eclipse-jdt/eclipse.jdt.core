@@ -73,6 +73,9 @@ private static Class[] getAllTestClasses() {
 
 		IndexManagerTests.class,
 
+		// Regex ReDoS protection in the search index
+		IndexReDoSTest.class,
+
 		// Tests for the new index - disabled because the index is not used anymore
 		// See bug 572976 and bug 544898
 		// RunIndexTests.class,
@@ -254,6 +257,8 @@ private static Class[] getAllTestClasses() {
 		JavaModelManagerTests.class,
 
 		CharArrayMapperTest.class,
+
+		CharArrayBufferTest.class,
 
 		CharDeduplicationTest.class,
 

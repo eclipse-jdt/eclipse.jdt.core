@@ -227,19 +227,21 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				}
 				break;
 			case SearchPattern.R_REGEXP_MATCH:
-				Pattern pattern = Pattern.compile(new String(key));
-				for (char[] category : categories) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(category, false);
-					if (wordsToDocNumbers != null) {
-						char[][] words = wordsToDocNumbers.keyTable;
-						Object[] values = wordsToDocNumbers.valueTable;
-						for (int j = 0, m = words.length; j < m; j++) {
-							char[] word = words[j];
-							if (word != null && pattern.matcher(new String(word)).matches())
-								results = addQueryResult(results, word, values[j], memoryIndex, prevResults);
+				Pattern pattern = Index.compileRegexp(key);
+				if (pattern != null) { // skip entirely when the user supplied an invalid regex
+					for (char[] category : categories) {
+						HashtableOfObject wordsToDocNumbers = readCategoryTable(category, false);
+						if (wordsToDocNumbers != null) {
+							char[][] words = wordsToDocNumbers.keyTable;
+							Object[] values = wordsToDocNumbers.valueTable;
+							for (int j = 0, m = words.length; j < m; j++) {
+								char[] word = words[j];
+								if (word != null && Index.regexpMatch(pattern, word))
+									results = addQueryResult(results, word, values[j], memoryIndex, prevResults);
+							}
 						}
+						prevResults = results != null;
 					}
-					prevResults = results != null;
 				}
 				break;
 			default:
