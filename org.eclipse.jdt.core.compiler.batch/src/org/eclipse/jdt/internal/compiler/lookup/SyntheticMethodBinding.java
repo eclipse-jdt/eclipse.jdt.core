@@ -92,7 +92,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
-		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods[knownAccessMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.;
+		int methodId = nextSyntheticIndex(knownAccessMethods);
 		this.index = methodId;
 		this.selector = CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(methodId).toCharArray());
 		if (isReadAccess) {
@@ -195,7 +195,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
-		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods[knownAccessMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.;
+		int methodId = nextSyntheticIndex(knownAccessMethods);
 		this.index = methodId;
 		this.selector = selector;
 		this.returnType = declaringSourceType.scope.createArrayType(TypeBinding.INT, 1);
@@ -322,9 +322,18 @@ public class SyntheticMethodBinding extends MethodBinding {
 	}
 
 	private int nextSmbIndex() {
-		SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
-		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods[knownAccessMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.;
-		return methodId;
+		return nextSyntheticIndex(((SourceTypeBinding)this.declaringClass).syntheticMethods());
+	}
+
+	static int nextSyntheticIndex(SyntheticMethodBinding[] knownAccessMethods) {
+		int maxIndex = -1;
+		if (knownAccessMethods != null) {
+			for (SyntheticMethodBinding known : knownAccessMethods) {
+				if (known != null && known.index > maxIndex)
+					maxIndex = known.index;
+			}
+		}
+		return maxIndex + 1;
 	}
 
 	/**
@@ -551,7 +560,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding sourceType = (SourceTypeBinding) accessedConstructor.declaringClass;
 		SyntheticMethodBinding[] knownSyntheticMethods = sourceType.syntheticMethods();   // returns synthetic methods sorted with index.
-		this.index = knownSyntheticMethods == null ? 0 : knownSyntheticMethods[knownSyntheticMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.
+		this.index = nextSyntheticIndex(knownSyntheticMethods);
 
 		this.selector = accessedConstructor.selector;
 		this.returnType = accessedConstructor.returnType;
@@ -636,7 +645,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
-		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods[knownAccessMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.
+		int methodId = nextSyntheticIndex(knownAccessMethods);
 		this.index = methodId;
 
 		this.selector = CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(methodId).toCharArray());
