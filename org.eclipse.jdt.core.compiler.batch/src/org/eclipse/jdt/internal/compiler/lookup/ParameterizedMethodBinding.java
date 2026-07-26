@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -297,6 +297,14 @@ public class ParameterizedMethodBinding extends MethodBinding {
 
 	public ParameterizedMethodBinding() {
 		// no init
+	}
+
+	@Override
+	public MethodBinding copy() {
+		ParameterizedMethodBinding copy = new ParameterizedMethodBinding();
+		copy.copyFieldsFrom(this);
+		copy.originalMethod = this.originalMethod;
+		return copy;
 	}
 
 	/**
