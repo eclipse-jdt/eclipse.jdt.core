@@ -851,4 +851,20 @@ public class NullAnnotationMatching {
 		buf.append(" nullStatus="+this.nullStatus); //$NON-NLS-1$
 		return buf.toString();
 	}
+	public static MethodBinding methodWithMergedNullAnnotations(MethodBinding current, MethodBinding[] moreSpecific, int count, LookupEnvironment environment) {
+		if (count < 2)
+			return current;
+		TypeBinding[] parameters = weakerTypes(moreSpecific[0].parameters, moreSpecific[1].parameters, environment);
+		TypeBinding returnType = strongerType(moreSpecific[0].returnType, moreSpecific[1].returnType, environment);
+		for (int i = 2; i < count; i++) {
+			parameters = weakerTypes(parameters, moreSpecific[i].parameters, environment);
+			returnType = strongerType(returnType, moreSpecific[i].returnType, environment);
+		}
+		if (parameters != current.parameters || returnType != current.returnType) { //$IDENTITY-COMPARISON$
+			current = current.copy();
+			current.parameters = parameters;
+			current.returnType = returnType;
+		}
+		return current;
+	}
 }
