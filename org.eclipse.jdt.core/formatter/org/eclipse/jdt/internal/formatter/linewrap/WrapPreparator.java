@@ -1201,6 +1201,10 @@ public class WrapPreparator extends ASTVisitor {
 	}
 
 	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, int wrappingOption, boolean shouldWrap) {
+		//This method has it's specific rule to handle newline on annotations, that clash with the
+		//insert_new_line_after_annotation_on_record_parameter options, so if Applied, since it uses a different logic
+		//it rewrite the whole line, and remove the formatting just applied. To avoid that the shouldWrap boolean
+		//has been added, making it optional in case of need.
 		Annotation last = null;
 		int i;
 		for (i = 0; i < modifiers.size(); i++) {
