@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -79,8 +79,8 @@ import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.DerivedSourceSearchParticipantRegistry;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
@@ -4435,8 +4435,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private InputStream createInputStream(File file) throws IOException {
 		InputStream in = new FileInputStream(file);
+		// Ownership of 'in' is transferred to the returned stream on success; on any abnormal
+		// exit (incl. a non-ZipException IOException such as EOFException from a truncated file)
+		// the finally block closes 'in' to avoid leaking the file descriptor.
+		boolean ownershipTransferred = false;
 		try {
-			return new BufferedInputStream(new java.util.zip.GZIPInputStream(in, 8192));
+			BufferedInputStream result = new BufferedInputStream(new java.util.zip.GZIPInputStream(in, 8192));
+			ownershipTransferred = true;
+			return result;
 		} catch (ZipException e) {
 			// probably not zipped (old format), but may also be corrupted.
 			in.close();
@@ -4448,12 +4454,26 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				throw e; // corrupted
 			}
 			return new BufferedInputStream(new FileInputStream(file));
+		} finally {
+			if (!ownershipTransferred) {
+				in.close(); // idempotent: harmless if already closed on the ZipException path
+			}
 		}
 	}
 
 	private OutputStream createOutputStream(File file) throws IOException {
 		if (SAVE_ZIPPED) {
-			return new BufferedOutputStream(new java.util.zip.GZIPOutputStream(new FileOutputStream(file), 8192));
+			FileOutputStream fileOutput = new FileOutputStream(file);
+			boolean ownershipTransferred = false;
+			try {
+				BufferedOutputStream result = new BufferedOutputStream(new java.util.zip.GZIPOutputStream(fileOutput, 8192));
+				ownershipTransferred = true;
+				return result;
+			} finally {
+				if (!ownershipTransferred) {
+					fileOutput.close(); // avoids fd leak if GZIPOutputStream constructor throws
+				}
+			}
 		} else {
 			return new BufferedOutputStream(new FileOutputStream(file));
 		}
