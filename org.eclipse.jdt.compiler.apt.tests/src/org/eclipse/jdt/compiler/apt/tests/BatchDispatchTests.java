@@ -16,12 +16,18 @@ package org.eclipse.jdt.compiler.apt.tests;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -324,6 +330,88 @@ public class BatchDispatchTests extends TestCase {
 		options.add("-verbose");
 
 		BatchTestUtils.compileOneClass(BatchTestUtils.getEclipseCompiler(), options, inputFile);
+	}
+
+	/**
+	 * Security test: verifies that specifying a class that does NOT implement
+	 * {@link javax.annotation.processing.Processor} via the {@code -processor}
+	 * option causes compilation to fail, and — crucially — that the class is
+	 * <em>never instantiated</em>.
+	 * <p>
+	 * {@code NotAProcessor} records its construction via a {@link System} property.
+	 * Without the {@code isAssignableFrom} guard the constructor fires before the
+	 * {@code (Processor)} cast is attempted, so the property would be set.
+	 * With the guard the class is rejected before {@code newInstance()} is called,
+	 * so the property must remain absent.
+	 */
+	public void testInvalidProcessorClassRejectedWithEclipseCompiler() throws IOException {
+		// The fully-qualified name of the class that must never be instantiated.
+		final String NOT_A_PROCESSOR =
+				"org.eclipse.jdt.compiler.apt.tests.processors.notaprocessor.NotAProcessor"; //$NON-NLS-1$
+		final String SIDE_EFFECT_PROPERTY =
+				"org.eclipse.jdt.compiler.apt.tests.NotAProcessor.constructorCalled"; //$NON-NLS-1$
+
+		// Start with a clean slate — make sure the property is not set from a previous run.
+		System.clearProperty(SIDE_EFFECT_PROPERTY);
+
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
+		File inputFile = BatchTestUtils.copyResource("targets/dispatch/HasGenClass.java", targetFolder);
+		assertNotNull("No input file", inputFile);
+
+		List<String> options = new ArrayList<>();
+		options.add("-processor");
+		options.add(NOT_A_PROCESSOR);
+		options.add("-d");
+		options.add(BatchTestUtils._tmpBinFolderName);
+		options.add("-s");
+		options.add(BatchTestUtils._tmpGenFolderName);
+		options.add("-processorpath");
+		options.add(BatchTestUtils._processorJarPath);
+
+		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+		StandardJavaFileManager manager = compiler.getStandardFileManager(
+				diagnostics, Locale.getDefault(), Charset.defaultCharset());
+		Iterable<? extends JavaFileObject> units =
+				manager.getJavaFileObjectsFromFiles(List.of(inputFile));
+
+		StringWriter sw = new StringWriter();
+		boolean succeeded = compiler
+				.getTask(new PrintWriter(sw), manager, diagnostics, options, null, units)
+				.call();
+		manager.close();
+
+		// 1. Compilation must fail — a non-Processor class is not acceptable.
+		assertFalse("Compilation should have failed when a non-Processor class is named with -processor",
+				succeeded);
+
+		// 2. THE KEY ASSERTION: the constructor of NotAProcessor must never have run.
+		//    If the isAssignableFrom guard is missing, newInstance() fires before the
+		//    cast check and this property will be "true", failing the test.
+		assertNull(
+				"NotAProcessor constructor was called — the class was instantiated before being "
+				+ "validated, which means the isAssignableFrom guard is missing!",
+				System.getProperty(SIDE_EFFECT_PROPERTY));
+
+		// 3. The error message should identify the offending class name.
+		String allMessages = sw.toString();
+		for (javax.tools.Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics()) {
+			allMessages += d.getMessage(Locale.getDefault());
+		}
+		assertTrue(
+				"Error output should reference the invalid class name, but got: " + allMessages,
+				allMessages.contains("NotAProcessor") || allMessages.contains(NOT_A_PROCESSOR));
+	}
+
+	/**
+	 * Positive counterpart of {@link #testInvalidProcessorClassRejectedWithEclipseCompiler()}:
+	 * verifies that a legitimate annotation processor still loads and runs correctly
+	 * now that the {@code isAssignableFrom} guard is in place.
+	 */
+	public void testValidProcessorClassAcceptedWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestInheritance(compiler, INHERITEDANNOPROC);
 	}
 
 	@Override

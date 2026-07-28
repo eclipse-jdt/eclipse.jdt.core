@@ -148,6 +148,10 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 				String proc = this._commandLineProcessorIter.next();
 				try {
 					Class<?> clazz = this._procLoader.loadClass(proc);
+					if (!Processor.class.isAssignableFrom(clazz)) {
+						throw new AbortCompilation(null, new ClassCastException(
+							"Specified processor class '" + proc + "' does not implement javax.annotation.processing.Processor")); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					Object o = clazz.getDeclaredConstructor().newInstance();
 					Processor p = (Processor) o;
 					p.init(this._processingEnv);
