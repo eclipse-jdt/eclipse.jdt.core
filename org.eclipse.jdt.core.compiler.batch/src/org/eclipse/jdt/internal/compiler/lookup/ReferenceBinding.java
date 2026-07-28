@@ -2541,7 +2541,7 @@ public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes, 
 			if (intersectingType.isTypeVariable() || intersectingType.isWildcard()
 					|| !intersectingType.isProperType(true))
 				return false;
-			if (!mostSpecific.isCompatibleWith(intersectingType))
+			if (!mostSpecific.isSubtypeOf(intersectingType, simulatingBugJDK8026527))
 				return false;
 		}
 	}
