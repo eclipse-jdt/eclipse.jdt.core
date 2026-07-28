@@ -30,7 +30,9 @@ public class Test545078 {
 	}
 
 	public void g(
-			@ParameterAnnotation(key1 = "value1", key2 = "value2") @OtherParameterAnnotation() @ExtraParamAnno
+			@ParameterAnnotation(key1 = "value1", key2 = "value2")
+			@OtherParameterAnnotation()
+			@ExtraParamAnno
 			String arg1) {
 		//
 	}
