@@ -40,25 +40,22 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 
 	public boolean setUpperBounds(TypeBinding[] upperBounds, ReferenceBinding javaLangObject) {
+		this.upperBounds = upperBounds;
+		if (upperBounds.length > 0)
+			this.firstBound = upperBounds[0];
 		int numReferenceInterfaces = 0;
 		if (!isConsistentIntersection(upperBounds, InferenceContext18.SIMULATE_BUG_JDK_8026527))
 			return false;
-		ReferenceBinding newSuperclass = this.superclass;
 		for (TypeBinding aBound : upperBounds) {
 			if (aBound instanceof ReferenceBinding) {
-				if (newSuperclass == null && aBound.isClass())
-					newSuperclass = (ReferenceBinding) aBound;
+				if (this.superclass == null && aBound.isClass())
+					this.superclass = (ReferenceBinding) aBound;
 				else if (aBound.isInterface())
 					numReferenceInterfaces++;
 			} else if (TypeBinding.equalsEquals(aBound.leafComponentType(), this)) {
 				return false; // cycle detected
 			}
 		}
-		// Publish the new state only after all bounds have passed validation.
-		this.upperBounds = upperBounds;
-		if (upperBounds.length > 0)
-			this.firstBound = upperBounds[0];
-		this.superclass = newSuperclass;
 		this.superInterfaces = new ReferenceBinding[numReferenceInterfaces];
 		int idx = 0;
 		for (TypeBinding aBound : upperBounds) {
