@@ -1279,9 +1279,13 @@ class BoundSet {
 		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
 			return;
 		if (s.isArrayType() && t.isArrayType()) {
+			ArrayBinding sArray = (ArrayBinding) s;
+			ArrayBinding tArray = (ArrayBinding) t;
+			if (sArray.dimensions() != tArray.dimensions())
+				return;
 			// Common generic supertypes of array types are found through their component types.
 			allSuperPairsWithCommonGenericTypeRecursive(
-					((ArrayBinding) s).elementsType(), ((ArrayBinding) t).elementsType(), result, visited);
+					sArray.elementsType(), tArray.elementsType(), result, visited);
 			return;
 		}
 		if (!visited.add(s.id))
