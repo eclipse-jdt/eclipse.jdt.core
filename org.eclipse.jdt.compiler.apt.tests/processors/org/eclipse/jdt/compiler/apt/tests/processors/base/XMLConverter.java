@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 BEA Systems, Inc.
+ * Copyright (c) 2008, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,8 +28,9 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementScanner6;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
+import org.eclipse.core.internal.runtime.XmlProcessorFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -144,8 +145,8 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	 * @throws ParserConfigurationException
 	 */
 	public static Document convertModel(Iterable<? extends javax.lang.model.element.Element> declarations) throws ParserConfigurationException {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		Document model = factory.newDocumentBuilder().newDocument();
+		DocumentBuilder builder = XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE();
+		Document model = builder.newDocument();
 		org.w3c.dom.Element modelNode = model.createElement(MODEL_TAG);
 
 		XMLConverter converter = new XMLConverter(model);
