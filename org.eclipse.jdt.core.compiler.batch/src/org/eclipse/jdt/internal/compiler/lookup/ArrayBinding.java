@@ -212,6 +212,8 @@ public ArrayBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVa
 @Override
 public ArrayBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 	TypeBinding leafType = this.leafComponentType.downwardsProjection(scope, mentionedTypeVariables);
+	if (leafType == null)
+		return null;
 	return scope.environment().createArrayType(leafType, this.dimensions, this.typeAnnotations);
 }
 
