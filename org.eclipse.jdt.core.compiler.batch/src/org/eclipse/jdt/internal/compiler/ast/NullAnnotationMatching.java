@@ -778,6 +778,7 @@ public class NullAnnotationMatching {
 	}
 
 	public static TypeBinding strongerType(TypeBinding type1, TypeBinding type2, LookupEnvironment environment) {
+		if (!TypeBinding.equalsEquals(type1, type2)) return type1; // don't change the unannotated type
 		if ((type1.tagBits & TagBits.AnnotationNonNull) != 0)
 			return mergeTypeAnnotations(type1, type2, true, environment);
 		return mergeTypeAnnotations(type2, type1, true, environment); // don't bother to distinguish unannotated vs. @Nullable, since both can accept null
