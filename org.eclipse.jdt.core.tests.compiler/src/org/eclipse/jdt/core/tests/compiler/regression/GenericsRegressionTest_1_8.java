@@ -11045,4 +11045,33 @@ public void testBug508834_comment0() {
 			----------
 			""");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4867
+	public void testGH4867() {
+		runConformTest(
+			new String[] {
+				"MessageExpressionVoterTests.java",
+				"""
+				public class MessageExpressionVoterTests {
+					MessageMatcher<?> matcher = new MessageMatcher<String>() {
+					};
+
+					public boolean voteGranted() {
+						return this.matcher.matcher(ArgumentMatchers.any());
+					}
+				}
+				interface MessageMatcher<T> {
+					default boolean matcher(Message<? extends T> message) {
+						return true;
+					}
+				}
+				interface Message<T> {}
+				class ArgumentMatchers {
+					public static <T> T any() {
+						return null;
+					}
+				}
+				"""
+			});
+	}
 }
