@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2023 GK Software SE, and others.
+ * Copyright (c) 2013, 2026 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11044,5 +11044,34 @@ public void testBug508834_comment0() {
 			Type mismatch: cannot convert from capture#1-of ? extends AutoCloseable to CharSequence[]
 			----------
 			""");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4867
+	public void testGH4867() {
+		runConformTest(
+			new String[] {
+				"MessageExpressionVoterTests.java",
+				"""
+				public class MessageExpressionVoterTests {
+					MessageMatcher<?> matcher = new MessageMatcher<String>() {
+					};
+
+					public boolean voteGranted() {
+						return this.matcher.matcher(ArgumentMatchers.any());
+					}
+				}
+				interface MessageMatcher<T> {
+					default boolean matcher(Message<? extends T> message) {
+						return true;
+					}
+				}
+				interface Message<T> {}
+				class ArgumentMatchers {
+					public static <T> T any() {
+						return null;
+					}
+				}
+				"""
+			});
 	}
 }
