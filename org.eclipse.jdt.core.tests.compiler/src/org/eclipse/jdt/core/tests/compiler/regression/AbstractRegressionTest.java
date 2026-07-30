@@ -602,6 +602,10 @@ static class JavacCompiler {
 			switch(rawVersion) {
 				case "26-ea", "26-beta", "26":
 					return 0000;
+				case "26.0.1":
+					return 0100;
+				case "26.0.2":
+					return 0200;
 			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
@@ -1207,7 +1211,9 @@ protected static class JavacTestOptions {
 			JavacBug8383563 = // https://bugs.openjdk.org/browse/JDK-8383563
 					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
 			JavacBug8375572 = // https://bugs.openjdk.org/browse/JDK-8375572
-					new JavacHasABug(MismatchType.JavacErrorsEclipseNone);
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
+			JavacBug8343286 = // https://bugs.openjdk.org/browse/JDK-8343286
+					new JavacHasABug(MismatchType.EclipseWarningsJavacNone, ClassFileConstants.JDK24, 0000);
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
