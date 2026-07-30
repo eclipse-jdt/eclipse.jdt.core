@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 
 @SuppressWarnings({ "rawtypes" })
 public class PolymorphicSignatureTest extends AbstractRegressionTest {
@@ -23,6 +24,20 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 	public PolymorphicSignatureTest(String name) {
 		super(name);
 	}
+
+	// ========= OPT-IN to run.javac mode: ===========
+	@Override
+	protected void setUp() throws Exception {
+		this.runJavacOptIn = true;
+		super.setUp();
+	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacOptIn = false; // do it last, so super can still clean up
+	}
+	// =================================================
+
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
@@ -102,5 +117,30 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 				"" +
 				"}\n"
 			});
+	}
+	public void testGH3651() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"VarHandleCast.java",
+				"""
+				import java.lang.invoke.VarHandle;
+				class VarHandleCast<V> {
+				     VarHandle vh;
+				     V method(Object obj) {
+				         return (V)vh.getAndSet(this, obj);
+				     }
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+			----------
+			1. WARNING in VarHandleCast.java (at line 5)
+				return (V)vh.getAndSet(this, obj);
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type safety: Unchecked cast from Object to V
+			----------
+			""";
+		runner.javacTestOptions = JavacHasABug.JavacBug8343286;
+		runner.runWarningTest();
 	}
 }
