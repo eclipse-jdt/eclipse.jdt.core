@@ -729,11 +729,29 @@ public class Util implements SuffixConstants {
 	/**
 	 * Returns whether the given name is a native library file name
 	 * (.so, .dll, .dylib).
+	 * <p>
+	 * The name may be a simple file name, a file system path, or a jar entry
+	 * path. Comparison is done character-by-character to avoid extra string
+	 * allocations, consistent with {@link #isClassFileName}.
+	 * </p>
+	 * <p>
+	 * This check prevents native libraries from being misclassified as ZIP/JMOD
+	 * archives or from being added to the bootclasspath.
+	 * See <a href="https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253">issue 5253</a>.
+	 * </p>
+	 *
+	 * @param name the file name or path to check; must not be {@code null}
+	 * @return {@code true} if the name ends with a native library extension
 	 */
 	private static boolean isNativeLibrary(String name) {
 		int lastDot = name.lastIndexOf('.');
 		if (lastDot == -1)
 			return false;
+		// Reject if the last dot belongs to a directory segment rather than
+		// a file extension (e.g. "some.dir/file.so" is still valid because
+		// the separator is before the last dot, but "dir.so/file" is not).
+		// On Android/Linux File.separatorChar is '/', so jar-style paths are
+		// handled correctly for the primary target platform.
 		if (name.lastIndexOf(File.separatorChar) > lastDot)
 			return false;
 		int length = name.length();
@@ -1145,6 +1163,8 @@ public class Util implements SuffixConstants {
 			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) {
 				String path = tokenizer.nextToken();
+				// Exclude native libraries (.so, .dll, .dylib) from the bootclasspath.
+				// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253
 				if (!isNativeLibrary(path)) {
 					filePaths.add(path);
 				}
@@ -1171,6 +1191,8 @@ public class Util implements SuffixConstants {
 					for (File[] current : systemLibrariesJars) {
 						if (current != null) {
 							for (File file : current) {
+								// Exclude native libraries (.so, .dll, .dylib) from the bootclasspath.
+								// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253
 								if (!isNativeLibrary(file.getAbsolutePath())) {
 									filePaths.add(file.getAbsolutePath());
 								}
