@@ -272,6 +272,7 @@ public static Test suite() {
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
 	all.addTest(new TestSuite(HashtableOfObjectTest.class));
 	all.addTest(new TestSuite(JrtUtilTest.class));
+	all.addTest(new TestSuite(org.eclipse.jdt.core.tests.compiler.util.UtilTest.class));
 
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 
