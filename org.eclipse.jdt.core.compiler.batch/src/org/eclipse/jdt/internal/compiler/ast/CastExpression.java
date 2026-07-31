@@ -654,6 +654,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		exprContainCast = true;
 	}
 	TypeBinding expressionType = this.expression.resolveType(scope);
+	TypeBinding originalExpressionType = expressionType;
 	if (this.expression instanceof MessageSend) {
 		MessageSend messageSend = (MessageSend) this.expression;
 		MethodBinding methodBinding = messageSend.binding;
@@ -678,7 +679,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (this.isVarTypeDeclaration && TypeBinding.notEquals(expressionType, castType)) {
 				this.bits |= ASTNode.DisableUnnecessaryCastCheck;
 			}
-			boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression, true);
+			boolean isLegal = checkCastTypesCompatibility(scope, castType, originalExpressionType, this.expression, true);
 			if (isLegal) {
 				this.expression.computeConversion(scope, castType, expressionType);
 				if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
