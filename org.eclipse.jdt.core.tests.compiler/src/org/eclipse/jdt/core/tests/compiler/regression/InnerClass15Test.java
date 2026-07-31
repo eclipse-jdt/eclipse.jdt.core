@@ -24,7 +24,7 @@ public InnerClass15Test(String name) {
 }
 static {
 //	TESTS_NUMBERS = new int[] { 2 };
-//	TESTS_NAMES = new String[] {"testIssue1069", "testIssue5197", "testIssue4733"};
+	//TESTS_NAMES = new String[] {"testBug520874"};
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
@@ -979,6 +979,84 @@ public void testIssue4733() {
 		},
 		"Ok!");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4889
+// Eclipse 4.39.0 RC1: Unable to resolve inner abstract class
+public void testIssue4889() {
+	runConformTest(
+		new String[] {
+				"eiab/DocumentsStore.java",
+				"""
+				package eiab;
+
+				import eiab.DocumentsStore.DocumentsStoreConfiguration;
+
+				import java.time.Duration;
+
+				public class DocumentsStore extends AbstractStore<Integer, Boolean, DocumentsStoreConfiguration> {
+				    protected DocumentsStore(final DocumentsStoreConfiguration configuration) {
+				        super(configuration);
+				    }
+
+				    public static class DocumentsStoreConfiguration extends BaseConfiguration {}
+
+				    public static void main(String [] args) {
+						System.out.println("Ok!");
+				   }
+				}
+				""",
+				"eiab/AbstractStore.java",
+				"""
+				package eiab;
+
+				import eiab.AbstractStore.BaseConfiguration;
+
+				import java.util.LinkedHashMap;
+				import java.util.Map;
+
+				public abstract class AbstractStore<KEY, VALUE, CONFIGURATION extends BaseConfiguration> {
+					abstract static class BaseConfiguration {
+						private boolean cacheEnabled = true;
+						public boolean isCacheEnabled() {
+							return cacheEnabled;
+						}
+						public void setCacheEnabled(boolean cacheEnabled) {
+							this.cacheEnabled = cacheEnabled;
+						}
+					}
+
+				    private final CONFIGURATION configuration;
+				    private final Map<KEY, VALUE> store;
+
+				    protected AbstractStore(final CONFIGURATION configuration) {
+				        this.configuration = configuration;
+				        this.store = new LinkedHashMap<>();
+				    }
+
+				    protected void put(final KEY key, final VALUE value) {
+				        this.store.put(key, value);
+				    }
+
+				    protected void remove(final KEY key) {
+				        this.store.remove(key);
+				    }
+
+				    public void clear() {
+				        this.store.clear();
+				    }
+
+				    boolean contains(final KEY key) {
+				        if (!configuration.isCacheEnabled()) {
+				            return false;
+				        }
+
+				        return this.store.containsKey(key);
+				    }
+				}
+				"""
+			},
+			"Ok!");
+}
+
 
 
 
