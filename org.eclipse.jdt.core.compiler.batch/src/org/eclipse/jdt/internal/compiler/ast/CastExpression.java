@@ -655,10 +655,12 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	TypeBinding expressionType = this.expression.resolveType(scope);
 	TypeBinding originalExpressionType = expressionType;
+	boolean isPolymorphicMethod = false;
 	if (this.expression instanceof MessageSend) {
 		MessageSend messageSend = (MessageSend) this.expression;
 		MethodBinding methodBinding = messageSend.binding;
 		if (methodBinding != null && methodBinding.isPolymorphic()) {
+			isPolymorphicMethod = true;
 			messageSend.binding = scope.environment().updatePolymorphicMethodReturnType((PolymorphicMethodBinding) methodBinding, castType);
 			if (TypeBinding.notEquals(expressionType, castType)) {
 				expressionType = castType;
@@ -681,6 +683,8 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			boolean isLegal = checkCastTypesCompatibility(scope, castType, originalExpressionType, this.expression, true);
 			if (isLegal) {
+				if (isPolymorphicMethod)
+					this.bits &= ~ASTNode.GenerateCheckcast;
 				this.expression.computeConversion(scope, castType, expressionType);
 				if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
 					if (scope.compilerOptions().reportUnavoidableGenericTypeProblems
