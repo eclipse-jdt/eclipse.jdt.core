@@ -668,6 +668,9 @@ public class Util implements SuffixConstants {
 			}
 			return false; // it is a ".class" file, it cannot be a zip archive name
 		}
+		if (isNativeLibrary(name)) {
+			return false;
+		}
 		return true; // it is neither a ".java" file nor a ".class" file, so this is a potential archive name
 	}
 
@@ -705,6 +708,9 @@ public class Util implements SuffixConstants {
 			}
 			return -1; // it is a ".class" file, it cannot be a zip archive name
 		}
+		if (isNativeLibrary(name)) {
+			return -1;
+		}
 		if (extensionLength == EXTENSION_jmod.length()) {
 			for (int i = extensionLength-1; i >=0; i--) {
 				if (Character.toLowerCase(name.charAt(length - extensionLength + i)) != EXTENSION_jmod.charAt(i)) {
@@ -720,6 +726,61 @@ public class Util implements SuffixConstants {
 	 * Returns true iff str.toLowerCase().endsWith(".class")
 	 * implementation is not creating extra strings.
 	 */
+	/**
+	 * Returns whether the given name is a native library file name
+	 * (.so, .dll, .dylib).
+	 * <p>
+	 * The name may be a simple file name, a file system path, or a jar entry
+	 * path. Comparison is done character-by-character to avoid extra string
+	 * allocations, consistent with {@link #isClassFileName}.
+	 * </p>
+	 * <p>
+	 * This check prevents native libraries from being misclassified as ZIP/JMOD
+	 * archives or from being added to the bootclasspath.
+	 * See <a href="https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253">issue 5253</a>.
+	 * </p>
+	 *
+	 * @param name the file name or path to check; must not be {@code null}
+	 * @return {@code true} if the name ends with a native library extension
+	 */
+	private static boolean isNativeLibrary(String name) {
+		int lastDot = name.lastIndexOf('.');
+		if (lastDot == -1)
+			return false;
+		// Reject if the last dot belongs to a directory segment rather than
+		// a file extension (e.g. "some.dir/file.so" is still valid because
+		// the separator is before the last dot, but "dir.so/file" is not).
+		// On Android/Linux File.separatorChar is '/', so jar-style paths are
+		// handled correctly for the primary target platform.
+		if (name.lastIndexOf(File.separatorChar) > lastDot)
+			return false;
+		int length = name.length();
+		int extensionLength = length - lastDot - 1;
+		if (extensionLength == 2) { // .so
+			if ((name.charAt(length - 2) == 's' || name.charAt(length - 2) == 'S')
+					&& (name.charAt(length - 1) == 'o' || name.charAt(length - 1) == 'O')) {
+				return true;
+			}
+		}
+		if (extensionLength == 3) { // .dll
+			if ((name.charAt(length - 3) == 'd' || name.charAt(length - 3) == 'D')
+					&& (name.charAt(length - 2) == 'l' || name.charAt(length - 2) == 'L')
+					&& (name.charAt(length - 1) == 'l' || name.charAt(length - 1) == 'L')) {
+				return true;
+			}
+		}
+		if (extensionLength == 5) { // .dylib
+			if ((name.charAt(length - 5) == 'd' || name.charAt(length - 5) == 'D')
+					&& (name.charAt(length - 4) == 'y' || name.charAt(length - 4) == 'Y')
+					&& (name.charAt(length - 3) == 'l' || name.charAt(length - 3) == 'L')
+					&& (name.charAt(length - 2) == 'i' || name.charAt(length - 2) == 'I')
+					&& (name.charAt(length - 1) == 'b' || name.charAt(length - 1) == 'B')) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public final static boolean isClassFileName(char[] name) {
 		int nameLength = name == null ? 0 : name.length;
 		int suffixLength = SUFFIX_CLASS.length;
@@ -1101,7 +1162,12 @@ public class Util implements SuffixConstants {
 		if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
 			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) {
-				filePaths.add(tokenizer.nextToken());
+				String path = tokenizer.nextToken();
+				// Exclude native libraries (.so, .dll, .dylib) from the bootclasspath.
+				// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253
+				if (!isNativeLibrary(path)) {
+					filePaths.add(path);
+				}
 			}
 		} else {
 			// try to get all jars inside the lib folder of the java home
@@ -1125,7 +1191,11 @@ public class Util implements SuffixConstants {
 					for (File[] current : systemLibrariesJars) {
 						if (current != null) {
 							for (File file : current) {
-								filePaths.add(file.getAbsolutePath());
+								// Exclude native libraries (.so, .dll, .dylib) from the bootclasspath.
+								// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253
+								if (!isNativeLibrary(file.getAbsolutePath())) {
+									filePaths.add(file.getAbsolutePath());
+								}
 							}
 						}
 					}
