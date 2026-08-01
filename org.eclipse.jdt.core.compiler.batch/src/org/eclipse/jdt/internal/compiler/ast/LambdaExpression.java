@@ -1129,6 +1129,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		// A speculative copy can contain nested lambdas. Keep each nested copy linked to its
 		// source lambda when no enclosing lambda declares parameters, so overload checks can
 		// reuse the existing per-target inference cache without reusing parameter bindings.
+		// Both traversals start with their root and then visit nested lambdas in source order.
 		List<CollectedLambda> sourceLambdas = collectLambdas(this);
 		List<CollectedLambda> copiedLambdas = collectLambdas(copy);
 		if (sourceLambdas.size() != copiedLambdas.size())
@@ -1140,7 +1141,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if (sourceLambda.sourceStart != copiedLambda.sourceStart || sourceLambda.sourceEnd != copiedLambda.sourceEnd)
 				throw new CopyFailureException();
 			if (!source.cacheShareable()) {
-				if (i == 0)
+				// The root is the copy requested by the caller. Nested lambdas below a
+				// parameterized lambda are local sources for copies that use the enclosing
+				// copy's parameter bindings, so their inference caches stay in that context.
+				if (sourceLambda == this)
 					copiedLambda.original = this;
 				continue;
 			}

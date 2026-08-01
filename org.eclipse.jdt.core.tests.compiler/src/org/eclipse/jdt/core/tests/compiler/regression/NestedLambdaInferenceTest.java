@@ -60,6 +60,40 @@ public class NestedLambdaInferenceTest extends AbstractRegressionTest {
 			""");
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5206
+	public void testIssue5206InterleavedParameterizedLambdas() {
+		this.runConformTest(new String[] {
+			"InterleavedLambdas.java",
+			"""
+			public class InterleavedLambdas {
+			    interface Producer<T> {
+			        T produce();
+			    }
+			    interface Mapper<T, R> {
+			        R map(T value);
+			    }
+
+			    static <T> T produce(Producer<T> producer) {
+			        return producer.produce();
+			    }
+			    static <T, R> R map(T value, Mapper<T, R> mapper) {
+			        return mapper.map(value);
+			    }
+
+			    public static void main(String[] args) {
+			        String result = produce(() ->
+			            map("left", left ->
+			                produce(() ->
+			                    map(7, number -> left + number)))
+			            + produce(() -> "!"));
+			        System.out.print(result);
+			    }
+			}
+			"""
+		},
+		"left7!");
+	}
+
 	private void runNestedLambdaTest(String className, String overloads) {
 		this.runConformTest(new String[] {
 			className + ".java",
