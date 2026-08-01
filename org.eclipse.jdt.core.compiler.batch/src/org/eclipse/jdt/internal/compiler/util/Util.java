@@ -1191,11 +1191,12 @@ public class Util implements SuffixConstants {
 					for (File[] current : systemLibrariesJars) {
 						if (current != null) {
 							for (File file : current) {
-								// Exclude native libraries (.so, .dll, .dylib) from the bootclasspath.
-								// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253
-								if (!isNativeLibrary(file.getAbsolutePath())) {
-									filePaths.add(file.getAbsolutePath());
-								}
+										// Exclude native libraries (.so, .dll, .dylib) from the bootclasspath.
+										// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253
+										String absolutePath = file.getAbsolutePath();
+										if (!isNativeLibrary(absolutePath)) {
+											filePaths.add(absolutePath);
+										}
 							}
 						}
 					}
