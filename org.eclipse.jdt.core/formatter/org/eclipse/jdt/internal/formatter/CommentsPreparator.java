@@ -1691,7 +1691,8 @@ public class CommentsPreparator extends ASTVisitor {
 					if (c == '*')
 						lineStart = (this.ctm.charAt(i + 1) == ' ') ? i + 2 : i + 1;
 					if (c == '/' && isMarkdown)
-						lineStart = ((this.ctm.charAt(i + 1) == '/') && (this.ctm.charAt(i + 2) == '/')) ? i + 4
+						lineStart = ((this.ctm.charAt(i + 1) == '/') && (this.ctm.charAt(i + 2) == '/'))
+								? (this.ctm.charAt(i + 3) == ' ' ? i + 4 : i + 3)
 								: i + 1;
 					break;
 				}
