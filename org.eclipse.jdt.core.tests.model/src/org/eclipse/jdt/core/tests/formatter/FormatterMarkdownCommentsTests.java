@@ -343,6 +343,34 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		formatSource(input, expected);
 	}
 
+	public void testMarkdownFencedCodeBlock2() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				/// A markdown comment, with a codeblock.
+				/// ```java
+				/// void foo() {
+				///
+				///   System.out.println("Hello, World!"); // 2 spaces indented
+				///
+				/// }
+				/// ```
+				class Foo { }
+				""";
+		String expected = """
+				/// A markdown comment, with a codeblock.
+				/// ```java
+				/// void foo() {
+				///
+				/// 	System.out.println("Hello, World!"); // 2 spaces indented
+				///
+				/// }
+				/// ```
+				class Foo {
+				}
+				""";
+		formatSource(input, expected);
+	}
+
 	public void testMarkdownFencedCodeBlockWithTilde() throws JavaModelException {
 		setComplianceLevel(CompilerOptions.VERSION_23);
 		String input = """
