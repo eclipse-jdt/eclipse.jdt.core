@@ -106,7 +106,7 @@ public class ReconcilerModuleMultiReleaseTests extends ModifyingResourceTests {
 				return problemRequestor;
 			}
 		};
-		ICompilationUnit wc = getWorkingCopy(path, source, owner, problemRequestor);
+		ICompilationUnit wc = getWorkingCopy(path, source, owner);
 		try {
 			problemRequestor.initialize(source.toCharArray());
 			wc.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, owner, null);
