@@ -986,9 +986,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					return null;
 
 				targetType = copy.expectedType; // possibly updated local types
-				if (this.copiesPerTargetType == null)
-					this.copiesPerTargetType = new HashMap<>();
-				this.copiesPerTargetType.put(targetType, copy);
+				this.copiesPerTargetType.put(targetType, copy); // copy() has linked this lambda to the original's cache
 			}
 			if (!requireExceptionAnalysis)
 				return copy;
@@ -1126,28 +1124,22 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	}
 
 	private void shareInferenceCaches(LambdaExpression copy) {
-		// A speculative copy can contain nested lambdas. Keep each nested copy linked to its
-		// source lambda when no enclosing lambda declares parameters, so overload checks can
-		// reuse the existing per-target inference cache without reusing parameter bindings.
-		// Both traversals start with their root and then visit nested lambdas in source order.
-		List<CollectedLambda> sourceLambdas = collectLambdas(this);
-		List<CollectedLambda> copiedLambdas = collectLambdas(copy);
+		// A speculative copy can contain nested lambdas. Link each collected lambda to its
+		// original lambda and share the per-target inference cache.
+		// A cache entry is a resolved lambda copy and owns its parameter bindings. Nested
+		// lambdas may use parameters from an enclosing lambda, so collectLambdas() stops
+		// below a lambda with parameters. Caches below that point stay local to the
+		// enclosing copy.
+		// Both traversals start at the root and visit nested lambdas in source order.
+		List<LambdaExpression> sourceLambdas = collectLambdas(this);
+		List<LambdaExpression> copiedLambdas = collectLambdas(copy);
 		if (sourceLambdas.size() != copiedLambdas.size())
 			throw new CopyFailureException();
 		for (int i = 0; i < sourceLambdas.size(); i++) {
-			CollectedLambda source = sourceLambdas.get(i);
-			LambdaExpression sourceLambda = source.lambda();
-			LambdaExpression copiedLambda = copiedLambdas.get(i).lambda();
+			LambdaExpression sourceLambda = sourceLambdas.get(i);
+			LambdaExpression copiedLambda = copiedLambdas.get(i);
 			if (sourceLambda.sourceStart != copiedLambda.sourceStart || sourceLambda.sourceEnd != copiedLambda.sourceEnd)
 				throw new CopyFailureException();
-			if (!source.cacheShareable()) {
-				// The root is the copy requested by the caller. Nested lambdas below a
-				// parameterized lambda are local sources for copies that use the enclosing
-				// copy's parameter bindings, so their inference caches stay in that context.
-				if (sourceLambda == this)
-					copiedLambda.original = this;
-				continue;
-			}
 			LambdaExpression originalLambda = sourceLambda.original;
 			copiedLambda.original = originalLambda;
 			if (originalLambda.copiesPerTargetType == null)
@@ -1157,25 +1149,13 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 	}
 
-	private record CollectedLambda(LambdaExpression lambda, boolean cacheShareable) {}
-
-	private static List<CollectedLambda> collectLambdas(LambdaExpression root) {
-		List<CollectedLambda> lambdas = new ArrayList<>();
+	private static List<LambdaExpression> collectLambdas(LambdaExpression root) {
+		List<LambdaExpression> lambdas = new ArrayList<>();
 		root.traverse(new ASTVisitor() {
-			private int parameterizedLambdaDepth;
-
 			@Override
 			public boolean visit(LambdaExpression lambda, BlockScope skope) {
-				if (lambda.arguments.length > 0)
-					this.parameterizedLambdaDepth++;
-				lambdas.add(new CollectedLambda(lambda, this.parameterizedLambdaDepth == 0));
-				return true;
-			}
-
-			@Override
-			public void endVisit(LambdaExpression lambda, BlockScope skope) {
-				if (lambda.arguments.length > 0)
-					this.parameterizedLambdaDepth--;
+				lambdas.add(lambda);
+				return lambda.arguments.length == 0; // nested lambdas may use these parameters
 			}
 		}, root.enclosingScope);
 		return lambdas;
