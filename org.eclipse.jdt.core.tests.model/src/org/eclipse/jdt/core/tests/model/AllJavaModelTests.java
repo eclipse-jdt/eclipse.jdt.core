@@ -154,6 +154,8 @@ private static Class[] getAllTestClasses() {
 		ReconcilerMultiReleaseTests.class,
 		ReconcilerModuleMultiReleaseTests.class,
 		SelectionMultiReleaseTests.class,
+		ASTParserMultiReleaseTests.class,
+		HierarchyMultiReleaseTests.class,
 
 		// Copy and move operation tests
 		CopyMoveElementsTests.class,
