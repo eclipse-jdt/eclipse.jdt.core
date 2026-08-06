@@ -1453,12 +1453,24 @@ public abstract class Scope {
 			unitScope.recordTypeReference(currentType);
 			currentType.initializeForStaticImports();
 			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceStart(), invocationSite == null ? 0 : invocationSite.sourceEnd());
-			if ((field = currentType.getField(fieldName, needResolve)) != null) {
+			boolean deferredResolution = needResolve && currentType instanceof BinaryTypeBinding;
+			if ((field = currentType.getField(fieldName, deferredResolution ? false : needResolve)) != null) {
+				boolean fieldCanbeSeenBy = invisibleFieldsOk || field.canBeSeenBy(receiverType, invocationSite, this);
+				if (deferredResolution) {
+					boolean save = environment().mayTolerateMissingType;
+					try {
+						if (!fieldCanbeSeenBy)
+							environment().mayTolerateMissingType = true;
+						field = ((BinaryTypeBinding) currentType).resolveTypeFor(field);
+					} finally {
+						environment().mayTolerateMissingType = save;
+					}
+				}
 				if (invisibleFieldsOk) {
 					return field;
 				}
 				keepLooking = false;
-				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
+				if (fieldCanbeSeenBy) {
 					if (visibleField == null)
 						visibleField = field;
 					else
