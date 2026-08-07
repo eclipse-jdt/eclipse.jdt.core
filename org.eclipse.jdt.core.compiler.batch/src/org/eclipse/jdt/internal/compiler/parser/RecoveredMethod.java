@@ -514,13 +514,14 @@ public void updateFromParserState(){
 				int count;
 				for (count = 0; count < argLength; count++){
 					ASTNode aNode = parser.astStack[argStart+count];
-					if(aNode instanceof Argument) {
-						Argument argument = (Argument)aNode;
-						/* cannot be an argument if non final */
-						char[][] argTypeName = argument.type.getTypeName();
-						if ((argument.modifiers & ~ClassFileConstants.AccFinal) != 0
-							|| (argTypeName.length == 1
-								&& CharOperation.equals(argTypeName[0], TypeBinding.VOID.sourceName()))){
+                    if(aNode instanceof Argument) {                                                                                                                                                  
+                        Argument argument = (Argument)aNode;                                                                                                                                     
+                        // cannot be an argument if non final                                                                                                                            
+                        // argument.type can be null for lambda parameters with inferred types, e.g. (x) -> x                                                                                    
+                        if (argument.type == null                                                                                                                                                
+							|| (argument.modifiers & ~ClassFileConstants.AccFinal) != 0                                                                                                      
+                            || (argument.type.getTypeName().length == 1                                                                                                                      
+                                && CharOperation.equals(argument.type.getTypeName()[0], TypeBinding.VOID.sourceName()))){
 							parser.astLengthStack[parser.astLengthPtr] = count;
 							parser.astPtr = argStart+count-1;
 							parser.listLength = count;
