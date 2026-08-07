@@ -218,6 +218,8 @@ public final class ImportRewriteConfiguration {
 		List<String> importOrder;
 		Integer typeOnDemandThreshold;
 		Integer staticOnDemandThreshold;
+		boolean keepExistingOnDemandImports;
+		boolean collapseSingleImportsToOnDemand;
 
 		private Builder(OriginalImportHandling originalImportHandling) {
 			this.originalImportHandling = originalImportHandling;
@@ -227,6 +229,8 @@ public final class ImportRewriteConfiguration {
 			this.importOrder = Collections.emptyList();
 			this.typeOnDemandThreshold = null;
 			this.staticOnDemandThreshold = null;
+			this.keepExistingOnDemandImports = false;
+			this.collapseSingleImportsToOnDemand = true;
 		}
 
 		public Builder setTypeContainerSorting(ImportContainerSorting typeContainerSorting) {
@@ -259,6 +263,29 @@ public final class ImportRewriteConfiguration {
 			return this;
 		}
 
+		/**
+		 * Specifies whether existing on-demand (".*") imports should be preserved as on-demand
+		 * imports, instead of being expanded into single imports. Has an effect only for
+		 * on-demand imports whose container is still referenced; unreferenced on-demand imports
+		 * are removed as unused.
+		 */
+		public Builder setKeepExistingOnDemandImports(boolean keepExistingOnDemandImports) {
+			this.keepExistingOnDemandImports = keepExistingOnDemandImports;
+			return this;
+		}
+
+		/**
+		 * Specifies whether single imports may be collapsed into a new on-demand (".*") import
+		 * once the corresponding on-demand threshold is reached. When {@code false}, the
+		 * thresholds are ignored and no new on-demand import is created from single imports;
+		 * single imports are still folded into an on-demand import which is already present in
+		 * their container.
+		 */
+		public Builder setCollapseSingleImportsToOnDemand(boolean collapseSingleImportsToOnDemand) {
+			this.collapseSingleImportsToOnDemand = collapseSingleImportsToOnDemand;
+			return this;
+		}
+
 		public ImportRewriteConfiguration build() {
 			return new ImportRewriteConfiguration(this);
 		}
@@ -271,6 +298,8 @@ public final class ImportRewriteConfiguration {
 	final List<String> importOrder;
 	final int typeOnDemandThreshold;
 	final int staticOnDemandThreshold;
+	final boolean keepExistingOnDemandImports;
+	final boolean collapseSingleImportsToOnDemand;
 
 	ImportRewriteConfiguration(Builder builder) {
 		this.originalImportHandling = builder.originalImportHandling;
@@ -280,5 +309,7 @@ public final class ImportRewriteConfiguration {
 		this.importOrder = builder.importOrder;
 		this.typeOnDemandThreshold = builder.typeOnDemandThreshold;
 		this.staticOnDemandThreshold = builder.staticOnDemandThreshold;
+		this.keepExistingOnDemandImports = builder.keepExistingOnDemandImports;
+		this.collapseSingleImportsToOnDemand = builder.collapseSingleImportsToOnDemand;
 	}
 }
