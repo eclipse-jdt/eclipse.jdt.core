@@ -2070,6 +2070,8 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 	if ((md.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0)
 		return;
 
+	boolean oldStateRecoveryActivated = this.statementRecoveryActivated;
+	this.statementRecoveryActivated = true;
 	initialize();
 	// set the lastModifiers to reflect the modifiers of the method whose
 	// block statements are being parsed
@@ -2090,6 +2092,7 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 		this.lastAct = ERROR_ACTION;
 	} finally {
 		this.nestedMethod[this.nestedType]--;
+		this.statementRecoveryActivated = oldStateRecoveryActivated;
 	}
 
 	if (this.lastAct == ERROR_ACTION) {
