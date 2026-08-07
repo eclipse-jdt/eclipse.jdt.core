@@ -1529,12 +1529,6 @@ public class InferenceContext18 {
 	Map<InferenceVariable,Set<InferenceVariable>> collectDependencies(BoundSet bounds) {
 		// Implements the definition of dependencies from JLS §18.4:
 		Map<InferenceVariable,Set<InferenceVariable>> dependsOn = new LinkedHashMap<>();
-		// "An inference variable α depends on the resolution of itself."
-		for (InferenceVariable iv : this.inferenceVariables) {
-			Set<InferenceVariable> selfSet = new LinkedHashSet<>();
-			selfSet.add(iv);
-			dependsOn.put(iv, selfSet);
-		}
 		for (TypeBound typeBound : bounds.flatten()) {
 			// "Given a bound of one of the following forms:" (ecj may represent some using :> rather than <:)
 			// α = T
@@ -1616,6 +1610,15 @@ public class InferenceContext18 {
 				}
 			}
 		} while (hasChange);
+		// "An inference variable α depends on the resolution of itself."
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4846
+		for (InferenceVariable iv : this.inferenceVariables) {
+			if (!dependsOn.containsKey(iv)) {
+				Set<InferenceVariable> selfSet = new LinkedHashSet<>();
+				selfSet.add(iv);
+				dependsOn.put(iv, selfSet);
+			}
+		}
 		return dependsOn;
 	}
 
