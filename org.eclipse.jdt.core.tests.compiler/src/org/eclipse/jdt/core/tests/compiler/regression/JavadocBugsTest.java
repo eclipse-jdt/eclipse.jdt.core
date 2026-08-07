@@ -8411,7 +8411,8 @@ public void testBug316782() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222188"
  */
 public void testBug222188a() {
-	// case 1: partially qualified reference in another package
+	// case 1: partially qualified reference in another package via import is valid
+	// for the standard doclet (see also https://github.com/eclipse-jdt/eclipse.jdt.core/issues/517)
 	String[] units = new String[] {
 		"pack/Test.java",
 		"package pack;\n" +
@@ -8424,21 +8425,12 @@ public void testBug222188a() {
 		"import pack.Test;\n" +
 		"public class X {\n" +
 		"/**\n" +
-		" * See also {@link Test.Inner} -- error/warning \n" +
+		" * See also {@link Test.Inner}\n" +
 		" */\n" +
 		"     public void m() { }\n" +
 		"}\n"
 	};
-	runNegativeTest(units,
-		// warning - Tag @link: reference not found: Test.Inner
-		"----------\n" +
-		"1. ERROR in pack2\\X.java (at line 5)\n" +
-		"	* See also {@link Test.Inner} -- error/warning \n" +
-		"	                  ^^^^^^^^^^\n" +
-		"Javadoc: Invalid member type qualification\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
-	);
+	runConformTest(units);
 }
 public void testBug222188b() {
 	// case 2: fully but invalid qualified reference in another package
@@ -8505,13 +8497,14 @@ public void testBug221539a() {
 }
 public void testBug221539b() {
 	// partially qualified reference in different package
+	// Foo.Inner is valid via import (standard doclet); Test.Inner is still wrong outer type
 	String[] units = new String[] {
 		"p1/Test.java",
 		"package p1;\n" +
 		"import p2.Foo;\n" +
 		"/**\n" +
 		" * {@link Test.Inner} not ok for Javadoc\n" +
-		" * {@link Foo.Inner} not ok Javadoc\n" +
+		" * {@link Foo.Inner} ok via import\n" +
 		" * {@link p2.Foo.Inner} ok for Javadoc as fully qualified\n" +
 		" */\n" +
 		"public class Test extends Foo {\n" +
@@ -8525,16 +8518,10 @@ public void testBug221539b() {
 	};
 	runNegativeTest(units,
 		// warning - Tag @link: reference not found: Test.Inner
-		// warning - Tag @link: reference not found: Foo.Inner
 		"----------\n" +
 		"1. ERROR in p1\\Test.java (at line 4)\n" +
 		"	* {@link Test.Inner} not ok for Javadoc\n" +
 		"	         ^^^^^^^^^^\n" +
-		"Javadoc: Invalid member type qualification\n" +
-		"----------\n" +
-		"2. ERROR in p1\\Test.java (at line 5)\n" +
-		"	* {@link Foo.Inner} not ok Javadoc\n" +
-		"	         ^^^^^^^^^\n" +
 		"Javadoc: Invalid member type qualification\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
@@ -8953,6 +8940,72 @@ public void testBug206345m() {
 		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/517
+ * {@link Map.Entry} must not report "Invalid member type qualification"
+ * when Map is imported (valid per Documentation Comment Specification).
+ */
+public void testIssue517_mapEntryWithImport() {
+	runConformTest(
+		new String[] {
+			"bug/Bug.java",
+			"package bug;\n" +
+			"\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"/** {@link Map.Entry} */\n" +
+			"class Bug {}\n"
+		}
+	);
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/517
+ * Fully qualified nested type remains valid.
+ */
+public void testIssue517_mapEntryFullyQualified() {
+	runConformTest(
+		new String[] {
+			"bug/Bug.java",
+			"package bug;\n" +
+			"\n" +
+			"/** {@link java.util.Map.Entry} */\n" +
+			"class Bug {}\n"
+		}
+	);
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/517
+ * Wrong outer type name for a member type is still reported.
+ */
+public void testIssue517_wrongOuterTypeStillInvalid() {
+	runNegativeTest(
+		new String[] {
+			"p1/Test.java",
+			"package p1;\n" +
+			"import p2.Foo;\n" +
+			"/**\n" +
+			" * {@link Test.Inner}\n" +
+			" */\n" +
+			"public class Test extends Foo {\n" +
+			"}\n",
+			"p2/Foo.java",
+			"package p2;\n" +
+			"public class Foo {\n" +
+			"	public static class Inner {}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in p1\\Test.java (at line 4)\n" +
+		"	* {@link Test.Inner}\n" +
+		"	         ^^^^^^^^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
 }
 }
 
