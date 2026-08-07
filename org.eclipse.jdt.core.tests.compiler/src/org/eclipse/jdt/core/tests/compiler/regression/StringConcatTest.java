@@ -295,4 +295,80 @@ public class StringConcatTest extends AbstractComparableTest {
 				+ "    25  return\n";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1811
+	// The operator += is undefined for the argument type(s) CharSequence, String
+	public void testGH1811() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.lang.constant.Constable;
+						import java.lang.constant.ConstantDesc;
+
+						public class X {
+						    private static void convert(Object o, CharSequence cseq, java.io.Serializable sable, Constable constable, Comparable<String> comparable, ConstantDesc cDesc) {
+						        int i = 10;
+						  		i += "";
+						        o += "";
+						    	cseq += "";
+						        X x = new X();
+						        x += "";
+						        sable += "";
+						        constable += "";
+						        comparable += "";
+						        cDesc += "";
+						    }
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	i += \"\";\n" +
+				"	^^^^^^^\n" +
+				"The operator += is undefined for the argument type(s) int, String\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 11)\n" +
+				"	x += \"\";\n" +
+				"	^^^^^^^\n" +
+				"The operator += is undefined for the argument type(s) X, String\n" +
+				"----------\n"
+				);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1811
+	// The operator += is undefined for the argument type(s) CharSequence, String
+	public void testGH1811_2() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+                        """
+						import java.io.Serializable;
+
+						public class X implements java.io.Serializable {
+						    public static void main(String[] args) {
+						    	CharSequence cseq = "Hello "	;
+						    	cseq += "World!";
+						    	System.out.println(cseq);
+						    	X x = new X();
+						    	System.out.println(x);
+						    	Serializable s = x;
+						    	System.out.println(s);
+						    	System.out.println(s.getClass());
+						    	s += "Hello";
+						    	System.out.println(s);
+						    	System.out.println(s.getClass());
+						    }
+						    @Override
+						    public String toString() {
+						    	return "This is an X ";
+						    }
+						}
+						"""
+				},
+				"Hello World!\n" +
+				"This is an X \n" +
+				"This is an X \n" +
+				"class X\n" +
+				"This is an X Hello\n" +
+				"class java.lang.String");
+	}
 }
