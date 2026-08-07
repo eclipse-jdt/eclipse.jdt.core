@@ -2547,6 +2547,10 @@ private void setImplicitPermittedType(SourceTypeBinding permittedType) {
 		if (sz == 0) {
 			typesPermitted = new ReferenceBinding[] { permittedType };
 		} else {
+			for (int i = 0; i < sz; i++) {
+				if (TypeBinding.equalsEquals(typesPermitted[i], permittedType))
+					return; // don't include twice once without and once with annotations.
+			}
 			System.arraycopy(typesPermitted, 0, typesPermitted = new ReferenceBinding[sz + 1], 0, sz);
 			typesPermitted[sz] = permittedType;
 		}
