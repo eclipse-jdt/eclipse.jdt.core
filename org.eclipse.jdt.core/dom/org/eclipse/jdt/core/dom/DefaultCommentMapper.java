@@ -562,13 +562,18 @@ class DefaultCommentMapper {
 		@Override
 		protected boolean visitNode(ASTNode node) {
 
+			// skip generated node - https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4712
+			if (node.getStartPosition() <= 0 && node.getLength() <= 0) {
+				return false;
+			}
 			// Get default previous end
 			ASTNode parent = node.getParent();
 			int previousEnd = parent.getStartPosition();
 
 			// Look for sibling node
  			ASTNode sibling = parent == this.topSiblingParent ? (ASTNode) this.siblings[this.siblingPtr] : null;
-			if (sibling != null) {
+			// skip generated node - https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4712
+			if (sibling != null && sibling.getLength() > 0) {
 				// Found one previous sibling, so compute its trailing comments using current node start position
 				try {
 					previousEnd = storeTrailingComments(sibling, node.getStartPosition(), false, this.parentLineRange[this.siblingPtr]);
@@ -624,7 +629,8 @@ class DefaultCommentMapper {
 
 			// Look if a child node is waiting for trailing comments computing
 			ASTNode sibling = this.topSiblingParent == node ? (ASTNode) this.siblings[this.siblingPtr] : null;
-			if (sibling != null) {
+			// skip generated node - https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4712
+			if (sibling != null && sibling.getLength() > 0) {
 				try {
 					storeTrailingComments(sibling, node.getStartPosition()+node.getLength()-1, true, this.parentLineRange[this.siblingPtr]);
 				} catch (Exception ex) {
