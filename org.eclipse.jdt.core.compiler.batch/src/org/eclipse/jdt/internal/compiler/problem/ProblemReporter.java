@@ -10918,6 +10918,9 @@ private Annotation findAnnotation(Annotation[] annotations, int typeBit) {
 public void missingNonNullByDefaultAnnotation(TypeDeclaration type) {
 	int severity;
 	CompilationUnitDeclaration compUnitDecl = type.getCompilationUnitDeclaration();
+	if (compUnitDecl == null) {
+		return;
+	}
 	String[] arguments;
 	if (compUnitDecl.currentPackage == null) {
 		severity = computeSeverity(IProblem.MissingNonNullByDefaultAnnotationOnType);
