@@ -553,14 +553,14 @@ public final class AST {
 	 * <p>
 	 * This API is capable of handling all constructs in the
 	 * Java language as described in the Java Language
-	 * Specification, Java SE 26 Edition (JLS27).
-	 * JLS26 is a superset of all earlier versions of the
+	 * Specification, Java SE 27 Edition (JLS27).
+	 * JLS27 is a superset of all earlier versions of the
 	 * Java language, and the JLS27 API can be used to manipulate
 	 * programs written in all versions of the Java language
-	 * up to and including Java SE 27(aka JDK 27).
+	 * up to and including Java SE 27 (aka JDK 27).
 	 * </p>
 	 *
-	 * @since 3.46 BETA_JAVA27
+	 * @since 3.47 BETA_JAVA27
 	 */
 	public static final int JLS27 = 27;
 	/**
