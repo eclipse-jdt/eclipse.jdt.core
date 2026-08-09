@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -43,6 +44,9 @@ public class StackMapFrame {
 	   it should not!
 	*/
 	public boolean adoptStackShape = true;
+
+	// if the textually preceding stack frame shape is not adopted, we know nothing about this frame's verification types.
+	private static final VerificationTypeInfo [] UNKNOWN_STACK_ITEMS = new VerificationTypeInfo[0];
 
 	public StackMapFrame(int initialLocalSize) {
 		this.locals = new VerificationTypeInfo[initialLocalSize];
@@ -118,6 +122,8 @@ public class StackMapFrame {
 				final VerificationTypeInfo verificationTypeInfo = this.stackItems[i];
 				result.stackItems[i] = getCachedValue(cache, verificationTypeInfo);
 			}
+		} else if (!this.adoptStackShape) {
+			result.stackItems = UNKNOWN_STACK_ITEMS;
 		}
 		return result;
 	}
@@ -404,6 +410,8 @@ public class StackMapFrame {
 			for (int i = 0, max = this.numberOfStackItems; i < max; i++) {
 				this.stackItems[i] = this.stackItems[i].merge(frame.stackItems[i], scope);
 			}
+		} else if (this.stackItems == UNKNOWN_STACK_ITEMS) {
+			this.stackItems = Arrays.copyOf(frame.stackItems, this.numberOfStackItems = frame.numberOfStackItems);
 		}
 		return this;
 	}
