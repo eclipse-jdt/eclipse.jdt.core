@@ -149,9 +149,10 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_25 = 69;
 	int MAJOR_VERSION_26 = 70;
 	int MAJOR_VERSION_27 = 71;
+	int MAJOR_VERSION_28 = 72;
 
 	int MAJOR_VERSION_0 = 44;
-	int MAJOR_LATEST_VERSION = MAJOR_VERSION_26;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_28;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -189,6 +190,7 @@ public interface ClassFileConstants {
 	long JDK25 = ((long)ClassFileConstants.MAJOR_VERSION_25 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK26 = ((long)ClassFileConstants.MAJOR_VERSION_26 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK27 = ((long)ClassFileConstants.MAJOR_VERSION_27 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK28 = ((long)ClassFileConstants.MAJOR_VERSION_28 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
 	public static long getLatestJDKLevel() {
 		return ((long)ClassFileConstants.MAJOR_LATEST_VERSION << 16) + ClassFileConstants.MINOR_VERSION_0;
