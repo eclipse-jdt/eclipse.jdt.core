@@ -107,7 +107,7 @@ public enum JavaFeature {
 			Messages.bind(Messages.flexible_constructor_bodies),
 			new char[][] {},
 			false),
-	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK26,
+	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK28,
 			Messages.bind(Messages.primitives_in_patterns),
 			new char[][] {},
 			true),
