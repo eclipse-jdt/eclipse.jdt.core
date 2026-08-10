@@ -95,6 +95,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean lineStarted = false;
 	protected boolean inlineTagStarted = false;
 	protected boolean inlineReturn= false;
+	protected int inlineReturnStart= -1;
 	protected int inlineReturnOpenBraces= 0;
 	protected boolean abort = false;
 	protected int kind;
@@ -387,11 +388,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								annotationAtSymbolHandling= false;
 							}
 							if (this.inlineReturn) {
-								if (this.inlineReturnOpenBraces > 0) {
-									--this.inlineReturnOpenBraces;
+								if (this.inlineTagStart > this.inlineReturnStart) {
 									setInlineTagStarted(true);
+									this.inlineTagStart= this.inlineReturnStart;
 								} else {
-									addFragmentToInlineReturn();
+									this.inlineReturn= false;
+									this.inlineReturnStart= -1;
 								}
 							}
 						} else {
@@ -416,6 +418,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						} else if (this.inlineTagStarted) {
 							if (this.tagValue == TAG_RETURN_VALUE) {
 								this.inlineReturn= true;
+								this.inlineReturnStart= this.inlineTagStart;
 							}
 							if (this.inlineReturn && peekChar() != '@') {
 								++this.inlineReturnOpenBraces;
