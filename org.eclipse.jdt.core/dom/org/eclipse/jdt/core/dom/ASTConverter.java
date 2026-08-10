@@ -5080,13 +5080,14 @@ class ASTConverter {
 		}
 		if (currentNode instanceof Initializer) {
 			Initializer initializer = (Initializer) currentNode;
-			while(!(currentNode instanceof AbstractTypeDeclaration)) {
+			while(!(currentNode instanceof AbstractTypeDeclaration || currentNode instanceof AnonymousClassDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
 			if (currentNode instanceof TypeDeclaration
 				|| currentNode instanceof EnumDeclaration
 				|| currentNode instanceof AnnotationTypeDeclaration
-				|| currentNode instanceof RecordDeclaration) {
+				|| currentNode instanceof RecordDeclaration
+				|| currentNode instanceof AnonymousClassDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl =
 						(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)
 						this.ast.getBindingResolver().getCorrespondingNode(currentNode);

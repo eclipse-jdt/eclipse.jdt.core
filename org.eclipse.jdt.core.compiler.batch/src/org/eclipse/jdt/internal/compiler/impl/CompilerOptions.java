@@ -2189,9 +2189,9 @@ public class CompilerOptions {
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_GenerateClassFiles)) != null) {
-			if (ENABLED.equals(optionValue)) {
+			if (ENABLED.equals(optionValue) || GENERATE.equals(optionValue)) {
 				this.generateClassFiles = true;
-			} else if (DISABLED.equals(optionValue)) {
+			} else if (DISABLED.equals(optionValue) || DO_NOT_GENERATE.equals(optionValue)) {
 				this.generateClassFiles = false;
 			}
 		}

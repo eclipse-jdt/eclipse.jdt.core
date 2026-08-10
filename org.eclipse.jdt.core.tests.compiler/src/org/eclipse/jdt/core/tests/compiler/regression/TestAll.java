@@ -299,6 +299,7 @@ public static Test suite() {
 	}
 
 	all.addTest(new TestSuite(Jsr14Test.class));
+	all.addTest(new TestSuite(PrintRunJavacStats.class)); // the very last test to capture statistics of all tests
 	return all;
 }
 }

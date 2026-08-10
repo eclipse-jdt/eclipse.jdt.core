@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2024 IBM Corporation and others.
+ * Copyright (c) 2004, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1127,6 +1127,13 @@ class DocCommentParser extends AbstractCommentParser {
 			} else {
 				previousTag = (TagElement) this.astStack[this.astPtr];
 				previousStart = previousTag.getStartPosition();
+			}
+			if (previousTag.fragments.size() > 0 && this.tagValue == TAG_LINK_VALUE) {
+				ASTNode lastNode= (ASTNode)previousTag.fragments.get(previousTag.fragments.size() - 1);
+				if (lastNode instanceof TagElement lastTag && lastTag.getTagName().equals(TagElement.TAG_RETURN)) {
+					previousTag= lastTag;
+					previousStart= lastTag.getStartPosition();
+				}
 			}
 			previousTag.fragments().add(seeTag);
 			previousTag.setSourceRange(previousStart, end-previousStart+1);

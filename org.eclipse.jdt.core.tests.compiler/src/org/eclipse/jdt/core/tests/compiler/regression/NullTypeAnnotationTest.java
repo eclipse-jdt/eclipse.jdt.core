@@ -20225,4 +20225,32 @@ public void testGH5070_returnType() {
 		----------
 		""");
 }
+public void testGH5249() {
+	runConformTestWithLibs(true, new String[] {
+			"Test.java",
+			"""
+			import java.util.Collection;
+			import java.util.List;
+
+			public class Test {
+			    private ListValuedMap<String, String> multiMap;
+
+			    public Test() {
+			        List<String> values = multiMap.get("");
+			    }
+
+			    public static interface ListValuedMap<K, V> extends MultiValuedMap<K, V> {
+			        @Override
+			        List<V> get(K key);
+			    }
+
+			    public static interface MultiValuedMap<K, V> {
+			        Collection<V> get(K key);
+			    }
+			}
+			"""
+		},
+		getCompilerOptions(),
+		"");
+}
 }

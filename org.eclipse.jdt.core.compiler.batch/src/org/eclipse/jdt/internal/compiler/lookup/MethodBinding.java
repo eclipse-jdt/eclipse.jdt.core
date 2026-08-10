@@ -1456,8 +1456,10 @@ public boolean hasPolymorphicSignature(Scope scope) {
 	}
 	return this.isNative() && this.isVarargs() && this.parameters.length == 1 &&
 			this.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject &&
-				(TypeBinding.equalsEquals(this.declaringClass, scope.getJavaLangInvokeMethodHandle())
-						|| TypeBinding.equalsEquals(this.declaringClass, scope.getJavaLangInvokeVarHandle()));
+				this.declaringClass.compoundName.length == 4 &&
+				CharOperation.equals(this.declaringClass.compoundName[0], TypeConstants.JAVA) &&
+				(CharOperation.equals(this.declaringClass.compoundName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE)
+						|| CharOperation.equals(this.declaringClass.compoundName, TypeConstants.JAVA_LANG_INVOKE_VARHANDLE));
 }
 public boolean isClosingMethod() {
 	boolean isCloseMethod = CharOperation.equals(this.selector, TypeConstants.CLOSE) && this.parameters == NO_PARAMETERS;  // close()

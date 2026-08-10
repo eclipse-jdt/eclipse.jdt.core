@@ -163,6 +163,7 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 							System.err.println("Skip testing javac in "+testName());
 							continue;
 						}
+						numRunJavacTests++;
 						StringBuilder log = new StringBuilder();
 						try {
 							long compileResult = javacCompiler.compile(
@@ -250,6 +251,7 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
 				JavacTestOptions.Excuse excuse = options.excuseFor(javacCompiler);
+				numRunJavacTests++;
 
 				String javacCommandLine = " -d " + javacOutput + ' ' + adjustForJavac(commandLine, null);
 				StringBuilder log = new StringBuilder();

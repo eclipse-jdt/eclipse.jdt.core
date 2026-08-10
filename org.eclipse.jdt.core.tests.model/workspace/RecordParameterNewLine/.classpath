@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path=""/>
+    <classpathentry kind="var" path="JCL18_LIB" sourcepath="JCL18_SRC" rootpath="JCL_SRC18ROOT"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>

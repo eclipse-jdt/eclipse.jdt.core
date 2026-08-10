@@ -1844,4 +1844,35 @@ public void testGH3278_missingAnnotations() {
 		options,
 		false);
 }
+public void testGH4899() {
+	runLeakTestWithAnnotations(new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.Owning;
+
+			@interface NonNull {}
+
+			interface AC extends AutoCloseable {
+
+			  @Owning
+			  public static @NonNull AC acquire() {
+			    return new AC() {
+			      {
+			        // this initializer is causing the crash
+			      }
+
+			      @Override
+			      public void close() {
+			        throw new UnsupportedOperationException();
+			      }
+			    };
+			  }
+			}
+			public class X {
+			}
+			"""
+		},
+		"",
+		getCompilerOptions());
+}
 }
