@@ -1109,6 +1109,7 @@ class DocCommentParser extends AbstractCommentParser {
 		seeTag.fragments().add(node);
 		int end = node.getStartPosition()+node.getLength();
 		if (this.inlineTagStarted) {
+			System.out.println("setting sourcerange " + this.inlineTagStart + " " + (end - this.inlineTagStart + 1));
 			seeTag.setSourceRange(this.inlineTagStart, end-this.inlineTagStart+1);
 			switch (this.tagValue) {
 				case TAG_LINK_VALUE:
@@ -1142,7 +1143,7 @@ class DocCommentParser extends AbstractCommentParser {
 			previousTag.setSourceRange(previousStart, end-previousStart+1);
 		} else {
 			seeTag.setTagName(TagElement.TAG_SEE);
-			seeTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart+1);
+			seeTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart);
 			pushOnAstStack(seeTag, true);
 		}
 		return true;
