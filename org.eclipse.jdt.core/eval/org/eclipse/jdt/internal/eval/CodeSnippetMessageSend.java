@@ -343,7 +343,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		TypeBinding returnType = this.binding.returnType;
 
 		if (returnType != null) {
-			if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
+			if ((this.bits & ASTNode.Unchecked) != 0 && (this.binding.typeVariables() == Binding.NO_TYPE_VARIABLES || this.genericTypeArguments != null)) {
 				returnType = scope.environment().convertToRawType(returnType.erasure(), true);
 			}
 			returnType = returnType.capture(scope, this.sourceStart, this.sourceEnd);
