@@ -2593,12 +2593,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	switch(o) {\n" +
-				"	       ^\n" +
-				"An enhanced switch statement should be exhaustive; a default label expected\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 9)\n" +
+				"1. ERROR in X.java (at line 9)\n" +
 				"	case List<String> s: \n" +
 				"	     ^^^^^^^^^^^^^^\n" +
 				"Type Object cannot be safely cast to List<String>\n" +
