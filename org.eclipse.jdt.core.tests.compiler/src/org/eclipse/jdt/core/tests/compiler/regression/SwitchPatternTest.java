@@ -10435,4 +10435,72 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch expression should have a default case\n" +
 				"----------\n"); //$NON-NLS-1$
 	}
+
+	public void testIssue5080_010() {
+		// deeply-nested record pattern: Box(Pair(A,B)) is not covered -> a default is required
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						final class A implements I {}
+
+						final class B implements I {}
+
+						record Pair(I first, I second) {}
+
+						record Box(Pair p) {}
+
+						static String eval(Box b) {
+							return switch (b) { //Box(Pair(A,B)) missing
+							case Box(Pair(A f, A s)) -> "AA";
+							case Box(Pair(B f, I s)) -> "BI";
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 13)\n" +
+				"	return switch (b) { //Box(Pair(A,B)) missing\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_011() {
+		// deeply-nested record pattern that IS exhaustive -> compiles without a default
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						record Pair(I first, I second) {}
+
+						record Box(Pair p) {}
+
+						static String eval(Box b) {
+							return switch (b) { // exhaustive
+							case Box(Pair(A f, A s)) -> "AA";
+							case Box(Pair(A f, B s)) -> "AB";
+							case Box(Pair(B f, I s)) -> "BI";
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(eval(new Box(new Pair(new A(), new B()))));
+						}
+					}
+					"""
+				},
+				"AB"); //$NON-NLS-1$
+	}
 }
