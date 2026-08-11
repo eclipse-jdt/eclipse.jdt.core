@@ -260,20 +260,20 @@ public class SwitchStatement extends Expression {
 				return false;
 
 			List<TypeBinding> availableTypes = new ArrayList<>();
+			boolean allChildrenCover = true;
 			if (node.children != null) {
 				for (Node child : node.children) {
-					if (node.type.isSubtypeOf(child.type, false))
-						this.covers = true;
+					this.covers = true;
 					child.traverse(this);
-					if (node.type.isSubtypeOf(child.type, false) && this.covers)
-						return false; // no further visit required - covering!
+					boolean childCovers = this.covers;
+					if (node.type.isSubtypeOf(child.type, false) && childCovers)
+						return this.covers = true;
+					allChildrenCover &= childCovers;
 					availableTypes.add(child.type);
 				}
 			}
-			if (node.type instanceof ReferenceBinding ref && ref.isSealed()) {
-				this.covers &= caseElementsCoverSealedType(ref, availableTypes, false);
-				return this.covers;
-			}
+			if (node.type instanceof ReferenceBinding ref && ref.isSealed())
+				return this.covers = allChildrenCover && caseElementsCoverSealedType(ref, availableTypes, false);
 			return this.covers = false; // no need to visit further.
 		}
 	}
