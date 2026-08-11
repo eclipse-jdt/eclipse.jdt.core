@@ -123,6 +123,7 @@ public class SwitchStatement extends Expression {
 
 	/* package */ boolean isNonTraditional = false;
 	/* package */ boolean isPrimitiveSwitch = false;
+	/* package */ boolean caseElementsHaveErrors = false; // a case pattern failed applicability/cast checks
 	/* package */ List<Pattern> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 
@@ -192,7 +193,9 @@ public class SwitchStatement extends Expression {
 			}
 			PatternNode child = null;
 			for (PatternNode c : this.children) {
-				if (TypeBinding.equalsEquals(childType, c.type)) {
+				// Group by erasure per JLS 14.11.1.1 ("... covers a type U where T and U have the
+				// same erasure"), consistent with RNode.addPattern and caseElementsCoverSealedType.
+				if (TypeBinding.equalsEquals(childType.erasure(), c.type.erasure())) {
 					child = c;
 					break;
 				}
@@ -417,6 +420,13 @@ public class SwitchStatement extends Expression {
 	}
 
 	private void complainIfNotExhaustiveSwitch(BlockScope upperScope, TypeBinding selectorType, CompilerOptions compilerOptions) {
+
+		// When a case pattern failed applicability/cast checks, the switch is already in error; don't
+		// pile on a redundant missing-default/exhaustiveness diagnostic (matches javac's behavior).
+		if (this.caseElementsHaveErrors) {
+			this.switchBits |= SwitchStatement.Exhaustive;
+			return;
+		}
 
 		boolean isEnhanced = isEnhancedSwitch(upperScope, selectorType);
 		if (selectorType != null && selectorType.isEnum()) {
