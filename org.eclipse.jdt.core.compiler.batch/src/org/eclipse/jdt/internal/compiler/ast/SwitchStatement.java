@@ -143,7 +143,7 @@ public class SwitchStatement extends Expression {
 			if (len > 0) {
 				RecordComponentBinding comp = comps[0];
 				if (comp != null && comp.type != null)
-					this.firstComponent = new TNode(comp.type);
+					this.firstComponent = new TNode(comp.type, rec);
 			}
 		}
 
@@ -170,9 +170,12 @@ public class SwitchStatement extends Expression {
 	class TNode extends Node {
 
 		List<PatternNode> children;
+		/** The record type whose component this column represents; used to resolve the next component type. */
+		TypeBinding enclosingRecord;
 
-		TNode(TypeBinding type) {
+		TNode(TypeBinding type, TypeBinding enclosingRecord) {
 			this.type = type;
+			this.enclosingRecord = enclosingRecord;
 			this.children = new ArrayList<>();
 		}
 
@@ -181,7 +184,12 @@ public class SwitchStatement extends Expression {
 				this.hasError = true;
 				return;
 			}
-			TypeBinding childType = rp.patterns[i].resolvedType;
+			Pattern componentPattern = rp.patterns[i];
+			TypeBinding childType = componentPattern.resolvedType;
+			if (childType == null) {
+				this.hasError = true;
+				return;
+			}
 			PatternNode child = null;
 			for (PatternNode c : this.children) {
 				if (TypeBinding.equalsEquals(childType, c.type)) {
@@ -190,11 +198,20 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			if (child == null) {
-				child = new PatternNode(childType);
+				child = new PatternNode(childType, this.enclosingRecord);
 				if (this.type.isSubtypeOf(childType, false))
 					this.children.add(0, child);
 				else
 					this.children.add(child);
+			}
+			// Record how this component slot is matched: a nested record pattern must have its own
+			// components covered, whereas a (type) pattern covers the whole slot unconditionally.
+			if (componentPattern instanceof RecordPattern nestedRp) {
+				if (child.nested == null)
+					child.nested = new RNode(childType);
+				child.nested.addPattern(nestedRp);
+			} else {
+				child.unconditional = true;
 			}
 			if ((i+1) < rp.patterns.length) {
 				child.addPattern(rp, i + 1);
@@ -223,18 +240,24 @@ public class SwitchStatement extends Expression {
 	class PatternNode extends Node {
 
 		TNode next; // next component
+		/** Nested record coverage when this component is matched by a record pattern (e.g. Pair(..) inside Box(..)). */
+		RNode nested;
+		/** True when this component slot is matched by a (total) type pattern, covering the whole slot type. */
+		boolean unconditional;
+		/** The record type whose component this node represents; used to resolve the next component type. */
+		TypeBinding enclosingRecord;
 
-		PatternNode(TypeBinding type) {
+		PatternNode(TypeBinding type, TypeBinding enclosingRecord) {
 			this.type = type;
+			this.enclosingRecord = enclosingRecord;
 		}
 
 		public void addPattern(RecordPattern rp, int i) {
-			TypeBinding ref = SwitchStatement.this.expression.resolvedType;
-			RecordComponentBinding[] comps = ref.components();
+			RecordComponentBinding[] comps = this.enclosingRecord != null ? this.enclosingRecord.components() : null;
 			if (comps == null || comps.length <= i) // safety-net for incorrect code.
 				return;
 			if (this.next == null)
-				this.next = new TNode(comps[i].type);
+				this.next = new TNode(comps[i].type, this.enclosingRecord);
 			this.next.addPattern(rp, i);
 		}
 
@@ -262,19 +285,41 @@ public class SwitchStatement extends Expression {
 			List<TypeBinding> availableTypes = new ArrayList<>();
 			boolean allChildrenCover = true;
 			if (node.children != null) {
-				for (Node child : node.children) {
+				for (PatternNode child : node.children) {
+					// Coverage of the remaining components (columns) to the right of this one.
+					// Evaluated in isolation so a fully-covering sibling cannot mask a partially-covering
+					// one; each alternative of this component must be individually covering.
 					this.covers = true;
 					child.traverse(this);
-					boolean childCovers = this.covers;
-					if (node.type.isSubtypeOf(child.type, false) && childCovers)
-						return this.covers = true;
-					allChildrenCover &= childCovers;
+					boolean remainderCovers = this.covers;
+					// Coverage of this component's own slot: a type pattern is unconditional, whereas a
+					// nested record pattern covers the slot only if its own components are fully covered.
+					boolean slotCovers = slotCovers(child);
+					if (node.type.isSubtypeOf(child.type, false) && slotCovers && remainderCovers)
+						return this.covers = true; // an unconditional (total) child covers everything below
+					allChildrenCover &= slotCovers && remainderCovers;
 					availableTypes.add(child.type);
 				}
 			}
 			if (node.type instanceof ReferenceBinding ref && ref.isSealed())
 				return this.covers = allChildrenCover && caseElementsCoverSealedType(ref, availableTypes, false);
 			return this.covers = false; // no need to visit further.
+		}
+
+		/** Whether this component slot is fully covered by its own (possibly nested) pattern. */
+		private boolean slotCovers(PatternNode child) {
+			if (child.unconditional)
+				return true;
+			if (child.nested != null)
+				return nestedRecordCovers(child.nested);
+			return false;
+		}
+
+		/** Recursively check that a nested record's components are collectively covered. */
+		private boolean nestedRecordCovers(RNode nested) {
+			if (nested == null || nested.firstComponent == null)
+				return true; // a record pattern over a component-less record covers it
+			return new CoverageCheckerVisitor().visit(nested.firstComponent);
 		}
 	}
 
