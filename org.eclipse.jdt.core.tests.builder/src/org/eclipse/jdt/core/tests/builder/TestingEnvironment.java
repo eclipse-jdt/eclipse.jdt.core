@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -228,7 +229,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	public IPath addProject(String projectName, String compliance){
 		checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
 		IProject project = createProject(projectName);
-		int requiredComplianceFlag = 0;
+		long requiredComplianceFlag = 0;
 		String compilerVersion = null;
 		if ("1.8".equals(compliance)) {
 			requiredComplianceFlag = AbstractCompilerTest.F_1_8;
@@ -268,8 +269,29 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 			requiredComplianceFlag = AbstractCompilerTest.F_18;
 			compilerVersion = CompilerOptions.VERSION_18;
 		} else if ("19".equals(compliance)) {
-			requiredComplianceFlag = AbstractCompilerTest.F_19;
+			requiredComplianceFlag = ClassFileConstants.JDK19;
 			compilerVersion = CompilerOptions.VERSION_19;
+		} else if ("20".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK20;
+			compilerVersion = CompilerOptions.VERSION_20;
+		} else if ("21".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK21;
+			compilerVersion = CompilerOptions.VERSION_21;
+		} else if ("22".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK22;
+			compilerVersion = CompilerOptions.VERSION_22;
+		} else if ("23".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK23;
+			compilerVersion = CompilerOptions.VERSION_23;
+		} else if ("24".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK24;
+			compilerVersion = CompilerOptions.VERSION_24;
+		} else if ("25".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK25;
+			compilerVersion = CompilerOptions.VERSION_25;
+		} else if ("26".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK26;
+			compilerVersion = CompilerOptions.VERSION_26;
 		} else {
 			throw new UnsupportedOperationException("Test framework doesn't support compliance level: " + compliance);
 		}
