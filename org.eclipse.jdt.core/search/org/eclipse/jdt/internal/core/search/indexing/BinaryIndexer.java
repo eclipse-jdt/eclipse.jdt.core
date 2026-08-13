@@ -17,6 +17,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.Flags;
@@ -42,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule.IService;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
@@ -675,6 +677,9 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 
 	@Override
 	public void indexDocument() {
+		if (disabledForFile()) {
+			return;
+		}
 		try {
 			final byte[] contents = this.document.getByteContents();
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=107124
@@ -972,5 +977,13 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			}
 		}
 		return array;
+	}
+
+	private boolean disabledForFile() {
+		if (JavaModelManager.disableRestrictedFileIndexing()) {
+			IFile file = getDocumentFile(this.document);
+			return isContentRestricted(file);
+		}
+		return false;
 	}
 }

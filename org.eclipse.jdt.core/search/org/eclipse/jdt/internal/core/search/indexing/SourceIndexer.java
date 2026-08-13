@@ -17,9 +17,7 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -470,20 +468,9 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 		if (JavaModelManager.disableRestrictedFileIndexing()) {
 			IFile file = getJavaSearchFile();
 			if (file == null) {
-				IPath path = new Path(this.document.getPath());
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				file = root.getFile(path);
+				file = getDocumentFile(this.document);
 			}
-			try {
-				return file.isContentRestricted();
-			} catch (CoreException e) {
-				JavaCore.getPlugin().getLog().log(e.getStatus());
-				/*
-				 * Assume indexing is disabled for the file, since the preference for disabling is set
-				 * but we cannot determine if the file is restricted.
-				 */
-				return true;
-			}
+			return isContentRestricted(file);
 		}
 		return false;
 	}

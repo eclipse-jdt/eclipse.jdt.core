@@ -13,6 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
@@ -284,5 +291,26 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public abstract void indexDocument();
 	public void indexResolvedDocument() {
 		// subtypes should implement where it makes sense.
+	}
+
+	protected static IFile getDocumentFile(SearchDocument document) {
+		IFile file;
+		IPath path = new Path(document.getPath());
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		file = root.getFile(path);
+		return file;
+	}
+
+	protected static boolean isContentRestricted(IFile file) {
+		try {
+			return file.isContentRestricted();
+		} catch (CoreException e) {
+			JavaCore.getPlugin().getLog().log(e.getStatus());
+			/*
+			 * Assume indexing is disabled for the file, since the preference for disabling is set
+			 * but we cannot determine if the file is restricted.
+			 */
+			return true;
+		}
 	}
 }
