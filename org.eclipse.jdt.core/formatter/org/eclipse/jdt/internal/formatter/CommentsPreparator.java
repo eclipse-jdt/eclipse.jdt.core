@@ -1512,7 +1512,7 @@ public class CommentsPreparator extends ASTVisitor {
 						if (lineBreaks > 0) {
 							if (cleanBlankLines && !isMarkdown)
 								lineBreaks = 1;
-							if (lineBreaks > 1 || (!this.options.join_lines_in_comments && !isMarkdown))
+							if (lineBreaks > 1 || !this.options.join_lines_in_comments)
 								outputToken.putLineBreaksBefore(lineBreaks);
 						}
 						if (this.tm.charAt(tokenStart) == '@') {
