@@ -127,6 +127,40 @@ public class SwitchStatement extends Expression {
 	/* package */ List<Pattern> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 
+	/*
+	 * The RNode / TNode / PatternNode tree together with CoverageCheckerVisitor implement the
+	 * "P rewrites to a set Q and Q covers T" clause of JLS 14.11.1.1 for record selector types.
+	 *
+	 * Recap of the spec machinery this models:
+	 *   - P rewrites to Q: a subset of P "reduces" to a single pattern p, and Q is the remaining
+	 *     elements of P together with p. Coverage is then decided on Q instead of P.
+	 *   - A non-empty set of record patterns RP "reduces" to a single record pattern rp if their
+	 *     types all erase to the same record class R (with k>=1 components) and there is one
+	 *     distinguished component cr that itself "reduces" to a single pattern q, while every other
+	 *     component ci is "equivalent" to a single pattern qi. rp is then R(q1,..,q,..,qk).
+	 *   - A non-empty set EP is "equivalent" to a single pattern ep when the patterns share the same
+	 *     erasure (type patterns) or erase to the same record R and each component set is itself
+	 *     equivalent to a single pattern (record patterns).
+	 *
+	 * How the tree mirrors that definition:
+	 *   - RNode(R)        : the record class R under test; its firstComponent starts the component walk.
+	 *   - TNode(type)     : one record component (a "column"). Its children are the distinct alternatives
+	 *                       seen for that component across all case record patterns. Grouping the
+	 *                       incoming component patterns by erasure into a single child is exactly the
+	 *                       "equivalent to a single pattern" merge (type patterns / record patterns of
+	 *                       the same erased type collapse into one alternative).
+	 *   - PatternNode     : one such alternative for a component. Its 'next' TNode is the following
+	 *                       component of the same record pattern, so a full record pattern is threaded
+	 *                       column-by-column; 'nested' captures a nested record pattern that must have
+	 *                       its own components covered; 'unconditional' marks a total (type) pattern that
+	 *                       covers the whole slot.
+	 *   - CoverageCheckerVisitor : performs the reduce/cover test. Per component it checks that some
+	 *                       alternative both covers its own slot and, recursively, covers the remaining
+	 *                       columns (the "distinguished component cr reduces while the others are
+	 *                       equivalent" step). A component whose alternatives exhaust a sealed/record type
+	 *                       is treated as reduced to an unconditional pattern of that type, which is how a
+	 *                       subset of P "reduces" and lets the whole set rewrite towards covering R.
+	 */
 	abstract class Node {
 		TypeBinding type;
 		boolean hasError = false;
@@ -259,6 +293,10 @@ public class SwitchStatement extends Expression {
 			RecordComponentBinding[] comps = this.enclosingRecord != null ? this.enclosingRecord.components() : null;
 			if (comps == null || comps.length <= i) // safety-net for incorrect code.
 				return;
+			// Thread this record pattern into the next component column (component i+... of the same R),
+			// so that a single case record pattern contributes one alternative per component. Collecting
+			// all case patterns this way builds, per component, the set whose "equivalent"/"reduces"
+			// status CoverageCheckerVisitor later evaluates (JLS 14.11.1.1 rewrite rule).
 			if (this.next == null)
 				this.next = new TNode(comps[i].type, this.enclosingRecord);
 			this.next.addPattern(rp, i);
@@ -281,6 +319,19 @@ public class SwitchStatement extends Expression {
 
 		public boolean covers = true;
 
+		// Checks whether the component patterns collected under this node cover the component type,
+		// implementing the record-component "covers"/"reduces" rules of JLS 14.11.1.1: an unconditional
+		// (total) child covers everything, otherwise a sealed component type is covered when all its
+		// permitted subtypes are covered.
+		//
+		// This is the per-column half of "RP reduces to a single pattern rp". For the current component
+		// (the distinguished cr) we look for one alternative that (a) covers its own slot and (b) whose
+		// remaining columns to the right are themselves covered ("every other component ci is equivalent
+		// to a single pattern qi"). If found, that alternative acts as the reduced pattern q and, being
+		// unconditional/total for the column type, lets this subset of P rewrite towards covering R.
+		// If no single alternative is total but the column type is a sealed reference type, the set of
+		// alternatives may still jointly exhaust it (delegated to caseElementsCoverSealedType) - again a
+		// reduction of the subset to an unconditional pattern of the sealed type.
 		public boolean visit(TNode node) {
 			if (node.hasError)
 				return false;
@@ -305,6 +356,8 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			if (node.type instanceof ReferenceBinding ref && ref.isSealed())
+				// The alternatives don't individually reduce, but if they jointly exhaust the sealed
+				// component type they still reduce to an unconditional pattern of that type.
 				return this.covers = allChildrenCover && caseElementsCoverSealedType(ref, availableTypes, false);
 			return this.covers = false; // no need to visit further.
 		}
@@ -429,6 +482,8 @@ public class SwitchStatement extends Expression {
 		}
 
 		boolean isEnhanced = isEnhancedSwitch(upperScope, selectorType);
+		// JLS 14.11.1.1: T is an enum class E and P covers T when P contains all names of E's enum
+		// constants (a default label is then permitted but not required).
 		if (selectorType != null && selectorType.isEnum()) {
 			if (isEnhanced)
 				this.switchBits |= SwitchStatement.Exhaustive; // negated below if found otherwise
@@ -472,9 +527,9 @@ public class SwitchStatement extends Expression {
 
 		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions) && selectorType.isSealed()
 				&& caseElementsCoverSealedType((ReferenceBinding) selectorType, this.caseLabelElementTypes, true))
-			this.switchBits |= SwitchStatement.Exhaustive;
+			this.switchBits |= SwitchStatement.Exhaustive; // JLS 14.11.1.1: T names an abstract sealed class/interface and every permitted subtype is covered
 		else if (selectorType.isRecordWithComponents() && this.containsRecordPatterns && caseElementsCoverRecordType(upperScope, compilerOptions, (ReferenceBinding) selectorType))
-			this.switchBits |= SwitchStatement.Exhaustive;
+			this.switchBits |= SwitchStatement.Exhaustive; // JLS 14.11.1.1: T names a record R and a record pattern covers every component
 
 		if (!isExhaustive()) {
 			if (isEnhanced)
@@ -485,6 +540,7 @@ public class SwitchStatement extends Expression {
 	}
 
 	// Return the set of enumerations belonging to the selector enum type that are NOT listed in case statements.
+	// JLS 14.11.1.1: P covers enum type E only when this set is empty (all constant names of E appear).
 	private Set<FieldBinding> unenumeratedConstants(TypeBinding enumType, int constantCount) {
 		FieldBinding[] enumFields = enumType.erasure().fields();
 		Set<FieldBinding> unenumerated = new HashSet<>(Arrays.asList(enumFields));
@@ -539,6 +595,8 @@ public class SwitchStatement extends Expression {
 	}
 
 	private boolean caseElementsCoverRecordType(BlockScope skope, CompilerOptions compilerOptions, ReferenceBinding recordType) {
+		// JLS 14.11.1.1: T names a record R and P contains a record pattern naming R whose component
+		// patterns cover each record component. Model the components as an RNode/TNode tree and check coverage.
 		RNode head = new RNode(recordType);
 		for (Pattern pattern : this.caseLabelElements) {
 			head.addPattern(pattern);
@@ -556,6 +614,8 @@ public class SwitchStatement extends Expression {
 	 */
 	private boolean caseElementsCoverSealedType(ReferenceBinding sealedType, List<TypeBinding> listedTypes,
 			boolean checkRecordPatterns) {
+		// JLS 14.11.1.1: T names an abstract sealed class/interface C and, for every permitted direct
+		// subclass/subinterface D, either no subtype of T names D, or a type U naming D (subtype of T) is covered.
 		List<ReferenceBinding> allAllowedTypes = sealedType.getAllEnumerableAvatars();
 		Iterator<ReferenceBinding> iterator = allAllowedTypes.iterator();
 		while (iterator.hasNext()) {
@@ -583,7 +643,6 @@ public class SwitchStatement extends Expression {
 				continue;
 			}
 			for (TypeBinding type : listedTypes) {
-				// permits specifies classes, not parameterizations
 				if (next.erasure().isCompatibleWith(type.erasure())) {
 					iterator.remove();
 					break;
