@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2024 IBM Corporation and others.
+ * Copyright (c) 2014, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -60,7 +60,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	static {
-		//TESTS_NAMES = new String[] {"testBug378390"};
+//		TESTS_NAMES = new String[] {"testCaptureBindingReentrantInitializeBoundsNPE_importCycle"};
 	}
 
 	public static Test suite() {
@@ -523,6 +523,94 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			search(pattern, SearchEngine.createWorkspaceScope(), this.resultCollector);
 			assertSearchResults("");
 
+		} finally {
+			deleteProject(project);
+		}
+	}
+	/**
+	 * Reproduction of the internal NullPointerException in {@code CaptureBinding.initializeBounds}
+	 * (reading {@code substitutedVariableInterfaces.length}) seen during a search.
+	 * <p>
+	 * {@code TypeVariableBinding#connectTypeVariables} pre-initializes {@code superInterfaces} to
+	 * {@code NO_SUPERINTERFACES}, so a captured wildcard variable's {@code superInterfaces()} is only
+	 * {@code null} while its declaring generic type is <b>built but not yet connected</b>. This is
+	 * arranged as follows:
+	 * <ul>
+	 * <li>{@code z.G} is a <b>possible match</b> (it references the searched {@code s.Marker}), so it
+	 *     is built up-front - its type variable exists but {@code superInterfaces} is still null until
+	 *     its connect step runs.</li>
+	 * <li>{@code a.U} is another possible match ordered <b>before</b> {@code z.G}; connecting {@code U}
+	 *     resolves its superclass {@code m.Y}, which is <b>not</b> a possible match and is therefore
+	 *     pulled in lazily via {@code askForType} -&gt; {@code MatchLocator.accept} -&gt;
+	 *     {@code completeTypeBindings(Y, true)}.</li>
+	 * <li>Completing {@code Y} integrates its supertype declaration annotation {@code @Ann(v = G.K)},
+	 *     which resolves {@code G.K} -&gt; {@code G.fields()} -&gt; the field of type {@code G<?>} -&gt; capture
+	 *     of {@code G<?>} while {@code G} is still unconnected, so {@code G}'s type variable has
+	 *     {@code superInterfaces() == null}.</li>
+	 * </ul>
+	 * Without the guard in {@code CaptureBinding.initializeBounds} the search aborts with an internal
+	 * NPE; with the guard it completes normally.
+	 */
+	public void testCaptureBindingReentrantInitializeBoundsNPE_importCycle() throws CoreException {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("P", new String[] { "src" }, new String[] { "JCL18_LIB" }, "bin",
+					CompilerOptions.getFirstSupportedJavaVersion());
+			createFolder("/P/src/sup");
+			createFolder("/P/src/puller");
+			createFolder("/P/src/lazy");
+			createFolder("/P/src/victim");
+			// Ann is used as a *declaration* annotation on the lazily pulled type, so it is resolved via
+			// SourceTypeBinding.getAnnotationTagBits() from TypeDeclaration.updateSupertypesWithAnnotations
+			// (the exact frame in the reported stack), forcing evaluation of its member value G.K.
+			createFile("/P/src/sup/Ann.java",
+					"package sup;\n" +
+					"import java.lang.annotation.*;\n" +
+					"@Target({ElementType.TYPE, ElementType.FIELD})\n" +
+					"public @interface Ann { int v(); }\n");
+			createFile("/P/src/sup/Sup.java",
+					"package sup;\n" +
+					"public class Sup<X> {}\n");
+			// The searched token - present only in puller.U and victim.G (the possible matches), not in lazy.Y.
+			createFile("/P/src/sup/Marker.java",
+					"package sup;\n" +
+					"public class Marker {}\n");
+			// Victim generic: a possible match (references Marker) so it is built up-front but only
+			// connected later; its field of type G<?> is captured before its connect step runs.
+			createFile("/P/src/victim/G.java",
+					"package victim;\n" +
+					"import sup.Sup;\n" +
+					"import sup.Marker;\n" +
+					"public class G<T extends Sup<T>> extends Sup<G<?>> {\n" +
+					"    public static final int K = 1;\n" +
+					"    Marker m1;\n" +
+					"    G<?> f;\n" +
+					"}\n");
+			// Lazily pulled-in type (NOT a possible match): its *declaration* annotation @Ann(v = G.K)
+			// references G.K, forcing G.fields() during its re-entrant completion while G is still
+			// unconnected (so G's type variable has superInterfaces() == null).
+			createFile("/P/src/lazy/Y.java",
+					"package lazy;\n" +
+					"import sup.Sup;\n" +
+					"import sup.Ann;\n" +
+					"import victim.G;\n" +
+					"@Ann(v = G.K) public class Y extends Sup<Y> {}\n");
+			// Possible match ordered before victim.G (\"puller\" < \"victim\"); connecting it pulls in lazy.Y.
+			createFile("/P/src/puller/U.java",
+					"package puller;\n" +
+					"import lazy.Y;\n" +
+					"import sup.Marker;\n" +
+					"public class U extends Y { Marker m2; }\n");
+			waitUntilIndexesReady();
+
+			// Search references to sup.Marker: possible matches are puller/U.java and victim/G.java
+			// (\"puller\" sorts before \"victim\"), so U connects first and pulls in lazy.Y, capturing
+			// G<?> before G is connected. Must not abort with an internal NPE from
+			// CaptureBinding.initializeBounds.
+			SearchPattern pattern = SearchPattern.createPattern("sup.Marker", TYPE, REFERENCES, EXACT_RULE);
+			search(pattern, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertTrue("search should complete without an internal error and find the Marker reference",
+					this.resultCollector.toString().contains("U.java"));
 		} finally {
 			deleteProject(project);
 		}
