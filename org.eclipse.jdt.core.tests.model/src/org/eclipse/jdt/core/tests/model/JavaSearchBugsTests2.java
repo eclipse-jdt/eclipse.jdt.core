@@ -528,8 +528,6 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * Reproduction of the internal NullPointerException in {@code CaptureBinding.initializeBounds}
-	 * (reading {@code substitutedVariableInterfaces.length}) seen during a search.
 	 * <p>
 	 * {@code TypeVariableBinding#connectTypeVariables} pre-initializes {@code superInterfaces} to
 	 * {@code NO_SUPERINTERFACES}, so a captured wildcard variable's {@code superInterfaces()} is only
@@ -548,8 +546,6 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	 *     of {@code G<?>} while {@code G} is still unconnected, so {@code G}'s type variable has
 	 *     {@code superInterfaces() == null}.</li>
 	 * </ul>
-	 * Without the guard in {@code CaptureBinding.initializeBounds} the search aborts with an internal
-	 * NPE; with the guard it completes normally.
 	 */
 	public void testCaptureBindingReentrantInitializeBoundsNPE_importCycle() throws CoreException {
 		IJavaProject project = null;
