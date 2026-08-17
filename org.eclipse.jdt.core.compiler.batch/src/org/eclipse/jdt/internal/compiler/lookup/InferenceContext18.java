@@ -1769,7 +1769,6 @@ public class InferenceContext18 {
 				for (InferenceVariable out : allOuts)
 					if (component.contains(out))
 						return true;
-				return false;
 			}
 		}
 		return false;
