@@ -767,6 +767,8 @@ class DocCommentParser extends AbstractCommentParser {
 		int eofBkup = this.scanner.eofPosition;
 		this.scanner.eofPosition = this.index - 1;
 		this.scanner.resetTo(start, this.javadocEnd);
+		boolean oldInlineTagStarted= this.inlineTagStarted;
+		int oldInlineTagStart= this.inlineTagStart;
 		this.inlineTagStarted = true;
 		this.inlineTagStart = previousPosition;
 		this.tagValue = TAG_LINK_VALUE;
@@ -804,8 +806,8 @@ class DocCommentParser extends AbstractCommentParser {
 			previousTag.fragments().add(0, text);
 		}
 		this.tagValue = NO_TAG_VALUE;
-		this.inlineTagStarted = false;
-		this.inlineTagStart = -1;
+		this.inlineTagStarted = oldInlineTagStarted;
+		this.inlineTagStart = oldInlineTagStarted ? oldInlineTagStart : -1;
 		this.scanner.eofPosition = eofBkup;
 		return valid;
 	}
@@ -1105,7 +1107,7 @@ class DocCommentParser extends AbstractCommentParser {
 		TagElement seeTag = this.ast.newTagElement();
 		ASTNode node = (ASTNode) statement;
 		seeTag.fragments().add(node);
-		int end = node.getStartPosition()+node.getLength()-1;
+		int end = node.getStartPosition()+node.getLength();
 		if (this.inlineTagStarted) {
 			seeTag.setSourceRange(this.inlineTagStart, end-this.inlineTagStart+1);
 			switch (this.tagValue) {
@@ -1133,13 +1135,14 @@ class DocCommentParser extends AbstractCommentParser {
 				if (lastNode instanceof TagElement lastTag && lastTag.getTagName().equals(TagElement.TAG_RETURN)) {
 					previousTag= lastTag;
 					previousStart= lastTag.getStartPosition();
+
 				}
 			}
 			previousTag.fragments().add(seeTag);
 			previousTag.setSourceRange(previousStart, end-previousStart+1);
 		} else {
 			seeTag.setTagName(TagElement.TAG_SEE);
-			seeTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart+1);
+			seeTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart);
 			pushOnAstStack(seeTag, true);
 		}
 		return true;
@@ -1393,30 +1396,6 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 	}
 
-	@Override
-	protected void addFragmentToInlineReturn() {
-		TagElement currTag= (TagElement) this.astStack[this.astPtr];
-		List fragments= currTag.fragments();
-		int size= fragments.size();
-		if (size > 1) {
-			ASTNode lastNode= (ASTNode) fragments.get(size - 1);
-			if (lastNode instanceof TagElement lastTag) {
-				if (!lastTag.getTagName().equals(TagElement.TAG_RETURN)) {
-					ASTNode secondLastNode= (ASTNode) fragments.get(size - 2);
-					if (secondLastNode instanceof TagElement prevTag && prevTag.getTagName().equals(TagElement.TAG_RETURN)) {
-						fragments.remove(size - 1);
-						prevTag.fragments().add(lastNode);
-						this.inlineTagStart= prevTag.getStartPosition();
-						this.inlineTagStarted= true;
-						prevTag.setSourceRange(prevTag.getStartPosition(), lastNode.getStartPosition() + lastNode.getLength() - prevTag.getStartPosition());
-					}
-				} else {
-					this.inlineReturn= false;
-					this.inlineReturnOpenBraces= 0;
-				}
-			}
-		}
-	}
 	/*
 	 * Add stored tag elements to associated comment.
 	 */

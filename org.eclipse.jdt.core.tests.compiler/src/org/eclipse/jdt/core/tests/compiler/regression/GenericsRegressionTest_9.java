@@ -2543,6 +2543,56 @@ public void testGH5219() {
 			"""},
 			"");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5214
+public void testIssue5214() {
+	runNegativeTest(new String[] {"X.java",
+			"""
+			import java.util.List;
+			import java.util.function.Function;
+			import java.util.stream.Stream;
+
+			public class X {
+
+			    static class Parent<T> {}
+
+			    static class Child<T> extends Parent<T> {}
+
+			    interface A {}
+
+			    private static Stream<Child<A>> streamRelevant(List<Parent<A>> items) {
+			    	return items.stream()
+			                .<Child<A>>map(Child.class::cast) // <R> Stream<R> map(Function<? super T, ? extends R> mapper);
+			                .filter(X::isRelevant);
+			    }
+
+			    private static boolean isRelevant(Child<A> item) {
+			        return true;
+			    }
+			}
+			"""},
+			"----------\n"
+			+ "1. WARNING in X.java (at line 14)\n"
+			+ "	return items.stream()\n"
+			+ "                .<Child<A>>map(Child.class::cast) // <R> Stream<R> map(Function<? super T, ? extends R> mapper);\n"
+			+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+			+ "Type safety: Unchecked invocation map(Function<? super X.Parent<X.A>,? extends X.Child<X.A>>) of the generic method map(Function<? super T,? extends R>) of type Stream<X.Parent<X.A>>\n"
+			+ "----------\n"
+			+ "2. ERROR in X.java (at line 16)\n"
+			+ "	.filter(X::isRelevant);\n"
+			+ "	 ^^^^^^\n"
+			+ "The method filter(Predicate) in the type Stream is not applicable for the arguments (X::isRelevant)\n"
+			+ "----------\n"
+			+ "3. ERROR in X.java (at line 16)\n"
+			+ "	.filter(X::isRelevant);\n"
+			+ "	        ^^^^^^^^^^^^^\n"
+			+ "The type X does not define isRelevant(Object) that is applicable here\n"
+			+ "----------\n"
+			+ "4. WARNING in X.java (at line 19)\n"
+			+ "	private static boolean isRelevant(Child<A> item) {\n"
+			+ "	                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+			+ "The method isRelevant(X.Child<X.A>) from the type X is never used locally\n"
+			+ "----------\n");
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
