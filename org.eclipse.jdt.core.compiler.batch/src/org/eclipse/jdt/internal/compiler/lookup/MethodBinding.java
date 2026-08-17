@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -125,6 +125,23 @@ public MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding declar
 	this.thrownExceptions = initialMethodBinding.thrownExceptions;
 	this.declaringClass = declaringClass;
 	declaringClass.storeAnnotationHolder(this, initialMethodBinding.declaringClass.retrieveAnnotationHolder(initialMethodBinding, true));
+}
+protected void copyFieldsFrom(MethodBinding other) {
+	this.modifiers = other.modifiers;
+	this.selector = other.selector;
+	this.returnType = other.returnType;
+	this.parameters = other.parameters;
+	this.thrownExceptions = other.thrownExceptions;
+	this.declaringClass = other.declaringClass;
+	this.extendedTagBits = other.extendedTagBits;
+	this.tagBits = other.tagBits;
+	this.typeAnnotations = other.typeAnnotations;
+	this.typeVariables = other.typeVariables;
+}
+public MethodBinding copy() {
+	MethodBinding copy = new MethodBinding();
+	copy.copyFieldsFrom(this);
+	return copy;
 }
 /* Answer true if the argument types & the receiver's parameters have the same erasure
 */
@@ -1439,8 +1456,10 @@ public boolean hasPolymorphicSignature(Scope scope) {
 	}
 	return this.isNative() && this.isVarargs() && this.parameters.length == 1 &&
 			this.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject &&
-				(TypeBinding.equalsEquals(this.declaringClass, scope.getJavaLangInvokeMethodHandle())
-						|| TypeBinding.equalsEquals(this.declaringClass, scope.getJavaLangInvokeVarHandle()));
+				this.declaringClass.compoundName.length == 4 &&
+				CharOperation.equals(this.declaringClass.compoundName[0], TypeConstants.JAVA) &&
+				(CharOperation.equals(this.declaringClass.compoundName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE)
+						|| CharOperation.equals(this.declaringClass.compoundName, TypeConstants.JAVA_LANG_INVOKE_VARHANDLE));
 }
 public boolean isClosingMethod() {
 	boolean isCloseMethod = CharOperation.equals(this.selector, TypeConstants.CLOSE) && this.parameters == NO_PARAMETERS;  // close()

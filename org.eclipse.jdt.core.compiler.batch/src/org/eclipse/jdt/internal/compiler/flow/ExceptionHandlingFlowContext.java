@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -111,7 +111,7 @@ ExceptionHandlingFlowContext(
 		!this.isMethodContext || scope.compilerOptions().reportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable;
 	for (int i = 0; i < count; i++) {
 		ReferenceBinding handledException = handledExceptions[i];
-		int catchBlock = this.exceptionToCatchBlockMap != null? this.exceptionToCatchBlockMap[i] : i;
+		int catchBlock = catchBlockIndex(i);
 		this.indexes.put(handledException, i); // key type  -> value index
 		if (handledException.isUncheckedException(true)) {
 			if (markExceptionsAndThrowableAsReached ||
@@ -191,7 +191,7 @@ private ASTNode getExceptionType(int index) {
 	if (this.exceptionToCatchBlockMap == null) {
 		return this.catchArguments[index].type;
 	}
-	int catchBlock = this.exceptionToCatchBlockMap[index];
+	int catchBlock = catchBlockIndex(index);
 	ASTNode node = this.catchArguments[catchBlock].type;
 	if (node instanceof UnionTypeReference) {
 		TypeReference[] typeRefs = ((UnionTypeReference)node).typeReferences;
@@ -200,6 +200,13 @@ private ASTNode getExceptionType(int index) {
 		}
 	}
 	return node;
+}
+
+private int catchBlockIndex(int index) {
+	if (this.exceptionToCatchBlockMap != null && index >= 0 && index < this.exceptionToCatchBlockMap.length) {
+		return this.exceptionToCatchBlockMap[index];
+	}
+	return index;
 }
 
 @Override
@@ -224,7 +231,7 @@ public String individualToString() {
 		} else {
 			buffer.append("-not reached"); //$NON-NLS-1$
 		}
-		int catchBlock = this.exceptionToCatchBlockMap != null? this.exceptionToCatchBlockMap[i] : i;
+		int catchBlock = catchBlockIndex(i);
 		buffer.append('-').append(this.initsOnExceptions[catchBlock].toString()).append(']');
 	}
 	buffer.append("[initsOnReturn -").append(this.initsOnReturn.toString()).append(']'); //$NON-NLS-1$
@@ -284,7 +291,7 @@ public void recordHandlingException(
 		this.isNeeded[cacheIndex] |= bitMask;
 	}
 	this.isReached[cacheIndex] |= bitMask;
-	int catchBlock = this.exceptionToCatchBlockMap != null? this.exceptionToCatchBlockMap[index] : index;
+	int catchBlock = catchBlockIndex(index);
 	if (caughtException != null && this.catchArguments != null && this.catchArguments.length > 0 && !wasAlreadyDefinitelyCaught) {
 		CatchParameterBinding catchParameter = (CatchParameterBinding) this.catchArguments[catchBlock].binding;
 		catchParameter.setPreciseType(caughtException);

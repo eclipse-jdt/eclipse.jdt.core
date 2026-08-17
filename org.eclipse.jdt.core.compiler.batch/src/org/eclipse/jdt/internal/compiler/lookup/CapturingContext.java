@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 GK Software, and others.
+ * Copyright (c) 2025, 2026 GK Software, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,6 +37,8 @@ public class CapturingContext {
 		this.end = end;
 		this.scope = scope;
 		this.previous = previous;
+		if (previous != null)
+			this.isCaptureInProgress = previous.isCaptureInProgress;
 	}
 
 	public static void enter(int start, int end, Scope scope) {

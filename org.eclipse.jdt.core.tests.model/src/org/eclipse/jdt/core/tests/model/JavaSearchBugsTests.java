@@ -15689,6 +15689,32 @@ public void testIssue3308b() throws CoreException {
 	);
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5262
+// [Search] Search for references to local declared inside static initializer block brings up nothing
+public void testIssue5262() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"public class X {\n" +
+			"    static {\n" +
+			"        int /*here*/x = 0;\n" +
+			"        x++;\n" +
+			"        System.out.println(x);\n" +
+			"    }\n" +
+			"}\n");
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "/*here*/x";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	ILocalVariable local = (ILocalVariable) elements[0];
+	search(local, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+			"src/X.java X.static {} [x] EXACT_MATCH\n" +
+			"src/X.java X.static {} [x] EXACT_MATCH");
+}
+
 private static String toString(char[][] modules) {
 	StringBuilder sb = new StringBuilder();
 	for (char[] m : modules) {

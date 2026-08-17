@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1541,7 +1541,6 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 }
 
 public CaptureBinding createCapturedWildcard(WildcardBinding wildcard, ReferenceBinding contextType, int start, int end, ASTNode cud, Supplier<Integer> idSupplier) {
-	wildcard = normalizeWildcard(wildcard);
 	return this.typeSystem.getCapturedWildcard(wildcard, contextType, start, end, cud, idSupplier);
 }
 
@@ -1557,13 +1556,6 @@ private TypeBinding normalizeWildcardBound(TypeBinding bound, int boundKind) {
 			return capture.firstBound;
 	}
 	return bound;
-}
-private WildcardBinding normalizeWildcard(WildcardBinding wildcard) {
-	if (wildcard.boundKind == Wildcard.EXTENDS
-			&& wildcard.bound instanceof CaptureBinding wildCap
-			&& wildCap.wildcard != null) // null happens for CaptureBinding18
-		return wildCap.wildcard;
-	return wildcard;
 }
 
 /**

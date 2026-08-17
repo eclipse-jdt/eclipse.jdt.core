@@ -24,7 +24,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug575053_002"};
+//		TESTS_NAMES = new String[] { "testIssue5080_009"};
 	}
 
 	private static String previewLevel = "23";
@@ -2593,12 +2593,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	switch(o) {\n" +
-				"	       ^\n" +
-				"An enhanced switch statement should be exhaustive; a default label expected\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 9)\n" +
+				"1. ERROR in X.java (at line 9)\n" +
 				"	case List<String> s: \n" +
 				"	     ^^^^^^^^^^^^^^\n" +
 				"Type Object cannot be safely cast to List<String>\n" +
@@ -10141,5 +10136,795 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"""
 				},
 				"-1");
+	}
+
+	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
+	// Test 001: rewriting two narrower patterns over a sealed hierarchy establishes exhaustiveness
+	public void testIssue5080_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface Shape permits Circle, Rectangle {}
+						record Circle(double radius) implements Shape {}
+						record Rectangle(double w, double h) implements Shape {}
+
+						static String describe(Shape s) {
+							// Circle and Rectangle together rewrite to cover Shape
+							return switch (s) {
+								case Circle c    -> "circle";
+								case Rectangle r -> "rectangle";
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(describe(new Circle(1.0)));
+							System.out.println(describe(new Rectangle(2.0, 3.0)));
+						}
+					}
+					"""
+				},
+				"circle\nrectangle"); //$NON-NLS-1$
+	}
+
+	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
+	// Test 002: switch is NOT exhaustive even after rewriting — must produce an error
+	public void testIssue5080_002() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface Shape permits Circle, Rectangle, Triangle {}
+						record Circle(double radius) implements Shape {}
+						record Rectangle(double w, double h) implements Shape {}
+						record Triangle(double base, double height) implements Shape {}
+
+						static String describe(Shape s) {
+							// Triangle is not covered — rewriting Circle+Rectangle cannot cover Shape
+							return switch (s) {
+								case Circle c    -> "circle";
+								case Rectangle r -> "rectangle";
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 9)\n" + //$NON-NLS-1$
+				"	return switch (s) {\n" + //$NON-NLS-1$
+				"	               ^\n" + //$NON-NLS-1$
+				"A switch expression should have a default case\n" + //$NON-NLS-1$
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
+	// Test 003: multi-level sealed hierarchy — rewriting across subtypes covers the root interface
+	public void testIssue5080_003() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface Expr permits Num, Add, Mul {}
+						record Num(int value) implements Expr {}
+						record Add(Expr left, Expr right) implements Expr {}
+						record Mul(Expr left, Expr right) implements Expr {}
+
+						static String kind(Expr e) {
+							// Num, Add, Mul together rewrite to cover Expr
+							return switch (e) {
+								case Num n -> "num";
+								case Add a -> "add";
+								case Mul m -> "mul";
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(kind(new Num(1)));
+							System.out.println(kind(new Add(new Num(1), new Num(2))));
+							System.out.println(kind(new Mul(new Num(3), new Num(4))));
+						}
+					}
+					"""
+				},
+				"num\nadd\nmul"); //$NON-NLS-1$
+	}
+
+	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
+	// Test 004: exhaustive switch over record patterns where the record component is a sealed interface
+	// Box(A), Box(B), Box(C) together rewrite to cover Box because A, B, C cover I
+	public void testIssue5080_004() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B, C {}
+						final class A implements I {}
+						final class B implements I {}
+						record C(int j) implements I {}
+						record Box(I i) {}
+
+						int testExhaustiveRecordPatterns(Box b) {
+							return switch (b) { // Exhaustive!
+								case Box(A a) -> 0;
+								case Box(B b2) -> 1;
+								case Box(C c) -> 2;
+							};
+						}
+
+						public static void main(String[] args) {
+							X x = new X();
+							System.out.println(x.testExhaustiveRecordPatterns(new Box(x.new A())));
+							System.out.println(x.testExhaustiveRecordPatterns(new Box(x.new B())));
+							System.out.println(x.testExhaustiveRecordPatterns(new Box(new C(42))));
+						}
+					}
+					"""
+				},
+				"0\n1\n2"); //$NON-NLS-1$
+	}
+
+	// JLS 26 §14.11.1.1 — "RP reduces to rp" rule 1:
+	//   RP covers some type U → rp is a type pattern of type U.
+	// Here {Box(A), Box(B), Box(C)} covers Box (all permits of I covered),
+	// so they reduce to the type pattern `Box b`, making the switch exhaustive over Wrapper.
+	public void testIssue5080_005() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B, C {}
+						final class A implements I {}
+						final class B implements I {}
+						final class C implements I {}
+						record Box(I i) {}
+						record Wrapper(Box box) {}
+
+						// {Wrapper(Box(A)), Wrapper(Box(B)), Wrapper(Box(C))} reduce the inner set
+						// to Box b, then to Wrapper w — exhaustive over Wrapper
+						static int eval(Wrapper w) {
+							return switch (w) {
+								case Wrapper(Box(A a)) -> 0;
+								case Wrapper(Box(B b)) -> 1;
+								case Wrapper(Box(C c)) -> 2;
+							};
+						}
+
+						public static void main(String[] args) {
+							X x = new X();
+							System.out.println(eval(new Wrapper(new Box(x.new A()))));
+							System.out.println(eval(new Wrapper(new Box(x.new B()))));
+							System.out.println(eval(new Wrapper(new Box(x.new C()))));
+						}
+					}
+					"""
+				},
+				"0\n1\n2"); //$NON-NLS-1$
+	}
+
+	// JLS 26 §14.11.1.1 — "RP reduces to rp" rule 2 (distinguished component):
+	//   Record patterns with the same erasure R; one component cr reduces while all others are equivalent.
+	// Pair(A, Object) and Pair(B, Object) — cr = first component {A,B} reduces to I (covers I),
+	// second component {Object, Object} is equivalent to Object — reduces to Pair(I, Object).
+	public void testIssue5080_006() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+						final class A implements I {}
+						final class B implements I {}
+						record Pair(I first, Object second) {}
+
+						// {Pair(A,Object), Pair(B,Object)}: cr=first reduces {A,B}→I,
+						// ci=second {Object,Object} equivalent to Object → reduces to Pair(I,Object) → covers Pair
+						static String eval(Pair p) {
+							return switch (p) {
+								case Pair(A a, Object o) -> "A:" + o;
+								case Pair(B b, Object o) -> "B:" + o;
+							};
+						}
+
+						public static void main(String[] args) {
+							X x = new X();
+							System.out.println(eval(new Pair(x.new A(), "x"))); //$NON-NLS-1$
+							System.out.println(eval(new Pair(x.new B(), 42)));
+						}
+					}
+					"""
+				},
+				"A:x\nB:42"); //$NON-NLS-1$
+	}
+
+	// JLS 26 §14.11.1.1 — "EP equivalent to ep" rule 1:
+	//   EP consists of type patterns with the same erasure T → ep is a type pattern of type T.
+	// {Integer i, Integer j} both have erasure Integer → equivalent to Integer k.
+	// Pair(Integer, Integer) and Pair(Integer, Integer) merge both components → covers Pair(int,int).
+	public void testIssue5080_007() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						record IntPair(Integer first, Integer second) {}
+
+						// Both cases have type pattern Integer for each component — equivalent,
+						// so the two patterns reduce to IntPair(Integer,Integer) which covers IntPair.
+						static int sum(IntPair p) {
+							return switch (p) {
+								case IntPair(Integer a, Integer b) -> a + b;
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(sum(new IntPair(3, 4)));
+						}
+					}
+					"""
+				},
+				"7"); //$NON-NLS-1$
+	}
+
+	// JLS 26 §14.11.1.1 — "EP equivalent to ep" rule 2:
+	//   EP consists of record patterns with the same erasure R; every component-set is equivalent to qj.
+	// Two Box(Object) patterns → component sets {Object, Object} each equivalent to Object
+	// → EP equivalent to Box(Object) → single case covers Box.
+	public void testIssue5080_008() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						record Box(Object value) {}
+						record Outer(Box box) {}
+
+						// Outer(Box(Object)) and Outer(Box(Object)) — EP of two identical record
+						// patterns is equivalent to Outer(Box(Object)), which covers Outer.
+						static String eval(Outer o) {
+							return switch (o) {
+								case Outer(Box(Object v)) -> String.valueOf(v);
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(eval(new Outer(new Box("hello")))); //$NON-NLS-1$
+						}
+					}
+					"""
+				},
+				"hello"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_009() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						final class A implements I {}
+
+						final class B implements I {}
+
+						record Pair(I first, I second) {}
+
+						static String eval(Pair p) {
+							return switch (p) { //AB missing
+							case Pair(A f, A s) -> "AA";
+							case Pair(B f, I s) -> "BI";
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 11)\n" +
+				"	return switch (p) { //AB missing\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_010() {
+		// deeply-nested record pattern: Box(Pair(A,B)) is not covered -> a default is required
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						final class A implements I {}
+
+						final class B implements I {}
+
+						record Pair(I first, I second) {}
+
+						record Box(Pair p) {}
+
+						static String eval(Box b) {
+							return switch (b) { //Box(Pair(A,B)) missing
+							case Box(Pair(A f, A s)) -> "AA";
+							case Box(Pair(B f, I s)) -> "BI";
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 13)\n" +
+				"	return switch (b) { //Box(Pair(A,B)) missing\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_011() {
+		// deeply-nested record pattern that IS exhaustive -> compiles without a default
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						record Pair(I first, I second) {}
+
+						record Box(Pair p) {}
+
+						static String eval(Box b) {
+							return switch (b) { // exhaustive
+							case Box(Pair(A f, A s)) -> "AA";
+							case Box(Pair(A f, B s)) -> "AB";
+							case Box(Pair(B f, I s)) -> "BI";
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(eval(new Box(new Pair(new A(), new B()))));
+						}
+					}
+					"""
+				},
+				"AB"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_012() {
+		// deeply-nested generic record pattern that IS exhaustive (same-erasure rule) -> no default needed
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						record Box<T>(T content) {}
+
+						record Outer<T>(Box<T> box) {}
+
+						static int eval(Outer<I> o) {
+							return switch (o) { // exhaustive
+							case Outer<I>(Box<I>(A a)) -> 0;
+							case Outer<I>(Box<I>(B b)) -> 1;
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(eval(new Outer<I>(new Box<I>(new B()))));
+						}
+					}
+					"""
+				},
+				"1"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_013() {
+		// A case pattern with an unsafe-cast error must not also trigger a redundant missing-default error.
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						record Pair<T>(T x, T y) {}
+
+						@SuppressWarnings({"rawtypes","unchecked"})
+						static int eval(Pair p) {
+							return switch (p) {
+							case Pair<I>(A x, I y) -> 0;
+							case Pair<I>(B x, I y) -> 1;
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 13)\n" +
+				"	case Pair<I>(A x, I y) -> 0;\n" +
+				"	     ^^^^^^^^^^^^^^^^^\n" +
+				"Type X.Pair cannot be safely cast to X.Pair<X.I>\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 14)\n" +
+				"	case Pair<I>(B x, I y) -> 1;\n" +
+				"	     ^^^^^^^^^^^^^^^^^\n" +
+				"Type X.Pair cannot be safely cast to X.Pair<X.I>\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_014() {
+		// JLS 14.11.1.1: P covers T if P contains a pattern that is unconditional for T.
+		// An exact-type type pattern (I x) is unconditional for the sealed selector I -> exhaustive.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						static int eval(I i) {
+							return switch (i) { // 'I x' is unconditional -> no default needed
+							case I x -> 0;
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(eval(new A()));
+						}
+					}
+					"""
+				},
+				"0"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_015() {
+		// A guarded pattern is NOT unconditional (JLS 14.30.3), so it does not make the switch exhaustive.
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						static int eval(I i) {
+							return switch (i) { // guarded pattern is not unconditional
+							case I x when x.hashCode() > 0 -> 0;
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 9)\n" +
+				"	return switch (i) { // guarded pattern is not unconditional\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_016() {
+		// JLS 14.11.1.1: P covers T if T is a type variable with upper bound B and P covers B.
+		// Selector is a type variable T bounded by sealed I; A and B cover I -> exhaustive.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						static <T extends I> int eval(T x) {
+							return switch (x) { // covers bound I via A, B
+							case A a -> 0;
+							case B b -> 1;
+							};
+						}
+
+						public static void main(String[] args) {
+							System.out.println(eval(new B()));
+						}
+					}
+					"""
+				},
+				"1"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_017() {
+		// Type variable bounded by sealed I, but the bound is not fully covered (B missing) -> not exhaustive.
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+
+						static final class A implements I {}
+
+						static final class B implements I {}
+
+						static <T extends I> int eval(T x) {
+							return switch (x) { // bound I not fully covered (B missing)
+							case A a -> 0;
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 9)\n" +
+				"	return switch (x) { // bound I not fully covered (B missing)\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_018() {
+		// JLS 14.11.1.1: P covers T if T is an intersection T1&...&Tn and P covers Ti for some i.
+		// Selector is a type variable with bound I & Marker; covering the first member I (via A,B) suffices.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						interface Marker {}
+						sealed interface I permits A, B {}
+						static final class A implements I, Marker {}
+						static final class B implements I, Marker {}
+						static <T extends I & Marker> int eval(T x) {
+							return switch (x) { // covers first bound I via A, B
+							case A a -> 0;
+							case B b -> 1;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(eval(new A()));
+						}
+					}
+					"""
+				},
+				"0"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_019() {
+		// Intersection Marker & J: covering the SECOND member J (via C,D) is enough for exhaustiveness.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						interface Marker {}
+						sealed interface J permits C, D {}
+						static final class C implements Marker, J {}
+						static final class D implements Marker, J {}
+						static <T extends Marker & J> int eval(T x) {
+							return switch (x) { // covers SECOND bound J via C, D
+							case C c -> 0;
+							case D d -> 1;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(eval(new D()));
+						}
+					}
+					"""
+				},
+				"1"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_020() {
+		// Intersection I & Marker but no member fully covered (B missing) -> not exhaustive.
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						interface Marker {}
+						sealed interface I permits A, B {}
+
+						static final class A implements I, Marker {}
+
+						static final class B implements I, Marker {}
+
+						static <T extends I & Marker> int eval(T x) {
+							return switch (x) { // bound I not fully covered (B missing)
+							case A a -> 0;
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 10)\n" +
+				"	return switch (x) { // bound I not fully covered (B missing)\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_021() {
+		// JLS 14.11.1.1: P covers an enum type E if P contains all the names of E's enum constants.
+		// A switch expression naming every constant is exhaustive without a default.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						enum Day { MON, TUE, WED }
+						static int eval(Day d) {
+							return switch (d) { // all enum constants named -> exhaustive, no default
+							case MON -> 0;
+							case TUE -> 1;
+							case WED -> 2;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(eval(Day.WED));
+						}
+					}
+					"""
+				},
+				"2"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_022() {
+		// Enum switch expression missing a constant (WED) is not exhaustive.
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						enum Day { MON, TUE, WED }
+
+						static int eval(Day d) {
+							return switch (d) { // WED missing -> not exhaustive
+							case MON -> 0;
+							case TUE -> 1;
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 5)\n" +
+				"	return switch (d) { // WED missing -> not exhaustive\n" +
+				"	               ^\n" +
+				"A Switch expression should cover all possible values\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_023() {
+		// JLS 14.11.1.1 (sealed rule): a permitted subtype D need not be covered if no type both
+		// names D and is a subtype of T. Here A (I<String>) and C (Sub<String>) are excluded for an
+		// I<Integer> selector, so covering Sub via B makes the switch exhaustive - applied recursively
+		// through the nested abstract sealed subtype Sub.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I<T> permits A, Sub {}
+						static final class A<T> implements I<String> {}
+						sealed interface Sub<T> extends I<T> permits B, C {}
+						static final class B<T> implements Sub<T> {}
+						static final class C<T> implements Sub<String> {}
+						static int eval(I<Integer> i) {
+							return switch (i) { // A & C excluded by genericity; Sub covered by B
+							case Sub<Integer> b -> 1;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(eval(new B<Integer>()));
+						}
+					}
+					"""
+				},
+				"1"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_024() {
+		// Same shape but A now names I<T>, so A<Integer> IS a subtype of I<Integer> and must be
+		// covered; omitting it makes the switch non-exhaustive.
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I<T> permits A, Sub {}
+						static final class A<T> implements I<T> {}
+						sealed interface Sub<T> extends I<T> permits B, C {}
+						static final class B<T> implements Sub<T> {}
+						static final class C<T> implements Sub<String> {}
+						static int eval(I<Integer> i) {
+							return switch (i) { // A<Integer> is possible but not covered
+							case Sub<Integer> b -> 1;
+							};
+						}
+					}
+					"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 8)\n" +
+				"	return switch (i) { // A<Integer> is possible but not covered\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_025() {
+		// JLS 14.11.1.1 (record rule): a single record pattern p covers R when, for every component
+		// of type U, the corresponding component pattern covers U. Here each component pattern is a
+		// total type pattern (Object) over the sealed component type I -> exhaustive.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						sealed interface I permits A, B {}
+						static final class A implements I {}
+						static final class B implements I {}
+						record Pair(I x, I y) {}
+						static int eval(Pair p) {
+							return switch (p) { // each component pattern (Object) covers I
+							case Pair(Object a, Object b) -> 0;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(eval(new Pair(new A(), new B())));
+						}
+					}
+					"""
+				},
+				"0"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_026() {
+		// Record with no components ("... of type U, if any ..."): a bare record pattern covers it.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						record Empty() {}
+						static int eval(Empty e) {
+							return switch (e) { // Empty() covers the component-less record Empty
+							case Empty() -> 7;
+							};
+						}
+						public static void main(String[] args) {
+							System.out.println(eval(new Empty()));
+						}
+					}
+					"""
+				},
+				"7"); //$NON-NLS-1$
 	}
 }

@@ -716,7 +716,11 @@ class CompilationUnitResolver extends Compiler {
 		try {
 			int amountOfWork = (compilationUnits.length + bindingKeys.length) * 2; // 1 for beginToCompile, 1 for resolve
 			SubMonitor subMonitor = SubMonitor.convert(monitor, amountOfWork);
-			environment = new CancelableNameEnvironment(((JavaProject) javaProject), owner, subMonitor);
+			// resolve as seen from the source folder the units live in, honoring a release specific module-info.java
+			int release = compilationUnits.length > 0
+					? JavaProject.getRelease(compilationUnits[0])
+					: JavaProject.NO_RELEASE;
+			environment = new CancelableNameEnvironment(((JavaProject) javaProject), owner, subMonitor, false, release);
 			problemFactory = new CancelableProblemFactory(subMonitor);
 			CompilerOptions compilerOptions = getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 			compilerOptions.ignoreMethodBodies = (flags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
@@ -810,7 +814,12 @@ class CompilationUnitResolver extends Compiler {
 				classpaths.toArray(allEntries);
 				environment = new NameEnvironmentWithProgress(allEntries, null, monitor);
 			} else {
-				environment = new CancelableNameEnvironment((JavaProject) javaProject, owner, monitor);
+				// resolve as seen from the source folder the unit lives in, honoring a release specific module-info.java
+				char[] fileName = sourceUnit.getFileName();
+				int release = fileName != null && fileName.length > 0
+						? ((JavaProject) javaProject).getRelease(IPath.fromPortableString(new String(fileName)))
+						: JavaProject.NO_RELEASE;
+				environment = new CancelableNameEnvironment((JavaProject) javaProject, owner, monitor, false, release);
 			}
 			problemFactory = new CancelableProblemFactory(monitor);
 			CompilerOptions compilerOptions = getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);

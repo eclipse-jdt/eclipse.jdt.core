@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
@@ -3289,6 +3289,75 @@ public void testIssue3379_3() throws Exception {
 	}
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4292
+// Duplicate case labels not detected when the two constants have different
+// compile-time kinds but the same value after binary numeric promotion to int,
+// e.g. (byte)0 + (byte)0 (an int constant) vs. a final byte constant 0.
+public void testDuplicateCasePromotedConstant() {
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] argv) {\n" +
+		"		byte var = (byte) 0;\n" +
+		"		final byte cst = (byte) 0;\n" +
+		"		switch (var) {\n" +
+		"			case (byte) 0 + (byte) 0: break;\n" +
+		"			case cst: break;\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"----------\n" +
+	"1. ERROR in X.java (at line 7)\n" +
+	"	case cst: break;\n" +
+	"	     ^^^\n" +
+	"Duplicate case\n" +
+	"----------\n");
+}
+// Same as testDuplicateCasePromotedConstant but with the case labels in the
+// opposite order, to ensure detection is independent of label ordering.
+public void testDuplicateCasePromotedConstantReversed() {
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] argv) {\n" +
+		"		byte var = (byte) 0;\n" +
+		"		final byte cst = (byte) 0;\n" +
+		"		switch (var) {\n" +
+		"			case cst: break;\n" +
+		"			case (byte) 0 + (byte) 0: break;\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"----------\n" +
+	"1. ERROR in X.java (at line 7)\n" +
+	"	case (byte) 0 + (byte) 0: break;\n" +
+	"	     ^^^^^^^^^^^^^^^^^^^\n" +
+	"Duplicate case\n" +
+	"----------\n");
+}
+// 'A' (a char constant, value 65) and 65 (an int constant) collide after
+// promotion to int and must be reported as duplicate case labels.
+public void testDuplicateCaseCharVsInt() {
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] argv) {\n" +
+		"		switch (argv.length) {\n" +
+		"			case 'A': break;\n" +
+		"			case 65: break;\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"----------\n" +
+	"1. ERROR in X.java (at line 5)\n" +
+	"	case 65: break;\n" +
+	"	     ^^\n" +
+	"Duplicate case\n" +
+	"----------\n");
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }

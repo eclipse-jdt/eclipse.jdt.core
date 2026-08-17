@@ -236,6 +236,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
 				JavacTestOptions.Excuse excuse = options.excuseFor(javacCompiler);
+				numRunJavacTests++;
 
 				commandLine = adjustForJavac(commandLine, null);
 				StringBuilder log = new StringBuilder();

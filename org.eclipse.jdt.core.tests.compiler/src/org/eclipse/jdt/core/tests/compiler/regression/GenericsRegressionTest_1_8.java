@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2023 GK Software SE, and others.
+ * Copyright (c) 2013, 2026 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10963,5 +10963,115 @@ public void testBug508834_comment0() {
 			"	^^^\n" +
 			"The method bar(One<Inner<?>>) in the type Bug is not applicable for the arguments (One<Inner<X>>)\n" +
 			"----------\n");
+	}
+	public void testIssue5204CompatibleArrayUpperBound() {
+		runConformTest(
+			new String[] {
+				"ArrayBoundInference.java",
+				"""
+				import java.util.concurrent.atomic.AtomicReference;
+				import java.util.function.Function;
+				import java.util.function.UnaryOperator;
+
+				class ArrayBoundInference {
+					static <Bound, Selection extends Bound> Selection read(AtomicReference<Bound> reference) {
+						throw new AssertionError();
+					}
+
+					UnaryOperator<String>[] compatible(AtomicReference<Function<?, ?>[]> reference) {
+						return read(reference);
+					}
+
+					UnaryOperator<String>[][] compatibleMatrix(AtomicReference<Function<?, ?>[][]> reference) {
+						return read(reference);
+					}
+				}
+				"""
+			});
+	}
+	public void testIssue5204IncompatibleArrayUpperBound() {
+		runNegativeTest(
+			new String[] {
+				"IncompatibleArrayBoundInference.java",
+				"""
+				import java.util.concurrent.atomic.AtomicReference;
+				import java.util.function.Function;
+				import java.util.function.UnaryOperator;
+
+				class IncompatibleArrayBoundInference {
+					static <Bound, Selection extends Bound> Selection read(AtomicReference<Bound> reference) {
+						throw new AssertionError();
+					}
+
+					UnaryOperator<String> incompatible(AtomicReference<Function<?, ?>[]> reference) {
+						return read(reference);
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in IncompatibleArrayBoundInference.java (at line 11)
+				return read(reference);
+				       ^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from Function<?,?>[] to UnaryOperator<String>
+			----------
+			""");
+	}
+	public void testIssue5204RejectsUnresolvedCaptureAsArrayUpperBound() {
+		runNegativeTest(
+			new String[] {
+				"UnresolvedArrayBoundInference.java",
+				"""
+				import java.util.concurrent.atomic.AtomicReference;
+
+				class UnresolvedArrayBoundInference {
+					static <Bound, Selection extends Bound> Selection read(AtomicReference<Bound> reference) {
+						throw new AssertionError();
+					}
+
+					CharSequence[] incompatible(AtomicReference<? extends AutoCloseable> reference) {
+						return read(reference);
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in UnresolvedArrayBoundInference.java (at line 9)
+				return read(reference);
+				       ^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from capture#1-of ? extends AutoCloseable to CharSequence[]
+			----------
+			""");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4867
+	public void testGH4867() {
+		runConformTest(
+			new String[] {
+				"MessageExpressionVoterTests.java",
+				"""
+				public class MessageExpressionVoterTests {
+					MessageMatcher<?> matcher = new MessageMatcher<String>() {
+					};
+
+					public boolean voteGranted() {
+						return this.matcher.matcher(ArgumentMatchers.any());
+					}
+				}
+				interface MessageMatcher<T> {
+					default boolean matcher(Message<? extends T> message) {
+						return true;
+					}
+				}
+				interface Message<T> {}
+				class ArgumentMatchers {
+					public static <T> T any() {
+						return null;
+					}
+				}
+				"""
+			});
 	}
 }

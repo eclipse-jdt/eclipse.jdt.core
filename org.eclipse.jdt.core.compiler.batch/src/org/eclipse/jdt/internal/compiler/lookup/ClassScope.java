@@ -1460,24 +1460,25 @@ public class ClassScope extends Scope {
 	}
 
 	public boolean detectHierarchyCycle(TypeBinding superType, TypeReference reference) {
-		if (!(superType instanceof ReferenceBinding)) return false;
 
-		if (reference == this.superTypeReference) { // see findSuperType()
-			if (superType.isTypeVariable())
-				return false; // error case caught in resolveSuperType()
-			// abstract class X<K,V> implements java.util.Map<K,V>
-			//    static abstract class M<K,V> implements Entry<K,V>
-			if (superType.isParameterizedType())
-				superType = ((ParameterizedTypeBinding) superType).genericType();
-			compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
-			return detectHierarchyCycle(this.referenceContext.binding, (ReferenceBinding) superType, reference);
+		if (this.referenceContext.binding.isHierarchyBeingActivelyConnected() && superType instanceof ReferenceBinding) {
+			if (reference == this.superTypeReference) { // see findSuperType()
+				if (superType.isTypeVariable())
+					return false; // error case caught in resolveSuperType()
+				// abstract class X<K,V> implements java.util.Map<K,V>
+				// static abstract class M<K,V> implements Entry<K,V>
+				if (superType.isParameterizedType())
+					superType = ((ParameterizedTypeBinding) superType).genericType();
+				compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
+				return detectHierarchyCycle(this.referenceContext.binding, (ReferenceBinding) superType, reference);
+			}
+			// Reinstate the code deleted by the fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=205235
+			// For details, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057.
+			if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
+				// ensure if this is a source superclass that it has already been checked
+				((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
+
 		}
-		// Reinstate the code deleted by the fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=205235
-		// For details, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057.
-		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
-			// ensure if this is a source superclass that it has already been checked
-			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
-
 		return false;
 	}
 

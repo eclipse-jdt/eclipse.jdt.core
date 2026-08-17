@@ -2353,6 +2353,19 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a new line after an annotation on a parameter
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_record_parameter"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.47
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_RECORD_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_record_parameter";//$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a new line after an annotation on a local variable
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_local_variable"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
