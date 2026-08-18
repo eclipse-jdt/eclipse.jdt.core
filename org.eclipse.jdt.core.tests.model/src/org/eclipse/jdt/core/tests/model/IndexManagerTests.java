@@ -27,6 +27,7 @@ import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -186,6 +187,7 @@ public class IndexManagerTests extends ModifyingResourceTests {
 
 	public void testDisableIndexingForRestrictedFile() throws Exception {
 		if (SKIP_TESTS) return;
+		startLogListening();
 		this.indexDisabledForTest = true;
 		IEclipsePreferences node = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 		String pref = JavaModelManager.DISABLE_RESTRICTED_FILE_INDEXING_PREFERENCE;
@@ -199,6 +201,11 @@ public class IndexManagerTests extends ModifyingResourceTests {
 			IFile file1 = createFile("/IndexProject/src/p/TestClass1.java", "package p;\n public class TestClass1 {\n" + "}");
 			createFile("/IndexProject/src/p/TestClass2.java", "package p;\n public class TestClass2 {\n" + "}");
 			file1.setContentRestricted(true);
+
+			// create a broken binary file, expect that indexing skips it and doesn't run into errors
+			IFile binaryFile = createFile("/IndexProject/src/p/TestBroken.class", "");
+			binaryFile.setContentRestricted(true);
+
 			JavaModelManager.getIndexManager().indexAll(this.project.getProject());
 			waitUntilIndexesReady();
 
@@ -214,7 +221,14 @@ public class IndexManagerTests extends ModifyingResourceTests {
 			assertSearchResults(
 				"src/p/TestClass2.java p.TestClass2 [TestClass2]",
 				collector);
+
+			// ensure we disabled indexing for the binary file as well
+			String binaryIndexerMessage = "Could not index empty /IndexProject/src/p/TestBroken.class";
+			List<IStatus> logs = this.logListener.getLogs();
+			boolean unexpectedLog = logs.stream().map(IStatus::getMessage).anyMatch(m -> binaryIndexerMessage.equals(m));
+			assertFalse("Expected no log from binary indexer", unexpectedLog);
 		} finally {
+			stopLogListening();
 			if (wasIndexerEnabled) {
 				enableIndexer();
 			}
