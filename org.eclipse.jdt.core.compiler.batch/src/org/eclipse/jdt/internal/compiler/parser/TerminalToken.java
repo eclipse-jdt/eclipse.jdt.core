@@ -220,7 +220,7 @@ public enum TerminalToken {
 		if (text != null) {
 			int len = text.length;
 			if (len == 4 && text[0] == 'w' ||
-				len == 5 && text[0] == 'y' ||
+				len == 5 && (text[0] == 'y' || text[0] == 'v') ||
 				len == 6 && (text[0] == 'r' || text[0] == 's') ||
 				len == 7 && text[0] == 'p') {
 				return getRestrictedKeyword(new String(text));
