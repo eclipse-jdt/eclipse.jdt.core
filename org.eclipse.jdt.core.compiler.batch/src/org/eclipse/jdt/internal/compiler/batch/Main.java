@@ -5201,7 +5201,7 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 	ArrayList<Classpath> allPaths = null;
 	long jdkLevel = validateClasspathOptions(bootclasspaths, endorsedDirClasspaths, extdirsClasspaths);
 
-	if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
+	if (this.releaseVersion != null && this.complianceLevel <= jdkLevel) {
 		// TODO: Revisit for access rules
 		allPaths = new ArrayList<>();
 		Classpath olderSystemRelease = FileSystem.getOlderSystemRelease(this.javaHomeCache.getAbsolutePath(), this.releaseVersion, null);
