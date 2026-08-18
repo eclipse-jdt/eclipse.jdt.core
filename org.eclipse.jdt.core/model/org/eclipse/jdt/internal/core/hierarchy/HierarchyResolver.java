@@ -90,7 +90,7 @@ public class HierarchyResolver implements ITypeRequestor {
 	HierarchyBuilder builder;
 	private ReferenceBinding[] typeBindings;
 	private final BindingMap<IGenericType> bindingMap = new BindingMap<>();
-	private final HashSet<String> sourceFilesBeingCompleted = new HashSet<>();
+	private final HashSet<String> sourceTypesBeingCompleted = new HashSet<>();
 
 	private int typeIndex;
 	private IGenericType[] typeModels;
@@ -190,8 +190,8 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
 	while (sourceType.getEnclosingType() != null)
 		sourceType = sourceType.getEnclosingType();
 
-	String fileName = String.valueOf(sourceType.getFileName());
-	if (!this.sourceFilesBeingCompleted.add(fileName))
+	String key = String.valueOf(sourceType.getFileName()) + '#' + String.valueOf(sourceType.getName());
+	if (!this.sourceTypesBeingCompleted.add(key))
 		return;
 
 	try {
@@ -223,7 +223,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
 		}
 	}
 	} finally {
-		this.sourceFilesBeingCompleted.remove(fileName);
+		this.sourceTypesBeingCompleted.remove(key);
 	}
 }
 /*
