@@ -49,7 +49,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "test012";
-//		TESTS_NAMES = new String[] { "testBug359495" };
+//		TESTS_NAMES = new String[] { "testGHIssue5018" };
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
@@ -957,11 +957,54 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				"        mandated name\n";
 			assertSubstring(actualOutput, expectedOutput);
 	}
+	public void testGHIssue5018() throws Exception {
+		this.runParameterNameTest(
+			"X.java",
+			"class Outer {\n"
+			+ "    class Inner {}\n"
+			+ "}\n"
+			+ "public class X  {\n"
+			+ "    public static void main(String argv[]) {\n"
+			+ "        for (java.lang.reflect.Constructor<?> c : Outer.Inner.class.getDeclaredConstructors()) {\n"
+			+ "            for (java.lang.reflect.Parameter p : c.getParameters()) {\n"
+			+ "            	System.out.println(p.isImplicit());\n"
+			+ "            }\n"
+			+ "        }\n"
+			+ "    }\n"
+			+ "} \n",
+			CompilerOptions.DO_NOT_GENERATE);
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "Outer$Inner.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+			"  Outer$Inner(Outer this$0);\n"
+			+ "     0  aload_0 [this]\n"
+			+ "     1  aload_1 [this$0]\n"
+			+ "     2  putfield Outer$Inner.this$0 : Outer [10]\n"
+			+ "     5  aload_0 [this]\n"
+			+ "     6  invokespecial java.lang.Object() [12]\n"
+			+ "     9  return\n"
+			+ "      Line numbers:\n"
+			+ "        [pc: 0, line: 2]\n"
+			+ "      Method Parameters:\n"
+			+ "        final mandated this$0\n";
+		assertSubstring(actualOutput, expectedOutput);
+	}
 
 	private void runParameterNameTest(String fileName, String body) {
+		runParameterNameTest(fileName, body, CompilerOptions.GENERATE);
+	}
+	private void runParameterNameTest(String fileName, String body, String generateMethodParamName) {
 		Map<String, String> compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
-		compilerOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
+		compilerOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, generateMethodParamName);
 		this.runConformTest(
 			new String[] {
 				fileName,

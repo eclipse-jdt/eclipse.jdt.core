@@ -2390,10 +2390,10 @@ public void test070() throws Exception {
 	String expectedOutput =
 			"  // Method descriptor #18 (Ljava/lang/String;I)V\n" +
 			"  // Stack: 3, Locals: 3\n" +
-			"  private X$1Y(java.lang.String arg0, int arg1);\n" +
+			"  private X$1Y(java.lang.String $enum$name, int $enum$ordinal);\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  aload_1 [arg0]\n" +
-			"    2  iload_2 [arg1]\n" +
+			"    1  aload_1 [$enum$name]\n" +
+			"    2  iload_2 [$enum$ordinal]\n" +
 			"    3  invokespecial java.lang.Enum(java.lang.String, int) [25]\n" +
 			"    6  return\n";
 
@@ -2917,7 +2917,7 @@ public void test079() throws Exception {
 	);
 
 	String[] expectedOutputs = new String[] {
-		"  private X$1Y(java.lang.String arg0, int arg1);\n",
+		"  private X$1Y(java.lang.String $enum$name, int $enum$ordinal);\n",
 		"  public static new X(){}[] values();\n",
 		"  public static new X(){} valueOf(java.lang.String arg0);\n"
 	};
@@ -3113,7 +3113,7 @@ public void test084() throws Exception {
 	String expectedOutput =
 		"  // Method descriptor #20 (Ljava/lang/String;I)V\n" +
 		"  // Stack: 3, Locals: 3\n" +
-		"  private X$1Y(java.lang.String arg0, int arg1);\n";
+		"  private X$1Y(java.lang.String $enum$name, int $enum$ordinal);\n";
 
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -3392,18 +3392,21 @@ public void test094() throws Exception {
 		"  \n" +
 		"  // Method descriptor #15 (Ljava/lang/String;I)V\n" +
 		"  // Stack: 3, Locals: 3\n" +
-		"  private X$1Y(java.lang.String arg0, int arg1);\n" +
+		"  private X$1Y(java.lang.String $enum$name, int $enum$ordinal);\n" +
 		"    0  aload_0 [this]\n" +
-		"    1  aload_1 [arg0]\n" +
-		"    2  iload_2 [arg1]\n" +
+		"    1  aload_1 [$enum$name]\n" +
+		"    2  iload_2 [$enum$ordinal]\n" +
 		"    3  invokespecial java.lang.Enum(java.lang.String, int) [16]\n" +
 		"    6  return\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 3]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 7] local: this index: 0 type: new X(){}\n" +
+		"      Method Parameters:\n" +
+		"        synthetic $enum$name\n" +
+		"        synthetic $enum$ordinal\n" +
 		"  \n" +
-		"  // Method descriptor #21 ()[LX$1Y;\n" +
+		"  // Method descriptor #24 ()[LX$1Y;\n" +
 		"  // Stack: 5, Locals: 3\n" +
 		"  public static new X(){}[] values();\n" +
 		"     0  getstatic X$1Y.ENUM$VALUES : new X(){}[] [10]\n" +
@@ -3419,18 +3422,18 @@ public void test094() throws Exception {
 		"    14  astore_2\n" +
 		"    15  iconst_0\n" +
 		"    16  iload_1\n" +
-		"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [22]\n" +
+		"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [25]\n" +
 		"    20  aload_2\n" +
 		"    21  areturn\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 1]\n" +
 		"  \n" +
-		"  // Method descriptor #29 (Ljava/lang/String;)LX$1Y;\n" +
+		"  // Method descriptor #32 (Ljava/lang/String;)LX$1Y;\n" +
 		"  // Stack: 2, Locals: 1\n" +
 		"  public static new X(){} valueOf(java.lang.String arg0);\n" +
 		"     0  ldc <Class X$1Y> [1]\n" +
 		"     2  aload_0 [arg0]\n" +
-		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [30]\n" +
+		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [33]\n" +
 		"     6  checkcast X$1Y [1]\n" +
 		"     9  areturn\n" ;
 
@@ -5910,16 +5913,19 @@ public void test151() throws Exception {
 		+ "  \n"
 		+ "  // Method descriptor #20 (Ljava/lang/String;I)V\n"
 		+ "  // Stack: 3, Locals: 3\n"
-		+ "  private X$1E(java.lang.String arg0, int arg1);\n"
+		+ "  private X$1E(java.lang.String $enum$name, int $enum$ordinal);\n"
 		+ "    0  aload_0 [this]\n"
-		+ "    1  aload_1 [arg0]\n"
-		+ "    2  iload_2 [arg1]\n"
+		+ "    1  aload_1 [$enum$name]\n"
+		+ "    2  iload_2 [$enum$ordinal]\n"
 		+ "    3  invokespecial java.lang.Enum(java.lang.String, int) [27]\n"
 		+ "    6  return\n"
 		+ "      Line numbers:\n"
 		+ "        [pc: 0, line: 4]\n"
 		+ "      Local variable table:\n"
 		+ "        [pc: 0, pc: 7] local: this index: 0 type: new p.X(){}\n"
+		+ "      Method Parameters:\n"
+		+ "        synthetic $enum$name\n"
+		+ "        synthetic $enum$ordinal\n"
 		+ "  \n"
 		+ "  // Method descriptor #12 ()V\n"
 		+ "  // Stack: 0, Locals: 1\n"
@@ -5930,7 +5936,7 @@ public void test151() throws Exception {
 		+ "      Local variable table:\n"
 		+ "        [pc: 0, pc: 1] local: this index: 0 type: new p.X(){}\n"
 		+ "  \n"
-		+ "  // Method descriptor #31 ()[Lp/X$1E;\n"
+		+ "  // Method descriptor #34 ()[Lp/X$1E;\n"
 		+ "  // Stack: 5, Locals: 3\n"
 		+ "  public static new p.X(){}[] values();\n"
 		+ "     0  getstatic p.X$1E.ENUM$VALUES : new p.X(){}[] [23]\n"
@@ -5946,18 +5952,18 @@ public void test151() throws Exception {
 		+ "    14  astore_2\n"
 		+ "    15  iconst_0\n"
 		+ "    16  iload_1\n"
-		+ "    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [32]\n"
+		+ "    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [35]\n"
 		+ "    20  aload_2\n"
 		+ "    21  areturn\n"
 		+ "      Line numbers:\n"
 		+ "        [pc: 0, line: 1]\n"
 		+ "  \n"
-		+ "  // Method descriptor #39 (Ljava/lang/String;)Lp/X$1E;\n"
+		+ "  // Method descriptor #42 (Ljava/lang/String;)Lp/X$1E;\n"
 		+ "  // Stack: 2, Locals: 1\n"
 		+ "  public static new p.X(){} valueOf(java.lang.String arg0);\n"
 		+ "     0  ldc <Class p.X$1E> [1]\n"
 		+ "     2  aload_0 [arg0]\n"
-		+ "     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [40]\n"
+		+ "     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [43]\n"
 		+ "     6  checkcast p.X$1E [1]\n"
 		+ "     9  areturn\n"
 		+ "      Line numbers:\n"
