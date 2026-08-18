@@ -119,7 +119,7 @@ public enum JavaFeature {
 			Messages.bind(Messages.markdown_comments),
 			CharOperation.NO_CHAR_CHAR,
 			false),
-	VALUE_CLASSES_AND_OBJECTS(ClassFileConstants.JDK26,
+	VALUE_CLASSES_AND_OBJECTS(ClassFileConstants.JDK28,
 			Messages.bind(Messages.value_classes_and_objects),
 			new char[][] {TypeConstants.VALUE_RESTRICTED_IDENTIFIER},
 			true),
