@@ -121,7 +121,7 @@ public enum JavaFeature {
 			false),
 	VALUE_CLASSES_AND_OBJECTS(ClassFileConstants.JDK28,
 			Messages.bind(Messages.value_classes_and_objects),
-			new char[][] {TypeConstants.VALUE_RESTRICTED_IDENTIFIER},
+			new char[][] {TypeConstants.VALUE},
 			true),
 	;
 

@@ -102,7 +102,7 @@ public class DOMASTUtil {
 			case Modifier.NON_SEALED:
 				return ast.apiLevel() >= AST.JLS17;
 			case Modifier.VALUE:
-				return ast.isPreviewEnabled() && ast.apiLevel() >= AST.JLS26; // Just a placeholder until value type come in.
+				return ast.isPreviewEnabled() && ast.apiLevel() >= AST.JLS28;
 		}
 		return false;
 	}
@@ -129,6 +129,8 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS17;
 			case Modifier.NON_SEALED:
 				return apiLevel >= AST.JLS17;
+			case Modifier.VALUE:
+				return apiLevel >= AST.JLS28;
 		}
 		return false;
 	}
@@ -153,6 +155,8 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS17;
 			case Modifier.NON_SEALED:
 				return apiLevel >= AST.JLS17;
+			case Modifier.VALUE:
+				return apiLevel >= AST.JLS28;
 		}
 		return false;
 	}

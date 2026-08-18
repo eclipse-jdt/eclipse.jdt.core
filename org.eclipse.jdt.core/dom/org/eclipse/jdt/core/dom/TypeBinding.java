@@ -625,9 +625,6 @@ class TypeBinding implements ITypeBinding {
 			if (referenceBinding.isNonSealed()) {
 				return accessFlags | Modifier.NON_SEALED;
 			}
-			if (referenceBinding.isValue()) {
-				return accessFlags | Modifier.VALUE;
-			}
 			return accessFlags;
 		} else if (isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;

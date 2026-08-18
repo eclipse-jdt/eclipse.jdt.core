@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class AbstractRegressionTestCommon extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 26");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 28");
 	private String extraLibPath;
 
 	public AbstractRegressionTestCommon(String name) {
@@ -66,7 +66,7 @@ public abstract class AbstractRegressionTestCommon extends AbstractRegressionTes
 	}
 
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		Map<String, String> customOptions = getCompilerOptions(true, CompilerOptions.VERSION_26);
+		Map<String, String> customOptions = getCompilerOptions(true, CompilerOptions.VERSION_28);
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;

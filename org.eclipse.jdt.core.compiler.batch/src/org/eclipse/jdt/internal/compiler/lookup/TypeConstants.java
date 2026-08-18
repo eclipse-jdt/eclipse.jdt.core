@@ -138,8 +138,6 @@ public interface TypeConstants {
 	char[] NON_SEALED = "non-sealed".toCharArray(); //$NON-NLS-1$
 	String KEYWORD_EXTENDS = "extends"; //$NON-NLS-1$
 	String IMPLEMENTS = "implements"; //$NON-NLS-1$
-	// JEP 401 Value Classes and Objects
-	char[] VALUE_RESTRICTED_IDENTIFIER = "value".toCharArray(); //$NON-NLS-1$
 
     // jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$

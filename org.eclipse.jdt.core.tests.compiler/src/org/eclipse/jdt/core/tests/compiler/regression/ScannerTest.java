@@ -1707,6 +1707,19 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 	}
 
+	public void testValue() {
+		char[] source = ("value class X { }").toCharArray();
+		IScanner scanner = ToolFactory.createScanner(false, true, false, "28", "28", true);
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token = scanner.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameRestrictedIdentifiervalue, token);
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+
 	@SuppressWarnings("deprecation")
 	public void testPermits() {
 		char[] source = ("sealed class X permits Y { }").toCharArray();
@@ -1950,7 +1963,7 @@ public class ScannerTest extends AbstractRegressionTest {
 
 	public void testTerminalTokensAPIs() {
 		char [][] ids = { "when".toCharArray(), "record".toCharArray(), "sealed".toCharArray(),
-				"permits".toCharArray(), "yield".toCharArray()};
+				"permits".toCharArray(), "yield".toCharArray(), "value".toCharArray()};
 		TerminalToken [] reskw = { TerminalToken.TokenNameRestrictedIdentifierWhen,
 							TerminalToken.TokenNameRestrictedIdentifierrecord,
 							TerminalToken.TokenNameRestrictedIdentifiersealed,

@@ -5360,7 +5360,7 @@ TerminalToken disambiguatesRestrictedIdentifierWithLookAhead(TerminalToken restr
 			goal = Goal.PermittedTypesGoal;
 			break;
 		case TokenNameRestrictedIdentifiervalue:
-			if (!JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(this.complianceLevel, this.previewEnabled))
+			if (!JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(this.sourceLevel, this.previewEnabled))
 				return TokenNameIdentifier;
 			goal = Goal.ValueModifierGoal;
 			break;
