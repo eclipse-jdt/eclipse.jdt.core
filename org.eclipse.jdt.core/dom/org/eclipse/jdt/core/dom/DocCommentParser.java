@@ -1186,6 +1186,16 @@ class DocCommentParser extends AbstractCommentParser {
 					previousStart = previousTag.getStartPosition();
 				}
 			}
+		} else {
+			if (TagElement.TAG_SEE.equals(previousTag.getTagName()) ||
+					TagElement.TAG_RETURN.equals(previousTag.getTagName())) {
+				if (getLineNumber(previousStart) < getLineNumber(start)) {
+					previousTag = this.ast.newTagElement();
+					previousTag.setSourceRange(start, end-start);
+					previousStart= start;
+					pushOnAstStack(previousTag, true);
+				}
+			}
 		}
 
 		// Add the text

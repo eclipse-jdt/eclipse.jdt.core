@@ -642,7 +642,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * @see Scanner#getLineNumber(int) We cannot directly use this method
 	 * when linePtr field is not initialized.
 	 */
-	private int getLineNumber(int position) {
+	protected int getLineNumber(int position) {
 
 		if (this.scanner.linePtr != -1) {
 			return Util.getLineNumber(position, this.scanner.lineEnds, 0, this.scanner.linePtr);
