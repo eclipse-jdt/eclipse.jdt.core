@@ -47,6 +47,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -985,9 +986,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					return null;
 
 				targetType = copy.expectedType; // possibly updated local types
-				if (this.copiesPerTargetType == null)
-					this.copiesPerTargetType = new HashMap<>();
-				this.copiesPerTargetType.put(targetType, copy);
+				this.copiesPerTargetType.put(targetType, copy); // copy() has linked this lambda to the original's cache
 			}
 			if (!requireExceptionAnalysis)
 				return copy;
@@ -1116,12 +1115,50 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (copy != null) { // ==> syntax errors == null
 			if (copy.sourceStart != this.sourceStart || copy.sourceEnd != this.sourceEnd)
 				return null; // something wrong
-			copy.original = this;
+			shareInferenceCaches(copy);
 			copy.assistNode = this.assistNode;
 			copy.enclosingScope = this.enclosingScope;
 			copy.text = this.text; // discard redundant textual copy
 		}
 		return copy;
+	}
+
+	private void shareInferenceCaches(LambdaExpression copy) {
+		// A speculative copy can contain nested lambdas. Link each collected lambda to its
+		// original lambda and share the per-target inference cache.
+		// A cache entry is a resolved lambda copy and owns its parameter bindings. Nested
+		// lambdas may use parameters from an enclosing lambda, so collectLambdas() stops
+		// below a lambda with parameters. Caches below that point stay local to the
+		// enclosing copy.
+		// Both traversals start at the root and visit nested lambdas in source order.
+		List<LambdaExpression> sourceLambdas = collectLambdas(this);
+		List<LambdaExpression> copiedLambdas = collectLambdas(copy);
+		if (sourceLambdas.size() != copiedLambdas.size())
+			throw new CopyFailureException();
+		for (int i = 0; i < sourceLambdas.size(); i++) {
+			LambdaExpression sourceLambda = sourceLambdas.get(i);
+			LambdaExpression copiedLambda = copiedLambdas.get(i);
+			if (sourceLambda.sourceStart != copiedLambda.sourceStart || sourceLambda.sourceEnd != copiedLambda.sourceEnd)
+				throw new CopyFailureException();
+			LambdaExpression originalLambda = sourceLambda.original;
+			copiedLambda.original = originalLambda;
+			if (originalLambda.copiesPerTargetType == null)
+				originalLambda.copiesPerTargetType = new HashMap<>();
+			sourceLambda.copiesPerTargetType = originalLambda.copiesPerTargetType;
+			copiedLambda.copiesPerTargetType = originalLambda.copiesPerTargetType;
+		}
+	}
+
+	private static List<LambdaExpression> collectLambdas(LambdaExpression root) {
+		List<LambdaExpression> lambdas = new ArrayList<>();
+		root.traverse(new ASTVisitor() {
+			@Override
+			public boolean visit(LambdaExpression lambda, BlockScope skope) {
+				lambdas.add(lambda);
+				return lambda.arguments.length == 0; // nested lambdas may use these parameters
+			}
+		}, root.enclosingScope);
+		return lambdas;
 	}
 
 	public void returnsExpression(Expression expression, TypeBinding resultType) {

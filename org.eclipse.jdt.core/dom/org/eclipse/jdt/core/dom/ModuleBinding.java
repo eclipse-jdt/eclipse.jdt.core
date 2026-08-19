@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.NameLookup.Answer;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
@@ -124,7 +125,7 @@ class ModuleBinding implements IModuleBinding {
 		if (!(nameEnvironment instanceof SearchableEnvironment)) return null;
 		NameLookup nameLookup = ((SearchableEnvironment) nameEnvironment).nameLookup;
 		if (nameLookup == null) return null;
-		Answer answer = nameLookup.findModule(this.getName().toCharArray());
+		Answer answer = nameLookup.findModule(this.getName().toCharArray(), JavaProject.NO_RELEASE);
 		if (answer == null) return null;
 		return answer.module;
 	}

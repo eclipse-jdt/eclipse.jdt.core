@@ -1008,7 +1008,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 
 	TypeBinding returnType;
-	if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
+	if ((this.bits & ASTNode.Unchecked) != 0 && (this.binding.typeVariables() == Binding.NO_TYPE_VARIABLES || this.genericTypeArguments != null)) {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643, align with javac on JLS 15.12.2.6
 		returnType = this.binding.returnType;
 		if (returnType != null) {
