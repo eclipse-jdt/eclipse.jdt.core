@@ -909,4 +909,88 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		formatSource(input, expected);
 	}
 
+	public void testMarkdownAndClassicJoinLinesWhenJoinLinesInCommentsIsFalse() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		this.formatterPrefs.join_lines_in_comments = false;
+		this.formatterPrefs.comment_line_length = 1000;
+		String input = """
+				class Test5 {
+					/// Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+					/// Duis sit amet diam nec libero accumsan blandit.
+					/// Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus.
+					/// Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					void main() {
+					}
+
+					/**
+					 * Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+					 * Duis sit amet diam nec libero accumsan blandit.
+					 * Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus.
+					 * Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					 */
+					void main2() {
+					}
+				}
+				""";
+		String expected = """
+				class Test5 {
+					/// Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+					/// Duis sit amet diam nec libero accumsan blandit.
+					/// Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus.
+					/// Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					void main() {
+					}
+
+					/**
+					 * Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+					 * Duis sit amet diam nec libero accumsan blandit.
+					 * Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus.
+					 * Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					 */
+					void main2() {
+					}
+				}
+				""";
+		formatSource(input, expected);
+	}
+
+	public void testMarkdownAndClassicJoinLinesWhenJoinLinesInCommentsIsTrue() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		this.formatterPrefs.join_lines_in_comments = true;
+		this.formatterPrefs.comment_line_length = 1000;
+		String input = """
+				class Test5 {
+					/// Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+					/// Duis sit amet diam nec libero accumsan blandit.
+					/// Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus.
+					/// Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					void main() {
+					}
+
+					/**
+					 * Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+					 * Duis sit amet diam nec libero accumsan blandit.
+					 * Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus.
+					 * Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					 */
+					void main2() {
+					}
+				}
+				""";
+		String expected = """
+				class Test5 {
+					/// Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sit amet diam nec libero accumsan blandit. Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus. Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					void main() {
+					}
+
+					/**
+					 * Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sit amet diam nec libero accumsan blandit. Quisque non ornare lacus. Suspendisse porta dolor id diam maximus, sed gravida nunc finibus. Aenean vulputate, mi non iaculis sagittis, erat nibh gravida elit, eget feugiat purus tortor sed sem.
+					 */
+					void main2() {
+					}
+				}
+				""";
+		formatSource(input, expected);
+	}
+
 }
