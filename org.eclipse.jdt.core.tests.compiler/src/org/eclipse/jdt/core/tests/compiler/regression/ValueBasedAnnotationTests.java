@@ -14,8 +14,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
@@ -31,15 +29,6 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 	public ValueBasedAnnotationTests(String testName){
 		super(testName);
 	}
-	// Enables the tests to run individually
-	@Override
-	protected Map<String, String> getCompilerOptions() {
-		Map<String, String> defaultOptions = super.getCompilerOptions();
-		if (this.complianceLevel >= ClassFileConstants.getLatestJDKLevel()) {
-			defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		}
-		return defaultOptions;
-	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
 	}
@@ -54,7 +43,6 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
-		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("16") :
 			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
 		runner.runWarningTest();
@@ -68,7 +56,6 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.customOptions = customOptions;
-		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("16") :
 			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
 		runner.runConformTest();
@@ -77,7 +64,7 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 		this.runWarningTest(
 			new String[] {
 				"X.java",
-				"class X {\n" +
+				"public class X {\n" +
 				"  public static void main(String[] args){\n" +
 				"		Integer abc= Integer.valueOf(10);\n" +
 				"		synchronized(abc) {\n" +
@@ -98,7 +85,7 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 			new String[] {
 				"X.java",
 				"import java.util.Optional;\n\n" +
-				"class X {\n" +
+				"public class X {\n" +
 				"  public static void main(String[] args){\n" +
 				"		String[] sentence = new String[10];\n" +
 				"       Optional<String> abc = Optional.ofNullable(sentence[9]);  \n" +
@@ -119,7 +106,7 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 			new String[] {
 				"X.java",
 				"import java.util.HashSet;\n\n" +
-				"class X {\n" +
+				"public class X {\n" +
 				"  public static void main(String[] args){\n" +
 				"		String[] sentence = new String[10];\n" +
 				"       HashSet<String> abc = new HashSet<>();  \n" +
