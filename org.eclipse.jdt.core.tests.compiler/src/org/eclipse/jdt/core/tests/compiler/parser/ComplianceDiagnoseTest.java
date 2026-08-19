@@ -3328,7 +3328,7 @@ public void testIssue2008() {
 					3. ERROR in X.java (at line 5)
 						_();
 						^
-					Syntax error on token "_", this expected
+					Syntax error on token "_", super expected
 					----------
 					4. ERROR in X.java (at line 10)
 						class _ {

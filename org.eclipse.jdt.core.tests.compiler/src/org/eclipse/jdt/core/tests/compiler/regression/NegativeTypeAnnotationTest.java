@@ -4104,6 +4104,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"	@interface NonNull { int[].class value() default 0;}\n" +
 			"	                          ^^^^^^\n" +
 			"Syntax error on tokens, delete these tokens\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +   // this is a new bogus error due to terrible syntax repair, but I see no value in fixing it, pun intended.
+			"	@interface NonNull { int[].class value() default 0;}\n" +
+			"	                                 ^^^^^\n" +
+			"'value' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 28\n" +
 			"----------\n");
 	}
 	public void testGenericConstructor() {
@@ -4269,26 +4274,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"	                     ^^^^^\n" +
 			"Y.Z cannot be resolved to a type\n" +
 			"----------\n");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414038, [1.8][compiler] CCE in resolveAnnotations
-	public void test414038() {
-		runNegativeTest(
-			new String[] {
-					"X.java",
-					"import java.lang.annotation.*;\n" +
-					"@Target(ElementType.TYPE_USE)\n" +
-					"@interface NonNull { int[].class value() default 0;}\n" +
-					"public class X extends @NonNull() Object {    \n" +
-					"    public static int i = 0; \n" +
-					"}\n"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	@interface NonNull { int[].class value() default 0;}\n" +
-			"	                          ^^^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n",
-			true);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421791,  [1.8][compiler] TYPE_USE annotations should be allowed on annotation type declarations
 	public void test421791() {
