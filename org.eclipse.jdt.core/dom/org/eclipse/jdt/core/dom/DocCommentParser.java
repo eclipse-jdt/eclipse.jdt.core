@@ -1193,14 +1193,13 @@ class DocCommentParser extends AbstractCommentParser {
 				}
 			}
 		} else {
-			if (TagElement.TAG_SEE.equals(previousTag.getTagName()) ||
-					TagElement.TAG_RETURN.equals(previousTag.getTagName())) {
-				if (getLineNumber(previousStart) < getLineNumber(start)) {
-					previousTag = this.ast.newTagElement();
-					previousTag.setSourceRange(start, end-start);
-					previousStart= start;
-					pushOnAstStack(previousTag, true);
-				}
+			if (TagElement.TAG_RETURN.equals(previousTag.getTagName())
+					&& this.source[previousStart] == '{') {
+				// previous tag is a completed inline return tag so don't add text to it
+				previousTag = this.ast.newTagElement();
+				previousTag.setSourceRange(start, end-start);
+				previousStart= start;
+				pushOnAstStack(previousTag, true);
 			}
 		}
 
