@@ -103,10 +103,16 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			return ConstraintTypeFormula.create(this.left, this.right, SUBTYPE, this.isSoft);
 		case SUBTYPE:
 			// 18.2.3:
-			return reduceSubType(inferenceContext.scope, this.left, this.right);
+			return reduceSubType(inferenceContext.scope, this.left, this.right, false);
 		case SUPERTYPE:
 			// 18.2.3:
-			return reduceSubType(inferenceContext.scope, this.right, this.left);
+			Object result = reduceSubType(inferenceContext.scope, this.right, this.left, true);
+			if (result == ReductionResult.TRUE
+					&& !this.right.isSubtypeOf(this.left, InferenceContext18.SIMULATE_BUG_JDK_8026527)
+					&& this.left.kind() == Binding.PARAMETERIZED_TYPE && this.right.kind() == Binding.RAW_TYPE) {
+				inferenceContext.recordUncheckedConversion(this);
+			}
+			return result;
 		case SAME:
 			if (inferenceContext.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
 				if (!checkIVFreeTVmatch(this.left, this.right))
@@ -246,11 +252,14 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		return env.createArrayType(arrayType.leafComponentType(), arrayType.dimensions()-1);
 	}
 
-	private Object reduceSubType(Scope scope, TypeBinding subCandidate, TypeBinding superCandidate) {
+	private Object reduceSubType(Scope scope, TypeBinding subCandidate, TypeBinding superCandidate, boolean checkSubType) {
 		// 18.2.3 Subtyping Constraints
 		if (subCandidate.isProperType(true) && superCandidate.isProperType(true)) {
 			if (subCandidate.isSubtypeOf(superCandidate, InferenceContext18.SIMULATE_BUG_JDK_8026527))
 				return TRUE;
+			if (checkSubType && superCandidate.kind() == Binding.PARAMETERIZED_TYPE && subCandidate.kind() == Binding.RAW_TYPE) {
+				return TRUE;
+			}
 			return FALSE;
 		}
 		if (subCandidate.id == TypeIds.T_null)
@@ -364,7 +373,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (binding == null || !binding.isValidBinding())
 					return FALSE;
 				TypeBinding returnType = binding.isConstructor() ? binding.declaringClass : binding.returnType;
-				return reduceSubType(scope, subCandidate, returnType.capture(scope, invocation.sourceStart(), invocation.sourceEnd()));
+				return reduceSubType(scope, subCandidate, returnType.capture(scope, invocation.sourceStart(), invocation.sourceEnd()), checkSubType);
 		}
 		throw new IllegalStateException("Unexpected RHS "+superCandidate); //$NON-NLS-1$
 	}
