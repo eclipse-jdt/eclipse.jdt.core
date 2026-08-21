@@ -208,7 +208,9 @@ public void resolve(BlockScope upperScope) {
 				this.scope.problemReporter().invalidNullToSynchronize(this.expression);
 				break;
 			default :
-				if (type.hasValueBasedTypeAnnotation()) {
+				if (type.isValueClass()) {
+					this.scope.problemReporter().cantSynchronizeOnValueClass(this.expression, type);
+				} else if (type.hasValueBasedTypeAnnotation()) {
 					this.scope.problemReporter().discouragedValueBasedTypeToSynchronize(this.expression, type);
 				}
 			}

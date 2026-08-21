@@ -137,7 +137,7 @@ public class JRTUtil {
 		try {
 			FileSystem fs = JRT_FILE_SYSTEMS.computeIfAbsent(path.toAbsolutePath().normalize(), p -> {
 				try {
-					return FileSystems.newFileSystem(JRTUtil.JRT_URI, Map.of("java.home", p.toString())); //$NON-NLS-1$
+					return FileSystems.newFileSystem(JRTUtil.JRT_URI, Map.of("java.home", p.toString(), "previewMode", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				} catch (IOException e) {
 					throw new UncheckedIOException(e);
 				}

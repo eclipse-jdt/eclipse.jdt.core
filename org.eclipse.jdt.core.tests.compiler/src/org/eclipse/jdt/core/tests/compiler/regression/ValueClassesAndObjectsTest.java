@@ -83,9 +83,10 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 	protected JavacTestOptions getJavacTestOptions() {
 		return JAVAC_OPTIONS;
 	}
+
 	// =================================================
 	// https://cr.openjdk.org/~dlsmith/jep401/latest/
-  public void testValueTypes_001() {
+    public void testValueTypes_001() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -104,7 +105,8 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			"\'value\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 28\n" +
 			"----------\n");
 	}
-  public void testValueTypes_002() {
+
+    public void testValueTypes_002() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -117,4 +119,229 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			},
 			"Ok!");
 	}
+
+    // Snippet from https://openjdk.org/jeps/401 illustrating or lack/presence of identity - with preview turned on for compiler and runtime
+    public void testValueness() {
+ 		runConformTest(new String[] {
+ 			"X.java",
+ 			"""
+			import java.time.LocalDate;
+			import java.util.Objects;
+
+			public class X {
+			  public static void main(String[] args){
+				  Integer x = 1996, y = 1996;
+				  System.out.println(x == y);
+				  System.out.println(Objects.hasIdentity(x));
+
+				  LocalDate d1 = LocalDate.of(1996, 1, 23);
+				  System.out.println(d1);
+				  LocalDate d2 = d1.plusYears(30);
+				  System.out.println(d2);
+				  LocalDate d3 = d2.minusYears(30);
+				  System.out.println(d3);
+				  System.out.println(d1 == d3);
+				  System.out.println(Objects.hasIdentity(d1));
+
+
+				  String s = "abcd";
+				  System.out.println(Objects.hasIdentity(s));
+				  String t = "aabcd".substring(1);
+				  System.out.println(s == t);
+				  System.out.println(s.equals(t));
+			  }
+			}
+ 			"""
+ 			},
+			"true\n" +
+			"false\n" +
+			"1996-01-23\n" +
+			"2026-01-23\n" +
+			"1996-01-23\n" +
+			"true\n" +
+			"false\n" +
+			"true\n" +
+			"false\n" +
+			"true");
+ 	}
+
+    // Same snippet as above but with preview turned off for both compiler and runtime
+    public void testIdentityfulness() {
+ 		runConformTest(new String[] {
+ 			"X.java",
+ 			"""
+			import java.time.LocalDate;
+			import java.util.Objects;
+
+			public class X {
+			  public static void main(String[] args){
+				  Integer x = 1996, y = 1996;
+				  System.out.println(x == y);
+				  System.out.println(Objects.hasIdentity(x));
+
+				  LocalDate d1 = LocalDate.of(1996, 1, 23);
+				  System.out.println(d1);
+				  LocalDate d2 = d1.plusYears(30);
+				  System.out.println(d2);
+				  LocalDate d3 = d2.minusYears(30);
+				  System.out.println(d3);
+				  System.out.println(d1 == d3);
+				  System.out.println(Objects.hasIdentity(d1));
+
+
+				  String s = "abcd";
+				  System.out.println(Objects.hasIdentity(s));
+				  String t = "aabcd".substring(1);
+				  System.out.println(s == t);
+				  System.out.println(s.equals(t));
+			  }
+			}
+ 			"""
+ 			},
+			"false\n" +
+			"true\n" +
+			"1996-01-23\n" +
+			"2026-01-23\n" +
+			"1996-01-23\n" +
+			"false\n" +
+			"true\n" +
+			"true\n" +
+			"false\n" +
+			"true",
+ 			getCompilerOptions(false), new String[] {}, new JavacTestOptions("-source 28"));
+ 	}
+
+    // Same snippet as above but with preview turned off for compiler and turned on for runtime
+    public void testValueness_without_compiler_preview_with_runtime_preview() {
+ 		runConformTest(new String[] {
+ 			"X.java",
+ 			"""
+			import java.time.LocalDate;
+			import java.util.Objects;
+
+			public class X {
+			  public static void main(String[] args){
+				  Integer x = 1996, y = 1996;
+				  System.out.println(x == y);
+				  System.out.println(Objects.hasIdentity(x));
+
+				  LocalDate d1 = LocalDate.of(1996, 1, 23);
+				  System.out.println(d1);
+				  LocalDate d2 = d1.plusYears(30);
+				  System.out.println(d2);
+				  LocalDate d3 = d2.minusYears(30);
+				  System.out.println(d3);
+				  System.out.println(d1 == d3);
+				  System.out.println(Objects.hasIdentity(d1));
+
+
+				  String s = "abcd";
+				  System.out.println(Objects.hasIdentity(s));
+				  String t = "aabcd".substring(1);
+				  System.out.println(s == t);
+				  System.out.println(s.equals(t));
+			  }
+			}
+ 			"""
+ 			},
+			"true\n" +
+			"false\n" +
+			"1996-01-23\n" +
+			"2026-01-23\n" +
+			"1996-01-23\n" +
+			"true\n" +
+			"false\n" +
+			"true\n" +
+			"false\n" +
+			"true",
+			getCompilerOptions(false), VMARGS, new JavacTestOptions("-source 28"));
+ 	}
+    // Same snippet as above but with preview turned on for compiler and turned off for runtime
+    public void testValueness_with_compiler_preview_without_runtime_preview() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions(true); // preview enabled
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				import java.time.LocalDate;
+				import java.util.Objects;
+
+				public class X {
+				  public static void main(String[] args){
+					  Integer x = 1996, y = 1996;
+					  System.out.println(x == y);
+					  System.out.println(Objects.hasIdentity(x));
+
+					  LocalDate d1 = LocalDate.of(1996, 1, 23);
+					  System.out.println(d1);
+					  LocalDate d2 = d1.plusYears(30);
+					  System.out.println(d2);
+					  LocalDate d3 = d2.minusYears(30);
+					  System.out.println(d3);
+					  System.out.println(d1 == d3);
+					  System.out.println(Objects.hasIdentity(d1));
+
+
+					  String s = "abcd";
+					  System.out.println(Objects.hasIdentity(s));
+					  String t = "aabcd".substring(1);
+					  System.out.println(s == t);
+					  System.out.println(s.equals(t));
+				  }
+				}
+				"""
+			};
+		runner.javacTestOptions = JAVAC_OPTIONS;
+//		runner.vmArguments = VMARGS; not passing --enable-preview to java
+		runner.expectedErrorString =
+				"""
+				java.lang.UnsupportedClassVersionError: Preview features are not enabled for X (class file version 72.65535). Try running with '--enable-preview'
+				""";
+		runner.runConformTest();
+	}
+
+    // Snippet from https://openjdk.org/jeps/401 - test synchronization - compile time
+    public void testSynchronizationCompileTime() {
+    	runNegativeTest(new String [] {
+ 				"X.java",
+ 				"""
+ 				import java.time.LocalDate;
+
+ 				public class X {
+ 				  public static void main(String[] args){
+ 					  LocalDate d1 = LocalDate.of(1996, 1, 23);
+ 					  synchronized (d1) { d1.notify(); }
+ 				  }
+ 				}
+ 				"""},
+    			"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	synchronized (d1) { d1.notify(); }\n" +
+				"	              ^^\n" +
+				"Illegal attempt to synchronize on an instance of a value class\n" +
+				"----------\n");
+
+ 	}
+    // Snippet from https://openjdk.org/jeps/401 - test synchronization - run time
+    public void testSynchronizationRunTime() {
+    	runConformTest(new String [] {
+ 				"X.java",
+ 				"""
+ 				import java.time.LocalDate;
+
+ 				public class X {
+ 				  public static void main(String[] args){
+ 					  LocalDate d1 = LocalDate.of(1996, 1, 23);
+ 					  Object o = d1;
+ 					  try {
+ 					      synchronized (o) { d1.notify(); }
+				      } catch (IdentityException e) {
+				          System.out.println("All well!");
+				      }
+ 				  }
+ 				}
+ 				"""},
+    			"All well!");
+
+ 	}
  }
