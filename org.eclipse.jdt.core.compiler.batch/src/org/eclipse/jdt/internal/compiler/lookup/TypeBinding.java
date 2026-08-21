@@ -1839,7 +1839,7 @@ public boolean isSealed() {
 	return false;
 }
 
-public boolean isValue() {
+public boolean isValueClass() {
 	return false;
 }
 
