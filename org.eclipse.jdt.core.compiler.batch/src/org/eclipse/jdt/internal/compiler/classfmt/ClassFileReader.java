@@ -85,7 +85,7 @@ private static String printTypeModifiers(int modifiers) {
 	if ((modifiers & ClassFileConstants.AccPublic) != 0) print.print("public "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccFinal) != 0) print.print("final "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccIdentity) != 0) print.print("identity "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
 	if ((modifiers & ExtraCompilerModifiers.AccSealed) != 0) print.print("sealed "); //$NON-NLS-1$

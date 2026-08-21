@@ -3401,6 +3401,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (int i = 0; i < numberOfInnerClasses; i++) {
 			ReferenceBinding innerClass = innerClasses[i];
 			int accessFlags = innerClass.getAccessFlags();
+			// https://download.java.net/java/early_access/jdk28/docs/specs/value-objects-jvms.html requires inner class attribute to mention AccIdentity,
+			// but javac doesn't do so ATM. We will likewise not for now.
+			accessFlags &= ~ClassFileConstants.AccIdentity;
 			int innerClassIndex = this.constantPool.literalIndexForType(innerClass.constantPoolName());
 			// inner class index
 			this.contents[localContentsOffset++] = (byte) (innerClassIndex >> 8);
@@ -5666,9 +5669,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					| ClassFileConstants.AccSynchronized
 					| ClassFileConstants.AccNative);
 
-		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
-		if (!aType.isInterface()) { // class or enum
-			accessFlags |= ClassFileConstants.AccSuper;
+		// set the AccIdentity flag (has to be done after clearing AccSynchronized - since same value)
+		if (!aType.isInterface() && !aType.isValueClass()) {
+			accessFlags |= ClassFileConstants.AccIdentity;
 		}
 		if (aType.isAnonymousType()) {
 			ReferenceBinding superClass = aType.superclass;

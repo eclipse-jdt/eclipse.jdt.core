@@ -108,7 +108,7 @@ public final class Flags {
 	 * Super property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
 	 */
-	public static final int AccSuper = ClassFileConstants.AccSuper;
+	public static final int AccSuper = ClassFileConstants.AccIdentity;
 	/**
 	 * Synthetic property flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0
