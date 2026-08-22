@@ -894,8 +894,6 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
-		assertProblems(problems, new String[] {
-				"Pb(912) Null type safety: The expression of type 'E' needs unchecked conversion to conform to '@NonNull E'",
-		}, new int[] { 12 });
+		assertNoProblems(problems);
 	}
 }

@@ -609,6 +609,11 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 				if (iFields != null) {
 					for (int i = 0; i < iFields.length; i++) {
 						ITypeAnnotationWalker fieldWalker = ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+						if (!this.environment.usesNullTypeAnnotations()) {
+							// using TYPE_USE annots, eea are applied already during createMethod();
+							// for declaration annotations re-create walker without default but with eea:
+							fieldWalker = binaryType.enrichWithExternalAnnotationsFor(fieldWalker, iFields[i], this.environment);
+						}
 						scanFieldForNullAnnotation(iFields[i], this.fields[i], this.isEnum(), fieldWalker);
 					}
 				}
@@ -617,6 +622,11 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 						// (not using walker, which has defaultNullness, because defaults on parameters & return will be applied
 						//  by ImplicitNullAnnotationVerifier, triggered per invocation via MessageSend.resolveType() et al)
 						ITypeAnnotationWalker methodWalker = ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+						if (!this.environment.usesNullTypeAnnotations()) {
+							// using TYPE_USE annots, eea are applied already during createMethod();
+							// for declaration annotations re-create walker without default but with eea:
+							methodWalker = binaryType.enrichWithExternalAnnotationsFor(methodWalker, iMethods[i], this.environment);
+						}
 						scanMethodForNullAnnotation(iMethods[i], this.methods[i], methodWalker, canUseNullTypeAnnotations);
 					}
 				}
