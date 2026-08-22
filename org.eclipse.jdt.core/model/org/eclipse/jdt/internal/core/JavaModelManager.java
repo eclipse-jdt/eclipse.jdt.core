@@ -1138,8 +1138,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 			int length	= entries.length;
 			if (length > 0) {
-				String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
-				String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+				String sourceLevel = null;
+				String complianceLevel = null;
 				for (int i = 0; i < length; i++) {
 					IClasspathEntry entry = entries[i];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
@@ -1171,6 +1171,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							if (allPkgFragmentsCache != null && allPkgFragmentsCache.containsKey(pkgName))
 								return root.getPackageFragment(pkgName);
 
+							if (sourceLevel == null) {
+								sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+								complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+							}
 							if (pkgName.length != 0 && JavaConventions.validatePackageName(Util.packageName(pkgPath, sourceLevel, complianceLevel), sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR) {
 								return null;
 							}
