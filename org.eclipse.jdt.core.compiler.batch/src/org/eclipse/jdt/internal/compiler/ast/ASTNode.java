@@ -354,6 +354,12 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 			scope.problemReporter().unsafeTypeConversion(argument, argumentType, checkedParameterType);
 			return INVOCATION_ARGUMENT_UNCHECKED;
 		}
+		if (argument instanceof ReferenceExpression rExpression && rExpression.binding != null) {
+			TypeBinding returnType = rExpression.binding.returnType;
+			if (returnType.needsUncheckedConversion(rExpression.descriptor.returnType)) {
+    			return INVOCATION_ARGUMENT_UNCHECKED;
+			}
+		}
 		return INVOCATION_ARGUMENT_OK;
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {

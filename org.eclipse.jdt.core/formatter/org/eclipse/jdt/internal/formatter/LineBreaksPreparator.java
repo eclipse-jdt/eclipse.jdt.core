@@ -433,10 +433,17 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SingleVariableDeclaration node) {
-		handleAnnotations(node.modifiers(),
-				node.getParent() instanceof EnhancedForStatement
-						? this.options.insert_new_line_after_annotation_on_local_variable
-						: this.options.insert_new_line_after_annotation_on_parameter);
+		boolean parameterConfigValue = false;
+		boolean shouldAddNewLine = isRecordOrMethodDecl(node);
+		if (node.getParent() instanceof RecordDeclaration) {
+			parameterConfigValue = this.options.insert_new_line_after_annotation_on_record_parameter;
+		} else if (node.getParent() instanceof EnhancedForStatement) {
+			parameterConfigValue = this.options.insert_new_line_after_annotation_on_local_variable;
+		} else {
+			parameterConfigValue = this.options.insert_new_line_after_annotation_on_parameter;
+		}
+		handleAnnotations(node.modifiers(), parameterConfigValue, shouldAddNewLine);
+
 		return true;
 	}
 
@@ -464,17 +471,34 @@ public class LineBreaksPreparator extends ASTVisitor {
 		return true;
 	}
 
+	private boolean isRecordOrMethodDecl(SingleVariableDeclaration node) {
+		if ( node.getParent() instanceof MethodDeclaration || node.getParent() instanceof RecordDeclaration) {
+			return true;
+		}
+		return false;
+	}
+
 	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, boolean breakAfter) {
+		handleAnnotations(modifiers, breakAfter, false);
+	}
+
+	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, boolean breakAfter, boolean shouldAddNewLines) {
 		Annotation last = null;
 		int i;
 		for (i = 0; i < modifiers.size(); i++) {
 			if (modifiers.get(i).isModifier())
 				break;
 			last = (Annotation) modifiers.get(i);
+			if ( last != null && breakAfter && shouldAddNewLines) {
+				breakLineBefore(last);
+				if (i == modifiers.size()-1) this.tm.lastTokenIn(last, ANY).breakAfter();
+			}
 		}
+
 		if (last != null && breakAfter) {
 			this.tm.lastTokenIn(last, ANY).breakAfter();
 		}
+
 
 		if (i < modifiers.size()) {
 			// any annotations following other modifiers will be associated with declaration type

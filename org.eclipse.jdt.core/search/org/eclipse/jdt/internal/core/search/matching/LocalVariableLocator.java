@@ -89,7 +89,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 }
 @Override
 protected int matchContainer() {
-	return METHOD_CONTAINER;
+	return this.pattern.focus instanceof LocalVariable local && local.getParent() instanceof org.eclipse.jdt.internal.core.Initializer ? FIELD_CONTAINER : METHOD_CONTAINER;
 }
 protected int matchLocalVariable(LocalVariableBinding variable, boolean matchName) {
 	if (variable == null) return INACCURATE_MATCH;

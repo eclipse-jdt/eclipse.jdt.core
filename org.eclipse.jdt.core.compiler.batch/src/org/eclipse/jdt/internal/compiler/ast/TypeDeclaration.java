@@ -824,7 +824,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					this.initializerScope.problemReporter().initializerMustCompleteNormally(field);
 					nonStaticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
-				if (fieldNeedingClose == null && useOwningAnnotations && isCloseable && (field.binding.tagBits & TagBits.AnnotationOwning) != 0) {
+				if (fieldNeedingClose == null && useOwningAnnotations && isCloseable
+						&& !(field instanceof Initializer) && (field.binding.tagBits & TagBits.AnnotationOwning) != 0) {
 					fieldNeedingClose = field;
 				}
 			}

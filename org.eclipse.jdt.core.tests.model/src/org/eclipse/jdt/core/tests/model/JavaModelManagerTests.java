@@ -1,8 +1,19 @@
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.zip.GZIPOutputStream;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -176,5 +187,86 @@ public class JavaModelManagerTests extends AbstractJavaModelTests {
 		}
 		String fatalProblemsAsText = sb.toString();
 		return fatalProblemsAsText;
+	}
+
+	// --- createInputStream(File) resource-safety tests (FD leak on non-ZipException) ---
+
+	private static InputStream invokeCreateInputStream(File file) throws Exception {
+		JavaModelManager mgr = JavaModelManager.getJavaModelManager();
+		Method m = JavaModelManager.class.getDeclaredMethod("createInputStream", File.class);
+		m.setAccessible(true);
+		try {
+			return (InputStream) m.invoke(mgr, file);
+		} catch (InvocationTargetException e) {
+			Throwable cause = e.getCause();
+			if (cause instanceof IOException) {
+				throw (IOException) cause;
+			}
+			if (cause instanceof RuntimeException) {
+				throw (RuntimeException) cause;
+			}
+			throw e;
+		}
+	}
+
+	private static byte[] readAll(InputStream in) throws IOException {
+		try (InputStream stream = in) {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] buf = new byte[1024];
+			int n;
+			while ((n = stream.read(buf)) != -1) {
+				out.write(buf, 0, n);
+			}
+			return out.toByteArray();
+		}
+	}
+
+	// gzip-compressed content is read back transparently.
+	public void testCreateInputStream_gzip() throws Exception {
+		File file = File.createTempFile("jmm-gzip", ".tmp");
+		try {
+			byte[] content = "HELLO GZIP CONTENT".getBytes(StandardCharsets.UTF_8);
+			try (OutputStream out = new GZIPOutputStream(new FileOutputStream(file))) {
+				out.write(content);
+			}
+			byte[] read = readAll(invokeCreateInputStream(file));
+			assertEquals("gzip content mismatch", new String(content, StandardCharsets.UTF_8), new String(read, StandardCharsets.UTF_8));
+		} finally {
+			assertTrue("temp file should be deletable (no leaked handle)", file.delete() || !file.exists());
+		}
+	}
+
+	// old plain (non-gzip) content triggers the ZipException fallback and is read back verbatim.
+	public void testCreateInputStream_oldPlainFormat() throws Exception {
+		File file = File.createTempFile("jmm-plain", ".tmp");
+		try {
+			byte[] content = "PLAINDATA-not-gzip".getBytes(StandardCharsets.UTF_8);
+			Files.write(file.toPath(), content);
+			byte[] read = readAll(invokeCreateInputStream(file));
+			assertEquals("plain content mismatch", new String(content, StandardCharsets.UTF_8), new String(read, StandardCharsets.UTF_8));
+		} finally {
+			assertTrue("temp file should be deletable (no leaked handle)", file.delete() || !file.exists());
+		}
+	}
+
+	public void testCreateInputStream_truncatedGzip_doesNotLeak() throws Exception {
+		File file = File.createTempFile("jmm-trunc", ".tmp");
+		try {
+			// 0x1f 0x8b = gzip magic, then EOF before the rest of the 10-byte header.
+			Files.write(file.toPath(), new byte[] { (byte) 0x1f, (byte) 0x8b });
+			try {
+				InputStream in = invokeCreateInputStream(file);
+				in.close();
+				fail("expected IOException for truncated gzip header");
+			} catch (IOException expected) {
+				// expected: truncated header
+			}
+			// Best-effort FD-leak check: on Windows a leaked handle would prevent deletion.
+			assertTrue("truncated file must be deletable -> underlying stream was closed (no FD leak)", file.delete());
+		} finally {
+			if (file.exists()) {
+				file.delete();
+			}
+		}
 	}
 }

@@ -20162,5 +20162,95 @@ public void testGH4297_3() {
 		----------
 		""");
 }
+public void testGH5070() {
+	runConformTestWithLibs(new String[] {
+			"GenericsOrder.java",
+			"""
+			import org.eclipse.jdt.annotation.NonNull;
 
+			public class GenericsOrder {
+				public <T extends a & b> void test1(T my) { // 1: a & b
+					if (my != null)
+						my.method(null);
+				}
+				public <T extends b & a> void test2(T my) { // 2: b & a
+					if (my != null)
+						my.method(null);
+				}
+			}
+
+			interface a { int method(@NonNull String a); }
+			interface b { int method(String a); }
+			"""
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testGH5070_returnType() {
+	runNegativeTestWithLibs(new String[] {
+			"GenericsOrder.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+
+			public class GenericsOrder {
+				public <T extends a & b & c> @NonNull String test1(T my) { // 1: a & b & c
+					if (my != null)
+						return my.method(null);
+					return "";
+				}
+				public <T extends c & b & a> @NonNull String test2(T my) { // 2: c & b & a
+					if (my != null)
+						return my.method(null);
+					return "";
+				}
+			}
+
+			interface a { String method(@NonNull String a); }
+			interface b { @Nullable String method(@NonNull String a); }
+			interface c { @NonNull String method(@NonNull String a); }
+			"""
+		},
+		getCompilerOptions(),
+		"""
+		----------
+		1. ERROR in GenericsOrder.java (at line 6)
+			return my.method(null);
+			                 ^^^^
+		Null type mismatch: required '@NonNull String' but the provided value is null
+		----------
+		2. ERROR in GenericsOrder.java (at line 11)
+			return my.method(null);
+			                 ^^^^
+		Null type mismatch: required '@NonNull String' but the provided value is null
+		----------
+		""");
+}
+public void testGH5249() {
+	runConformTestWithLibs(true, new String[] {
+			"Test.java",
+			"""
+			import java.util.Collection;
+			import java.util.List;
+
+			public class Test {
+			    private ListValuedMap<String, String> multiMap;
+
+			    public Test() {
+			        List<String> values = multiMap.get("");
+			    }
+
+			    public static interface ListValuedMap<K, V> extends MultiValuedMap<K, V> {
+			        @Override
+			        List<V> get(K key);
+			    }
+
+			    public static interface MultiValuedMap<K, V> {
+			        Collection<V> get(K key);
+			    }
+			}
+			"""
+		},
+		getCompilerOptions(),
+		"");
+}
 }

@@ -825,6 +825,240 @@ public void testIssue3842_2() {
 		"Local variable x is required to be final or effectively final based on its usage\n" +
 		"----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1069
+// Extending an inner interface can cause a bounds mismatch error
+public void testIssue1069() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public interface X<T> {
+				interface I {
+				}
+				public static void main(String [] args) {
+					System.out.println("Ok!");
+				}
+			}
+
+			interface Y extends X<Y.J> {
+				interface J extends I {
+				}
+			}
+			"""
+		},
+		"Ok!");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1069
+// Extending an inner interface can cause a bounds mismatch error
+public void testIssue1069_reported() {
+	runConformTest(
+		new String[] {
+			"org/dominokit/test/ParentInterface.java",
+			"""
+			package org.dominokit.test;
+
+			import org.dominokit.test.ParentInterface.ParentInterfaceHandler;
+
+			public interface ParentInterface<U extends ParentInterfaceHandler> {
+
+			  interface ParentInterfaceHandler {
+
+			  }
+			  public static void main(String [] args) {
+					System.out.println("Ok!");
+			  }
+			}
+			""",
+			"org/dominokit/test/ChildInterface.java",
+			"""
+			package org.dominokit.test;
+
+			import org.dominokit.test.ChildInterface.ChildInterfaceHandler;
+
+			public interface ChildInterface extends ParentInterface<ChildInterfaceHandler> {
+
+			  interface ChildInterfaceHandler extends ParentInterfaceHandler {
+			  }
+			}
+			"""
+		},
+		"Ok!");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5197
+// Compilation error with JDT but ok with JavaC
+public void testIssue5197() {
+	runConformTest(
+		new String[] {
+			"repro/AbstractTestIT.java",
+			"""
+			package repro;
+
+			import repro.AbstractTestIT.ExecuteAction;
+			import repro.AbstractTestIT.ZoomB;
+
+			public abstract class AbstractTestIT<T extends ZoomB & ExecuteAction> {
+
+			  interface ExecuteAction {
+
+			    void executerAction(Object req);
+
+			  }
+
+			  public abstract T get();
+
+			  static public class ZoomA {
+
+			  }
+
+			  static public class ZoomB extends ZoomA {
+
+			  }
+
+			  public static void main(String [] args) {
+					System.out.println("Ok!");
+			  }
+
+			}
+			""",
+			"repro/TestITZoom.java",
+			"""
+			package repro;
+
+			import repro.TestITZoom.ZoomC;
+
+			public class TestITZoom
+			    extends AbstractTestIT<ZoomC> {
+
+			  @Override
+			  public ZoomC get() {
+			    return null;
+			  }
+
+			  static class ZoomC extends repro.AbstractTestIT.ZoomB implements ExecuteAction {
+
+			    @Override
+			    public void executerAction(Object req) {
+			    }
+
+			  }
+
+			}
+			"""
+
+		},
+		"Ok!");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4733
+// compile error when self-import references a nested class that is used as a type argument
+public void testIssue4733() {
+	runConformTest(
+		new String[] {
+			"demo/NestedGenericImport.java",
+			"""
+			package demo;
+
+			import demo.NestedGenericImport.Concrete.ConcreteInner;
+
+			public class NestedGenericImport {
+
+			    abstract static class Base<S extends Base.BaseInner> {
+			        abstract static class BaseInner {}
+			    }
+
+			    static class Concrete extends Base<ConcreteInner> {
+			        static class ConcreteInner extends BaseInner {}
+			    }
+
+			    public static void main(String [] args) {
+					System.out.println("Ok!");
+			    }
+			}
+			"""
+
+		},
+		"Ok!");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4889
+// Eclipse 4.39.0 RC1: Unable to resolve inner abstract class
+public void testIssue4889() {
+	runConformTest(
+		new String[] {
+				"eiab/DocumentsStore.java",
+				"""
+				package eiab;
+
+				import eiab.DocumentsStore.DocumentsStoreConfiguration;
+
+				import java.time.Duration;
+
+				public class DocumentsStore extends AbstractStore<Integer, Boolean, DocumentsStoreConfiguration> {
+				    protected DocumentsStore(final DocumentsStoreConfiguration configuration) {
+				        super(configuration);
+				    }
+
+				    public static class DocumentsStoreConfiguration extends BaseConfiguration {}
+
+				    public static void main(String [] args) {
+						System.out.println("Ok!");
+				   }
+				}
+				""",
+				"eiab/AbstractStore.java",
+				"""
+				package eiab;
+
+				import eiab.AbstractStore.BaseConfiguration;
+
+				import java.util.LinkedHashMap;
+				import java.util.Map;
+
+				public abstract class AbstractStore<KEY, VALUE, CONFIGURATION extends BaseConfiguration> {
+					abstract static class BaseConfiguration {
+						private boolean cacheEnabled = true;
+						public boolean isCacheEnabled() {
+							return cacheEnabled;
+						}
+						public void setCacheEnabled(boolean cacheEnabled) {
+							this.cacheEnabled = cacheEnabled;
+						}
+					}
+
+				    private final CONFIGURATION configuration;
+				    private final Map<KEY, VALUE> store;
+
+				    protected AbstractStore(final CONFIGURATION configuration) {
+				        this.configuration = configuration;
+				        this.store = new LinkedHashMap<>();
+				    }
+
+				    protected void put(final KEY key, final VALUE value) {
+				        this.store.put(key, value);
+				    }
+
+				    protected void remove(final KEY key) {
+				        this.store.remove(key);
+				    }
+
+				    public void clear() {
+				        this.store.clear();
+				    }
+
+				    boolean contains(final KEY key) {
+				        if (!configuration.isCacheEnabled()) {
+				            return false;
+				        }
+
+				        return this.store.containsKey(key);
+				    }
+				}
+				"""
+			},
+			"Ok!");
+}
+
+
+
 
 public static Class<InnerClass15Test> testClass() {
 	return InnerClass15Test.class;
