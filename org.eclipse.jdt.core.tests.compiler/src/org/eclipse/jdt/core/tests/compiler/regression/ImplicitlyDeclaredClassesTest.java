@@ -100,7 +100,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		this.complianceLevel = ClassFileConstants.JDK25;
 		/* using regular parser in DIET mode */
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.enablePreviewFeatures = true;
 		Parser parser =
 			new Parser(
 				new ProblemReporter(

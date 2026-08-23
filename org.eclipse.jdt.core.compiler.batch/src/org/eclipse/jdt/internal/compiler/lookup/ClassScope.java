@@ -846,6 +846,8 @@ public class ClassScope extends Scope {
 			}
 		}
 
+		if (!sourceType.isInterface() && (modifiers & ExtraCompilerModifiers.AccValue) == 0)
+			modifiers |= ClassFileConstants.AccIdentity;
 		sourceType.modifiers = modifiers;
 	}
 

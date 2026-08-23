@@ -1388,6 +1388,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("LocalMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("ResourceLocalMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("RecordAccessorMissingOverrideAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("IllegalValueInstanceSynchronization", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -2542,6 +2543,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("LocalMustBeEffectivelyFinal", SKIP);
 	    expectedProblemAttributes.put("ResourceLocalMustBeEffectivelyFinal", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMissingOverrideAnnotation", SKIP);
+	    expectedProblemAttributes.put("IllegalValueInstanceSynchronization", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();

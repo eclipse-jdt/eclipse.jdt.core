@@ -68,6 +68,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -130,6 +131,41 @@ public class BinaryTypeBinding extends ReferenceBinding {
 		}
 	}
 	public ExternalAnnotationStatus externalAnnotationStatus = ExternalAnnotationStatus.NOT_EEA_CONFIGURED; // unless proven differently
+
+	private String [] valhallaMigratedClasses = {
+			"java/lang/Number", //$NON-NLS-1$
+			"java/lang/Record", //$NON-NLS-1$
+			"java/util/Optional", //$NON-NLS-1$
+			"java/util/OptionalInt", //$NON-NLS-1$
+			"java/util/OptionalLong", //$NON-NLS-1$
+			"java/util/OptionalDouble", //$NON-NLS-1$
+			"java/time/LocalDate", //$NON-NLS-1$
+			"java/time/LocalDateTime", //$NON-NLS-1$
+			"java/time/LocalTime", //$NON-NLS-1$
+			"java/time/Duration", //$NON-NLS-1$
+			"java/time/Instant", //$NON-NLS-1$
+			"java/time/MonthDay", //$NON-NLS-1$
+			"java/time/ZonedDateTime", //$NON-NLS-1$
+			"java/time/OffsetDateTime", //$NON-NLS-1$
+			"java/time/OffsetTime", //$NON-NLS-1$
+			"java/time/YearMonth", //$NON-NLS-1$
+			"java/time/Year", //$NON-NLS-1$
+			"java/time/Period", //$NON-NLS-1$
+			"java/time/chrono/ChronoLocalDateImpl", //$NON-NLS-1$
+			"java/time/chrono/MinguoDate", //$NON-NLS-1$
+			"java/time/chrono/HijrahDate", //$NON-NLS-1$
+			"java/time/chrono/JapaneseDate", //$NON-NLS-1$
+			"java/time/chrono/ThaiBuddhistDate", //$NON-NLS-1$
+			"java/lang/Boolean", //$NON-NLS-1$
+			"java/lang/Character", //$NON-NLS-1$
+			"java/lang/Float", //$NON-NLS-1$
+			"java/lang/Double", //$NON-NLS-1$
+			"java/lang/Byte", //$NON-NLS-1$
+			"java/lang/Short", //$NON-NLS-1$
+			"java/lang/Integer", //$NON-NLS-1$
+			"java/lang/Long", //$NON-NLS-1$
+	};
+
 
 static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char[][][] missingTypeNames, boolean resolveEnumConstants) {
 	if (binaryValue == null) return null;
@@ -311,6 +347,16 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 
 	this.sourceName = binaryType.getSourceName();
 	this.modifiers = binaryType.getModifiers();
+
+	if (this.isValueClass() && JavaFeature.VALUE_CLASSES_AND_OBJECTS.isPreview() && !this.environment.globalOptions.enablePreviewFeatures) {
+		String name = new String(binaryType.getName());
+		for (int i = 0; i < this.valhallaMigratedClasses.length; i++) {
+			if (this.valhallaMigratedClasses[i].equals(name)) {
+				this.modifiers |= ClassFileConstants.AccIdentity;
+				break;
+			}
+		}
+	}
 
 	if ((binaryType.getTagBits() & TagBits.HierarchyHasProblems) != 0)
 		this.tagBits |= TagBits.HierarchyHasProblems;

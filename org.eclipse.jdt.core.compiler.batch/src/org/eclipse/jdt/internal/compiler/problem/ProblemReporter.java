@@ -5005,6 +5005,17 @@ public void illegalTypeAnnotationsInStaticMemberAccess(Annotation first, Annotat
 			first.sourceStart,
 			last.sourceEnd);
 }
+public void cantSynchronizeOnValueClass(Expression expression, TypeBinding type) {
+	if (type.isParameterizedType()) {
+		type =  ((ParameterizedTypeBinding)type).actualType();
+	}
+	this.handle(
+		IProblem.IllegalValueInstanceSynchronization,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void discouragedValueBasedTypeToSynchronize(Expression expression, TypeBinding type) {
 	if (type.isParameterizedType()) {
 		type =  ((ParameterizedTypeBinding)type).actualType();

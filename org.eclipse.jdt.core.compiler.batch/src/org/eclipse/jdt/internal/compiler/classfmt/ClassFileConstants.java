@@ -66,7 +66,6 @@ public interface ClassFileConstants {
 	/**
 	 * Other VM flags.
 	 */
-	int AccSuper = 0x0020;
 	int AccIdentity = 0x0020;
 
 	/**

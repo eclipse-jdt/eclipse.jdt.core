@@ -4773,7 +4773,7 @@ private static class Goal {
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
 	static TerminalToken[] PermittedTypesFollow =  { TokenNameLBRACE };
 	static TerminalToken[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameCaseArrow, TokenNameRestrictedIdentifierWhen};
-	static TerminalToken[] ValueModifierFollow =  { TokenNameclass, TokenNameenum, TokenNameRestrictedIdentifierrecord };
+	static TerminalToken[] ValueModifierFollow =  { TokenNameclass, TokenNameRestrictedIdentifierrecord };
 
 	static {
 

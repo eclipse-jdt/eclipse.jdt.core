@@ -601,7 +601,7 @@ class TypeBinding implements ITypeBinding {
 			if (referenceBinding.isNonSealed()) {
 				return accessFlags | Modifier.NON_SEALED;
 			}
-			if (referenceBinding.isValue()) {
+			if (referenceBinding.isValueClass()) {
 				return accessFlags | Modifier.VALUE;
 			}
 			if (referenceBinding.isAnonymousType()) {

@@ -1829,6 +1829,11 @@ public final boolean isUsed() {
 	return (this.modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
 
+@Override
+public boolean isValueClass() {
+	return this.isClass() && (this.modifiers & ClassFileConstants.AccIdentity) == 0;
+}
+
 public boolean isImplicitType() {
 	return false;
 }
