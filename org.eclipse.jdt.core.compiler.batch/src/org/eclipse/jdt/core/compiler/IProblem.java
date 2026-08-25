@@ -2906,4 +2906,7 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error */
 	int ValueClassExtendsIdentityClass = PreviewRelated + 2106;
 
+	/** @since 3.47
+	 * @noreference preview feature error */
+	int IllegalSynchronizedInstanceMethod = PreviewRelated + 2107;
 }

@@ -5024,6 +5024,14 @@ public void valueClassExtendsIdentityClass(SourceTypeBinding type, TypeReference
 			superclassRef.sourceStart,
 			superclassRef.sourceEnd);
 }
+public void synchronizedInstanceMethodIllegalInValueClass(AbstractMethodDeclaration method) {
+	   this.handle(
+	       IProblem.IllegalSynchronizedInstanceMethod,
+	       new String[] { new String(method.selector)},
+	       new String[] { new String(method.selector)},
+	       method.sourceStart,
+	       method.sourceEnd);
+}
 public void discouragedValueBasedTypeToSynchronize(Expression expression, TypeBinding type) {
 	if (type.isParameterizedType()) {
 		type =  ((ParameterizedTypeBinding)type).actualType();

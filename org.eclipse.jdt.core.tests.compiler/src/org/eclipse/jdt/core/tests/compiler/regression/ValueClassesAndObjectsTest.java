@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @PreviewTest
@@ -418,7 +419,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"3. ERROR in X.java (at line 44)\n" +
 				"	value class V9 extends java.io.InputStream { // cannot subclass abstract identity class\n" +
 				"	                       ^^^^^^^^^^^^^^^^^^^\n" +
-				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class.\n" +
+				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class\n" +
 				"----------\n" +
 				"4. ERROR in X.java (at line 50)\n" +
 				"	value class V10 extends V3 {} // cannot subclass a concrete value class\n" +
@@ -433,8 +434,98 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"6. ERROR in X.java (at line 52)\n" +
 				"	abstract value class V11 extends java.util.ArrayList<String> { // abstract value class may not subclass concrete identity class\n" +
 				"	                                 ^^^^^^^^^^^^^^^^^^^\n" +
-				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class.\n" +
+				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class\n" +
 				"----------\n");
-
  	}
+
+
+    public void testSynchronizedMethods() {
+           runNegativeTest(new String [] {
+               "X.java",
+               """
+               public value class X {
+                   synchronized void foo() {} // error - no lock
+                   static synchronized void goo() {} // ok.
+               }
+               """},
+                   "----------\n" +
+               "1. ERROR in X.java (at line 2)\n" +
+               "	synchronized void foo() {} // error - no lock\n" +
+               "	                  ^^^^^\n" +
+               "A value class may not declare a synchronized instance method\n" +
+               "----------\n");
+    }
+
+    public void testFieldFinality () {
+       runNegativeTest(new String [] {
+               "X.java",
+               """
+               public value class X {
+                   int x = 99;
+                   static int xx = 99;
+                   int y;
+                   X() {
+                      // y = 123;
+                   }
+                   void foo() {
+                       x++; // error
+                       xx++; // ok
+                       y = 123; // error
+                   }
+               }
+               """},
+               "----------\n" +
+               "1. ERROR in X.java (at line 5)\n" +
+               "	X() {\n" +
+               "	^^^\n" +
+               "The blank final field y may not have been initialized\n" +
+               "----------\n" +
+               "2. ERROR in X.java (at line 9)\n" +
+               "	x++; // error\n" +
+               "	^\n" +
+               "The final field X.x cannot be assigned\n" +
+               "----------\n" +
+               "3. ERROR in X.java (at line 11)\n" +
+               "	y = 123; // error\n" +
+               "	^\n" +
+               "The final field X.y cannot be assigned\n" +
+               "----------\n");
+    }
+
+    public void testFieldModifiers() throws Exception {
+       runConformTest(
+           new String[] {
+               "X.java",
+               """
+               public value class X {
+                   int x = 99;
+                   static int xx = 99;
+                   int y;
+                   X() {
+                      y = 123;
+                   }
+                   public static void main(String [] args) {
+                       System.out.println("Ok!");
+                   }
+               }
+               """
+           },
+           "Ok!");
+       String expectedOutput =
+               "// Compiled from X.java (version 28 : 72.0, no super bit)\n" + // why is preview flag missing ??
+               "public final class X {\n" +
+               "  Constant pool:\n";
+       verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+       expectedOutput =
+               "  // Field descriptor #6 I\n" +
+               "  final strict_init int x = 99;\n" +
+               "  \n" +
+               "  // Field descriptor #6 I\n" +
+               "  static int xx;\n" +
+               "  \n" +
+               "  // Field descriptor #6 I\n" +
+               "  final strict_init int y;\n";
+       verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+    }
+
  }
