@@ -48,10 +48,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 
 	private void decodeModifiers(StringBuilder buffer, int accessFlags, int[] checkBits) {
-		decodeModifiers(buffer, accessFlags, false, false, checkBits);
+		decodeModifiers(buffer, accessFlags, false, false, false, checkBits);
 	}
 
-	private void decodeModifiers(StringBuilder buffer, int accessFlags, boolean printDefault, boolean asBridge, int[] checkBits) {
+	private void decodeModifiers(StringBuilder buffer, int accessFlags, boolean printDefault, boolean asBridge, boolean asStrictInit, int[] checkBits) {
 		if (checkBits == null) return;
 		boolean firstModifier = true;
 		for (int checkBit : checkBits) {
@@ -81,7 +81,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_NATIVE, "native", firstModifier); //$NON-NLS-1$
 					break;
 				case IModifierConstants.ACC_STRICT :
-					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STRICT, "strictfp", firstModifier); //$NON-NLS-1$
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STRICT, asStrictInit ? "strict_init" : "strictfp", firstModifier); //$NON-NLS-1$ //$NON-NLS-2$"
 					break;
 				case IModifierConstants.ACC_TRANSIENT :
 					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_TRANSIENT, "transient", firstModifier); //$NON-NLS-1$
@@ -114,7 +114,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 
 	private void decodeModifiersForField(StringBuilder buffer, int accessFlags) {
-		decodeModifiers(buffer, accessFlags, new int[] {
+		decodeModifiers(buffer, accessFlags, false, false, true, new int[] {
 				IModifierConstants.ACC_PUBLIC,
 				IModifierConstants.ACC_PROTECTED,
 				IModifierConstants.ACC_PRIVATE,
@@ -122,12 +122,14 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				IModifierConstants.ACC_FINAL,
 				IModifierConstants.ACC_TRANSIENT,
 				IModifierConstants.ACC_VOLATILE,
-				IModifierConstants.ACC_ENUM
+				IModifierConstants.ACC_ENUM,
+				IModifierConstants.ACC_STRICT,
+
 		});
 	}
 
 	private void decodeModifiersForFieldForWorkingCopy(StringBuilder buffer, int accessFlags) {
-		decodeModifiers(buffer, accessFlags, new int[] {
+		decodeModifiers(buffer, accessFlags, false, false, true, new int[] {
 				IModifierConstants.ACC_PUBLIC,
 				IModifierConstants.ACC_PROTECTED,
 				IModifierConstants.ACC_PRIVATE,
@@ -135,11 +137,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				IModifierConstants.ACC_FINAL,
 				IModifierConstants.ACC_TRANSIENT,
 				IModifierConstants.ACC_VOLATILE,
+				IModifierConstants.ACC_STRICT,
 		});
 	}
 
 	private final void decodeModifiersForInnerClasses(StringBuilder buffer, int accessFlags, boolean printDefault) {
-		decodeModifiers(buffer, accessFlags, printDefault, false, new int[] {
+		decodeModifiers(buffer, accessFlags, printDefault, false, false, new int[] {
 				IModifierConstants.ACC_PUBLIC,
 				IModifierConstants.ACC_PROTECTED,
 				IModifierConstants.ACC_PRIVATE,
@@ -150,7 +153,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 
 	private final void decodeModifiersForMethod(StringBuilder buffer, int accessFlags) {
-		decodeModifiers(buffer, accessFlags, false, true, new int[] {
+		decodeModifiers(buffer, accessFlags, false, true, false, new int[] {
 				IModifierConstants.ACC_PUBLIC,
 				IModifierConstants.ACC_PROTECTED,
 				IModifierConstants.ACC_PRIVATE,
@@ -165,7 +168,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 
 	private final void decodeModifiersForMethodParameters(StringBuilder buffer, int accessFlags) {
-		decodeModifiers(buffer, accessFlags, false, true, new int[] {
+		decodeModifiers(buffer, accessFlags, false, true, false, new int[] {
 				IModifierConstants.ACC_FINAL,
 				IModifierConstants.ACC_MANDATED,
 				IModifierConstants.ACC_SYNTHETIC,

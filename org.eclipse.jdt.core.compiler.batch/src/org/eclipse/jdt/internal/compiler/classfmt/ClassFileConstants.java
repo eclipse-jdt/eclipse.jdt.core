@@ -44,6 +44,7 @@ public interface ClassFileConstants {
 	int AccInterface    = 0x0200;
 	int AccAbstract     = 0x0400;
 	int AccStrictfp     = 0x0800;
+	int AccStrictInit   = 0x0800;
 	int AccSynthetic    = 0x1000;
 	int AccAnnotation   = 0x2000;
 	int AccEnum         = 0x4000;
