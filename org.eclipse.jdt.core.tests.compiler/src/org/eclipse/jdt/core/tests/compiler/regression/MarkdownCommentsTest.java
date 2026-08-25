@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -348,7 +348,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"""
 					public class X {
 						/// Some text here without the necessary tags for main method
-						/// @param arguments\s 
+						/// @param arguments\s
 
 						// This line will be ignored and the previous block will be considered as the Javadoc
 						public static void main(String[] arguments) {
@@ -705,5 +705,24 @@ public class MarkdownCommentsTest extends JavadocTest {
 		} finally {
 			this.reportMissingJavadocTags = bkup;
 		}
+	}
+
+	public void testMarkdownSupportForInlineTags_5010() {
+		this.runConformTest(new String[] { "X.java", """
+	            public class X {
+	                /// {@snippet :
+					///   	System.out.println("Hello"); // @highlight substring="println"
+					///   	items.add("Java 18");        // @highlight substring="items.add" type="highlighted"
+					///   	System.out.println("Item: " + items.get(0)); // @highlight regex="\".*\""
+					///   	System.out.println("Item: " + items.get(0)); // @highlight regex="\".*\"" type="highlighted"
+					///   	List<String> list = new ArrayList<>(); // @link substring="ArrayList" target="java.util.ArrayList"
+					///   	List<String> list = new ArrayList<>(); // @link regex="ArrayList" target="java.util.ArrayList"
+					///   	Object obj = new Object(); // @replace substring="Object" replacement="MyClass"
+					///   	String s = "foo bar"; // @replace regex="foo" replacement="baz"
+					/// }
+	                public static void main(String... args) {}
+	            }
+	            """ },
+	            "");
 	}
 }

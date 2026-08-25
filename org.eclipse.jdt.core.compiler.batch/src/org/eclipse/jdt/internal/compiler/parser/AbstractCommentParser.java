@@ -104,6 +104,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean snippetInlineTagStarted = false;
 	private int nonRegionTagCount, inlineTagCount;
 	final static String SINGLE_LINE_COMMENT = "//"; //$NON-NLS-1$
+	final static String MARKDOWN_COMMENT = "///"; //$NON-NLS-1$
 
 	protected IMarkdownCommentHelper markdownHelper;
 
@@ -1872,36 +1873,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							this.textStart = -1;
 						}
 						break;
-					case TokenNameCOMMENT_MARKDOWN:
-						if (this.markdown) {
-							String markdownTokenString = this.scanner.getCurrentTokenString();
-							String[] elements = markdownTokenString.split("\\r?\\n", -1); //$NON-NLS-1$
-							int elmentStart = this.scanner.getCurrentTokenStartPosition();
-							int elementEnd = 0;
-							try {
-								for (int i = 0; i < elements.length; i++) {
-									if (elementEnd != 0 ) {
-										elmentStart = elementEnd + 1; // +1 because of new line
-									}
-									int pos = elements[i].indexOf("///"); //$NON-NLS-1$
-									if (pos != -1) {
-										elmentStart = elmentStart + 3 + pos;
-										String element = elements[i].substring(3 + pos);
-										elementEnd = elmentStart + element.length();
-										if (element.stripLeading().startsWith("}")) { //$NON-NLS-1$
-											break;
-										}
-									}
-									pushText(elmentStart, elementEnd);
-								}
-								if (elements.length > 0)
-									markdownSnippetIsValid = true;
-							} catch (Exception e) {
-								markdownSnippetIsValid = false;
-							}
-
-						}
-						break;
 					case TokenNameCOMMENT_LINE:
 						String tokenString = this.scanner.getCurrentTokenString();
 						boolean handleNow = handleCommentLineForCurrentLine(tokenString);
@@ -1913,9 +1884,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (!handleNow) {
 							this.nonRegionTagCount = 0;
 							this.inlineTagCount = 0;
-						}
-						if (this.markdown) {
-							markdownSnippetIsValid = true;
 						}
 						Object innerTag = parseSnippetInlineTags(indexOfLastComment == -1 ? tokenString : tokenString.substring(indexOfLastComment+2), snippetTag, this.scanner);
 						if (innerTag != null) {
@@ -1992,6 +1960,211 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 		}
 		return retVal;
+	}
+
+	protected boolean parseSnippetForMarkdown() throws InvalidInputException {
+		boolean tokenWhiteSpace = this.scanner.tokenizeWhiteSpace;
+		boolean tokenizeComments = this.scanner.tokenizeComments;
+		this.scanner.tokenizeWhiteSpace = true;
+		this.scanner.tokenizeComments = true;
+		boolean parsingJava23Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK23 : false;
+		boolean valid = true;
+		boolean markdownSnippetIsValid = false;
+		int closingBracePosition = -1;
+		if (!parsingJava23Plus) {
+			throw Scanner.invalidInput();
+		}
+		Object snippetTag = null;
+		this.nonRegionTagCount = 0;
+		this.inlineTagCount = 0;
+		try {
+			snippetTag = createSnippetTag();
+			Map<String, String> snippetAttributes = new HashMap();
+			if (!parseTillColon(snippetAttributes)) {
+				valid = false;
+			} else {
+				if (this.index < this.scanner.eofPosition) {
+					TerminalToken token = readTokenSafely();
+					if (token == TerminalToken.TokenNameWHITESPACE) {
+						if (containsNewLine(this.scanner.getCurrentTokenString())) {
+							consumeToken();
+						} else {
+							valid = false;
+							if (this.reportProblems) {
+								this.sourceParser.problemReporter().javadocInvalidSnippetContentNewLine(this.index, this.lineEnd);
+							}
+							this.setSnippetIsValid(snippetTag, false);
+							this.setSnippetError(snippetTag, "Snippet content should be in a new line"); //$NON-NLS-1$
+						}
+					}
+				} else {
+					valid = false;
+				}
+			}
+			if (hasID(snippetAttributes)) {
+				this.setSnippetID(snippetTag, getID(snippetAttributes));
+			}
+			TerminalToken token;
+			while (this.index < this.scanner.eofPosition) {
+				this.index = this.scanner.currentPosition;
+				token = readTokenSafely();
+				if (token == TerminalToken.TokenNameEOF) {
+					break;
+				}
+				boolean closingBraceFound = false;
+				switch (token) {
+					case TokenNameCOMMENT_LINE:
+						// JavadocParser path: each "/// ..." line is a separate COMMENT_LINE token.
+						try {
+							String rawLine = this.scanner.getCurrentTokenString();
+							int slashPos = rawLine.indexOf(MARKDOWN_COMMENT);
+							if (slashPos == -1) {
+								break;
+							}
+							String lineContent = rawLine.substring(slashPos + 3);
+							int lineContentEnd = lineContent.length();
+							while (lineContentEnd > 0) {
+								char c = lineContent.charAt(lineContentEnd - 1);
+								if (c == '\n' || c == '\r') lineContentEnd--;
+								else break;
+							}
+							lineContent = lineContent.substring(0, lineContentEnd);
+							if (lineContent.stripLeading().startsWith("}")) { //$NON-NLS-1$
+								markdownSnippetIsValid = true;
+								// Record the position of '}' so commentParse() can see it
+								int tokenStart = this.scanner.getCurrentTokenStartPosition();
+								closingBracePosition = tokenStart + slashPos + 3
+										+ lineContent.indexOf('}');
+								closingBraceFound = true;
+								break;
+							}
+							markdownSnippetIsValid = true;
+							int contentStart = this.scanner.getCurrentTokenStartPosition() + slashPos + 3;
+							int contentEnd = contentStart + lineContentEnd;
+							processMarkdownSnippetLine(lineContent, contentStart, contentEnd, snippetTag);
+						} catch (Exception e) {
+							markdownSnippetIsValid = false;
+						}
+						break;
+
+					case TokenNameCOMMENT_MARKDOWN:
+						// DocCommentParser path: the entire markdown block is one token.
+						try {
+							String markdownBlock = this.scanner.getCurrentTokenString();
+							String[] lines = markdownBlock.split("\\r?\\n", -1); //$NON-NLS-1$
+							int lineStart = this.scanner.getCurrentTokenStartPosition();
+							for (int i = 0; i < lines.length; i++) {
+								if (i > 0) {
+									lineStart += lines[i - 1].length();
+									if (lineStart < this.scanner.getCurrentTokenEndPosition()
+											&& this.source[lineStart] == '\r') {
+										lineStart++;
+									}
+									lineStart++;
+								}
+								String rawLine = lines[i];
+								int slashPos = rawLine.indexOf(MARKDOWN_COMMENT);
+								if (slashPos == -1) {
+									continue;
+								}
+								String lineContent = rawLine.substring(slashPos + 3);
+								if (lineContent.stripLeading().startsWith("}")) { //$NON-NLS-1$
+									markdownSnippetIsValid = true;
+									// Record the position of '}' so commentParse() can see it
+									closingBracePosition = lineStart + slashPos + 3
+											+ lineContent.indexOf('}');
+									closingBraceFound = true;
+									break;
+								}
+								markdownSnippetIsValid = true;
+								processMarkdownSnippetLine(lineContent,
+										lineStart + slashPos + 3,
+										lineStart + rawLine.length(),
+										snippetTag);
+							}
+						} catch (Exception e) {
+							markdownSnippetIsValid = false;
+						}
+						break;
+
+					default:
+						break;
+				}
+				consumeToken();
+				if (closingBraceFound) {
+					break;
+				}
+			}
+		} finally {
+			if (!areRegionsClosed()) {
+				if (this.reportProblems) {
+					this.sourceParser.problemReporter().javadocInvalidSnippetRegionNotClosed(this.index, this.lineEnd);
+				}
+				this.setSnippetError(snippetTag, "Region not closed"); //$NON-NLS-1$
+				this.setSnippetIsValid(snippetTag, false);
+			}
+			this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
+			this.scanner.tokenizeComments = tokenizeComments;
+		}
+		boolean retVal = valid && markdownSnippetIsValid;
+		if (snippetTag != null) {
+			this.setSnippetIsValid(snippetTag, retVal);
+		}
+		// Reposition to the '}' so commentParse() can close the inline tag naturally
+		if (retVal && closingBracePosition >= 0) {
+			this.index = closingBracePosition;
+			this.scanner.currentPosition = closingBracePosition;
+		}
+		return retVal;
+	}
+
+	private void processMarkdownSnippetLine(String lineContent, int contentStart, int contentEnd,
+			Object snippetTag) {
+		int noSingleLineComm = getNumberOfSingleLineCommentInSnippetTag(lineContent);
+		int indexOfLastComment = -1;
+		if (noSingleLineComm > 0) {
+			indexOfLastComment = indexOfLastSingleComment(lineContent, noSingleLineComm);
+		}
+		boolean handleNow = handleCommentLineForCurrentLine(SINGLE_LINE_COMMENT + lineContent);
+		if (!handleNow) {
+			this.nonRegionTagCount = 0;
+			this.inlineTagCount = 0;
+		}
+		String inlineTagStr = indexOfLastComment == -1
+				? (SINGLE_LINE_COMMENT + lineContent)
+				: (SINGLE_LINE_COMMENT + lineContent.substring(indexOfLastComment + 2));
+		int savedStartPosition = this.scanner.startPosition;
+		this.scanner.startPosition = indexOfLastComment >= 0
+				? contentStart + indexOfLastComment
+				: contentStart - 1;
+		Object innerTag = parseSnippetInlineTags(inlineTagStr, snippetTag, this.scanner);
+		this.scanner.startPosition = savedStartPosition;
+		boolean lvalid = innerTag != null;
+		// TextElement spans from contentStart up to (but not including) the "// @tag"
+		int textEnd = contentEnd;
+		if (lvalid && indexOfLastComment >= 0) {
+			textEnd = contentStart + indexOfLastComment;
+		}
+		if (lvalid && handleNow && innerTag != snippetTag) {
+			addSnippetInnerTag(innerTag, snippetTag);
+			this.snippetInlineTagStarted = true;
+		}
+		if (contentStart < textEnd) {
+			pushSnippetText(this.source, contentStart, textEnd, true, snippetTag);
+			if (handleNow) {
+				this.nonRegionTagCount = 0;
+				this.inlineTagCount = 0;
+			}
+		}
+		if (lvalid && innerTag != snippetTag) {
+			setSnippetInnerTagRange(innerTag, contentStart, contentEnd);
+		}
+		if (lvalid && !handleNow) {
+			if (innerTag != snippetTag) {
+				addSnippetInnerTag(innerTag, snippetTag);
+			}
+			this.snippetInlineTagStarted = true;
+		}
 	}
 
 	private Path getFilePathFromFileName(String fileName) {
@@ -2404,7 +2577,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							token = readTokenSafely();
 							if (token == TerminalToken.TokenNameMULTIPLY) {
 								consumeToken();
-							} else {
+							} else if (!this.markdown) {
+								// markdown: no * expected after newline, leave token unconsumed
 								isValid = false;
 							}
 						} else {
@@ -3328,6 +3502,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected abstract void addTagProperties(Object Tag, Map<String, Object> map, int tagCount);
 
 	protected abstract void addSnippetInnerTag(Object tag, Object snippetTag);
+
+	protected void setSnippetInnerTagRange(Object tag, int start, int end) {
+		// do nothing
+	}
 
 	protected abstract void setSnippetError(Object tag, String value);
 

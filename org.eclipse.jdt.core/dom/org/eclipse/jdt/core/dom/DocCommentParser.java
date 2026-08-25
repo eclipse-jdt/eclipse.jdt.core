@@ -521,6 +521,12 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 	}
 
+	@Override
+	protected void setSnippetInnerTagRange(Object tag, int start, int end) {
+		if (tag instanceof TagElement tagElement) {
+			tagElement.setSourceRange(start, end - start);
+		}
+	}
 
 	@Override
 	protected Object createTypeReference(TerminalToken primitiveToken, boolean canBeModule) {
@@ -949,7 +955,7 @@ class DocCommentParser extends AbstractCommentParser {
 								valid = false;
 							} else {
 								this.tagValue = TAG_SNIPPET_VALUE;
-								valid = parseSnippet();
+								valid = this.markdown ? parseSnippetForMarkdown() : parseSnippet();
 							}
 						} else {
 							this.tagValue = TAG_OTHERS_VALUE;
@@ -1196,10 +1202,14 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected void pushSnippetText(char[] text, int start, int end, boolean addNewLine, Object snippetTag) {
-		pushSnippetText(text, start, end, addNewLine, snippetTag, false);
+		pushSnippetText(text, start, end, addNewLine, snippetTag, false, this.markdown);
 	}
 
 	private void pushSnippetText(char[] text, int start, int end, boolean addNewLine, Object snippetTag, boolean isExternalSnippet) {
+		pushSnippetText(text, start, end, addNewLine, snippetTag, isExternalSnippet, false);
+	}
+
+	private void pushSnippetText(char[] text, int start, int end, boolean addNewLine, Object snippetTag, boolean isExternalSnippet, boolean isMarkdown) {
 		// Create text element
 		String textToBeAdded= new String( text, start, end-start).stripTrailing();
 		AbstractTextElement textElem= null;
@@ -1215,7 +1225,7 @@ class DocCommentParser extends AbstractCommentParser {
 			if (addNewLine) {
 				textToBeAdded += System.lineSeparator();
 			}
-		} else if (isExternalSnippet){
+		} else if (isExternalSnippet || isMarkdown) {
 			if (addNewLine) {
 				textToBeAdded += System.lineSeparator();
 			}
