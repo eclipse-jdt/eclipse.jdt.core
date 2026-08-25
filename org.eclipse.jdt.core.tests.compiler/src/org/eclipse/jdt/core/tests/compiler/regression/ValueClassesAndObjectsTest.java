@@ -342,6 +342,99 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
  				}
  				"""},
     			"All well!");
+ 	}
+    // Test subclassing - legal and illegal scenarios
+    // Snippet from https://openjdk.org/jeps/401 - test synchronization - compile time
+    public void testSubclassing() {
+    	runNegativeTest(new String [] {
+ 				"X.java",
+ 				"""
+				import java.io.IOException;
+
+				// Legal subclassing scenarios
+				value class V1 {} // implicit extension of jlO
+				abstract value class V2 extends Object {} // explicit extension of jlO
+				value class V3 extends java.lang.Object {} // explicit extension of explicitly spelled out jlO
+				value class V4 extends java.lang.Number { // concrete extension of abstract value class
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public int intValue() {
+						return 0;
+					}
+
+					@Override
+					public long longValue() {
+						return 0;
+					}
+
+					@Override
+					public float floatValue() {
+						return 0;
+					}
+
+					@Override
+					public double doubleValue() {
+						return 0;
+					}
+				}
+				abstract value class V5 extends Number { // abstract extension of abstract value class
+					private static final long serialVersionUID = 1L;
+				}
+
+				value class V6 implements java.io.Serializable { // A value class may implement interfaces
+					private static final long serialVersionUID = 1L;
+				}
+				class I1 extends V2 {} // identity class may subclass an abstract value class
+				value record VPoint(int x, int y) {} // Legal value record
+
+				// negative tests below
+				value class V7 extends String {} // cannot subclass concrete identity class
+				value class V8 extends java.util.Map<String, String> {} // a super class must be a class
+				value class V9 extends java.io.InputStream { // cannot subclass abstract identity class
+
+				    @Override
+				    public int read() throws IOException {
+				        return 0;
+				    }}
+				value class V10 extends V3 {} // cannot subclass a concrete value class
+				class I2 extends V1 {} // identity class cannot subclass a concrete value class.
+				abstract value class V11 extends java.util.ArrayList<String> { // abstract value class may not subclass concrete identity class
+					private static final long serialVersionUID = 1L;
+				}
+ 				"""},
+    			"----------\n" +
+				"1. ERROR in X.java (at line 42)\n" +
+				"	value class V7 extends String {} // cannot subclass concrete identity class\n" +
+				"	                       ^^^^^^\n" +
+				"The type V7 cannot subclass the final class String\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 43)\n" +
+				"	value class V8 extends java.util.Map<String, String> {} // a super class must be a class\n" +
+				"	                       ^^^^^^^^^^^^^\n" +
+				"The type Map<String,String> cannot be the superclass of V8; a superclass must be a class\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 44)\n" +
+				"	value class V9 extends java.io.InputStream { // cannot subclass abstract identity class\n" +
+				"	                       ^^^^^^^^^^^^^^^^^^^\n" +
+				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class.\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 50)\n" +
+				"	value class V10 extends V3 {} // cannot subclass a concrete value class\n" +
+				"	                        ^^\n" +
+				"The type V10 cannot subclass the final class V3\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 51)\n" +
+				"	class I2 extends V1 {} // identity class cannot subclass a concrete value class.\n" +
+				"	                 ^^\n" +
+				"The type I2 cannot subclass the final class V1\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 52)\n" +
+				"	abstract value class V11 extends java.util.ArrayList<String> { // abstract value class may not subclass concrete identity class\n" +
+				"	                                 ^^^^^^^^^^^^^^^^^^^\n" +
+				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class.\n" +
+				"----------\n");
 
  	}
  }
