@@ -5016,6 +5016,14 @@ public void cantSynchronizeOnValueClass(Expression expression, TypeBinding type)
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void valueClassExtendsIdentityClass(SourceTypeBinding type, TypeReference superclassRef, ReferenceBinding superType) {
+	this.handle(
+			IProblem.ValueClassExtendsIdentityClass,
+			new String[] {new String(superType.readableName()), new String(type.sourceName())},
+			new String[] {new String(superType.shortReadableName()), new String(type.sourceName())},
+			superclassRef.sourceStart,
+			superclassRef.sourceEnd);
+}
 public void discouragedValueBasedTypeToSynchronize(Expression expression, TypeBinding type) {
 	if (type.isParameterizedType()) {
 		type =  ((ParameterizedTypeBinding)type).actualType();

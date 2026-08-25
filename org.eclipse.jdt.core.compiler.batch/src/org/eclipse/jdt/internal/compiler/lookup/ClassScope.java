@@ -846,8 +846,12 @@ public class ClassScope extends Scope {
 			}
 		}
 
-		if (!sourceType.isInterface() && (modifiers & ExtraCompilerModifiers.AccValue) == 0)
-			modifiers |= ClassFileConstants.AccIdentity;
+		if (!sourceType.isInterface()) {
+			if ((modifiers & ExtraCompilerModifiers.AccValue) == 0)
+				modifiers |= ClassFileConstants.AccIdentity;
+			else if ((modifiers & ClassFileConstants.AccAbstract) == 0)
+				modifiers |= ClassFileConstants.AccFinal;
+		}
 		sourceType.modifiers = modifiers;
 	}
 
@@ -1124,6 +1128,10 @@ public class ClassScope extends Scope {
 				sourceType.setSuperClass(superclass);
 				sourceType.tagBits |= TagBits.HierarchyHasProblems; // propagate if missing supertype
 				return superclassRef.resolvedType.isValidBinding(); // reported some error against the source type ?
+			} else if (sourceType.isValueClass() && superclass.id != TypeIds.T_JavaLangObject && (superclass.modifiers & ClassFileConstants.AccIdentity) != 0) {
+				sourceType.setSuperClass(superclass);
+				problemReporter().valueClassExtendsIdentityClass(sourceType, superclassRef, superclass);
+				return false;
 			} else {
 				// only want to reach here when no errors are reported
 				sourceType.setSuperClass(superclass);
