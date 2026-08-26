@@ -3138,8 +3138,12 @@ public void generateSyntheticBodyForRecordCanonicalConstructor(SyntheticMethodBi
 	SourceTypeBinding declaringClass = (SourceTypeBinding) canonConstructor.declaringClass;
 	ReferenceBinding superClass = declaringClass.superclass();
 	MethodBinding superCons = superClass.getExactConstructor(new TypeBinding[0]);
-	aload_0();
-	invoke(Opcodes.OPC_invokespecial, superCons, superClass);
+	CompilerOptions compilerOptions = declaringClass.scope.compilerOptions();
+	boolean safeConstruction = JavaFeature.SAFE_RECORD_CONSTRUCTION.isSupported(compilerOptions.sourceLevel, compilerOptions.enablePreviewFeatures);
+	if (!safeConstruction) {
+		aload_0();
+		invoke(Opcodes.OPC_invokespecial, superCons, superClass);
+	}
 	int resolvedPosition;
 	VariableBinding[] fields =  declaringClass.components();
 	int len = fields != null ? fields.length : 0;
@@ -3159,6 +3163,10 @@ public void generateSyntheticBodyForRecordCanonicalConstructor(SyntheticMethodBi
 				break;
 		}
 		fieldAccess(Opcodes.OPC_putfield, field, declaringClass);
+	}
+	if (safeConstruction) {
+		aload_0();
+		invoke(Opcodes.OPC_invokespecial, superCons, superClass);
 	}
 	return_();
 }

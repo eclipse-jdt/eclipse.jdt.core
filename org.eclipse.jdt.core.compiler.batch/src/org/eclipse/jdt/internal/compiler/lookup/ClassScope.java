@@ -190,9 +190,8 @@ public class ClassScope extends Scope {
 			} else if (variableDeclaration instanceof RecordComponent componentDeclaration) {
 				// prefer type from the binding as it holds the null annotations if any:
 				TypeBinding type = componentDeclaration.binding != null ? componentDeclaration.binding.type : variableDeclaration.type.resolvedType;
-				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, type,
-						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal,
-						sourceType, Constant.NotAConstant);
+				int modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal | (sourceType.isValueClass() ? ClassFileConstants.AccStrictInit : 0);
+				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, type, modifiers, sourceType, Constant.NotAConstant);
 				if (componentDeclaration.binding != null)
 					fieldBinding.tagBits |= componentDeclaration.binding.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 			} else {

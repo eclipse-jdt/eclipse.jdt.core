@@ -136,6 +136,7 @@ public final class Messages {
 	public static String module_imports;
 	public static String markdown_comments;
 	public static String value_classes_and_objects;
+	public static String safe_record_construction;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);
