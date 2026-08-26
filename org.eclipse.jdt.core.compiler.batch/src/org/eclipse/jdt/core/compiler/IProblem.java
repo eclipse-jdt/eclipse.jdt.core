@@ -2909,4 +2909,8 @@ void setSourceStart(int sourceStart);
 	/** @since 3.47
 	 * @noreference preview feature error */
 	int IllegalSynchronizedInstanceMethod = PreviewRelated + 2107;
+
+	/** @since 3.47
+	 * @noreference preview feature error */
+	int FinalizeMethodUselessInValueClass = PreviewRelated + 2108;
 }

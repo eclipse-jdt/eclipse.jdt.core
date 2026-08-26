@@ -59,6 +59,7 @@ public interface TypeConstants {
 	char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
 	char[] CLONE = "clone".toCharArray(); //$NON-NLS-1$
 	char[] EQUALS = "equals".toCharArray(); //$NON-NLS-1$
+	char[] FINALIZE = "finalize".toCharArray(); //$NON-NLS-1$
 	char[] GETCLASS = "getClass".toCharArray(); //$NON-NLS-1$
 	char[] HASHCODE = "hashCode".toCharArray(); //$NON-NLS-1$
 	char[] TOSTRING = "toString".toCharArray(); //$NON-NLS-1$

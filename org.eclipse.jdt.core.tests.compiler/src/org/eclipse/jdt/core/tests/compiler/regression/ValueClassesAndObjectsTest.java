@@ -594,4 +594,22 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"false");
  	}
 
+    // Warn on finalize method, the garbage collector never invokes it
+    public void testFinalizeMethod() {
+    	runWarningTest(new String [] {
+ 				"X.java",
+ 				"""
+ 				public value class X {
+ 				    public void finalize() {}
+ 				}
+ 				"""},
+    			"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	public void finalize() {}\n" +
+				"	            ^^^^^^^^^^\n" +
+				"The finalize method is useless in a value class\n" +
+				"----------\n",
+				getCompilerOptions(true));
+ 	}
+
  }

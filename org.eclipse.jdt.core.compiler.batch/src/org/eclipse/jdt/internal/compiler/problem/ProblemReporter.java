@@ -1693,6 +1693,7 @@ public int computeSeverity(int problemID){
 		case IProblem.IllegalExtendedDimensions:
 		case IProblem.VarargsConflict :
  		case IProblem.StrictfpNotRequired:
+ 		case IProblem.FinalizeMethodUselessInValueClass:
  			return ProblemSeverities.Warning;
  		case IProblem.TypeCollidesWithPackage :
 			return ProblemSeverities.Error;
@@ -5027,6 +5028,14 @@ public void valueClassExtendsIdentityClass(SourceTypeBinding type, TypeReference
 public void synchronizedInstanceMethodIllegalInValueClass(AbstractMethodDeclaration method) {
 	   this.handle(
 	       IProblem.IllegalSynchronizedInstanceMethod,
+	       new String[] { new String(method.selector)},
+	       new String[] { new String(method.selector)},
+	       method.sourceStart,
+	       method.sourceEnd);
+}
+public void finalizeMethodUselessInValueClass(AbstractMethodDeclaration method) {
+	   this.handle(
+	       IProblem.FinalizeMethodUselessInValueClass,
 	       new String[] { new String(method.selector)},
 	       new String[] { new String(method.selector)},
 	       method.sourceStart,
