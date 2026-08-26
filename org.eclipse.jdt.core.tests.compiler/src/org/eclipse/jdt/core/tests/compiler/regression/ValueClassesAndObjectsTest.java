@@ -566,6 +566,32 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"You are using an API that is part of the preview feature 'Value Classes and Objects' and may be removed in future\n" +
 				"----------\n";
 		runner.runWarningTest();
-     }
+    }
+
+    // test value records - snippet from JEP401
+    public void testValueRecord() {
+    	runConformTest(new String [] {
+ 				"X.java",
+ 				"""
+ 				import java.util.Objects;
+
+ 				public class X {
+ 				    value record Point(int x, int y) {}
+
+ 				    public static void main(String [] args) {
+ 				    	Point p = new Point(17, 3);
+ 				    	System.out.println(p);
+ 				    	System.out.println(Objects.hasIdentity(p));
+ 				    	System.out.println(new Point(17, 3) == p);
+ 				    	System.out.println(new Point(17, 4) == p);
+ 				    }
+
+ 				}
+ 				"""},
+    			"Point[x=17, y=3]\n" +
+				"false\n" +
+				"true\n" +
+				"false");
+ 	}
 
  }
