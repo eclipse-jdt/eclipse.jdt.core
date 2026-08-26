@@ -618,9 +618,7 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.binding == null) {
 			this.ignoreFurtherInvestigation = true;
-		}
-
-		if (this.binding.declaringClass != null && this.binding.declaringClass.isValueClass() && CharOperation.equals(this.binding.selector, TypeConstants.FINALIZE)) {
+		} else if (this.binding.declaringClass != null && this.binding.declaringClass.isValueClass() && CharOperation.equals(this.binding.selector, TypeConstants.FINALIZE)) {
 			if (!this.binding.isStatic() && this.binding.isPublic() && this.binding.parameters.length == 0)
 				this.scope.problemReporter().finalizeMethodUselessInValueClass(this);
 		}
