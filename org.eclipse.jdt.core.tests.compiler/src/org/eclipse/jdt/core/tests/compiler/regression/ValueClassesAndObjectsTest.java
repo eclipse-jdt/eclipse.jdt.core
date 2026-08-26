@@ -68,6 +68,17 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions(true), VMARGS, JAVAC_OPTIONS);
 	}
 
+	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, Map<String, String> customOptions) {
+		if (!isJRE16Plus)
+			return;
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedCompilerLog;
+		runner.customOptions = customOptions;
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("28");
+		runner.runWarningTest();
+	}
+
 	// ========= OPT-IN to run.javac mode: ===========
 	@Override
 	protected void setUp() throws Exception {
@@ -527,5 +538,34 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
                "  final strict_init int y;\n";
        verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
     }
+
+    public void testPreviewAPI() throws Exception {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions(true); // preview enabled
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				import java.util.Objects;
+
+				public class X {
+				  public static void main(String[] args){
+					  Integer x = 1996, y = 1996;
+					  System.out.println(x == y);
+					  System.out.println(Objects.hasIdentity(x));
+				  }
+				}
+				"""
+			};
+		runner.javacTestOptions = JAVAC_OPTIONS;
+		runner.vmArguments = VMARGS;
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. WARNING in X.java (at line 7)\n" +
+				"	System.out.println(Objects.hasIdentity(x));\n" +
+				"	                   ^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"You are using an API that is part of the preview feature 'Value Classes and Objects' and may be removed in future\n" +
+				"----------\n";
+		runner.runWarningTest();
+     }
 
  }
