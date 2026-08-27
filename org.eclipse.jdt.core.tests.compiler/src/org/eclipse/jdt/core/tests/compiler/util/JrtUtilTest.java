@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.junit.Before;
-import org.junit.Test;
 
 public class JrtUtilTest extends TestCase {
 
@@ -50,7 +49,6 @@ public class JrtUtilTest extends TestCase {
 		this.jdkRelease = JRTUtil.getJdkRelease(this.image);
 	}
 
-	@Test
 	public void testGetReleaseVersion() {
 		long expectedLevel = CompilerOptions.versionToJdkLevel(this.javaSpecVersion);
 		long seenLevel = CompilerOptions.versionToJdkLevel(this.jdkRelease);
@@ -60,7 +58,6 @@ public class JrtUtilTest extends TestCase {
 		assertEquals("Unexpected version: " + this.jdkRelease + ", not matching " + this.javaSpecVersion, sameRelease, 0);
 	}
 
-	@Test
 	public void testGetNewJrtFileSystem() throws Exception {
 		int majorVersionSegment = getMajorVersionSegment(this.jdkRelease);
 		Object jrtSystem = JRTUtil.getJrtSystem(this.image, null);
@@ -74,7 +71,6 @@ public class JrtUtilTest extends TestCase {
 		assertSame(jrtSystem, jrtSystem3);
 	}
 
-	@Test
 	public void testWorksUnderInterruptCondition() throws IOException {
 		FileSystem fs = FileSystems.getFileSystem(URI.create("jrt:/"));
 		try {

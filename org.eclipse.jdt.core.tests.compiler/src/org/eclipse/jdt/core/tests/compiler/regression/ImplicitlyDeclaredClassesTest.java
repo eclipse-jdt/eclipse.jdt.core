@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.junit.Test;
 
 public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static boolean optimizeStringLiterals = false;
@@ -118,14 +117,12 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 			Stream.of(cu.types).filter(ImplicitTypeDeclaration.class::isInstance).map(ImplicitTypeDeclaration.class::cast).findAny().orElse(null);
 	}
 
-	@Test
 	public void testParseExplicitClass() {
 		CompilationUnitDeclaration res = parse("import java.lang.*;\npublic class A {}", "A.java");
 		assertFalse(res.compilationResult.hasErrors());
 		assertNull(implicitTypeDeclaration(res));
 	}
 
-	@Test
 	public void testParseOnlyMain() {
 		CompilationUnitDeclaration res = parse("void main() {}", "A.java");
 		assertFalse(res.hasErrors());
@@ -135,7 +132,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		// should generated A.class (unnamed)
 	}
 
-	@Test
 	public void testParseMixedMethodAndTypes() {
 		CompilationUnitDeclaration res = parse("""
 			void hello() {}
@@ -149,7 +145,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		assertEquals(1, res.types[0].memberTypes.length);
 	}
 	// Test that no reference to the implicit type name can be made within the same CU
-	@Test
 	public void testImplicitType001() {
 		runNegativeTest(
 					new String[] {"X.java",
@@ -184,7 +179,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 
 	}
 	// Test implicit type without a valid candidate main method - 1
-	@Test
 	public void testImplicitType002() {
 		runNegativeTest(
 					new String[] {"X.java",
@@ -202,7 +196,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 
 	}
 	// Test implicit type without a valid candidate main method - 2
-	@Test
 	public void testImplicitType003() {
 		runNegativeTest(
 					new String[] {"X.java",
@@ -220,7 +213,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 
 	}
 	// Test implicit type without a valid candidate main method - 3
-	@Test
 	public void testImplicitType004() {
 		runNegativeTest(
 					new String[] {"X.java",
@@ -239,7 +231,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 
 	// Test implicit type without a valid candidate main method - 4
-	@Test
 	public void testImplicitType005() {
 		runNegativeTest(
 					new String[] {"X.java",
@@ -257,7 +248,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 
 	}
 	// Test implicit type with a valid candidate main method (public but no static, and String[] argument)
-	@Test
 	public void testImplicitType006() throws IOException, ClassFormatException {
 		try {
 			runConformTest(
@@ -272,7 +262,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		}
 	}
 	// Test implicit type with a valid candidate main method (public but no static, and String[] argument)
-	@Test
 	public void testImplicitType007() {
 		try {
 			runConformTest(
@@ -286,7 +275,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		}
 	}
 	// Test implicit type with a valid candidate main method (public but no static, and String ... argument)
-	@Test
 	public void testImplicitType008() {
 		try {
 			runConformTest(
@@ -299,7 +287,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		} finally {
 		}
 	}
-	@Test
 	public void testImplicitType009() {
 		runConformTest(
 					new String[] {"X.java",
@@ -310,7 +297,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 						}"""},
 					"1");
 	}
-	@Test
 	public void testImplicitType011() {
 		runConformTest(
 					new String[] {"X.java",
@@ -322,7 +308,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 						}"""},
 					"true");
 	}
-	@Test
 	public void testImplicitImport() {
 		// the explicit class must be given first to trigger https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2952
 		// the test is made as negative because we can't execute the second class
