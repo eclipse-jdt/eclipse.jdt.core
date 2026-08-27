@@ -56,4 +56,5 @@ public interface AttributeNamesConstants {
 	// jep 359 records
 	final char[] RecordClass = "Record".toCharArray(); //$NON-NLS-1$
 	final char[] PermittedSubclasses = "PermittedSubclasses".toCharArray(); //$NON-NLS-1$
+	final char[] LoadableDescriptors = "LoadableDescriptors".toCharArray(); //$NON-NLS-1$
 }

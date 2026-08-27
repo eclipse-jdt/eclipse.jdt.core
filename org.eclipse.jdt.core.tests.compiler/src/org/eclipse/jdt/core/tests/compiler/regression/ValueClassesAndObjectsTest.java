@@ -612,4 +612,57 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				getCompilerOptions(true));
  	}
 
+    public void testEmissionOfLoadableDescriptors() throws Exception {
+    	runConformTest(
+    	           new String[] {
+    	               "X.java",
+    	               """
+						import java.lang.classfile.ClassFile;
+						import java.lang.classfile.ClassModel;
+						import java.lang.classfile.attribute.LoadableDescriptorsAttribute;
+						import java.net.URI;
+						import java.nio.file.Path;
+						import java.nio.file.Paths;
+
+						value class V1 {}
+						value class V2 {}
+						value class V3 {}
+						value class V4 {}
+						value class V5 {}
+						value class V6 {}
+						value class V7 {}
+    	                value class V8 {}
+
+						public class X {
+
+						    V1 v1 = new V1();
+						    V2[] v2a = null;
+						    java.util.ArrayList<V3> alv3 = null;
+
+						    <T extends V8> void foo(V4 v4, V5[] v5a, java.util.ArrayList<V6> alv6, T t) {
+						        V7 v7 = new V7();
+						    }
+
+
+						    public static void main(String[] args) throws Exception {
+						        Class<?> self = X.class;
+						        URI uri = self.getResource(self.getSimpleName() + ".class").toURI();
+						        Path classPath = Paths.get(uri);
+						        ClassModel classModel = ClassFile.of().parse(classPath);
+						        for (var attribute : classModel.attributes()) {
+						            if (attribute instanceof LoadableDescriptorsAttribute loadableAttr) {
+						                loadableAttr.loadableDescriptors().forEach(desc -> {
+						                    System.out.println(desc.stringValue());
+						                });
+						            }
+						        }
+						    }
+						}
+    	               """
+    	           },
+    	           "LV1;\n" +
+    	           "LV4;\n" +
+    	           "LV8;");
+    }
+
  }

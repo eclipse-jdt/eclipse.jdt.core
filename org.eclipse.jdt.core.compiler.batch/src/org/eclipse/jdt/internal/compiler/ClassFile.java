@@ -32,15 +32,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -104,6 +96,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	// that collection contains all the remaining bytes of the .class file
 	public int headerOffset;
 	public Map<TypeBinding, Boolean> innerClassesBindings;
+	public Set<Integer> loadableDescriptors = null;
 	public List<Object> bootstrapMethods = null;
 	public int methodCount;
 	public int methodCountOffset;
@@ -392,6 +385,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 			});
 			attributesNumber += generateInnerClassAttribute(numberOfInnerClasses, innerClasses);
 		}
+
+		int numberOfLoadableDescriptors = this.loadableDescriptors == null ? 0 : this.loadableDescriptors.size();
+		if (numberOfLoadableDescriptors != 0) {
+			attributesNumber += generateLoadableDescriptorsAttribute();
+		}
+
 		if (this.missingTypes != null) {
 			generateMissingTypesAttribute();
 			attributesNumber++;
@@ -619,6 +618,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[this.contentsOffset++] = (byte) nameIndex;
 		// Then the descriptorIndex
 		int descriptorIndex = this.constantPool.literalIndex(fieldBinding.type);
+		if (fieldBinding.type.isValueClass())
+			recordLoadableDescriptor(descriptorIndex);
 		this.contents[this.contentsOffset++] = (byte) (descriptorIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) descriptorIndex;
 		int fieldAttributeOffset = this.contentsOffset;
@@ -2747,6 +2748,45 @@ public class ClassFile implements TypeConstants, TypeIds {
 		nAttrs += generateNestHostAttribute();
 		return nAttrs;
 	}
+
+	private int generateLoadableDescriptorsAttribute() {
+		int localContentsOffset = this.contentsOffset;
+		int count = this.loadableDescriptors.size();
+		if (count == 0)
+			return 0;
+
+		int exSize = 8 + 2 * count;
+		if (exSize + localContentsOffset >= this.contents.length) {
+			resizeContents(exSize);
+		}
+		/*
+		 * LoadableDescriptors_attribute {
+    			u2 attribute_name_index;
+    			u4 attribute_length;
+    			u2 number_of_descriptors;
+    			u2 descriptors[number_of_descriptors];
+			}
+		 */
+		int attributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.LoadableDescriptors);
+		this.contents[localContentsOffset++] = (byte) (attributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) attributeNameIndex;
+		int value = (count << 1) + 2;
+		this.contents[localContentsOffset++] = (byte) (value >> 24);
+		this.contents[localContentsOffset++] = (byte) (value >> 16);
+		this.contents[localContentsOffset++] = (byte) (value >> 8);
+		this.contents[localContentsOffset++] = (byte) value;
+		this.contents[localContentsOffset++] = (byte) (count >> 8);
+		this.contents[localContentsOffset++] = (byte) count;
+
+		for (int descriptorIndex : this.loadableDescriptors) {
+			this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) descriptorIndex;
+		}
+		this.contentsOffset = localContentsOffset;
+		return 1;
+	}
+
 	private int generatePermittedSubclassesAttribute() {
 		int localContentsOffset = this.contentsOffset;
 		ReferenceBinding[] permittedTypes = this.referenceBinding.permittedTypes();
@@ -4411,6 +4451,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int descriptorIndex = this.constantPool.literalIndex(methodBinding.signature(this));
 		this.contents[this.contentsOffset++] = (byte) (descriptorIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) descriptorIndex;
+
+		for (TypeBinding parameterType : methodBinding.parameters) {
+			if (parameterType.isValueClass())
+				recordLoadableDescriptor(this.constantPool.literalIndex(parameterType));
+		}
 	}
 
 	public void addSyntheticDeserializeLambda(SyntheticMethodBinding methodBinding, SyntheticMethodBinding[] syntheticMethodBindings ) {
@@ -5959,6 +6004,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
+	public void recordLoadableDescriptor(Integer descriptorIndex) {
+		if (this.loadableDescriptors == null) {
+			this.loadableDescriptors = new LinkedHashSet<>();
+		}
+		this.loadableDescriptors.add(descriptorIndex);
+	}
+
 	public int recordBootstrapMethod(FunctionalExpression expression) {
 		if (this.bootstrapMethods == null) {
 			this.bootstrapMethods = new ArrayList<>();
@@ -6062,6 +6114,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		if (this.bootstrapMethods != null) {
 			this.bootstrapMethods.clear();
+		}
+		if (this.loadableDescriptors != null) {
+			this.loadableDescriptors.clear();
 		}
 		this.missingTypes = null;
 		this.visitedTypes = null;

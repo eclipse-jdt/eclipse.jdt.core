@@ -70,6 +70,11 @@ public int problemId() {
 	return ProblemReasons.NotFound;
 }
 
+@Override
+public boolean isValueClass() {
+	return false;
+}
+
 /**
  * Only used to fixup the superclass hierarchy of proxy binary types
  * @see LookupEnvironment#createMissingType(PackageBinding, char[][])

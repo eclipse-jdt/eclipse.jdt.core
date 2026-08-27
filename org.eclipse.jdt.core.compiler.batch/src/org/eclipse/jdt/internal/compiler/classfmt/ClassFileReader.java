@@ -405,7 +405,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 				readOffset += (6 + u4At(readOffset + 2));
 				continue;
 			}
-			switch(attributeName[0] ) {
+			switch (attributeName[0]) {
 				case 'E' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.EnclosingMethodName)) {
 						utf8Offset =
