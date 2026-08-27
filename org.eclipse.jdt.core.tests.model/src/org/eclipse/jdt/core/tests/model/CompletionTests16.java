@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 
 public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 
@@ -38,6 +39,13 @@ public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 		}
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		super.setUpSuite();
+		CompletionEngine.DEBUG = true;
+	}
+
+	@Override
+	public void tearDownSuite() throws Exception {
+		CompletionEngine.DEBUG = false;
+		super.tearDownSuite();
 	}
 
 	public static Test suite() {
