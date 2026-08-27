@@ -695,6 +695,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return false;
 	}
 
+	@Override
+	public boolean isValueClass() {
+		return this.superclass != null && this.superclass.isValueClass();
+	}
+
 
 	@Override
 	public ReferenceBinding[] permittedTypes() {
