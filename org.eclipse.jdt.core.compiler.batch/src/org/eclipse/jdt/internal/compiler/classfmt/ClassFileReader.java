@@ -898,16 +898,14 @@ public char[][][] getMissingTypeNames() {
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
- * Set the AccDeprecated and AccSynthetic bits if necessary
+ * Set the AccDeprecated, AccSynthetic and AccIdentity bits if necessary
  * @return int
  */
 @Override
 public int getModifiers() {
 	int modifiers;
 	if (this.innerInfo != null) {
-		modifiers = this.innerInfo.getModifiers()
-			| (this.accessFlags & ClassFileConstants.AccDeprecated)
-			| (this.accessFlags & ClassFileConstants.AccSynthetic);
+		modifiers = this.innerInfo.getModifiers() | (this.accessFlags & (ClassFileConstants.AccDeprecated | ClassFileConstants.AccSynthetic | ClassFileConstants.AccIdentity));
 	} else {
 		modifiers = this.accessFlags;
 	}
