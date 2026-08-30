@@ -640,32 +640,6 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		runner.runWarningTest();
     }
 
-    // test value records - snippet from JEP401
-    public void testValueRecord() {
-    	runConformTest(new String [] {
- 				"X.java",
- 				"""
- 				import java.util.Objects;
-
- 				public class X {
- 				    value record Point(int x, int y) {}
-
- 				    public static void main(String [] args) {
- 				    	Point p = new Point(17, 3);
- 				    	System.out.println(p);
- 				    	System.out.println(Objects.hasIdentity(p));
- 				    	System.out.println(new Point(17, 3) == p);
- 				    	System.out.println(new Point(17, 4) == p);
- 				    }
-
- 				}
- 				"""},
-    			"Point[x=17, y=3]\n" +
-				"false\n" +
-				"true\n" +
-				"false");
- 	}
-
     // Warn on finalize method, the garbage collector never invokes it
     public void testFinalizeMethod() {
     	runWarningTest(new String [] {
@@ -785,8 +759,199 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
         		"true");
     }
 
-    public void testInnerValueClass() {
-        throw new AssertionError("Not implemented");
+    // test value records - snippet from JEP401
+    public void testValueRecordWithSynthesizedCanonicalConstructor() {
+    	runConformTest(new String [] {
+ 				"X.java",
+ 				"""
+ 				import java.util.Objects;
+
+ 				public class X {
+ 				    value record Point(int x, int y) {}
+
+ 				    public static void main(String [] args) {
+ 				    	Point p = new Point(17, 3);
+ 				    	System.out.println(p);
+ 				    	System.out.println(Objects.hasIdentity(p));
+ 				    	System.out.println(new Point(17, 3) == p);
+ 				    	System.out.println(new Point(17, 4) == p);
+ 				    }
+
+ 				}
+ 				"""},
+    			"Point[x=17, y=3]\n" +
+				"false\n" +
+				"true\n" +
+				"false");
+ 	}
+
+    // test value record with compact constructor
+    public void testValueRecordWithCompactConstructor() {
+        runConformTest(new String [] {
+                "Point.java",
+                """
+				public value record Point(int x, int y) {
+
+					public Point {
+						System.out.println(x);
+						System.out.println(y);
+					}
+					public static void main(String[] args) {
+						Point p1 = new Point (1024, 1024);
+						System.out.println(p1);
+						Point p2 = new Point(512, 512);
+						System.out.println(p2);
+						System.out.println(p1 == p2);
+					}
+				}
+                """},
+        		"1024\n" +
+				"1024\n" +
+				"Point[x=1024, y=1024]\n" +
+				"512\n" +
+				"512\n" +
+				"Point[x=512, y=512]\n" +
+				"false");
+    }
+
+    // test value record with broken constructor
+    public void testValueRecordWithExpressBrokenConstructor() {
+        runNegativeTest(new String [] {
+                "Point.java",
+                """
+				public value record Point(int x, int y) {
+
+					public Point(int x, int y) {
+						System.out.println(x);
+						System.out.println(y);
+					}
+					public static void main(String[] args) {
+						Point p1 = new Point (1024, 1024);
+						System.out.println(p1);
+						Point p2 = new Point(512, 512);
+						System.out.println(p2);
+						System.out.println(p1 == p2);
+					}
+				}
+                """},
+        		"----------\n" +
+				"1. WARNING in Point.java (at line 1)\r\n" +
+				"	public value record Point(int x, int y) {\r\n" +
+				"	       ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. ERROR in Point.java (at line 3)\r\n" +
+				"	public Point(int x, int y) {\r\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^\n" +
+				"The blank final field x may not have been initialized\n" +
+				"----------\n" +
+				"3. ERROR in Point.java (at line 3)\r\n" +
+				"	public Point(int x, int y) {\r\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^\n" +
+				"The blank final field y may not have been initialized\n" +
+				"----------\n");
+    }
+
+    // test value class constructor calling super before all fields are initialized
+    public void _testValueClassTooEagerSuper() {
+        runNegativeTest(new String [] {
+                "Point.java",
+                """
+				public value class Point {
+
+					int x;
+					int y;
+
+					public Point(int x, int y) {
+						this.x = x;
+						super();
+						//this.y = y;
+					}
+					public static void main(String[] args) {
+						Point p1 = new Point (1024, 1024);
+						Point p2 = new Point(512, 512);
+						System.out.println(p1 == p2);
+					}
+				}
+                """},
+        		"----------\n" +
+				"1. WARNING in Point.java (at line 1)\r\n" +
+				"	public value record Point(int x, int y) {\r\n" +
+				"	       ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. ERROR in Point.java (at line 3)\r\n" +
+				"	public Point(int x, int y) {\r\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^\n" +
+				"The blank final field x may not have been initialized\n" +
+				"----------\n" +
+				"3. ERROR in Point.java (at line 3)\r\n" +
+				"	public Point(int x, int y) {\r\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^\n" +
+				"The blank final field y may not have been initialized\n" +
+				"----------\n");
+    }
+
+    // test value record with explicit constructor
+    public void testValueRecordWithExpressConstructor() {
+        runConformTest(new String [] {
+                "Point.java",
+                """
+				public value record Point(int x, int y) {
+					public Point(int x, int y) {
+						System.out.println(x);
+						System.out.println(y);
+						this.x = x;
+						this.y = y;
+					}
+					public static void main(String[] args) {
+						Point p1 = new Point (1024, 1024);
+						System.out.println(p1);
+						Point p2 = new Point(512, 512);
+						System.out.println(p2);
+						System.out.println(p1 == p2);
+					}
+				}
+                """},
+        		"1024\n" +
+				"1024\n" +
+				"Point[x=1024, y=1024]\n" +
+				"512\n" +
+				"512\n" +
+				"Point[x=512, y=512]\n" +
+				"false");
+    }
+
+    public void _testInnerValueClass() {
+        runConformTest(new String [] {
+                "X.java",
+                """
+                public class X {
+					public value class Point {
+					    int x;
+					    int y;
+						public Point(int x, int y) {
+							this.x = x;
+							this.y = y;
+						}
+					public static void main(String[] args) {
+						X x = new X();
+						Point p1 = x.new Point (1024, 1024);
+						System.out.println(p1);
+						Point p2 = new X().new Point(1024, 1024);
+						System.out.println(p1 == p2);
+						Point p3 = x.new Point(1024, 1024);
+						System.out.println(p1 == p3);
+					}
+				}
+                """},
+        		"1024\n" +
+				"1024\n" +
+				"Point[x=1024, y=1024]\n" +
+				"512\n" +
+				"512\n" +
+				"Point[x=512, y=512]\n" +
+				"false");
     }
 
  }
