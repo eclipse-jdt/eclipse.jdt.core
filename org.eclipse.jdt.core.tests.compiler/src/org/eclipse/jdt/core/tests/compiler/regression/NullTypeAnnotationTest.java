@@ -12660,7 +12660,7 @@ public void testBug489978() {
 		""
 	);
 }
-public void testBug489245() {
+public void testBug489245_info() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.INFO);
 	runWarningTestWithLibs(
@@ -12687,7 +12687,8 @@ public void testBug489245() {
 			"\n" +
 			"	static <T> void h(@NonNull T t) {\n" +
 			"		get(() -> {\n" +
-			"			return null; // correctly reported (but twice with the bug)\n" +
+			"			T tmp = null; // correctly reported (but twice with the bug)\n" +
+			"			return tmp;\n" +
 			"		}, t);\n" +
 			"	}\n" +
 			"}\n" +
@@ -12696,10 +12697,47 @@ public void testBug489245() {
 		compilerOptions,
 		"----------\n" +
 		"1. INFO in test\\TestBogusProblemReportOnlyAsInfo.java (at line 21)\n" +
-		"	return null; // correctly reported (but twice with the bug)\n" +
-		"	       ^^^^\n" +
+		"	T tmp = null; // correctly reported (but twice with the bug)\n" +
+		"	        ^^^^\n" +
 		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" +
 		"----------\n"
+	);
+}
+public void testBug489245_improvedNullInference() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.INFO);
+	runConformTestWithLibs(
+		true/*flush*/,
+		new String[] {
+			"test/TestBogusProblemReportOnlyAsInfo.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class TestBogusProblemReportOnlyAsInfo {\n" +
+			"	static <U> void get(Supplier<U> supplier, @NonNull U defaultValue) {\n" +
+			"	}\n" +
+			"\n" +
+			"	static void f() {\n" +
+			"		get(() -> {\n" +
+			"			return null; // bogus problem report only as info\n" +
+			"		}, \"\");\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T> void h(@NonNull T t) {\n" +
+			"		get(() -> {\n" +
+			"			return null; // no longer a problem with improved null inference\n" +
+			"		}, t);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		},
+		compilerOptions,
+		""
 	);
 }
 public void testBug489674() {
@@ -20269,6 +20307,30 @@ public void testGH5316() throws Exception {
 				private Map<String, String> aTotallyNormalMap;
 			}
 			"""
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testGH5340() throws Exception {
+	runConformTestWithLibs(new String[] {
+		"X.java",
+		"""
+		import org.eclipse.jdt.annotation.*;
+		import java.util.*;
+		import java.util.stream.*;
+		public class X {
+			void test(String[] array) {
+				List<@NonNull Object> tokens = Arrays.stream(array)
+					.map(string -> {
+							if (string.isEmpty())
+								return null;
+							return new Object();
+						})
+					.filter(Objects::nonNull)
+					.collect(Collectors.toList());
+			}
+		}
+		"""
 		},
 		getCompilerOptions(),
 		"");

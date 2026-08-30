@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2025 GK Software AG, and others
+ * Copyright (c) 2013, 2026 GK Software AG, and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -253,10 +253,16 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				return TRUE;
 			return FALSE;
 		}
-		if (subCandidate.id == TypeIds.T_null)
+		if (subCandidate.id == TypeIds.T_null) {
+			if (superCandidate instanceof InferenceVariable ivar && scope.environment().usesNullTypeAnnotations())
+				ivar.nullHints |= TagBits.AnnotationNullable;
 			return TRUE;
-		if (superCandidate.id == TypeIds.T_null)
+		}
+		if (superCandidate.id == TypeIds.T_null) {
+			if (subCandidate instanceof InferenceVariable ivar && scope.environment().usesNullTypeAnnotations())
+				ivar.nullHints |= TagBits.AnnotationNullable;
 			return FALSE;
+		}
 		if (subCandidate instanceof InferenceVariable)
 			return new TypeBound((InferenceVariable)subCandidate, superCandidate, SUBTYPE, this.isSoft);
 		if (superCandidate instanceof InferenceVariable)
