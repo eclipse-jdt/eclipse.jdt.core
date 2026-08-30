@@ -76,6 +76,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("28");
+		runner.vmArguments = VMARGS;
 		runner.runWarningTest();
 	}
 
@@ -417,32 +418,92 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				}
  				"""},
     			"----------\n" +
-				"1. ERROR in X.java (at line 42)\n" +
+				"1. WARNING in X.java (at line 4)\n" +
+				"	value class V1 {} // implicit extension of jlO\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 5)\n" +
+				"	abstract value class V2 extends Object {} // explicit extension of jlO\n" +
+				"	         ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 6)\n" +
+				"	value class V3 extends java.lang.Object {} // explicit extension of explicitly spelled out jlO\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 7)\n" +
+				"	value class V4 extends java.lang.Number { // concrete extension of abstract value class\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"5. WARNING in X.java (at line 31)\n" +
+				"	abstract value class V5 extends Number { // abstract extension of abstract value class\n" +
+				"	         ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"6. WARNING in X.java (at line 35)\n" +
+				"	value class V6 implements java.io.Serializable { // A value class may implement interfaces\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"7. WARNING in X.java (at line 39)\n" +
+				"	value record VPoint(int x, int y) {} // Legal value record\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"8. WARNING in X.java (at line 42)\n" +
+				"	value class V7 extends String {} // cannot subclass concrete identity class\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"9. ERROR in X.java (at line 42)\n" +
 				"	value class V7 extends String {} // cannot subclass concrete identity class\n" +
 				"	                       ^^^^^^\n" +
 				"The type V7 cannot subclass the final class String\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 43)\n" +
+				"10. WARNING in X.java (at line 43)\n" +
+				"	value class V8 extends java.util.Map<String, String> {} // a super class must be a class\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"11. ERROR in X.java (at line 43)\n" +
 				"	value class V8 extends java.util.Map<String, String> {} // a super class must be a class\n" +
 				"	                       ^^^^^^^^^^^^^\n" +
 				"The type Map<String,String> cannot be the superclass of V8; a superclass must be a class\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 44)\n" +
+				"12. WARNING in X.java (at line 44)\n" +
+				"	value class V9 extends java.io.InputStream { // cannot subclass abstract identity class\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"13. ERROR in X.java (at line 44)\n" +
 				"	value class V9 extends java.io.InputStream { // cannot subclass abstract identity class\n" +
 				"	                       ^^^^^^^^^^^^^^^^^^^\n" +
 				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 50)\n" +
+				"14. WARNING in X.java (at line 50)\n" +
+				"	value class V10 extends V3 {} // cannot subclass a concrete value class\n" +
+				"	^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"15. ERROR in X.java (at line 50)\n" +
 				"	value class V10 extends V3 {} // cannot subclass a concrete value class\n" +
 				"	                        ^^\n" +
 				"The type V10 cannot subclass the final class V3\n" +
 				"----------\n" +
-				"5. ERROR in X.java (at line 51)\n" +
+				"16. ERROR in X.java (at line 51)\n" +
 				"	class I2 extends V1 {} // identity class cannot subclass a concrete value class.\n" +
 				"	                 ^^\n" +
 				"The type I2 cannot subclass the final class V1\n" +
 				"----------\n" +
-				"6. ERROR in X.java (at line 52)\n" +
+				"17. WARNING in X.java (at line 52)\n" +
+				"	abstract value class V11 extends java.util.ArrayList<String> { // abstract value class may not subclass concrete identity class\n" +
+				"	         ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"18. ERROR in X.java (at line 52)\n" +
 				"	abstract value class V11 extends java.util.ArrayList<String> { // abstract value class may not subclass concrete identity class\n" +
 				"	                                 ^^^^^^^^^^^^^^^^^^^\n" +
 				"A value class may extend either java.lang.Object or an abstract value class, but not an identity class\n" +
@@ -459,8 +520,13 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
                    static synchronized void goo() {} // ok.
                }
                """},
-                   "----------\n" +
-               "1. ERROR in X.java (at line 2)\n" +
+    		   "----------\n" +
+			   "1. WARNING in X.java (at line 1)\n" +
+			   "	public value class X {\n" +
+			   "	       ^^^^^\n" +
+			   "You are using a preview language feature that may or may not be supported in a future release\n" +
+			   "----------\n" +
+               "2. ERROR in X.java (at line 2)\n" +
                "	synchronized void foo() {} // error - no lock\n" +
                "	                  ^^^^^\n" +
                "A value class may not declare a synchronized instance method\n" +
@@ -485,18 +551,24 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
                    }
                }
                """},
+    		   "----------\n" +
+			   "1. WARNING in X.java (at line 1)\n" +
+			   "	public value class X {\n" +
+			   "	       ^^^^^\n" +
+			   "You are using a preview language feature that may or may not be supported in a future release\n" +
+			   "----------\n" +
                "----------\n" +
-               "1. ERROR in X.java (at line 5)\n" +
+               "2. ERROR in X.java (at line 5)\n" +
                "	X() {\n" +
                "	^^^\n" +
                "The blank final field y may not have been initialized\n" +
                "----------\n" +
-               "2. ERROR in X.java (at line 9)\n" +
+               "3. ERROR in X.java (at line 9)\n" +
                "	x++; // error\n" +
                "	^\n" +
                "The final field X.x cannot be assigned\n" +
                "----------\n" +
-               "3. ERROR in X.java (at line 11)\n" +
+               "4. ERROR in X.java (at line 11)\n" +
                "	y = 123; // error\n" +
                "	^\n" +
                "The final field X.y cannot be assigned\n" +
@@ -523,7 +595,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
            },
            "Ok!");
        String expectedOutput =
-               "// Compiled from X.java (version 28 : 72.0, no super bit)\n" + // why is preview flag missing ??
+               "// Compiled from X.java (version 28 : 72.65535, no super bit)\n" + // why is preview flag missing ??
                "public final class X {\n" +
                "  Constant pool:\n";
        verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -601,10 +673,18 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
  				"""
  				public value class X {
  				    public void finalize() {}
+ 				    public static void main(String [] args) {
+ 				        System.out.println("Ok!");
+			        }
  				}
  				"""},
     			"----------\n" +
-				"1. WARNING in X.java (at line 2)\n" +
+				"1. WARNING in X.java (at line 1)\n" +
+				"	public value class X {\n" +
+				"	       ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 2)\n" +
 				"	public void finalize() {}\n" +
 				"	            ^^^^^^^^^^\n" +
 				"The finalize method is useless in a value class\n" +
@@ -663,6 +743,50 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
     	           "LV1;\n" +
     	           "LV4;\n" +
     	           "LV8;");
+    }
+
+    // test value class that cannot be a record - snippet from JEP401
+    public void testValueClassThatCannotBeRecord() {
+        runConformTest(new String [] {
+                "EURCurrency.java",
+                """
+                public value class EURCurrency {
+
+                    private long cs;  // implicitly final
+
+                    private EURCurrency(long cs) { this.cs = cs; }
+
+                    public EURCurrency(long e, int c, boolean neg) {
+                        this(neg ? -e * 100 - c : e * 100 + c);
+                    }
+
+                    public EURCurrency(long e, int c) { this(e, c, false); }
+
+                    public long euros() { return Math.abs(cs) / 100; }
+                    public int cents() { return (int) Math.abs(cs) % 100; }
+                    public boolean negative() { return cs < 0; }
+
+                    public String toString() {
+                        var prefix = negative() ? "-" : "";
+                        return "%s%d,%d".formatted(prefix, euros(), cents());
+                    }
+
+                    public static void main(String [] args) {
+                        EURCurrency e1 = new EURCurrency(237);
+                        System.out.println(e1);
+                        EURCurrency e2 = new EURCurrency(2, 37);
+                        System.out.println(e2);
+                        System.out.println(e1 == e2);
+                    }
+                }
+                """},
+        		"2,37\n" +
+				"2,37\n" +
+        		"true");
+    }
+
+    public void testInnerValueClass() {
+        throw new AssertionError("Not implemented");
     }
 
  }

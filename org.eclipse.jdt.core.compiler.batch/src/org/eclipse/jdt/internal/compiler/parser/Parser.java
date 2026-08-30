@@ -9326,6 +9326,7 @@ protected void consumeToken(TerminalToken type) {
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNameRestrictedIdentifiervalue :
+			problemReporter().validateJavaFeatureSupport(JavaFeature.VALUE_CLASSES_AND_OBJECTS, this.scanner.startPosition, this.scanner.currentPosition - 1);
 			checkAndSetModifiers(ExtraCompilerModifiers.AccValue);
 			pushOnExpressionStackLengthStack(0);
 			break;

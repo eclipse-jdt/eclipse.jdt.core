@@ -545,7 +545,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 
 		// generate constructor call
-		if (this.constructorCall != null) {
+		if (!declaringClass.isValueClass() && this.constructorCall != null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
 		}
 		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
@@ -568,6 +568,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 					generateFieldInitializations(declaringType, codeStream, initializerScope);
 				}
 			}
+		}
+		if (declaringClass.isValueClass() && this.constructorCall != null) {
+			this.constructorCall.generateCode(this.scope, codeStream);
 		}
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (this.ignoreFurtherInvestigation) {
