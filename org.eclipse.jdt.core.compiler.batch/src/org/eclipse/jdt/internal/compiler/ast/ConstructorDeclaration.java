@@ -569,9 +569,6 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				}
 			}
 		}
-		if (declaringClass.isValueClass() && this.constructorCall != null) {
-			this.constructorCall.generateCode(this.scope, codeStream);
-		}
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (this.ignoreFurtherInvestigation) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
@@ -586,6 +583,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 					codeStream.load(parameter);
 					codeStream.fieldAccess(Opcodes.OPC_putfield, field, classScope.referenceContext.binding);
 				}
+			}
+			if (declaringClass.isValueClass() && this.constructorCall != null) {
+				this.constructorCall.generateCode(this.scope, codeStream);
 			}
 			codeStream.return_();
 		}
