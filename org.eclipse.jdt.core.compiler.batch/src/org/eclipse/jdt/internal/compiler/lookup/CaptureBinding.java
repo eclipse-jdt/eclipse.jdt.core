@@ -160,6 +160,11 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 	}
 
+	/** Answer whether {@link #initializeBounds(Scope, ParameterizedTypeBinding)} has already been performed for this capture. */
+	public boolean isBoundsInitialized() {
+		return this.boundsInitialized;
+	}
+
 	/**
 	 * Initialize capture bounds using substituted supertypes e.g. given
 	 * {@code X<U, V extends X<U, V>>, capture(X<E,?>) = X<E,capture>,} where {@code capture extends X<E,capture>}
