@@ -2593,6 +2593,84 @@ public void testIssue5214() {
 			+ "The method isRelevant(X.Child<X.A>) from the type X is never used locally\n"
 			+ "----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5342
+public void testGH5342() {
+	runConformTest(new String[] {"NullSafeComparableComparator.java",
+			"""
+			import java.io.Serializable;
+			import java.util.Comparator;
+
+			public class NullSafeComparableComparator<T> implements Comparator<T>, Serializable {
+			    private static final long serialVersionUID = 1L;
+
+			    @Override
+			    @SuppressWarnings({ "unchecked", "rawtypes" })
+			    public int compare(T o1, T o2) {
+			        Comparable<T> c1 = (Comparable<T>)o1;
+			        Comparable<T> c2 = (Comparable<T>)o2;
+			        return Comparator.nullsFirst(Comparator.<Comparable> naturalOrder()).compare(c1, c2);
+			    }
+			}
+			"""});
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5342
+public void testGH5342b() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {"NullSafeComparableComparator.java",
+			"""
+			import java.io.Serializable;
+			import java.util.Comparator;
+
+			public class NullSafeComparableComparator<T> implements Comparator<T>, Serializable {
+			    private static final long serialVersionUID = 1L;
+
+			    @Override
+			    public int compare(T o1, T o2) {
+			        Comparable<T> c1 = (Comparable<T>)o1;
+			        Comparable<T> c2 = (Comparable<T>)o2;
+			        return Comparator.nullsFirst(Comparator.<Comparable> naturalOrder()).compare(c1, c2);
+			    }
+			}
+			"""};
+	runner.expectedCompilerLog =
+			"----------\n"
+			+ "1. WARNING in NullSafeComparableComparator.java (at line 9)\n"
+			+ "	Comparable<T> c1 = (Comparable<T>)o1;\n"
+			+ "	                   ^^^^^^^^^^^^^^^^^\n"
+			+ "Type safety: Unchecked cast from T to Comparable<T>\n"
+			+ "----------\n"
+			+ "2. WARNING in NullSafeComparableComparator.java (at line 10)\n"
+			+ "	Comparable<T> c2 = (Comparable<T>)o2;\n"
+			+ "	                   ^^^^^^^^^^^^^^^^^\n"
+			+ "Type safety: Unchecked cast from T to Comparable<T>\n"
+			+ "----------\n"
+			+ "3. WARNING in NullSafeComparableComparator.java (at line 11)\n"
+			+ "	return Comparator.nullsFirst(Comparator.<Comparable> naturalOrder()).compare(c1, c2);\n"
+			+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+			+ "Type safety: Unchecked invocation nullsFirst(Comparator) of the generic method nullsFirst(Comparator<? super T>) of type Comparator\n"
+			+ "----------\n"
+			+ "4. WARNING in NullSafeComparableComparator.java (at line 11)\n"
+			+ "	return Comparator.nullsFirst(Comparator.<Comparable> naturalOrder()).compare(c1, c2);\n"
+			+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+			+ "Type safety: The method compare(Object, Object) belongs to the raw type Comparator. References to generic type Comparator<T> should be parameterized\n"
+			+ "----------\n"
+			+ "5. WARNING in NullSafeComparableComparator.java (at line 11)\n"
+			+ "	return Comparator.nullsFirst(Comparator.<Comparable> naturalOrder()).compare(c1, c2);\n"
+			+ "	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+			+ "Type safety: Unchecked invocation naturalOrder() of the generic method naturalOrder() of type Comparator\n"
+			+ "----------\n"
+			+ "6. WARNING in NullSafeComparableComparator.java (at line 11)\n"
+			+ "	return Comparator.nullsFirst(Comparator.<Comparable> naturalOrder()).compare(c1, c2);\n"
+			+ "	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+			+ "Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super Object>\n"
+			+ "----------\n"
+			+ "7. WARNING in NullSafeComparableComparator.java (at line 11)\n"
+			+ "	return Comparator.nullsFirst(Comparator.<Comparable> naturalOrder()).compare(c1, c2);\n"
+			+ "	                                         ^^^^^^^^^^\n"
+			+ "Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n"
+			+ "----------\n";
+	runner.runWarningTest();
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
