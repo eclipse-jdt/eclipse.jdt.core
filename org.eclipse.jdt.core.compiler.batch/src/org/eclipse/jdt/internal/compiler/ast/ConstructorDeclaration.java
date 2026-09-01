@@ -30,6 +30,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.All;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.FieldsOnly;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.InitializersOnly;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -534,7 +538,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		codeStream.pushPatternAccessTrapScope(this.scope);
 		boolean needFieldInitializations = this.constructorCall == null || this.constructorCall.accessMode != ExplicitConstructorCall.This;
 
-		// post 1.4 target level, synthetic initializations occur prior to explicit constructor call
+		// Synthetic initializations occur prior to explicit constructor call
 		if (needFieldInitializations){
 			generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
@@ -546,7 +550,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 
 		// generate constructor call
 		if (this.constructorCall != null) {
-			if (!declaringClass.isValueClass())
+			if (!declaringClass.isValueClass()) // wait until field initializations for value class
 				this.constructorCall.generateCode(this.scope, codeStream);
 		}
 		final ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
@@ -554,26 +558,27 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (needFieldInitializations) {
 			if (lateConstructorCall == null) {
 				// traditionally field inits are generated before explicit statements
-				generateFieldInitializations(declaringType, codeStream, initializerScope);
+				generateFieldInitializations(declaringType, codeStream, initializerScope, declaringClass.isValueClass() ? FieldsOnly : All);
 			}
 		}
 		if (this.constructorCall != null && !this.constructorCall.isImplicitSuper() && declaringClass.isValueClass()) {
 			this.constructorCall.generateCode(this.scope, codeStream);
+			generateFieldInitializations(declaringType, codeStream, initializerScope, InitializersOnly);
 		}
 		// generate statements
 		if (this.statements != null) {
 			for (Statement statement : this.statements) {
 				if (lateConstructorCall == statement && lateConstructorCall.accessMode != ExplicitConstructorCall.This && declaringClass.isValueClass()) {
 					// with JEP 401 (value classes) involved field inits are generated *before* chaining to super constructor
-					generateFieldInitializations(declaringType, codeStream, initializerScope);
+					generateFieldInitializations(declaringType, codeStream, initializerScope, FieldsOnly);
 				}
 				statement.generateCode(this.scope, codeStream);
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
-				if (lateConstructorCall == statement && lateConstructorCall.accessMode != ExplicitConstructorCall.This && !declaringClass.isValueClass()) {
+				if (lateConstructorCall == statement && lateConstructorCall.accessMode != ExplicitConstructorCall.This) {
 					// with JEP 492 (Flexible Constructor Bodies) involved field inits are generated only *after* the explicit constructor for identity classes
-					generateFieldInitializations(declaringType, codeStream, initializerScope);
+					generateFieldInitializations(declaringType, codeStream, initializerScope, declaringClass.isValueClass() ? InitializersOnly : All);
 				}
 			}
 		}
@@ -594,6 +599,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			}
 			if (this.constructorCall != null && this.constructorCall.isImplicitSuper() && declaringClass.isValueClass()) {
 				this.constructorCall.generateCode(this.scope, codeStream);
+				generateFieldInitializations(declaringType, codeStream, initializerScope, InitializersOnly);
 			}
 			codeStream.return_();
 		}
@@ -617,11 +623,22 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 	}
 	classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 }
-private void generateFieldInitializations(TypeDeclaration declaringType, CodeStream codeStream, MethodScope initializerScope) {
+
+enum FieldInitializationMode {
+	All,
+	FieldsOnly,
+	InitializersOnly,
+}
+private void generateFieldInitializations(TypeDeclaration declaringType, CodeStream codeStream, MethodScope initializerScope, FieldInitializationMode initializationMode) {
 	if (declaringType.fields != null) {
 		for (FieldDeclaration field : declaringType.fields) {
-			if (!field.isStatic())
+			if (!field.isStatic()) {
+				if (initializationMode == FieldsOnly && field instanceof Initializer)
+					continue;
+				if (initializationMode == InitializersOnly && !(field instanceof Initializer))
+					continue;
 				field.generateCode(initializerScope, codeStream);
+			}
 		}
 	}
 }
@@ -802,7 +819,7 @@ public void resolveStatements() {
 		} else {
 			this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
 			if (getLateConstructorCall() != null) {
-				this.constructorCall = null; // not used with JEP 513, conversely, constructorCall!=null signals no JEP 513 context
+				this.constructorCall = null; // not used with JEP 513, conversely, constructorCall != null signals no JEP 513 context
 			} else {
 				this.constructorCall.resolve(this.scope);
 			}

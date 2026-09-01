@@ -986,6 +986,142 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"In X Ctor Epilogue");
     }
 
+    // test constructor chaining
+    public void testConstructorChaining_3() {
+        runConformTest(new String [] {
+                "X.java",
+                """
+				abstract value class Base {
+				    Base() {
+				        System.out.println("In Super Constructor");
+				    }
+				}
+
+				public value class X extends Base {
+
+				    final int x = 5;
+				    final int y = 10;
+				    final int z = 15;
+
+				    {
+				        System.out.println("In Initializer block");
+				    }
+
+				    X() {
+				        System.out.println("In X Ctor Prologue");
+				        super();
+				        System.out.println("In X Ctor Epilogue");
+				    }
+
+				    public static void main(String[] args) {
+				        new X();
+				    }
+				}
+                """},
+        		"In X Ctor Prologue\n" +
+				"In Super Constructor\n" +
+				"In Initializer block\n" +
+				"In X Ctor Epilogue");
+    }
+
+    // test constructor chaining
+    public void testConstructorChaining_4() {
+        runConformTest(new String [] {
+                "X.java",
+                """
+				abstract value class Base {
+				    Base() {
+				        System.out.println("In Super Constructor");
+				    }
+				}
+
+				public value class X extends Base {
+
+				    final int x = 5;
+				    final int y = 10;
+				    final int z = 15;
+
+				    {
+				        System.out.println("In Initializer block");
+				    }
+
+				    X() {
+				        System.out.println("In X Ctor Prologue");
+				    }
+
+				    public static void main(String[] args) {
+				        new X();
+				    }
+				}
+                """},
+        		"In X Ctor Prologue\n" +
+				"In Super Constructor\n" +
+				"In Initializer block");
+    }
+
+    // test constructor chaining
+    public void testConstructorChaining_5() {
+        runConformTest(new String [] {
+                "X.java",
+                """
+				abstract value class Base {
+				    Base() {
+				        System.out.println("In Super Constructor");
+				    }
+				}
+
+				public value class X extends Base {
+
+				    final int x = 5;
+				    final int y = 10;
+				    final int z = 15;
+
+				    {
+				        System.out.println("In Initializer block");
+				    }
+
+				    X() {
+				        super();
+				        System.out.println("In X Epilogue block");
+
+				    }
+
+				    public static void main(String[] args) {
+				        new X();
+				    }
+				}
+                """},
+        		"In Super Constructor\n" +
+				"In Initializer block\n" +
+				"In X Epilogue block");
+    }
+
+    // Disallow return in constructor prologue
+    public void _testReturnFromPrologue() {
+        runConformTest(new String [] {
+                "X.java",
+                """
+				public value class X  {
+
+					final int x = 5;
+					final int y = 10;
+					final int z = 15;
+
+					X() {
+						System.out.println("In X Ctor");
+						return;
+					}
+
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+                """},
+        		"In X Ctor Prologue\n" +
+        		"In Super Ctor\n" +
+				"In X Ctor Epilogue");
+    }
+
     public void _testInnerValueClass() {
         runConformTest(new String [] {
                 "X.java",
