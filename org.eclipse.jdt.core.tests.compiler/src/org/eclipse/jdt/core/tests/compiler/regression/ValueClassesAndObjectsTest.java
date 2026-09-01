@@ -922,6 +922,70 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"false");
     }
 
+    // test constructor chaining
+    public void testConstructorChaining() {
+        runConformTest(new String [] {
+                "X.java",
+                """
+				abstract value class Base {
+					Base() {
+						System.out.println("In Super Ctor");
+					}
+				}
+
+				public value class X extends Base {
+
+					final int x = 5;
+					final int y = 10;
+					final int z = 15;
+
+					X() {
+						super();
+						System.out.println("In X Ctor Epilogue");
+					}
+
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+                """},
+        		"In Super Ctor\n" +
+				"In X Ctor Epilogue");
+    }
+
+    // test constructor chaining
+    public void testConstructorChaining_2() {
+        runConformTest(new String [] {
+                "X.java",
+                """
+				abstract value class Base {
+					Base() {
+						System.out.println("In Super Ctor");
+					}
+				}
+
+				public value class X extends Base {
+
+					final int x = 5;
+					final int y = 10;
+					final int z = 15;
+
+					X() {
+					    System.out.println("In X Ctor Prologue");
+						super();
+						System.out.println("In X Ctor Epilogue");
+					}
+
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+                """},
+        		"In X Ctor Prologue\n" +
+        		"In Super Ctor\n" +
+				"In X Ctor Epilogue");
+    }
+
     public void _testInnerValueClass() {
         runConformTest(new String [] {
                 "X.java",
