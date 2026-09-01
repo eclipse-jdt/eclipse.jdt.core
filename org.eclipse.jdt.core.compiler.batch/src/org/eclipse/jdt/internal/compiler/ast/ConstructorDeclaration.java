@@ -545,10 +545,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 
 		// generate constructor call
-		if (!declaringClass.isValueClass() && this.constructorCall != null) {
-			this.constructorCall.generateCode(this.scope, codeStream);
+		if (this.constructorCall != null) {
+			if (!declaringClass.isValueClass())
+				this.constructorCall.generateCode(this.scope, codeStream);
 		}
-		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
+		final ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
 		// generate field initialization - only if not invoking another constructor call of the same class
 		if (needFieldInitializations) {
 			if (lateConstructorCall == null) {
@@ -556,15 +557,22 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				generateFieldInitializations(declaringType, codeStream, initializerScope);
 			}
 		}
+		if (this.constructorCall != null && !this.constructorCall.isImplicitSuper() && declaringClass.isValueClass()) {
+			this.constructorCall.generateCode(this.scope, codeStream);
+		}
 		// generate statements
 		if (this.statements != null) {
 			for (Statement statement : this.statements) {
+				if (lateConstructorCall == statement && lateConstructorCall.accessMode != ExplicitConstructorCall.This && declaringClass.isValueClass()) {
+					// with JEP 401 (value classes) involved field inits are generated *before* chaining to super constructor
+					generateFieldInitializations(declaringType, codeStream, initializerScope);
+				}
 				statement.generateCode(this.scope, codeStream);
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
-				if (lateConstructorCall == statement && lateConstructorCall.accessMode != ExplicitConstructorCall.This) {
-					// with JEP 492 (Flexible Constructor Bodies) involved field inits are generated only *after* the explicit constructor
+				if (lateConstructorCall == statement && lateConstructorCall.accessMode != ExplicitConstructorCall.This && !declaringClass.isValueClass()) {
+					// with JEP 492 (Flexible Constructor Bodies) involved field inits are generated only *after* the explicit constructor for identity classes
 					generateFieldInitializations(declaringType, codeStream, initializerScope);
 				}
 			}
@@ -584,7 +592,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 					codeStream.fieldAccess(Opcodes.OPC_putfield, field, classScope.referenceContext.binding);
 				}
 			}
-			if (declaringClass.isValueClass() && this.constructorCall != null) {
+			if (this.constructorCall != null && this.constructorCall.isImplicitSuper() && declaringClass.isValueClass()) {
 				this.constructorCall.generateCode(this.scope, codeStream);
 			}
 			codeStream.return_();
@@ -685,12 +693,12 @@ public boolean isRecursive(ArrayList visited) {
 
 @Override
 public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
-	//fill up the constructor body with its statements
+	// fill up the constructor body with its statements
 	if (this.isCompactConstructor()) {
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		this.constructorCall.sourceStart = this.sourceStart;
 		this.constructorCall.sourceEnd = this.sourceEnd;
-	} else if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null){
+	} else if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null) {
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		this.constructorCall.sourceStart = this.sourceStart;
 		this.constructorCall.sourceEnd = this.sourceEnd;
