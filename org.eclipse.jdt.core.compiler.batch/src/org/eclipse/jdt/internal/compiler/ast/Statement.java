@@ -482,6 +482,10 @@ public boolean isEmptyBlock() {
 	return false;
 }
 
+public boolean isImplicitSuper() {
+	return false;
+}
+
 // for switch statement
 public boolean isTrulyExpression() {
 	return false;

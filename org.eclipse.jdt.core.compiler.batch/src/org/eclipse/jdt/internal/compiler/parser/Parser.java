@@ -2827,63 +2827,30 @@ protected void consumeConstructorDeclaration() {
 
 	//statements
 	this.realBlockPtr--;
-	ExplicitConstructorCall constructorCall = null;
-	Statement[] statements = null;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.astPtr -= length;
-		if (!this.options.ignoreMethodBodies) {
-			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall explicitCall) {
-				//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
-				System.arraycopy(
-					this.astStack,
-					this.astPtr + 2,
-					statements = new Statement[length - 1],
-					0,
-					length - 1);
-				constructorCall = explicitCall;
-			} else { //need to add explicitly the super();
-				System.arraycopy(
-					this.astStack,
-					this.astPtr + 1,
-					statements = new Statement[length],
-					0,
-					length);
-				constructorCall = SuperReference.implicitSuperConstructorCall();
-			}
-		}
-	} else {
-		boolean insideFieldInitializer = false;
-		if (this.diet) {
-			for (int i = this.nestedType; i > 0; i--){
-				if (this.variablesCounter[i] > 0) {
-					insideFieldInitializer = true;
-					break;
-				}
-			}
-		}
-
-		if (!this.options.ignoreMethodBodies) {
-			if (!this.diet || insideFieldInitializer){
-				// add it only in non-diet mode, if diet_bodies, then constructor call will be added elsewhere.
-				constructorCall = SuperReference.implicitSuperConstructorCall();
-			}
-		}
-	}
+	boolean insideFieldInitializer = false;
+	length = this.astLengthStack[this.astLengthPtr--];
+	this.astPtr -= length;
 
 	// now we know that the top of stack is a constructorDeclaration
 	ConstructorDeclaration cd = (ConstructorDeclaration) this.astStack[this.astPtr];
-	cd.constructorCall = constructorCall;
-	cd.statements = statements;
-
-	//highlight of the implicit call on the method name
-	if (constructorCall != null && cd.constructorCall.sourceEnd == 0) {
-		cd.constructorCall.sourceEnd = cd.sourceEnd;
-		cd.constructorCall.sourceStart = cd.sourceStart;
+	if (!this.options.ignoreMethodBodies) {
+		if (length == 0) {
+			if (this.diet) {
+				for (int i = this.nestedType; i > 0; i--){
+					if (this.variablesCounter[i] > 0) {
+						insideFieldInitializer = true;
+						break;
+					}
+				}
+			}
+		}
+		if (length > 0 || !this.diet || insideFieldInitializer) // if diet mode then constructor body will be added elsewhere.
+			cd.buildBody(this.astStack, this.astPtr + 1, length, this.options);
 	}
 
 	if (!(this.diet && this.dietInt == 0)
-			&& statements == null
-			&& (constructorCall == null || constructorCall.isImplicitSuper())
+			&& cd.statements != null
+			&& (cd.statements.length == 0 || (cd.statements.length == 1 && cd.statements[0].isImplicitSuper()))
 			&& !containsComment(cd.bodyStart, this.endPosition)) {
 		cd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
@@ -10252,7 +10219,16 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.declarationSourceEnd = c.declarationSourceEnd;
 	m.declarationSourceStart = c.declarationSourceStart;
 	m.selector = c.selector;
-	m.statements = c.statements;
+	int length = c.statements != null ? c.statements.length : 0;
+	if (length > 0) {
+		if (c.statements[0] instanceof ExplicitConstructorCall) {
+			System.arraycopy(c.statements, 1, m.statements = new Statement[length - 1], 0, length - 1);
+		} else if (c.statements[length - 1] instanceof ExplicitConstructorCall) {
+			System.arraycopy(c.statements, 0, m.statements = new Statement[length - 1], 0, length - 1);
+		}
+	} else {
+		m.statements = c.statements;
+	}
 	m.modifiers = c.modifiers;
 	m.annotations = c.annotations;
 	m.arguments = c.arguments;
@@ -11827,44 +11803,13 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 
 	//statements
 	cd.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
-	int length;
-	if (this.astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.astPtr -= length;
-		if (!this.options.ignoreMethodBodies) {
-			if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall explicitCall)
-				//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
-				{
-				System.arraycopy(
-					this.astStack,
-					this.astPtr + 2,
-					cd.statements = new Statement[length - 1],
-					0,
-					length - 1);
-				cd.constructorCall = explicitCall;
-			} else { //need to add explicitly the super();
-				System.arraycopy(
-					this.astStack,
-					this.astPtr + 1,
-					cd.statements = new Statement[length],
-					0,
-					length);
-				cd.constructorCall = SuperReference.implicitSuperConstructorCall();
-			}
-		}
-	} else {
-		if (!this.options.ignoreMethodBodies) {
-			cd.constructorCall = SuperReference.implicitSuperConstructorCall();
-		}
-		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
-			cd.bits |= ASTNode.UndocumentedEmptyBlock;
-		}
+	int length = this.astLengthPtr > -1 ? this.astLengthStack[this.astLengthPtr--] : 0;
+	this.astPtr -= length;
+	if (!this.options.ignoreMethodBodies) {
+		cd.buildBody(this.astStack, this.astPtr + 1, length, this.options);
 	}
-
-	ExplicitConstructorCall explicitConstructorCall = cd.constructorCall;
-	if (explicitConstructorCall != null && explicitConstructorCall.sourceEnd == 0) {
-		explicitConstructorCall.sourceEnd = cd.sourceEnd;
-		explicitConstructorCall.sourceStart = cd.sourceStart;
-	}
+	if (length == 0 && !containsComment(cd.bodyStart, cd.bodyEnd))
+		cd.bits |= ASTNode.UndocumentedEmptyBlock;
 }
 // A P I
 

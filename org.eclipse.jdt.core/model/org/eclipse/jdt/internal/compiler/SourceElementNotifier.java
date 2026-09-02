@@ -270,23 +270,12 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 	if (methodDeclaration.isDefaultConstructor()) {
 		if (this.reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
-			ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
+			ExplicitConstructorCall constructorCall = constructorDeclaration.getConstructorCall();
 			if (constructorCall != null) {
-				switch(constructorCall.accessMode) {
-					case ExplicitConstructorCall.This :
-						this.requestor.acceptConstructorReference(
-							this.typeNames[this.nestedTypeIndex-1],
-							constructorCall.arguments == null ? 0 : constructorCall.arguments.length,
-							constructorCall.sourceStart);
-						break;
-					case ExplicitConstructorCall.Super :
-					case ExplicitConstructorCall.ImplicitSuper :
-						this.requestor.acceptConstructorReference(
-							this.superTypeNames[this.nestedTypeIndex-1],
-							constructorCall.arguments == null ? 0 : constructorCall.arguments.length,
-							constructorCall.sourceStart);
-						break;
-				}
+				this.requestor.acceptConstructorReference(
+					this.superTypeNames[this.nestedTypeIndex-1],
+					constructorCall.arguments == null ? 0 : constructorCall.arguments.length,
+					constructorCall.sourceStart);
 			}
 		}
 		return;
@@ -343,7 +332,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 		}
 		if (this.reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
-			ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
+			ExplicitConstructorCall constructorCall = constructorDeclaration.getConstructorCall();
 			if (constructorCall != null) {
 				switch(constructorCall.accessMode) {
 					case ExplicitConstructorCall.This :
@@ -949,12 +938,6 @@ private int sourceEnd(TypeDeclaration typeDeclaration) {
 private void visitIfNeeded(AbstractMethodDeclaration method) {
 	if (this.localDeclarationVisitor != null
 		&& (method.bits & ASTNode.HasLocalType) != 0) {
-			if (method instanceof ConstructorDeclaration) {
-				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) method;
-				if (constructorDeclaration.constructorCall != null) {
-					constructorDeclaration.constructorCall.traverse(this.localDeclarationVisitor, method.scope);
-				}
-			}
 			if (method.statements != null) {
 				int statementsLength = method.statements.length;
 				for (int i = 0; i < statementsLength; i++)

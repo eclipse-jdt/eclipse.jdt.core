@@ -692,14 +692,11 @@ class ASTConverter {
 				methodHeaderEnd = parameter.getStartPosition() + parameter.getLength();
 			}
 		}
-		org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall explicitConstructorCall = null;
 		if (isConstructor) {
 			if (isInterface) {
 				// interface cannot have a constructor
 				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 			}
-			org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration constructorDeclaration = (org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration) methodDeclaration;
-			explicitConstructorCall = constructorDeclaration.constructorCall;
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
 					// set the return type to VOID
@@ -761,19 +758,18 @@ class ASTConverter {
 				block.setSourceRange(start, closingPosition - start + 1);
 				methodDecl.setBody(block);
 			}
-			if (block != null && (statements != null || explicitConstructorCall != null)) {
-				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper && explicitConstructorCall.firstStatement) {
-					block.statements().add(convert(explicitConstructorCall));
-				}
-				int statementsLength = statements == null ? 0 : statements.length;
+			if (block != null && statements != null) {
+				int statementsLength = statements.length;
 				for (int i = 0; i < statementsLength; i++) {
 					org.eclipse.jdt.internal.compiler.ast.Statement astStatement = statements[i];
 					if (astStatement instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 						checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
 					} else {
-						final Statement statement = convert(astStatement);
-						if (statement != null) {
-							block.statements().add(statement);
+						if (!(astStatement instanceof ExplicitConstructorCall explicitConstructorCall) || explicitConstructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper) {
+							final Statement statement = convert(astStatement);
+							if (statement != null) {
+								block.statements().add(statement);
+							}
 						}
 					}
 				}

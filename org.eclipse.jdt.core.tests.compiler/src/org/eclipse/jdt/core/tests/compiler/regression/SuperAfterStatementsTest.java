@@ -3173,19 +3173,22 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
 				"""
 		},
-		"""
-		----------
-		1. WARNING in X.java (at line 4)
-			class Local {
-			      ^^^^^
-		The type Local is never used locally
-		----------
-		2. ERROR in X.java (at line 7)
-			X.value = new Inner() { // This is reported by Javac
-			          ^^^^^^^^^^^
-		No enclosing instance of type Local is accessible. Must qualify the allocation with an enclosing instance of type Local (e.g. x.new A() where x is an instance of Local).
-		----------
-		""");
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	class Local {\n" +
+		"	      ^^^^^\n" +
+		"The type Local is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	Local(int a) {\n" +
+		"	^^^^^^^^^^^^\n" +
+		"The constructor Local(int) is never used locally\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	X.value = new Inner() { // This is reported by Javac\n" +
+		"	          ^^^^^^^^^^^\n" +
+		"No enclosing instance of type Local is accessible. Must qualify the allocation with an enclosing instance of type Local (e.g. x.new A() where x is an instance of Local).\n" +
+		"----------\n");
 	}
 
 	public void testGH3844() {
@@ -3672,6 +3675,94 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			The final field Test.a cannot be assigned
 			----------
 			""");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5353
+	// Flexible recursive constructors tolerated at compile time lead to StackOverflowError at runtime.
+	public void testIssue5353() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+			    X(String s) {
+			    	System.out.println("delegating");
+					this(10, 20);
+				}
+
+				public X(int x, int y) {
+					System.out.println("delegating");
+					this("xxx");
+				}
+
+				public static void main(String[] args) {
+					new X("Hello");
+				}
+			}
+			"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				this(10, 20);
+				^^^^^^^^^^^^^
+			Recursive constructor invocation X(int, int)
+			----------
+			2. ERROR in X.java (at line 10)
+				this("xxx");
+				^^^^^^^^^^^^
+			Recursive constructor invocation X(String)
+			----------
+			""");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5352
+	// Unused flexible constructor not complained about
+	public void testIssue5352() {
+		// but no access to outer this from local class
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					X(String s) {
+
+					}
+
+					private X(int x, int y) {
+						System.out.println("Hello");
+						this("Hello");
+					}
+					void foo() {
+						System.out.println("X::foo");
+					}
+
+					public static void main(String[] args) {
+						new X("Hello") {
+							@Override
+							void foo() {
+								System.out.println("Anon::foo");
+							}
+						}.goo();
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. WARNING in X.java (at line 7)
+					private X(int x, int y) {
+					        ^^^^^^^^^^^^^^^
+				The constructor X(int, int) is never used locally
+				----------
+				2. ERROR in X.java (at line 21)
+					}.goo();
+					  ^^^
+				The method goo() is undefined for the type new X(){}
+				----------
+				""";
+		runner.runNegativeTest();
 	}
 }
 

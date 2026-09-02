@@ -163,7 +163,7 @@ protected int matchContainer() {
 	return CLASS_CONTAINER;
 }
 protected int matchLevelForReferences(ConstructorDeclaration constructor) {
-	ExplicitConstructorCall constructorCall = constructor.constructorCall;
+	ExplicitConstructorCall constructorCall = constructor.getConstructorCall();
 	if (constructorCall == null || constructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper)
 		return IMPOSSIBLE_MATCH;
 
@@ -306,7 +306,7 @@ public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, 
 			}
 		} else if (reference instanceof ConstructorDeclaration) {
 			ConstructorDeclaration constructor = (ConstructorDeclaration) reference;
-			ExplicitConstructorCall call = constructor.constructorCall;
+			ExplicitConstructorCall call = constructor.getConstructorCall();
 			boolean synthetic = call != null && call.isImplicitSuper();
 			this.match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, constructor.isConstructor(), synthetic, constructor);
 		}
@@ -377,7 +377,7 @@ public int resolveLevel(Binding binding) {
 protected int resolveLevel(ConstructorDeclaration constructor, boolean checkDeclarations) {
 	int referencesLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findReferences) {
-		ExplicitConstructorCall constructorCall = constructor.constructorCall;
+		ExplicitConstructorCall constructorCall = constructor.getConstructorCall();
 		if (constructorCall != null && constructorCall.accessMode == ExplicitConstructorCall.ImplicitSuper) {
 			// eliminate explicit super call as it will be treated with matchLevel(ExplicitConstructorCall, boolean)
 			int callCount = (constructorCall.arguments == null) ? 0 : constructorCall.arguments.length;

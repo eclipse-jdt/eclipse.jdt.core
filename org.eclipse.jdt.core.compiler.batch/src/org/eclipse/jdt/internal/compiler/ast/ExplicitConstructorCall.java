@@ -64,8 +64,6 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	// TODO Remove once DOMParser is activated
 	public int typeArgumentsSourceStart;
 
-	public boolean firstStatement = true; // Allow Statements before super
-
 	public ExplicitConstructorCall(int accessMode) {
 		this.accessMode = accessMode;
 	}
@@ -209,6 +207,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		return this.genericTypeArguments;
 	}
 
+	@Override
 	public boolean isImplicitSuper() {
 		return (this.accessMode == ExplicitConstructorCall.ImplicitSuper);
 	}
@@ -324,10 +323,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			} else {
 				// is it the first constructor call?
 				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
-				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
-				if (constructorCall == null) {
-					constructorCall = constructorDeclaration.getLateConstructorCall(); // JEP 513
-				}
+				ExplicitConstructorCall constructorCall = constructorDeclaration.getConstructorCall();
 				if (constructorCall != null && constructorCall != this) {
 					hasError = true;
 				}
@@ -476,7 +472,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					}
 					return;
 				}
-			} else if (receiverType.erasure().id == TypeIds.T_JavaLangEnum) {
+			} else if (receiverType != null && receiverType.erasure().id == TypeIds.T_JavaLangEnum) {
 				// TODO (philippe) get rid of once well-known binding is available
 				argumentTypes = new TypeBinding[] { scope.getJavaLangString(), TypeBinding.INT };
 			}
@@ -512,7 +508,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					return;
 				if (this.accessMode == ExplicitConstructorCall.ImplicitSuper && methodDeclaration.statements != null) {
 					for (Statement statement : methodDeclaration.statements) {
-						if (statement instanceof ExplicitConstructorCall
+						if (statement != this && statement instanceof ExplicitConstructorCall
 								&& !JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions()))
 							return; // don't blame the implicit call, we have an explicit call that is illegal
 					}
