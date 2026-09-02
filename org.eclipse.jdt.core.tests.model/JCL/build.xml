@@ -83,9 +83,15 @@
 			<param name="compliance" value="25"/>
 			<param name="suffix" value="25"/>
 		</antcall>
-		<antcall target="converterJclMin">
-			<param name="compliance" value="26"/>
-			<param name="suffix" value="26"/>
+		<antcall target="converterJclMin2">
+			<param name="source" value="26"/>
+			<param name="compliance" value="27"/>
+			<param name="suffix" value="27"/>
+		</antcall>
+		<antcall target="converterJclMin2">
+			<param name="source" value="26"/>
+			<param name="compliance" value="28"/>
+			<param name="suffix" value="28"/>
 		</antcall>
 	</target>
 	<target name="converterJclMin">
@@ -96,12 +102,25 @@
 					target="${compliance}">
 			<compilerarg line="-Xlint:none"/>
 		</javac>
-		<jar destfile="${basedir}/jclMin${suffix}.jar" basedir="${jclbase}/converterJclMin${suffix}/bin"/>
-		<zip destfile="${basedir}/jclMin${suffix}src.zip">
+		<jar destfile="${basedir}/converterJclMin${suffix}.jar" basedir="${jclbase}/converterJclMin${suffix}/bin"/>
+		<zip destfile="${basedir}/converterJclMin${suffix}src.zip">
 			<fileset dir="${jclbase}/converterJclMin${suffix}/src" />
 		</zip>
 	</target>
 	
+	<target name="converterJclMin2">
+		<mkdir dir="${jclbase}/converterJclMin${suffix}/bin" />
+		<javac srcdir="${jclbase}/converterJclMin${source}/src" destdir="${jclbase}/converterJclMin${suffix}/bin"
+					debuglevel="lines,source"
+					source="${compliance}"
+					target="${compliance}">
+			<compilerarg line="-Xlint:none"/>
+		</javac>
+		<jar destfile="${basedir}/converterJclMin${suffix}.jar" basedir="${jclbase}/converterJclMin${suffix}/bin"/>
+		<zip destfile="${basedir}/converterJclMin${suffix}src.zip">
+			<fileset dir="${jclbase}/converterJclMin${source}/src" />
+		</zip>
+	</target>
 	<target name="allJclMins">
 		<antcall target="jclMin_notModular">
 			<param name="compliance" value="1.8"/>
@@ -152,6 +171,14 @@
 			<param name="compliance" value="26"/>
 			<param name="jar_suffix" value="26"/> <!-- no source code exists for 26, compiles the ones from 23 at compliance 26 -->
 		</antcall>
+		<antcall target="jclMin_modular2">
+			<param name="src_suffix" value="23"/>
+			<param name="compliance" value="27"/>
+		</antcall>
+		<antcall target="jclMin_modular2">
+			<param name="src_suffix" value="23"/>
+			<param name="compliance" value="28"/>
+		</antcall>
 	</target>
 	<target name="jclMin_notModular">
 		<mkdir dir="${jclbase}/jclMin${suffix}/bin" />
@@ -181,15 +208,16 @@
 	</target>
 	<!-- When there's no change between versions, compile the ones from older version at a higher compliance -->
 	<target name="jclMin_modular2">
-		<mkdir dir="${jclbase}/jclMin${src_suffix}/bin" />
-		<javac srcdir="${jclbase}/jclMin${src_suffix}/src" destdir="${jclbase}/jclMin${src_suffix}/bin"
+		<mkdir dir="${jclbase}/jclMin${compliance}/bin" />
+		<echo>${compliance}</echo>
+		<javac srcdir="${jclbase}/jclMin${src_suffix}/src" destdir="${jclbase}/jclMin${compliance}/bin"
 					debuglevel="lines,vars,source"
 					source="${compliance}"
 					target="${compliance}">
 			<compilerarg line="-Xlint:none --patch-module java.base=${jclbase}/jclMin${src_suffix}/src"/>
 		</javac>
-		<jar destfile="${basedir}/jclMin${jar_suffix}.jar" basedir="${jclbase}/jclMin${src_suffix}/bin"/>
-		<zip destfile="${basedir}/jclMin${jar_suffix}src.zip">
+		<jar destfile="${basedir}/jclMin${compliance}.jar" basedir="${jclbase}/jclMin${compliance}/bin"/>
+		<zip destfile="${basedir}/jclMin${compliance}src.zip">
 			<fileset dir="${jclbase}/jclMin${src_suffix}/src" />
 		</zip>
 	</target>
