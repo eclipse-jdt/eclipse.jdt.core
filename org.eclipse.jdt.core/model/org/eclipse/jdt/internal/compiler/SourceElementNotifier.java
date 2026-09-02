@@ -274,12 +274,8 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 			if (constructorCall != null) {
 				switch(constructorCall.accessMode) {
 					case ExplicitConstructorCall.This :
-						this.requestor.acceptConstructorReference(
-							this.typeNames[this.nestedTypeIndex-1],
-							constructorCall.arguments == null ? 0 : constructorCall.arguments.length,
-							constructorCall.sourceStart);
-						break;
 					case ExplicitConstructorCall.Super :
+						throw new AssertionError("Unexpected control flow"); //$NON-NLS-1$
 					case ExplicitConstructorCall.ImplicitSuper :
 						this.requestor.acceptConstructorReference(
 							this.superTypeNames[this.nestedTypeIndex-1],
