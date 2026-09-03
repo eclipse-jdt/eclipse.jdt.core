@@ -2493,4 +2493,44 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assumeEquals("Incorrect child content", "	@AnotherAnnotation", innerFrags.get(2).getText());
 		}
 	}
+
+	public void testMarkdownSupportSeeTag5299_01() throws JavaModelException {
+		String source = """
+				/// @see see [ArrayList](java.util.ArrayList)
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			assertEquals("Invalid Element Count", 2, parentTag.fragments().size());
+			TextElement text = (TextElement) parentTag.fragments().get(0);
+			TagElement tag = (TagElement) parentTag.fragments().get(1);
+			assertEquals("Incorrect Text content", " see ", text.getText());
+			assertEquals("Invalid Tag", "@link", tag.getTagName());
+		}
+	}
+
+	public void testMarkdownSupportSeeTag5299_02() throws JavaModelException {
+		String source = """
+				/// @see see {@link java.util.ArrayList ArrayList}
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			assertEquals("Invalid Element Count", 2, parentTag.fragments().size());
+			TextElement text = (TextElement) parentTag.fragments().get(0);
+			TagElement tag = (TagElement) parentTag.fragments().get(1);
+			assertEquals("Incorrect Text content", " see ", text.getText());
+			assertEquals("Invalid Tag", "@link", tag.getTagName());
+		}
+	}
 }
