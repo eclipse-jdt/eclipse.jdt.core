@@ -2593,6 +2593,37 @@ public void testIssue5214() {
 			+ "The method isRelevant(X.Child<X.A>) from the type X is never used locally\n"
 			+ "----------\n");
 }
+public void testCaptureReinitialization() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+
+			public static class A<I extends C<I, ?>> {}
+
+			public static class B<I extends C<I, ?>, J> {
+				public B(A<I> a) {}
+				public B(A<I> a, int dummy) {}
+			}
+
+			public static class C<I extends C<I, J>, J> {}
+
+			static <I extends C<I, ?>> B<I, ?> make(A<I> a) {
+				return new B<>(a);
+			}
+			static <I extends C<I, ?>> B<I, ?> make(A<I> a, int dummy) {
+				return new B<>(a, dummy);
+			}
+
+			public static void test(A<?> a) {
+				make(a);
+				make(a, 0);
+				new B<>(a);
+			}
+		}
+		"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
