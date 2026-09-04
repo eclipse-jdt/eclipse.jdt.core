@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+// THIS IS A TEST CHANGE
+
 /**
  * This map avoids hashing. This is suitable for few elements or long char arrays because it uses vectorized equals.
  * Vectorized equals is several times faster then calculating hashCode in a loop. This class is not thread safe and
