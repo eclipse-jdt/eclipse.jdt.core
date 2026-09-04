@@ -1536,17 +1536,13 @@ public class ASTParser {
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				Block block = ast.newBlock();
 				block.setSourceRange(this.sourceOffset, this.sourceOffset + this.sourceLength);
-				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
-				if (constructorCall != null && constructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper) {
-					block.statements().add(converter.convert(constructorCall));
-				}
 				org.eclipse.jdt.internal.compiler.ast.Statement[] statements = constructorDeclaration.statements;
 				if (statements != null) {
 					int statementsLength = statements.length;
 					for (int i = 0; i < statementsLength; i++) {
 						if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 							converter.checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
-						} else {
+						} else if (!(statements[i] instanceof ExplicitConstructorCall constructorCall) || constructorCall.accessMode != org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall.ImplicitSuper) {
 							Statement statement = converter.convert(statements[i]);
 							if (statement != null) {
 								block.statements().add(statement);

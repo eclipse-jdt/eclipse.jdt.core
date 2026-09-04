@@ -1965,38 +1965,11 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 
 	// attach the statements as we might be searching for a reference to a local type
 	cd.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
-	int length;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.astPtr -= length;
-		if (this.astStack[this.astPtr + 1] instanceof ExplicitConstructorCall)
-			//avoid a isSomeThing that would only be used here BUT what is faster between two alternatives ?
-			{
-			System.arraycopy(
-				this.astStack,
-				this.astPtr + 2,
-				cd.statements = new Statement[length - 1],
-				0,
-				length - 1);
-			cd.constructorCall = (ExplicitConstructorCall) this.astStack[this.astPtr + 1];
-		} else { //need to add explicitly the super();
-			System.arraycopy(
-				this.astStack,
-				this.astPtr + 1,
-				cd.statements = new Statement[length],
-				0,
-				length);
-			cd.constructorCall = SuperReference.implicitSuperConstructorCall();
-		}
-	} else {
-		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
-		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
-			cd.bits |= ASTNode.UndocumentedEmptyBlock;
-		}
-	}
-
-	if (cd.constructorCall.sourceEnd == 0) {
-		cd.constructorCall.sourceEnd = cd.sourceEnd;
-		cd.constructorCall.sourceStart = cd.sourceStart;
+	int length = this.astLengthStack[this.astLengthPtr--];
+	this.astPtr -= length;
+	cd.buildBody(this.astStack, this.astPtr + 1, length, this.options);
+	if (length == 0 && !containsComment(cd.bodyStart, cd.bodyEnd)) {
+		cd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 }
 /**

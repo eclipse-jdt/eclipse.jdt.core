@@ -335,7 +335,8 @@ public boolean checkConstructors(Parser parser) {
 					// the constructor was in fact a method with no return type
 					// unless an explicit constructor call was supplied
 					ConstructorDeclaration c = (ConstructorDeclaration) am;
-					if (c.constructorCall == null || c.constructorCall.isImplicitSuper()) { //changed to a method
+					ExplicitConstructorCall constructorCall = c.getConstructorCall();
+					if (constructorCall == null || constructorCall.isImplicitSuper()) { // change to a method
 						MethodDeclaration m = parser.convertToMethodDeclaration(c, this.compilationResult);
 						this.methods[i] = m;
 					}
@@ -382,11 +383,8 @@ public ConstructorDeclaration createDefaultConstructor(boolean needExplicitConst
 	constructor.declarationSourceEnd =
 		constructor.sourceEnd = constructor.bodyEnd = this.sourceEnd;
 
-	//the super call inside the constructor
 	if (needExplicitConstructorCall) {
-		constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
-		constructor.constructorCall.sourceStart = this.sourceStart;
-		constructor.constructorCall.sourceEnd = this.sourceEnd;
+		constructor.chainUpwards();
 	}
 
 	//adding the constructor in the methods list: rank is not critical since bindings will be sorted
@@ -433,14 +431,13 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
 		}
 	}
-	//the super call inside the constructor
-	constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
-	constructor.constructorCall.sourceStart = this.sourceStart;
-	constructor.constructorCall.sourceEnd = this.sourceEnd;
+
+	constructor.chainUpwards();
 
 	if (argumentsLength > 0) {
 		Expression[] args1;
-		args1 = constructor.constructorCall.arguments = new Expression[argumentsLength];
+		ExplicitConstructorCall constructorCall = (ExplicitConstructorCall) constructor.statements[0];
+		args1 = constructorCall.arguments = new Expression[argumentsLength];
 		for (int i = argumentsLength; --i >= 0;) {
 			args1[i] = new SingleNameReference((baseName + i).toCharArray(), 0L);
 		}
@@ -482,7 +479,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 
 	constructor.scope = new MethodScope(this.scope, constructor, true);
 	constructor.bindArguments();
-	constructor.constructorCall.resolve(constructor.scope);
+	constructor.statements[0].resolve(constructor.scope);
 
 	MethodBinding[] methodBindings = sourceType.methods(); // trigger sorting
 	int length;

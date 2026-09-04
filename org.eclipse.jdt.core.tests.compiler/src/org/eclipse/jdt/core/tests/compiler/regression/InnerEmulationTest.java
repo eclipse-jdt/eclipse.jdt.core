@@ -6385,6 +6385,68 @@ public void testSyntheticAccessorIndexAssignment() {
 	};
 	this.runConformTest(sources, "16"); // (1+10) + (2+3) = 16
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5360
+// ECJ generated code may write to final fields in inner classes with flexible constructors more than once
+public void testIssue5360() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK25) {
+		return;
+	}
+
+	Map<String, String> customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+	customOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+	customOptions.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
+
+	String source = """
+		public class X {
+		    String s = "chained";
+		    public class Inner {
+		        Inner() {
+		            System.out.print("Checking ...");
+		            this(s);
+		        }
+		        Inner(String s) {
+		            if (s == X.this.s)
+		                System.out.println("Ok!");
+		        }
+		    }
+		    public static void main(String[] args) {
+		        new X().new Inner();
+		    }
+		}
+		""";
+
+	runConformTest(
+			new String[] { "X.java", source },
+			"Checking ...Ok!",
+			null,
+			true,
+			null
+		);
+
+	String expected =
+			"""
+			  // Method descriptor #8 (LX;)V
+			  // Stack: 3, Locals: 2
+			  X$Inner(X arg0);
+			     0  getstatic java.lang.System.out : java.io.PrintStream [10]
+			     3  ldc <String "Checking ..."> [16]
+			     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [18]
+			     8  aload_0 [this]
+			     9  aload_1 [arg0]
+			    10  aload_1 [arg0]
+			    11  getfield X.s : java.lang.String [24]
+			    14  invokespecial X$Inner(X, java.lang.String) [30]
+			    17  return
+			""";
+
+	checkDisassembledClassFile(
+		OUTPUT_DIR + File.separator + "X$Inner.class",
+		"X$Inner",
+		expected
+	);
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }

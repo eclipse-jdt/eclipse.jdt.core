@@ -98,7 +98,7 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 				// find the constructor binding inside the super constructor call
 				ConstructorDeclaration constructor = (ConstructorDeclaration) this.anonymousType.declarationOf(this.binding.original());
 				if (constructor != null) {
-					throw new SelectionNodeFound(constructor.constructorCall.binding);
+					throw new SelectionNodeFound(constructor.getConstructorCall().binding);
 				}
 				throw new SelectionNodeFound(this.binding);
 			}

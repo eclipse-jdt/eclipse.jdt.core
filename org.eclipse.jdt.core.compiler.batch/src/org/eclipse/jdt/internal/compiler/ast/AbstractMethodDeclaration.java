@@ -727,7 +727,9 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.statements != null) {
 			resolveStatements(this.statements, this.scope);
-		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
+		}
+		// An empty constructor gets injected with a super() call, so don't rely on this.statements == null being true for an empty block!
+		if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
