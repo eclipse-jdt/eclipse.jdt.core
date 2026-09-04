@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.compiler.util;
 import java.io.File;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.junit.Test;
 
 /**
  * Tests for {@link Util#archiveFormat(String)} and
@@ -58,7 +57,6 @@ public class UtilTest extends TestCase {
 		assertPotentialZipArchive(true, name);
 	}
 
-	@Test
 	public void testArchives() {
 		assertZipArchive("foo.jar");
 		assertZipArchive("foo.zip");
@@ -67,7 +65,6 @@ public class UtilTest extends TestCase {
 		assertPotentialZipArchive(true, "java.base.jmod");
 	}
 
-	@Test
 	public void testSourceAndClassFiles() {
 		assertNotAnArchive("Foo.java");
 		assertNotAnArchive("Foo.JAVA");
@@ -75,7 +72,6 @@ public class UtilTest extends TestCase {
 		assertNotAnArchive("Foo.CLASS");
 	}
 
-	@Test
 	public void testNoExtension() {
 		assertNotAnArchive("foo");
 		assertNotAnArchive("");
@@ -89,7 +85,6 @@ public class UtilTest extends TestCase {
 	 * {@code Util#collectPlatformLibraries(java.io.File)}, where entries may be
 	 * plain directories.
 	 */
-	@Test
 	public void testNativeLibraryWithoutExtension() {
 		assertNativeLibrary(false, "so");
 		assertNativeLibrary(false, "dll");
@@ -103,7 +98,6 @@ public class UtilTest extends TestCase {
 		assertNativeLibrary(false, File.separator + "so");
 	}
 
-	@Test
 	public void testIsNativeLibrary() {
 		assertNativeLibrary(true, "libfoo.so");
 		assertNativeLibrary(true, "foo.dll");
@@ -126,7 +120,6 @@ public class UtilTest extends TestCase {
 	 * follows the last dot, that dot belongs to a directory segment and the
 	 * name is not a native library.
 	 */
-	@Test
 	public void testNativeLibraryWithSeparatorAfterLastDot() {
 		assertNativeLibrary(false, "dir.so" + File.separator + "file");
 		assertNativeLibrary(false, "dir.so/file");
@@ -139,7 +132,6 @@ public class UtilTest extends TestCase {
 		assertNativeLibrary(false, "a.d/ll");
 	}
 
-	@Test
 	public void testNativeLibrariesAreNoArchives() {
 		// see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5253
 		assertNotAnArchive("libfoo.so");
@@ -151,7 +143,6 @@ public class UtilTest extends TestCase {
 		assertNotAnArchive(".dylib");
 	}
 
-	@Test
 	public void testNativeLibrariesAreDetectedCaseInsensitive() {
 		assertNotAnArchive("libfoo.SO");
 		assertNotAnArchive("FOO.DLL");
@@ -159,7 +150,6 @@ public class UtilTest extends TestCase {
 		assertNotAnArchive("libfoo.DyLiB");
 	}
 
-	@Test
 	public void testNativeLibrariesWithPath() {
 		String nativeLibrary = "usr" + File.separator + "lib" + File.separator + "libjvm.so";
 		assertNotAnArchive(nativeLibrary);
@@ -173,7 +163,6 @@ public class UtilTest extends TestCase {
 	 * Extensions of the same length as "class" (5) or "jmod" (4) must not be
 	 * confused with native libraries and vice versa.
 	 */
-	@Test
 	public void testExtensionsOfSameLength() {
 		// 5 characters, like "class" and "dylib"
 		assertZipArchive("foo.solar");
@@ -189,7 +178,6 @@ public class UtilTest extends TestCase {
 	 * A file whose extension only starts with a native library extension is a
 	 * regular archive candidate.
 	 */
-	@Test
 	public void testNamesSimilarToNativeLibraries() {
 		assertZipArchive("foo.sox");
 		assertZipArchive("foo.dlls");

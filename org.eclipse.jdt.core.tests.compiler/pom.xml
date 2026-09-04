@@ -39,6 +39,7 @@
 	  				<include>org/eclipse/jdt/core/tests/eval/TestAll.class</include>
 	  			</includes>
 	  			<argLine>${tycho.surefire.argLine}</argLine>
+	  			<providerHint>junit3</providerHint>
 	  		</configuration>
   		</plugin>
   	</plugins>
