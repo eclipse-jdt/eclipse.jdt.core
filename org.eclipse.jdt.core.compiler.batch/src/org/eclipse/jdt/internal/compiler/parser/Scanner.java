@@ -1870,7 +1870,12 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 		}
 	} //-----------------end switch while try--------------------
 	catch (IndexOutOfBoundsException e) {
-		if (this.tokenizeWhiteSpace && (whiteStart != this.currentPosition - 1)) {
+		// Lombok or some other project can generate an incorrect source position.(0, 0)
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4712
+		if (this.currentPosition < 0) {
+			this.currentPosition = 0;
+			return TokenNameInvalid;
+		} else if (this.tokenizeWhiteSpace && (whiteStart != this.currentPosition - 1)) {
 			// reposition scanner in case we are interested by spaces as tokens
 			this.currentPosition--;
 			this.startPosition = whiteStart;
