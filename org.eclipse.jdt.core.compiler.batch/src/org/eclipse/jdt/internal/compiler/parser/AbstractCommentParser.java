@@ -1652,6 +1652,23 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				return false;
 			}
 
+				if (this.tagValue == TAG_SEE_VALUE) {
+					int lookAhead = this.index;
+					while (lookAhead < this.lineEnd && ScannerHelper.isWhitespace(this.source[lookAhead])) {
+				        lookAhead++;
+				    }
+
+					if (lookAhead < this.lineEnd && (this.source[lookAhead] == '[' || this.source[lookAhead] == '{')) {
+						this.index = this.tokenPreviousPosition;
+						this.scanner.currentPosition = this.tokenPreviousPosition;
+						this.currentTokenType = TokenNameInvalid;
+						int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
+						if (this.source[end]=='\n') end--;
+						if (this.reportProblems) this.sourceParser.problemReporter().javadocMalformedSeeReference(typeRefStartPosition, end);
+						return false;
+					}
+				}
+
 			// Everything is OK, store reference
 			return pushSeeRef(reference);
 		}
