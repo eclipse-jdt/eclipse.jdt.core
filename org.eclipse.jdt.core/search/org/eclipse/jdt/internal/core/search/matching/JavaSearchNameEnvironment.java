@@ -617,6 +617,14 @@ private static IModuleDescription computeModuleFor(PackageFragmentRoot root, IMo
 		 */
 		int entryKind = classpathEntry.getEntryKind();
 		if (entryKind == IClasspathEntry.CPE_SOURCE || entryKind == IClasspathEntry.CPE_CONTAINER) {
+			/*
+			 * We only care about the module of the classpath entry if it is modular or if the project itself is modular.
+			 * If neither is the case, return no module. See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5361
+			 */
+			IClasspathEntry resolvedClasspathEntry = root.getResolvedClasspathEntry();
+			if (defaultModule == null && !ClasspathEntry.isModular(resolvedClasspathEntry)) {
+				return null;
+			}
 			return rootModule != null? rootModule : defaultModule;
 		}
 	} catch (JavaModelException e) {
