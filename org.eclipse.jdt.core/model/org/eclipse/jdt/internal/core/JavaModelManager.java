@@ -347,6 +347,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	Map<String, String[]> deprecatedOptions = new HashMap<>();
 	volatile Hashtable<String, String> optionsCache;
 
+	// Only cache publication and invalidation hold this lock. In particular,
+	// preference access and callbacks must remain outside it.
+	private final Object optionsCacheLock = new Object();
+	private volatile long optionsCacheGeneration;
+
 	// Preferences
 	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
 	static final int PREF_INSTANCE = 0;
@@ -2423,7 +2428,32 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return UNKNOWN_OPTION;
 	}
 
+	/**
+	 * Publishes a writer's cache, or invalidates it. Advance the generation even
+	 * when the cache is already null: an older reader may still be building it.
+	 */
+	private void setOptionsCache(Hashtable<String, String> newCache) {
+		synchronized (this.optionsCacheLock) {
+			this.optionsCacheGeneration++;
+			this.optionsCache = newCache;
+		}
+	}
+
+	/**
+	 * A read overlapping an update may return its snapshot, but must not make
+	 * that snapshot the cache used by subsequent, non-overlapping reads.
+	 */
+	private void cacheOptions(Hashtable<String, String> options, long generation) {
+		synchronized (this.optionsCacheLock) {
+			if (this.optionsCacheGeneration == generation) {
+				this.optionsCache = options;
+			}
+		}
+	}
+
 	public Hashtable<String, String> getOptions() {
+		// Capture before reading either the cache or the preferences.
+		long generation = this.optionsCacheGeneration;
 
 		// return cached options if already computed
 		Hashtable<String, String> cachedOptions; // use a local variable to avoid race condition (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=256329 )
@@ -2435,7 +2465,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (VERBOSE) {
 				trace("Setting Java options cache"); //$NON-NLS-1$
 			}
-			this.optionsCache = defaults;
+			cacheOptions(defaults, generation);
 			return new Hashtable<>(defaults);
 		}
 		// init
@@ -2473,7 +2503,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			trace("Setting Java options cache"); //$NON-NLS-1$
 		}
 		// store built map in cache
-		this.optionsCache = new Hashtable<>(options);
+		cacheOptions(new Hashtable<>(options), generation);
 		// return built map
 		return options;
 	}
@@ -5412,7 +5442,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		}
 		if (cachedValue == null) {
-			// reset all options, optionsCache & fixTaskTags will be updated there
+			// Discard a cache built while the individual preferences were being
+			// cleared, and prevent an in-flight reader from publishing one later.
+			setOptionsCache(null);
 			getOptions();
 		} else {
 			Util.fixTaskTags(cachedValue);
@@ -5420,7 +5452,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				trace("Setting Java options cache"); //$NON-NLS-1$
 			}
 			// update cache
-			this.optionsCache = cachedValue;
+			setOptionsCache(cachedValue);
 		}
 	}
 
@@ -5442,7 +5474,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					if (VERBOSE) {
 						trace("Invalidating Java options cache"); //$NON-NLS-1$
 					}
-					JavaModelManager.this.optionsCache = null;
+					JavaModelManager.this.setOptionsCache(null);
 				}
 			};
 			InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID).addPreferenceChangeListener(this.propertyListener);
@@ -5455,7 +5487,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						if (VERBOSE) {
 							trace("Invalidating Java options cache"); //$NON-NLS-1$
 						}
-						JavaModelManager.this.optionsCache = null;
+						JavaModelManager.this.setOptionsCache(null);
 					}
 				}
 			};
