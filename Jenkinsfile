@@ -1,65 +1,91 @@
+// TEMPORARY DIAGNOSTIC ONLY. Restore f980c629ba7891343d60884a2ef3359ba8b93345 after this run.
+// This pipeline deliberately fails and does not represent a JDT regression result.
 pipeline {
 	options {
-		timeout(time: 90, unit: 'MINUTES')
-		buildDiscarder(logRotator(numToKeepStr: (env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ 'BETA.*') ? '100':'5', artifactNumToKeepStr: (env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ 'BETA.*') ? '15':'2'))
+		timeout(time: 6, unit: 'MINUTES')
 		disableConcurrentBuilds(abortPrevious: true)
 		timestamps()
 	}
-	agent {
-		label "ubuntu-latest"
-	}
+	agent { label 'ubuntu-latest' }
 	tools {
 		maven 'apache-maven-latest'
 		jdk 'openjdk-jdk26-latest'
 	}
 	stages {
-		stage('Build') {
+		stage('Infrastructure probe - not regression validation') {
 			steps {
-					sh """#!/bin/bash -x
-					
-					java -version
-					
-					mkdir -p $WORKSPACE/tmp
-					
-					unset JAVA_TOOL_OPTIONS
-					unset _JAVA_OPTIONS
-					
-					# The max heap should be specified for tycho explicitly
-					# via configuration/argLine property in pom.xml
-					# export MAVEN_OPTS="-Xmx2G"
-					
-					mvn clean install -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99 -Dmaven.repo.local=$WORKSPACE/.m2/repository -DcompilerBaselineMode=disable -DcompilerBaselineReplace=none
-					
-					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-						-Ptest-on-javase-26 -Pbree-libs -Papi-check -Pjavadoc -Pp2-repo \
-						-Dmaven.test.failure.ignore=true \
-						-Dcompare-version-with-baselines.skip=false \
-						-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
-						-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,21,25,26 -Djdt.performance.asserts=disabled" \
-						-DDetectVMInstallationsJob.disabled=true \
-						-Dtycho.apitools.debug \
-						-Dtycho.debug.artifactcomparator \
-						-e \
-						-Dcbi-ecj-version=99.99
-					"""
+				sh '''#!/usr/bin/env bash
+set -eu
+exec > >(tee ci-startup-probe.log) 2>&1
+unset JAVA_TOOL_OPTIONS _JAVA_OPTIONS
+work=$(mktemp -d "${WORKSPACE:-/tmp}/jdt-startup-probe.XXXXXX")
+trap 'rm -rf -- "$work"' EXIT
+printf 'JDT_INFRA_PROBE: no JDT regression tests are executed by this diagnostic run\n'
+date -u; uname -a; uptime
+for name in /proc/self/cgroup /proc/loadavg /sys/fs/cgroup/cpu.max /sys/fs/cgroup/cpu.stat /sys/fs/cgroup/cpu.pressure /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.current /sys/fs/cgroup/memory.events /sys/fs/cgroup/cpuset.cpus.effective /sys/fs/cgroup/cpu/cpu.cfs_quota_us /sys/fs/cgroup/cpu/cpu.cfs_period_us; do
+  if [[ -r "$name" ]]; then printf '\n%s\n' "$name"; head -c 4096 "$name"; fi
+done
+timeout 30 java -XshowSettings:system -version 2>&1
+cat > "$work/JdtStartupProbe.java" <<'JAVA'
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+public class JdtStartupProbe {
+  public static void main(String[] args) throws Exception {
+    if (args.length > 0) {
+      System.out.println("child processors=" + Runtime.getRuntime().availableProcessors());
+      return;
+    }
+    System.out.println("parent runtime=" + Runtime.version() + " vendor=" + System.getProperty("java.vendor")
+        + " processors=" + Runtime.getRuntime().availableProcessors() + " maxHeap=" + Runtime.getRuntime().maxMemory());
+    for (int i = 0; i < 3; i++) {
+      long start = System.nanoTime();
+      var addresses = java.net.InetAddress.getAllByName("localhost");
+      System.out.println("localhost_ms=" + (System.nanoTime() - start) / 1_000_000.0 + " addresses=" + Arrays.toString(addresses));
+    }
+    String[][] options = { {}, {"-XX:ActiveProcessorCount=2"}, {"-XX:+UseSerialGC"}, {"-Xint"} };
+    String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+    for (String[] option : options) {
+      for (int i = 0; i < 3; i++) {
+        List<String> command = new ArrayList<>(); command.add(java); command.addAll(Arrays.asList(option));
+        command.addAll(List.of("-cp", System.getProperty("java.class.path"), "JdtStartupProbe", "child"));
+        long start = System.nanoTime();
+        Process child = new ProcessBuilder(command).redirectErrorStream(true).start();
+        try {
+          if (!child.waitFor(15, TimeUnit.SECONDS)) throw new AssertionError("Probe child did not exit: " + Arrays.toString(option));
+          System.out.println("startup options=" + Arrays.toString(option) + " run=" + i + " exit=" + child.exitValue()
+              + " elapsed_ms=" + (System.nanoTime() - start) / 1_000_000.0 + " " + new String(child.getInputStream().readAllBytes()).strip());
+          if (child.exitValue() != 0) throw new AssertionError("Probe child failed");
+        } finally {
+          if (child.isAlive()) { child.destroyForcibly(); child.waitFor(5, TimeUnit.SECONDS); }
+        }
+      }
+    }
+    Path directory = Path.of(System.getProperty("java.class.path"));
+    long start = System.nanoTime();
+    for (int i = 0; i < 500; i++) {
+      Path file = directory.resolve("io-" + i);
+      Files.writeString(file, "class X { public static void main(String[] args) {} }");
+      Files.readAllBytes(file); Files.delete(file);
+    }
+    System.out.println("500_small_file_write_read_delete_ms=" + (System.nanoTime() - start) / 1_000_000.0);
+  }
+}
+JAVA
+timeout 30 javac -d "$work" "$work/JdtStartupProbe.java"
+timeout 210 java -cp "$work" JdtStartupProbe
+for name in /sys/fs/cgroup/cpu.stat /sys/fs/cgroup/cpu.pressure /proc/loadavg; do
+  if [[ -r "$name" ]]; then printf '\nAFTER %s\n' "$name"; head -c 4096 "$name"; fi
+done
+printf '\nJDT_INFRA_PROBE_COMPLETE: intentional exit 86; diagnostics only, NOT a JDT build/test result.\n'
+exit 86
+'''
 			}
-			post {
-				always {
-					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log,repository/target/repository/**,**/target/artifactcomparison/**', allowEmptyArchive: true
-					// The following lines use the newest build on master that did not fail a reference
-					// To not fail master build on failed test maven needs to be started with "-Dmaven.test.failure.ignore=true" it will then only marked unstable.
-					// To not fail the build also "unstable: true" is used to only mark the build unstable instead of failing when qualityGates are missed
-					// To accept unstable builds (test errors or new warnings introduced by third party changes) as reference using "ignoreQualityGate:true"
-					// To only show warnings related to the PR on a PR using "publishAllIssues:false"
-					discoverGitReferenceBuild referenceJob: 'eclipse.jdt.core-github/master'
-					junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-					recordIssues publishAllIssues: false, ignoreQualityGate: true, enabledForFailure: true, tools: [
-							eclipse(name: 'Compiler', pattern: '**/target/compilelogs/*.xml'),
-							issues(name: 'API Tools', id: 'apitools', pattern: '**/target/apianalysis/*.xml'),
-						], qualityGates: [[threshold: 1, type: 'DELTA', unstable: true]]
-					recordIssues tools: [javaDoc(), mavenConsole()]
-				}
-			}
+		}
+	}
+	post {
+		always {
+			archiveArtifacts artifacts: 'ci-startup-probe.log', allowEmptyArchive: true
 		}
 	}
 }
