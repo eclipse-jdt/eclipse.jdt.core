@@ -213,6 +213,67 @@ public class OptionCacheTests extends TestCase {
 		}
 	}
 
+	public void testInstanceNodeRemovalInvalidatesCache() throws Exception {
+		Hashtable<String, String> preferences = saveInstancePreferences();
+		try {
+			String defaultValue = JavaCore.getDefaultOptions().get(KEY);
+			assertNotNull(defaultValue);
+			String oldValue = opposite(defaultValue);
+			setOption(oldValue);
+			assertEquals(oldValue, JavaCore.getOptions().get(KEY));
+
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			IEclipsePreferences removed = manager.getInstancePreferences();
+			removed.removeNode();
+			assertNotSame(removed, manager.getInstancePreferences());
+			assertEquals(defaultValue, JavaCore.getOption(KEY));
+			assertEquals("Removing the instance node must invalidate its cached options",
+					defaultValue, JavaCore.getOptions().get(KEY));
+		} finally {
+			restoreInstancePreferences(preferences);
+		}
+	}
+
+	public void testInstanceNodeReplacementKeepsInvalidatingCache() throws Exception {
+		Hashtable<String, String> preferences = saveInstancePreferences();
+		try {
+			String defaultValue = JavaCore.getDefaultOptions().get(KEY);
+			assertNotNull(defaultValue);
+			String newValue = opposite(defaultValue);
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			for (int i = 0; i < 2; i++) {
+				IEclipsePreferences removed = manager.getInstancePreferences();
+				removed.removeNode();
+				IEclipsePreferences replacement = manager.getInstancePreferences();
+				assertNotSame(removed, replacement);
+				setOption(defaultValue);
+				assertEquals(defaultValue, JavaCore.getOptions().get(KEY));
+				replacement.put(KEY, newValue);
+				assertEquals(newValue, JavaCore.getOption(KEY));
+				assertEquals("Preference changes must invalidate the cache after node replacement " + i,
+						newValue, JavaCore.getOptions().get(KEY));
+			}
+		} finally {
+			restoreInstancePreferences(preferences);
+		}
+	}
+
+	private static Hashtable<String, String> saveInstancePreferences() throws Exception {
+		IEclipsePreferences node = JavaModelManager.getJavaModelManager().getInstancePreferences();
+		Hashtable<String, String> preferences = new Hashtable<>();
+		for (String key : node.keys()) {
+			preferences.put(key, node.get(key, ""));
+		}
+		return preferences;
+	}
+
+	private static void restoreInstancePreferences(Hashtable<String, String> preferences) throws Exception {
+		// Node removal also affects non-option preferences, such as classpath variables.
+		IEclipsePreferences node = JavaModelManager.getJavaModelManager().getInstancePreferences();
+		node.clear();
+		preferences.forEach(node::put);
+	}
+
 	private void setOption(String value) {
 		Hashtable<String, String> options = new Hashtable<>(this.savedOptions);
 		options.put(KEY, value);

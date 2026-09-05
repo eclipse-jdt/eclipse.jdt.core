@@ -3411,8 +3411,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			@Override
 			public void removed(IEclipsePreferences.NodeChangeEvent event) {
 				if (event.getChild() == JavaModelManager.this.preferencesLookup[PREF_INSTANCE]) {
-					JavaModelManager.this.preferencesLookup[PREF_INSTANCE] = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
-					JavaModelManager.this.preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
+					IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+					JavaModelManager.this.preferencesLookup[PREF_INSTANCE] = preferences;
+					preferences.addPreferenceChangeListener(JavaModelManager.this.instancePreferencesListener = new EclipsePreferencesListener());
+					// The old node's listeners are not transferred to its replacement.
+					if (JavaModelManager.this.propertyListener != null) {
+						preferences.addPreferenceChangeListener(JavaModelManager.this.propertyListener);
+					}
+					JavaModelManager.this.setOptionsCache(null);
 				}
 			}
 		};
