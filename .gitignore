@@ -19,5 +19,6 @@ Snap.*
 # pomless
 .polyglot.*
 /.project
+/.settings/org.eclipse.core.resources.prefs
 .idea/
 .claude-tmp/
