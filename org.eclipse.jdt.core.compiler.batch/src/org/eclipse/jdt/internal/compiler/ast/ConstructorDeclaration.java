@@ -86,6 +86,56 @@ FlowInfo getPrologueInfo() {
 public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode) {
 	analyseCode(classScope, initializerFlowContext, flowInfo, initialReachMode, this.prologueInfo != null ? AnalysisMode.REST : AnalysisMode.ALL);
 }
+
+private void complainOnUnusedPrivateConstructor() {
+	MethodBinding constructorBinding = this.binding;
+	if (constructorBinding == null || constructorBinding.isUsed())
+		return;
+	if ((this.bits & ASTNode.IsDefaultConstructor) != 0)
+		return;
+	if (constructorBinding.isPrivate()) {
+		if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
+			return; // tolerate as known pattern to block instantiation
+	} else if (!constructorBinding.isOrEnclosedByPrivateType()) {
+		return;
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446, When the AST built is an abridged version
+	// we don't have all tree nodes we would otherwise expect. (see ASTParser.setFocalPosition)
+	ExplicitConstructorCall constructorCall = getConstructorCall();
+	if (constructorCall == null)
+		return;
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
+	// constructor being unused if the base class doesn't have a no-arg constructor.
+	// See that a seemingly unused constructor that chains to another constructor with a
+	// this(...) can be flagged as being unused without hesitation.
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142
+	if (constructorCall.accessMode != ExplicitConstructorCall.This) {
+		ReferenceBinding superClass = constructorBinding.declaringClass.superclass();
+		if (superClass == null)
+			return;
+		// see if there is a no-arg super constructor
+		MethodBinding methodBinding = superClass.getExactConstructor(Binding.NO_PARAMETERS);
+		if (methodBinding == null)
+			return;
+		if (!methodBinding.canBeSeenBy(SuperReference.implicitSuperConstructorCall(), this.scope))
+			return;
+		ReferenceBinding declaringClass = constructorBinding.declaringClass;
+		if (constructorBinding.isPublic() && constructorBinding.parameters.length == 0 && declaringClass.isStatic()
+				&& declaringClass.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoExternalizable, false) != null)
+			return;
+		// otherwise default super constructor exists, so go ahead and complain unused.
+	}
+	this.scope.problemReporter().unusedPrivateConstructor(this);
+}
+private void complainOnUnusedTypeVariables() {
+	if (this.typeParameters != null  && !this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
+		for (TypeParameter typeParameter : this.typeParameters) {
+			if ((typeParameter.binding.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
+				this.scope.problemReporter().unusedTypeParameter(typeParameter);
+			}
+		}
+	}
+}
 public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode, AnalysisMode mode) {
 	// Effect of 'AnalysisMode mode':
 	// ALL: 		analyse in one go as normal.
@@ -117,61 +167,15 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		} else {
 			flowInfo.setReachMode(initialReachMode);
 
-			checkUnused: {
-				MethodBinding constructorBinding;
-				if ((constructorBinding = this.binding) == null) break checkUnused;
-				if ((this.bits & ASTNode.IsDefaultConstructor) != 0) break checkUnused;
-				if (constructorBinding.isUsed()) break checkUnused;
-				if (constructorBinding.isPrivate()) {
-					if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
-						break checkUnused; // tolerate as known pattern to block instantiation
-				} else if (!constructorBinding.isOrEnclosedByPrivateType()) {
-					break checkUnused;
-		 		}
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446, When the AST built is an abridged version
-				// we don't have all tree nodes we would otherwise expect. (see ASTParser.setFocalPosition)
-				ExplicitConstructorCall constructorCall = getConstructorCall();
-				if (constructorCall == null)
-					break checkUnused;
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
-				// constructor being unused if the base class doesn't have a no-arg constructor.
-				// See that a seemingly unused constructor that chains to another constructor with a
-				// this(...) can be flagged as being unused without hesitation.
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142
-				if (constructorCall.accessMode != ExplicitConstructorCall.This) {
-					ReferenceBinding superClass = constructorBinding.declaringClass.superclass();
-					if (superClass == null)
-						break checkUnused;
-					// see if there is a no-arg super constructor
-					MethodBinding methodBinding = superClass.getExactConstructor(Binding.NO_PARAMETERS);
-					if (methodBinding == null)
-						break checkUnused;
-					if (!methodBinding.canBeSeenBy(SuperReference.implicitSuperConstructorCall(), this.scope))
-						break checkUnused;
-					ReferenceBinding declaringClass = constructorBinding.declaringClass;
-					if (constructorBinding.isPublic() && constructorBinding.parameters.length == 0 &&
-							declaringClass.isStatic() &&
-							declaringClass.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoExternalizable, false) != null)
-						break checkUnused;
-					// otherwise default super constructor exists, so go ahead and complain unused.
-				}
-				// complain unused
-				this.scope.problemReporter().unusedPrivateConstructor(this);
-			}
+			complainOnUnusedPrivateConstructor();
 
 			// check constructor recursion, once all constructor got resolved
 			if (isRecursive(null /*lazy initialized visited list*/)) {
 				this.scope.problemReporter().recursiveConstructorInvocation(getConstructorCall());
 			}
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
-			if (this.typeParameters != null  &&
-					!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-				for (TypeParameter typeParameter : this.typeParameters) {
-					if ((typeParameter.binding.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
-						this.scope.problemReporter().unusedTypeParameter(typeParameter);
-					}
-				}
-			}
+
+			complainOnUnusedTypeVariables();
+
 			constructorContext =
 				new ExceptionHandlingFlowContext(
 					initializerFlowContext.parent,
@@ -190,7 +194,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			// anonymous constructor can gain extra thrown exceptions from unhandled ones
 			if (this.binding.declaringClass.isAnonymousType()) {
 				List computedExceptions = constructorContext.extendedExceptions;
-				if (computedExceptions != null){
+				if (computedExceptions != null) {
 					int size;
 					if ((size = computedExceptions.size()) > 0) {
 						ReferenceBinding[] actuallyThrownExceptions;
@@ -201,18 +205,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 
 			// nullity, owning and mark as assigned
-			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
+			analyseArguments(this.scope, flowInfo, initializerFlowContext, arguments(true), this.binding);
 
-			if (this.isCompactConstructor()) {
-				for (LocalVariableBinding local : this.scope.locals) {
-					if (local != null && local.isParameter())
-						flowInfo.markAsDefinitelyAssigned(local);
-				}
-			}
-
-			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
-				this.scope.enterEarlyConstructionContext();
-			}
+			this.scope.enterEarlyConstructionContext();
 
 			// propagate to constructor call
 			if (earlyConstructorCall != null) {
@@ -386,12 +381,6 @@ boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 	return false;
 }
 
-/**
- * Bytecode generation for a constructor
- *
- * @param classScope org.eclipse.jdt.internal.compiler.lookup.ClassScope
- * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
- */
 @Override
 public void generateCode(ClassScope classScope, ClassFile classFile) {
 	int problemResetPC = 0;
@@ -459,27 +448,25 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 }
 
 public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodScope, CodeStream codeStream, ReferenceBinding declaringClass) {
-	if (!declaringClass.isNestedType()) return;
-
-	NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
-
-	SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
-	if (syntheticArgs != null) {
-		for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
-			if (syntheticArg.matchingField != null) {
-				codeStream.aload_0();
-				codeStream.load(syntheticArg);
-				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+	if (declaringClass instanceof NestedTypeBinding nestedType) {
+		SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
+		if (syntheticArgs != null) {
+			for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
+				if (syntheticArg.matchingField != null) {
+					codeStream.aload_0();
+					codeStream.load(syntheticArg);
+					codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+				}
 			}
 		}
-	}
-	syntheticArgs = nestedType.syntheticOuterLocalVariables();
-	if (syntheticArgs != null) {
-		for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
-			if (syntheticArg.matchingField != null) {
-				codeStream.aload_0();
-				codeStream.load(syntheticArg);
-				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+		syntheticArgs = nestedType.syntheticOuterLocalVariables();
+		if (syntheticArgs != null) {
+			for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
+				if (syntheticArg.matchingField != null) {
+					codeStream.aload_0();
+					codeStream.load(syntheticArg);
+					codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+				}
 			}
 		}
 	}
@@ -543,9 +530,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
 
-		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
-			this.scope.enterEarlyConstructionContext();
-		}
+		this.scope.enterEarlyConstructionContext();
 
 		// generate statements
 		if (this.statements != null) {

@@ -252,15 +252,17 @@ public abstract class AbstractMethodDeclaration
 	 * <li>NotOwning - for resource leak analysis
 	 * </ul>
 	 */
-	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, Argument[] methodArguments, MethodBinding methodBinding) {
+	static void analyseArguments(MethodScope scope, FlowInfo flowInfo, FlowContext flowContext, AbstractVariableDeclaration[] methodArguments, MethodBinding methodBinding) {
 		if (methodArguments != null) {
+			LookupEnvironment environment = scope.environment();
 			boolean usesNullTypeAnnotations = environment.usesNullTypeAnnotations();
 			boolean usesOwningAnnotations = environment.usesOwningAnnotations();
 
 			int length = Math.min(methodBinding.parameters.length, methodArguments.length);
 			for (int i = 0; i < length; i++) {
 				TypeBinding parameterBinding = methodBinding.parameters[i];
-				LocalVariableBinding local = methodArguments[i].binding;
+				AbstractVariableDeclaration methodArgument = methodArguments[i];
+				LocalVariableBinding local = methodArgument instanceof Argument argument ? argument.binding : scope.findVariable(methodArgument.name);
 				if (usesNullTypeAnnotations) {
 					// leverage null type annotations:
 					long tagBits = parameterBinding.tagBits & TagBits.AnnotationNullMASK;
