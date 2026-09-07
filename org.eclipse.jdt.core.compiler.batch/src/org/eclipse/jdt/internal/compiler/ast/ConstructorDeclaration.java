@@ -30,6 +30,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode.EPILOGUE_ANALYSIS;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode.PROLOGUE_ANALYSIS;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -45,7 +48,6 @@ import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
-import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -58,8 +60,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
-	public static final UnconditionalFlowInfo EMPTY_FLOW_INFO = new UnconditionalFlowInfo();
-
 	public TypeParameter[] typeParameters;
 
 	private ExceptionHandlingFlowContext prologueContext;
@@ -71,20 +71,14 @@ public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
 }
 
-enum AnalysisMode { ALL, PROLOGUE, REST }
-
-FlowInfo getPrologueInfo() {
-	if (this.prologueInfo != null)
-		return this.prologueInfo;
-	return EMPTY_FLOW_INFO;
+enum AnalysisMode {
+	FULL_ANALYSIS,     // Java 24- compatible constructors
+	PROLOGUE_ANALYSIS, // analyze up to chaining constructor invocation although JEP 513 defines prologue to not to include the call itself (arguments evaluation is in early construction context)
+	EPILOGUE_ANALYSIS
 }
 
-/**
- * The flowInfo corresponds to non-static field initialization infos. It may be unreachable (155423), but still the explicit constructor call must be
- * analyzed as reachable, since it will be generated in the end.
- */
-public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode) {
-	analyseCode(classScope, initializerFlowContext, flowInfo, initialReachMode, this.prologueInfo != null ? AnalysisMode.REST : AnalysisMode.ALL);
+FlowInfo getPrologueInfo() {
+	return this.prologueInfo;
 }
 
 private void complainOnUnusedPrivateConstructor() {
@@ -151,7 +145,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
 		ExplicitConstructorCall earlyConstructorCall = getEarlyConstructorCall();
 		boolean hasArgumentNeedingAnalysis = earlyConstructorCall != null && earlyConstructorCall.hasArgumentNeedingAnalysis();
-		if (mode == AnalysisMode.PROLOGUE
+		if (mode == PROLOGUE_ANALYSIS
 				&& lateConstructorCall == null
 				&& (!hasArgumentNeedingAnalysis)) {
 			return; // no relevant prologue present
@@ -159,7 +153,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 		int nonStaticFieldInfoReachMode = flowInfo.reachMode();
 		ExceptionHandlingFlowContext constructorContext;
-		if (mode == AnalysisMode.REST) {
+		if (mode == EPILOGUE_ANALYSIS) {
 			// retrieve from first iteration (PROLOGUE):
 			constructorContext = this.prologueContext;
 			flowInfo = this.prologueInfo.addInitializationsFrom(flowInfo);
@@ -184,7 +178,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					initializerFlowContext,
 					this.scope,
 					FlowInfo.DEAD_END);
-			if (mode == AnalysisMode.PROLOGUE)
+			if (mode == PROLOGUE_ANALYSIS)
 				this.prologueContext = constructorContext; // save for REST
 			initializerFlowContext.checkInitializerExceptions(
 				this.scope,
@@ -212,14 +206,14 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			// propagate to constructor call
 			if (earlyConstructorCall != null) {
 				flowInfo = earlyConstructorCall.analyseCode(this.scope, constructorContext, flowInfo);
-				if (mode == AnalysisMode.PROLOGUE) {
+				if (mode == PROLOGUE_ANALYSIS) {
 					if (hasArgumentNeedingAnalysis)
 						this.prologueInfo = flowInfo.copy();
 					return;
 				}
 			}
 		}
-		if (earlyConstructorCall != null && mode != AnalysisMode.PROLOGUE) {
+		if (earlyConstructorCall != null && mode != PROLOGUE_ANALYSIS) {
 			markFieldsAsInitializedAfterThisCall(earlyConstructorCall, flowInfo);
 		}
 		// reuse the reachMode from non static field info
@@ -234,13 +228,13 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			for (Statement stat : this.statements) {
 				if (stat == earlyConstructorCall) // analyzed already.
 					continue;
-				if (mode == AnalysisMode.REST && !foundConstructor) {
+				if (mode == EPILOGUE_ANALYSIS && !foundConstructor) {
 					if (stat == lateConstructorCall) {	// if true this is where we start analysing
 						markFieldsAsInitializedAfterThisCall(lateConstructorCall, flowInfo);
 						foundConstructor = true; 	// no more checking for subsequent statements
 					}
 					continue;							// skip statements already processed during PROLOGUE analysis
-				} else if (mode == AnalysisMode.PROLOGUE && stat instanceof ExplicitConstructorCall ctorCall) {
+				} else if (mode == PROLOGUE_ANALYSIS && stat instanceof ExplicitConstructorCall ctorCall) {
 					complainAboutInitializedFinalFields(flowInfo, ctorCall);
 				}
 				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
@@ -252,11 +246,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				if (compilerOptions.analyseResourceLeaks) {
 					FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
 				}
-				if (mode == AnalysisMode.PROLOGUE && stat == lateConstructorCall) {
+				if (mode == PROLOGUE_ANALYSIS && stat == lateConstructorCall) {
 					break;
 				}
 			}
-			if (mode == AnalysisMode.PROLOGUE) {
+			if (mode == PROLOGUE_ANALYSIS) {
 				this.prologueInfo = flowInfo;	// keep for second iteration, also signals the need for REST analysis
 				return;							// we're done for this time
 			}

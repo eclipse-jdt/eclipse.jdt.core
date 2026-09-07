@@ -3764,5 +3764,53 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5371#issuecomment-5579445496
+	public void test5371Comment_5579445496() {
+		Runner runner = new Runner();
+		runner.customOptions.put(CompilerOptions.OPTION_Source, "24");
+		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "24");
+		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "24");
+		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_24);
+		runner.testFiles = new String[] {
+				"X.java",
+					"""
+					public class X {
+						int abcd;
+
+						X(int x) {
+
+						}
+
+						X() {
+							this(abcd = 10);
+						}
+
+						public static void main(String [] args) {
+						    X x = new X();
+						    System.out.println(x.abcd);
+						}
+					}
+					"""
+			};
+		runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in X.java (at line 9)
+				this(abcd = 10);
+				     ^^^^
+			Cannot refer to an instance field abcd while explicitly invoking a constructor
+			----------
+			""";
+		runner.runNegativeTest();
+
+		runner.customOptions.put(CompilerOptions.OPTION_Source, "25");
+		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "25");
+		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "25");
+		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_25);
+		runner.expectedOutputString = "10";
+		runner.expectedCompilerLog = "";
+		runner.runConformTest();
+	}
 }
 
