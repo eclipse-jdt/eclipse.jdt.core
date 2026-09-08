@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc.
+ * Copyright (c) 2007, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,7 +40,8 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.eclipse.core.internal.runtime.XmlProcessorFactory;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLComparer;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLConverter;
 import org.w3c.dom.Document;
@@ -842,8 +843,8 @@ public class NegativeModelProc extends AbstractProcessor
 		Document actualModel = XMLConverter.convertModel(rootElements);
 
     	InputSource source = new InputSource(new StringReader(expected));
-    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        Document expectedModel = factory.newDocumentBuilder().parse(source);
+    	DocumentBuilder builder = XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE();
+        Document expectedModel = builder.parse(source);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         StringBuilder summary = new StringBuilder();
