@@ -24,6 +24,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.EPILOGUE_ANALYSIS;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.FULL_ANALYSIS;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.PROLOGUE_ANALYSIS;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,7 +39,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.DualFlowInfo;
@@ -749,14 +752,12 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			// collect field initializations happening in constructor prologues
 			FlowInfo prologueInfo = null;
 			boolean allConstructorsHavePrologue = true;
-			for (int i=0; i<this.methods.length; i++) {
-				AbstractMethodDeclaration method = this.methods[i];
-				if (method.isConstructor()) {
+			for (AbstractMethodDeclaration method : this.methods) {
+				if (method instanceof ConstructorDeclaration constructor) {
 					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
-					ConstructorDeclaration constructor = (ConstructorDeclaration) method;
-					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), AnalysisMode.PROLOGUE);
+					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), PROLOGUE_ANALYSIS);
 					ctorInfo = constructor.getPrologueInfo();
-					if (ctorInfo == ConstructorDeclaration.EMPTY_FLOW_INFO) {
+					if (ctorInfo == null) {
 						allConstructorsHavePrologue = false;
 					} else if (ctorInfo.hasInits()) {
 						if (prologueInfo == null)
@@ -865,16 +866,11 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		for (AbstractMethodDeclaration method : this.methods) {
 			if (method.ignoreFurtherInvestigation)
 				continue;
-			if (method.isInitializationMethod()) {
-				// pass down the appropriate initializerContext:
-				if (method.isStatic()) { // <clinit>
-					((Clinit)method).analyseCode(
-						this.scope,
-						staticInitializerContext,
-						staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
-				} else { // constructor
-					((ConstructorDeclaration)method).analyseCode(this.scope, initializerContext, constructorInfo.copy(), flowInfo.reachMode());
-				}
+			if (method instanceof Clinit clinit) {
+				clinit.analyseCode(this.scope, staticInitializerContext, staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
+			} else if (method instanceof ConstructorDeclaration cd) {
+				cd.analyseCode(this.scope, initializerContext, constructorInfo.copy(), flowInfo.reachMode(),
+						cd.getPrologueInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS);
 			} else { // regular method
 				// JUnit 5 only accepts methods without arguments for method sources
 				if (method.arguments == null && jUnitMethodSourceValues.includes(method.selector) && method.binding != null) {
