@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@RunJavac
 public class LocalEnumTest extends AbstractComparableTest {
 
 	String reportMissingJavadocComments = null;
@@ -73,24 +74,16 @@ public class LocalEnumTest extends AbstractComparableTest {
 		return options;
 	}
 
-	// ========= OPT-IN to run.javac mode: ===========
 	@Override
 	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
 		super.setUp();
 		this.reportMissingJavadocComments = null;
 	}
 	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
-
-	@Override
 	protected void runConformTest(String[] testFiles) {
 		runConformTest(testFiles, "", getCompilerOptions());
 	}
+
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions());

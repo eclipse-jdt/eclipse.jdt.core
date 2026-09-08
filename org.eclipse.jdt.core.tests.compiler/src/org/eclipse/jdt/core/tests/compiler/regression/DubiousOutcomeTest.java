@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.Jav
  * <li>if the new outcome is good, thus removing the doubt, then move the test to a 'regular' suite class
  * </ol>
  */
+@RunJavac
 public class DubiousOutcomeTest extends AbstractRegressionTest {
 
 	static {
@@ -43,18 +44,6 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	public void testGH1591() {
 		// javac accepts

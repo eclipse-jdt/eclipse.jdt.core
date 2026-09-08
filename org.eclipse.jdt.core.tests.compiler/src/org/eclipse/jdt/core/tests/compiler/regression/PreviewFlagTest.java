@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @PreviewTest
+@RunJavac
 public class PreviewFlagTest extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 26");
@@ -43,19 +44,6 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 	public PreviewFlagTest(String testName) {
 		super(testName);
 	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {

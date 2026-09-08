@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
+@RunJavac
 public class ModuleImportTests extends AbstractModuleCompilationTest {
 
 	static {
@@ -33,19 +34,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	public ModuleImportTests(String name) {
 		super(name);
 	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_23);

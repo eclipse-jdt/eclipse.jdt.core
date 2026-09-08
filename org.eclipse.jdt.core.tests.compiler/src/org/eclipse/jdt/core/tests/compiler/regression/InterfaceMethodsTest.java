@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 // See https://bugs.eclipse.org/380501
 // Bug 380501 - [1.8][compiler] Add support for default methods (JSR 335)
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@RunJavac
 public class InterfaceMethodsTest extends AbstractComparableTest {
 
 // Static initializer to specify tests subset using TESTS_* static variables
@@ -57,19 +58,6 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	public InterfaceMethodsTest(String name) {
 		super(name);
 	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	// default methods with various modifiers, positive cases
 	public void testModifiers1() {
