@@ -145,7 +145,7 @@ private void computeClasspathLocations(
 		isReleaseEnabled = true;
 	} else {
 		compliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-		isReleaseEnabled = JavaCore.ENABLED.equals(javaProject.getOption(JavaCore.COMPILER_RELEASE, false));
+		isReleaseEnabled = JavaCore.ENABLED.equals(javaProject.getOption(JavaCore.COMPILER_RELEASE, true));
 	}
 	if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9) {
 		moduleEntries = new LinkedHashMap<>(classpathEntries.length);

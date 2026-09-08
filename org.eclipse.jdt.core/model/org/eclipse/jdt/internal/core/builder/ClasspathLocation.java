@@ -167,9 +167,9 @@ public static ClasspathJrt forJrtSystem(String jrtPath, AccessRuleSet accessRule
 		} catch (IOException e) {
 			throw new CoreException(new Status(IStatus.ERROR, ClasspathLocation.class, "Failed to detect JDK release for: " + jrtPath, e)); //$NON-NLS-1$
 		}
-		boolean sameRelease = JavaCore.compareJavaVersions(jrtVersion, release) == 0;
-		if(sameRelease) {
-			useRelease = false;
+		boolean sameOrHigherRelease = JavaCore.compareJavaVersions(release, jrtVersion) >= 0;
+		if(sameOrHigherRelease) {
+			useRelease = false; // either not needed or illegal
 		}
 	}
 	return useRelease ? new ClasspathJrtWithReleaseOption(jrtPath, accessRuleSet, annotationsPath, release)
