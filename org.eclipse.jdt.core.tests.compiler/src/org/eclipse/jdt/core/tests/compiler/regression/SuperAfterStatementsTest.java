@@ -3812,5 +3812,35 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedCompilerLog = "";
 		runner.runConformTest();
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5374#issuecomment-5585179647
+	public void testIssue5374() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				{
+					if (true)
+						throw new RuntimeException();
+				}
+				final String s;
+				private X(boolean f) {
+					s = "1";
+					super();
+					s = "2";
+				}
+			}
+			class Y {
+				final String s2;
+			}
+			"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 14)\n" +
+			"	final String s2;\n" +
+			"	             ^^\n" +
+			"The blank final field s2 may not have been initialized\n" +
+			"----------\n");
+	}
 }
 
