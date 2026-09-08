@@ -20291,6 +20291,71 @@ public void testGH5249() {
 		getCompilerOptions(),
 		"");
 }
+public void testGH5249_inheritedBuilders() {
+	String client = """
+		public class Test {
+			Builders.Child build(Builders.ChildBuilder builder) {
+				return builder.build();
+			}
+			Builders.Child buildReversed(Builders.ReversedChildBuilder builder) {
+				return builder.build();
+			}
+		}
+		""";
+	runConformTestWithLibs(new String[] {
+			"Builders.java",
+			"""
+			public class Builders {
+				public static class Parent {}
+				public static class Child extends Parent {}
+				public interface ParentBuilder {
+					Parent build();
+				}
+				public interface GenericBuilder<T> {
+					T build();
+				}
+				public interface ChildBuilder extends ParentBuilder, GenericBuilder<Child> {}
+				public interface ReversedChildBuilder extends GenericBuilder<Child>, ParentBuilder {}
+			}
+			""",
+			"Test.java",
+			client
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(false, new String[] { "Test.java", client }, getCompilerOptions(), "");
+}
+public void testGH5249_inheritedNullAnnotations() {
+	runConformTestWithLibs(new String[] {
+			"Test.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+
+			public class Test {
+				interface ParentBuilder {
+					Object build();
+				}
+				interface NullableBuilder {
+					@Nullable String build();
+				}
+				interface NonNullBuilder {
+					@NonNull String build();
+				}
+				interface Builder extends ParentBuilder, NullableBuilder, NonNullBuilder {}
+				interface ReversedBuilder extends NonNullBuilder, NullableBuilder, ParentBuilder {}
+
+				@NonNull String build(Builder builder) {
+					return builder.build();
+				}
+				@NonNull String buildReversed(ReversedBuilder builder) {
+					return builder.build();
+				}
+			}
+			"""
+		},
+		getCompilerOptions(),
+		"");
+}
 public void testGH5316() throws Exception {
 	runConformTestWithLibs(new String[] {
 			"MyInnocentClass.java",

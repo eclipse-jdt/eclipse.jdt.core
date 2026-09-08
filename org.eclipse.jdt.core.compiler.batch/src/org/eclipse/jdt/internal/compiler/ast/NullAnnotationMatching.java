@@ -856,9 +856,12 @@ public class NullAnnotationMatching {
 		if (count < 2)
 			return current;
 		TypeBinding[] parameters = weakerTypes(moreSpecific[0].parameters, moreSpecific[1].parameters, environment);
-		TypeBinding returnType = strongerType(moreSpecific[0].returnType, moreSpecific[1].returnType, environment);
 		for (int i = 2; i < count; i++) {
 			parameters = weakerTypes(parameters, moreSpecific[i].parameters, environment);
+		}
+		// Preserve the covariant return type selected by method resolution.
+		TypeBinding returnType = current.returnType;
+		for (int i = 0; i < count; i++) {
 			returnType = strongerType(returnType, moreSpecific[i].returnType, environment);
 		}
 		if (parameters != current.parameters || returnType != current.returnType) { //$IDENTITY-COMPARISON$
