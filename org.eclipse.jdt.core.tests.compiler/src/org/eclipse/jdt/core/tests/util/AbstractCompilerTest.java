@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
@@ -90,6 +91,8 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE25Plus = false;
 	protected static boolean isJRE26Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
+
+	public static Predicate<Class<?>> testClassFilter;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
 		new int[] {F_1_8, ClassFileConstants.MAJOR_VERSION_1_8},
@@ -186,6 +189,9 @@ public class AbstractCompilerTest extends TestCase {
 	 * @return built test suite (see {@link TestSuite}
 	 */
 	private static Test buildComplianceTestSuite(List testClasses, Class setupClass, long complianceLevel) {
+		if (testClassFilter != null) {
+			testClasses = testClasses.stream().filter(testClassFilter).toList();
+		}
 		// call the setup constructor with the compliance level
 		TestSuite complianceSuite = null;
 		try {

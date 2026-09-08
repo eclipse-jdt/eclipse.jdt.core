@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import junit.framework.Test;
 
 @SuppressWarnings({ "rawtypes" })
+@RunJavac
 public class AssertionTest extends AbstractRegressionTest {
 //	 Static initializer to specify tests subset using TESTS_* static variables
 //	 All specified tests which does not belong to the class are skipped...
@@ -35,18 +36,6 @@ public class AssertionTest extends AbstractRegressionTest {
 	public static Class testClass() {
 		return AssertionTest.class;
 	}
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	public void test001() {
 		this.runNegativeTest(

@@ -4187,6 +4187,9 @@ protected void runNegativeTest(
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println(this.getClass().getName()+'.'+ getName());
+		if (getClass().getAnnotation(RunJavac.class) != null) {
+			this.runJavacOptIn = true;
+		}
 		super.setUp();
 		if (this.verifier == null) {
 			this.verifier = new TestVerifier(true);
@@ -4293,6 +4296,7 @@ protected void runNegativeTest(
 			printJavacResultsSummary();
 			javacUsePathOption(" -classpath ");
 		}
+		this.runJavacOptIn = false;
 	}
 	/**
 	 * Returns the OS path to the directory that contains this plugin.

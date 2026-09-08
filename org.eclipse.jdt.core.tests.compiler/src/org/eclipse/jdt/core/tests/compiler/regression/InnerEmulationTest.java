@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@RunJavac
 public class InnerEmulationTest extends AbstractRegressionTest {
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };
@@ -39,19 +40,12 @@ public InnerEmulationTest(String name) {
 	super(name);
 }
 
-// ========= OPT-IN to run.javac mode: ===========
 @Override
 protected void setUp() throws Exception {
-	if (this.complianceLevel >= ClassFileConstants.JDK25)
-		this.runJavacOptIn = true;
 	super.setUp();
+	if (this.complianceLevel < ClassFileConstants.JDK25)
+		this.runJavacOptIn = false;
 }
-@Override
-protected void tearDown() throws Exception {
-	super.tearDown();
-	this.runJavacOptIn = false; // do it last, so super can still clean up
-}
-// =================================================
 
 @Override
 protected Map getCompilerOptions() {
