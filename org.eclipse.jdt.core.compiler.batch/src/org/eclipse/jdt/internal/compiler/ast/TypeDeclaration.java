@@ -24,9 +24,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode.EPILOGUE_ANALYSIS;
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode.FULL_ANALYSIS;
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode.PROLOGUE_ANALYSIS;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.EPILOGUE_ANALYSIS;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.FULL_ANALYSIS;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.PROLOGUE_ANALYSIS;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -752,11 +752,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			// collect field initializations happening in constructor prologues
 			FlowInfo prologueInfo = null;
 			boolean allConstructorsHavePrologue = true;
-			for (int i=0; i<this.methods.length; i++) {
-				AbstractMethodDeclaration method = this.methods[i];
-				if (method.isConstructor()) {
+			for (AbstractMethodDeclaration method : this.methods) {
+				if (method instanceof ConstructorDeclaration constructor) {
 					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
-					ConstructorDeclaration constructor = (ConstructorDeclaration) method;
 					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), PROLOGUE_ANALYSIS);
 					ctorInfo = constructor.getPrologueInfo();
 					if (ctorInfo == null) {
