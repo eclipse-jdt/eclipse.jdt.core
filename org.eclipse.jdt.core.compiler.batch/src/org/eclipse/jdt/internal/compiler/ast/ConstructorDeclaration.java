@@ -31,6 +31,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.EPILOGUE_ANALYSIS;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.FULL_ANALYSIS;
 import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.PROLOGUE_ANALYSIS;
 
 import java.util.ArrayList;
@@ -137,7 +138,7 @@ enum ConstructorFlowAnalysisMode {
 	PROLOGUE_ANALYSIS,
 
 	/** Skip the prologue and analyse only the statements after the explicit constructor call
-	 *  (One possible) Phase 2 of 2 for Java 25
+	 *  (One possible) Phase 2 of 2 for Java 25+
 	 */
 	EPILOGUE_ANALYSIS
 }
@@ -162,22 +163,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 		int nonStaticFieldInfoReachMode = flowInfo.reachMode();
 		ExceptionHandlingFlowContext constructorContext;
-		if (mode == EPILOGUE_ANALYSIS) {
-			// retrieve from first iteration (PROLOGUE):
-			constructorContext = this.prologueContext;
-			flowInfo = this.prologueInfo.addInitializationsFrom(flowInfo);
-			// skip the part already done during PROLOGUE analysis ...
-		} else {
-
-			complainOnUnusedPrivateConstructor();
-
-			// check constructor recursion, once all constructor got resolved
-			if (isRecursive(null /*lazy initialized visited list*/)) {
-				this.scope.problemReporter().recursiveConstructorInvocation(getConstructorCall());
-			}
-
-			complainOnUnusedTypeVariables();
-
+		if (mode == PROLOGUE_ANALYSIS || mode == FULL_ANALYSIS) {
 			constructorContext =
 				new ExceptionHandlingFlowContext(
 					initializerFlowContext.parent,
@@ -187,30 +173,16 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					this.scope,
 					FlowInfo.DEAD_END);
 			if (mode == PROLOGUE_ANALYSIS)
-				this.prologueContext = constructorContext; // save for REST
-			initializerFlowContext.checkInitializerExceptions(
-				this.scope,
-				constructorContext,
-				flowInfo);
-
-			// anonymous constructor can gain extra thrown exceptions from unhandled ones
-			if (this.binding.declaringClass.isAnonymousType()) {
-				List computedExceptions = constructorContext.extendedExceptions;
-				if (computedExceptions != null) {
-					int size;
-					if ((size = computedExceptions.size()) > 0) {
-						ReferenceBinding[] actuallyThrownExceptions;
-						computedExceptions.toArray(actuallyThrownExceptions = new ReferenceBinding[size]);
-						this.binding.thrownExceptions = actuallyThrownExceptions;
-					}
-				}
-			}
+				this.prologueContext = constructorContext; // save for EPILOGUE_ANALYSIS
 
 			// nullity, owning and mark as assigned
 			analyseArguments(this.scope, flowInfo, initializerFlowContext, arguments(true), this.binding);
+		} else {
+			// Retrieve flow info and flow context stashed away during prologue analysis, skip prologue (below) and continue analysis.
+			constructorContext = this.prologueContext;
+			flowInfo = this.prologueInfo.addInitializationsFrom(flowInfo);
 		}
 
-		// propagate to statements
 		ExplicitConstructorCall constructorCall = null;
 		if (this.statements != null) {
 			CompilerOptions compilerOptions = this.scope.compilerOptions();
@@ -256,8 +228,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				}
 			}
 		}
-		// check for missing returning path
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
+
+		// *** Prologue analysis DOES NOT reach here ***
+
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) { // don't fall through the constructor!
 			this.bits |= ASTNode.NeedFreeReturn;
 		}
 
@@ -274,9 +248,32 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			flowInfo = flowInfo.mergedWith(constructorContext.initsOnReturn);
 			doFieldReachAnalysis(flowInfo, this.binding.declaringClass.fields());
 		}
-		// check unreachable catch blocks
+
+		initializerFlowContext.checkInitializerExceptions(
+				this.scope,
+				constructorContext,
+				flowInfo);
+
+		// anonymous constructor can gain extra thrown exceptions from unhandled ones
+		if (this.binding.declaringClass.isAnonymousType()) {
+			List computedExceptions = constructorContext.extendedExceptions;
+			if (computedExceptions != null) {
+				int size;
+				if ((size = computedExceptions.size()) > 0) {
+					ReferenceBinding[] actuallyThrownExceptions;
+					computedExceptions.toArray(actuallyThrownExceptions = new ReferenceBinding[size]);
+					this.binding.thrownExceptions = actuallyThrownExceptions;
+				}
+			}
+		}
+
+		// Complain about unused { constructors, type variables, parameters, catch blocks } etc
+		complainOnUnusedPrivateConstructor();
+		if (isRecursive(null /*lazy initialized visited list*/)) { // check constructor recursion, now that all constructors got resolved
+			this.scope.problemReporter().recursiveConstructorInvocation(constructorCall);
+		}
+		complainOnUnusedTypeVariables();
 		constructorContext.complainIfUnusedExceptionHandlers(this);
-		// check unused parameters
 		this.scope.checkUnusedParameters(this.binding);
 		this.scope.checkUnclosedCloseables(flowInfo, null, null/*don't report against a specific location*/, null);
 	} catch (AbortMethod e) {
