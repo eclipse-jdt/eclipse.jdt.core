@@ -60,6 +60,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 public FieldDeclaration() {
 	// for subtypes or conversion
+	this.bits |= ASTNode.IsUnreachableInAllUniverses; // will be cleared when control flow is found to reach
 }
 
 public FieldDeclaration(	char[] name, int sourceStart, int sourceEnd) {
@@ -69,6 +70,7 @@ public FieldDeclaration(	char[] name, int sourceStart, int sourceEnd) {
 	//the sourceStart and the sourceEnd is ONLY on  the name
 	this.sourceStart = sourceStart;
 	this.sourceEnd = sourceEnd;
+	this.bits |= ASTNode.IsUnreachableInAllUniverses; // will be cleared when control flow is found to reach
 }
 
 public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) {

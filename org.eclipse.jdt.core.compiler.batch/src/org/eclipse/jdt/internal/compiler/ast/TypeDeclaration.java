@@ -24,10 +24,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.EPILOGUE_ANALYSIS;
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.FULL_ANALYSIS;
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.PROLOGUE_ANALYSIS;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,14 +37,11 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.DualFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
-import org.eclipse.jdt.internal.compiler.flow.UnconditionalDualFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -734,10 +727,6 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		}
 	}
 
-	boolean useOwningAnnotations = this.scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
-	boolean isCloseable = this.binding.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable);
-	FieldDeclaration fieldNeedingClose = null;
-
 	// for local classes we use the flowContext as our parent, but never use an initialization context for this purpose
 	// see Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 	FlowContext parentContext = (flowContext instanceof InitializationFlowContext) ? null : flowContext;
@@ -747,88 +736,25 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();	// discards info about fields of inclosing classes
 	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 
-	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
-		if (this.methods != null) {
-			// collect field initializations happening in constructor prologues
-			FlowInfo prologueInfo = null;
-			boolean allConstructorsHavePrologue = true;
-			for (AbstractMethodDeclaration method : this.methods) {
-				if (method instanceof ConstructorDeclaration constructor) {
-					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
-					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), PROLOGUE_ANALYSIS);
-					ctorInfo = constructor.getPrologueInfo();
-					if (ctorInfo == null) {
-						allConstructorsHavePrologue = false;
-					} else if (ctorInfo.hasInits()) {
-						if (prologueInfo == null)
-							prologueInfo = ctorInfo.copy();
-						else
-							prologueInfo = prologueInfo.mergeDefiniteInitsWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
-					}
-				}
-			}
-			if (prologueInfo != null) {
-				if (allConstructorsHavePrologue) {
-					// field initializers should see inits from ctor prologues:
-					for (FieldBinding field : this.binding.fields()) {
-						if (prologueInfo.isDefinitelyAssigned(field)) {
-							nonStaticFieldInfo.markAsDefinitelyAssigned(field);
-						} else if (prologueInfo.isPotentiallyAssigned(field)) {
-							// mimic missing method markAsPotentiallyAssigned(field):
-							UnconditionalFlowInfo assigned = FlowInfo.initial(this.maxFieldCount);
-							assigned.markAsDefinitelyAssigned(field);
-							nonStaticFieldInfo.addPotentialInitializationsFrom(assigned);
-						}
-					}
-				} else {
-					// need to keep variants with and without prologue info separate:
-					nonStaticFieldInfo = new DualFlowInfo(nonStaticFieldInfo, prologueInfo);
-				}
-			}
-		}
-	}
-
 	if (this.fields != null) {
 		for (FieldDeclaration field : this.fields) {
 			if (field.isStatic()) {
 				if ((staticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 					field.bits &= ~ASTNode.IsReachable;
 
-				/*if (field.isField()){
-					staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-				} else {*/
 				staticInitializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
-				/*}*/
 				staticFieldInfo = field.analyseCode(this.staticInitializerScope, staticInitializerContext, staticFieldInfo);
+
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
 				if (staticFieldInfo == FlowInfo.DEAD_END) {
 					this.staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
 					staticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
-			} else {
-				if ((nonStaticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
-					field.bits &= ~ASTNode.IsReachable;
-
-				/*if (field.isField()){
-					initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-				} else {*/
-					initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
-				/*}*/
-				nonStaticFieldInfo = field.analyseCode(this.initializerScope, initializerContext, nonStaticFieldInfo);
-				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
-				// branch, since the previous initializer already got the blame.
-				if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
-					this.initializerScope.problemReporter().initializerMustCompleteNormally(field);
-					nonStaticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
-				}
-				if (fieldNeedingClose == null && useOwningAnnotations && isCloseable
-						&& !(field instanceof Initializer) && (field.binding.tagBits & TagBits.AnnotationOwning) != 0) {
-					fieldNeedingClose = field;
-				}
-			}
+			} // else { /* instance fields are analyzed inside the constructor. */}
 		}
 	}
+
 	if (this.memberTypes != null) {
 		for (TypeDeclaration memberType : this.memberTypes) {
 			if (flowContext != null){ // local type
@@ -856,11 +782,6 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	}
 	if (this.methods != null) {
 		UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
-		if (nonStaticFieldInfo instanceof UnconditionalDualFlowInfo udfi) {
-			nonStaticFieldInfo = udfi.getMainInits(); // drop info from prologues
-		} else if (nonStaticFieldInfo instanceof DualFlowInfo dfi) {
-			nonStaticFieldInfo = dfi.initsWhenTrue;
-		}
 		FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 		SimpleSetOfCharArray jUnitMethodSourceValues = getJUnitMethodSourceValues();
 		for (AbstractMethodDeclaration method : this.methods) {
@@ -869,8 +790,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			if (method instanceof Clinit clinit) {
 				clinit.analyseCode(this.scope, staticInitializerContext, staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
 			} else if (method instanceof ConstructorDeclaration cd) {
-				cd.analyseCode(this.scope, initializerContext, constructorInfo.copy(), flowInfo.reachMode(),
-						cd.getPrologueInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS);
+				cd.analyseCode(this.scope, initializerContext,constructorInfo.copy(), flowInfo.reachMode());
 			} else { // regular method
 				// JUnit 5 only accepts methods without arguments for method sources
 				if (method.arguments == null && jUnitMethodSourceValues.includes(method.selector) && method.binding != null) {
@@ -878,15 +798,21 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				}
 				// pass down the parentContext (NOT an initializer context, see above):
 				((MethodDeclaration)method).analyseCode(this.scope, parentContext, flowInfo.copy());
-				if (fieldNeedingClose != null && CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.arguments == null) {
-					fieldNeedingClose = null;
-				}
 			}
 		}
 	}
-	if (fieldNeedingClose != null) {
-		this.scope.problemReporter().missingImplementationOfClose(fieldNeedingClose);
+
+	if (this.fields != null) {
+		for (FieldDeclaration field : this.fields) {
+			if (!field.isStatic()) {
+				if ((field.bits & IsUnreachableInAllUniverses) != 0)
+					field.bits &= ~ASTNode.IsReachable;
+				else
+					field.bits |= ASTNode.IsReachable; // at least from one or more prologues it is reachable even if not from every prologue.
+			}
+		}
 	}
+
 	// enable enum support ?
 	if (this.binding.isEnum() && !this.binding.isAnonymousType()) {
 		this.enumValuesSyntheticfield = this.binding.addSyntheticFieldForEnumValues();
@@ -969,6 +895,8 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	NestedTypeBinding nestedType = (NestedTypeBinding) this.binding;
 
 	MethodScope methodScope = currentScope.methodScope();
+	if (methodScope.isInsideInstanceInitializer() && !methodScope.inPrimaryAnalysis())
+		return;
 	if (!methodScope.isStatic) {
 		boolean earlySeen = false;
 		Scope outerScope = currentScope.parent;

@@ -134,4 +134,31 @@ public static IErrorHandlingPolicy ignoreAllProblems() {
 		}
 	};
 }
+/*
+ * Accumulate all problems, then proceed with them, but never report duplicates.
+ */
+public static IErrorHandlingPolicy filterDuplicateProblems() {
+	return new IErrorHandlingPolicy() {
+		@Override
+		public boolean stopOnFirstError() {
+			return false;
+		}
+		@Override
+		public boolean proceedOnErrors(){
+			return true;
+		}
+		@Override
+		public boolean ignoreAllErrors() {
+			return false;
+		}
+		@Override
+		public boolean filterDuplicates() {
+			return true;
+		}
+		@Override
+		public String toString() {
+			return "IgnoreDuplicateProblems"; //$NON-NLS-1$
+		}
+	};
+}
 }

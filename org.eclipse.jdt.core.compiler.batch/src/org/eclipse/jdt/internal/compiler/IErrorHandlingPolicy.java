@@ -30,4 +30,5 @@ public interface IErrorHandlingPolicy {
 	boolean proceedOnErrors();
 	boolean stopOnFirstError();
 	boolean ignoreAllErrors();
+	default boolean filterDuplicates() { return false; }
 }

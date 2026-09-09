@@ -200,6 +200,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 	// for type, method and field declarations
 	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
 	public static final int HasBeenResolved = Bit5; // field decl only (to handle forward references)
+	public static final int IsUnreachableInAllUniverses = Bit27; // (instance) field decl only (will be cleared when control flow is found to reach)
 
 	// for lambda expressions
 	public static final int ArgumentsTypeElided = Bit2; // A lambda with var typed arguments is considered to be type elided, but the Arguments themselves are considered var typed.

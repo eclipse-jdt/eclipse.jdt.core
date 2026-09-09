@@ -71,6 +71,8 @@ public class MethodScope extends BlockScope {
 	// remember suppressed warning re missing 'default:' to give hints on possibly related flow problems
 	public boolean hasMissingSwitchDefault; // TODO(stephan): combine flags to a bitset?
 
+	public int analysisPass = 0; // To detect and prevent side effects during secondary and subsequent instance fields flow analysis.
+
 	static {
 		if (Boolean.getBoolean("jdt.flow.test.extra")) { //$NON-NLS-1$
 			baseAnalysisIndex = 64;
@@ -548,6 +550,14 @@ public boolean isInsideConstructor() {
 
 public boolean isInsideInitializer() {
 	return (this.referenceContext instanceof TypeDeclaration);
+}
+
+public boolean isInsideInstanceInitializer() {
+	return !this.isStatic && this.referenceContext instanceof TypeDeclaration;
+}
+
+public boolean inPrimaryAnalysis() {
+	return this.analysisPass <= 1;
 }
 
 @Override
