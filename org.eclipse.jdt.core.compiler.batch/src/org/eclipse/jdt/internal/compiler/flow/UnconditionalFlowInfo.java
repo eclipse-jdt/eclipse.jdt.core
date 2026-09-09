@@ -839,11 +839,15 @@ public UnconditionalFlowInfo discardInitializationInfo() {
 }
 
 /**
- * Remove local variables information from this flow info and return this.
- * @return this, deprived from any local variable information
+ * Remove ALL local variables (including any of enclosing methods) information from this flow info and return this.
+ * @return this, deprived from any and all local variable information
  */
 public UnconditionalFlowInfo discardNonFieldInitializations() {
-	int limit = this.maxFieldCount;
+	return discardNonFieldInitializations(this.maxFieldCount);
+}
+
+
+public UnconditionalFlowInfo discardNonFieldInitializations(int limit) {
 	if (limit < BitCacheSize) {
 		long mask = (1L << limit)-1;
 		this.definiteInits &= mask;

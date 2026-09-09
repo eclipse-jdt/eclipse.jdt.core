@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
+import java.util.Arrays;
+import java.util.Objects;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -183,6 +185,18 @@ public void handle(
 			columnNumber);
 
 	if (problem == null) return; // problem couldn't be created, ignore
+
+	if (unitResult.problemCount > 0 && this.policy.filterDuplicates()) {
+		if (Arrays.stream(unitResult.problems)
+			    .filter(Objects::nonNull)
+			    .anyMatch(p ->
+			        p.getID() == problem.getID() &&
+			        p.getMessage().equals(problem.getMessage()) &&
+			        p.getSourceStart() == problem.getSourceStart() &&
+			        p.getSourceEnd() == problem.getSourceEnd()
+			    ))
+			    return;
+	}
 
 	switch (severity & ProblemSeverities.Error) {
 		case ProblemSeverities.Error :
