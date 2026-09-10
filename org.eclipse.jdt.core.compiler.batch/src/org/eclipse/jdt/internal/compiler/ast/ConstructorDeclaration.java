@@ -734,6 +734,7 @@ public void resolveStatements() {
 	}
 	this.scope.enterEarlyConstructionContext();
 	super.resolveStatements();
+	this.scope.leaveEarlyConstructionContext(); // code completion may work with diet mode constructors! These don't have ecc to issue leave!
 	if (sourceType.id == TypeIds.T_JavaLangObject) {
 		ExplicitConstructorCall constructorCall = getConstructorCall();
 		if (constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This) {
