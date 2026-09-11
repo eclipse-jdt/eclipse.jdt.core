@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1801,9 +1801,11 @@ public FieldReferenceMatch newFieldReferenceMatch(
 			if (this.pattern instanceof OrPattern) {
 				SearchPattern[] patterns = ((OrPattern) this.pattern).patterns;
 				for (SearchPattern p : patterns) {
-					if (!this.patternLocator.matchesName(((VariablePattern)p).name, lastToken)) {
-			        	isWriteAccess = false;
-			        	isReadAccess = true;
+					if(p instanceof VariablePattern variablePattern) {
+						if (!this.patternLocator.matchesName(variablePattern.name, lastToken)) {
+				        	isWriteAccess = false;
+				        	isReadAccess = true;
+						}
 					}
 				}
 			} else if (!this.patternLocator.matchesName(((VariablePattern)this.pattern).name, lastToken)) {
