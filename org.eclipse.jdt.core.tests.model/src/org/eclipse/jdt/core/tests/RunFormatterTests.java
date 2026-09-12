@@ -63,6 +63,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 		if (type == null || !type.equals("javadoc")) {
 			allClasses.add(FormatterRegressionTests.class);
 			allClasses.add(FormatterBugsTests.class);
+			allClasses.add(FormatterRegionTests.class);
 		}
 		allClasses.add(CommentsTestSuite.class);
 		allClasses.add(FormatterJSR335Tests.class);

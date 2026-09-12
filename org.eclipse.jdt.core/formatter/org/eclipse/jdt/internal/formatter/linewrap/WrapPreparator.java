@@ -1479,7 +1479,7 @@ public class WrapPreparator extends ASTVisitor {
 					next.breakBefore();
 				token = next;
 			}
-			previousRegionEnd = region.getOffset() + region.getLength() - 1;
+			previousRegionEnd = Math.max(0, region.getOffset() + region.getLength() - 1);
 		}
 	}
 
