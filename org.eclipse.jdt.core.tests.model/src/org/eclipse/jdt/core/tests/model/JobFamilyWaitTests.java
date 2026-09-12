@@ -22,17 +22,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.runners.model.MultipleFailureException;
 
 public class JobFamilyWaitTests extends TestCase {
 	private static final long TIMEOUT_SECONDS = 10;
@@ -60,20 +60,37 @@ public class JobFamilyWaitTests extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		try {
-			for (Job job : this.jobs) {
-				job.cancel();
-			}
-			this.executor.shutdownNow();
-			assertTrue("Waiter thread did not terminate",
-					this.executor.awaitTermination(TIMEOUT_SECONDS, TimeUnit.SECONDS));
-			for (Job job : this.jobs) {
-				assertTrue("Test job did not terminate: " + job,
-						job.join(TimeUnit.SECONDS.toMillis(TIMEOUT_SECONDS), null));
-			}
-		} finally {
-			super.tearDown();
+		List<Throwable> failures = new ArrayList<>();
+		for (Job job : this.jobs) {
+			collectCleanupFailure(failures, () -> job.cancel());
 		}
+		collectCleanupFailure(failures, () -> this.executor.shutdownNow());
+		collectCleanupFailure(failures, this::awaitExecutorTermination);
+		for (Job job : this.jobs) {
+			collectCleanupFailure(failures, () -> awaitJobTermination(job));
+		}
+		collectCleanupFailure(failures, () -> super.tearDown());
+		for (Throwable failure : failures) {
+			if (failure instanceof InterruptedException) {
+				Thread.currentThread().interrupt();
+				break;
+			}
+		}
+		MultipleFailureException.assertEmpty(failures);
+	}
+
+	private static void collectCleanupFailure(List<Throwable> failures, CleanupStep step) {
+		try {
+			step.run();
+		} catch (Throwable failure) {
+			// Report after attempting the remaining cleanup, including assertion errors.
+			failures.add(failure);
+		}
+	}
+
+	@FunctionalInterface
+	private interface CleanupStep {
+		void run() throws Exception;
 	}
 
 	public void testEmptyFamily() throws Exception {
@@ -150,7 +167,9 @@ public class JobFamilyWaitTests extends TestCase {
 	public void testInterruptedJoinIsPropagated() throws Exception {
 		InterruptedException expected = new InterruptedException("test interruption");
 		try {
-			JobFamilyWait.join(beforeJoin(() -> { throw expected; }), new Object());
+			JobFamilyWait.join(beforeJoin(() -> {
+				throw expected;
+			}), new Object());
 			fail("Expected interruption");
 		} catch (InterruptedException actual) {
 			assertSame(expected, actual);
@@ -160,7 +179,9 @@ public class JobFamilyWaitTests extends TestCase {
 	public void testCancellationNotCausedByRetryIsPropagated() throws Exception {
 		OperationCanceledException expected = new OperationCanceledException("test cancellation");
 		try {
-			JobFamilyWait.join(beforeJoin(() -> { throw expected; }), new Object());
+			JobFamilyWait.join(beforeJoin(() -> {
+				throw expected;
+			}), new Object());
 			fail("Expected cancellation");
 		} catch (OperationCanceledException actual) {
 			assertSame(expected, actual);
@@ -195,6 +216,70 @@ public class JobFamilyWaitTests extends TestCase {
 		} finally {
 			release.countDown();
 		}
+	}
+
+
+	public void testCleanupContinuesAfterExecutorFailure() throws Exception {
+		assertCleanupContinues(true, false);
+	}
+
+	public void testCleanupContinuesAfterJobFailure() throws Exception {
+		assertCleanupContinues(false, true);
+	}
+
+	public void testCleanupRetainsMultipleFailures() throws Exception {
+		assertCleanupContinues(true, true);
+	}
+
+	private void assertCleanupContinues(boolean executorFails, boolean jobFails) throws Exception {
+		AssertionFailedError executorFailure = new AssertionFailedError("executor cleanup failure");
+		AssertionFailedError jobFailure = new AssertionFailedError("job cleanup failure");
+		List<Job> joined = new ArrayList<>();
+		JobFamilyWaitTests fixture = new JobFamilyWaitTests("cleanup fixture") {
+			@Override
+			void awaitExecutorTermination() throws InterruptedException {
+				super.awaitExecutorTermination();
+				if (executorFails) {
+					throw executorFailure;
+				}
+			}
+
+			@Override
+			void awaitJobTermination(Job job) throws InterruptedException {
+				joined.add(job);
+				super.awaitJobTermination(job);
+				if (jobFails && joined.size() == 1) {
+					throw jobFailure;
+				}
+			}
+		};
+		fixture.setUp();
+		fixture.job(new Object(), monitor -> { });
+		fixture.job(new Object(), monitor -> { });
+		Throwable observed = null;
+		try {
+			fixture.tearDown();
+		} catch (Throwable failure) {
+			observed = failure;
+		}
+		assertEquals("Every owned job must be joined even after a cleanup failure", fixture.jobs, joined);
+		if (executorFails && jobFails) {
+			assertTrue("Both cleanup failures must be retained", observed instanceof MultipleFailureException);
+			MultipleFailureException multiple = (MultipleFailureException) observed;
+			assertEquals(List.of(executorFailure, jobFailure), multiple.getFailures());
+		} else {
+			assertSame("Preserve the original cleanup failure", executorFails ? executorFailure : jobFailure, observed);
+		}
+	}
+
+	void awaitExecutorTermination() throws InterruptedException {
+		assertTrue("Waiter thread did not terminate",
+				this.executor.awaitTermination(TIMEOUT_SECONDS, TimeUnit.SECONDS));
+	}
+
+	void awaitJobTermination(Job job) throws InterruptedException {
+		assertTrue("Test job did not terminate: " + job,
+				job.join(TimeUnit.SECONDS.toMillis(TIMEOUT_SECONDS), null));
 	}
 
 	private Future<?> waitFor(IJobManager manager, Object family) {
