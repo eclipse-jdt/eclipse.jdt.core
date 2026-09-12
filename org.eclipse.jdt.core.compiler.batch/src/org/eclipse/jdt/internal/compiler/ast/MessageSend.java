@@ -1211,7 +1211,7 @@ public boolean isCompatibleWith(TypeBinding targetType, final Scope scope) {
 		TypeBinding returnType;
 		if (method == null || !method.isValidBinding() || (returnType = method.returnType) == null || !returnType.isValidBinding())
 			return false;
-		if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null)
+		if ((this.bits & ASTNode.Unchecked) != 0 && (this.binding.typeVariables() == Binding.NO_TYPE_VARIABLES || this.genericTypeArguments != null))
 			returnType = scope.environment().convertToRawType(returnType.erasure(), true);
 		return returnType.capture(scope, this.sourceStart, this.sourceEnd).isCompatibleWith(targetType, scope);
 	} finally {
