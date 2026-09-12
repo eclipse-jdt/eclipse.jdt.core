@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.SourceIndexer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -510,6 +511,7 @@ public abstract class JobManager {
 							// notifyIdle() may have requested new job
 							continue;
 						}
+						SourceIndexer.cleanup();
 						if (cacheZipFiles) {
 							JavaModelManager.getJavaModelManager().flushZipFiles(this);
 							cacheZipFiles = false;
