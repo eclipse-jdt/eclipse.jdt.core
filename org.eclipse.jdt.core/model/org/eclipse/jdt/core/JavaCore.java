@@ -2716,6 +2716,34 @@ public final class JavaCore extends Plugin {
 	public static final String CORE_MAIN_ONLY_PROJECT_HAS_TEST_ONLY_DEPENDENCY = PLUGIN_ID + ".classpath.mainOnlyProjectHasTestOnlyDependency";  //$NON-NLS-1$
 
 	/**
+	 * Core option ID: Enable escaping classpath entries in jar manifests (like ../bad.jar).
+	 * <p>
+	 * When enabled, the classpath entries in jar manifests can escape current jar directory tree (like
+	 * ../lib/some.jar). When disabled, all classpath entries in manifest must be inside current jar directory tree.
+	 * </p>
+	 * <p>
+	 * This option should be disabled to be consistent with command line compiler, but it is enabled by default for
+	 * backward compatibility reasons (in the IDE escaping classpath entries was possible since Eclipse 3.5, see
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=198572).
+	 * </p>
+	 * <p>
+	 * For performance reasons, any presence of the &quot;..&quot; segment in a classpath entry in a jar manifest will
+	 * cause the compiler to assume that the entry is escaping the current jar directory tree.
+	 * </p>
+	 * <dl>
+	 * <dt>Option id:</dt>
+	 * <dd><code>"org.eclipse.jdt.core.classpath.enableEscapingCpEntriesInJarManifest"</code></dd>
+	 * <dt>Possible values:</dt>
+	 * <dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt>
+	 * <dd><code>"disabled"</code></dd>
+	 * </dl>
+	 *
+	 * @since 3.45
+	 */
+	public static final String CORE_ENABLE_ESACAPING_CP_ENTRIES_IN_JAR_MANIFEST = PLUGIN_ID + ".classpath.enableEscapingCpEntriesInJarManifest";  //$NON-NLS-1$
+
+	/**
 	 * Compiler option ID: Enabling support for preview language features.
 	 * <p>When enabled, the compiler will activate the preview language features of this Java version.</p>
 	 *
