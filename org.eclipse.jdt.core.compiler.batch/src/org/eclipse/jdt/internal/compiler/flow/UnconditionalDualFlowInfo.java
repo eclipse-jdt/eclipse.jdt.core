@@ -96,7 +96,9 @@ public class UnconditionalDualFlowInfo extends UnconditionalFlowInfo {
 
 	@Override
 	public FlowInfo copy() {
-		return new UnconditionalDualFlowInfo(super.copy(), this.companionInits.copy());
+		FlowInfo copy = new UnconditionalDualFlowInfo(super.copy(), this.companionInits.copy());
+		copy.tagBits |= this.tagBits & NULL_FLAG_MASK;
+		return copy;
 	}
 
 	@Override

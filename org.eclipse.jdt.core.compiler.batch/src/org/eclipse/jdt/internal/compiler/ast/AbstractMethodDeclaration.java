@@ -171,6 +171,7 @@ public abstract class AbstractMethodDeclaration
 	 */
 	public void bindArguments() {
 
+		this.scope.analysisIndex = this.scope.outerMostMethodScope().analysisIndex;
 		if (this.arguments != null) {
 			// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
 			if (this.binding == null) {
