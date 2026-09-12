@@ -2988,19 +2988,17 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
 				"""
 			},
-			"""
-			----------
-			1. ERROR in X.java (at line 4)
-				fin1 = 0;
-				^^^^
-			The final field fin1 may already have been assigned
-			----------
-			4. ERROR in X.java (at line 10)
-				fin2 = 11;
-				^^^^
-			The final field fin2 may already have been assigned
-			----------
-			""");
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	this(fin1 = 10);\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The final field fin1 may already have been assigned\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	fin2 = 11;\n" +
+			"	^^^^\n" +
+			"The final field fin2 may already have been assigned\n" +
+			"----------\n");
 	}
 
 	public void testGH3748b() {
@@ -3022,19 +3020,17 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
 				"""
 			},
-			"""
-			----------
-			1. ERROR in X.java (at line 5)
-				fin1 = 0;
-				^^^^
-			The final field fin1 may already have been assigned
-			----------
-			3. ERROR in X.java (at line 10)
-				fin2 = 11;
-				^^^^
-			The final field fin2 may already have been assigned
-			----------
-			""");
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	this(fin1 = 10);\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The final field fin1 may already have been assigned\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	fin2 = 11;\n" +
+			"	^^^^\n" +
+			"The final field fin2 may already have been assigned\n" +
+			"----------\n");
 	}
 	public void testGH3687c() {
 		runNegativeTest(new String[] {
@@ -3803,7 +3799,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5374#issuecomment-5585179647
 	public void testIssue5374() {
-		runNegativeTest(new String[] {
+		runConformTest(new String[] {
 			"X.java",
 			"""
 			public class X {
@@ -3817,18 +3813,210 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					super();
 					s = "2";
 				}
-			}
-			class Y {
-				final String s2;
+				public static void main(String [] args) {
+				    System.out.println("Ok!");
+			    }
 			}
 			"""
 			},
+			"Ok!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5378
+	// ECJ fails to complain about a flexible constructor failing to initialize a blank final variable.
+	public void testIssue5378() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			    final String s;
+
+			    X(String s0) {
+			        s = s0;
+			        super();
+			    }
+
+			    X() {
+			        System.out.println("Blah");
+			        super();
+			    }
+
+			    public static void main(String... args) {
+			        System.out.print(new X("OK").s);
+			    }
+			}
+			"""
+
+
+			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 14)\n" +
-			"	final String s2;\n" +
-			"	             ^^\n" +
-			"The blank final field s2 may not have been initialized\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	X() {\n" +
+			"	^^^\n" +
+			"The blank final field s may not have been initialized\n" +
 			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383#issuecomment-5608172836
+	public void testIssue5383_issuecomment_5608172836() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				final String s;
+				{
+					s = "initial";
+					s = "updated";
+				}
+
+				X(int i) { }
+				X(char c) { }
+			}
+			"""
+
+
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	s = \"updated\";\n" +
+			"	^\n" +
+			"The final field s may already have been assigned\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383#issuecomment-5608408274
+	public void testIssue5383Comment5608408274() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				String s = "good";
+				X() {
+					if (true) throw new RuntimeException();
+					super();
+				}
+				X (int i) {
+					System.out.println(s);
+				}
+				public static void main(String[] args) {
+					new X(1);
+				}
+			}
+			"""
+			},
+			"good");
+	}
+
+	public void testAnonymousClassInFieldInit() {
+		runConformTest(new String[] {
+			"TokenManager.java",
+			"""
+			import java.lang.reflect.Constructor;
+			import java.util.ArrayList;
+			import java.util.HashMap;
+			import java.util.List;
+
+			public class TokenManager {
+
+				private final List<Token> tokens;
+
+				final CommentWrapExecutor commentWrapper;
+
+				private HashMap<Integer, Integer> tokenIndexToNLSAlign;
+				private final List<Token[]> formatOffTagPairs = new ArrayList<>();
+				private int headerEndIndex = 0;
+
+				public TokenManager(List<Token> tokens, String source, DefaultCodeFormatterOptions options) {
+					this.tokens = tokens;
+					this.commentWrapper = new CommentWrapExecutor(this, options);
+				}
+
+				public TokenManager(List<Token> tokens, TokenManager parent) {
+					this.tokens = tokens;
+					this.commentWrapper = parent.commentWrapper;
+				}
+
+				private final TokenTraverser positionInLineCounter = new TokenTraverser() {
+					@Override
+					protected boolean token(Token traversed, int index) {
+						return false;
+					}
+				};
+
+				private int enclosingInstanceConstructorParameters() {
+					Constructor<?>[] constructors = this.positionInLineCounter.getClass().getDeclaredConstructors();
+					int count = -1;
+					for (Constructor<?> c : constructors) {
+						int current = 0;
+						for (Class<?> p : c.getParameterTypes()) {
+							if (p == TokenManager.class) {
+								current++;
+							}
+						}
+						if (current > count) {
+							count = current;
+						}
+					}
+					return count;
+				}
+
+				public static void main(String[] args) {
+					TokenManager tm = new TokenManager(new ArrayList<>(), "", new DefaultCodeFormatterOptions());
+					System.out.println(tm.enclosingInstanceConstructorParameters());
+				}
+			}
+
+			class Token {
+			}
+
+			class DefaultCodeFormatterOptions {
+			}
+
+			class CommentWrapExecutor {
+				public CommentWrapExecutor(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
+				}
+			}
+
+			abstract class TokenTraverser {
+				protected abstract boolean token(Token traversed, int index);
+			}
+			"""
+		}, "1");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5400
+	// [Flexible constructors] VerifyError: Bad type on operand stack
+	public void testIssue5400() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			    String field = "initialized";
+
+			    {  // Instance initializer block
+			        System.out.println(field);
+			        field = "modified";
+			    }
+
+			    // First constructor with unreachable super() call
+			    X() {
+			        if (true) throw new RuntimeException();
+			        super();  // unreachable
+			    }
+
+			    // Second constructor that can reach the field initializer
+			    X(int x) {
+			        System.out.println(field);  // uses the field
+			    }
+
+			    public static void main(String[] args) {
+			        new X(1);
+			    }
+			}
+			"""
+		},
+		"initialized\n" +
+		"modified");
 	}
 }
 
