@@ -2013,17 +2013,11 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"}"
 			},
 			//comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
-			//comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
+			// Invalid2 @see Test.Inner is valid via import (issue 517 / standard doclet)
 			"----------\n" +
 			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" +
 			"	* See also {@link Inner}\n" +
 			"	                  ^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" +
-			"	* @see Test.Inner\n" +
-			"	       ^^^^^^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
@@ -2327,17 +2321,11 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"}"
 			},
 			//comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
-			//comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
+			// Invalid2 @see Test.Inner is valid via import (issue 517 / standard doclet)
 			"----------\n" +
 			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" +
 			"	* See also {@link Inner}\n" +
 			"	                  ^^^^^\n" +
-			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" +
-			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" +
-			"	* @see Test.Inner\n" +
-			"	       ^^^^^^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
