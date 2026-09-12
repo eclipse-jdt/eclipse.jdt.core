@@ -4157,8 +4157,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		boolean wasInterrupted = false;
 		do {
 			try {
-				Job.getJobManager().wakeUp(ResourcesPlugin.FAMILY_SNAPSHOT);
-				Job.getJobManager().join(ResourcesPlugin.FAMILY_SNAPSHOT, null);
+				JobFamilyWait.join(Job.getJobManager(), ResourcesPlugin.FAMILY_SNAPSHOT);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
