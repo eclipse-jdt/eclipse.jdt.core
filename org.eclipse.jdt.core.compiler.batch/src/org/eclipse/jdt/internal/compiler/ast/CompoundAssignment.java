@@ -165,12 +165,16 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		}
 		int lhsID = lhsType.id;
 		int expressionID = expressionType.id;
+		boolean legalCompoundStrcat = this.operator == PLUS && expressionID == T_JavaLangString
+				&& checkCastTypesCompatibility(scope, lhsType, expressionType, null, false);
 		if (lhsID > 15 || expressionID > 15) {
-			if (lhsID != T_JavaLangString) { // String += Thread is valid whereas Thread += String  is not
-				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
-				return null;
+			if (!legalCompoundStrcat) {
+				if (lhsID != T_JavaLangString) { // String += Thread is valid whereas Thread += String is not
+					scope.problemReporter().invalidOperator(this, lhsType, expressionType);
+					return null;
+				}
+				expressionID = T_JavaLangObject; // use the Object has tag table
 			}
-			expressionID = T_JavaLangObject; // use the Object has tag table
 		}
 
 		// the code is an int
@@ -179,7 +183,7 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		//  <<16   <<12       <<8     <<4        <<0
 
 		// the conversion is stored INTO the reference (info needed for the code gen)
-		int result = OperatorExpression.OperatorSignatures[this.operator][ (lhsID << 4) + expressionID];
+		int result = legalCompoundStrcat ? T_JavaLangString : OperatorExpression.OperatorSignatures[this.operator][ (lhsID << 4) + expressionID];
 		if (result == T_undefined) {
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
