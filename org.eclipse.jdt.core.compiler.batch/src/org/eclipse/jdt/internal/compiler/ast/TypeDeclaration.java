@@ -793,6 +793,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			if (field.isStatic()) {
 				if ((staticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 					field.bits &= ~ASTNode.IsReachable;
+				else
+					restoreReachability(field);
 
 				/*if (field.isField()){
 					staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
@@ -809,6 +811,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			} else {
 				if ((nonStaticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 					field.bits &= ~ASTNode.IsReachable;
+				else
+					restoreReachability(field);
 
 				/*if (field.isField()){
 					initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
@@ -827,6 +831,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					fieldNeedingClose = field;
 				}
 			}
+
 		}
 	}
 	if (this.memberTypes != null) {
@@ -890,6 +895,90 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	// enable enum support ?
 	if (this.binding.isEnum() && !this.binding.isAnonymousType()) {
 		this.enumValuesSyntheticfield = this.binding.addSyntheticFieldForEnumValues();
+	}
+}
+
+private static void restoreReachability(FieldDeclaration field) {
+	field.bits &= ~ASTNode.IsUnreachableInAllUniverses;
+	field.bits |= ASTNode.IsReachable;
+	if (field instanceof Initializer initializer && initializer.block != null) {
+		restoreReachability(initializer.block);
+	}
+}
+
+private static void restoreReachability(Statement statement) {
+	statement.bits &= ~ASTNode.IsUnreachableInAllUniverses;
+	statement.bits |= ASTNode.IsReachable;
+
+	if (statement instanceof Block block) {
+		if (block.statements != null) {
+			for (Statement nested : block.statements) {
+				restoreReachability(nested);
+			}
+		}
+	} else if (statement instanceof IfStatement ifStatement) {
+		if (ifStatement.thenStatement != null) {
+			restoreReachability(ifStatement.thenStatement);
+		}
+		if (ifStatement.elseStatement != null) {
+			restoreReachability(ifStatement.elseStatement);
+		}
+	} else if (statement instanceof LabeledStatement labeledStatement) {
+		if (labeledStatement.statement != null) {
+			restoreReachability(labeledStatement.statement);
+		}
+	} else if (statement instanceof ForStatement forStatement) {
+		if (forStatement.initializations != null) {
+			for (Statement initialization : forStatement.initializations) {
+				restoreReachability(initialization);
+			}
+		}
+		if (forStatement.increments != null) {
+			for (Statement increment : forStatement.increments) {
+				restoreReachability(increment);
+			}
+		}
+		if (forStatement.action != null) {
+			restoreReachability(forStatement.action);
+		}
+	} else if (statement instanceof ForeachStatement foreachStatement) {
+		restoreReachability(foreachStatement.elementVariable);
+		if (foreachStatement.action != null) {
+			restoreReachability(foreachStatement.action);
+		}
+	} else if (statement instanceof WhileStatement whileStatement) {
+		if (whileStatement.action != null) {
+			restoreReachability(whileStatement.action);
+		}
+	} else if (statement instanceof DoStatement doStatement) {
+		if (doStatement.action != null) {
+			restoreReachability(doStatement.action);
+		}
+	} else if (statement instanceof SynchronizedStatement synchronizedStatement) {
+		if (synchronizedStatement.block != null) {
+			restoreReachability(synchronizedStatement.block);
+		}
+	} else if (statement instanceof TryStatement tryStatement) {
+		if (tryStatement.resources != null) {
+			for (Statement resource : tryStatement.resources) {
+				restoreReachability(resource);
+			}
+		}
+		if (tryStatement.tryBlock != null) {
+			restoreReachability(tryStatement.tryBlock);
+		}
+		if (tryStatement.catchBlocks != null) {
+			for (Block catchBlock : tryStatement.catchBlocks) {
+				restoreReachability(catchBlock);
+			}
+		}
+		if (tryStatement.finallyBlock != null) {
+			restoreReachability(tryStatement.finallyBlock);
+		}
+	} else if (statement instanceof SwitchStatement switchStatement && switchStatement.statements != null) {
+		for (Statement nested : switchStatement.statements) {
+			restoreReachability(nested);
+		}
 	}
 }
 

@@ -3830,5 +3830,33 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"The blank final field s2 may not have been initialized\n" +
 			"----------\n");
 	}
-}
 
+	public void testInitializerReachabilityInFlexibleConstructors() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				String field = "initialized";
+				{
+					String local = field;
+					System.out.println(local);
+					field = "modified";
+				}
+				X() {
+					if (true) throw new RuntimeException();
+					super();
+				}
+				X(int i) {
+					System.out.println(field);
+				}
+				public static void main(String[] args) {
+					new X(1);
+				}
+			}
+			"""
+			},
+			"""
+			initialized
+			modified""");
+	}
+}
