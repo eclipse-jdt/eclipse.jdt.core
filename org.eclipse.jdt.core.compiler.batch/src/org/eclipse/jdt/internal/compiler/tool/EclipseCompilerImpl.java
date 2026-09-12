@@ -547,7 +547,9 @@ public class EclipseCompilerImpl extends Main {
 								}
 							}
 						}
-						fileSystemClasspaths.addAll(platformLocations);
+						if (this.releaseVersion == null) {
+							fileSystemClasspaths.addAll(platformLocations);
+						}
 						break; // Only possible scenario is, we have one and only entry representing the Java home.
 					} else {
 						Classpath classpath = FileSystem.getClasspath(
@@ -791,7 +793,7 @@ public class EclipseCompilerImpl extends Main {
 	}
 	private Classpath getSystemClasspath(File jdkHome, long jdkLevel) {
 		Classpath system;
-		if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
+		if (this.releaseVersion != null && this.complianceLevel <= jdkLevel) {
 			String versionFromJdkLevel = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
 			if (versionFromJdkLevel.length() >= 3) {
 				versionFromJdkLevel = versionFromJdkLevel.substring(2);
