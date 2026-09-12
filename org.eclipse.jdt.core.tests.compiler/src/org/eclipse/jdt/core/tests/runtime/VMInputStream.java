@@ -58,14 +58,16 @@ public boolean markSupported() {
 }
 @Override
 public int read() throws IOException {
-	try {
-		return this.input.read();
-	} catch (IOException e) {
-		if (isRunning()) {
-			return read();
-		}
-		throw e;
+	while (true) {
+		try {
+			return this.input.read();
+		} catch (IOException e) {
+            if (!isRunning()) {
+                throw e;
+            }
+        }
 	}
+
 }
 @Override
 public int read(byte b[]) throws IOException {
