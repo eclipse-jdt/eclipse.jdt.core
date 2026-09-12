@@ -6229,9 +6229,9 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			String expectedOutForY =
 					"  // Method descriptor #8 (LX;)V\n" +
 					"  // Stack: 2, Locals: 2\n" +
-					"  X$Y(X arg0);\n" +
+					"  X$Y(X this$0);\n" +
 					"     0  aload_0 [this]\n" +
-					"     1  aload_1 [arg0]\n" +
+					"     1  aload_1 [this$0]\n" +
 					"     2  putfield X$Y.this$0 : X [10]\n" +
 					"     5  aload_0 [this]\n" +
 					"     6  invokespecial java.lang.Object() [12]\n" +
@@ -6241,6 +6241,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        [pc: 9, line: 10]\n" +
 					"      Local variable table:\n" +
 					"        [pc: 0, pc: 10] local: this index: 0 type: X.Y\n" +
+					"      Method Parameters:\n" +
+					 "        final mandated this$0\n" +
 					"    RuntimeInvisibleTypeAnnotations: \n" +
 					"      #20 @T(\n" +
 					"        target type = 0x14 METHOD_RETURN\n" +
