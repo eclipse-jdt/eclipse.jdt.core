@@ -5,5 +5,8 @@ import a.B;
 
 public class T {
 	A a = new A();
-	B b = new B();
+	void test() {
+		B b = new B();
+		b.foo(); // available only in 25
+	}
 }

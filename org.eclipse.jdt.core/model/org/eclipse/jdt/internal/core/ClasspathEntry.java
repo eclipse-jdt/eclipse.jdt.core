@@ -244,6 +244,9 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public IClasspathAttribute[] extraAttributes;
 
+	private final boolean isTest;
+	private final boolean isWithoutTestCode;
+
 	public ClasspathEntry(
 			int contentKind,
 			int entryKind,
@@ -325,6 +328,18 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.combineAccessRules = combineAccessRules;
 		this.extraAttributes = extraAttributes.length > 0 ? extraAttributes : NO_EXTRA_ATTRIBUTES;
 
+		String test = null;
+		String withoutTestCode = null;
+		for (IClasspathAttribute attribute : this.extraAttributes) {
+			if (IClasspathAttribute.TEST.equals(attribute.getName())) {
+				test = attribute.getValue();
+			} else if (IClasspathAttribute.WITHOUT_TEST_CODE.equals(attribute.getName()) ) {
+				withoutTestCode = attribute.getValue();
+			}
+		}
+		this.isTest = Boolean.valueOf(test);
+		this.isWithoutTestCode = Boolean.valueOf(withoutTestCode);
+
 	    if (inclusionPatterns != INCLUDE_ALL && inclusionPatterns.length > 0) {
 			this.fullInclusionPatternChars = UNINIT_PATTERNS;
 	    }
@@ -335,6 +350,16 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.specificOutputLocation = specificOutputLocation;
 		this.isExported = isExported;
+	}
+
+	@Override
+	public boolean isTest() {
+		return this.isTest;
+	}
+
+	@Override
+	public boolean isWithoutTestCode() {
+		return this.isWithoutTestCode;
 	}
 
 	@Override
@@ -2335,7 +2360,14 @@ public class ClasspathEntry implements IClasspathEntry {
 						containerInfo = Messages.bind(Messages.classpath_containerInfo, new String[] {entryContainer.getDescription()});
 					}
 				}
-				IJavaModelStatus status = validateLibraryEntry(resolvedPath, project, containerInfo, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg, ((ClasspathEntry) entry).isOptional());
+				IJavaModelStatus status = validateLibraryEntry(
+						resolvedPath,
+						project,
+						containerInfo,
+						checkSourceAttachment ? entry.getSourceAttachmentPath() : null,
+						entryPathMsg,
+						((ClasspathEntry) entry).isOptional(),
+						entry.isTest());
 				if (!status.isOK())
 					return status;
 				break;
@@ -2414,7 +2446,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=232816, Now we have the facility to include a container
 	// name in diagnostics. If the parameter ``container'' is not null, it is used to point to the library
 	// more fully.
-	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, String container, IPath sourceAttachment, String entryPathMsg, boolean isOptionalLibrary) {
+	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, String container, IPath sourceAttachment, String entryPathMsg, boolean isOptionalLibrary, boolean isTestLibrary) {
 		if (path.isAbsolute() && !path.isEmpty()) {
 			boolean validateJdkLevelCompatibility = !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true));
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882, avoid validating optional entries
@@ -2428,7 +2460,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					target = JavaModel.getTarget(path.makeRelativeTo(workspaceLocation).makeAbsolute(), true);
 				}
 			}
-			if (target != null && validateJdkLevelCompatibility) {
+			if (target != null && validateJdkLevelCompatibility && !isTestLibrary) {
 				long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 				long libraryJDK = Util.getJdkLevel(target);
 				if (libraryJDK != 0 && libraryJDK > projectTargetJDK) {

@@ -218,6 +218,13 @@ public class CaptureBinding extends TypeVariableBinding {
 
 		ReferenceBinding[] originalVariableInterfaces = wildcardVariable.superInterfaces();
 		ReferenceBinding[] substitutedVariableInterfaces = Scope.substitute(capturedParameterizedType, originalVariableInterfaces);
+		// Re-entrant/incomplete source-type completion: during a hierarchy walk (e.g. search/MatchLocator,
+		// selection, code assist) capture may be requested before the wildcard variable's bounds are resolved,
+		// so superInterfaces() (and hence the substituted array) can be null. Mirror the sibling guard in
+		// TypeVariableBinding#internalBoundCheck ("if (this.superclass == null) return OK;") by falling back to
+		// no interfaces rather than dereferencing null.
+		if (substitutedVariableInterfaces == null)
+			substitutedVariableInterfaces = originalVariableInterfaces != null ? originalVariableInterfaces : Binding.NO_SUPERINTERFACES;
 		if (substitutedVariableInterfaces != originalVariableInterfaces) {
 			// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
 			for (int i = 0, length = substitutedVariableInterfaces.length; i < length; i++) {

@@ -8604,4 +8604,71 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5201
+	// VerifyError: Instruction type does not match stack map with for loop in switch
+	public void testIssue5201() {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public static void main(String[] args) {
+								System.out.println(10 + switch ("B") {
+								default -> {
+									for (int i = 0; i < 10; i++)
+										System.out.println(i);
+									yield "A";
+								}
+								case "B" -> "B";
+								});
+							}
+						}
+						"""
+				},
+				"10B");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5201
+	// VerifyError: Instruction type does not match stack map with for loop in switch
+	public void testIssue5201_full() {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.util.Collection;
+						import java.util.Set;
+
+						public class X {
+
+							public static class Dummy {
+
+							}
+
+							public static class ExtendedDummy extends Dummy {
+
+							}
+
+							public static void main(String[] args) {
+								test(ExtendedDummy.class, switch ("B") {
+								case "A" -> {
+									for (int i = 0; i < 10; i++)
+										System.out.println(i);
+
+									yield Set.of("NoopA");
+								}
+								case "B" -> Set.of("NoopB");
+								default -> throw new IllegalArgumentException();
+								});
+							}
+
+							public static <T extends Dummy> void test(Class<T> cls, Collection<String> entities) {
+								entities.forEach(e -> System.out.println(e));
+							}
+						}
+						"""
+				},
+				"NoopB");
+	}
+
 }

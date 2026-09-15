@@ -28,6 +28,7 @@ public class AllCompilerToolTests extends TestCase {
 		suite.addTestSuite(CompilerToolJava9Tests.class);
 		suite.addTest(CompilerInvocationTests.suite());
 		suite.addTestSuite(InMemoryCompilationTest.class);
+		suite.addTestSuite(MultiReleaseJarCompilerToolTest.class);
 		return suite;
 	}
 }

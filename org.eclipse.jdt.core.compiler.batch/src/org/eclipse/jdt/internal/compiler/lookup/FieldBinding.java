@@ -225,12 +225,18 @@ public Constant constant() {
 					TypeDeclaration typeDecl = sourceType.scope.referenceContext;
 					FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
 					MethodScope initScope = originalField.isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
-					boolean old = initScope.insideTypeDeclarationAnnotations;
+					ClassScope topLevelScope = initScope.outerMostClassScope();
+					boolean oldInsideTypeDeclarationAnnotations = initScope.insideTypeDeclarationAnnotations;
+					boolean oldInsideTopLevelTypeDeclarationAnnotations = topLevelScope != null ? topLevelScope.referenceContext.staticInitializerScope.insideTypeDeclarationAnnotations : false;
 					try {
 						initScope.insideTypeDeclarationAnnotations = false;
+						if (topLevelScope != null)
+							topLevelScope.referenceContext.staticInitializerScope.insideTypeDeclarationAnnotations = false;
 						fieldDecl.resolve(initScope); //side effect on binding
 					} finally {
-						initScope.insideTypeDeclarationAnnotations = old;
+						initScope.insideTypeDeclarationAnnotations = oldInsideTypeDeclarationAnnotations;
+						if (topLevelScope != null)
+							topLevelScope.referenceContext.staticInitializerScope.insideTypeDeclarationAnnotations = oldInsideTopLevelTypeDeclarationAnnotations;
 					}
 					fieldConstant = originalField.constant == null ? Constant.NotAConstant : originalField.constant;
 				} else {

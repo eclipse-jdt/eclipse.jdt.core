@@ -308,7 +308,7 @@ public class SearchableEnvironment
 	 *    ISearchRequestor.acceptModule(char[][] moduleName)
 	 */
 	public void findModules(char[] prefix, ISearchRequestor requestor, IJavaProject javaProject) {
-		this.nameLookup.seekModule(prefix, true, new SearchableEnvironmentRequestor(requestor));
+		this.nameLookup.seekModule(prefix, true, new SearchableEnvironmentRequestor(requestor), this.release);
 	}
 
 	@Override
@@ -1137,7 +1137,7 @@ public class SearchableEnvironment
 			this.rootToModule = new HashMap<>();
 		}
 		for (IPackageFragmentRoot root : roots) {
-			IModuleDescription moduleDescription = NameLookup.getModuleDescription(this.project, root, this.rootToModule, this.nameLookup.rootToResolvedEntries::get);
+			IModuleDescription moduleDescription = NameLookup.getModuleDescription(this.project, root, this.rootToModule, this.nameLookup.rootToResolvedEntries::get, this.release);
 			if (moduleDescription != null)
 				return moduleDescription;
 		}
@@ -1149,7 +1149,7 @@ public class SearchableEnvironment
 		if (this.knownModuleLocations != null && moduleName != null && moduleName.length > 0) {
 			moduleContext = this.knownModuleLocations.get(String.valueOf(moduleName));
 			if (moduleContext == null) {
-				Answer moduleAnswer = this.nameLookup.findModule(moduleName);
+				Answer moduleAnswer = this.nameLookup.findModule(moduleName, this.release);
 				if (moduleAnswer != null) {
 					IProject currentProject = moduleAnswer.module.getJavaProject().getProject();
 					IJavaElement current = moduleAnswer.module.getParent();
@@ -1223,7 +1223,7 @@ public class SearchableEnvironment
 
 	@Override
 	public org.eclipse.jdt.internal.compiler.env.IModule getModule(char[] name) {
-		NameLookup.Answer answer = this.nameLookup.findModule(name);
+		NameLookup.Answer answer = this.nameLookup.findModule(name, this.release);
 		IModule module = null;
 		if (answer != null) {
 			module = NameLookup.getModuleDescriptionInfo(answer.module);

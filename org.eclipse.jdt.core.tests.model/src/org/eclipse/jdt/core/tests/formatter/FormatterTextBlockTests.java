@@ -238,4 +238,14 @@ public class FormatterTextBlockTests extends AbstractJavaModelTests {
 		this.formatterPrefs.put_text_block_quotes_on_new_line = false;
 	}
 
+	public void test09() {
+		// To test the fix added for the bug:https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/3003
+        this.formatterPrefs.put_text_block_quotes_on_new_line = true;
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_ON_COLUMN;
+		runTest("test09", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
+		this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+		this.formatterPrefs.put_text_block_quotes_on_new_line = false;
+	}
+
+
 }

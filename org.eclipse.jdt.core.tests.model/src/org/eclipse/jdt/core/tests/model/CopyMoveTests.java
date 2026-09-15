@@ -59,6 +59,8 @@ public void copyNegative(IJavaElement[] elements, IJavaElement[] destinations, I
  * encountered are thrown.
  */
 public IJavaElement copyPositive(IJavaElement element, IJavaElement container, IJavaElement sibling, String rename, boolean force) throws CoreException {
+	// make sure auto-refresh is not interfering with the test, see e.g.: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2552
+	waitForAutoRefresh();
 	// if forcing, ensure that a name collision exists
 	if (force) {
 		IJavaElement collision = generateHandle(element, rename, container);

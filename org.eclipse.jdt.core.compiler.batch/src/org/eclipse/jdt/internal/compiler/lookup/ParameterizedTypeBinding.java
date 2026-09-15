@@ -1455,11 +1455,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
     		}
 	    }
 	    if (CapturingContext.isActive()) {
-	    	ReferenceBinding[] captured = new ReferenceBinding[this.superInterfaces.length];
-	    	for (int i = 0; i < captured.length; i++) {
-				captured[i] = CapturingContext.maybeCapture(this.superInterfaces[i]);
-			}
-	    	return captured;
+	    	ReferenceBinding capturedThis = CapturingContext.maybeCapture(this);
+	    	if (capturedThis != this) { //$IDENTITY-COMPARISON$
+	    		return capturedThis.superInterfaces();
+	    	}
 	    }
 		return this.superInterfaces;
 	}

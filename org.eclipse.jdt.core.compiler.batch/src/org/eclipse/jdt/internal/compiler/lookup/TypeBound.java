@@ -88,10 +88,7 @@ public class TypeBound extends ReductionResult {
 		buf.append(isBound ? "TypeBound  " : "Dependency "); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append(this.left.sourceName);
 		buf.append(relationToString(this.relation));
-		if (this.right instanceof CaptureBinding18)
-			buf.append(this.right.toString());
-		else
-			buf.append(this.right.readableName());
+		ConstraintFormula.appendTypeName(buf, this.right);
 		return buf.toString();
 	}
 }

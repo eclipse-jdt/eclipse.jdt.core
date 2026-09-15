@@ -403,6 +403,7 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 	}
 	dests[1] = fieldsSource[0]; //invalid destination
 	dests[2]=  fieldsSource[0];
+	waitForAutoRefresh();
 	DeltaListener listener = new DeltaListener();
 	try {
 		startDeltas(listener);

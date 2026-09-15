@@ -12204,4 +12204,61 @@ public void testIssue3046() {
 			null,
 			true);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5085
+// Regression related to member visibility constraints
+public void testIssue5085a() {
+	runConformTest(
+			new String[] {
+					"com/actico/reproducer/MyAbstract.java",
+					"""
+					package com.actico.reproducer;
+
+					import com.actico.reproducer.MyAbstract.MyAnnotation;
+					import com.actico.reproducer.MyAbstract.MySpecial;
+
+					@MyAnnotation(MySpecial.SPECIAL_CONSTANT)
+					public abstract class MyAbstract {
+					  public @interface MyAnnotation {
+					    String value();
+					  }
+
+					  private static final String PRIVATE_CONSTANT = ".";
+
+					  public static class MySpecial extends MyAbstract {
+					    public static final String SPECIAL_CONSTANT = PRIVATE_CONSTANT;
+					  }
+					}
+					""",
+			});
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5085
+// Regression related to member visibility constraints
+public void testIssue5085b() {
+	runConformTest(
+			new String[] {
+					"com/actico/reproducer/MyAnnotation.java",
+					"""
+					package com.actico.reproducer;
+
+					@interface MyAnnotation {
+					   String value();
+					}
+					""",
+					"com/actico/reproducer/MyAbstract.java",
+					"""
+					package com.actico.reproducer;
+
+					@MyAnnotation(MyAbstract.MySpecial.SPECIAL_CONSTANT)
+					public abstract class MyAbstract {
+
+					  private static final String PRIVATE_CONSTANT = ".";
+
+					  public static class MySpecial extends MyAbstract {
+					    public static final String SPECIAL_CONSTANT = PRIVATE_CONSTANT;
+					  }
+					}
+					""",
+			});
+}
 }

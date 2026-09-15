@@ -7500,4 +7500,61 @@ public void testBug576735a() throws Exception {
 			this.deleteProject("P1");
 	}
 }
+
+/*
+ * Test that validates test library classpath entries skip JDK level compatibility checks
+ * while non-test library entries still perform the check
+ */
+public void testTestLibraryEntrySkipsJdkLevelCheck() throws Exception {
+	IJavaProject p = null;
+	try {
+		p = createJavaProject("P");
+		String firstVersion = CompilerOptions.getFirstSupportedJavaVersion();
+		String latestVersion = CompilerOptions.getLatestVersion();
+		setUpProjectCompliance(p, firstVersion, true);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, firstVersion);
+		p.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.ERROR);
+		setUpJCLClasspathVariables(latestVersion, false);
+
+		IPath libPath = getExternalJCLPath(latestVersion);
+
+		// Test 1: Non-test library entry should fail with JDK incompatibility error
+		IClasspathEntry nonTestLibraryEntry = JavaCore.newLibraryEntry(
+			libPath,
+			null,
+			null,
+			ClasspathEntry.NO_ACCESS_RULES,
+			ClasspathEntry.NO_EXTRA_ATTRIBUTES,
+			false);
+
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, nonTestLibraryEntry, false);
+		assertEquals(
+			"Non-test library entry should report JDK level incompatibility",
+			IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL,
+			status.getCode());
+
+		// Test 2: Test library entry should pass without JDK incompatibility error
+		// Create a test library entry with TEST attribute set to "true"
+		IClasspathAttribute testAttribute = JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true");
+		IClasspathEntry testLibraryEntry = JavaCore.newLibraryEntry(
+			libPath,
+			null,
+			null,
+			ClasspathEntry.NO_ACCESS_RULES,
+			new IClasspathAttribute[] { testAttribute },
+			false);
+
+		// Validate the test entry - it should skip JDK level check because isTest() returns true
+		status = JavaConventions.validateClasspathEntry(p, testLibraryEntry, false);
+		
+		// The status should be OK even though JDK levels are incompatible
+		// because test entries skip JDK level compatibility checks
+		assertStatus(
+			"Test library entry should pass validation regardless of JDK level mismatch",
+			"OK",
+			status);
+	} finally {
+		deleteProject("P");
+	}
+}
 }

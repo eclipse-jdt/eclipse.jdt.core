@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import com.ibm.icu.text.Collator;
+import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;
 import org.eclipse.jdt.core.Flags;

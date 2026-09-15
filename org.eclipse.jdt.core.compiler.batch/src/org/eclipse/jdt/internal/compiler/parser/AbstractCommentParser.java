@@ -95,6 +95,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean lineStarted = false;
 	protected boolean inlineTagStarted = false;
 	protected boolean inlineReturn= false;
+	protected int inlineReturnStart= -1;
 	protected int inlineReturnOpenBraces= 0;
 	protected boolean abort = false;
 	protected int kind;
@@ -181,6 +182,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			boolean isDomParser = (this.kind & DOM_PARSER) != 0;
 			boolean isFormatterParser = (this.kind & FORMATTER_COMMENT_PARSER) != 0;
 			int lastStarPosition = -1;
+			boolean annotationAtSymbolHandling = false;
 
 			// Init scanner position
 			this.markdown = this.source[this.javadocStart + 1] == '/';
@@ -260,7 +262,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: ignore all tags when inside @literal or @code tags
 						if (considerTagAsPlainText || this.markdownHelper.isInCode()) {
 							// new tag found
-							if (!this.lineStarted) {
+							if (!this.lineStarted && !checkInlineTagForAnnotaion()) {
 								// we may want to report invalid syntax when no closing brace found,
 								// or when incoherent number of closing braces found
 								if (openingBraces > 0 && this.reportProblems) {
@@ -341,9 +343,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								textEndPosition = previousPosition;
 							}
 							if (this.textStart != -1 && this.textStart < textEndPosition) {
-								pushText(this.textStart, textEndPosition);
+								pushText(annotationAtSymbolHandling ? this.textStart - 1 : this.textStart, textEndPosition);
 							}
 						}
+						annotationAtSymbolHandling = false;
 						this.lineStarted = false;
 						lineHasStar = false;
 						// Fix bug 51650
@@ -382,13 +385,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								this.textStart = this.index;
 							if (shouldCloseInlineTag) {
 								setInlineTagStarted(false);
+								annotationAtSymbolHandling= false;
 							}
 							if (this.inlineReturn) {
 								if (this.inlineReturnOpenBraces > 0) {
 									--this.inlineReturnOpenBraces;
 									setInlineTagStarted(true);
+								} else if (this.inlineTagStart > this.inlineReturnStart) {
+									setInlineTagStarted(true);
+									this.inlineTagStart= this.inlineReturnStart;
 								} else {
-									addFragmentToInlineReturn();
+									this.inlineReturn= false;
+									this.inlineReturnStart= -1;
 								}
 							}
 						} else {
@@ -413,6 +421,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						} else if (this.inlineTagStarted) {
 							if (this.tagValue == TAG_RETURN_VALUE) {
 								this.inlineReturn= true;
+								this.inlineReturnStart= this.inlineTagStart;
 							}
 							if (this.inlineReturn && peekChar() != '@') {
 								++this.inlineReturnOpenBraces;
@@ -529,6 +538,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (!this.lineStarted || this.textStart == -1) {
 							this.textStart = previousPosition;
 						}
+						if (previousChar == '@' && checkInlineTagForAnnotaion()) {
+							annotationAtSymbolHandling = true;
+						}
 						this.lineStarted = true;
 						textEndPosition = this.index;
 						break;
@@ -588,6 +600,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	        pos--;
 	    }
 	    return false;
+	}
+
+	protected boolean checkInlineTagForAnnotaion() {
+		return (this.tagValue == TAG_SNIPPET_VALUE || this.tagValue == TAG_CODE_VALUE || this.tagValue == TAG_LITERAL_VALUE);
 	}
 
 	protected void addFragmentToInlineReturn() {
@@ -1636,6 +1652,23 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				return false;
 			}
 
+				if (this.tagValue == TAG_SEE_VALUE) {
+					int lookAhead = this.index;
+					while (lookAhead < this.lineEnd && ScannerHelper.isWhitespace(this.source[lookAhead])) {
+				        lookAhead++;
+				    }
+
+					if (lookAhead < this.lineEnd && (this.source[lookAhead] == '[' || this.source[lookAhead] == '{' || isQualifiedName(lookAhead))) {
+						this.index = this.tokenPreviousPosition;
+						this.scanner.currentPosition = this.tokenPreviousPosition;
+						this.currentTokenType = TokenNameInvalid;
+						int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
+						if (this.source[end]=='\n') end--;
+						if (this.reportProblems) this.sourceParser.problemReporter().javadocMalformedSeeReference(typeRefStartPosition, end);
+						return false;
+					}
+				}
+
 			// Everything is OK, store reference
 			return pushSeeRef(reference);
 		}
@@ -1651,6 +1684,25 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		this.scanner.currentPosition = this.tokenPreviousPosition;
 		this.currentTokenType = TokenNameInvalid;
 		return false;
+	}
+
+	private boolean isQualifiedName(int start) throws InvalidInputException {
+	    int pos = start;
+	    boolean hasDot = false;
+	    while (pos < this.lineEnd && ScannerHelper.isJavaIdentifierPart(this.source[pos])) {
+	        pos++;
+	    }
+	    while (pos < this.lineEnd && this.source[pos] == '.') {
+	        hasDot = true;
+	        pos++;
+	        if (pos >= this.lineEnd || !ScannerHelper.isJavaIdentifierPart(this.source[pos])) {
+	            return false;
+	        }
+	        while (pos < this.lineEnd && ScannerHelper.isJavaIdentifierPart(this.source[pos])) {
+	            pos++;
+	        }
+	    }
+	    return hasDot;
 	}
 
 	protected boolean parseSnippet() throws InvalidInputException {

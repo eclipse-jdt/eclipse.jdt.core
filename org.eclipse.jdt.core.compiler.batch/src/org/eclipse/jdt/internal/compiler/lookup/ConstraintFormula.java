@@ -26,6 +26,7 @@ import java.util.Set;
  */
 abstract class ConstraintFormula extends ReductionResult {
 
+	public static final boolean DEBUG_USE_LONG_NAMES = Boolean.getBoolean("ecj.typeinference.debug.longNames"); //$NON-NLS-1$
 	static final List<InferenceVariable> EMPTY_VARIABLE_LIST = Collections.emptyList();
 	static final ConstraintFormula[] NO_CONSTRAINTS = new ConstraintTypeFormula[0];
 
@@ -58,10 +59,10 @@ abstract class ConstraintFormula extends ReductionResult {
 	}
 
 	// for debug toString():
-	protected void appendTypeName(StringBuilder buf, TypeBinding type) {
+	public static void appendTypeName(StringBuilder buf, TypeBinding type) {
 		if (type instanceof CaptureBinding18)
 			buf.append(type.toString()); // contains more info than readable name
 		else
-			buf.append(type.readableName());
+			buf.append(DEBUG_USE_LONG_NAMES ? type.readableName() : type.shortReadableName());
 	}
 }

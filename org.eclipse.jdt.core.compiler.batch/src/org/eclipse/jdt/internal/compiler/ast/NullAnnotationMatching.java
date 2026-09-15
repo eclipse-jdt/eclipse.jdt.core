@@ -778,6 +778,7 @@ public class NullAnnotationMatching {
 	}
 
 	public static TypeBinding strongerType(TypeBinding type1, TypeBinding type2, LookupEnvironment environment) {
+		if (!TypeBinding.equalsEquals(type1, type2)) return type1; // don't change the unannotated type
 		if ((type1.tagBits & TagBits.AnnotationNonNull) != 0)
 			return mergeTypeAnnotations(type1, type2, true, environment);
 		return mergeTypeAnnotations(type2, type1, true, environment); // don't bother to distinguish unannotated vs. @Nullable, since both can accept null
@@ -850,5 +851,21 @@ public class NullAnnotationMatching {
 		buf.append("Analysis result: severity="+this.severity); //$NON-NLS-1$
 		buf.append(" nullStatus="+this.nullStatus); //$NON-NLS-1$
 		return buf.toString();
+	}
+	public static MethodBinding methodWithMergedNullAnnotations(MethodBinding current, MethodBinding[] moreSpecific, int count, LookupEnvironment environment) {
+		if (count < 2)
+			return current;
+		TypeBinding[] parameters = weakerTypes(moreSpecific[0].parameters, moreSpecific[1].parameters, environment);
+		TypeBinding returnType = strongerType(moreSpecific[0].returnType, moreSpecific[1].returnType, environment);
+		for (int i = 2; i < count; i++) {
+			parameters = weakerTypes(parameters, moreSpecific[i].parameters, environment);
+			returnType = strongerType(returnType, moreSpecific[i].returnType, environment);
+		}
+		if (parameters != current.parameters || returnType != current.returnType) { //$IDENTITY-COMPARISON$
+			current = current.copy();
+			current.parameters = parameters;
+			current.returnType = returnType;
+		}
+		return current;
 	}
 }

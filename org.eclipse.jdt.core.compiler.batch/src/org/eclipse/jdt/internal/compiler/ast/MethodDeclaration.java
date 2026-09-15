@@ -274,7 +274,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				this.scope.problemReporter().componentAccessorMethodHasThrowsClause(this);
 		}
 		// check if method with constructor name
-		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)) {
+		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)
+				&& !this.scope.enclosingSourceType().isImplicitType()) {
 			this.scope.problemReporter().methodWithConstructorName(this);
 		}
 		// to check whether the method returns a type parameter not declared by it.

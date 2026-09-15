@@ -154,7 +154,7 @@ private void computeClasspathLocations(
 			this.moduleUpdater.addReadUnnamedForNonEmptyClasspath(javaProject, classpathEntries);
 		}
 	}
-	IModuleDescription projectModule = javaProject.getModuleDescription();
+	IModuleDescription projectModule = javaProject.getModuleDescription(releaseTarget);
 
 	String patchedModuleName = ModuleEntryProcessor.pushPatchToFront(classpathEntries, javaProject);
 	IModule patchedModule = null;
@@ -214,7 +214,7 @@ private void computeClasspathLocations(
 						mustSortOutput = true;
 						finalOutputFolder = outputFolder.getFolder(new Path(String.format(Util.METAINF_VERSIONS + "%s", release))); //$NON-NLS-1$
 					}
-					int sourceFolderRelease = release == null ? JavaProject.NO_RELEASE : Integer.parseInt(release);
+					int sourceFolderRelease = org.eclipse.jdt.internal.core.util.Util.parseIntOrElse(release, JavaProject.NO_RELEASE);
 					ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
 								(IContainer) target,
 								finalOutputFolder,
@@ -402,6 +402,7 @@ private void computeClasspathLocations(
 			try {
 				AbstractModule sourceModule = (AbstractModule)projectModule;
 				IModule info = (IModule) sourceModule.getElementInfo();
+				// Add all source locations to the module path entry
 				final ClasspathLocation[] sourceLocations2;
 				if(sLocationsForTest.size() == 0) {
 					sourceLocations2 = this.sourceLocations;

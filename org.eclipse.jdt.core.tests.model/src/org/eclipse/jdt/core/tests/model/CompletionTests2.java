@@ -32,7 +32,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.SourceType;
@@ -5618,12 +5617,9 @@ public void testBug397070() throws JavaModelException {
 		SourceType type = null;
 		public void acceptContext(CompletionContext con) {
 			this.type = null;
-			if (con instanceof InternalCompletionContext) {
-				InternalCompletionContext context = (InternalCompletionContext) con;
-				IJavaElement element = context.getEnclosingElement();
-				if (element instanceof org.eclipse.jdt.internal.core.SourceType) {
-					this.type = (SourceType) element;
-				}
+			IJavaElement element = con.getEnclosingElement();
+			if (element instanceof org.eclipse.jdt.internal.core.SourceType) {
+				this.type = (SourceType) element;
 			}
 		}
 		public boolean isExtendedContextRequired() {

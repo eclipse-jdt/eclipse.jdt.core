@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -2399,6 +2400,62 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 				"  public void bar();\n" +
 				"}\n";
 		assertEqualString(preview, content);
+	}
+
+	public void testIssue4099() throws Exception { //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4099
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String source= """
+				package test1;
+				public class E
+						implements Object {
+					public E() {
+					}
+				}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", source, false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+
+		MethodDeclaration newHashCode= ast.newMethodDeclaration();
+		newHashCode.setName(ast.newSimpleName("hashCode"));
+		newHashCode.setReturnType2(ast.newPrimitiveType(PrimitiveType.INT));
+		Block block= ast.newBlock();
+		newHashCode.setBody(block);
+		List<Statement> statements= block.statements();
+		ReturnStatement returnStatement= ast.newReturnStatement();
+		returnStatement.setExpression(ast.newNumberLiteral("3"));
+		statements.add(returnStatement);
+		Annotation annotation= ast.newMarkerAnnotation();
+		annotation.setTypeName(ast.newSimpleName("Override"));
+		List<IExtendedModifier> modifiers= newHashCode.modifiers();
+		modifiers.add(annotation);
+		modifiers.add(ast.newModifier(ModifierKeyword.PUBLIC_KEYWORD));
+
+		listRewrite.insertLast(newHashCode, null);
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		String expected= """
+				package test1;
+				public class E
+						implements Object {
+					public E() {
+					}
+
+				    @Override
+				    public int hashCode() {
+				        return 3;
+				    }
+				}
+				""";
+		assertEqualString(preview, expected);
 	}
 
 }

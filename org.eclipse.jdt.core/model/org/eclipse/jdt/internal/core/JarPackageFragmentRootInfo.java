@@ -33,5 +33,6 @@ class JarPackageFragmentRootInfo extends PackageFragmentRootInfo {
 	 * Cache for the the jar's entries names. A unmodifiable map from package name to PackageContent
 	 */
 	Map<List<String>, PackageContent> rawPackageInfo;
+	/** Cached map of class names to the most specific applicable version within an MR jar. */
 	Map<String, String> overriddenClasses;
 }

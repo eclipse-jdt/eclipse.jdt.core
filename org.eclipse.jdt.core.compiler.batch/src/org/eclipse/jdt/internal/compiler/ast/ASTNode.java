@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -354,6 +354,12 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 			scope.problemReporter().unsafeTypeConversion(argument, argumentType, checkedParameterType);
 			return INVOCATION_ARGUMENT_UNCHECKED;
 		}
+		if (argument instanceof ReferenceExpression rExpression && rExpression.binding != null) {
+			TypeBinding returnType = rExpression.binding.returnType;
+			if (returnType.needsUncheckedConversion(rExpression.descriptor.returnType)) {
+    			return INVOCATION_ARGUMENT_UNCHECKED;
+			}
+		}
 		return INVOCATION_ARGUMENT_OK;
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
@@ -599,7 +605,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 			// ignore cases where type is used from inside itself
 			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
-		if (type instanceof BinaryTypeBinding btb) {
+		if (type.actualType() instanceof BinaryTypeBinding btb) {
 			reportPreviewAPI(scope, btb.binaryPreviewAnnotation);
 		}
 		if (refType.hasRestrictedAccess()) {
@@ -849,6 +855,10 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 							// need to fill the instances array
 							for (int j = 0; j < length; j++) {
 								Annotation annot = sourceAnnotations[j];
+								if (annot.recipient == null || annot.resolvedType == null) {
+									annot.recipient = recipient;
+									annot.resolveType(scope);
+								}
 								annotations[j] = annot.getCompilerAnnotation();
 							}
 						}

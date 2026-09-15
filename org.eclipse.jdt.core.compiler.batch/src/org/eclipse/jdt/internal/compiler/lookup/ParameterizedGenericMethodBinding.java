@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
 
 /**
  * Binding denoting a generic method after type parameter substitutions got performed.
@@ -213,10 +214,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType() || !isPolyExpression) {
 				// ---- 18.5.2 (Invocation type): ----
 				provisionalResult = result;
-				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
 				if (InferenceContext18.DEBUG) {
 					System.out.println("Infer invocation type for "+invocationSite+ " with target " //$NON-NLS-1$ //$NON-NLS-2$
 							+(expectedType == null ? "<no type>" : expectedType.debugName())); //$NON-NLS-1$
+				}
+				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
+				if (InferenceContext18.DEBUG) {
 					System.out.println("Result=\n"+result); //$NON-NLS-1$
 				}
 				invocationTypeInferred = infCtx18.stepCompleted == InferenceContext18.TYPE_INFERRED_FINAL;
@@ -254,13 +257,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						if (invocationTypeInferred) {
 							if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
 								NullAnnotationMatching.checkForContradictions(methodSubstitute, invocationSite, scope);
-							MethodBinding problemMethod = methodSubstitute.boundCheck18(scope, arguments, invocationSite);
-							if (problemMethod != null) {
-								if (InferenceContext18.DEBUG) {
-									System.out.println("Bound check after inference failed: "+problemMethod); //$NON-NLS-1$
-								}
-								return problemMethod;
-							}
+							methodSubstitute.boundCheck18(scope, arguments, invocationSite); // detect unchecked type arguments
 						} else {
 							methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
 							if (InferenceContext18.DEBUG) {
@@ -289,34 +286,21 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		}
 	}
 
-	MethodBinding boundCheck18(Scope scope, TypeBinding[] arguments, InvocationSite site) {
+	void boundCheck18(Scope scope, TypeBinding[] arguments, InvocationSite site) {
 		Substitution substitution = this;
 		ParameterizedGenericMethodBinding methodSubstitute = this;
 		TypeVariableBinding[] originalTypeVariables = this.originalMethod.typeVariables;
-		// mostly original extract from above, TODO: remove stuff that's no longer needed in 1.8+
 		for (int i = 0, length = originalTypeVariables.length; i < length; i++) {
-		    TypeVariableBinding typeVariable = originalTypeVariables[i];
-		    TypeBinding substitute = methodSubstitute.typeArguments[i]; // retain for diagnostics
+			TypeVariableBinding typeVariable = originalTypeVariables[i];
+			TypeBinding substitute = methodSubstitute.typeArguments[i];
 
 			ASTNode location = site instanceof ASTNode ? (ASTNode) site : null;
-			switch (typeVariable.boundCheck(substitution, substitute, scope, location)) {
-				case MISMATCH :
-			        // incompatible due to bound check
-					int argLength = arguments.length;
-					TypeBinding[] augmentedArguments = new TypeBinding[argLength + 2]; // append offending substitute and typeVariable
-					System.arraycopy(arguments, 0, augmentedArguments, 0, argLength);
-					augmentedArguments[argLength] = substitute;
-					augmentedArguments[argLength+1] = typeVariable;
-			        return new ProblemMethodBinding(methodSubstitute, this.originalMethod.selector, augmentedArguments, ProblemReasons.ParameterBoundMismatch);
-				case UNCHECKED :
-					// tolerate unchecked bounds
-					methodSubstitute.tagBits |= TagBits.HasUncheckedTypeArgumentForBoundCheck;
-					break;
-				default:
-					break;
+			if (typeVariable.boundCheck(substitution, substitute, scope, location) == BoundCheckStatus.UNCHECKED) {
+				// tolerate but record unchecked bounds
+				methodSubstitute.tagBits |= TagBits.HasUncheckedTypeArgumentForBoundCheck;
+				break;
 			}
 		}
-		return null;
 	}
 
 	/**

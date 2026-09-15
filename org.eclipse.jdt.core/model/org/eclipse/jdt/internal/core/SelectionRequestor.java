@@ -886,7 +886,7 @@ public IJavaElement[] getElements() {
 	return this.elements;
 }
 protected IModuleDescription resolveModule(char[] moduleName) {
-	Answer answer = this.nameLookup.findModule(moduleName);
+	Answer answer = this.nameLookup.findModule(moduleName, JavaProject.NO_RELEASE);
 	if (answer != null) {
 		return answer.module;
 	}

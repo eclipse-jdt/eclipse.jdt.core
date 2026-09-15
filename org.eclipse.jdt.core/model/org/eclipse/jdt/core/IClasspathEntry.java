@@ -475,7 +475,7 @@ public interface IClasspathEntry {
 	IClasspathEntry getResolvedEntry();
 
 	/**
-	 * This is a convience method, that returns <code>true</code> if the extra attributes contain an attribute whose name
+	 * This is a convenience method, that returns <code>true</code> if the extra attributes contain an attribute whose name
 	 * is {@link IClasspathAttribute#TEST} and whose value is 'true'.
 	 *
 	 * @see #getExtraAttributes()
@@ -493,7 +493,7 @@ public interface IClasspathEntry {
 	}
 
 	/**
-	 * This is a convience method, that returns <code>true</code> if the extra attributes contain an attribute whose name
+	 * This is a convenience method, that returns <code>true</code> if the extra attributes contain an attribute whose name
 	 * is {@link IClasspathAttribute#WITHOUT_TEST_CODE} and whose value is 'true'.
 	 *
 	 * @see #getExtraAttributes()

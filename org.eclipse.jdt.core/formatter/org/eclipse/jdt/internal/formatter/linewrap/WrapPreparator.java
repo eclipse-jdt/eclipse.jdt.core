@@ -977,10 +977,18 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SingleVariableDeclaration node) {
-		handleAnnotations(node.modifiers(),
+		if (node.getParent() instanceof RecordDeclaration) {
+			handleAnnotations(node.modifiers(),
+				node.getParent() instanceof EnhancedForStatement
+						? this.options.alignment_for_annotations_on_local_variable
+						: this.options.alignment_for_annotations_on_parameter,
+				this.options.insert_new_line_after_annotation_on_record_parameter);
+		} else {
+			handleAnnotations(node.modifiers(),
 				node.getParent() instanceof EnhancedForStatement
 						? this.options.alignment_for_annotations_on_local_variable
 						: this.options.alignment_for_annotations_on_parameter);
+		}
 		return true;
 	}
 
@@ -1189,17 +1197,27 @@ public class WrapPreparator extends ASTVisitor {
 	}
 
 	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, int wrappingOption) {
+		handleAnnotations(modifiers, wrappingOption, true);
+	}
+
+	private void handleAnnotations(List<? extends IExtendedModifier> modifiers, int wrappingOption, boolean shouldWrap) {
+		//This method has it's specific rule to handle newline on annotations, that clash with the
+		//insert_new_line_after_annotation_on_record_parameter options, so if Applied, since it uses a different logic
+		//it rewrite the whole line, and remove the formatting just applied. To avoid that the shouldWrap boolean
+		//has been added, making it optional in case of need.
 		Annotation last = null;
 		int i;
 		for (i = 0; i < modifiers.size(); i++) {
 			if (modifiers.get(i).isModifier())
 				break;
 			Annotation annotation = (Annotation) modifiers.get(i);
-			if (i == 0) {
-				this.wrapParentIndex = this.tm.firstIndexIn(annotation, ANY);
-			} else {
-				this.wrapIndexes.add(this.tm.firstIndexIn(annotation, ANY));
-				this.wrapGroupEnd = this.tm.lastIndexIn(annotation, ANY);
+			if (shouldWrap) {
+				if (i == 0) {
+					this.wrapParentIndex = this.tm.firstIndexIn(annotation, ANY);
+				} else {
+					this.wrapIndexes.add(this.tm.firstIndexIn(annotation, ANY));
+					this.wrapGroupEnd = this.tm.lastIndexIn(annotation, ANY);
+				}
 			}
 			last = annotation;
 		}

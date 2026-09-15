@@ -32,6 +32,7 @@ echo.
 REM Clean previous build outputs
 echo Cleaning previous build outputs...
 if exist bin8 rmdir /s /q bin8
+if exist bin9 rmdir /s /q bin9
 if exist bin11 rmdir /s /q bin11
 if exist bin17 rmdir /s /q bin17
 if exist bin21 rmdir /s /q bin21
@@ -41,6 +42,7 @@ if exist multi-release-example.jar del /q multi-release-example.jar
 
 REM Create output directories
 mkdir bin8
+mkdir bin9
 mkdir bin11
 mkdir bin17
 mkdir bin21
@@ -56,6 +58,17 @@ if errorlevel 1 (
     exit /b 1
 )
 echo Java 8 compilation successful
+echo.
+
+echo ============================================================================
+echo Compiling Java 9 module-info...
+echo ============================================================================
+javac --release 9 -d bin9 src\java9\module-info.java
+if errorlevel 1 (
+    echo ERROR: Failed to compile Java 9 module-info
+    exit /b 1
+)
+echo Java 9 compilation successful
 echo.
 
 echo ============================================================================
@@ -114,6 +127,13 @@ REM Copy Java 8 base classes
 xcopy /e /i /y bin8\* temp_jar\
 if errorlevel 1 (
     echo ERROR: Failed to copy Java 8 classes
+    exit /b 1
+)
+
+REM Copy Java 9 module-info
+xcopy /e /i /y bin9\* temp_jar\
+if errorlevel 1 (
+    echo ERROR: Failed to copy Java 9 module-info
     exit /b 1
 )
 

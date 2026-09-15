@@ -122,7 +122,7 @@ public CharArrayBuffer append(char[] src, int start, int length) {
 	if (src != null) {
 		int srcLength = src.length;
 		if (start > srcLength) throw new ArrayIndexOutOfBoundsException();
-		if (length + start > srcLength) throw new ArrayIndexOutOfBoundsException();
+		if (length > srcLength - start) throw new ArrayIndexOutOfBoundsException();
 		/** do length check here to allow exceptions to be thrown */
 		if (length > 0) {
 			if (this.end == this.size) {

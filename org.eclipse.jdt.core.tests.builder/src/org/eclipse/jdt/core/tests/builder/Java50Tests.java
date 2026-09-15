@@ -315,6 +315,7 @@ public class Java50Tests extends BuilderTests {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057
+	// NOTE: This test was broken and was fixed by https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5257
 	public void testHierarchyNonCycle() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -340,15 +341,10 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		fullBuild(projectPath);
-		expectingProblemsFor(
-				projectPath,
-				"Problem : Bound mismatch: The type SubInterface.SubInterfaceGetter is not a valid substitute for the bounded parameter <G extends SuperInterface.SuperInterfaceGetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <105,136> category : <40> severity : <2>]\n" +
-				"Problem : Bound mismatch: The type SubInterface.SubInterfaceSetter is not a valid substitute for the bounded parameter <S extends SuperInterface.SuperInterfaceSetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <157,188> category : <40> severity : <2>]\n" +
-				"Problem : SuperInterfaceGetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <244,264> category : <40> severity : <2>]\n" +
-				"Problem : SuperInterfaceSetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <320,340> category : <40> severity : <2>]"
-			);
+		expectingNoProblems();
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057 (variation)
+	// NOTE: This test was broken and was fixed by https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5257
 	public void testHierarchyNonCycle2() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -376,7 +372,10 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		fullBuild(projectPath);
-		expectingNoProblems();
+		expectingProblemsFor(
+				projectPath,
+				"Problem : The import superint.SuperInterface.SuperInterfaceGetter is never used [ resource : </Project/subint/SubInterface.java> range : <55,99> category : <120> severity : <1>]\n" +
+				"Problem : The import superint.SuperInterface.SuperInterfaceSetter is never used [ resource : </Project/subint/SubInterface.java> range : <108,152> category : <120> severity : <1>]");
 	}
 
 }

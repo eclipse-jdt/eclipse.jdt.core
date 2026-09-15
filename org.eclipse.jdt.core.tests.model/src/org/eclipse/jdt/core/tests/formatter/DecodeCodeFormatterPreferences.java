@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
-import com.ibm.icu.util.StringTokenizer;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -21,6 +20,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.xml.parsers.FactoryConfigurationError;

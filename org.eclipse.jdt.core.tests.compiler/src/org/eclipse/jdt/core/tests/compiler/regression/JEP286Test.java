@@ -1465,4 +1465,28 @@ public void testIssue600_4() {
 			+ "'var' cannot be used with type arguments\n"
 			+ "----------\n");
 }
+public void testIssue5202ArrayDownwardsProjection() {
+	this.runConformTest(
+		new String[] {
+			"ProjectedArrayType.java",
+			"""
+			class ProjectedArrayType {
+				interface Slot<T> {}
+				interface Message<T> {}
+				static class Reading {}
+
+				Slot<? extends Reading> readings;
+
+				<Element> Message<? super Element[]> expose(Slot<Element> source) {
+					return null;
+				}
+
+				void inspectProjection() {
+					var projected = expose(this.readings);
+					projected.toString();
+				}
+			}
+			"""
+		});
+}
 }

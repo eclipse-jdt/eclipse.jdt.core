@@ -1520,4 +1520,141 @@ public void testModuleImportsNotResolved4121() throws Exception {
     }
 
 }
+public void testBug478_originalReproducer_structuralWalk() throws Exception {
+	String contents =
+			"package invalid.binding;\n" +
+			"\n" +
+			"public class FA9124\n" +
+			"{\n" +
+			"    private final A x = new A()\n" +
+			"    {\n" +
+			"        { \n" +
+			"            foo(Style.STROKE); //Style binding FAILED\n" +
+			"        }\n" +
+			"\n" +
+			"        void bar() \n" +
+			"        {\n" +
+			"            foo(Style.STROKE); // Style binding OK\n" +
+			"        }\n" +
+			"    };\n" +
+			"}\n" +
+			"\n" +
+			"class A\n" +
+			"{\n" +
+			"\n" +
+			"    enum Style {\n" +
+			"        FILL, STROKE;\n" +
+			"    }\n" +
+			"\n" +
+			"    Style[] sStyleArray;\n" +
+			"\n" +
+			"    void foo(Style style)\n" +
+			"    {}\n" +
+			"}\n";
+
+	ICompilationUnit workingCopy = getWorkingCopy(
+			"/Converter15/src/invalid/binding/FA9124.java",
+			contents,
+			true);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(AST.JLS23, workingCopy, true);
+
+	// unit -> types[0] => FA9124
+	List types = unit.types();
+	assertEquals("types size", 2, types.size());
+
+	AbstractTypeDeclaration t0 = (AbstractTypeDeclaration) types.get(0);
+	assertTrue("types[0] is TypeDeclaration", t0 instanceof TypeDeclaration);
+	TypeDeclaration faType = (TypeDeclaration) t0;
+	assertEquals("FA9124", faType.getName().getIdentifier());
+
+	// FA9124 -> bodyDeclarations[0] => field x
+	List faBody = faType.bodyDeclarations();
+	assertEquals("FA9124 body size", 1, faBody.size());
+	FieldDeclaration xField = (FieldDeclaration) faBody.get(0);
+
+	List xFrags = xField.fragments();
+	assertEquals("x fragments size", 1, xFrags.size());
+	VariableDeclarationFragment xFrag = (VariableDeclarationFragment) xFrags.get(0);
+	assertEquals("x", xFrag.getName().getIdentifier());
+
+	// x initializer => ClassInstanceCreation new A() { ... }
+	Expression xInit = xFrag.getInitializer();
+	assertTrue("x initializer is ClassInstanceCreation", xInit instanceof ClassInstanceCreation);
+	ClassInstanceCreation cic = (ClassInstanceCreation) xInit;
+
+	AnonymousClassDeclaration anon = cic.getAnonymousClassDeclaration();
+	assertNotNull("anonymous class declaration", anon);
+
+	// anon -> bodyDeclarations: [initializer block, method bar]
+	List anonBody = anon.bodyDeclarations();
+	assertEquals("anonymous body size", 2, anonBody.size());
+
+	BodyDeclaration bd0 = (BodyDeclaration) anonBody.get(0);
+	BodyDeclaration bd1 = (BodyDeclaration) anonBody.get(1);
+
+	assertTrue("anon body[0] is Initializer", bd0 instanceof Initializer);
+	assertTrue("anon body[1] is MethodDeclaration", bd1 instanceof MethodDeclaration);
+
+	Initializer instInit = (Initializer) bd0; // instance initializer
+	MethodDeclaration bar = (MethodDeclaration) bd1;
+	assertEquals("bar", bar.getName().getIdentifier());
+
+	// ---- FAILED site in issue: initializer block foo(Style.STROKE) ----
+	Block initBlock = instInit.getBody();
+	List initStmts = initBlock.statements();
+	assertEquals("initializer statements size", 1, initStmts.size());
+
+	ExpressionStatement initExprStmt = (ExpressionStatement) initStmts.get(0);
+	MethodInvocation initFooCall = (MethodInvocation) initExprStmt.getExpression();
+	assertEquals("foo", initFooCall.getName().getIdentifier());
+
+	List initArgs = initFooCall.arguments();
+	assertEquals("init foo arg size", 1, initArgs.size());
+	Expression initArg0 = (Expression) initArgs.get(0);
+	assertTrue("init arg is QualifiedName", initArg0 instanceof QualifiedName);
+
+	QualifiedName initStyleStroke = (QualifiedName) initArg0;
+	assertEquals("STROKE", initStyleStroke.getName().getIdentifier());
+
+	IBinding initStyleBinding = initStyleStroke.resolveBinding();
+	assertNotNull("binding for Style.STROKE in initializer (was FAILED)", initStyleBinding);
+	assertTrue("binding kind for Style.STROKE in initializer is VARIABLE",
+			initStyleBinding.getKind() == IBinding.VARIABLE);
+
+	// ---- control site in issue: bar() block foo(Style.STROKE) ----
+	Block barBody = bar.getBody();
+	List barStmts = barBody.statements();
+	assertEquals("bar statements size", 1, barStmts.size());
+
+	ExpressionStatement barExprStmt = (ExpressionStatement) barStmts.get(0);
+	MethodInvocation barFooCall = (MethodInvocation) barExprStmt.getExpression();
+	assertEquals("foo", barFooCall.getName().getIdentifier());
+
+	List barArgs = barFooCall.arguments();
+	assertEquals("bar foo arg size", 1, barArgs.size());
+	Expression barArg0 = (Expression) barArgs.get(0);
+	assertTrue("bar arg is QualifiedName", barArg0 instanceof QualifiedName);
+
+	QualifiedName barStyleStroke = (QualifiedName) barArg0;
+	assertEquals("STROKE", barStyleStroke.getName().getIdentifier());
+
+	IBinding barStyleBinding = barStyleStroke.resolveBinding();
+	assertNotNull("binding for Style.STROKE in bar() (expected OK)", barStyleBinding);
+	assertTrue("binding kind for Style.STROKE in bar() is VARIABLE",
+			barStyleBinding.getKind() == IBinding.VARIABLE);
+
+	Name barQualifier = barStyleStroke.getQualifier();
+	IBinding barQualifierBinding = barQualifier.resolveBinding();
+	assertNotNull("binding for qualifier Style in bar() (expected OK)", barQualifierBinding);
+	assertTrue("qualifier Style binds to TYPE in bar()",
+			barQualifierBinding.getKind() == IBinding.TYPE);
+
+	// qualifier "Style" binding in failed site
+	Name initQualifier = initStyleStroke.getQualifier();
+	IBinding initQualifierBinding = initQualifier.resolveBinding();
+	assertNotNull("binding for qualifier Style in initializer (was FAILED)", initQualifierBinding);
+	assertTrue("qualifier Style binds to TYPE in initializer",
+			initQualifierBinding.getKind() == IBinding.TYPE);
+}
 }

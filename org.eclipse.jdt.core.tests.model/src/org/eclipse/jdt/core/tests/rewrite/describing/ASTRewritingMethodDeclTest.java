@@ -3130,7 +3130,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("class E {\n");
-		buf.append("    public void foo(@X\n    @A int a, @B2 int b, @X\n    int c, @X int d, @X\n    int e) {\n");
+		buf.append("    public void foo(@X\n            @A int a, @B2 int b, @X\n            int c, @X int d, @X\n            int e) {\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());

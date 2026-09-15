@@ -10188,4 +10188,96 @@ public void testMissingClass_return() {
 	runner.runConformTest();
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5146
+// ECJ spuriously reports "The type X cannot be resolved. It is indirectly referenced
+// from required type Y" when an inner class accesses a field declared on its outer
+// class, and a transitive supertype of the inner class happens to have a field whose
+// type is absent from the classpath.
+public void testIssue5146() {
+	if (this.complianceLevel <= ClassFileConstants.JDK10) // we get access emulation warnings before nestmates arrival
+		return;
+	// Phase 1: compile the library stubs, including the "transitive" type (slf4j Logger).
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"lib/slf4j/Logger.java",
+		"""
+		package lib.slf4j;
+		public interface Logger {}
+		""",
+		"lib/ws/AbstractWebSocket.java",
+		"""
+		package lib.ws;
+		import lib.slf4j.Logger;
+		public abstract class AbstractWebSocket {
+		    // This field's type will be absent from the classpath in phase 2.
+		    private Logger log;
+		    public abstract void onError(Exception ex);
+		}
+		""",
+		"lib/ws/handshake/ServerHandshake.java",
+		"""
+		package lib.ws.handshake;
+		public interface ServerHandshake {}
+		""",
+		"lib/ws/client/WebSocketClient.java",
+		"""
+		package lib.ws.client;
+		import java.net.URI;
+		import lib.ws.AbstractWebSocket;
+		import lib.ws.handshake.ServerHandshake;
+		public abstract class WebSocketClient extends AbstractWebSocket {
+		    public WebSocketClient(URI serverUri) {}
+		    public abstract void onOpen(ServerHandshake handshakedata);
+		    public abstract void onClose(int code, String reason, boolean remote);
+		    public abstract void onMessage(String message);
+		}
+		""",
+	};
+	runner.runConformTest();
+
+	// Phase 2: remove slf4j.Logger from the classpath to simulate the missing
+	// transitive dependency (mirroring the real-world setup with Java-WebSocket).
+	Util.delete(new File(OUTPUT_DIR,
+			"lib" + File.separator + "slf4j" + File.separator + "Logger.class"));
+	runner.shouldFlushOutputDirectory = false;
+
+	// Phase 3: compile the user's source. The inner class WSDesc extends
+	// WebSocketClient -> AbstractWebSocket, which has a field of the now-missing
+	// type lib.slf4j.Logger.  The onOpen() body accesses `log`, which resolves to
+	// the OUTER class field of type java.util.logging.Logger (always on the JDK
+	// classpath).  ECJ must NOT raise an "indirectly referenced" error here.
+	runner.testFiles = new String[] {
+		"com/leokom/IssueReproducer.java",
+		"""
+		package com.leokom;
+		import java.net.URI;
+		import java.util.logging.Logger;
+		import lib.ws.client.WebSocketClient;
+		import lib.ws.handshake.ServerHandshake;
+		public class IssueReproducer {
+		    // Outer-class field: java.util.logging.Logger is always resolvable.
+		    private static final Logger log =
+		            Logger.getLogger(IssueReproducer.class.getName());
+		    abstract class WSDesc extends WebSocketClient {
+		        WSDesc(URI serverUri) { super(serverUri); }
+		        @Override
+		        public void onOpen(ServerHandshake handshakedata) {
+		            // Accesses outer field `log`.
+		            // ECJ must NOT report "lib.slf4j.Logger cannot be resolved.
+		            // It is indirectly referenced from required type
+		            // lib.ws.AbstractWebSocket" on this line.
+		            log.info("Should compile without errors");
+		        }
+		        @Override public void onClose(int c, String r, boolean remote) {}
+		        @Override public void onMessage(String message) {}
+		        @Override public void onError(Exception ex) {}
+		    }
+		}
+		""",
+	};
+	runner.expectedCompilerLog = ""; // zero errors expected
+	runner.javacTestOptions = JavacTestOptions.DEFAULT;
+	runner.runConformTest();
+}
+
 }

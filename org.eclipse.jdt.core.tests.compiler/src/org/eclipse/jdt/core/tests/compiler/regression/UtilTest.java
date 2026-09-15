@@ -14,11 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 //import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 //import org.apache.tools.ant.types.selectors.SelectorUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({ "rawtypes" })
 public class UtilTest extends AbstractRegressionTest {
@@ -743,5 +747,64 @@ public void test73b() { // previous test cases but with 3.3 behavior
 }
 public static Class testClass() {
 	return UtilTest.class;
+}
+
+// --- Path-traversal safety of external annotation resolution (Util.isSafeRelativePath / getFileWithinBaseDir) ---
+
+// A benign, slash-separated relative annotation file name (as produced from a real type name) is safe.
+public void testSafeRelativePath_benign() {
+	assertTrue("benign name should be safe",
+		Util.isSafeRelativePath("org/example/Foo" + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX));
+	assertTrue("top-level name should be safe",
+		Util.isSafeRelativePath("Foo" + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX));
+	assertTrue("inner type name should be safe",
+		Util.isSafeRelativePath("org/example/Foo$Inner" + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX));
+}
+
+// A relative name containing ".." segments must be rejected (path traversal).
+public void testSafeRelativePath_traversalRejected() {
+	assertFalse("leading traversal must be rejected",
+		Util.isSafeRelativePath("../../etc/passwd"));
+	assertFalse("embedded traversal must be rejected",
+		Util.isSafeRelativePath("org/../../etc/passwd"));
+	assertFalse("traversal with suffix must be rejected",
+		Util.isSafeRelativePath("../secret" + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX));
+}
+
+// Absolute paths and empty/null must be rejected.
+public void testSafeRelativePath_absoluteAndEmptyRejected() {
+	assertFalse("null must be rejected", Util.isSafeRelativePath(null));
+	assertFalse("empty must be rejected", Util.isSafeRelativePath("")); //$NON-NLS-1$
+	String absolute = new File(File.listRoots()[0], "etc/passwd").getAbsolutePath(); //$NON-NLS-1$
+	assertFalse("absolute path must be rejected: " + absolute, Util.isSafeRelativePath(absolute));
+}
+
+// getFileWithinBaseDir returns a file contained in the base for benign names.
+public void testGetFileWithinBaseDir_benign() throws Exception {
+	Path base = Files.createTempDirectory("eea-base"); //$NON-NLS-1$
+	try {
+		String relative = "org/example/Foo" + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
+		File resolved = Util.getFileWithinBaseDir(base.toString(), relative);
+		assertNotNull("benign name should resolve", resolved);
+		assertTrue("resolved file must stay within base directory",
+			resolved.getCanonicalPath().startsWith(base.toFile().getCanonicalPath()));
+	} finally {
+		Files.deleteIfExists(base);
+	}
+}
+
+// getFileWithinBaseDir returns null for names that would escape the base directory.
+public void testGetFileWithinBaseDir_traversalReturnsNull() throws Exception {
+	Path base = Files.createTempDirectory("eea-base"); //$NON-NLS-1$
+	try {
+		assertNull("traversal must not resolve to a file",
+			Util.getFileWithinBaseDir(base.toString(), "../../etc/passwd")); //$NON-NLS-1$
+		assertNull("embedded traversal must not resolve to a file",
+			Util.getFileWithinBaseDir(base.toString(), "org/../../etc/passwd")); //$NON-NLS-1$
+		assertNull("null base must return null",
+			Util.getFileWithinBaseDir(null, "Foo" + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX));
+	} finally {
+		Files.deleteIfExists(base);
+	}
 }
 }

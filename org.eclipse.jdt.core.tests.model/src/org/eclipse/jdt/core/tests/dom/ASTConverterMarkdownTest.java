@@ -2433,4 +2433,124 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Invalid content", "**Bold**", ((TextElement)frags.get(0)).getText());
 		}
 	}
+
+	public void testJavadocIncorrectlyParsingAnnotationInlineTag5055_01() throws JavaModelException {
+		String source = """
+				/// Example showing formatter bug with {@code @} in pre blocks.
+				///
+				/// <pre>
+				/// {@code
+				/// @MyAnnotation
+				/// public class Example {
+				/// 	@AnotherAnnotation
+				/// 	private String field;
+				/// }
+				/// }
+				/// </pre>
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			List<?> frags = parentTag.fragments();
+			assumeEquals("wrong number of Child elements", 6, frags.size());
+			List<TextElement> innerFrags = ((TagElement) frags.get(4)).fragments();
+			assumeEquals("Incorrect child content", "@MyAnnotation", innerFrags.get(0).getText());
+			assumeEquals("Incorrect child content", "	@AnotherAnnotation", innerFrags.get(2).getText());
+		}
+	}
+
+	public void testJavadocIncorrectlyParsingAnnotationInlineTag5055_02() throws JavaModelException {
+		String source = """
+				/// Example showing formatter bug with {@code @} in pre blocks.
+				///
+				/// <pre>
+				/// {@literal
+				/// @MyAnnotation
+				/// public class Example {
+				/// 	@AnotherAnnotation
+				/// 	private String field;
+				/// }
+				/// }
+				/// </pre>
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			List<?> frags = parentTag.fragments();
+			assumeEquals("wrong number of Child elements", 6, frags.size());
+			List<TextElement> innerFrags = ((TagElement) frags.get(4)).fragments();
+			assumeEquals("Incorrect child content", "@MyAnnotation", innerFrags.get(0).getText());
+			assumeEquals("Incorrect child content", "	@AnotherAnnotation", innerFrags.get(2).getText());
+		}
+	}
+
+	public void testMarkdownSupportSeeTag5299_01() throws JavaModelException {
+		String source = """
+				/// @see see [ArrayList](java.util.ArrayList)
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			assertEquals("Invalid Element Count", 2, parentTag.fragments().size());
+			TextElement text = (TextElement) parentTag.fragments().get(0);
+			TagElement tag = (TagElement) parentTag.fragments().get(1);
+			assertEquals("Incorrect Text content", " see ", text.getText());
+			assertEquals("Invalid Tag", "@link", tag.getTagName());
+		}
+	}
+
+	public void testMarkdownSupportSeeTag5299_02() throws JavaModelException {
+		String source = """
+				/// @see see {@link java.util.ArrayList ArrayList}
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			assertEquals("Invalid Element Count", 2, parentTag.fragments().size());
+			TextElement text = (TextElement) parentTag.fragments().get(0);
+			TagElement tag = (TagElement) parentTag.fragments().get(1);
+			assertEquals("Incorrect Text content", " see ", text.getText());
+			assertEquals("Invalid Tag", "@link", tag.getTagName());
+		}
+	}
+
+	public void testMarkdownSupportSeeTag5299_03() throws JavaModelException {
+		String source = """
+				/// @see see java.util.ArrayList
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			List<?> childElements = parentTag.fragments();
+			assertEquals("Invalid Element Count", 1, childElements.size());
+			assertTrue("Invalid type of child", childElements.get(0) instanceof TextElement);
+			String text = ((TextElement)childElements.get(0)).getText();
+			assertEquals("Incorrect Text content", " see java.util.ArrayList", text);
+		}
+	}
 }
