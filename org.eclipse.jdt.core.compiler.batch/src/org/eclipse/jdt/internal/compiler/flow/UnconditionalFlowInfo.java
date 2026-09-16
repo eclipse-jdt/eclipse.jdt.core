@@ -51,6 +51,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	}
 	}
 
+	protected UnconditionalFlowInfo() {
+		// External clients must go through newInstance()
+	}
+
 	// Coverage tests need that the code be instrumented. The following flag
 	// controls whether the instrumented code is compiled in or not, and whether
 	// the coverage tests methods run or not.
@@ -769,7 +773,7 @@ final public boolean canOnlyBeNull(LocalVariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-public FlowInfo copy(UnconditionalFlowInfo that) { // Tat Tvam Asi!
+protected UnconditionalFlowInfo copy(UnconditionalFlowInfo that) { // Tat Tvam Asi!
 	this.definiteInits = that.definiteInits;
 	this.potentialInits = that.potentialInits;
 	boolean hasNullInfo = (that.tagBits & NULL_FLAG_MASK) != 0;

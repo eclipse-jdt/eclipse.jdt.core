@@ -61,17 +61,42 @@ public class InstanceFieldsFlowInfo extends UnconditionalFlowInfo {
 	}
 
 	@Override
-	public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
+	public UnconditionalFlowInfo mergeDefiniteInitsWith(UnconditionalFlowInfo otherInits) {
+		/* What is the right behavior when this is UNREACHABLE_OR_DEAD ?
+		   Are we guaranteed `otherInits` is an IFFI - seems intuitive
+	    */
+		return super.mergeDefiniteInitsWith(otherInits);
+	}
+
+	@Override
+	public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
+		/* What is the right behavior when this is UNREACHABLE_OR_DEAD ?
+		   Are we guaranteed `otherInits` is an IFFI - seems intuitive
+	    */
+		return super.mergedWith(otherInits);
+	}
+
+	@Override
+	public InstanceFieldsFlowInfo nullInfoLessUnconditionalCopy() {
 		InstanceFieldsFlowInfo copy = (InstanceFieldsFlowInfo) super.nullInfoLessUnconditionalCopy();
 		copy.prologueInfo = this.prologueInfo;
 		return copy;
 	}
 
 	@Override
-	public UnconditionalFlowInfo unconditionalFieldLessCopy() {
+	public InstanceFieldsFlowInfo unconditionalFieldLessCopy() {
 		InstanceFieldsFlowInfo copy = (InstanceFieldsFlowInfo) super.unconditionalFieldLessCopy();
-		copy.prologueInfo = FlowInfo.initial(copy.maxFieldCount);
+		copy.prologueInfo = this.prologueInfo;  // ?? what is the right thing here ?? I think we should discard `own` initialization, not lose identity!
 		return copy;
+	}
+
+	@Override
+	public UnconditionalFlowInfo discardInitializationInfo() {
+		return super.discardInitializationInfo(); // ?? what is the right thing here ?? I think we should discard `own` initialization, not lose identity!
+	}
+
+	public UnconditionalFlowInfo withoutPrologues() {
+		return new UnconditionalFlowInfo().copy(this);
 	}
 
 	@Override

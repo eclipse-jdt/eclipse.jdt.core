@@ -758,7 +758,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					ctorInfo = constructor.getPrologueFlowInfo();
 					if (ctorInfo != null) {
 						if (prologueInfo == null)
-							prologueInfo = ctorInfo.copy();
+							prologueInfo = ctorInfo;
 						else
 							prologueInfo = prologueInfo.mergedWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
 					}
@@ -831,6 +831,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	}
 	if (this.methods != null) {
 		UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
+		if (nonStaticFieldInfo instanceof InstanceFieldsFlowInfo iffi)
+			nonStaticFieldInfo = iffi.withoutPrologues();
 		FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 		SimpleSetOfCharArray jUnitMethodSourceValues = getJUnitMethodSourceValues();
 		for (AbstractMethodDeclaration method : this.methods) {
