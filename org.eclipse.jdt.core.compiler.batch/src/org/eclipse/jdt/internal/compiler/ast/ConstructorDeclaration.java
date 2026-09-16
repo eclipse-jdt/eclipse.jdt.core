@@ -70,9 +70,9 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		private FlowInfo prologueFlowInfo;
 		private int eccIndex;
 
-		PrologueInfo(FlowInfo prologueFlowInfo, int constructorCallIndex) {
+		PrologueInfo(FlowInfo prologueFlowInfo, int eccIndex) {
 			this.prologueFlowInfo = prologueFlowInfo;
-			this.eccIndex = constructorCallIndex;
+			this.eccIndex = eccIndex;
 		}
 	}
 

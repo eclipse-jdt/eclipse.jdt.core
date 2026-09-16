@@ -42,11 +42,10 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.DualFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
-import org.eclipse.jdt.internal.compiler.flow.UnconditionalDualFlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InstanceFieldsFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
@@ -761,22 +760,12 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 						if (prologueInfo == null)
 							prologueInfo = ctorInfo.copy();
 						else
-							prologueInfo = prologueInfo.mergeDefiniteInitsWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
+							prologueInfo = prologueInfo.mergedWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
 					}
 				}
 			}
-			if (prologueInfo != null) {
-				if ((prologueInfo.reachMode() & FlowInfo.UNREACHABLE_OR_DEAD) != 0) {
-					nonStaticFieldInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD); // don't pollute otherwise, nothing else flows from above.
-				} else {
-					// DAs from EVERY constructor prologue should carry over to main flow info, while potential inits should flow into companion only.
-					for (FieldBinding field : this.binding.fields()) {
-						if (prologueInfo.isDefinitelyAssigned(field))
-							nonStaticFieldInfo.markAsDefinitelyAssigned(field);
-					}
-					nonStaticFieldInfo = new DualFlowInfo(nonStaticFieldInfo, prologueInfo);
-				}
-			}
+			if (prologueInfo != null)
+				nonStaticFieldInfo = new InstanceFieldsFlowInfo(nonStaticFieldInfo.unconditionalInits(), prologueInfo);
 		}
 	}
 
@@ -842,11 +831,6 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	}
 	if (this.methods != null) {
 		UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
-		if (nonStaticFieldInfo instanceof UnconditionalDualFlowInfo udfi) {
-			nonStaticFieldInfo = udfi.getMainInits(); // drop info from prologues
-		} else if (nonStaticFieldInfo instanceof DualFlowInfo dfi) {
-			nonStaticFieldInfo = dfi.initsWhenTrue;
-		}
 		FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 		SimpleSetOfCharArray jUnitMethodSourceValues = getJUnitMethodSourceValues();
 		for (AbstractMethodDeclaration method : this.methods) {
@@ -857,7 +841,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			} else if (method instanceof ConstructorDeclaration cd) {
 				ConstructorFlowAnalysisMode mode = cd.getPrologueFlowInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS;
 				// constructors that chain to an alternate constructor via `this(...)` should not see field initialization or any other prologue!
-				cd.analyseCode(this.scope, initializerContext, cd.invokesSuper() ? constructorInfo.copy() : outerInfo.copy(), flowInfo.reachMode(), mode);
+				cd.analyseCode(this.scope, initializerContext, cd.invokesSuper() ? constructorInfo.copy() : outerInfo.copy(), outerInfo.reachMode(), mode);
 			} else { // regular method
 				// JUnit 5 only accepts methods without arguments for method sources
 				if (method.arguments == null && jUnitMethodSourceValues.includes(method.selector) && method.binding != null) {

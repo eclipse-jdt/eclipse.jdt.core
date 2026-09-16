@@ -769,54 +769,52 @@ final public boolean canOnlyBeNull(LocalVariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-@Override
-public FlowInfo copy() {
-	// do not clone the DeadEnd
-	if (this == DEAD_END) {
-		return this;
-	}
-	UnconditionalFlowInfo copy = new UnconditionalFlowInfo();
-	// copy slots
-	copy.definiteInits = this.definiteInits;
-	copy.potentialInits = this.potentialInits;
-	boolean hasNullInfo = (this.tagBits & NULL_FLAG_MASK) != 0;
+public FlowInfo copy(UnconditionalFlowInfo that) { // Tat Tvam Asi!
+	this.definiteInits = that.definiteInits;
+	this.potentialInits = that.potentialInits;
+	boolean hasNullInfo = (that.tagBits & NULL_FLAG_MASK) != 0;
 	if (hasNullInfo) {
-		copy.nullBit1 = this.nullBit1;
-		copy.nullBit2 = this.nullBit2;
-		copy.nullBit3 = this.nullBit3;
-		copy.nullBit4 = this.nullBit4;
+		this.nullBit1 = that.nullBit1;
+		this.nullBit2 = that.nullBit2;
+		this.nullBit3 = that.nullBit3;
+		this.nullBit4 = that.nullBit4;
 	}
-	copy.iNBit = this.iNBit;
-	copy.iNNBit = this.iNNBit;
-	copy.iDefNBit = this.iDefNBit;
-	copy.iDefNNBit = this.iDefNNBit;
-	copy.tagBits = this.tagBits;
-	copy.maxFieldCount = this.maxFieldCount;
-	if (this.extra != null) {
+	this.iNBit = that.iNBit;
+	this.iNNBit = that.iNNBit;
+	this.iDefNBit = that.iDefNBit;
+	this.iDefNNBit = that.iDefNNBit;
+	this.tagBits = that.tagBits;
+	this.maxFieldCount = that.maxFieldCount;
+	if (that.extra != null) {
 		int length;
-		copy.extra = new long[extraLength][];
-		System.arraycopy(this.extra[0], 0,
-			(copy.extra[0] = new long[length = this.extra[0].length]), 0,
+		this.extra = new long[extraLength][];
+		System.arraycopy(that.extra[0], 0,
+			(this.extra[0] = new long[length = that.extra[0].length]), 0,
 			length);
-		System.arraycopy(this.extra[1], 0,
-			(copy.extra[1] = new long[length]), 0, length);
+		System.arraycopy(that.extra[1], 0,
+			(this.extra[1] = new long[length]), 0, length);
 		if (hasNullInfo) {
 			for (int j = 2; j < 6; j++) {
-				System.arraycopy(this.extra[j], 0,
-					(copy.extra[j] = new long[length]), 0, length);
+				System.arraycopy(that.extra[j], 0,
+					(this.extra[j] = new long[length]), 0, length);
 			}
 		}
 		else {
 			for (int j = 2; j < 6; j++) {
-				copy.extra[j] = new long[length];
+				this.extra[j] = new long[length];
 			}
 		}
-		System.arraycopy(this.extra[IN], 0, (copy.extra[IN] = new long[length]), 0, length);
-		System.arraycopy(this.extra[INN], 0, (copy.extra[INN] = new long[length]), 0, length);
-		System.arraycopy(this.extra[DEFIN], 0, (copy.extra[DEFIN] = new long[length]), 0, length);
-		System.arraycopy(this.extra[DEFINN], 0, (copy.extra[DEFINN] = new long[length]), 0, length);
+		System.arraycopy(that.extra[IN], 0, (this.extra[IN] = new long[length]), 0, length);
+		System.arraycopy(that.extra[INN], 0, (this.extra[INN] = new long[length]), 0, length);
+		System.arraycopy(that.extra[DEFIN], 0, (this.extra[DEFIN] = new long[length]), 0, length);
+		System.arraycopy(that.extra[DEFINN], 0, (this.extra[DEFINN] = new long[length]), 0, length);
 	}
-	return copy;
+	return this;
+}
+
+@Override
+public FlowInfo copy() {
+	return this != DEAD_END ? newInstance().copy(this) : this;
 }
 
 /**
@@ -903,7 +901,7 @@ public FlowInfo initsWhenTrue() {
  * It deals with the dual representation of the InitializationInfo2:
  * bits for the first 64 entries, then an array of booleans.
  */
-private boolean isDefinitelyAssigned(int position) {
+protected boolean isDefinitelyAssigned(int position) {
 	if (position < BitCacheSize) {
 		// use bits
 		return (this.definiteInits & (1L << position)) != 0;
@@ -1424,7 +1422,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 /**
  * Record a definite assignment at a given position.
  */
-private void markAsDefinitelyAssigned(int position) {
+protected void markAsDefinitelyAssigned(int position) {
 
 	if (this != DEAD_END) {
 		// position is zero-based
@@ -2143,12 +2141,16 @@ static int numberOfEnclosingFields(ReferenceBinding type){
 	return count;
 }
 
+public UnconditionalFlowInfo newInstance() {
+	return new UnconditionalFlowInfo();
+}
+
 @Override
 public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	if (this == DEAD_END) {
 		return this;
 	}
-	UnconditionalFlowInfo copy = new UnconditionalFlowInfo();
+	UnconditionalFlowInfo copy = newInstance();
 	copy.definiteInits = this.definiteInits;
 	copy.potentialInits = this.potentialInits;
 	// no nullness known means: any previous nullness could shine through:
@@ -2293,7 +2295,7 @@ public UnconditionalFlowInfo unconditionalCopy() {
 @Override
 public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 	// TODO (maxime) may consider leveraging null contribution verification as it is done in copy
-	UnconditionalFlowInfo copy = new UnconditionalFlowInfo();
+	UnconditionalFlowInfo copy = newInstance();
 	copy.tagBits = this.tagBits;
 	copy.maxFieldCount = this.maxFieldCount;
 	int limit = this.maxFieldCount;

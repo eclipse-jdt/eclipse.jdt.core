@@ -4059,6 +4059,57 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         "Ok!");
     }
 
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5404
+    // [Flexible constructors] Incorrect diagnostic: The final field x may already have been assigned
+    public void testIssue5404_b() {
+        runNegativeTest(new String[] {
+            "X.java",
+            """
+            public final class X {
+                final int x; // 1
+                final int y; // 2
+                final int z; // 4
+
+                {
+                    x = 10;
+                    z = y;
+                }
+
+                X() {
+                    int xx = 123; // 8
+                    super();
+                }
+
+                X(int a) {
+                    this.y = 10;
+                    if (true)
+                        throw new RuntimeException();
+                    super();
+                }
+                public static void main(String [] args) {
+                    System.out.println("Ok!");
+                }
+            }
+            """
+        },
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	z = y;\n" +
+		"	    ^\n" +
+		"The blank final field y may not have been initialized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	X() {\n" +
+		"	^^^\n" +
+		"The blank final field y may not have been initialized\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 20)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n");
+    }
+
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383/#discussion_r4014770952
 	public void testIssue5383_discussion_r4014770952() {
 		runNegativeTest(new String[] {
