@@ -4145,5 +4145,83 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"The blank final field f may not have been initialized\n" +
 			"----------\n");
 	}
+
+	// test nullity preservation across constructor chaining
+	public void testNullWarningsAcrossConstructorCalls() {
+		Runner runner = new Runner();
+		runner.customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+				X(boolean flag) {
+					Object obj = new Object();
+					if (obj == null)
+						System.out.println();
+					super();
+					if (obj == null)
+						System.out.println();
+				}
+
+				X() {
+					Object obj = new Object();
+					if (obj == null)
+						System.out.println();
+					this(true);
+					if (obj == null)
+						System.out.println();
+				}
+
+				public static void main(String[] args) {
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 5)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 8)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 13)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"6. WARNING in X.java (at line 14)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 16)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"8. WARNING in X.java (at line 17)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }
 
