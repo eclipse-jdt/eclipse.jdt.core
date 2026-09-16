@@ -30,7 +30,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.EPILOGUE_ANALYSIS;
 import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.FULL_ANALYSIS;
 import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.PROLOGUE_ANALYSIS;
 
@@ -63,24 +62,35 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	public TypeParameter[] typeParameters;
 
-	private ExceptionHandlingFlowContext prologueContext;
-	private FlowInfo prologueInfo;
+	private ExceptionHandlingFlowContext constructorContext;
 
 	public AbstractVariableDeclaration [] protoArguments; // for compact constructors; we don't have a back pointer to declaring class.
+
+	static class PrologueInfo {
+		private FlowInfo prologueFlowInfo;
+		private int eccIndex;
+
+		PrologueInfo(FlowInfo prologueFlowInfo, int constructorCallIndex) {
+			this.prologueFlowInfo = prologueFlowInfo;
+			this.eccIndex = constructorCallIndex;
+		}
+	}
+
+	private PrologueInfo prologueInfo;
 
 public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
 }
 
-FlowInfo getPrologueInfo() {
+FlowInfo getPrologueFlowInfo() {
 	if (this.prologueInfo == null) // may be null when `this.ignoreFurtherInvestigation` is true; epilogue analysis will be skipped too.
 		return null;
 	/* Field initialization analysis should not see constructor locals! Compute the index of the
 	   first constructor parameter in flow data and discard that and all subsequent locals.
 	*/
 	TypeDeclaration typeDeclaration = this.scope.enclosingClassScope().referenceContext;
-	int limit = typeDeclaration.maxFieldCount + (this.scope != this.scope.outerMostMethodScope() ? this.scope.analysisIndex : 0);
-	return this.prologueInfo.unconditionalCopy().discardNonFieldInitializations(limit);
+	int limit = typeDeclaration.maxFieldCount + this.scope.firstLocalIndex;
+	return this.prologueInfo.prologueFlowInfo.unconditionalCopy().discardNonFieldInitializations(limit);
 }
 
 private void complainOnUnusedPrivateConstructor() {
@@ -135,34 +145,41 @@ private void complainOnUnusedTypeVariables() {
 
 enum ConstructorFlowAnalysisMode {
 
-	/** Analyse entire body in one go: used for Java 24- as the ONLY phase. Or the ONLY phase of a Java 25+ constructor that chains to an alternate via this(...) */
+	/** Analyse entire body in one go: used for Java 24- as the ONLY phase. Or the ONLY phase of a Java 25+ constructor that chains to an alternate via this(...)
+	 *  In this mode, instance fields have ALREADY been flow analyzed and therefore `flowInfo` passed into `analyzeCode()` holds instance fields initialization info.
+	 */
 	FULL_ANALYSIS,
 
 	/** Analyse up to chaining constructor invocation (although JEP 513 defines prologue to not include the call itself)
 	 *  Evaluation of the arguments of the chaining constructor invocation is in early construction context/prologue.
-	 *  Phase 1 of 2 for Java 25+ for a super(...) chaining constructor.
+	 *  Phase 1 of 2 for Java 25+ for a super(...) chaining constructor. Mode invoked BEFORE fields are analyzed.
 	 */
 	PROLOGUE_ANALYSIS,
 
 	/** Skip the prologue and analyse only the statements after the explicit constructor call
 	 *  Phase 2 of 2 for Java 25+ for a super(...) chaining constructor
+	 *  In this mode, instance fields have ALREADY been flow analyzed and therefore `flowInfo` passed into `analyzeCode()` holds instance fields initialization info.
 	 */
 	EPILOGUE_ANALYSIS
 }
 
-public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode, ConstructorFlowAnalysisMode mode) {
+public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int classReachMode, ConstructorFlowAnalysisMode mode) {
 
-	// FlowContext and FlowInfo produced during PROLOGUE_ANALYSIS will be held in fields prologueContext and prologueInfo for use during EPILOGUE_ANALYSIS
-	// prologueInfo is furthermore assumed to happen *before* any field initializers, see its use in TypeDeclaration.internalAnalyseCode()
+	// FlowInfo produced during PROLOGUE_ANALYSIS will be held in the field prologueInfo for use during EPILOGUE_ANALYSIS
+	// prologueInfo is gathered *before* any field initializers, see its use in TypeDeclaration.internalAnalyseCode()
 
-	if (this.ignoreFurtherInvestigation)
+	if (this.ignoreFurtherInvestigation || this.statements == null)
 		return;
 
 	try {
-		int epilogReachMode;
-		ExceptionHandlingFlowContext constructorContext;
+		CompilerOptions compilerOptions = this.scope.compilerOptions();
+		boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
+		int epilogReachMode, complaintLevel;
+		ExplicitConstructorCall constructorCall = null;
+		int cursor = 0;
+
 		if (mode == PROLOGUE_ANALYSIS || mode == FULL_ANALYSIS) {
-			constructorContext =
+			this.constructorContext =
 				new ExceptionHandlingFlowContext(
 					initializerFlowContext.parent,
 					this,
@@ -170,67 +187,62 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					initializerFlowContext,
 					this.scope,
 					FlowInfo.DEAD_END);
-			if (mode == PROLOGUE_ANALYSIS)
-				this.prologueContext = constructorContext; // save for EPILOGUE_ANALYSIS
 
-			epilogReachMode = flowInfo.reachMode();
+			if (mode == PROLOGUE_ANALYSIS)              // flowInfo corresponds to TypeDeclaration
+				epilogReachMode = FlowInfo.REACHABLE;   // Just to silence the compiler. We are going to halt analysis with prologue.
+			else                                        // flowInfo corresponds to instance fields flow analysis output.
+				epilogReachMode = flowInfo.reachMode(); // epilogue is reachable, if last instance field was reachable.
 
+			this.scope.enterEarlyConstructionContext();
 			// nullity, owning and mark as assigned
 			analyseArguments(this.scope, flowInfo, initializerFlowContext, arguments(true), this.binding);
+			complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
+			flowInfo.setReachMode(classReachMode);
 		} else {
-			// Retrieve flow info and flow context stashed away during prologue analysis, skip prologue (below) and continue analysis.
-			constructorContext = this.prologueContext;
-			if ((this.prologueInfo.reachMode() & FlowInfo.UNREACHABLE) != 0)
-				epilogReachMode = this.prologueInfo.reachMode(); // field initialization completion status is immaterial if prologue completes abruptly!
+			/* Passed in flowInfo corresponds to instance fields flow analysis output.
+			   Fuse it with prologue flow info to arrive at flow info for epilogue analysis.
+			*/
+			if ((this.prologueInfo.prologueFlowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0)
+				epilogReachMode = this.prologueInfo.prologueFlowInfo.reachMode(); // epilogue is unreachable if prologue completes abruptly!
 			else
-				epilogReachMode = flowInfo.reachMode();
-			flowInfo = this.prologueInfo.addInitializationsFrom(flowInfo);
+				epilogReachMode = flowInfo.reachMode(); // epilogue is reachable, if last instance field was reachable.
+
+			flowInfo = this.prologueInfo.prologueFlowInfo.addInitializationsFrom(flowInfo); // compose flow info input for epilogue analysis.
+
+			complaintLevel = (epilogReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
+			flowInfo.setReachMode(epilogReachMode);
+			constructorCall = (ExplicitConstructorCall) this.statements[this.prologueInfo.eccIndex];
+			cursor = ++this.prologueInfo.eccIndex;
 		}
 
-		ExplicitConstructorCall constructorCall = null;
-		if (this.statements != null) {
-			CompilerOptions compilerOptions = this.scope.compilerOptions();
-			boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
-			int complaintLevel = (epilogReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
-			boolean inPrologue = true;
-			this.scope.enterEarlyConstructionContext();
-			flowInfo.setReachMode(initialReachMode);
-			for (Statement stat : this.statements) {
-				if (stat instanceof ExplicitConstructorCall ecc)
-					constructorCall = ecc;
-				if (mode == EPILOGUE_ANALYSIS && inPrologue) {
-					if (stat == constructorCall) {	// if true post this is where we start analysing
-						inPrologue = false;
-						flowInfo.setReachMode(epilogReachMode);
-						this.scope.leaveEarlyConstructionContext();
-					}
-					continue; // skip statements already processed during PROLOGUE analysis
-				}
-				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
-					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
-				}
-				if (enableSyntacticNullAnalysisForFields) {
-					constructorContext.expireNullCheckedFieldInfo();
-				}
-				if (compilerOptions.analyseResourceLeaks) {
-					FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
-				}
-				if (stat == constructorCall) {
-					if (constructorCall.accessMode == ExplicitConstructorCall.This)
-						markFieldsAsInitializedAfterThisCall(constructorCall, flowInfo);
+		for (int length = this.statements.length; cursor < length; cursor++) { // cursor positioned at epilogue or at this.statements[0] depending on analysis mode.
+			Statement statement = this.statements[cursor];
+			if (statement instanceof ExplicitConstructorCall ecc)
+				constructorCall = ecc;
 
-					if (mode == PROLOGUE_ANALYSIS) {
-						this.prologueInfo = flowInfo.copy(); // stash away prologue info for subsequent phase. It also signals the need for EPILOGUE analysis
-						return;	 // we're done with prologue
-					}
-					flowInfo.setReachMode(epilogReachMode); // At start of epilogue. Reuse the reachMode from non static field info
-					if ((flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0)
-						complaintLevel = Statement.COMPLAINED_FAKE_REACHABLE;
+			if ((complaintLevel = statement.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
+				flowInfo = statement.analyseCode(this.scope, this.constructorContext, flowInfo);
+			}
+			if (enableSyntacticNullAnalysisForFields) {
+				this.constructorContext.expireNullCheckedFieldInfo();
+			}
+			if (compilerOptions.analyseResourceLeaks) {
+				FakedTrackingVariable.cleanUpUnassigned(this.scope, statement, flowInfo, false);
+			}
+			if (statement == constructorCall) {
+				if (mode == PROLOGUE_ANALYSIS) {
+					this.prologueInfo = new PrologueInfo(flowInfo.copy(), cursor);
+					return;
 				}
+				if (constructorCall.accessMode == ExplicitConstructorCall.This)
+					markFieldsAsInitializedAfterThisCall(constructorCall, flowInfo);
+
+				flowInfo.setReachMode(epilogReachMode);
+				if ((epilogReachMode & FlowInfo.UNREACHABLE) != 0)
+					complaintLevel = Statement.COMPLAINED_FAKE_REACHABLE;
 			}
 		}
 
-		// *** Prologue analysis DOES NOT reach here ***
 
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) { // don't fall through the constructor!
 			this.bits |= ASTNode.NeedFreeReturn;
@@ -246,18 +258,18 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 		// check missing blank final field initializations (plus @NonNull)
 		if (constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This) {
-			flowInfo = flowInfo.mergedWith(constructorContext.initsOnReturn);
+			flowInfo = flowInfo.mergedWith(this.constructorContext.initsOnReturn);
 			doFieldReachAnalysis(flowInfo, this.binding.declaringClass.fields());
 		}
 
 		initializerFlowContext.checkInitializerExceptions(
 				this.scope,
-				constructorContext,
+				this.constructorContext,
 				flowInfo);
 
 		// anonymous constructor can gain extra thrown exceptions from unhandled ones
 		if (this.binding.declaringClass.isAnonymousType()) {
-			List computedExceptions = constructorContext.extendedExceptions;
+			List computedExceptions = this.constructorContext.extendedExceptions;
 			if (computedExceptions != null) {
 				int size;
 				if ((size = computedExceptions.size()) > 0) {
@@ -274,9 +286,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			this.scope.problemReporter().recursiveConstructorInvocation(constructorCall);
 		}
 		complainOnUnusedTypeVariables();
-		constructorContext.complainIfUnusedExceptionHandlers(this);
+		this.constructorContext.complainIfUnusedExceptionHandlers(this);
 		this.scope.checkUnusedParameters(this.binding);
 		this.scope.checkUnclosedCloseables(flowInfo, null, null/*don't report against a specific location*/, null);
+		this.constructorContext = null;
 	} catch (AbortMethod e) {
 		this.ignoreFurtherInvestigation = true;
 	}

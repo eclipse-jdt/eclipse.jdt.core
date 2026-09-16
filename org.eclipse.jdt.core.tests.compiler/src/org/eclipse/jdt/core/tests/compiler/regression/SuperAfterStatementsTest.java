@@ -3885,7 +3885,9 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383#issuecomment-5608408274
-	public void testIssue5383Comment5608408274() {
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5396
+	// [flexible-constructors] java.lang.VerifyError: Constructor must call super() or this() before return
+	public void testIssue5396() { // testIssue5383Comment5608408274() {
 		runConformTest(new String[] {
 			"X.java",
 			"""
@@ -4056,5 +4058,41 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         },
         "Ok!");
     }
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383/#discussion_r4014770952
+	public void testIssue5383_discussion_r4014770952() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+			    final int f;
+			    {
+			        Object o = new Object() {
+			            {
+			                System.out.println("Final Field f = " + f);
+			            }
+			        };
+			    }
+
+			    X() {
+			        f = 10;
+			        super();
+			    }
+
+			    X(int a) {
+			        super();
+			        this.f = 10;
+			    }
+			}
+			"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	System.out.println(\"Final Field f = \" + f);\n" +
+			"	                                        ^\n" +
+			"The blank final field f may not have been initialized\n" +
+			"----------\n");
+	}
 }
 

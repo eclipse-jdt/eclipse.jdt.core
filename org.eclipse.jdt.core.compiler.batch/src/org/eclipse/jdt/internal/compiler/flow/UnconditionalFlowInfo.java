@@ -846,7 +846,11 @@ public UnconditionalFlowInfo discardNonFieldInitializations() {
 	return discardNonFieldInitializations(this.maxFieldCount);
 }
 
-
+/*
+ * Remove ALL local variables from `limit` onwards from this flow info where limit corresponds to
+ * this.maxFieldCount + local.id for some LocalVariableBinding local.
+ * @return this, deprived of any and all local variable information from `limit` onwards
+ */
 public UnconditionalFlowInfo discardNonFieldInitializations(int limit) {
 	if (limit < BitCacheSize) {
 		long mask = (1L << limit)-1;

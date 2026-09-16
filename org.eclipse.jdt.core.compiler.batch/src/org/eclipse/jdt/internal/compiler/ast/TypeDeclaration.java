@@ -756,7 +756,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				if (method instanceof ConstructorDeclaration constructor && constructor.invokesSuper()) {
 					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
 					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), PROLOGUE_ANALYSIS);
-					ctorInfo = constructor.getPrologueInfo();
+					ctorInfo = constructor.getPrologueFlowInfo();
 					if (ctorInfo != null) {
 						if (prologueInfo == null)
 							prologueInfo = ctorInfo.copy();
@@ -855,7 +855,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			if (method instanceof Clinit clinit) {
 				clinit.analyseCode(this.scope, staticInitializerContext, staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
 			} else if (method instanceof ConstructorDeclaration cd) {
-				ConstructorFlowAnalysisMode mode = cd.getPrologueInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS;
+				ConstructorFlowAnalysisMode mode = cd.getPrologueFlowInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS;
 				// constructors that chain to an alternate constructor via `this(...)` should not see field initialization or any other prologue!
 				cd.analyseCode(this.scope, initializerContext, cd.invokesSuper() ? constructorInfo.copy() : outerInfo.copy(), flowInfo.reachMode(), mode);
 			} else { // regular method
