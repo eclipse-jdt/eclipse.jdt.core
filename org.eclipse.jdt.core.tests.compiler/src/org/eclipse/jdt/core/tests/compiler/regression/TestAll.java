@@ -260,10 +260,12 @@ public static Test suite() {
 			ImplicitlyDeclaredClassesTest.class,
 		},
 		{ // 26
+			Unicode17Test.class,
+		},
+		{ // 26
 			PreviewFlagTest.class,
 			PrimitiveInPatternsTest.class,
 			PrimitiveInPatternsTestSH.class,
-			Unicode17Test.class,
 		}
 	};
 	assert sinceTests.length == AbstractCompilerTest.NUM_VERSIONS - 1 : "sinceTests should be aligned with NUM_VERSIONS";

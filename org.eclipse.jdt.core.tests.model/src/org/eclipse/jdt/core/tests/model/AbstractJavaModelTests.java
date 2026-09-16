@@ -262,6 +262,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static final int AST_INTERNAL_JLS26 = AST.JLS26;
 	/**
+	 * Internal synonym for constant AST.JSL27
+	 */
+	protected static final int AST_INTERNAL_JLS27 = AST.JLS27;
+	/**
 	 * Internal synonym for the latest AST level.
 	 */
 	protected static final int AST_INTERNAL_LATEST = AST.getJLSLatest();
@@ -3499,7 +3503,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_FULL_SRC";
 			}
 		} else {
-			if (compliance.equals("26")) {
+			if (compliance.equals("27")) {
+				newJclLibString = "JCL_27_LIB";
+				newJclSrcString = "JCL_27_SRC";
+			} else if (compliance.equals("26")) {
 				newJclLibString = "JCL_26_LIB";
 				newJclSrcString = "JCL_26_SRC";
 			} else if (compliance.equals("25")) {
@@ -3736,7 +3743,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					new IPath[] {getExternalJCLPath("26"), getExternalJCLSourcePath("26"), getExternalJCLRootSourcePath()},
 					null);
 			}
-		} else {
+		} else if ("27".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL_27_LIB") == null) {
+				setupExternalJCL("jclMin27");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_27_LIB", "JCL_27_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("27"), getExternalJCLSourcePath("27"), getExternalJCLRootSourcePath()},
+					null);
+			}
 			if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
 				setupExternalJCL("jclMin" + CompilerOptions.getFirstSupportedJavaVersion());
 				JavaCore.setClasspathVariables(
