@@ -713,7 +713,7 @@ public boolean hasErrors() {
 /**
  *	Common flow analysis for all types
  */
-private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
+private void internalAnalyseCode(FlowContext flowContext, final FlowInfo flowInfo) {
 	if (CharOperation.equals(this.name, TypeConstants.YIELD)) {
 		this.scope.problemReporter().validateRestrictedKeywords(this.name, this);
 	}
