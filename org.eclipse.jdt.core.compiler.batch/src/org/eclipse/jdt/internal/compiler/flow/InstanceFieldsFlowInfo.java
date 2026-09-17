@@ -48,13 +48,6 @@ public class InstanceFieldsFlowInfo extends UnconditionalFlowInfo {
 		return copy;
 	}
 
-
-	@Override
-	public boolean hasInits() {
-		return super.hasInits() || this.prologueInfo.hasInits();
-	}
-
-
 	@Override
 	public boolean isPotentiallyAssigned(FieldBinding field) {
 		return super.isPotentiallyAssigned(field) || this.prologueInfo.isPotentiallyAssigned(field); // raison d'etre

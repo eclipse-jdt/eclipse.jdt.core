@@ -1026,11 +1026,6 @@ final public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 }
 
 @Override
-public boolean hasInits() {
-	return this.definiteInits != 0 || this.potentialInits != 0 || (this.tagBits & NULL_FLAG_MASK) != 0;
-}
-
-@Override
 final public boolean hasNullInfoFor(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
 	if ((this.tagBits & UNREACHABLE) != 0 ||
