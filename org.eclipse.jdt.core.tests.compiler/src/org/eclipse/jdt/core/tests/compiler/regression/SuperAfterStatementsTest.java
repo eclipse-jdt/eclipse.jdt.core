@@ -4297,5 +4297,90 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         },
         "OK!");
     }
+
+	public void testDiscardInitializationInfo() {
+		Runner runner = new Runner();
+		runner.customOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
+		runner.expectedJavacOutputString = null;
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+				final int y;
+				final int z;
+				{
+					int x;
+					assert (x = 1) == 1;
+					System.out.println(x);
+					// Error at next line establishes that clearing prologue to honor contract is harmless.
+					y = 1;
+				}
+
+				X() {
+					y = 1;
+					super();
+					z = 1;
+				}
+				X(int x) {
+					z = 1;
+					super();
+					y = 1;
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	System.out.println(x);\n" +
+				"	                   ^\n" +
+				"The local variable x may not have been initialized\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	y = 1;\n" +
+				"	^\n" +
+				"The final field y may already have been assigned\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 20)\n" +
+				"	y = 1;\n" +
+				"	^\n" +
+				"The final field y may already have been assigned\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
+
+	public void testInstanceFieldsFlowInfoMergedWith() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				final int value;
+
+				{
+					if (System.nanoTime() == 0) {
+						value = 1;
+					} else {
+						value = 2;
+					}
+				}
+
+				X() {
+					if (true)
+					    throw new RuntimeException("Aborting");
+					super();
+				}
+
+				public static void main(String[] args) {
+				    try {
+					    new X();
+				    } catch (RuntimeException e) {
+					    System.out.println("OK");
+				    }
+				}
+			}
+			"""
+		}, "OK");
+	}
+
 }
 

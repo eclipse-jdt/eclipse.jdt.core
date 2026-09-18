@@ -54,22 +54,6 @@ public class InstanceFieldsFlowInfo extends UnconditionalFlowInfo {
 	}
 
 	@Override
-	public UnconditionalFlowInfo mergeDefiniteInitsWith(UnconditionalFlowInfo otherInits) {
-		/* What is the right behavior when this is UNREACHABLE_OR_DEAD ?
-		   Are we guaranteed `otherInits` is an IFFI - seems intuitive
-	    */
-		return super.mergeDefiniteInitsWith(otherInits);
-	}
-
-	@Override
-	public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
-		/* What is the right behavior when this is UNREACHABLE_OR_DEAD ?
-		   Are we guaranteed `otherInits` is an IFFI - seems intuitive
-	    */
-		return super.mergedWith(otherInits);
-	}
-
-	@Override
 	public InstanceFieldsFlowInfo nullInfoLessUnconditionalCopy() {
 		InstanceFieldsFlowInfo copy = (InstanceFieldsFlowInfo) super.nullInfoLessUnconditionalCopy();
 		copy.prologueInfo = this.prologueInfo;
@@ -85,7 +69,9 @@ public class InstanceFieldsFlowInfo extends UnconditionalFlowInfo {
 
 	@Override
 	public UnconditionalFlowInfo discardInitializationInfo() {
-		return super.discardInitializationInfo(); // ?? what is the right thing here ?? I think we should discard `own` initialization, not lose identity!
+		super.discardInitializationInfo();
+		this.prologueInfo = FlowInfo.initial(this.maxFieldCount); // SAST.testDiscardInitializationInfo() establishes that obeying the contract results in no harm, no foul.
+		return this;
 	}
 
 	public UnconditionalFlowInfo withoutPrologues() {
