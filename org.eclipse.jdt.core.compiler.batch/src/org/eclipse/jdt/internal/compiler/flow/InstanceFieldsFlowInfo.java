@@ -79,7 +79,7 @@ public class InstanceFieldsFlowInfo extends UnconditionalFlowInfo {
 	@Override
 	public InstanceFieldsFlowInfo unconditionalFieldLessCopy() {
 		InstanceFieldsFlowInfo copy = (InstanceFieldsFlowInfo) super.unconditionalFieldLessCopy();
-		copy.prologueInfo = this.prologueInfo;  // ?? what is the right thing here ?? I think we should discard `own` initialization, not lose identity!
+		copy.prologueInfo = FlowInfo.initial(copy.maxFieldCount); // any local classes should not see prologue initializations!
 		return copy;
 	}
 

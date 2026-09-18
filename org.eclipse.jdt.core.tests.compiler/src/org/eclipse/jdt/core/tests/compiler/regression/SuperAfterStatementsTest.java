@@ -4259,5 +4259,43 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         },
         "OK!");
     }
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5382#issuecomment-5723018357
+    public void testIssue5382Comment_5723018357() {
+        runConformTest(new String[] {
+            "X.java",
+            """
+			public class X {
+				final int f;
+
+				{
+					class L {
+						final int g;
+
+						L() {
+							this(0); // must NOT see X.f's flow bit as L.g's flow bit
+						}
+
+						L(int i) {
+							this.g = i;
+						}
+					}
+
+					new L();
+				}
+
+				X() {
+					this.f = 1; // establishes an incoming field-init bit in flowInfo
+					super();
+				}
+
+				public static void main(String[] args) {
+					new X();
+					System.out.println("OK!");
+				}
+			}
+            """
+        },
+        "OK!");
+    }
 }
 
