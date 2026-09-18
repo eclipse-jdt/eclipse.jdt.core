@@ -175,7 +175,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	try {
 		CompilerOptions compilerOptions = this.scope.compilerOptions();
 		boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
-		int epilogReachMode, complaintLevel;
+		int epilogReachMode, complaintLevel = Statement.NOT_COMPLAINED; // Clean start even if we barked inside field initializer that being a lexically disjoint region
 		int cursor = 0;
 
 		if (mode == PROLOGUE_ANALYSIS || mode == FULL_ANALYSIS) {
@@ -196,20 +196,20 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			this.scope.enterEarlyConstructionContext();
 			// nullity, owning and mark as assigned
 			analyseArguments(this.scope, flowInfo, initializerFlowContext, arguments(true), this.binding);
-			complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
+			complaintLevel = (classReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			flowInfo.setReachMode(classReachMode);
 		} else {
 			/* Passed in flowInfo corresponds to instance fields flow analysis output.
 			   Fuse it with prologue flow info to arrive at flow info for epilogue analysis.
 			*/
-			if ((this.prologueInfo.prologueFlowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0)
+			if ((this.prologueInfo.prologueFlowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0) {
 				epilogReachMode = this.prologueInfo.prologueFlowInfo.reachMode(); // epilogue is unreachable if prologue completes abruptly!
-			else
+				complaintLevel = Statement.COMPLAINED_FAKE_REACHABLE; // Having already complained about ECC being unreachable, also don't complain about epilogue.
+			} else {
 				epilogReachMode = flowInfo.reachMode(); // epilogue is reachable, if last instance field was reachable.
+			}
 
 			flowInfo = this.prologueInfo.prologueFlowInfo.addInitializationsFrom(flowInfo); // compose flow info input for epilogue analysis.
-
-			complaintLevel = (epilogReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			flowInfo.setReachMode(epilogReachMode);
 			cursor = ++this.prologueInfo.eccIndex;
 		}
@@ -232,10 +232,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				}
 				if (this.constructorCall.accessMode == ExplicitConstructorCall.This)
 					markFieldsAsInitializedAfterThisCall(this.constructorCall, flowInfo);
-
 				flowInfo.setReachMode(epilogReachMode);
-				if ((epilogReachMode & FlowInfo.UNREACHABLE) != 0)
-					complaintLevel = Statement.COMPLAINED_FAKE_REACHABLE;
 			}
 		}
 

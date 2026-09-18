@@ -4382,5 +4382,72 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		}, "OK");
 	}
 
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5410
+    // Missing dead code warning
+    public void testIssue5410() {
+        Runner runner = new Runner();
+        runner.customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+        runner.testFiles = new String[] {
+            "X.java",
+            """
+            public class X {
+                {
+                    if (true)
+                        throw new RuntimeException();
+                }
+                X(int a) {
+                    super();
+                    System.err.println();
+                    System.out.println();
+                }
+            }
+            """
+        };
+        runner.expectedCompilerLog =
+        		"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	System.err.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+        runner.runNegativeTest();
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5410
+    // Missing dead code warning
+    public void testIssue5410_2() {
+        Runner runner = new Runner();
+        runner.customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+        runner.testFiles = new String[] {
+            "X.java",
+            """
+            public class X {
+                {
+                    if (true)
+                        throw new RuntimeException();
+                    System.out.println();
+                }
+                X(int a) {
+                    super();
+                    System.err.println();
+                    System.out.println();
+                }
+            }
+            """
+        };
+        runner.expectedCompilerLog =
+        		"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	System.err.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+        runner.runNegativeTest();
+    }
 }
 
