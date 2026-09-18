@@ -60,6 +60,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
+	public ExplicitConstructorCall constructorCall;
+
 	public TypeParameter[] typeParameters;
 
 	private ExceptionHandlingFlowContext constructorContext;
@@ -107,15 +109,14 @@ private void complainOnUnusedPrivateConstructor() {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446, When the AST built is an abridged version
 	// we don't have all tree nodes we would otherwise expect. (see ASTParser.setFocalPosition)
-	ExplicitConstructorCall constructorCall = getConstructorCall();
-	if (constructorCall == null)
+	if (this.constructorCall == null)
 		return;
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
 	// constructor being unused if the base class doesn't have a no-arg constructor.
 	// See that a seemingly unused constructor that chains to another constructor with a
 	// this(...) can be flagged as being unused without hesitation.
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142
-	if (constructorCall.accessMode != ExplicitConstructorCall.This) {
+	if (this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 		ReferenceBinding superClass = constructorBinding.declaringClass.superclass();
 		if (superClass == null)
 			return;
@@ -175,7 +176,6 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		CompilerOptions compilerOptions = this.scope.compilerOptions();
 		boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
 		int epilogReachMode, complaintLevel;
-		ExplicitConstructorCall constructorCall = null;
 		int cursor = 0;
 
 		if (mode == PROLOGUE_ANALYSIS || mode == FULL_ANALYSIS) {
@@ -211,15 +211,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 			complaintLevel = (epilogReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			flowInfo.setReachMode(epilogReachMode);
-			constructorCall = (ExplicitConstructorCall) this.statements[this.prologueInfo.eccIndex];
 			cursor = ++this.prologueInfo.eccIndex;
 		}
 
 		for (int length = this.statements.length; cursor < length; cursor++) { // cursor positioned at epilogue or at this.statements[0] depending on analysis mode.
 			Statement statement = this.statements[cursor];
-			if (statement instanceof ExplicitConstructorCall ecc)
-				constructorCall = ecc;
-
 			if ((complaintLevel = statement.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 				flowInfo = statement.analyseCode(this.scope, this.constructorContext, flowInfo);
 			}
@@ -229,13 +225,13 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			if (compilerOptions.analyseResourceLeaks) {
 				FakedTrackingVariable.cleanUpUnassigned(this.scope, statement, flowInfo, false);
 			}
-			if (statement == constructorCall) {
+			if (statement == this.constructorCall) {
 				if (mode == PROLOGUE_ANALYSIS) {
 					this.prologueInfo = new PrologueInfo(flowInfo.copy(), cursor);
 					return;
 				}
-				if (constructorCall.accessMode == ExplicitConstructorCall.This)
-					markFieldsAsInitializedAfterThisCall(constructorCall, flowInfo);
+				if (this.constructorCall.accessMode == ExplicitConstructorCall.This)
+					markFieldsAsInitializedAfterThisCall(this.constructorCall, flowInfo);
 
 				flowInfo.setReachMode(epilogReachMode);
 				if ((epilogReachMode & FlowInfo.UNREACHABLE) != 0)
@@ -257,7 +253,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		}
 
 		// check missing blank final field initializations (plus @NonNull)
-		if (constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This) {
+		if (this.constructorCall != null && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 			flowInfo = flowInfo.mergedWith(this.constructorContext.initsOnReturn);
 			doFieldReachAnalysis(flowInfo, this.binding.declaringClass.fields());
 		}
@@ -283,7 +279,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// Complain about unused { constructors, type variables, parameters, catch blocks } etc
 		complainOnUnusedPrivateConstructor();
 		if (isRecursive(null /*lazy initialized visited list*/)) { // check constructor recursion, now that all constructors got resolved
-			this.scope.problemReporter().recursiveConstructorInvocation(constructorCall);
+			this.scope.problemReporter().recursiveConstructorInvocation(this.constructorCall);
 		}
 		complainOnUnusedTypeVariables();
 		this.constructorContext.complainIfUnusedExceptionHandlers(this);
@@ -510,8 +506,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		initializerScope.computeLocalVariablePositions(argSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
 
 		codeStream.pushPatternAccessTrapScope(this.scope);
-		ExplicitConstructorCall constructorCall = getConstructorCall();
-		boolean needFieldInitializations = constructorCall == null || constructorCall.accessMode != ExplicitConstructorCall.This;
+		boolean needFieldInitializations = this.constructorCall == null || this.constructorCall.accessMode != ExplicitConstructorCall.This;
 
 		// Synthetic initializations occur prior to explicit constructor call
 		if (needFieldInitializations){
@@ -528,8 +523,8 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
-				if (constructorCall == statement && constructorCall.accessMode != ExplicitConstructorCall.This) {
-					if ((constructorCall.bits & IsReachable) != 0)
+				if (this.constructorCall == statement && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+					if ((this.constructorCall.bits & IsReachable) != 0)
 						generateFieldInitializations(declaringType, codeStream, initializerScope); // The single bit in the field can only say it is reachable in *some* universe
 				}
 			}
@@ -596,8 +591,7 @@ public boolean isConstructor() {
 }
 
 public boolean invokesSuper() {
-	ExplicitConstructorCall constructorCall = getConstructorCall();
-	return constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This;
+	return this.constructorCall != null && this.constructorCall.accessMode != ExplicitConstructorCall.This;
 }
 
 @Override
@@ -626,17 +620,16 @@ public boolean isInitializationMethod() {
  * lazily.
  */
 public boolean isRecursive(ArrayList visited) {
-	ExplicitConstructorCall constructorCall = getConstructorCall();
 	if (this.binding == null
-			|| constructorCall == null
-			|| constructorCall.binding == null
-			|| constructorCall.isSuperAccess()
-			|| !constructorCall.binding.isValidBinding()) {
+			|| this.constructorCall == null
+			|| this.constructorCall.binding == null
+			|| this.constructorCall.isSuperAccess()
+			|| !this.constructorCall.binding.isValidBinding()) {
 		return false;
 	}
 
 	ConstructorDeclaration targetConstructor =
-		((ConstructorDeclaration)this.scope.referenceType().declarationOf(constructorCall.binding.original()));
+		((ConstructorDeclaration)this.scope.referenceType().declarationOf(this.constructorCall.binding.original()));
 	if (targetConstructor == null) return false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=358762
 	if (this == targetConstructor) return true; // direct case
 
@@ -747,29 +740,17 @@ public void resolveStatements() {
 	super.resolveStatements();
 	this.scope.leaveEarlyConstructionContext(); // code completion may work with diet mode constructors! These don't have ecc to issue leave!
 	if (sourceType.id == TypeIds.T_JavaLangObject) {
-		ExplicitConstructorCall constructorCall = getConstructorCall();
-		if (constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This) {
-			if (constructorCall.accessMode == ExplicitConstructorCall.Super)
-				this.scope.problemReporter().cannotUseSuperInJavaLangObject(constructorCall);
+		if (this.constructorCall != null && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+			if (this.constructorCall.accessMode == ExplicitConstructorCall.Super)
+				this.scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
 			for (int i = 0, length = this.statements.length; i < length; i++) {
-				if (this.statements[i] == constructorCall) {
-					this.statements[i] = new EmptyStatement(constructorCall.sourceStart, constructorCall.sourceEnd);
+				if (this.statements[i] == this.constructorCall) {
+					this.statements[i] = new EmptyStatement(this.constructorCall.sourceStart, this.constructorCall.sourceEnd);
 					break;
 				}
 			}
 		}
 	}
-}
-
-// returns the first constructor chaining call, early or late, implicit or explicit.
-public ExplicitConstructorCall getConstructorCall() {
-	if (this.statements != null) {
-		for (int i = 0, length = this.statements.length; i < length; i++) {
-			if (this.statements[i] instanceof ExplicitConstructorCall ctorCall)
-				return ctorCall;
-		}
-	}
-	return null;
 }
 
 public final void chainUpwards() {
@@ -780,9 +761,10 @@ public final void buildBody(ASTNode [] astStack, int astPtr, int length, /* @Nul
 
 	for (int i = 0; i < length; i++) {
 		Statement statement = (Statement) astStack[astPtr + i];
-	    if (statement instanceof ExplicitConstructorCall) {
+	    if (statement instanceof ExplicitConstructorCall ecc) {
 	    	if (i == 0 || (options != null && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(options))) {
 	    		System.arraycopy(astStack, astPtr, this.statements = new Statement[length], 0, length);
+	    		this.constructorCall = ecc;
 	    		return;
 	    	}
 	    }
@@ -792,16 +774,16 @@ public final void buildBody(ASTNode [] astStack, int astPtr, int length, /* @Nul
 
 	this.statements = new Statement[length + 1];
 
-	Statement superCall = SuperReference.implicitSuperConstructorCall();
-	superCall.sourceEnd = this.sourceEnd;
-	superCall.sourceStart = this.sourceStart;
+	this.constructorCall = SuperReference.implicitSuperConstructorCall();
+	this.constructorCall.sourceEnd = this.sourceEnd;
+	this.constructorCall.sourceStart = this.sourceStart;
 
 	if (superCallPrecedes) {
-		this.statements[0] = superCall;
+		this.statements[0] = this.constructorCall;
 		if (length > 0)
 			System.arraycopy(astStack, astPtr, this.statements, 1, length);
 	} else {
-		this.statements[length] = superCall;
+		this.statements[length] = this.constructorCall;
 		if (length > 0)
 			System.arraycopy(astStack, astPtr, this.statements, 0, length);
 	}

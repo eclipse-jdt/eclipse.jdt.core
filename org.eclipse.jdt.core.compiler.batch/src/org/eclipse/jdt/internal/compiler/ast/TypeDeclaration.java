@@ -338,7 +338,7 @@ public boolean checkConstructors(Parser parser) {
 					// the constructor was in fact a method with no return type
 					// unless an explicit constructor call was supplied
 					ConstructorDeclaration c = (ConstructorDeclaration) am;
-					ExplicitConstructorCall constructorCall = c.getConstructorCall();
+					ExplicitConstructorCall constructorCall = c.constructorCall;
 					if (constructorCall == null || constructorCall.isImplicitSuper()) { // change to a method
 						MethodDeclaration m = parser.convertToMethodDeclaration(c, this.compilationResult);
 						this.methods[i] = m;

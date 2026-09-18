@@ -303,7 +303,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			} else {
 				// is it the first constructor call?
 				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
-				ExplicitConstructorCall constructorCall = constructorDeclaration.getConstructorCall();
+				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
 				if (constructorCall != null && constructorCall != this) {
 					hasError = true;
 				}

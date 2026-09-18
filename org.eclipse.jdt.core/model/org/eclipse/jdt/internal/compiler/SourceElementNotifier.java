@@ -270,7 +270,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 	if (methodDeclaration.isDefaultConstructor()) {
 		if (this.reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
-			ExplicitConstructorCall constructorCall = constructorDeclaration.getConstructorCall();
+			ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
 			if (constructorCall != null) {
 				this.requestor.acceptConstructorReference(
 					this.superTypeNames[this.nestedTypeIndex-1],
@@ -332,7 +332,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 		}
 		if (this.reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
-			ExplicitConstructorCall constructorCall = constructorDeclaration.getConstructorCall();
+			ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
 			if (constructorCall != null) {
 				switch(constructorCall.accessMode) {
 					case ExplicitConstructorCall.This :
