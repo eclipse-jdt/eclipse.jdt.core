@@ -743,12 +743,13 @@ public void resolveStatements() {
 		if (this.constructorCall != null && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 			if (this.constructorCall.accessMode == ExplicitConstructorCall.Super)
 				this.scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
-			for (int i = 0, length = this.statements.length; i < length; i++) {
+			for (int i = 0, length = this.statements != null ? this.statements.length : 0; i < length; i++) { // we can come here with purged body.
 				if (this.statements[i] == this.constructorCall) {
 					this.statements[i] = new EmptyStatement(this.constructorCall.sourceStart, this.constructorCall.sourceEnd);
 					break;
 				}
 			}
+			this.constructorCall = null;
 		}
 	}
 }
