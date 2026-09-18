@@ -34,7 +34,7 @@ public class InstanceFieldsFlowInfo extends UnconditionalFlowInfo {
 		if ((prologueInfo.reachMode() & FlowInfo.UNREACHABLE_OR_DEAD) != 0) {
 			setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 		} else {
-			for (int i = 0; i < this.prologueInfo.maxFieldCount; i++) { // DAs from EVERY constructor prologue should carry over to fields analysis.
+			for (int i = 0; i < this.prologueInfo.maxFieldCount; i++) { // A field that is DAs in EVERY constructor prologue is DA for fields analysis.
 				if (this.prologueInfo.isDefinitelyAssigned(i))
 					markAsDefinitelyAssigned(i);
 			}
@@ -42,15 +42,16 @@ public class InstanceFieldsFlowInfo extends UnconditionalFlowInfo {
 	}
 
 	@Override
+	public boolean isPotentiallyAssigned(FieldBinding field) {
+		// Raison d'etre for this class's existence! All else is support system
+		return super.isPotentiallyAssigned(field) || this.prologueInfo.isPotentiallyAssigned(field);
+	}
+
+	@Override
 	public InstanceFieldsFlowInfo copy() {
 		InstanceFieldsFlowInfo copy = (InstanceFieldsFlowInfo) super.copy();
 		copy.prologueInfo = this.prologueInfo;
 		return copy;
-	}
-
-	@Override
-	public boolean isPotentiallyAssigned(FieldBinding field) {
-		return super.isPotentiallyAssigned(field) || this.prologueInfo.isPotentiallyAssigned(field); // raison d'etre
 	}
 
 	@Override
