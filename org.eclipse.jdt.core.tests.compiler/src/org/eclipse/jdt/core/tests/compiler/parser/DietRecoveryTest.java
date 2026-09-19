@@ -8121,4 +8121,55 @@ public void test456861() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4924
+	public void testGH4924() {
+		String s =                                                                                                                                                                                                 
+			"public class X {\n" +                                                                                                                                                                                 
+			"    void foo() {\n" +                                                                                                                                                                                 
+			"        bar((x) ->\n" +                                                                                                                                                                               
+			"    }\n" +                                                                                                                                                                                            
+			"    void bar(java.util.function.Consumer<String> c) {}\n" +                                                                                                                                           
+			"}\n";                                                                                                                                                                                                 
+                                                                                                                                                                                                                 
+      	// Before the fix, RecoveredMethod.updateFromParserState() threw NPE at                                                                                                                                    
+      	// argument.type.getTypeName() because lambda parameters with inferred types                                                                                                                               
+      	// (e.g. the 'x' in (x) ->) produce Argument nodes with type == null,                                                                                                                                      
+      	// which can land on the parser's AST stack during diet-parse error recovery.                                                                                                                              
+      	String expectedDietUnitToString =                                                                                                                                                                          
+			"public class X {\n" +                                                                                                                                                                                 
+			"  X() {\n" +                                                                                                                                                                                          
+			"  }\n" +                                                                                                                                                                                              
+			"  void foo() {\n" +                                                                                                                                                                                   
+			"  }\n" +                                                                                                                                                                                              
+			"  void bar(java.util.function.Consumer<String> c) {\n" +                                                                                                                                              
+			"  }\n" +                                                                                                                                                                                              
+			"}\n";
+
+		String expectedDietPlusBodyUnitToString =                                                                                                                                                                  
+			"public class X {\n" +                                                                                                                                                                                 
+			"  X() {\n" +                                                                                                                                                                                          
+			"    super();\n" +                                                                                                                                                                                     
+			"  }\n" +                                                                                                                                                                                              
+			"  void foo() {\n" +                                                                                                                                                                                   
+			"  }\n" +                                                                                                                                                                                              
+			"  void bar(java.util.function.Consumer<String> c) {\n" +                                                                                                                                              
+			"  }\n" +                                                                                                                                                                                              
+			"}\n";
+
+      	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = expectedDietPlusBodyUnitToString;                                                                                                                                                                      
+                                                                                                                                                                                                                 
+      	String expectedFullUnitToString = expectedDietUnitToString;                                                                                                                                                                              
+                                                                                                                                                                                                                 
+      	String expectedCompletionDietUnitToString = expectedDietUnitToString;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                               
+        checkParse(                                                                                                                                                                                                
+        	s.toCharArray(),                                                                                                                                                                                       
+          	expectedDietUnitToString,                                                                                                                                                                              
+          	expectedDietPlusBodyUnitToString,                                                                                                                                                                      
+          	expectedDietPlusBodyPlusStatementsRecoveryUnitToString,                                                                                                                                                
+          	expectedFullUnitToString,                                                                                                                                                                              
+          	expectedCompletionDietUnitToString,                                                                                                                                                                    
+          	"testGH4924");             
+	}
 }
