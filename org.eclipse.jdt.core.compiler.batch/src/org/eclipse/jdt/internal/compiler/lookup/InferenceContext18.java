@@ -1158,9 +1158,9 @@ public class InferenceContext18 {
 			boolean isRecordPatternTypeInference) throws InferenceFailureException {
 		this.captureId = 0;
 		BoundSet result = resolve(toResolve, isRecordPatternTypeInference, true);
-		if (result == FAIL_AFTER_USING_LOWER_BOUNDS && SHOULD_WORKAROUND_BUG_JDK_6573446) {
-			result = resolve(toResolve, isRecordPatternTypeInference, false);
-		}
+//		if (result == FAIL_AFTER_USING_LOWER_BOUNDS && SHOULD_WORKAROUND_BUG_JDK_6573446) {
+//			result = resolve(toResolve, isRecordPatternTypeInference, false);
+//		}
 		return result;
 	}
 	/** Marker Object for a failed resolution where lower bounds have been used. */
