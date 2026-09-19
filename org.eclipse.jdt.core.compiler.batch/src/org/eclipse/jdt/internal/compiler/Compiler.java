@@ -17,9 +17,11 @@
 package org.eclipse.jdt.internal.compiler;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -342,13 +344,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					// a generated type was referenced before it was created
 					// the compiler either created a MissingType or found a BinaryType for it
 					// so add the processor's generated files & start over,
-					// but remember to only pass the generated files to the annotation processor
+					// but remember to only pass the failing files to the annotation processor
 					int originalLength = originalUnits.length;
 					int newProcessedLength = e.newAnnotationProcessorUnits.length;
 					ICompilationUnit[] combinedUnits = new ICompilationUnit[originalLength + newProcessedLength];
 					System.arraycopy(originalUnits, 0, combinedUnits, 0, originalLength);
 					System.arraycopy(e.newAnnotationProcessorUnits, 0, combinedUnits, originalLength, newProcessedLength);
-					this.annotationProcessorStartIndex  = originalLength;
+					// need to offset by originalLength
+					this.annotationProcessorStartIndex = originalLength + e.annotationProcessorStartIndex;
 					compile(combinedUnits, e.isLastRound);
 					return;
 				}
@@ -844,6 +847,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		ReferenceBinding[] binaryTypeBindingsTemp = this.referenceBindings;
 		if (top == 0 && binaryTypeBindingsTemp == null) return;
 		this.referenceBindings = null;
+		// we can go through multiple rounds that each add newUnits - can't assume that the only units
+		// added were in the current round
+		List<ICompilationUnit> allNewUnits = new ArrayList<>();
 		do {
 			// extract units to process
 			int length = top - bottom;
@@ -870,16 +876,18 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.annotationProcessorStartIndex = top;
 			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 			newUnitSize = newUnits.length;
+			allNewUnits.addAll(Arrays.asList(newUnits));
 			ReferenceBinding[] newClassFiles = this.annotationProcessorManager.getNewClassFiles();
 			binaryTypeBindingsTemp = newClassFiles;
 			newClassFilesSize = newClassFiles.length;
 			if (newUnitSize != 0) {
-				ICompilationUnit[] newProcessedUnits = newUnits.clone(); // remember new units in case a source type collision occurs
 				try {
 					this.lookupEnvironment.isProcessingAnnotations = true;
 					internalBeginToCompile(newUnits, newUnitSize);
 				} catch (SourceTypeCollisionException e) {
-					e.newAnnotationProcessorUnits = newProcessedUnits;
+					e.newAnnotationProcessorUnits = allNewUnits.toArray(new ICompilationUnit[0]);
+					// need to restart again from where the *current* round failed, not all new units
+					e.annotationProcessorStartIndex = allNewUnits.size() - newUnitSize;
 					throw e;
 				} finally {
 					this.lookupEnvironment.isProcessingAnnotations = false;
@@ -898,15 +906,17 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		// process potential units added in the final round see 329156
 		ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 		newUnitSize = newUnits.length;
+		allNewUnits.addAll(Arrays.asList(newUnits));
 		try {
 			if (newUnitSize != 0) {
-				ICompilationUnit[] newProcessedUnits = newUnits.clone(); // remember new units in case a source type collision occurs
 				try {
 					this.lookupEnvironment.isProcessingAnnotations = true;
 					internalBeginToCompile(newUnits, newUnitSize);
 				} catch (SourceTypeCollisionException e) {
 					e.isLastRound = true;
-					e.newAnnotationProcessorUnits = newProcessedUnits;
+					e.newAnnotationProcessorUnits = allNewUnits.toArray(new ICompilationUnit[0]);
+					// need to restart again from where the *current* round failed, not all new units
+					e.annotationProcessorStartIndex = allNewUnits.size() - newUnitSize;
 					throw e;
 				}
 			}
