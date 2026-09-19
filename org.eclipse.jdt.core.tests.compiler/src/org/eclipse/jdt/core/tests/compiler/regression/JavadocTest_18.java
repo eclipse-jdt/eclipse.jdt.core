@@ -368,5 +368,88 @@ public void test010() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1583
+ * Valid {@code @snippet} tags must not report "Description expected after @snippet"
+ * when missingJavadocTagDescription=all_standard_tags.
+ */
+public void testIssue1583_validSnippetNoMissingDescription() {
+	if (this.complianceLevel < ClassFileConstants.JDK18) {
+		return;
+	}
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/**\n"
+			+ " * The following code shows how to use {@code Optional.isPresent}:\n"
+			+ " * {@snippet :\n"
+			+ " * if (v.isPresent()) {\n"
+			+ " *     System.out.println(\"v: \" + v.get());\n"
+			+ " * }\n"
+			+ " * }\n"
+			+ " */\n"
+			+ "public class X {\n"
+			+ "}\n",
+		}
+	);
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1583
+ * Snippet with attributes and body content must not report a false missing-description
+ * warning under all_standard_tags.
+ */
+public void testIssue1583_snippetWithAttributesNoMissingDescription() {
+	if (this.complianceLevel < ClassFileConstants.JDK18) {
+		return;
+	}
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/**\n"
+			+ " * {@snippet lang=\"java\" id=\"example\" :\n"
+			+ " * System.out.println(\"hello\");\n"
+			+ " * }\n"
+			+ " */\n"
+			+ "public class X {\n"
+			+ "}\n",
+		}
+	);
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1583
+ * Empty {@code @snippet} with no content should still report missing description
+ * when missingJavadocTagDescription=all_standard_tags.
+ */
+public void testIssue1583_emptySnippetMissingDescription() {
+	if (this.complianceLevel < ClassFileConstants.JDK18) {
+		return;
+	}
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/**\n"
+			+ " * {@snippet}\n"
+			+ " */\n"
+			+ "public class X {\n"
+			+ "}\n",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	* {@snippet}\n" +
+		"	    ^^^^^^^\n" +
+		"Javadoc: Description expected after @snippet\n" +
+		"----------\n" +
+		"2. ERROR in X.java\n" +
+		"Javadoc: Snippet is invalid due to missing colon\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
 }
 
