@@ -375,10 +375,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		buf.append(" 				int z = 100;\n");
 		buf.append(" 				break;\n");
 		buf.append("			}\n");
-		buf.append("			case 100:\n");
-		buf.append("                {\n");
-		buf.append("                    break;\n");
-		buf.append("                }\n");
+		buf.append("			case 100: {\n");
+		buf.append("                break;\n");
+		buf.append("            }\n");
 		buf.append("            default : {\n");
 		buf.append("				break;\n");
 		buf.append("			}\n");
@@ -852,8 +851,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		builder.append("    public String foo(int i) {\n" +
 				"		String ret = switch(i%2) {\n" +
 				"		case 0 : \"even\";\n" +
-				"            case 1:\n" +
-				"                \"odd\";\n" +
+				"            case 1: \"odd\";\n" +
 				"		default : \"\";\n" +
 				"		};\n" +
 				"		return ret;");
@@ -988,4 +986,105 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, builder.toString());
 	}
 
+	public void testSwitchStatementCase_01() throws Exception {
+	    IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+	    String code = """
+				public class X {
+				    static int foo(int i) {
+				        int tw = 0;
+				        switch (i) {
+				            case 1: {
+				                int z = 100;
+				                break;
+				            }
+				            case 2:
+				                return 2;
+				            default:
+				             return 3;
+				        }
+				        return tw;
+				    }
+				}
+	    		""";
+	    ICompilationUnit cu = pack1.createCompilationUnit("X.java", code, false, null);
+
+	    CompilationUnit astRoot = createAST(cu);
+	    ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+	    AST ast = astRoot.getAST();
+
+	    assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+	    TypeDeclaration type = findTypeDeclaration(astRoot, "X");
+	    MethodDeclaration methodDecl = findMethodDeclaration(type, "foo");
+	    Block block = methodDecl.getBody();
+	    List<Statement> blockStatements = block.statements();
+	    SwitchStatement switchStmt = (SwitchStatement) blockStatements.get(1);
+	    {
+		    SwitchCase newCase = ast.newSwitchCase();
+		    newCase.setSwitchLabeledRule(false);
+		    newCase.expressions().add(ast.newNumberLiteral("100"));
+
+		    BreakStatement breakStatement = ast.newBreakStatement();
+		    Block newBlock = ast.newBlock();
+		    newBlock.statements().add(breakStatement);
+
+		    SwitchCase defaultCase = (SwitchCase) switchStmt.statements().get(2);
+		    ListRewrite listRewrite = rewrite.getListRewrite(switchStmt, SwitchStatement.STATEMENTS_PROPERTY);
+
+		    listRewrite.insertBefore(newCase, defaultCase, null);
+		    listRewrite.insertBefore(newBlock, defaultCase, null);
+	    }
+
+	    {
+	    	NumberLiteral nl = ast.newNumberLiteral();
+	    	nl.setToken("20");
+	    	ReturnStatement rsNew = ast.newReturnStatement();
+	    	rsNew.setExpression(nl);
+
+	    	ReturnStatement rsOld = (ReturnStatement) switchStmt.statements().get(3);
+
+	    	rewrite.replace(rsOld, rsNew, null);
+
+	    }
+	    {
+	    	ThrowStatement throwStatement = ast.newThrowStatement();
+	    	ClassInstanceCreation instanceOfCreation = ast.newClassInstanceCreation();
+	    	StringLiteral sl = ast.newStringLiteral();
+	    	sl.setEscapedValue("\"Unexpected value\"");
+
+	    	instanceOfCreation.arguments().add(sl);
+	    	instanceOfCreation.setType(ast.newSimpleType(ast.newSimpleName("IllegalArgumentException")));
+
+	    	throwStatement.setExpression(instanceOfCreation);
+
+	    	ReturnStatement rs = (ReturnStatement) switchStmt.statements().get(5);
+
+	    	rewrite.replace(rs, throwStatement, null);
+	    }
+
+	    String preview = evaluateRewrite(cu, rewrite);
+
+	    String expectedCode = """
+				public class X {
+				    static int foo(int i) {
+				        int tw = 0;
+				        switch (i) {
+				            case 1: {
+				                int z = 100;
+				                break;
+				            }
+				            case 100: {
+				                break;
+				            }
+				            case 2:
+				                return 20;
+				            default:
+				             throw new IllegalArgumentException("Unexpected value");
+				        }
+				        return tw;
+				    }
+				}
+	    		""";
+
+	    assertEqualString(preview, expectedCode);
+	}
 }
