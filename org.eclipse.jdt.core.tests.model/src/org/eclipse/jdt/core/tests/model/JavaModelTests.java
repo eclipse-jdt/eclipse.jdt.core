@@ -361,6 +361,27 @@ public void testCreatePkgHandleInDifferentProject() throws CoreException {
 }
 
 /*
+ * Ensure that a non-Java-like resource at the root of a classpath entry
+ * defined in a different project resolves to the default package fragment.
+ */
+public void testCreateDefaultPkgHandleInDifferentProject() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {}, "bin");
+		createFolder("/P1/lib");
+		IFile file = createFile("/P1/lib/readme.txt", "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"/P1/lib"}, "");
+		IJavaElement element = JavaModelManager.determineIfOnClasspath(file, p2);
+		assertElementEquals(
+			"Unexpected element",
+			"<default> [in /P1/lib [in P2]]",
+			element
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
+/*
  * Ensures that the right line separator is found for a compilation unit.
  */
 public void testFindLineSeparator01() throws CoreException {
