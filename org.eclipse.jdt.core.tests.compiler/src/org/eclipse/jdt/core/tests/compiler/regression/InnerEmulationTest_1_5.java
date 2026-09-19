@@ -309,9 +309,9 @@ public void test14() throws Exception {
 	String expectedOutput =
 		"  // Method descriptor #8 (LLineNumberBug;)V\n" +
 		"  // Stack: 2, Locals: 2\n" +
-		"  public LineNumberBug$Inner(LineNumberBug arg0);\n" +
+		"  public LineNumberBug$Inner(LineNumberBug this$0);\n" +
 		"     0  aload_0 [this]\n" +
-		"     1  aload_1 [arg0]\n" +
+		"     1  aload_1 [this$0]\n" +
 		"     2  putfield LineNumberBug$Inner.this$0 : LineNumberBug [10]\n" +
 		"     5  aload_0 [this]\n" +
 		"     6  invokespecial java.lang.Object() [12]\n" +
