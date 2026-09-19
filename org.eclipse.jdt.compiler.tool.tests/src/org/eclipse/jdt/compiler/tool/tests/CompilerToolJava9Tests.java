@@ -40,6 +40,7 @@ import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
+import javax.tools.ForwardingJavaFileObject;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileManager;
@@ -852,6 +853,96 @@ public class CompilerToolJava9Tests extends TestCase {
  			System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation did not fail as expected ", false);
  		}
+	}
+	/**
+	 * Single-module compilation must not fail when a JavaFileObject's getName() is not a
+	 * suffix of the absolute path EclipseCompiler.getTask() built for it.
+	 * EclipseCompilerImpl.createCompilationUnit identifies the unit by idx, so a
+	 * differently-formed but still valid path - simulated here with a redundant "."
+	 * directory segment - must not make it return null.
+	 *
+	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5302
+	 */
+	public void testBug5302() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = _tmpFolder;
+
+		File moduleInfoFile = new File(tmpFolder, "module-info.java");
+		try (Writer writer = new BufferedWriter(new FileWriter(moduleInfoFile))) {
+			writer.write(
+				"module com.example.app {\n" +
+				"	exports com.example;\n" +
+				"}\n");
+		}
+		File pkgDir = new File(tmpFolder, "com" + File.separator + "example");
+		pkgDir.mkdirs();
+		File mainFile = new File(pkgDir, "Main.java");
+		try (Writer writer = new BufferedWriter(new FileWriter(mainFile))) {
+			writer.write(
+				"package com.example;\n" +
+				"public class Main {\n" +
+				"	public static void main(String[] args) {}\n" +
+				"}\n");
+		}
+
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		List<File> files = new ArrayList<>();
+		files.add(moduleInfoFile);
+		files.add(mainFile);
+		Iterable<? extends JavaFileObject> baseUnits = standardManager.getJavaFileObjectsFromFiles(files);
+
+		// A file manager without MODULE_SOURCE_PATH forces the single-module compilation
+		// path (Main.handleSingleModuleCompilation -> EclipseCompilerImpl.createCompilationUnit).
+		ForwardingJavaFileManager<StandardJavaFileManager> manager = new ForwardingJavaFileManager<>(standardManager) {
+			@Override
+			public boolean hasLocation(Location location) {
+				if (location == StandardLocation.MODULE_SOURCE_PATH) {
+					return false;
+				}
+				return super.hasLocation(location);
+			}
+		};
+
+		List<JavaFileObject> units = new ArrayList<>();
+		for (JavaFileObject unit : baseUnits) {
+			units.add(new ForwardingJavaFileObject<>(unit) {
+				@Override
+				public String getName() {
+					String absolutePath = new File(this.fileObject.toUri()).getAbsolutePath();
+					int lastSep = absolutePath.lastIndexOf(File.separatorChar);
+					// A redundant "." directory segment: the OS still resolves this to the
+					// same, existing file, but the string is no longer a suffix of the plain
+					// absolute path EclipseCompiler.getTask() builds.
+					return absolutePath.substring(0, lastSep + 1) + "." + File.separator
+							+ absolutePath.substring(lastSep + 1);
+				}
+			});
+		}
+
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		List<String> options = new ArrayList<>();
+		options.add("-d");
+		options.add(tmpFolder);
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+		if (!result.booleanValue()) {
+			System.err.println("Compilation failed unexpectedly: " + stringWriter.getBuffer().toString());
+	 		assertTrue("Compilation failed ", false);
+		}
 	}
 	public void testBug574097() throws IOException {
 		if (this.isJREBelow9) return;
