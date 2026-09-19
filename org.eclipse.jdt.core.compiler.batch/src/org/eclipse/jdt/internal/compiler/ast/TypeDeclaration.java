@@ -39,13 +39,13 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.DualFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
-import org.eclipse.jdt.internal.compiler.flow.UnconditionalDualFlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InstanceFieldsFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
@@ -338,7 +338,7 @@ public boolean checkConstructors(Parser parser) {
 					// the constructor was in fact a method with no return type
 					// unless an explicit constructor call was supplied
 					ConstructorDeclaration c = (ConstructorDeclaration) am;
-					ExplicitConstructorCall constructorCall = c.getConstructorCall();
+					ExplicitConstructorCall constructorCall = c.constructorCall;
 					if (constructorCall == null || constructorCall.isImplicitSuper()) { // change to a method
 						MethodDeclaration m = parser.convertToMethodDeclaration(c, this.compilationResult);
 						this.methods[i] = m;
@@ -713,7 +713,7 @@ public boolean hasErrors() {
 /**
  *	Common flow analysis for all types
  */
-private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
+private void internalAnalyseCode(FlowContext flowContext, final FlowInfo flowInfo) {
 	if (CharOperation.equals(this.name, TypeConstants.YIELD)) {
 		this.scope.problemReporter().validateRestrictedKeywords(this.name, this);
 	}
@@ -751,40 +751,21 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		if (this.methods != null) {
 			// collect field initializations happening in constructor prologues
 			FlowInfo prologueInfo = null;
-			boolean allConstructorsHavePrologue = true;
 			for (AbstractMethodDeclaration method : this.methods) {
-				if (method instanceof ConstructorDeclaration constructor) {
+				if (method instanceof ConstructorDeclaration constructor && constructor.invokesSuper()) {
 					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
 					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), PROLOGUE_ANALYSIS);
-					ctorInfo = constructor.getPrologueInfo();
-					if (ctorInfo == null) {
-						allConstructorsHavePrologue = false;
-					} else if (ctorInfo.hasInits()) {
+					ctorInfo = constructor.getPrologueFlowInfo();
+					if (ctorInfo != null) {
 						if (prologueInfo == null)
-							prologueInfo = ctorInfo.copy();
+							prologueInfo = ctorInfo;
 						else
-							prologueInfo = prologueInfo.mergeDefiniteInitsWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
+							prologueInfo = prologueInfo.mergedWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
 					}
 				}
 			}
-			if (prologueInfo != null) {
-				if (allConstructorsHavePrologue) {
-					// field initializers should see inits from ctor prologues:
-					for (FieldBinding field : this.binding.fields()) {
-						if (prologueInfo.isDefinitelyAssigned(field)) {
-							nonStaticFieldInfo.markAsDefinitelyAssigned(field);
-						} else if (prologueInfo.isPotentiallyAssigned(field)) {
-							// mimic missing method markAsPotentiallyAssigned(field):
-							UnconditionalFlowInfo assigned = FlowInfo.initial(this.maxFieldCount);
-							assigned.markAsDefinitelyAssigned(field);
-							nonStaticFieldInfo.addPotentialInitializationsFrom(assigned);
-						}
-					}
-				} else {
-					// need to keep variants with and without prologue info separate:
-					nonStaticFieldInfo = new DualFlowInfo(nonStaticFieldInfo, prologueInfo);
-				}
-			}
+			if (prologueInfo != null)
+				nonStaticFieldInfo = new InstanceFieldsFlowInfo(nonStaticFieldInfo.unconditionalInits(), prologueInfo);
 		}
 	}
 
@@ -794,12 +775,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				if ((staticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 					field.bits &= ~ASTNode.IsReachable;
 
-				/*if (field.isField()){
-					staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-				} else {*/
 				staticInitializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
-				/*}*/
 				staticFieldInfo = field.analyseCode(this.staticInitializerScope, staticInitializerContext, staticFieldInfo);
+
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
 				if (staticFieldInfo == FlowInfo.DEAD_END) {
@@ -810,12 +788,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				if ((nonStaticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 					field.bits &= ~ASTNode.IsReachable;
 
-				/*if (field.isField()){
-					initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-				} else {*/
-					initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
-				/*}*/
+				initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
 				nonStaticFieldInfo = field.analyseCode(this.initializerScope, initializerContext, nonStaticFieldInfo);
+
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
 				if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
@@ -856,11 +831,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	}
 	if (this.methods != null) {
 		UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
-		if (nonStaticFieldInfo instanceof UnconditionalDualFlowInfo udfi) {
-			nonStaticFieldInfo = udfi.getMainInits(); // drop info from prologues
-		} else if (nonStaticFieldInfo instanceof DualFlowInfo dfi) {
-			nonStaticFieldInfo = dfi.initsWhenTrue;
-		}
+		if (nonStaticFieldInfo instanceof InstanceFieldsFlowInfo iffi)
+			nonStaticFieldInfo = iffi.withoutPrologues();
 		FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 		SimpleSetOfCharArray jUnitMethodSourceValues = getJUnitMethodSourceValues();
 		for (AbstractMethodDeclaration method : this.methods) {
@@ -869,8 +841,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			if (method instanceof Clinit clinit) {
 				clinit.analyseCode(this.scope, staticInitializerContext, staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
 			} else if (method instanceof ConstructorDeclaration cd) {
-				cd.analyseCode(this.scope, initializerContext, constructorInfo.copy(), flowInfo.reachMode(),
-						cd.getPrologueInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS);
+				ConstructorFlowAnalysisMode mode = cd.getPrologueFlowInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS;
+				// constructors that chain to an alternate constructor via `this(...)` should not see field initialization or any other prologue!
+				cd.analyseCode(this.scope, initializerContext, cd.invokesSuper() ? constructorInfo.copy() : outerInfo.copy(), outerInfo.reachMode(), mode);
 			} else { // regular method
 				// JUnit 5 only accepts methods without arguments for method sources
 				if (method.arguments == null && jUnitMethodSourceValues.includes(method.selector) && method.binding != null) {
