@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@RunJavac
 public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	static {
@@ -40,19 +41,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	public SuperAfterStatementsTest(String testName) {
 		super(testName);
 	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
@@ -3000,19 +2988,17 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
 				"""
 			},
-			"""
-			----------
-			1. ERROR in X.java (at line 4)
-				fin1 = 0;
-				^^^^
-			The final field fin1 may already have been assigned
-			----------
-			4. ERROR in X.java (at line 10)
-				fin2 = 11;
-				^^^^
-			The final field fin2 may already have been assigned
-			----------
-			""");
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	this(fin1 = 10);\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The final field fin1 may already have been assigned\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	fin2 = 11;\n" +
+			"	^^^^\n" +
+			"The final field fin2 may already have been assigned\n" +
+			"----------\n");
 	}
 
 	public void testGH3748b() {
@@ -3034,19 +3020,17 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
 				"""
 			},
-			"""
-			----------
-			1. ERROR in X.java (at line 5)
-				fin1 = 0;
-				^^^^
-			The final field fin1 may already have been assigned
-			----------
-			3. ERROR in X.java (at line 10)
-				fin2 = 11;
-				^^^^
-			The final field fin2 may already have been assigned
-			----------
-			""");
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	this(fin1 = 10);\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The final field fin1 may already have been assigned\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	fin2 = 11;\n" +
+			"	^^^^\n" +
+			"The final field fin2 may already have been assigned\n" +
+			"----------\n");
 	}
 	public void testGH3687c() {
 		runNegativeTest(new String[] {
@@ -3173,19 +3157,22 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
 				"""
 		},
-		"""
-		----------
-		1. WARNING in X.java (at line 4)
-			class Local {
-			      ^^^^^
-		The type Local is never used locally
-		----------
-		2. ERROR in X.java (at line 7)
-			X.value = new Inner() { // This is reported by Javac
-			          ^^^^^^^^^^^
-		No enclosing instance of type Local is accessible. Must qualify the allocation with an enclosing instance of type Local (e.g. x.new A() where x is an instance of Local).
-		----------
-		""");
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	class Local {\n" +
+		"	      ^^^^^\n" +
+		"The type Local is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	Local(int a) {\n" +
+		"	^^^^^^^^^^^^\n" +
+		"The constructor Local(int) is never used locally\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	X.value = new Inner() { // This is reported by Javac\n" +
+		"	          ^^^^^^^^^^^\n" +
+		"No enclosing instance of type Local is accessible. Must qualify the allocation with an enclosing instance of type Local (e.g. x.new A() where x is an instance of Local).\n" +
+		"----------\n");
 	}
 
 	public void testGH3844() {
@@ -3673,5 +3660,794 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5353
+	// Flexible recursive constructors tolerated at compile time lead to StackOverflowError at runtime.
+	public void testIssue5353() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+			    X(String s) {
+			    	System.out.println("delegating");
+					this(10, 20);
+				}
+
+				public X(int x, int y) {
+					System.out.println("delegating");
+					this("xxx");
+				}
+
+				public static void main(String[] args) {
+					new X("Hello");
+				}
+			}
+			"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				this(10, 20);
+				^^^^^^^^^^^^^
+			Recursive constructor invocation X(int, int)
+			----------
+			2. ERROR in X.java (at line 10)
+				this("xxx");
+				^^^^^^^^^^^^
+			Recursive constructor invocation X(String)
+			----------
+			""");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5352
+	// Unused flexible constructor not complained about
+	public void testIssue5352() {
+		// but no access to outer this from local class
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					X(String s) {
+
+					}
+
+					private X(int x, int y) {
+						System.out.println("Hello");
+						this("Hello");
+					}
+					void foo() {
+						System.out.println("X::foo");
+					}
+
+					public static void main(String[] args) {
+						new X("Hello") {
+							@Override
+							void foo() {
+								System.out.println("Anon::foo");
+							}
+						}.goo();
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. WARNING in X.java (at line 7)
+					private X(int x, int y) {
+					        ^^^^^^^^^^^^^^^
+				The constructor X(int, int) is never used locally
+				----------
+				2. ERROR in X.java (at line 21)
+					}.goo();
+					  ^^^
+				The method goo() is undefined for the type new X(){}
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5371#issuecomment-5579445496
+	public void test5371Comment_5579445496() {
+		Runner runner = new Runner();
+		runner.customOptions.put(CompilerOptions.OPTION_Source, "24");
+		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "24");
+		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "24");
+		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_24);
+		runner.testFiles = new String[] {
+				"X.java",
+					"""
+					public class X {
+						int abcd;
+
+						X(int x) {
+
+						}
+
+						X() {
+							this(abcd = 10);
+						}
+
+						public static void main(String [] args) {
+						    X x = new X();
+						    System.out.println(x.abcd);
+						}
+					}
+					"""
+			};
+		runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in X.java (at line 9)
+				this(abcd = 10);
+				     ^^^^
+			Cannot refer to an instance field abcd while explicitly invoking a constructor
+			----------
+			""";
+		runner.runNegativeTest();
+
+		runner.customOptions.put(CompilerOptions.OPTION_Source, "25");
+		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "25");
+		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "25");
+		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_25);
+		runner.expectedOutputString = "10";
+		runner.expectedCompilerLog = "";
+		runner.runConformTest();
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5374#issuecomment-5585179647
+	public void testIssue5374() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				{
+					if (true)
+						throw new RuntimeException();
+				}
+				final String s;
+				private X(boolean f) {
+					s = "1";
+					super();
+					s = "2";
+				}
+				public static void main(String [] args) {
+				    System.out.println("Ok!");
+			    }
+			}
+			"""
+			},
+			"Ok!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5378
+	// ECJ fails to complain about a flexible constructor failing to initialize a blank final variable.
+	public void testIssue5378() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			    final String s;
+
+			    X(String s0) {
+			        s = s0;
+			        super();
+			    }
+
+			    X() {
+			        System.out.println("Blah");
+			        super();
+			    }
+
+			    public static void main(String... args) {
+			        System.out.print(new X("OK").s);
+			    }
+			}
+			"""
+
+
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	X() {\n" +
+			"	^^^\n" +
+			"The blank final field s may not have been initialized\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383#issuecomment-5608172836
+	public void testIssue5383_issuecomment_5608172836() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				final String s;
+				{
+					s = "initial";
+					s = "updated";
+				}
+
+				X(int i) { }
+				X(char c) { }
+			}
+			"""
+
+
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	s = \"updated\";\n" +
+			"	^\n" +
+			"The final field s may already have been assigned\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383#issuecomment-5608408274
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5396
+	// [flexible-constructors] java.lang.VerifyError: Constructor must call super() or this() before return
+	public void testIssue5396() { // testIssue5383Comment5608408274() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				String s = "good";
+				X() {
+					if (true) throw new RuntimeException();
+					super();
+				}
+				X (int i) {
+					System.out.println(s);
+				}
+				public static void main(String[] args) {
+					new X(1);
+				}
+			}
+			"""
+			},
+			"good");
+	}
+
+	public void testAnonymousClassInFieldInit() {
+		runConformTest(new String[] {
+			"TokenManager.java",
+			"""
+			import java.lang.reflect.Constructor;
+			import java.util.ArrayList;
+			import java.util.HashMap;
+			import java.util.List;
+
+			public class TokenManager {
+
+				private final List<Token> tokens;
+
+				final CommentWrapExecutor commentWrapper;
+
+				private HashMap<Integer, Integer> tokenIndexToNLSAlign;
+				private final List<Token[]> formatOffTagPairs = new ArrayList<>();
+				private int headerEndIndex = 0;
+
+				public TokenManager(List<Token> tokens, String source, DefaultCodeFormatterOptions options) {
+					this.tokens = tokens;
+					this.commentWrapper = new CommentWrapExecutor(this, options);
+				}
+
+				public TokenManager(List<Token> tokens, TokenManager parent) {
+					this.tokens = tokens;
+					this.commentWrapper = parent.commentWrapper;
+				}
+
+				private final TokenTraverser positionInLineCounter = new TokenTraverser() {
+					@Override
+					protected boolean token(Token traversed, int index) {
+						return false;
+					}
+				};
+
+				private int enclosingInstanceConstructorParameters() {
+					Constructor<?>[] constructors = this.positionInLineCounter.getClass().getDeclaredConstructors();
+					int count = -1;
+					for (Constructor<?> c : constructors) {
+						int current = 0;
+						for (Class<?> p : c.getParameterTypes()) {
+							if (p == TokenManager.class) {
+								current++;
+							}
+						}
+						if (current > count) {
+							count = current;
+						}
+					}
+					return count;
+				}
+
+				public static void main(String[] args) {
+					TokenManager tm = new TokenManager(new ArrayList<>(), "", new DefaultCodeFormatterOptions());
+					System.out.println(tm.enclosingInstanceConstructorParameters());
+				}
+			}
+
+			class Token {
+			}
+
+			class DefaultCodeFormatterOptions {
+			}
+
+			class CommentWrapExecutor {
+				public CommentWrapExecutor(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
+				}
+			}
+
+			abstract class TokenTraverser {
+				protected abstract boolean token(Token traversed, int index);
+			}
+			"""
+		}, "1");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5400
+	// [Flexible constructors] VerifyError: Bad type on operand stack
+	public void testIssue5400() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			    String field = "initialized";
+
+			    {  // Instance initializer block
+			        System.out.println(field);
+			        field = "modified";
+			    }
+
+			    // First constructor with unreachable super() call
+			    X() {
+			        if (true) throw new RuntimeException();
+			        super();  // unreachable
+			    }
+
+			    // Second constructor that can reach the field initializer
+			    X(int x) {
+			        System.out.println(field);  // uses the field
+			    }
+
+			    public static void main(String[] args) {
+			        new X(1);
+			    }
+			}
+			"""
+		},
+		"initialized\n" +
+		"modified");
+	}
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5404
+    // [Flexible constructors] Incorrect diagnostic: The final field x may already have been assigned
+    public void testIssue5404() {
+        runConformTest(new String[] {
+            "X.java",
+            """
+            public final class X {
+                final int x; // 1
+                final int y; // 2
+                final int z; // 4
+
+                {
+                    x = 10;
+                    z = y;
+                }
+
+                X() {
+                    int xx = 123; // 8
+                    if (true)
+                        throw new RuntimeException();
+                    super();
+                }
+
+                X(int a) {
+                    this.y = 10;
+                    if (true)
+                        throw new RuntimeException();
+                    super();
+                }
+                public static void main(String [] args) {
+                    System.out.println("Ok!");
+                }
+            }
+            """
+        },
+        "Ok!");
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5404
+    // [Flexible constructors] Incorrect diagnostic: The final field x may already have been assigned
+    public void testIssue5404_b() {
+        runNegativeTest(new String[] {
+            "X.java",
+            """
+            public final class X {
+                final int x; // 1
+                final int y; // 2
+                final int z; // 4
+
+                {
+                    x = 10;
+                    z = y;
+                }
+
+                X() {
+                    int xx = 123; // 8
+                    super();
+                }
+
+                X(int a) {
+                    this.y = 10;
+                    if (true)
+                        throw new RuntimeException();
+                    super();
+                }
+                public static void main(String [] args) {
+                    System.out.println("Ok!");
+                }
+            }
+            """
+        },
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	z = y;\n" +
+		"	    ^\n" +
+		"The blank final field y may not have been initialized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	X() {\n" +
+		"	^^^\n" +
+		"The blank final field y may not have been initialized\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 20)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n");
+    }
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383/#discussion_r4014770952
+	public void testIssue5383_discussion_r4014770952() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+			    final int f;
+			    {
+			        Object o = new Object() {
+			            {
+			                System.out.println("Final Field f = " + f);
+			            }
+			        };
+			    }
+
+			    X() {
+			        f = 10;
+			        super();
+			    }
+
+			    X(int a) {
+			        super();
+			        this.f = 10;
+			    }
+			}
+			"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	System.out.println(\"Final Field f = \" + f);\n" +
+			"	                                        ^\n" +
+			"The blank final field f may not have been initialized\n" +
+			"----------\n");
+	}
+
+	// test nullity preservation across constructor chaining
+	public void testNullWarningsAcrossConstructorCalls() {
+		Runner runner = new Runner();
+		runner.customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+				X(boolean flag) {
+					Object obj = new Object();
+					if (obj == null)
+						System.out.println();
+					super();
+					if (obj == null)
+						System.out.println();
+				}
+
+				X() {
+					Object obj = new Object();
+					if (obj == null)
+						System.out.println();
+					this(true);
+					if (obj == null)
+						System.out.println();
+				}
+
+				public static void main(String[] args) {
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 5)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 8)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 13)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"6. WARNING in X.java (at line 14)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 16)\n" +
+				"	if (obj == null)\n" +
+				"	    ^^^\n" +
+				"Null comparison always yields false: The variable obj cannot be null at this location\n" +
+				"----------\n" +
+				"8. WARNING in X.java (at line 17)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5382#issuecomment-5713823868
+    public void testIssue5382Comment_5713823868() {
+        runConformTest(new String[] {
+            "X.java",
+            """
+	        public class X {
+	            final int f;
+
+	            X() {
+	                this.f = 1; // establishes an incoming field-init bit in flowInfo
+
+	                class L {
+	                    final int g;
+
+	                    L() {
+	                        this(0); // must NOT see X.f's flow bit as L.g's flow bit
+	                    }
+
+	                    L(int i) {
+	                        this.g = i;
+	                    }
+	                }
+
+	                new L();
+	            }
+
+	            public static void main(String[] args) {
+	                new X();
+	                System.out.println("OK!");
+	            }
+	        }
+            """
+        },
+        "OK!");
+    }
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5382#issuecomment-5723018357
+    public void testIssue5382Comment_5723018357() {
+        runConformTest(new String[] {
+            "X.java",
+            """
+			public class X {
+				final int f;
+
+				{
+					class L {
+						final int g;
+
+						L() {
+							this(0); // must NOT see X.f's flow bit as L.g's flow bit
+						}
+
+						L(int i) {
+							this.g = i;
+						}
+					}
+
+					new L();
+				}
+
+				X() {
+					this.f = 1; // establishes an incoming field-init bit in flowInfo
+					super();
+				}
+
+				public static void main(String[] args) {
+					new X();
+					System.out.println("OK!");
+				}
+			}
+            """
+        },
+        "OK!");
+    }
+
+	public void testDiscardInitializationInfo() {
+		Runner runner = new Runner();
+		runner.customOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
+		runner.expectedJavacOutputString = null;
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+				final int y;
+				final int z;
+				{
+					int x;
+					assert (x = 1) == 1;
+					System.out.println(x);
+					// Error at next line establishes that clearing prologue to honor contract is harmless.
+					y = 1;
+				}
+
+				X() {
+					y = 1;
+					super();
+					z = 1;
+				}
+				X(int x) {
+					z = 1;
+					super();
+					y = 1;
+				}
+			}
+			"""
+		};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	System.out.println(x);\n" +
+				"	                   ^\n" +
+				"The local variable x may not have been initialized\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	y = 1;\n" +
+				"	^\n" +
+				"The final field y may already have been assigned\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 20)\n" +
+				"	y = 1;\n" +
+				"	^\n" +
+				"The final field y may already have been assigned\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
+
+	public void testInstanceFieldsFlowInfoMergedWith() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				final int value;
+
+				{
+					if (System.nanoTime() == 0) {
+						value = 1;
+					} else {
+						value = 2;
+					}
+				}
+
+				X() {
+					if (true)
+					    throw new RuntimeException("Aborting");
+					super();
+				}
+
+				public static void main(String[] args) {
+				    try {
+					    new X();
+				    } catch (RuntimeException e) {
+					    System.out.println("OK");
+				    }
+				}
+			}
+			"""
+		}, "OK");
+	}
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5410
+    // Missing dead code warning
+    public void testIssue5410() {
+        Runner runner = new Runner();
+        runner.customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+        runner.testFiles = new String[] {
+            "X.java",
+            """
+            public class X {
+                {
+                    if (true)
+                        throw new RuntimeException();
+                }
+                X(int a) {
+                    super();
+                    System.err.println();
+                    System.out.println();
+                }
+            }
+            """
+        };
+        runner.expectedCompilerLog =
+        		"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	System.err.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+        runner.runNegativeTest();
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5410
+    // Missing dead code warning
+    public void testIssue5410_2() {
+        Runner runner = new Runner();
+        runner.customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+        runner.testFiles = new String[] {
+            "X.java",
+            """
+            public class X {
+                {
+                    if (true)
+                        throw new RuntimeException();
+                    System.out.println();
+                }
+                X(int a) {
+                    super();
+                    System.err.println();
+                    System.out.println();
+                }
+            }
+            """
+        };
+        runner.expectedCompilerLog =
+        		"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	System.out.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	System.err.println();\n" +
+				"	^^^^^^^^^^^^^^^^^^^^\n" +
+				"Dead code\n" +
+				"----------\n";
+        runner.runNegativeTest();
+    }
 }
 

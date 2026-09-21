@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c)  2020, 2022 IBM Corporation and others.
+ * Copyright (c)  2020, 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1773,4 +1773,33 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 					elements
 				);
 			}
+
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/3141
+	public void testGH3141() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/JavaSearchBugs/src/gh3141/Point.java",
+			"package gh3141;\n" +
+			"record Point(int x, int y) {\n" +
+			"	static int count = 15;\n" +
+			"}\n" +
+			"class T1 {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Point.count++;\n" +
+			"		System.out.println(Point.count);\n" +
+			"	}\n" +
+			"}\n"
+		);
+		IType type = this.workingCopies[0].getType("Point");
+		IField field = type.getField("count");
+		this.resultCollector.showAccess();
+		this.resultCollector.showAccuracy(false);
+		search(field, ALL_OCCURRENCES, EXACT_RULE, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+		assertSearchResults(
+			"src/gh3141/Point.java gh3141.Point.count [count]\n" +
+			"src/gh3141/Point.java void gh3141.T1.main(String[]) [count] READ/WRITE ACCESS\n" +
+			"src/gh3141/Point.java void gh3141.T1.main(String[]) [count] READ ACCESS"
+		);
+	}
 }

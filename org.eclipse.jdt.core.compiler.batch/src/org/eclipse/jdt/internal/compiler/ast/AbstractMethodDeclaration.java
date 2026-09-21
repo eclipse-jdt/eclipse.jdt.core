@@ -171,6 +171,7 @@ public abstract class AbstractMethodDeclaration
 	 */
 	public void bindArguments() {
 
+		this.scope.firstLocalIndex = this.scope.outerMostMethodScope().analysisIndex;
 		if (this.arguments != null) {
 			// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
 			if (this.binding == null) {
@@ -252,15 +253,17 @@ public abstract class AbstractMethodDeclaration
 	 * <li>NotOwning - for resource leak analysis
 	 * </ul>
 	 */
-	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, Argument[] methodArguments, MethodBinding methodBinding) {
+	static void analyseArguments(MethodScope scope, FlowInfo flowInfo, FlowContext flowContext, AbstractVariableDeclaration[] methodArguments, MethodBinding methodBinding) {
 		if (methodArguments != null) {
+			LookupEnvironment environment = scope.environment();
 			boolean usesNullTypeAnnotations = environment.usesNullTypeAnnotations();
 			boolean usesOwningAnnotations = environment.usesOwningAnnotations();
 
 			int length = Math.min(methodBinding.parameters.length, methodArguments.length);
 			for (int i = 0; i < length; i++) {
 				TypeBinding parameterBinding = methodBinding.parameters[i];
-				LocalVariableBinding local = methodArguments[i].binding;
+				AbstractVariableDeclaration methodArgument = methodArguments[i];
+				LocalVariableBinding local = methodArgument instanceof Argument argument ? argument.binding : scope.findVariable(methodArgument.name);
 				if (usesNullTypeAnnotations) {
 					// leverage null type annotations:
 					long tagBits = parameterBinding.tagBits & TagBits.AnnotationNullMASK;
@@ -730,7 +733,9 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.statements != null) {
 			resolveStatements(this.statements, this.scope);
-		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
+		}
+		// An empty constructor gets injected with a super() call, so don't rely on this.statements == null being true for an empty block!
+		if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}

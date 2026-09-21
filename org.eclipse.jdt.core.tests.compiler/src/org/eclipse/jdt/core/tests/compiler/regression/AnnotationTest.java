@@ -64,6 +64,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.junit.Assert;
 
+@RunJavac
 public class AnnotationTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -107,13 +108,11 @@ public class AnnotationTest extends AbstractComparableTest {
 		return super.getNameEnvironment(testFiles, classPaths, options);
 	}
 
-	// ========= OPT-IN to run.javac mode: ===========
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	@Override
 	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
 		super.setUp();
 		this.reportMissingJavadocComments = null;
 		this.repeatableIntroText =
@@ -122,12 +121,6 @@ public class AnnotationTest extends AbstractComparableTest {
 		". Only annotation types marked @Repeatable can be used multiple times at one target.\n";
 		this.javaClassLib = null; // use only in selected tests
 	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	public void test001() {
 		this.runConformTest(

@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.DerivedSourceSearchParticipantRegistry;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
  * Tests for the {@code org.eclipse.jdt.core.derivedSourceSearchParticipant} extension point
@@ -42,10 +43,12 @@ public class DerivedSourceSearchParticipantTests extends ModifyingResourceTests 
 		TestDerivedSourceSearchParticipant.reset();
 		DerivedSourceSearchParticipantRegistry.reset();
 		this.project = createJavaProject("DSP", new String[] {"src"}, "bin");
+		JobManager.VERBOSE = true;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
+		JobManager.VERBOSE = false;
 		deleteProject("DSP");
 		this.project = null;
 		super.tearDown();

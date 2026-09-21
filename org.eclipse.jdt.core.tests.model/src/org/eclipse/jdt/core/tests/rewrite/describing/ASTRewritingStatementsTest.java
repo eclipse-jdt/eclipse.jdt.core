@@ -47,26 +47,21 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		return createSuite(ASTRewritingStatementsTest.class);
 	}
 
-	@Override
-	public void setUpSuite() throws Exception {
-		super.setUpSuite();
-		JavaModelManager.VERBOSE = true;
-	}
-
-	@Override
-	public void tearDownSuite() throws Exception {
-		JavaModelManager.VERBOSE = false;
-		super.tearDownSuite();
-	}
-
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void setUp() throws Exception {
+		JavaModelManager.VERBOSE = true;
 		super.setUp();
 		if (this.apiLevel == AST_INTERNAL_JLS15 ) {
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		JavaModelManager.VERBOSE = false;
 	}
 
 	public void testInsert1() throws Exception {

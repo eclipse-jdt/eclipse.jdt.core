@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -847,6 +848,47 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 					"src/X.java Test1$Type.openDeclarationFails [openDeclarationFails] EXACT_MATCH");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5358
+	// Explicit constructor call from flexible constructor missing in search for references to the chained constructor
+	public void testFlexibleConstructorSuperCall() throws Exception {
+		if (!isJRE25) return;
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"""
+				class A {
+				    A() {}
+				    A/*here*/(int x) {}
+				}
+
+				class B extends A {
+				    B() {
+				        System.out.println();
+				        this(10);
+				    }
+				    B(int n) {
+				        System.out.println();
+				        super(n); // constructor call #2
+				    }
+				}
+				""");
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		String oldSourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_25);
+			String str = this.workingCopies[0].getSource();
+			String selection = "A/*here*/";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			IMethod ctor = (IMethod) elements[0];
+			search(ctor, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java B(int) [super(n);] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_SOURCE, oldSourceLevel);
 		}
 	}
 }

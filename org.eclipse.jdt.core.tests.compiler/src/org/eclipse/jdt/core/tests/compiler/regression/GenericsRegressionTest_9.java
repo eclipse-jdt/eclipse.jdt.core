@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
  * Test class originally capturing issues specific to Java9, but meanwhile also just a continuation
  * of GenericsRegressionTest_1_8.
  */
+@RunJavac
 public class GenericsRegressionTest_9 extends AbstractRegressionTest9 {
 
 static {
@@ -78,19 +79,6 @@ public void testGH5193ProblemBindingCannotInferDiamondConstructor() {
 
 	assertNull(AllocationExpression.inferDiamondConstructor(null, null, missingType, Binding.NO_TYPES));
 }
-
-// ========= OPT-IN to run.javac mode: ===========
-@Override
-protected void setUp() throws Exception {
-	this.runJavacOptIn = true;
-	super.setUp();
-}
-@Override
-protected void tearDown() throws Exception {
-	super.tearDown();
-	this.runJavacOptIn = false; // do it last, so super can still clean up
-}
-// =================================================
 
 // vanilla test case
 public void testBug488663_001() {

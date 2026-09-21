@@ -13,21 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-/**
- * This test class exists for the sole purpose of printing statistics about tests run as comparison of ecj vs javac.
- * It is be integrated in {@link TestAll} as the very last test in the suite.
- */
-@RunJavac
-public class PrintRunJavacStats extends AbstractRegressionTest {
-	public PrintRunJavacStats(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(PrintRunJavacStats.class, FIRST_SUPPORTED_JAVA_VERSION);
-	}
-	public void testPrint() {
-		printRunJavacStats();
-	}
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RunJavac {
+
 }

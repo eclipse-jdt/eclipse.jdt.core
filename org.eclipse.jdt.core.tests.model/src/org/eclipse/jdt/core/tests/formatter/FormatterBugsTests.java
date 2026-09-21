@@ -13408,4 +13408,114 @@ public void testIssue4122() {
 		""";
 	formatSource(source);
 }
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5195
+ * insert_new_line_before_closing_brace_in_array_initializer should support NEXT_LINE_ON_WRAP,
+ * mirroring brace_position_for_array_initializer: closing brace goes on its own line only if
+ * the array initializer's content itself wrapped across multiple lines.
+ */
+public void testIssue5195_shortArrayStaysInline() {
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = true;
+	String source =
+		"""
+		public class A {
+			int[] shortArr = { 1, 2, 3 };
+		}
+		""";
+	formatSource(source);
+}
+public void testIssue5195_wrappedArrayGetsOwnLine() {
+	this.formatterPrefs.page_width = 40;
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = true;
+	String source =
+		"""
+		public class A {
+			int[] longArr = { 1111111111, 2222222222, 3333333333, 4444444444 };
+		}
+		""";
+	formatSource(source,
+		"""
+		public class A {
+			int[] longArr = { 1111111111,
+					2222222222, 3333333333,
+					4444444444
+			};
+		}
+		""");
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5195
+ * With NEXT_LINE_ON_WRAP, an existing new line before the closing brace is removed when the
+ * initializer's elements are not wrapped - here because wrapping is disabled altogether.
+ */
+public void testIssue5195_noWrappingRemovesNewLineBeforeClosingBrace() {
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = true;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_NO_ALIGNMENT;
+	String source =
+		"""
+		public class A {
+			int[] arr = { 1111111111, 2222222222,
+					3333333333
+			};
+		}
+		""";
+	formatSource(source,
+		"""
+		public class A {
+			int[] arr = { 1111111111, 2222222222, 3333333333 };
+		}
+		""");
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5195
+ * Same as above, but with "wrap where necessary": the elements fit on a single line, so no
+ * wrapping happens and the new line before the closing brace is removed.
+ */
+public void testIssue5195_wrapWhereNecessaryRemovesNewLineBeforeClosingBrace() {
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = true;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
+	String source =
+		"""
+		public class A {
+			int[] arr = { 1111111111, 2222222222,
+					3333333333
+			};
+		}
+		""";
+	formatSource(source,
+		"""
+		public class A {
+			int[] arr = { 1111111111, 2222222222, 3333333333 };
+		}
+		""");
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5195
+ * With forced wrapping the elements always wrap, so the closing brace always gets its own line,
+ * even for an initializer that would otherwise fit on a single line.
+ */
+public void testIssue5195_forcedWrappingGetsOwnLine() {
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer_on_wrap = true;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_FORCE;
+	String source =
+		"""
+		public class A {
+			int[] arr = { 1, 2, 3 };
+		}
+		""";
+	formatSource(source,
+		"""
+		public class A {
+			int[] arr = {
+					1,
+					2,
+					3
+			};
+		}
+		""");
+}
 }

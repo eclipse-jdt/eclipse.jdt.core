@@ -1604,4 +1604,38 @@ public void testGH1440() throws Exception {
 		deleteProject("P");
 	}
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5392
+// Code completion no longer working since I20260904-0846
+public void testIssue5392() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL25_LIB"}, "bin", "25");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/TestBase.java",
+			"""
+			public class TestBase {
+			    public void foo() {
+			    }
+
+
+			    public static class Test extends TestBase {
+			        @Override
+			        public void foo() {
+			        	super.f
+			        }
+			    }
+			}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "super.f";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"foo[METHOD_REF]{foo(), LTestBase;, ()V, foo, null, 67}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 }
