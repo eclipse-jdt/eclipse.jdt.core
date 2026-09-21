@@ -1486,4 +1486,83 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				""";
 		runner.runWarningTest();
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5369
+	// [Null][Records] Nullness tracking broken inside compact constructors
+	public void testIssue5369() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNull;
+
+				public record X(@NonNull String s) {
+				    public X {
+				        if (s == null) { // currently missing redundant-null/dead-code diagnostics (bug 5369)
+				            System.out.println("impossible");
+				        }
+
+				        @NonNull String k = "";
+				        if (k == null) { // control: should be diagnosed
+				            System.out.println("impossible");
+				        }
+
+				        s.toString();
+				    }
+				}
+
+				record R2(@NonNull String s) {
+				    public R2(@NonNull String s) {
+				        if (s == null) { // control: should be diagnosed
+				            System.out.println("impossible");
+				        }
+				        this.s = s;
+				        s.toString();
+				    }
+				}
+				"""
+			},
+			options,
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	if (s == null) { // currently missing redundant-null/dead-code diagnostics (bug 5369)\n" +
+			"	    ^\n" +
+			"Redundant null check: comparing '@NonNull String' against null\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	if (s == null) { // currently missing redundant-null/dead-code diagnostics (bug 5369)\n" +
+			"            System.out.println(\"impossible\");\n" +
+			"        }\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	if (k == null) { // control: should be diagnosed\n" +
+			"	    ^\n" +
+			"Redundant null check: comparing '@NonNull String' against null\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 10)\n" +
+			"	if (k == null) { // control: should be diagnosed\n" +
+			"            System.out.println(\"impossible\");\n" +
+			"        }\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 20)\n" +
+			"	if (s == null) { // control: should be diagnosed\n" +
+			"	    ^\n" +
+			"Redundant null check: comparing '@NonNull String' against null\n" +
+			"----------\n" +
+			"6. WARNING in X.java (at line 20)\n" +
+			"	if (s == null) { // control: should be diagnosed\n" +
+			"            System.out.println(\"impossible\");\n" +
+			"        }\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n");
+	}
 }

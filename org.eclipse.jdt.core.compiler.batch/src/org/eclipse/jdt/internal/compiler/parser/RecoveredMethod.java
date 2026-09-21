@@ -24,6 +24,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -414,23 +415,12 @@ public AbstractMethodDeclaration updatedMethodDeclaration(int depth, Set<TypeDec
 				this.methodDeclaration.bodyEnd = block.sourceEnd;
 			}
 
-			/* first statement might be an explict constructor call destinated to a special slot */
-			if (this.methodDeclaration.isConstructor()) {
-				ConstructorDeclaration constructor = (ConstructorDeclaration)this.methodDeclaration;
-				if (this.methodDeclaration.statements != null
-					&& this.methodDeclaration.statements[0] instanceof ExplicitConstructorCall){
-					constructor.constructorCall = (ExplicitConstructorCall)this.methodDeclaration.statements[0];
-					int length = this.methodDeclaration.statements.length;
-					System.arraycopy(
-						this.methodDeclaration.statements,
-						1,
-						(this.methodDeclaration.statements = new Statement[length-1]),
-						0,
-						length-1);
-					}
-					if (constructor.constructorCall == null){ // add implicit constructor call
-						constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
-					}
+			if (this.methodDeclaration instanceof ConstructorDeclaration constructor) {
+				// See if the recovered constructor needs an injected constructor call
+				int length = constructor.statements != null ? constructor.statements.length : 0;
+				Parser parser = parser();
+				CompilerOptions options = parser != null ? parser.options : null;
+				constructor.buildBody(constructor.statements, 0, length, options);
 			}
 		}
 	} else {

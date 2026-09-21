@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
@@ -60,6 +61,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_27  = 0x1000000;
 	public static final int F_28  = 0x2000000;
 	public static final int NUM_VERSIONS = 21;
+
 	/** Should be adopted if {@link CompilerOptions#getFirstSupportedJdkLevel()} changes */
 	public static final int FIRST_SUPPORTED_JAVA_VERSION = F_1_8;
 
@@ -97,7 +99,10 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE26Plus = false;
 	protected static boolean isJRE27Plus = false;
 	protected static boolean isJRE28Plus = false;
+
 	protected static boolean reflectNestedClassUseDollar;
+
+	public static Predicate<Class<?>> testClassFilter;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
 		new int[] {F_1_8, ClassFileConstants.MAJOR_VERSION_1_8},
@@ -196,6 +201,9 @@ public class AbstractCompilerTest extends TestCase {
 	 * @return built test suite (see {@link TestSuite}
 	 */
 	private static Test buildComplianceTestSuite(List testClasses, Class setupClass, long complianceLevel) {
+		if (testClassFilter != null) {
+			testClasses = testClasses.stream().filter(testClassFilter).toList();
+		}
 		// call the setup constructor with the compliance level
 		TestSuite complianceSuite = null;
 		try {
@@ -365,6 +373,7 @@ public class AbstractCompilerTest extends TestCase {
 			if (spec > Integer.parseInt(CompilerOptions.getLatestVersion())) {
 				specVersion = CompilerOptions.getLatestVersion();
 			}
+
 			isJRE28Plus = CompilerOptions.VERSION_28.equals(specVersion);
 			isJRE27Plus = isJRE28Plus || CompilerOptions.VERSION_27.equals(specVersion);
 			isJRE26Plus = isJRE27Plus || CompilerOptions.VERSION_26.equals(specVersion);

@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.Jav
 import org.eclipse.jdt.core.util.ClassFormatException;
 
 @SuppressWarnings({ "rawtypes" })
+@RunJavac
 public class PolymorphicSignatureTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "testBug515863" };
@@ -26,19 +27,6 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 	public PolymorphicSignatureTest(String name) {
 		super(name);
 	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

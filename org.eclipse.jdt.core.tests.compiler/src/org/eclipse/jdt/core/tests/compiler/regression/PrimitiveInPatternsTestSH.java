@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @PreviewTest
+@RunJavac
 public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 28 -Xlint:-preview");
@@ -91,19 +92,6 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	public PrimitiveInPatternsTestSH(String testName) {
 		super(testName);
 	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
@@ -2839,7 +2827,11 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 //		runner.vmArguments = VMARGS; not passing --enable-preview to java
 		runner.expectedErrorString =
 				"""
+<<<<<<< HEAD
 				java.lang.UnsupportedClassVersionError: Preview features are not enabled for Test (class file version 72.65535). Try running with '--enable-preview'
+=======
+				java.lang.UnsupportedClassVersionError: Preview features are not enabled for Test (class file version 71.65535). Try running with '--enable-preview'
+>>>>>>> refs/remotes/real-origin/master
 				""";
 		runner.runConformTest();
 	}

@@ -1384,6 +1384,10 @@ public class InferenceContext18 {
 				tmpBoundSet.addBound(new TypeBound(variable, yj, ReductionResult.SAME), this.environment);
 			toResolveSet.remove(variable);
 		}
+		for (CaptureBinding18 yj : ys) {
+			if (yj != null && !checkUpperVsLowerBounds(yj))
+				return false;
+		}
 		return true;
 	}
 
@@ -1431,16 +1435,20 @@ public class InferenceContext18 {
 			TypeBinding[] glbs = Scope.greaterLowerBound(substitutedUpperBounds, this.scope, this.environment);
 			if (glbs == null)
 				return false;
-			if (typeVariable.lowerBound != null) {
-				for (TypeBinding glb : glbs) {
-					if (!typeVariable.lowerBound.isCompatibleWith(glb))
-						return false; // not well-formed
-				}
-			}
 			// for deterministic results sort this array by id:
 			sortTypes(glbs);
 			if (!typeVariable.setUpperBounds(glbs, this.object))
 				return false;
+		}
+		return true;
+	}
+
+	boolean checkUpperVsLowerBounds(CaptureBinding18 typeVariable) {
+		if (typeVariable.lowerBound != null) {
+			for (TypeBinding upper : typeVariable.upperBounds) {
+				if (!typeVariable.lowerBound.isCompatibleWith(upper))
+					return false; // not well-formed
+			}
 		}
 		return true;
 	}

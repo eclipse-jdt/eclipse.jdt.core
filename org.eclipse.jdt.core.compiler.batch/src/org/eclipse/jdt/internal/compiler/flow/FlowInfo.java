@@ -212,11 +212,6 @@ public abstract boolean isDefinitelyUnknown(LocalVariableBinding local);
 public abstract boolean hasNullInfoFor(LocalVariableBinding local);
 
 	/**
-	 * Check if this flow info has any relevant inits.
-	 */
-	public abstract boolean hasInits();
-
-	/**
 	 * Check status of potential assignment for a field.
 	 */
 	 abstract public boolean isPotentiallyAssigned(FieldBinding field);

@@ -58,6 +58,7 @@ public class MethodScope extends BlockScope {
 	/* By specifying {@code -Djdt.flow.test.extra=true} tests can push all flow analysis into the extra bits of UnconditionalFlowInfo. */
 	private static int baseAnalysisIndex = 0;
 	public int analysisIndex = baseAnalysisIndex; // for setting flow-analysis id
+	public int firstLocalIndex; // analysis index of the first local/argument in this method scope.
 	public boolean isPropagatingInnerClassEmulation;
 
 	// for local variables table attributes

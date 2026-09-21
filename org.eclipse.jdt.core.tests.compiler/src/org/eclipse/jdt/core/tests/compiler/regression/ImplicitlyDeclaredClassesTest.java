@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.junit.Test;
 
+@RunJavac
 public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static boolean optimizeStringLiterals = false;
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 25");
@@ -42,19 +44,6 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public ImplicitlyDeclaredClassesTest(String testName){
 		super(testName);
 	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
- 	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
 
 	public static Class<?> testClass() {
 		return ImplicitlyDeclaredClassesTest.class;
@@ -464,6 +453,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"This method has a constructor name\n" +
 				"----------\n";
 		runner.customOptions = getCompilerOptions();
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
 		runner.runWarningTest();
 	}
 }

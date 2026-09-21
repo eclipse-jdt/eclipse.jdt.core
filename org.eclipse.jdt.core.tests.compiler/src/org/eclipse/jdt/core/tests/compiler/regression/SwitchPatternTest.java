@@ -24,7 +24,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue5080_009"};
+//		TESTS_NAMES = new String[] { "testIssue5080_040"};
 	}
 
 	private static String previewLevel = "23";
@@ -10926,5 +10926,582 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"""
 				},
 				"7"); //$NON-NLS-1$
+	}
+	public void testIssue5080_027() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					abstract sealed class A1 permits B1, C1 {}
+					final class B1 extends A1 {}
+					final class C1 extends A1 {}
+
+					abstract sealed class A2 permits B2, C2 {}
+					final class B2 extends A2 {}
+					final class C2 extends A2 {}
+
+					abstract sealed class A3 permits B3, C3 {}
+					final class B3 extends A3 {}
+					final class C3 extends A3 {}
+
+					record R(A1 one, A2 two, A3 three) {}
+
+					public class X {
+						int test(R r) {
+							return switch(r) {
+								case R(C1 _, C2 _, B3 _) -> 1;
+								case R(B1 _, C2 _, B3 _) -> 2;
+								case R(B1 _, B2 _, A3 _) -> 3;
+								case R(A1 _, C2 _, C3 _) -> 4;
+								case R(C1 _, B2 _, C3 _) -> 5;
+								case R(C1 _, B2 _, B3 _) -> 6;
+							};
+						}
+
+						public static void main(String[] args) {
+							X x = new X();
+							System.out.println(x.test(new R(new C1(), new C2(), new B3())));
+							System.out.println(x.test(new R(new B1(), new C2(), new B3())));
+							System.out.println(x.test(new R(new B1(), new B2(), new B3())));
+							System.out.println(x.test(new R(new C1(), new C2(), new C3())));
+							System.out.println(x.test(new R(new C1(), new B2(), new C3())));
+							System.out.println(x.test(new R(new C1(), new B2(), new B3())));
+						}
+					}
+				"""
+				},
+				"1\n" +
+				"2\n" +
+				"3\n" +
+				"4\n" +
+				"5\n" +
+				"6");
+	}
+	public void testIssue5080_028() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+						abstract sealed class A permits B, C {}
+						final class B extends A {}
+						final class C extends A {}
+
+						record R(A one, A two, A three) {}
+
+						public class X {
+
+
+							int test(R r) {
+								return switch(r) {
+									case R(C _, C _, B _) -> 1;
+									case R(B _, C _, B _) -> 2;
+									case R(A _, C _, C _) -> 3;
+									case R(C _, B _, C _) -> 4;
+									case R(C _, B _, B _) -> 5;
+									case R(B _, B _, A _) -> 6;
+								};
+							}
+							public static void main(String[] args) {
+								X x = new X();
+								System.out.println(x.test(new R(new C(), new C(), new B())));
+								System.out.println(x.test(new R(new B(), new C(), new B())));
+								System.out.println(x.test(new R(new B(), new C(), new C())));
+								System.out.println(x.test(new R(new C(), new B(), new C())));
+								System.out.println(x.test(new R(new C(), new B(), new B())));
+								System.out.println(x.test(new R(new B(), new B(), new B())));
+							}
+						}
+					"""
+				},
+				"1\n" +
+				"2\n" +
+				"3\n" +
+				"4\n" +
+				"5\n" +
+				"6");
+	}
+
+	public void testIssue5080_029() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+						abstract sealed class A1 permits B1, C1 {}
+						final class B1 extends A1 {}
+						final class C1 extends A1 {}
+
+						abstract sealed class A2 permits B2, C2 {}
+						final class B2 extends A2 {}
+						final class C2 extends A2 {}
+
+						abstract sealed class A3 permits B3, C3 {}
+						final class B3 extends A3 {}
+						final class C3 extends A3 {}
+
+						record R(A1 one, A2 two, A3 three) {}
+
+						record R2(R r1) {}
+
+						public class X {
+							int test(R2 r) {
+								return switch(r) {
+									case R2(R(C1 _, C2 _, B3 _)) -> 1;
+									case R2(R(B1 _, C2 _, B3 _)) -> 2;
+									case R2(R(B1 _, B2 _, B3 _)) -> 3;
+									case R2(R(A1 _, C2 _, C3 _)) -> 4;
+									case R2(R(C1 _, B2 _, C3 _)) -> 5;
+									case R2(R(C1 _, B2 _, B3 _)) -> 6;
+								};
+							}
+
+							public static void main(String[] args) {
+								X x = new X();
+								System.out.println(x.test(new R2(new R(new C1(), new C2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new B1(), new C2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new B1(), new B2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new C2(), new C3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new B2(), new C3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new B2(), new B3()))));
+							}
+						}
+					"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 19)\n" +
+				"	return switch(r) {\n" +
+				"	              ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n");
+	}
+	public void testIssue5080_030() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+						abstract sealed class A1 permits B1, C1 {}
+						final class B1 extends A1 {}
+						final class C1 extends A1 {}
+
+						abstract sealed class A2 permits B2, C2 {}
+						final class B2 extends A2 {}
+						final class C2 extends A2 {}
+
+						abstract sealed class A3 permits B3, C3 {}
+						final class B3 extends A3 {}
+						final class C3 extends A3 {}
+
+						record R(A1 one, A2 two, A3 three) {}
+
+						record R2(R r1) {}
+
+						public class X {
+							int test(R2 r) {
+								return switch(r) {
+									case R2(R(C1 _, C2 _, B3 _)) -> 1;
+									case R2(R(B1 _, C2 _, B3 _)) -> 2;
+									case R2(R(B1 _, B2 _, B3 _)) -> 3;
+									case R2(R(B1 _, B2 _, C3 _)) -> 3;
+									case R2(R(A1 _, C2 _, C3 _)) -> 4;
+									case R2(R(C1 _, B2 _, C3 _)) -> 5;
+									case R2(R(C1 _, B2 _, B3 _)) -> 6;
+								};
+							}
+
+							public static void main(String[] args) {
+								X x = new X();
+								System.out.println(x.test(new R2(new R(new C1(), new C2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new B1(), new C2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new B1(), new B2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new C2(), new C3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new B2(), new C3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new B2(), new B3()))));
+							}
+						}
+					"""
+				},
+				"1\n" +
+				"2\n" +
+				"3\n" +
+				"4\n" +
+				"5\n" +
+				"6");
+	}
+	public void testIssue5080_031() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+						abstract sealed class A1 permits B1, C1 {}
+						final class B1 extends A1 {}
+						final class C1 extends A1 {}
+
+						abstract sealed class A2 permits B2, C2 {}
+						final class B2 extends A2 {}
+						final class C2 extends A2 {}
+
+						abstract sealed class A3 permits B3, C3 {}
+						final class B3 extends A3 {}
+						final class C3 extends A3 {}
+
+						record R(A1 one, A2 two, A3 three) {}
+
+						record R2(R r1) {}
+
+						public class X {
+							int test(R2 r) {
+								return switch(r) {
+									case R2(R(C1 _, C2 _, B3 _)) -> 1;
+									case R2(R(B1 _, C2 _, B3 _)) -> 2;
+									case R2(R(B1 _, B2 _, A3 _)) -> 3;
+									case R2(R(A1 _, C2 _, C3 _)) -> 4;
+									case R2(R(C1 _, B2 _, C3 _)) -> 5;
+									case R2(R(C1 _, B2 _, B3 _)) -> 6;
+								};
+							}
+
+							public static void main(String[] args) {
+								X x = new X();
+								System.out.println(x.test(new R2(new R(new C1(), new C2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new B1(), new C2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new B1(), new B2(), new B3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new C2(), new C3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new B2(), new C3()))));
+								System.out.println(x.test(new R2(new R(new C1(), new B2(), new B3()))));
+							}
+						}
+					"""
+				},
+				"1\n" +
+				"2\n" +
+				"3\n" +
+				"4\n" +
+				"5\n" +
+				"6");
+	}
+	public void testIssue5080_032() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						public static int test1(Root r) {
+				        return switch (r) {
+				            case Root(R2(R1 _), R2(R1 _)) -> 0;
+				            case Root(R2(R1 _), R2(R2 _)) -> 1;
+				            case Root(R2(R2 _), R2(R1 _)) -> 2;
+				            case Root(R2(R2 _), R2 _) -> 3;
+				        };
+				    }
+				    sealed interface Base permits R1, R2{}
+				    record R1() implements Base {}
+				    record R2(Base b1) implements Base {}
+				    record Root(R2 b2, R2 b3) {}
+
+					public static void main(String[] args) {
+						System.out.println(test1(new Root(new R2(new R1()), new R2(new R1()))));
+						System.out.println(test1(new Root(new R2(new R1()), new R2(new R2(new R1())))));
+						System.out.println(test1(new Root(new R2(new R2(new R1())), new R2(new R1()))));
+						System.out.println(test1(new Root(new R2(new R2(new R1())), new R2(new R2(new R1())))));
+					}
+				}
+			"""
+		},
+		"0\n" +
+		"1\n" +
+		"2\n" +
+		"3");
+}
+	public void testIssue5080_033() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						public static int test1(Root r) {
+					        return switch (r) {
+					            case Root(R2(R1 _), R2(R1 _)) -> 0;
+					            case Root(R2(R1 _), R2 _) -> 0;
+					            case Root(R2(R2 _), R2 _) -> 0;
+					        };
+						}
+					    sealed interface Base permits R1, R2{}
+					    record R1() implements Base {}
+					    record R2(Base b1) implements Base {}
+					    record Root(R2 b2,  R2 b3) {}
+
+						public static void main(String[] args) {
+							System.out.println(test1(new Root(new R2(new R1()),new R2(new R1()))));
+							System.out.println(test1(new Root(new R2(new R1()),new R2(new R2(new R1())))));
+						}
+				    }
+			"""
+		},
+		"0\n" +
+		"0");
+}
+	public void testIssue5080_034() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runNegativeTest(
+				new String[] {
+					"X.java",
+				"""
+				public class X {
+
+					sealed interface I permits A, B {}
+					record A() implements I {}
+					record B() implements I {}
+
+					sealed interface J permits C, D {}
+					record C(I i1) implements J {}
+					record D(I i1) implements J {}
+
+					record R(J i1, J j2) {}
+					public static long toIndex(R r) {
+						return switch (r) {
+						case R(C(A _), C(I _)) -> 0;
+						case R(C(I _), D(I _)) -> 1;
+						case R(D(I _), C(I _)) -> 2;
+						case R(D(I _), D(I _)) -> 3;
+						};
+					}
+					public static void main(String[] args) {
+						System.out.println(toIndex(new R(new C(new A()), new C(new A()))));
+						System.out.println(toIndex(new R(new C(new A()), new D(new A()))));
+						System.out.println(toIndex(new R(new D(new A()), new C(new A()))));
+						System.out.println(toIndex(new R(new D(new A()), new D(new A()))));
+					}
+				}
+           		"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 13)\n" +
+				"	return switch (r) {\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+	public void testIssue5080_035() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runNegativeTest(
+				new String[] {
+					"X.java",
+						"""
+						public class X {
+							public static int test1(Root r) {
+					        return switch (r) {
+					            case Root(R2(R1 _), R2(R1 _), R2(R1 _)) -> 0;
+					    //      case Root(R2(R1 _), R2 _, R2(R1 _)) -> 1;
+					            case Root(R2(R1 _), R2 _, R2(R2 _)) -> 2;
+					            case Root(R2(R2 _), R2 _, R2 _) -> 3;
+					        };
+					    }
+					    sealed interface Base permits R1, R2{}
+					    record R1() implements Base {}
+					    record R2(Base b1) implements Base {}
+					    record Root(R2 b2,  R2 b3, R2 b4) {}
+
+						public static void main(String[] args) {
+							System.out.println(test1(new Root(new R2(new R1()),new R2(new R1()) ,new R2(new R1()))));
+						}
+					}
+            		"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 3)\n" +
+				"	return switch (r) {\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+	public void testIssue5080_036() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runNegativeTest(
+				new String[] {
+					"X.java",
+						"""
+						public class X {
+							public static int test1(Root r) {
+					        return switch (r) {
+					            case Root(R2(R1 _), R2(R1 _), R2(R1 _)) -> 0;
+					            case Root(R2(R1 _), R2 _, R2(R1 _)) -> 1;
+					  //        case Root(R2(R1 _), R2 _, R2(R2 _)) -> 2;
+					            case Root(R2(R2 _), R2 _, R2 _) -> 3;
+					        };
+					    }
+					    sealed interface Base permits R1, R2{}
+					    record R1() implements Base {}
+					    record R2(Base b1) implements Base {}
+					    record Root(R2 b2,  R2 b3, R2 b4) {}
+
+						public static void main(String[] args) {
+							System.out.println(test1(new Root(new R2(new R1()),new R2(new R1()) ,new R2(new R1()))));
+						}
+					}
+            		"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 3)\n" +
+				"	return switch (r) {\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+	public void testIssue5080_037() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runNegativeTest(
+				new String[] {
+					"X.java",
+						"""
+						public class X {
+							public static int test1(Root r) {
+					        return switch (r) {
+					            case Root(R2(R1 _), R2(R1 _), R2(R1 _)) -> 0;
+					            case Root(R2(R1 _), R2 _, R2(R1 _)) -> 1;
+					            case Root(R2(R1 _), R2 _, R2(R2 _)) -> 2;
+					    //      case Root(R2(R2 _), R2 _, R2 _) -> 3;
+					        };
+					    }
+					    sealed interface Base permits R1, R2{}
+					    record R1() implements Base {}
+					    record R2(Base b1) implements Base {}
+					    record Root(R2 b2,  R2 b3, R2 b4) {}
+
+						public static void main(String[] args) {
+							System.out.println(test1(new Root(new R2(new R1()),new R2(new R1()) ,new R2(new R1()))));
+						}
+					}
+            		"""
+				},
+				"----------\n" + //$NON-NLS-1$
+				"1. ERROR in X.java (at line 3)\n" +
+				"	return switch (r) {\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n"); //$NON-NLS-1$
+	}
+	public void testIssue5080_038() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return; // "_" patterns are only supported in JDK 22 and later
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+						"""
+						public class X {
+							public static int test1(Root r) {
+					        return switch (r) {
+					            case Root(R2(R1 _), R2(R1 _), R2(R1 _)) -> 0;
+					            case Root(R2(R1 _), R2 _, R2(R1 _)) -> 1;
+					            case Root(R2(R1 _), R2 _, R2(R2 _)) -> 2;
+					            case Root(R2(R2 _), R2 _, R2 _) -> 3;
+					        };
+					    }
+					    sealed interface Base permits R1, R2{}
+					    record R1() implements Base {}
+					    record R2(Base b1) implements Base {}
+					    record Root(R2 b2,  R2 b3, R2 b4) {}
+
+						public static void main(String[] args) {
+							System.out.println(test1(new Root(new R2(new R1()),new R2(new R1()) ,new R2(new R1()))));
+						}
+					}
+            		"""
+				},
+				"0"); //$NON-NLS-1$
+	}
+
+	public void testIssue5080_039() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return;
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					sealed interface I permits J, A {}
+					sealed interface J extends I {}
+
+					final class A implements I {}
+
+					record R1() implements J {}
+					record R2(I x) {}
+
+					public class X {
+
+					    public static int foo(R2 r) {
+					        return switch (r) {
+					            case R2(A _) -> 1;
+					            case R2(R1 _) -> 0;
+					        };
+					    }
+
+					    public static void main(String argv[]) {
+					        System.out.println(X.foo(new R2(new R1())));
+					    }
+					}
+            		"""
+				},
+				"0"); //$NON-NLS-1$
+	}
+	public void testIssue5080_040() {
+		if (this.complianceLevel < ClassFileConstants.JDK22) {
+			return;
+		}
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					sealed interface I permits J, A {}
+					sealed interface J extends I {}
+
+					final class A implements I {}
+
+					record R1() implements J {}
+					record R2(I i) {}
+
+					public class X {
+
+					    public static int foo(R2 r) {
+					        return switch (r) {
+					            case R2(_)-> 0;
+					        };
+					    }
+
+					    public static void main(String argv[]) {
+					        System.out.println(X.foo(new R2(new R1())));
+					    }
+					}
+            		"""
+				},
+				"0"); //$NON-NLS-1$
 	}
 }

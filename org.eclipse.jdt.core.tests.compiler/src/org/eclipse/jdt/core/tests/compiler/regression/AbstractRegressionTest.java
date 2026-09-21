@@ -351,6 +351,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_25;
 		} else if(rawVersion.startsWith("26")) {
 			return JavaCore.VERSION_26;
+		} else if(rawVersion.startsWith("27")) {
+			return JavaCore.VERSION_27;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -613,6 +615,12 @@ static class JavacCompiler {
 					return 0100;
 				case "26.0.2":
 					return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_27) {
+			switch(rawVersion) {
+				case "27-ea", "27-beta", "27":
+					return 0000;
 			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
@@ -4187,6 +4195,9 @@ protected void runNegativeTest(
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println(this.getClass().getName()+'.'+ getName());
+		if (getClass().getAnnotation(RunJavac.class) != null) {
+			this.runJavacOptIn = true;
+		}
 		super.setUp();
 		if (this.verifier == null) {
 			this.verifier = new TestVerifier(true);
@@ -4293,6 +4304,7 @@ protected void runNegativeTest(
 			printJavacResultsSummary();
 			javacUsePathOption(" -classpath ");
 		}
+		this.runJavacOptIn = false;
 	}
 	/**
 	 * Returns the OS path to the directory that contains this plugin.

@@ -33,7 +33,9 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TagProperty;
 import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -103,6 +105,8 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 		Map savedOptions = null;
 
 		private static String SNIPPET_TAG = '@' + new String(JavadocTagConstants.TAG_SNIPPET);
+
+		protected String newline = System.lineSeparator();
 
 		public ASTConverterMarkdownSnippetTest(String name, String support, String unix) {
 			super(name);
@@ -555,7 +559,7 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 			TagElement snippetTag = getSnippetTag(javadoc);
 			List<TextElement> frags = snippetTag.fragments();
 			assertEquals("Fragments should be 1", 1, frags.size());
-			assertEquals("Incorrect text content", " 	int x = 2;", frags.get(0).getText());
+			assertEquals("Incorrect text content", " 	int x = 2;" + this.newline, frags.get(0).getText());
 		}
 	}
 
@@ -580,11 +584,9 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 			Javadoc javadoc = (Javadoc) unitComments.get(0);
 			TagElement snippetTag = getSnippetTag(javadoc);
 			List<TextElement> frags = snippetTag.fragments();
-			assertEquals("Fragments should be 4", 4, frags.size());
-			assertEquals("Incorrect text content", "", frags.get(0).getText());
-			assertEquals("Incorrect text content", " 	int a = 1;", frags.get(1).getText());
-			assertEquals("Incorrect text content", "", frags.get(2).getText());
-			assertEquals("Incorrect text content", "		int b = 2;", frags.get(3).getText());
+			assertEquals("Fragments should be 2", 2, frags.size());
+			assertEquals("Incorrect text content", " 	int a = 1;" + this.newline, frags.get(0).getText());
+			assertEquals("Incorrect text content", "		int b = 2;" + this.newline, frags.get(1).getText());
 		}
 	}
 
@@ -607,7 +609,7 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 			TagElement snippetTag = getSnippetTag(javadoc);
 			List<TextElement> frags = snippetTag.fragments();
 			assertEquals("Fragments should be 1", 1, frags.size());
-			assertEquals("Incorrect text content", "   {@code int a = 0;}", frags.get(0).getText());
+			assertEquals("Incorrect text content", "   {@code int a = 0;}" + this.newline, frags.get(0).getText());
 		}
 	}
 
@@ -634,7 +636,129 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 			Javadoc javadoc = (Javadoc) unitComments.get(0);
 			TagElement snippetTag = getSnippetTag(javadoc);
 			assertFalse("Wrong number of elements", snippetTag.fragments().size() == 5);
-			System.out.println("sasi");
+		}
+	}
+
+	public void testMarkdownSupportInlineTags5010_01() throws JavaModelException {
+		String source = """
+				/// {@snippet :
+				///   	System.out.println("Hello"); // @highlight substring="println"
+				///   	items.add("Java 18");        // @highlight substring="items.add" type="highlighted"
+				///   	System.out.println("Item: " + items.get(0)); // @highlight regex="\".*\""
+				///   	System.out.println("Item: " + items.get(0)); // @highlight regex="\".*\"" type="highlighted"
+				///   	List<String> list = new ArrayList<>(); // @link substring="ArrayList" target="java.util.ArrayList"
+				///   	List<String> list = new ArrayList<>(); // @link regex="ArrayList" target="java.util.ArrayList"
+				///   	Object obj = new Object(); // @replace substring="Object" replacement="MyClass"
+				///   	String s = "foo bar"; // @replace regex="foo" replacement="baz"
+				/// }
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_26/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+			List unitComments = compilUnit.getCommentList();
+			int size = unitComments.size();
+			assertEquals("Wrong number of comments", 1, size);
+
+			Javadoc javadoc = (Javadoc) unitComments.get(0);
+			TagElement snippetTag = getSnippetTag(javadoc);
+			assertNotNull("Snippet tag should not be null", snippetTag);
+
+			List<TagElement> snippetFrags = snippetTag.fragments();
+			assertEquals("Invalid snippet tag frags", 8, snippetFrags.size());
+
+			TagElement highlighSubstring 					= snippetFrags.get(0);
+			TagElement highlightSubstringTypeHighlighted 	= snippetFrags.get(1);
+			TagElement highlightRegex 						= snippetFrags.get(2);
+			TagElement highlightRegexTypeHighlighted 		= snippetFrags.get(3);
+			TagElement linkSubstring 						= snippetFrags.get(4);
+			TagElement linkRegex 							= snippetFrags.get(5);
+			TagElement replaceSubstring 					= snippetFrags.get(6);
+			TagElement replaceRegex 						= snippetFrags.get(7);
+
+			// System.out.println("Hello"); // @highlight substring="println"
+			TextElement highlighSubstringChild = (TextElement) (highlighSubstring.fragments()).get(0);
+			List<TagProperty> highlighSubstringTagProperty = highlighSubstring.tagProperties();
+			assertEquals("Incorrect optional Tag", "@highlight", highlighSubstring.getTagName());
+			assertEquals("Incorrect Child TextElement", "   	System.out.println(\"Hello\");" + this.newline, highlighSubstringChild.getText());
+			assertEquals("Incorrect TagProperty name", "substring", highlighSubstringTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "println", highlighSubstringTagProperty.get(0).getStringValue());
+
+			// items.add("Java 18");        // @highlight substring="items.add" type="highlighted"
+			TextElement highlightSubstringTypeHighlightedChild = (TextElement) (highlightSubstringTypeHighlighted.fragments()).get(0);
+			List<TagProperty> highlightSubstringTypeHighlightedTagProperty = highlightSubstringTypeHighlighted.tagProperties();
+			assertEquals("Incorrect optional Tag", "@highlight", highlightSubstringTypeHighlighted.getTagName());
+			assertEquals("Incorrect Child TextElement", "   	items.add(\"Java 18\");" + this.newline, highlightSubstringTypeHighlightedChild.getText());
+			assertEquals("Incorrect number of TagProperties", 2, highlightSubstringTypeHighlightedTagProperty.size());
+			assertEquals("Incorrect TagProperty name", "type", highlightSubstringTypeHighlightedTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "highlighted", highlightSubstringTypeHighlightedTagProperty.get(0).getStringValue());
+			assertEquals("Incorrect TagProperty name", "substring", highlightSubstringTypeHighlightedTagProperty.get(1).getName());
+			assertEquals("Incorrect TagProperty string_value", "items.add", highlightSubstringTypeHighlightedTagProperty.get(1).getStringValue());
+
+			// System.out.println("Item: " + items.get(0)); // @highlight regex="\".*\""
+			TextElement highlightRegexChild = (TextElement) (highlightRegex.fragments()).get(0);
+			List<TagProperty> highlightRegexTagProperty = highlightRegex.tagProperties();
+			assertEquals("Incorrect optional Tag", "@highlight", highlightRegex.getTagName());
+			assertEquals("Incorrect Child TextElement", "   	System.out.println(\"Item: \" + items.get(0));" + this.newline, highlightRegexChild.getText());
+			assertEquals("Incorrect TagProperty name", "regex", highlightRegexTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "\"\"", highlightRegexTagProperty.get(0).getStringValue());
+
+			// System.out.println("Item: " + items.get(0)); // @highlight regex="\".*\"" type="highlighted"
+			TextElement highlightRegexTypeHighlightedChild = (TextElement) (highlightRegexTypeHighlighted.fragments()).get(0);
+			List<TagProperty> highlightRegexTypeHighlightedTagProperty = highlightRegexTypeHighlighted.tagProperties();
+			assertEquals("Incorrect optional Tag", "@highlight", highlightRegexTypeHighlighted.getTagName());
+			assertEquals("Incorrect Child TextElement", "   	System.out.println(\"Item: \" + items.get(0));" + this.newline, highlightRegexTypeHighlightedChild.getText());
+			assertEquals("Incorrect TagProperty name", "regex", highlightRegexTypeHighlightedTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "\"\"", highlightRegexTypeHighlightedTagProperty.get(0).getStringValue());
+
+			// List<String> list = new ArrayList<>(); // @link substring="ArrayList" target="java.util.ArrayList"
+			TextElement linkSubstringChild = (TextElement) (linkSubstring.fragments()).get(0);
+			List<TagProperty> linkSubstringTagProperty = linkSubstring.tagProperties();
+			QualifiedName qualifiedName = (QualifiedName) linkSubstringTagProperty.get(1).getNodeValue();
+			assertEquals("Incorrect optional Tag", "@link", linkSubstring.getTagName());
+			assertEquals("Incorrect Child TextElement", "   	List<String> list = new ArrayList<>();" + this.newline, linkSubstringChild.getText());
+			assertEquals("Incorrect number of TagProperties", 2, linkSubstringTagProperty.size());
+			assertEquals("Incorrect TagProperty name", "substring", linkSubstringTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "ArrayList", linkSubstringTagProperty.get(0).getStringValue());
+			assertEquals("Incorrect TagProperty name", "target", linkSubstringTagProperty.get(1).getName());
+			assertEquals("Incorrect TagProperty string_value", null, linkSubstringTagProperty.get(1).getStringValue());
+			assertTrue("incorrect SimpleName", qualifiedName.getName().getNodeType() == ASTNode.SIMPLE_NAME && qualifiedName.getName().toString().equals("ArrayList"));
+			assertTrue("incorrect Qualifier", qualifiedName.getQualifier().getNodeType() == ASTNode.QUALIFIED_NAME && qualifiedName.getQualifier().toString().equals("java.util"));
+
+			// List<String> list = new ArrayList<>(); // @link regex="ArrayList" target="java.util.ArrayList"
+			TextElement linkRegexChild = (TextElement) (linkRegex.fragments()).get(0);
+			List<TagProperty> linkRegexTagProperty = linkRegex.tagProperties();
+			qualifiedName = (QualifiedName) linkRegexTagProperty.get(1).getNodeValue();
+			assertEquals("Incorrect optional Tag", "@link", linkRegex.getTagName());
+			assertEquals("Incorrect Child TextElement", "   	List<String> list = new ArrayList<>();" + this.newline, linkRegexChild.getText());
+			assertEquals("Incorrect number of TagProperties", 2, linkRegexTagProperty.size());
+			assertEquals("Incorrect TagProperty name", "regex", linkRegexTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "ArrayList", linkRegexTagProperty.get(0).getStringValue());
+			assertEquals("Incorrect TagProperty name", "target", linkRegexTagProperty.get(1).getName());
+			assertEquals("Incorrect TagProperty string_value", null, linkRegexTagProperty.get(1).getStringValue());
+			assertTrue("incorrect SimpleName", qualifiedName.getName().getNodeType() == ASTNode.SIMPLE_NAME && qualifiedName.getName().toString().equals("ArrayList"));
+			assertTrue("incorrect Qualifier", qualifiedName.getQualifier().getNodeType() == ASTNode.QUALIFIED_NAME && qualifiedName.getQualifier().toString().equals("java.util"));
+
+			// Object obj = new Object(); // @replace substring="Object" replacement="MyClass"
+			TextElement replaceSubstringChild = (TextElement) (replaceSubstring.fragments()).get(0);
+			List<TagProperty> replaceSubstringTagProperty = replaceSubstring.tagProperties();
+			assertEquals("Incorrect TextElement", "   	Object obj = new Object();" + this.newline, replaceSubstringChild.getText());
+			assertEquals("Incorrect number of TagProperties", 2, replaceSubstringTagProperty.size());
+			assertEquals("Incorrect TagProperty name", "replacement", replaceSubstringTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "MyClass", replaceSubstringTagProperty.get(0).getStringValue());
+			assertEquals("Incorrect TagProperty name", "substring", replaceSubstringTagProperty.get(1).getName());
+			assertEquals("Incorrect TagProperty string_value", "Object", replaceSubstringTagProperty.get(1).getStringValue());
+
+			// String s = "foo bar"; // @replace regex="foo" replacement="baz"
+			TextElement replaceRegexChild = (TextElement) (replaceRegex.fragments()).get(0);
+			List<TagProperty> replaceRegexTagProperty = replaceRegex.tagProperties();
+			assertEquals("Incorrect TextElement", "   	String s = \"foo bar\";" + this.newline, replaceRegexChild.getText());
+			assertEquals("Incorrect number of TagProperties", 2, replaceRegexTagProperty.size());
+			assertEquals("Incorrect TagProperty name", "regex", replaceRegexTagProperty.get(0).getName());
+			assertEquals("Incorrect TagProperty string_value", "foo", replaceRegexTagProperty.get(0).getStringValue());
+			assertEquals("Incorrect TagProperty name", "replacement", replaceRegexTagProperty.get(1).getName());
+			assertEquals("Incorrect TagProperty string_value", "baz", replaceRegexTagProperty.get(1).getStringValue());
 		}
 	}
 }
