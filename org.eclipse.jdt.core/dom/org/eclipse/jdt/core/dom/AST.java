@@ -560,7 +560,7 @@ public final class AST {
 	 * up to and including Java SE 27(aka JDK 27).
 	 * </p>
 	 *
-	 * @since 3.47
+	 * @since 3.48
 	 */
 	public static final int JLS27 = 27;
 	/**
@@ -575,7 +575,7 @@ public final class AST {
 	 * up to and including Java SE 28(aka JDK 28).
 	 * </p>
 	 *
-	 * @since 3.47
+	 * @since 3.48
 	 */
 	public static final int JLS28 = 28;
 	/**
