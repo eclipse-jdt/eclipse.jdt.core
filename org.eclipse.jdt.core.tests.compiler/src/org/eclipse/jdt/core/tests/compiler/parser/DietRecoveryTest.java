@@ -682,7 +682,7 @@ public void test05() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    System.out.println();\n" +
-		(this.complianceLevel < ClassFileConstants.JDK16
+		(this.fetchComplianceLevel() < ClassFileConstants.JDK16
 		?
 		"    new baz() {\n" +
 		"    };\n"
@@ -6907,7 +6907,7 @@ public void test117() {
 		"        super();\n" +
 		"      }\n" +
 		"    }\n" +
-		(this.complianceLevel < ClassFileConstants.JDK16
+		(this.fetchComplianceLevel() < ClassFileConstants.JDK16
 		?
 		"    new foo2() {\n" +
 		"    };\n" +
@@ -6996,7 +6996,7 @@ public void test117_2() {
 		"        super();\n" +
 		"      }\n" +
 		"    }\n" +
-		(this.complianceLevel < ClassFileConstants.JDK16
+		(this.fetchComplianceLevel() < ClassFileConstants.JDK16
 		?
 		"    new foo2() {\n" +
 		"    };\n" +

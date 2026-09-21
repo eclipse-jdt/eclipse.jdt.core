@@ -1139,8 +1139,9 @@ public void test010() {
 // filling the stack
 // need to use a computed string (else this source file will get blown away
 // as well)
+@RunAlways
 public void test011() {
-	if (this.complianceLevel >= ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK9)
 		return;
 	int length = 3 * 54 * 1000;
 		// the longer the slower, but still needs to reach the limit...
@@ -1371,6 +1372,7 @@ public void _test015() {
 		JavacTestOptions.EclipseJustification.EclipseBug169017);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=350095
+@RunAlways
 public void test0016() {
 	// only run in 1.5 or above
 	StringBuilder buffer = new StringBuilder();
@@ -1441,7 +1443,7 @@ public void test0016() {
 	""");
 	String[] src = new String[] { "X.java", fileContents.toString()};
 
-	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) {
 		this.runConformTest(src, buffer.toString());
 	} else {
 		this.runNegativeTest(src,
@@ -1653,8 +1655,9 @@ public void testBug519070() {
 			},
 			"SUCCESS");
 }
+@RunAlways
 public void testIssue1164a() throws ClassFormatException, IOException {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return;
 	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
@@ -1883,8 +1886,9 @@ public void testIssue1164a() throws ClassFormatException, IOException {
 			"}";
 	checkClassFile("X", sourceCode.toString(), expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 }
+@RunAlways
 public void testIssue1164b() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return;
 	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
@@ -1958,8 +1962,9 @@ public void testIssue1164b() {
 		null,
 		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */); // transient, platform-dependent
 }
+@RunAlways
 public void testIssue1359() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return;
 
 	StringBuilder fileContents = new StringBuilder();

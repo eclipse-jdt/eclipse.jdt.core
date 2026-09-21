@@ -259,8 +259,9 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1905
 	// ECJ writes incorrect enclosing method for doubly-nested anonymous class
+	@RunAlways
 	public void testGH1905() throws Exception {
-		if (this.complianceLevel < ClassFileConstants.JDK10)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK10)
 			return;
 
 		this.runConformTest(

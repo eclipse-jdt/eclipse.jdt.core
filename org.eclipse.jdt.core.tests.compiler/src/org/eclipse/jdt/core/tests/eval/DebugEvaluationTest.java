@@ -3050,7 +3050,7 @@ public void test069() {
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
-		boolean is16Plus = 	this.complianceLevel >= ClassFileConstants.JDK16;
+		boolean is16Plus = 	this.fetchComplianceLevel() >= ClassFileConstants.JDK16;
 		if (is16Plus) {
 			assertTrue(
 					"Should get one result but got " + (requestor.resultIndex + 1),

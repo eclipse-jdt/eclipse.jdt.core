@@ -47,7 +47,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.complianceLevel = CompilerOptions.getFirstSupportedJdkLevel();
+		this.setComplianceLevel(CompilerOptions.getFirstSupportedJdkLevel());
 	}
 
 	public void test001_classTypeParameter() throws Exception {
@@ -124,7 +124,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	}
 
 	public void test003_classExtends() throws Exception {
-		this.complianceLevel = CompilerOptions.getFirstSupportedJdkLevel();
+		this.setComplianceLevel(CompilerOptions.getFirstSupportedJdkLevel());
 		String source =
 			"import java.lang.annotation.*;\n" +
 			"public class X extends @Foo @Bar(iii=34) Object implements java.io.@Bar(iii=1) Serializable {\n" +

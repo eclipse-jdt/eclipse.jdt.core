@@ -2280,6 +2280,7 @@ public void test050() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+@RunAlways
 public void test051() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -2302,7 +2303,7 @@ public void test051() {
 			"  }\n" +
 			"}\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK11 ?
+		this.fetchComplianceLevel() < ClassFileConstants.JDK11 ?
 			// in 1.8 bar(Z) is recognized as being more specific than bar(I<#RAW>)
 			"----------\n" +
 			"1. WARNING in X.java (at line 9)\n" +
@@ -2349,6 +2350,7 @@ public void test052() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
+@RunAlways
 public void test053() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -2371,7 +2373,7 @@ public void test053() {
 			"  }\n" +
 			"}\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK11 ?
+		this.fetchComplianceLevel() < ClassFileConstants.JDK11 ?
 			// in 1.8 bar(Z) is recognized as being more specific than bar(I<#RAW>)
 			"----------\n" +
 			"1. WARNING in X.java (at line 9)\n" +

@@ -427,8 +427,9 @@ public void test0014() {
 	"Cycle detected: a cycle exists in the type hierarchy between C and X\n" +
 	"----------\n");
 }
+@RunAlways
 public void testBug520874a() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/A.java",
@@ -459,8 +460,9 @@ public void testBug520874a() {
 			"Cycle detected: a cycle exists in the type hierarchy between C and A\n" +
 			"----------\n");
 }
+@RunAlways
 public void testBug520874b() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",

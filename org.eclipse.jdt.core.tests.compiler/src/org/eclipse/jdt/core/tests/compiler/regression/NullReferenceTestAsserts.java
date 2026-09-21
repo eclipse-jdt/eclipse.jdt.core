@@ -172,8 +172,9 @@ protected Map getCompilerOptions() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575a() throws IOException {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	this.runConformTest(
 			new String[] {
@@ -192,8 +193,9 @@ public void testBug127575a() throws IOException {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575b() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -219,8 +221,9 @@ public void testBug127575b() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575c() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -246,8 +249,9 @@ public void testBug127575c() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575d() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -284,8 +288,9 @@ public void testBug127575d() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575e() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -310,8 +315,9 @@ public void testBug127575e() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575e_1() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -343,8 +349,9 @@ public void testBug127575e_1() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575e_2() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -369,8 +376,9 @@ public void testBug127575e_2() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@RunAlways
 public void testBug127575f() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -402,8 +410,9 @@ public void testBug127575f() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // do warn always false comparisons even inside org.eclipse.core.runtime.Assert.isLegal
+@RunAlways
 public void testBug127575g() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -442,8 +451,9 @@ public void testBug127575g() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
+@RunAlways
 public void testBug127575h() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -516,8 +526,9 @@ public void testBug127575h() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
+@RunAlways
 public void testBug127575i() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -557,8 +568,9 @@ public void testBug127575i() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings in a looping context,
 // but this doesn't affect the downstream info.
+@RunAlways
 public void testBug127575j() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -633,8 +645,9 @@ public void testBug127575j() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings in a finally context,
 // but this doesn't affect the downstream info.
+@RunAlways
 public void testBug127575k() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -712,8 +725,9 @@ public void testBug127575k() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // The condition of org.eclipse.core.runtime.Assert.isLegal is considered always true
 // and alters the following analysis suitably.
+@RunAlways
 public void testBug127575l() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -795,8 +809,9 @@ public void testBug127575l() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // NPE warnings should be given inside org.eclipse.core.runtime.Assert.isLegal too
+@RunAlways
 public void testBug127575m() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -835,8 +850,9 @@ public void testBug127575m() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // always false comparison in Assert.isLegal in loop should be warned against
+@RunAlways
 public void testBug127575n() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -874,8 +890,9 @@ public void testBug127575n() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // "redundant null check" in Assert.isLegal in loop should not be warned against
+@RunAlways
 public void testBug127575o() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -975,8 +992,9 @@ public void testBug382069a() throws IOException {
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // org.eclipse.core.runtime.Assert.isNotNull
+@RunAlways
 public void testBug382069b() {
-	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
+	if (RUN_JAVAC && this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
 	this.runConformTest(
 		new String[] {

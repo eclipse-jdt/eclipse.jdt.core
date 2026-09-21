@@ -7210,8 +7210,9 @@ public void testBug540631() {
 		};
 	runner.runConformTest();
 }
+@RunAlways
 public void testBug562324() {
-	if (this.complianceLevel < ClassFileConstants.JDK11)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return; // uses 'var'
 	runConformTest(
 		new String[] {
@@ -8467,9 +8468,10 @@ public void testBug576252() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2065
 // Eclipse compiler incorrectly reports unhandled exceptions on lamba code
+@RunAlways
 public void testIssue2065() {
 
-	if (this.complianceLevel < ClassFileConstants.JDK10)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10)
 		return;
 
 	this.runConformTest(
@@ -8566,8 +8568,9 @@ public void testGHIssue2302() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2096
 // Textual problem indicator goes wild with lamda
+@RunAlways
 public void testGHIssue2096() {
-	if (this.complianceLevel < ClassFileConstants.JDK17)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 		return; // just to standardize messages, we skip below 17.
     this.runNegativeTest(
             new String[] {
@@ -8661,8 +8664,9 @@ public void testIssue3798() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@RunAlways
 public void testIssue3869() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
       new String[] {
@@ -8696,8 +8700,9 @@ public void testIssue3869() {
 
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 //Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@RunAlways
 public void testIssue3869_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
 		new String[] {
@@ -8731,8 +8736,9 @@ public void testIssue3869_2() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@RunAlways
 public void testIssue3869_3() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
    new String[] {
@@ -8765,8 +8771,9 @@ public void testIssue3869_3() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@RunAlways
 public void testIssue3869_3_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
 		new String[] {
@@ -8800,8 +8807,9 @@ public void testIssue3869_3_1() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@RunAlways
 public void testIssue3869_4() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
 		new String[] {
@@ -8835,8 +8843,9 @@ public void testIssue3869_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@RunAlways
 public void testIssue3869_5() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
 		new String[] {
@@ -8867,8 +8876,9 @@ public void testIssue3869_5() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@RunAlways
 public void testIssue3869_6() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
 		new String[] {
@@ -8901,6 +8911,7 @@ public void testIssue3869_6() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4204
 // negative testing that the synthetic method - access - not present in the class declaring the private method accessed by a nestmate
+@RunAlways
 public void testIssue4204() throws Exception {
 
 	this.runConformTest(
@@ -8939,7 +8950,7 @@ public void testIssue4204() throws Exception {
 			},
 			"Private method called with 42");
 
-	if (this.complianceLevel >= ClassFileConstants.JDK11) {
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK11) {
 		String unExpectedPartialOutput = "access$";
 		verifyNegativeClassFile(unExpectedPartialOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	} else {

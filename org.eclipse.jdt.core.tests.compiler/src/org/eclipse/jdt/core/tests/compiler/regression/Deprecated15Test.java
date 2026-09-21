@@ -32,10 +32,11 @@ public Deprecated15Test(String name) {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
+@RunAlways
 public void test001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
-	boolean isJDK9 = this.complianceLevel >= ClassFileConstants.JDK9;
+	boolean isJDK9 = this.fetchComplianceLevel() >= ClassFileConstants.JDK9;
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",

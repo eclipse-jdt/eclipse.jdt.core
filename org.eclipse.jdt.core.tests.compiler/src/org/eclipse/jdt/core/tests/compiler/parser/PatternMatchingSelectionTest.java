@@ -232,7 +232,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1568
 	// Current text selection cannot be opened in an editor #1568
 	public void testGH1568() {
-		if (this.complianceLevel < ClassFileConstants.JDK17)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 			return;
 		String string =  "@SuppressWarnings(\"preview\")\n"
 						+ "public class X {\n"

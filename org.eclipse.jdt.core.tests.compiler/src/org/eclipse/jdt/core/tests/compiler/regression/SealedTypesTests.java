@@ -4903,9 +4903,10 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
+	@RunAlways
 	public void testBug566846_001() {
 		Map options = getCompilerOptions();
-		String error = 	this.complianceLevel >= ClassFileConstants.JDK25 ?
+		String error = 	this.fetchComplianceLevel() >= ClassFileConstants.JDK25 ?
 				"----------\n" +
 				"1. ERROR in X.java (at line 1)\n" +
 				"	record X;\n" +

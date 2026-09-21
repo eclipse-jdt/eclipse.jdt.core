@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
+import org.eclipse.jdt.core.tests.compiler.regression.RunAlways;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -71,6 +73,41 @@ public class AbstractCompilerTest extends TestCase {
 	private static int possibleComplianceLevels = UNINITIALIZED;
 
 	protected long complianceLevel;
+	private boolean runAtSpecifiedLevels = false;
+	protected long complianceLevel() {
+		return this.complianceLevel;
+	}
+	protected long fetchComplianceLevel() {
+		this.runAtSpecifiedLevels = true;
+		return this.complianceLevel;
+	}
+
+	protected boolean mustRunTest() {
+		try {
+			Method method = this.getClass().getMethod(this.getTestName());
+			if (method != null && method.getAnnotation(RunAlways.class) != null) {
+				this.runAtSpecifiedLevels = true;
+			}
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+		return (this.runAtSpecifiedLevels
+				|| (this.complianceLevel == ClassFileConstants.getLatestJDKLevel()));
+	}
+	@Override
+	protected void runTest() throws Throwable {
+		try {
+			if (mustRunTest())
+				super.runTest();
+		} finally {
+			this.runAtSpecifiedLevels = false;
+			// clear interrupt status.
+			Thread.interrupted();
+		}
+	}
+	protected void setComplianceLevel(long complianceLevel) {
+		this.complianceLevel = complianceLevel;
+	}
 	protected boolean enableAPT = false;
 	protected boolean enablePreview = false;
 	protected static boolean isJRE9Plus = false; // Stop gap, so tests need not be run at 9, but some tests can be adjusted for JRE 9
@@ -594,6 +631,10 @@ public class AbstractCompilerTest extends TestCase {
 			name = name + " - " + CompilerOptions.versionFromJdkLevel(this.complianceLevel);
 		}
 		return name;
+	}
+
+	public String getTestName() {
+		return super.getName();
 	}
 
 	protected static String getVersionString(long compliance) {

@@ -43,7 +43,7 @@ public InnerEmulationTest(String name) {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	if (this.complianceLevel < ClassFileConstants.JDK25)
+	if (this.complianceLevel() < ClassFileConstants.JDK25)
 		this.runJavacOptIn = false;
 }
 
@@ -114,6 +114,7 @@ public void test001() {
 /**
  * 1FN4S4Z: The compiler doesn't detect a illegal constructor invocation which leads to a VerifyError
  */
+@RunAlways
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -143,7 +144,7 @@ public void test002() {
 		"1. ERROR in A.java (at line 10)\n" +
 		"	this(new C()); \n" +
 		"	     ^^^^^^^\n" +
-		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)
 		? "Cannot instantiate class A.C in an early construction context of class A\n"
 		: "No enclosing instance of type A is available due to some intermediate constructor invocation\n" )+
 		"----------\n"
@@ -153,13 +154,14 @@ public void test002() {
 /**
  * 1FZ2G7R: use of non static inner class in constuctor
  */
+@RunAlways
 public void test003() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in A.java (at line 8)\n" +
 			"	super(getRunnable(), new B().toString()); \n" +
 			"	                     ^^^^^^^\n" +
-			(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+			(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)
 			? "Cannot instantiate class A.B in an early construction context of class A\n"
 			: "No enclosing instance of type A is available due to some intermediate constructor invocation\n") +
 			"----------\n"
@@ -3702,6 +3704,7 @@ public void test104() {
 		"----------\n");
 }
 
+@RunAlways
 public void test107() {
 	this.runNegativeTest(
 		new String[] {
@@ -3725,7 +3728,7 @@ public void test107() {
 		"1. ERROR in X.java (at line 11)\n" +
 		"	super(B.this); \n" +
 		"	      ^^^^^^\n" +
-		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)
 		? "Cannot use 'B.this' in an early construction context\n"
 		: "Cannot refer to 'this' nor 'super' while explicitly invoking a constructor\n" )+
 		"----------\n");
@@ -3867,6 +3870,7 @@ public void test113() {
 		},
 		"SUCCESS");
 }
+@RunAlways
 public void test114() {
 	this.runNegativeTest(
 		new String[] {
@@ -3894,7 +3898,7 @@ public void test114() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	super(s);\n" +
 		"	      ^\n" +
-		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)
 		? "Cannot read field s in an early construction context\n"
 		: "Cannot refer to an instance field s while explicitly invoking a constructor\n") +
 		"----------\n");
@@ -4080,6 +4084,7 @@ public void test119() {
 		},
 		"<foo:0><foo:3><bar:3>");
 }
+@RunAlways
 public void test120() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4120,7 +4125,7 @@ public void test120() {
 			"	}\n" +
 			"}\n",
 		};
-	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)) {
 		runner.runConformTest();
 	} else {
 		runner.expectedCompilerLog =
@@ -4735,6 +4740,7 @@ public void test134() {
 		"XI\nXI");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961
+@RunAlways
 public void test135() {
 	this.runNegativeTest(
 		new String[] {
@@ -4769,7 +4775,7 @@ public void test135() {
 			"	}\n" +
 			"}", // =================,
 		},
-		(this.complianceLevel >= ClassFileConstants.JDK9 ? "" :
+		(this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? "" :
 		"----------\n" +
 		"1. WARNING in p\\X.java (at line 2)\n" +
 		"	import p.A;\n" +
@@ -5953,6 +5959,7 @@ public void test171() throws Exception {
 	"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=197271
+@RunAlways
 public void test172() throws Exception {
 	String[] files = new String[] {
 			"X.java",
@@ -5977,7 +5984,7 @@ public void test172() throws Exception {
 			"	}\n" +
 			"}\n",
 		};
-	if (this.complianceLevel < ClassFileConstants.JDK11) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK11) {
 		this.runNegativeTest(
 				files,
 				"----------\n" +
@@ -6382,8 +6389,9 @@ public void testSyntheticAccessorIndexAssignment() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5360
 // ECJ generated code may write to final fields in inner classes with flexible constructors more than once
+@RunAlways
 public void testIssue5360() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK25) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK25) {
 		return;
 	}
 

@@ -37,6 +37,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	 * Check if we hit the 64Kb limit on generated table switch method code in
 	 * class files. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=542084
 	 */
+	@RunAlways
 	public void testBug542084_error() {
 
 		int enumsCount = getEnumsCountForError();
@@ -46,7 +47,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 		}
 
 		String expectedCompilerLog;
-		if (this.complianceLevel > ClassFileConstants.JDK1_8) {
+		if (this.fetchComplianceLevel() > ClassFileConstants.JDK1_8) {
 			expectedCompilerLog =
 					"1. ERROR in X.java (at line 2)\n" +
 					"	enum Y {\n" +
@@ -105,6 +106,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	 * Check if we don't hit the 64Kb limit on generated table switch method code in
 	 * class files. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=542084
 	 */
+	@RunAlways
 	public void testBug542084_no_error() {
 		int enumsCount = getEnumsCountForSuccess();
 		StringBuilder lotOfEnums = new StringBuilder(enumsCount * 7);
@@ -142,7 +144,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	 * @return Generated code for enums that exceeds the limit
 	 */
 	private int getEnumsCountForError() {
-		if(this.complianceLevel > ClassFileConstants.JDK1_8) {
+		if(this.fetchComplianceLevel() > ClassFileConstants.JDK1_8) {
 			return 2800;
 		}
 		return 4500;
@@ -152,7 +154,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	 * @return Generated code for enums that does not exceeds the limit
 	 */
 	private int getEnumsCountForSuccess() {
-		if(this.complianceLevel > ClassFileConstants.JDK1_8) {
+		if(this.fetchComplianceLevel() > ClassFileConstants.JDK1_8) {
 			return 2300;
 		}
 		return 4300;

@@ -585,6 +585,7 @@ public void test013() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159243
+@RunAlways
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -609,7 +610,7 @@ public void test014() {
 			"  }\n" +
 			"}\n",
 		},
-		(this.complianceLevel >= ClassFileConstants.JDK9 ? "" :
+		(this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? "" :
 		"----------\n" +
 		"1. WARNING in Y.java (at line 1)\n" +
 		"	import p.X;\n" +
@@ -929,6 +930,7 @@ public void test020() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@RunAlways
 public void testJEP211_1() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -946,7 +948,7 @@ public void testJEP211_1() {
 			"""
 		};
 	runner.expectedCompilerLog =
-			this.complianceLevel < ClassFileConstants.JDK9 ?
+			this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"""
 			----------
 			1. WARNING in Test.java (at line 1)
