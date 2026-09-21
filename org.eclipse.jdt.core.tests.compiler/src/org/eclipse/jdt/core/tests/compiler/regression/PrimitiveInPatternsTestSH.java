@@ -2827,11 +2827,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 //		runner.vmArguments = VMARGS; not passing --enable-preview to java
 		runner.expectedErrorString =
 				"""
-<<<<<<< HEAD
 				java.lang.UnsupportedClassVersionError: Preview features are not enabled for Test (class file version 72.65535). Try running with '--enable-preview'
-=======
-				java.lang.UnsupportedClassVersionError: Preview features are not enabled for Test (class file version 71.65535). Try running with '--enable-preview'
->>>>>>> refs/remotes/real-origin/master
 				""";
 		runner.runConformTest();
 	}

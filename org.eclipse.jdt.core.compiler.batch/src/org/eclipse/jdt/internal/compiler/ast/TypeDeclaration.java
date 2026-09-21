@@ -1053,10 +1053,13 @@ public void parseMethods(Parser parser, CompilationUnitDeclaration unit) {
 	}
 
 	//methods
+	boolean isValueClass = (this.modifiers & ExtraCompilerModifiers.AccValue) != 0;
 	if (this.methods != null) {
 		int length = this.methods.length;
 		for (int i = 0; i < length; i++) {
 			AbstractMethodDeclaration abstractMethodDeclaration = this.methods[i];
+			if (isValueClass && abstractMethodDeclaration instanceof ConstructorDeclaration cd)
+				cd.bits |= ASTNode.IsValueConstructor;
 			abstractMethodDeclaration.parseStatements(parser, unit);
 			this.bits |= (abstractMethodDeclaration.bits & ASTNode.HasSyntaxErrors);
 		}

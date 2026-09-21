@@ -75,7 +75,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 	public final static int Bit6 = 0x20;					// depth (name ref, msg) | ignore need cast check (cast expression) | error in signature (method declaration/ initializer) | is recovered (annotation reference)
 	public final static int Bit7 = 0x40;					// depth (name ref, msg) | need runtime checkcast (cast expression) | label used (labelStatement) | needFreeReturn (AbstractMethodDeclaration) | Used in Pattern Guard expression (NameReference)
 	public final static int Bit8 = 0x80;					// depth (name ref, msg) | unsafe cast (cast expression) | is default constructor (constructor declaration) | isElseStatementUnreachable (if statement)
-	public final static int Bit9 = 0x100;				// depth (name ref, msg) | operator (operator) | is local type (type decl) | isThenStatementUnreachable (if statement) | can be static
+	public final static int Bit9 = 0x100;				// depth (name ref, msg) | operator (operator) | is local type (type decl) | isThenStatementUnreachable (if statement) | can be static | value constructor
 	public final static int Bit10= 0x200;				// depth (name ref, msg) | operator (operator) | is anonymous type (type decl)
 	public final static int Bit11 = 0x400;				// depth (name ref, msg) | operator (operator) | is member type (type decl)
 	public final static int Bit12 = 0x800;				// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
@@ -239,6 +239,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 
 	// for constructor declaration
 	public static final int IsDefaultConstructor = Bit8;
+	public static final int IsValueConstructor = Bit9;
 	public static final int IsCanonicalConstructor = Bit10; // record declaration
 
 	// for compilation unit
