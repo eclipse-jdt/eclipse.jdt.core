@@ -519,13 +519,19 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		// generate statements
 		if (this.statements != null) {
 			for (Statement statement : this.statements) {
+				if (this.constructorCall == statement && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+					// with JEP 401 (value classes) involved field inits are generated *before* chaining to super constructor
+					if (declaringClass.isValueClass())
+						generateFieldInitializations(declaringType, codeStream, initializerScope, FieldsOnly);
+				}
 				statement.generateCode(this.scope, codeStream);
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
 				if (this.constructorCall == statement && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+					// with JEP 492 (Flexible Constructor Bodies) involved field inits are generated only *after* the explicit constructor for identity classes
 					if ((this.constructorCall.bits & IsReachable) != 0)
-						generateFieldInitializations(declaringType, codeStream, initializerScope, All); // The single bit in the field can only say it is reachable in *some* universe
+						generateFieldInitializations(declaringType, codeStream, initializerScope, declaringClass.isValueClass() ? InitializersOnly : All);
 				}
 			}
 		}
@@ -533,19 +539,8 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (this.ignoreFurtherInvestigation) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
-		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-			if (this.isCompactConstructor()) {
-				// Note: the body of a compact constructor may not contain a return statement and so will need an injected return
-				for (RecordComponent rc : classScope.referenceContext.recordComponents) {
-					LocalVariableBinding parameter = this.scope.findVariable(rc.name);
-					FieldBinding field = classScope.referenceContext.binding.getField(rc.name, true).original();
-					codeStream.aload_0();
-					codeStream.load(parameter);
-					codeStream.fieldAccess(Opcodes.OPC_putfield, field, classScope.referenceContext.binding);
-				}
-			}
+		if ((this.bits & ASTNode.NeedFreeReturn) != 0)
 			codeStream.return_();
-		}
 		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054
 		codeStream.exitUserScope(this.scope, lvb -> !lvb.isParameter());
 		codeStream.handleRecordAccessorExceptions(this.scope);
@@ -582,6 +577,16 @@ private void generateFieldInitializations(TypeDeclaration declaringType, CodeStr
 					continue;
 				field.generateCode(initializerScope, codeStream);
 			}
+		}
+	}
+	if (this.isCompactConstructor() && initializationMode != InitializersOnly) {
+		// Note: the body of a compact constructor may not contain a return statement and so will need an injected return
+		for (RecordComponent rc : declaringType.scope.referenceContext.recordComponents) {
+			LocalVariableBinding parameter = this.scope.findVariable(rc.name);
+			FieldBinding field = declaringType.scope.referenceContext.binding.getField(rc.name, true).original();
+			codeStream.aload_0();
+			codeStream.load(parameter);
+			codeStream.fieldAccess(Opcodes.OPC_putfield, field, declaringType.scope.referenceContext.binding);
 		}
 	}
 }
@@ -782,7 +787,7 @@ public final void buildBody(ASTNode [] astStack, int astPtr, int length, /* @Nul
 	    }
 	}
 
-	boolean superCallPrecedes = true; // for JEP 401, super call is added to the tail end of the constructor
+	boolean superCallPrecedes = (this.bits & ASTNode.IsValueConstructor) == 0;
 
 	this.statements = new Statement[length + 1];
 
