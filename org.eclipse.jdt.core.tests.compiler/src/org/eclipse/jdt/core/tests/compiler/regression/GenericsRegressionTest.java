@@ -49,8 +49,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericsRegressionTest extends AbstractComparableTest {
 
-	public GenericsRegressionTest(String name) {
-		super(name);
+	public GenericsRegressionTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

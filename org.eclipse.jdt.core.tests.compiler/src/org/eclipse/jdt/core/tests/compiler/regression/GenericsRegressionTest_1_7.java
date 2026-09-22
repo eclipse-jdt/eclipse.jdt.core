@@ -32,8 +32,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public GenericsRegressionTest_1_7(String name) {
-	super(name);
+public GenericsRegressionTest_1_7(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

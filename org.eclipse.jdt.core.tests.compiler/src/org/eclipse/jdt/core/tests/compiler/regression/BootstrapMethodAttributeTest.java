@@ -21,8 +21,8 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 
 @SuppressWarnings({ "rawtypes" })
 public class BootstrapMethodAttributeTest extends AbstractRegressionTest {
-	public BootstrapMethodAttributeTest(String name) {
-		super(name);
+	public BootstrapMethodAttributeTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Class testClass() {

@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class Unicode9Test extends AbstractRegressionTest {
-public Unicode9Test(String name) {
-	super(name);
+public Unicode9Test(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_9);

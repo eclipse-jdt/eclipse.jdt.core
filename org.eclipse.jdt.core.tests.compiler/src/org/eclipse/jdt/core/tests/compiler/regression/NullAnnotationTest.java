@@ -33,8 +33,8 @@ public class NullAnnotationTest extends AbstractNullAnnotationTest {
 
 protected String TEST_JAR_SUFFIX = "_1.8.jar";
 
-public NullAnnotationTest(String name) {
-	super(name);
+public NullAnnotationTest(String name, long compliance) {
+	super(name, compliance);
 }
 
 // Static initializer to specify tests subset using TESTS_* static variables

@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "rawtypes" })
 public class StandAloneASTParserTest extends AbstractRegressionTest {
 	public StandAloneASTParserTest(String name) {
-		super(name);
+		super(name, 0); // not run at difference compliance levels
 	}
 
 	static {

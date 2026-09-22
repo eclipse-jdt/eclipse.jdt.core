@@ -29,8 +29,8 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 @SuppressWarnings({ "rawtypes" })
 public class ScannerTest extends AbstractRegressionTest {
 
-	public ScannerTest(String name) {
-		super(name);
+	public ScannerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...

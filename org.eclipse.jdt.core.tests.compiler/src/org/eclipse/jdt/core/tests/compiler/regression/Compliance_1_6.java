@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Compliance_1_6 extends AbstractComparableTest {
 
-public Compliance_1_6(String name) {
-	super(name);
+public Compliance_1_6(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

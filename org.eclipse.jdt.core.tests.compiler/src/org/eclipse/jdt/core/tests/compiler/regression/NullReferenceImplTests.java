@@ -525,8 +525,8 @@ public class NullReferenceImplTests extends NullReferenceTest {
 	}
 	}
 
-public NullReferenceImplTests(String name) {
-    super(name);
+public NullReferenceImplTests(String name, long compliance) {
+    super(name, compliance);
 }
 
   	// Tests tuning

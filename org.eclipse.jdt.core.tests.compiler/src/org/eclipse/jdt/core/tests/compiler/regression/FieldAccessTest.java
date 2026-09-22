@@ -25,8 +25,8 @@ public class FieldAccessTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 
-public FieldAccessTest(String name) {
-	super(name);
+public FieldAccessTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

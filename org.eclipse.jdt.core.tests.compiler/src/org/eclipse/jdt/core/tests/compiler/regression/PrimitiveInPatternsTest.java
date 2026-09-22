@@ -40,8 +40,8 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_27);
 	}
-	public PrimitiveInPatternsTest(String testName) {
-		super(testName);
+	public PrimitiveInPatternsTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

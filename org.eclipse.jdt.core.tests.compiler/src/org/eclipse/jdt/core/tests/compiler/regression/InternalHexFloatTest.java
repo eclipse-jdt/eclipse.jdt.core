@@ -39,8 +39,8 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		}
 	}
 
-	public InternalHexFloatTest(String name) {
-		super(name);
+	public InternalHexFloatTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

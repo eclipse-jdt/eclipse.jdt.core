@@ -31,8 +31,8 @@ public class XLargeTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testBug519070" };
 	}
 
-public XLargeTest(String name) {
-	super(name);
+public XLargeTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

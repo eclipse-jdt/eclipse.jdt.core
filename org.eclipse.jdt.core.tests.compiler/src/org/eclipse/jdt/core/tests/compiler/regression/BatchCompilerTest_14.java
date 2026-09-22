@@ -32,8 +32,8 @@ public class BatchCompilerTest_14 extends AbstractBatchCompilerTest {
 	public static Class testClass() {
 		return BatchCompilerTest_14.class;
 	}
-	public BatchCompilerTest_14(String name) {
-		super(name);
+	public BatchCompilerTest_14(String name, long compliance) {
+		super(name, compliance);
 	}
 public void testBatchBug565787_001() throws Exception {
 	this.runConformTest(

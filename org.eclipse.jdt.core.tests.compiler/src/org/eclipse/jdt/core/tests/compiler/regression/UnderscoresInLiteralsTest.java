@@ -22,8 +22,8 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int[] { 24 };
 	}
-	public UnderscoresInLiteralsTest(String name) {
-		super(name);
+	public UnderscoresInLiteralsTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

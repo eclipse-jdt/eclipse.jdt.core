@@ -30,8 +30,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String [] { "test010a" };
 	}
-	public AmbiguousMethodTest(String name) {
-		super(name);
+	public AmbiguousMethodTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

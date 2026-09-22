@@ -15,14 +15,13 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Jsr14Test extends AbstractRegressionTest {
 
 public Jsr14Test(String name) {
-	super(name);
+	super(name, 0); // not run at different compliance levels
 }
 @Override
 protected Map getCompilerOptions() {
@@ -38,9 +37,6 @@ static {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 15 };
 //	TESTS_RANGE = new int[] { 11, -1 };
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
 public void test1() throws Exception {

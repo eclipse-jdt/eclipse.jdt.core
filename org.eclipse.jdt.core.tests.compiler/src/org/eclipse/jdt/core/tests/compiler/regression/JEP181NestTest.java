@@ -30,8 +30,8 @@ public class JEP181NestTest extends AbstractComparableTest {
 
 	String versionString = null;
 
-public JEP181NestTest(String name) {
-	super(name);
+public JEP181NestTest(String name, long compliance) {
+	super(name, compliance);
 }
 // No need for a tearDown()
 @Override

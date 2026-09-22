@@ -42,8 +42,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public NegativeLambdaExpressionsTest(String name) {
-	super(name);
+public NegativeLambdaExpressionsTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);

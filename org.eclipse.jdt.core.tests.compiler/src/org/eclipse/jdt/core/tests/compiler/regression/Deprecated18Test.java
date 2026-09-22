@@ -19,8 +19,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Deprecated18Test extends AbstractRegressionTest {
-public Deprecated18Test(String name) {
-	super(name);
+public Deprecated18Test(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);

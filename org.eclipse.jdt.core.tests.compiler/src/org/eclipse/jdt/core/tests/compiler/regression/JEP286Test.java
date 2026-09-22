@@ -42,8 +42,8 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_10);
 }
 
-public JEP286Test(String testName){
-	super(testName);
+public JEP286Test(String testName, long compliance) {
+	super(testName, compliance);
 }
 static {
 //	TESTS_NAMES = new String[] { "test0018_project_variable_types" };

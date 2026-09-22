@@ -19,8 +19,8 @@ public class AnnotationTest_9 extends AbstractComparableTest {
 //		TESTS_NAMES = new String[] { "testGH1654" };
 	}
 
-    public AnnotationTest_9(String name) {
-        super(name);
+    public AnnotationTest_9(String name, long compliance) {
+        super(name, compliance);
     }
 
     public static Test suite() {

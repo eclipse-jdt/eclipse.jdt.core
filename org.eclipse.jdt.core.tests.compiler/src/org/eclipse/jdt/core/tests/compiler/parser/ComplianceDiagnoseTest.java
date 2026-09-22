@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 @SuppressWarnings({ "rawtypes" })
 public class ComplianceDiagnoseTest extends AbstractRegressionTest {
-	public ComplianceDiagnoseTest(String name) {
-		super(name);
+	public ComplianceDiagnoseTest(String name, long compliance) {
+		super(name, compliance);
 	}
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...

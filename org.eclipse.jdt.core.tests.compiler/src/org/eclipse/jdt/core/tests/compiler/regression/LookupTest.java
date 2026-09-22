@@ -34,8 +34,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class LookupTest extends AbstractRegressionTest {
-public LookupTest(String name) {
-	super(name);
+public LookupTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

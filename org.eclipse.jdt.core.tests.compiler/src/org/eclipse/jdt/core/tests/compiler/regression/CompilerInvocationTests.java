@@ -79,8 +79,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class CompilerInvocationTests extends AbstractRegressionTest {
 
-	public CompilerInvocationTests(String name) {
-		super(name);
+	public CompilerInvocationTests(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

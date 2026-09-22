@@ -25,8 +25,8 @@ public class JavadocTestMixed extends JavadocTest {
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 
-	public JavadocTestMixed(String name) {
-		super(name);
+	public JavadocTestMixed(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Class javadocTestClass() {

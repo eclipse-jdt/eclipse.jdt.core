@@ -31,8 +31,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	String versionString = null;
-	public MethodParametersAttributeTest(String name) {
-		super(name);
+	public MethodParametersAttributeTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	// No need for a tearDown()
 	@Override

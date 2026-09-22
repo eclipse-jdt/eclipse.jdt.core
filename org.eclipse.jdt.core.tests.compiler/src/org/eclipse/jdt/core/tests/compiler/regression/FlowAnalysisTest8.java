@@ -29,8 +29,8 @@ static {
 //	TESTS_RANGE = new int[] { 1, 2049 };
 }
 
-public FlowAnalysisTest8(String name) {
-	super(name);
+public FlowAnalysisTest8(String name, long compliance) {
+	super(name, compliance);
 }
 
 public static Test suite() {

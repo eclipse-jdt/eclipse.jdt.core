@@ -100,8 +100,8 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		return suite;
 	}
 
-	public AbstractComparableTest(String name) {
-		super(name);
+	public AbstractComparableTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	/*

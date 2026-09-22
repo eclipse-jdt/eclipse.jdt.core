@@ -27,8 +27,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class ModuleAttributeTests extends AbstractRegressionTest9 {
 
-	public ModuleAttributeTests(String name) {
-		super(name);
+	public ModuleAttributeTests(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Class<?> testClass() {

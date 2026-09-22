@@ -29,8 +29,8 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 	public static Class testClass() {
 		return ConcurrentBatchCompilerTest.class;
 	}
-	public ConcurrentBatchCompilerTest(String name) {
-		super(name);
+	public ConcurrentBatchCompilerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	Thread runner1;

@@ -31,8 +31,8 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_21);
 	}
-	public JEP441SnippetsTest(String testName){
-		super(testName);
+	public JEP441SnippetsTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	public void test01() {

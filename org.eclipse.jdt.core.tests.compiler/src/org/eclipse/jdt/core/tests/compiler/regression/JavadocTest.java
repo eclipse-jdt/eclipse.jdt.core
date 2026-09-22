@@ -99,8 +99,8 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		return suite;
 	}
 
-	public JavadocTest(String name) {
-		super(name);
+	public JavadocTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	@Override
 	protected Map getCompilerOptions() {

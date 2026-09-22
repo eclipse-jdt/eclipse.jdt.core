@@ -25,8 +25,8 @@ public class AutomaticModuleNamingTest extends AbstractRegressionTest {
 		// TESTS_NAMES = new String[] { "testManifest" };
 	}
 
-	public AutomaticModuleNamingTest(String name) {
-		super(name);
+	public AutomaticModuleNamingTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

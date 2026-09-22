@@ -19,8 +19,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BinaryLiteralTest extends AbstractRegressionTest {
-	public BinaryLiteralTest(String name) {
-		super(name);
+	public BinaryLiteralTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

@@ -41,8 +41,8 @@ public class BatchCompilerTest_15 extends AbstractBatchCompilerTest {
 	public static Class testClass() {
 		return BatchCompilerTest_15.class;
 	}
-	public BatchCompilerTest_15(String name) {
-		super(name);
+	public BatchCompilerTest_15(String name, long compliance) {
+		super(name, compliance);
 	}
 	public void testBug564047_001(){
 		if (!AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_15))

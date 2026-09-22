@@ -22,8 +22,8 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 @SuppressWarnings({ "rawtypes" })
 public class InternalScannerTest extends AbstractRegressionTest {
 
-	public InternalScannerTest(String name) {
-		super(name);
+	public InternalScannerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Test suite() {
 		return buildAllCompliancesTestSuite(testClass());

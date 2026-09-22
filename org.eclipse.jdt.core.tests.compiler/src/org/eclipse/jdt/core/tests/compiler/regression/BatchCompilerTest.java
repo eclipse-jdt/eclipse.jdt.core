@@ -72,8 +72,8 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
-	public BatchCompilerTest(String name) {
-		super(name);
+	public BatchCompilerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	/**
 	 * This test suite only needs to be run on one compliance.

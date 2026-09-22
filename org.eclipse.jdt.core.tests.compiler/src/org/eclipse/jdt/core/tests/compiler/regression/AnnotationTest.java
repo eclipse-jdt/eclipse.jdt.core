@@ -79,8 +79,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	private String repeatableIntroText;
 	private String repeatableTrailerText;
 
-	public AnnotationTest(String name) {
-		super(name);
+	public AnnotationTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

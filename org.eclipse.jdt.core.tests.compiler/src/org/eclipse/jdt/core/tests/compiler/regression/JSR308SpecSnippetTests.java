@@ -41,8 +41,8 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
-	public JSR308SpecSnippetTests(String testName){
-		super(testName);
+	public JSR308SpecSnippetTests(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

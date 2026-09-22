@@ -27,8 +27,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 @SuppressWarnings({ "rawtypes" })
 public class EnclosingMethodAttributeTest extends AbstractComparableTest {
-	public EnclosingMethodAttributeTest(String name) {
-		super(name);
+	public EnclosingMethodAttributeTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

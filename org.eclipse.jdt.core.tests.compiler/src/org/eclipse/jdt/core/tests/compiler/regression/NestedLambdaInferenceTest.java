@@ -18,8 +18,8 @@ import junit.framework.Test;
 public class NestedLambdaInferenceTest extends AbstractRegressionTest {
 	private static final int NESTING_DEPTH = 24;
 
-	public NestedLambdaInferenceTest(String name) {
-		super(name);
+	public NestedLambdaInferenceTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

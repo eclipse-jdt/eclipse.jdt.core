@@ -30,8 +30,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class VarargsTest extends AbstractComparableTest {
 
-	public VarargsTest(String name) {
-		super(name);
+	public VarargsTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

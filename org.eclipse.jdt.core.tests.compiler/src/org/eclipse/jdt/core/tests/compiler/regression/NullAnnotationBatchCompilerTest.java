@@ -119,8 +119,8 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 		return NullAnnotationBatchCompilerTest.class;
 	}
 
-	public NullAnnotationBatchCompilerTest(String name) {
-		super(name);
+	public NullAnnotationBatchCompilerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	@Override

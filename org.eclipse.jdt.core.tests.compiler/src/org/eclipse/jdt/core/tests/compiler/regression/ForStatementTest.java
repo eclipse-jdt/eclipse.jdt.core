@@ -24,8 +24,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ForStatementTest extends AbstractRegressionTest {
 
-public ForStatementTest(String name) {
-	super(name);
+public ForStatementTest(String name, long compliance) {
+	super(name, compliance);
 }
 
 @Override

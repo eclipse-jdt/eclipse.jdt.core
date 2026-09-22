@@ -38,8 +38,8 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public RecordsRestrictedClassTest(String testName){
-		super(testName);
+	public RecordsRestrictedClassTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

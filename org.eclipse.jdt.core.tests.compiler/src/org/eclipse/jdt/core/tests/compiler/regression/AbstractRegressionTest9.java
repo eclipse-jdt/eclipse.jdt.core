@@ -33,8 +33,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class AbstractRegressionTest9 extends AbstractRegressionTest {
 
-	public AbstractRegressionTest9(String name) {
-		super(name);
+	public AbstractRegressionTest9(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	protected Map<String,IModule> moduleMap = new HashMap<>(); // by name

@@ -36,8 +36,8 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public LocalStaticsTest(String testName){
-		super(testName);
+	public LocalStaticsTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

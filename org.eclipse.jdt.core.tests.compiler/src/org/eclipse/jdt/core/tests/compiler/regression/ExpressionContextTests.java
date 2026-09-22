@@ -28,8 +28,8 @@ static {
 	//	TESTS_RANGE = new int[] { 11, -1 };
 }
 
-public ExpressionContextTests(String name) {
-	super(name);
+public ExpressionContextTests(String name, long compliance) {
+	super(name, compliance);
 }
 
 public static Test suite() {

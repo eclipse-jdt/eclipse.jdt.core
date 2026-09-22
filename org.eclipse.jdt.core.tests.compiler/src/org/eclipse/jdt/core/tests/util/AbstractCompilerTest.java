@@ -232,7 +232,7 @@ public class AbstractCompilerTest extends TestCase {
 			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 				// ignore
 			}
-			List tests = buildTestsList(testClass, inheritedDepth, ORDERING);
+			List tests = buildTestsList(testClass, inheritedDepth, ORDERING, complianceLevel);
 			for (int index=0, size=tests.size(); index<size; index++) {
 				suite.addTest((Test)tests.get(index));
 			}
@@ -307,7 +307,7 @@ public class AbstractCompilerTest extends TestCase {
 			return new TestSuite();
 		}
 		TestSuite complianceSuite = new RegressionTestSetup(uniqueCompliance);
-		List tests = buildTestsList(evaluationTestClass);
+		List tests = buildTestsList(evaluationTestClass, 0, ORDERING, uniqueCompliance);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			complianceSuite.addTest((Test)tests.get(index));
 		}
@@ -521,29 +521,6 @@ public class AbstractCompilerTest extends TestCase {
 		return suite(clazz.getName(), RegressionTestSetup.class, testClasses);
 	}
 
-	public static Test buildTestSuite(Class evaluationTestClass) {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
-		}
-		return setupSuite(evaluationTestClass);
-	}
-
-	public static Test buildTestSuite(Class evaluationTestClass, long complianceLevel) {
-		TestSuite suite = new RegressionTestSetup(complianceLevel);
-		List tests = buildTestsList(evaluationTestClass);
-		for (int index=0, size=tests.size(); index<size; index++) {
-			suite.addTest((Test)tests.get(index));
-		}
-		String className = evaluationTestClass.getName();
-		Integer testsNb;
-		int newTestsNb = suite.countTestCases();
-		if ((testsNb = (Integer) TESTS_COUNTERS.get(className)) != null)
-			newTestsNb += testsNb.intValue();
-		TESTS_COUNTERS.put(className, Integer.valueOf(newTestsNb));
-		return suite;
-	}
-
-
 	public static boolean isJRELevel(int compliance) {
 		return (AbstractCompilerTest.getPossibleComplianceLevels() & compliance) != 0;
 	}
@@ -560,6 +537,10 @@ public class AbstractCompilerTest extends TestCase {
 
 	public AbstractCompilerTest(String name) {
 		super(name);
+	}
+	public AbstractCompilerTest(String name, long compliance) {
+		super(name);
+		this.complianceLevel = compliance;
 	}
 
 	protected Map getCompilerOptions() {

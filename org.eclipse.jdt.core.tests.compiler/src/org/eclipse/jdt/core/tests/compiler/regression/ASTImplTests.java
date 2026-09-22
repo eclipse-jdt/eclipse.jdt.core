@@ -33,8 +33,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 @SuppressWarnings({ "rawtypes" })
 public class ASTImplTests extends AbstractRegressionTest {
-public ASTImplTests(String name) {
-    super(name);
+public ASTImplTests(String name, long compliance) {
+    super(name, compliance);
 }
 
 	// Static initializer to specify tests subset using TESTS_* static variables

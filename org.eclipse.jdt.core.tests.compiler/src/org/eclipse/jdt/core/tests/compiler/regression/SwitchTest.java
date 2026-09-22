@@ -34,8 +34,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 22 };
 //	TESTS_NAMES = new String[] { "testFor356002", "testFor356002_2", "testFor356002_3" };
 }
-public SwitchTest(String name) {
-	super(name);
+public SwitchTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

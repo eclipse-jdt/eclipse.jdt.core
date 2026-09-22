@@ -44,8 +44,8 @@ static {
 //	TESTS_NAMES = new String[] { "testBug380313" };
 //	TESTS_NUMBERS = new int[] { 43 };
 }
-public FlowAnalysisTest(String name) {
-	super(name);
+public FlowAnalysisTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

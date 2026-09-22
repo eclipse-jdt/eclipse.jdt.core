@@ -25,8 +25,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 16 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public ExternalizeStringLiteralsTest(String name) {
-	super(name);
+public ExternalizeStringLiteralsTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

@@ -36,8 +36,8 @@ static {
 //		TESTS_NUMBERS = new int[] { 173, 174 };
 //		TESTS_RANGE = new int[] { 144, -1 };
 }
-public InnerEmulationTest(String name) {
-	super(name);
+public InnerEmulationTest(String name, long compliance) {
+	super(name, compliance);
 }
 
 @Override

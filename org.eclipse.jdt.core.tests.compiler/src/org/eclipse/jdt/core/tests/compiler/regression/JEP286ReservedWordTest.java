@@ -32,8 +32,8 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
 
-public JEP286ReservedWordTest(String testName){
-	super(testName);
+public JEP286ReservedWordTest(String testName, long compliance){
+	super(testName, compliance);
 }
 
 public void test0001_class_var_warning() throws IOException {

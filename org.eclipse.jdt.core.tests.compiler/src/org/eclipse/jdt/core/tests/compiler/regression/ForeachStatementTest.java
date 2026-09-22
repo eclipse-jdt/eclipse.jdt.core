@@ -29,8 +29,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ForeachStatementTest extends AbstractComparableTest {
 
-public ForeachStatementTest(String name) {
-	super(name);
+public ForeachStatementTest(String name, long compliance) {
+	super(name, compliance);
 }
 
 /*

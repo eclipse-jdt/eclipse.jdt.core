@@ -37,8 +37,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
 	boolean isJRE14 = false;
-	public RepeatableAnnotationTest(String name) {
-		super(name);
+	public RepeatableAnnotationTest(String name, long compliance) {
+		super(name, compliance);
 		String javaVersion = System.getProperty("java.version");
 		int index = javaVersion.indexOf('.');
 		if (index != -1) {

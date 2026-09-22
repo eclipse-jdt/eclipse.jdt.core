@@ -35,8 +35,8 @@ static {
 
 protected char[][] invisibleType;
 
-public DeprecatedTest(String name) {
-	super(name);
+public DeprecatedTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

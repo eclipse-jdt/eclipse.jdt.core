@@ -20,8 +20,8 @@ import junit.framework.TestSuite;
 /** Run tests from the super class with (legacy) declaration annotations. */
 public class NullDeclarationAnnotationTest extends NullAnnotationTest {
 
-	public NullDeclarationAnnotationTest(String name) {
-		super(name);
+	public NullDeclarationAnnotationTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

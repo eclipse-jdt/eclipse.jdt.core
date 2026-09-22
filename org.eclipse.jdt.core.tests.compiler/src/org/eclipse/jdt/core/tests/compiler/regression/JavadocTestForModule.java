@@ -41,8 +41,8 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public JavadocTestForModule(String name) {
-		super(name);
+	public JavadocTestForModule(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

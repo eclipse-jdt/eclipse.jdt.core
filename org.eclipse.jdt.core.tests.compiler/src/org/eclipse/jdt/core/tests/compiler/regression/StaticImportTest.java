@@ -31,8 +31,8 @@ public class StaticImportTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 75, -1 };
 	}
 
-	public StaticImportTest(String name) {
-		super(name);
+	public StaticImportTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

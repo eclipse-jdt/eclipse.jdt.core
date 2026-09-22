@@ -28,8 +28,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 @SuppressWarnings({ "rawtypes" })
 public class ClassFileComparatorTest extends AbstractRegressionTest {
 
-	public ClassFileComparatorTest(String name) {
-		super(name);
+	public ClassFileComparatorTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Test suite() {
 		return buildAllCompliancesTestSuite(testClass());

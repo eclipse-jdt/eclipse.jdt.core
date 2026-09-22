@@ -55,8 +55,8 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		return InterfaceMethodsTest.class;
 	}
 
-	public InterfaceMethodsTest(String name) {
-		super(name);
+	public InterfaceMethodsTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// default methods with various modifiers, positive cases

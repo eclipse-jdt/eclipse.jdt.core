@@ -28,8 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class CastTest extends AbstractRegressionTest {
 
-public CastTest(String name) {
-	super(name);
+public CastTest(String name, long compliance) {
+	super(name, compliance);
 }
 @Override
 protected Map getCompilerOptions() {

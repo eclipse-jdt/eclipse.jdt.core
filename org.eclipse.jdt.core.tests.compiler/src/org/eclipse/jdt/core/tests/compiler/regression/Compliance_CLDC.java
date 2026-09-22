@@ -21,8 +21,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Compliance_CLDC extends AbstractRegressionTest {
 
-public Compliance_CLDC(String name) {
-	super(name);
+public Compliance_CLDC(String name, long compliance) {
+	super(name, compliance);
 }
 
 /*

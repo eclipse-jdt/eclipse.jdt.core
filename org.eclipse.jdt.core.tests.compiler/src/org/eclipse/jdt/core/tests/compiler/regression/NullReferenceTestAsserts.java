@@ -31,8 +31,8 @@ public class NullReferenceTestAsserts extends AbstractRegressionTest {
 
 // class libraries including org.eclipse.equinox.common
 String[] assertLib = null;
-public NullReferenceTestAsserts(String name) {
-	super(name);
+public NullReferenceTestAsserts(String name, long compliance) {
+	super(name, compliance);
 }
 
 // Static initializer to specify tests subset using TESTS_* static variables

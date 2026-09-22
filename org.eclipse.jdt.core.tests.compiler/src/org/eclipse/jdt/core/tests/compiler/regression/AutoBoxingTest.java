@@ -25,8 +25,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AutoBoxingTest extends AbstractComparableTest {
 
-	public AutoBoxingTest(String name) {
-		super(name);
+	public AutoBoxingTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	@Override

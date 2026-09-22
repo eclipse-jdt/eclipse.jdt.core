@@ -22,8 +22,8 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 @SuppressWarnings({ "rawtypes" })
 public class BooleanTest extends AbstractRegressionTest {
 
-public BooleanTest(String name) {
-	super(name);
+public BooleanTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

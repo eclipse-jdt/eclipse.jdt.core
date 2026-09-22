@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 @SuppressWarnings({ "rawtypes" })
 public class ProblemConstructorTest extends AbstractRegressionTest {
 
-public ProblemConstructorTest(String name) {
-	super(name);
+public ProblemConstructorTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

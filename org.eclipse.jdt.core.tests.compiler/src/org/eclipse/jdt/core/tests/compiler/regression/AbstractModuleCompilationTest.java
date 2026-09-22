@@ -38,8 +38,8 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 	protected static final String JAVAC_SOURCE_9_OPTIONS = "-source 9 -Xlint:-options";
 	protected static Pattern ECJ_VERSION_OPTION_PATTERN = Pattern.compile("-([0-9]+)");
 
-	public AbstractModuleCompilationTest(String name) {
-		super(name);
+	public AbstractModuleCompilationTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	class Runner extends AbstractRegressionTest.Runner {

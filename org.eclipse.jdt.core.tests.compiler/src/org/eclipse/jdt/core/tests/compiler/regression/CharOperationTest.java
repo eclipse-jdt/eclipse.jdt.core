@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 @SuppressWarnings({ "rawtypes" })
 public class CharOperationTest extends AbstractRegressionTest {
 
-public CharOperationTest(String name) {
-	super(name);
+public CharOperationTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

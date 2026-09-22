@@ -21,8 +21,8 @@ public class XLargeTest2 extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testBug550063" };
 	}
 
-	public XLargeTest2(String name) {
-		super(name);
+	public XLargeTest2(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

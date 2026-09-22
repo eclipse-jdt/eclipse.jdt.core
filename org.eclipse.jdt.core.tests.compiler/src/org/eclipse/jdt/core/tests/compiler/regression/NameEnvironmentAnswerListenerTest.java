@@ -36,8 +36,8 @@ import org.junit.Assert;
 
 public class NameEnvironmentAnswerListenerTest extends AbstractComparableTest {
 
-	public NameEnvironmentAnswerListenerTest(String name) {
-		super(name);
+	public NameEnvironmentAnswerListenerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	/**

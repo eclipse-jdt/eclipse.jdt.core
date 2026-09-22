@@ -27,8 +27,8 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 
 	ManifestAnalyzer manifestAnalyzer = new ManifestAnalyzer();
 
-	public ManifestAnalyzerTest(String name) {
-		super(name);
+	public ManifestAnalyzerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public void testWithOneJar() throws IOException {
 		String testWithOneJar = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + "\nBuild-Reference: Version toto";

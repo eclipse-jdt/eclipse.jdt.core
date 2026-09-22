@@ -25,8 +25,8 @@ public class AssertionTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 13, 14 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
-	public AssertionTest(String name) {
-		super(name);
+	public AssertionTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

@@ -25,8 +25,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @RunJavac
 public class Deprecated9Test extends AbstractRegressionTest9 {
-	public Deprecated9Test(String name) {
-		super(name);
+	public Deprecated9Test(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_9);

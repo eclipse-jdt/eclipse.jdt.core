@@ -444,20 +444,6 @@ public static List buildTestsList(Class evaluationTestClass) {
 /**
  * Build a list of methods to run for a test suite.
  * <br>
- * Differ from {@link #buildTestsList(Class)} in the fact that one
- * can specify level of recursion in hierarchy to find additional tests.
- *
- * @param evaluationTestClass the test suite class
- * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
- * @return a {@link List list} of {@link Test tests}.
- */
-public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
-	return buildTestsList(evaluationTestClass, inheritedDepth, ORDERING);
-}
-
-/**
- * Build a list of methods to run for a test suite.
- * <br>
  * This list may be ordered in different ways using {@link #ORDERING}.
  * <br>
  * Example
@@ -500,13 +486,16 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
  * @return a {@link List list } of {@link Test tests}
  */
 public static List buildTestsList(Class evaluationTestClass, int inheritedDepth, long ordering) {
+	return buildTestsList(evaluationTestClass, inheritedDepth, ordering, 0);
+}
+public static List buildTestsList(Class evaluationTestClass, int inheritedDepth, long ordering, long compliance) {
 	List tests = new ArrayList();
 	List testNames = new ArrayList();
 	List onlyNames = new ArrayList();
 	Constructor constructor = null;
 	try {
 		// Get class constructor
-		Class[] paramTypes = new Class[] { String.class };
+		Class[] paramTypes = compliance == 0 ? new Class[] { String.class } : new Class[] { String.class, long.class };
 		constructor = evaluationTestClass.getConstructor(paramTypes);
 	}
 	catch (Exception e) {
@@ -635,7 +624,10 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
 	while (iterator.hasNext()) {
 		String testName = (String) iterator.next();
 		try {
-			tests.add(constructor.newInstance(new Object[] { testName } ));
+			if (compliance == 0)
+				tests.add(constructor.newInstance(new Object[] { testName } ));
+			else
+				tests.add(constructor.newInstance(new Object[] { testName, compliance } ));
 		}
 		catch (Exception e) {
 			System.err.println("Method "+testName+" removed from suite due to exception: "+e.getMessage());

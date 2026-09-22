@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Unicode1_8Test extends AbstractRegressionTest {
-public Unicode1_8Test(String name) {
-	super(name);
+public Unicode1_8Test(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);

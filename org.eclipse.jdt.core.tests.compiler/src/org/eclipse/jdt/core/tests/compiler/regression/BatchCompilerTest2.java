@@ -42,8 +42,8 @@ public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 	public static Class testClass() {
 		return BatchCompilerTest2.class;
 	}
-	public BatchCompilerTest2(String name) {
-		super(name);
+	public BatchCompilerTest2(String name, long compliance) {
+		super(name, compliance);
 	}
 	public void test001() {
 		this.runNegativeTest(

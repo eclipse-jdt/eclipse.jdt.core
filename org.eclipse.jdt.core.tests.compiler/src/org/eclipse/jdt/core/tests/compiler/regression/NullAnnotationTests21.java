@@ -24,8 +24,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
-	public NullAnnotationTests21(String name) {
-		super(name);
+	public NullAnnotationTests21(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	static {

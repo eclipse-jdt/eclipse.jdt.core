@@ -34,8 +34,8 @@ public class JavadocBugsTest extends JavadocTest {
 	String reportJavadocDeprecation = null;
 	String processAnnotations = null;
 
-public JavadocBugsTest(String name) {
-	super(name);
+public JavadocBugsTest(String name, long compliance) {
+	super(name, compliance);
 }
 
 public static Class javadocTestClass() {

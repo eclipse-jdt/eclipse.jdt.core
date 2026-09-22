@@ -35,8 +35,8 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 
-	public DubiousOutcomeTest(String name) {
-		super(name);
+	public DubiousOutcomeTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Class<?> testClass() {
 		return DubiousOutcomeTest.class;

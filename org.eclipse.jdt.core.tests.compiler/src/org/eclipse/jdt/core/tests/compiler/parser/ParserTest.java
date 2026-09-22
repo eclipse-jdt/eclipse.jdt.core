@@ -26,8 +26,8 @@ static {
 //		TESTS_NUMBERS = new int[] { 18 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 }
-public ParserTest(String name) {
-	super(name);
+public ParserTest(String name, long compliance) {
+	super(name, compliance);
 }
 public void test001() {
 	this.runNegativeTest(

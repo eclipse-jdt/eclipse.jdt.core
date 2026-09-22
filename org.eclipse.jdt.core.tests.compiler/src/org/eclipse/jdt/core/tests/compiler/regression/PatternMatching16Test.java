@@ -35,8 +35,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public PatternMatching16Test(String testName){
-		super(testName);
+	public PatternMatching16Test(String testName, long compliance) {
+		super(testName, compliance);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {

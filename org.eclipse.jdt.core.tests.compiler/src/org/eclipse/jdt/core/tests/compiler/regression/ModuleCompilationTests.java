@@ -42,8 +42,8 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public ModuleCompilationTests(String name) {
-		super(name);
+	public ModuleCompilationTests(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

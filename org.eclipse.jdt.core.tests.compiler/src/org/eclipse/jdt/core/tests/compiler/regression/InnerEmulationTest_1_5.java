@@ -24,8 +24,8 @@ static {
 //		TESTS_NUMBERS = new int[] { 13 };
 //		TESTS_RANGE = new int[] { 144, -1 };
 }
-public InnerEmulationTest_1_5(String name) {
-	super(name);
+public InnerEmulationTest_1_5(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

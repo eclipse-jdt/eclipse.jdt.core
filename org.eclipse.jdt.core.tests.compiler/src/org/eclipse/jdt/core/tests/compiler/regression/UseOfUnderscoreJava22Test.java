@@ -21,8 +21,8 @@ public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 		return buildMinimalComplianceTestSuite(UseOfUnderscoreJava22Test.class, F_22);
 	}
 
-	public UseOfUnderscoreJava22Test(String name) {
-		super(name);
+	public UseOfUnderscoreJava22Test(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	@Override

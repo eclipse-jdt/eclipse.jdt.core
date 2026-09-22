@@ -30,8 +30,8 @@ import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class AbstractCompilerToolTest extends BatchCompilerTest {
-	public AbstractCompilerToolTest(String name) {
-		super(name);
+	public AbstractCompilerToolTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	static class CompilerInvocationTestsArguments {
 		StandardJavaFileManager standardJavaFileManager;

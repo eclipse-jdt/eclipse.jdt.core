@@ -85,8 +85,8 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 	IPath dirPath = new Path(OUTPUT_DIR); // WORK check whether needed or not
 
-	public GenericTypeSignatureTest(String name) {
-		super(name);
+	public GenericTypeSignatureTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	protected void cleanUp() {

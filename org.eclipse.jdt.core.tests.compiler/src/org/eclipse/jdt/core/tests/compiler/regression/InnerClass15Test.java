@@ -19,8 +19,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class InnerClass15Test extends AbstractRegressionTest {
-public InnerClass15Test(String name) {
-	super(name);
+public InnerClass15Test(String name, long compliance) {
+	super(name, compliance);
 }
 static {
 //	TESTS_NUMBERS = new int[] { 2 };

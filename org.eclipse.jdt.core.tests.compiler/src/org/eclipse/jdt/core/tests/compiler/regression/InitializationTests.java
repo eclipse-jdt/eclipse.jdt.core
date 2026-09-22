@@ -27,8 +27,8 @@ public class InitializationTests extends AbstractRegressionTest {
 static {
 //	TESTS_NAMES = new String [] { "testIssue4416" };
 }
-public InitializationTests(String name) {
-		super(name);
+public InitializationTests(String name, long compliance) {
+		super(name, compliance);
 }
 
 public static Test suite() {

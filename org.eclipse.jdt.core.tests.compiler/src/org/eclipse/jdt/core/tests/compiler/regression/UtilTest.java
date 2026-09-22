@@ -29,8 +29,8 @@ public class UtilTest extends AbstractRegressionTest {
 
 StringBuilder camelCaseErrors;
 
-public UtilTest(String name) {
-	super(name);
+public UtilTest(String name, long compliance) {
+	super(name, compliance);
 }
 static {
 //	TESTS_RANGE = new int[] { 62, -1 };

@@ -28,8 +28,8 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public ValueBasedAnnotationTests(String testName){
-		super(testName);
+	public ValueBasedAnnotationTests(String testName, long compliance) {
+		super(testName, compliance);
 	}
 	// Enables the tests to run individually
 	@Override

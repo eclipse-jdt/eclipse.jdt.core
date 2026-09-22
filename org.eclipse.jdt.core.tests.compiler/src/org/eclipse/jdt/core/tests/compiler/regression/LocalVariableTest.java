@@ -25,8 +25,8 @@ public class LocalVariableTest extends AbstractRegressionTest {
 static {
 	TESTS_NAMES = new String[] { "testStaticInitializerInLocalClassAccessingOuterLocalVariable" };
 }
-public LocalVariableTest(String name) {
-	super(name);
+public LocalVariableTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

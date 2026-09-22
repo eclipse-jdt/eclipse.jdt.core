@@ -44,8 +44,8 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		return InterfaceMethodsTest_9.class;
 	}
 
-	public InterfaceMethodsTest_9(String name) {
-		super(name);
+	public InterfaceMethodsTest_9(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// private method - positive test

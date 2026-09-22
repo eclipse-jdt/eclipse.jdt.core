@@ -21,8 +21,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "rawtypes" })
 public class ConditionalExpressionTest extends AbstractRegressionTest {
 
-	public ConditionalExpressionTest(String name) {
-		super(name);
+	public ConditionalExpressionTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

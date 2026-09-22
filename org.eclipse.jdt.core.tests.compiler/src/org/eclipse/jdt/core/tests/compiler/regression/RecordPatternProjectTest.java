@@ -35,8 +35,8 @@ public class RecordPatternProjectTest extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_21);
 	}
-	public RecordPatternProjectTest(String testName){
-		super(testName);
+	public RecordPatternProjectTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {

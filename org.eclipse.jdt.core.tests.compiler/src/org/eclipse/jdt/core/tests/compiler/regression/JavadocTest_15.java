@@ -50,8 +50,8 @@ public class JavadocTest_15 extends JavadocTest {
 	protected Map<String,IModule> moduleMap = new HashMap<>(); // by name
 	Map<String,String> file2module = new HashMap<>();
 
-public JavadocTest_15(String name) {
-	super(name);
+public JavadocTest_15(String name, long compliance) {
+	super(name, compliance);
 }
 
 public static Class javadocTestClass() {

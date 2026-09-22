@@ -22,8 +22,8 @@ static {
 //		TESTS_NUMBERS = new int[] { 50 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 }
-public LambdaShapeTests(String name) {
-	super(name);
+public LambdaShapeTests(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);

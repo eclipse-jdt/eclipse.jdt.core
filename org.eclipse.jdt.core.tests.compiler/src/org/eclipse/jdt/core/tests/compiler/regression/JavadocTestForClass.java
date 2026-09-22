@@ -23,8 +23,8 @@ public class JavadocTestForClass extends JavadocTest {
 	public static Test suite() {
 		return buildAllCompliancesTestSuite(javadocTestClass());
 	}
-	public JavadocTestForClass(String name) {
-		super(name);
+	public JavadocTestForClass(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Class javadocTestClass() {
 		return JavadocTestForClass.class;

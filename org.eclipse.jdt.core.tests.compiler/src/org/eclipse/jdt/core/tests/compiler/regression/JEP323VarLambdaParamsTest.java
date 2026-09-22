@@ -33,8 +33,8 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_11);
 }
 
-public JEP323VarLambdaParamsTest(String testName){
-	super(testName);
+public JEP323VarLambdaParamsTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 static {
 //	TESTS_NUMBERS = new int[] { 1 };

@@ -18,8 +18,8 @@ import junit.framework.Test;
 @SuppressWarnings({ "rawtypes" })
 public class CollisionCase extends AbstractRegressionTest {
 
-public CollisionCase(String name) {
-	super(name);
+public CollisionCase(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

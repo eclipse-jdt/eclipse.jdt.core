@@ -1354,8 +1354,8 @@ public class JavadocTestOptions extends JavadocTest {
 		return result.toString();
 	}
 
-	public JavadocTestOptions(String name) {
-		super(name);
+	public JavadocTestOptions(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Class javadocTestClass() {
 		return JavadocTestOptions.class;

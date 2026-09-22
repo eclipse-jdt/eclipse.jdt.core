@@ -19,8 +19,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocTestForInterface extends JavadocTest {
-	public JavadocTestForInterface(String name) {
-		super(name);
+	public JavadocTestForInterface(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Class javadocTestClass() {
 		return JavadocTestForInterface.class;

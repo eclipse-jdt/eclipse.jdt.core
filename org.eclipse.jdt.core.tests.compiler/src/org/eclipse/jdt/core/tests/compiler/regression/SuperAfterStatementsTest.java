@@ -38,8 +38,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
-	public SuperAfterStatementsTest(String testName) {
-		super(testName);
+	public SuperAfterStatementsTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

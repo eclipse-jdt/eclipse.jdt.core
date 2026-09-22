@@ -31,8 +31,8 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_17);
 	}
-	public InstanceofPrimaryPatternTest(String testName){
-		super(testName);
+	public InstanceofPrimaryPatternTest(String testName, long compliance){
+		super(testName, compliance);
 	}
 
 	protected void runNegativeTest(

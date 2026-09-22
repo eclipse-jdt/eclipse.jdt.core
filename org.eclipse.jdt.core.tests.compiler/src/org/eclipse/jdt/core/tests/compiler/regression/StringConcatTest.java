@@ -27,8 +27,8 @@ public class StringConcatTest extends AbstractComparableTest {
 		///	TESTS_NAMES = new String[] { "test001" };
 	}
 
-	public StringConcatTest(String name) {
-		super(name);
+	public StringConcatTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(StringConcatTest.class, F_1_8);

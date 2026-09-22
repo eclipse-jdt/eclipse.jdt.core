@@ -33,8 +33,8 @@ public class EnumTest extends AbstractComparableTest {
 
 	String reportMissingJavadocComments = null;
 
-	public EnumTest(String name) {
-		super(name);
+	public EnumTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

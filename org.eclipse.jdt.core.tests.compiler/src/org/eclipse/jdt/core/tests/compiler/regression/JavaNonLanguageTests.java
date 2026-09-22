@@ -35,8 +35,8 @@ public class JavaNonLanguageTests extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
-	public JavaNonLanguageTests(String testName) {
-		super(testName);
+	public JavaNonLanguageTests(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

@@ -38,8 +38,8 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 		return ClassFileReaderTest_1_5.class;
 	}
 
-	public ClassFileReaderTest_1_5(String name) {
-		super(name);
+	public ClassFileReaderTest_1_5(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	/**

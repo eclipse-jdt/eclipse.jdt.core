@@ -16,8 +16,8 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 	}
 
 	private boolean isJRE10 = false;
-	public MultiReleaseJarTests(String name) {
-		super(name);
+	public MultiReleaseJarTests(String name, long compliance) {
+		super(name, compliance);
 		try {
 			SourceVersion valueOf = SourceVersion.valueOf("RELEASE_10");
 			if (valueOf != null) this.isJRE10 = true;

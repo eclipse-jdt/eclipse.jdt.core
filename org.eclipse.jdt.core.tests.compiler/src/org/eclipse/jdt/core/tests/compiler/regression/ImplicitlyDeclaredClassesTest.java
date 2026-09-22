@@ -41,8 +41,8 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NAMES = new String[] {"testImplicitType001"};
 	}
-	public ImplicitlyDeclaredClassesTest(String testName){
-		super(testName);
+	public ImplicitlyDeclaredClassesTest(String testName, long compliance){
+		super(testName, compliance);
 	}
 
 	public static Class<?> testClass() {

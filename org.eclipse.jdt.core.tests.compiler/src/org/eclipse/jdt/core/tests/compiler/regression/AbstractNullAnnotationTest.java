@@ -73,8 +73,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			"public @interface NonNullByDefault {\n" + // has no details, so default default locations should be applied
 			"}\n";
 
-	public AbstractNullAnnotationTest(String name) {
-		super(name);
+	public AbstractNullAnnotationTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	@Override

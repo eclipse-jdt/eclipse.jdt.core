@@ -22,8 +22,8 @@ import junit.framework.Test;
 @SuppressWarnings({ "rawtypes" })
 public class RuntimeTests extends AbstractRegressionTest {
 
-public RuntimeTests(String name) {
-	super(name);
+public RuntimeTests(String name, long compliance) {
+	super(name, compliance);
 }
 
 // Static initializer to specify tests subset using TESTS_* static variables

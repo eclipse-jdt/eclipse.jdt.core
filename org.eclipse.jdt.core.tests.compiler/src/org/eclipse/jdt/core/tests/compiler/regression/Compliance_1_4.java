@@ -28,8 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class Compliance_1_4 extends AbstractRegressionTest {
 boolean docSupport = false;
 
-public Compliance_1_4(String name) {
-	super(name);
+public Compliance_1_4(String name, long compliance) {
+	super(name, compliance);
 }
 
 /*

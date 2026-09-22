@@ -40,8 +40,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 
-	public NullAnnotationTests9(String name) {
-		super(name);
+	public NullAnnotationTests9(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	static {

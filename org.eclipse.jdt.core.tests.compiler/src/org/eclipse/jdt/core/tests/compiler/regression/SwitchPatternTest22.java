@@ -27,8 +27,8 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 		return buildMinimalComplianceTestSuite(SwitchPatternTest22.class, F_22);
 	}
 
-	public SwitchPatternTest22(String name) {
-		super(name);
+	public SwitchPatternTest22(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	@Override

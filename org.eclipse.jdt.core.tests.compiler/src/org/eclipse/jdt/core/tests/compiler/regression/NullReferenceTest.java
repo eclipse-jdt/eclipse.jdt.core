@@ -60,8 +60,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullReferenceTest extends AbstractRegressionTest {
 
-public NullReferenceTest(String name) {
-	super(name);
+public NullReferenceTest(String name, long compliance) {
+	super(name, compliance);
 }
 
 	// Static initializer to specify tests subset using TESTS_* static variables

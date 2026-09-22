@@ -30,8 +30,8 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		return ClassFileReaderTest_17.class;
 	}
 
-	public ClassFileReaderTest_17(String name) {
-		super(name);
+	public ClassFileReaderTest_17(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Needed to run tests individually from JUnit

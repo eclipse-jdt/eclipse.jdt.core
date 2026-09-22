@@ -28,8 +28,8 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 		//	TESTS_NAMES = new String [] { "testInstanceOfPatternMatchingWithMixedPatterns" };
 	}
 
-	public UnnamedPatternsAndVariablesTest(String name) {
-		super(name);
+	public UnnamedPatternsAndVariablesTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	@Override

@@ -24,8 +24,8 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "testBug515863" };
 	}
-	public PolymorphicSignatureTest(String name) {
-		super(name);
+	public PolymorphicSignatureTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

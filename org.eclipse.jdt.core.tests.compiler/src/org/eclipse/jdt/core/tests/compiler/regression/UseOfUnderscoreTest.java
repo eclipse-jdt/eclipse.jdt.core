@@ -22,8 +22,8 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		return buildMinimalComplianceTestSuite(UseOfUnderscoreTest.class, F_1_8);
 	}
 
-	public UseOfUnderscoreTest(String name) {
-		super(name);
+	public UseOfUnderscoreTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public void testReportsUnderscoreInstanceMemberAsError() {

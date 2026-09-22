@@ -24,8 +24,8 @@ public class JavadocTestForRecord extends JavadocTest {
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public JavadocTestForRecord(String name) {
-		super(name);
+	public JavadocTestForRecord(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	String docCommentSupport = CompilerOptions.ENABLED;

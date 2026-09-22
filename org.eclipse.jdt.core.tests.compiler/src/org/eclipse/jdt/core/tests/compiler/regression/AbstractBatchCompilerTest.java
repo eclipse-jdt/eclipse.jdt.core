@@ -145,8 +145,8 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 		}
 	}
 
-	public AbstractBatchCompilerTest(String name) {
-		super(name);
+	public AbstractBatchCompilerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	protected static final String JRE_HOME_DIR = Util.getJREDirectory();

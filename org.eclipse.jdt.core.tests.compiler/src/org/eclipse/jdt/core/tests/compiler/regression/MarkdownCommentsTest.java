@@ -34,8 +34,8 @@ public class MarkdownCommentsTest extends JavadocTest {
 	String processAnnotations = null;
 	String reportJavadocDeprecation = null;
 
-	public MarkdownCommentsTest(String name) {
-		super(name);
+	public MarkdownCommentsTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Use this static initializer to specify subset for tests

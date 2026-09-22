@@ -34,8 +34,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_14);
 	}
-	public SwitchExpressionsYieldTest(String testName){
-		super(testName);
+	public SwitchExpressionsYieldTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	@Override

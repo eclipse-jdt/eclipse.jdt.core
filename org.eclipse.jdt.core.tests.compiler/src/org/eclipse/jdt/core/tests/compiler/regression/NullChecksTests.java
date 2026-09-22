@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class NullChecksTests extends AbstractNullAnnotationTest {
 
-	public NullChecksTests(String name) {
-		super(name);
+	public NullChecksTests(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

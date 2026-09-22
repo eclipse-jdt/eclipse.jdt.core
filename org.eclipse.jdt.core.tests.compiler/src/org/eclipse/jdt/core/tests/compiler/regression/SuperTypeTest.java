@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SuperTypeTest extends AbstractRegressionTest {
 
-	public SuperTypeTest(String name) {
-		super(name);
+	public SuperTypeTest(String name, long compliance) {
+		super(name, compliance);
 	}
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...

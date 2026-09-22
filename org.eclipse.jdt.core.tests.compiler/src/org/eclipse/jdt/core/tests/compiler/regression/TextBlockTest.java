@@ -25,8 +25,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_15);
 	}
-	public TextBlockTest(String testName){
-		super(testName);
+	public TextBlockTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 	protected Map<String, String> getCompilerOptions() {
 		return getCompilerOptions(true);

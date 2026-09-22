@@ -24,8 +24,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 @SuppressWarnings({ "rawtypes" })
 public class InstanceofExpressionTest extends AbstractRegressionTest {
 
-	public InstanceofExpressionTest(String name) {
-		super(name);
+	public InstanceofExpressionTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

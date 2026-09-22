@@ -45,8 +45,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
 
-	public MethodVerifyTest(String name) {
-		super(name);
+	public MethodVerifyTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

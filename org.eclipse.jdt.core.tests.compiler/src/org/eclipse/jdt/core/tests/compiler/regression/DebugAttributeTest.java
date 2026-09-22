@@ -21,8 +21,8 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 @SuppressWarnings({ "rawtypes" })
 public class DebugAttributeTest extends AbstractRegressionTest {
 
-	public DebugAttributeTest(String name) {
-		super(name);
+	public DebugAttributeTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

@@ -30,8 +30,8 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
-	public GrammarCoverageTests308(String testName){
-		super(testName);
+	public GrammarCoverageTests308(String testName, long compliance){
+		super(testName, compliance);
 	}
 	// Lone test to verify that multiple annotations of all three kinds are accepted. All other tests will use only marker annotations
 	public void test000() throws Exception {

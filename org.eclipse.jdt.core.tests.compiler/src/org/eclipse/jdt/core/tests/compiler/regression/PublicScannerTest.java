@@ -95,8 +95,8 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		MODULE_TOKENS = Collections.unmodifiableList(list);
 	}
 
-	public PublicScannerTest(String name) {
-		super(name);
+	public PublicScannerTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

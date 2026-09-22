@@ -41,8 +41,8 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_27);
 	}
-	public PreviewFlagTest(String testName) {
-		super(testName);
+	public PreviewFlagTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

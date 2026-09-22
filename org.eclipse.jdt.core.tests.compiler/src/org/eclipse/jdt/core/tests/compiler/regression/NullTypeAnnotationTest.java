@@ -34,8 +34,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
-	public NullTypeAnnotationTest(String name) {
-		super(name);
+	public NullTypeAnnotationTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

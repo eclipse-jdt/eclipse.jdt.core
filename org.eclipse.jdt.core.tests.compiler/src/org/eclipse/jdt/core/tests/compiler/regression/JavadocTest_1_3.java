@@ -27,8 +27,8 @@ public class JavadocTest_1_3 extends JavadocTest {
 	String reportMissingJavadocComments = null;
 	String reportMissingJavadocCommentsVisibility = null;
 
-	public JavadocTest_1_3(String name) {
-		super(name);
+	public JavadocTest_1_3(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Class testClass() {

@@ -22,8 +22,8 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 @SuppressWarnings({ "rawtypes" })
 public class LineNumberAttributeTest extends AbstractRegressionTest {
 
-public LineNumberAttributeTest(String name) {
-	super(name);
+public LineNumberAttributeTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

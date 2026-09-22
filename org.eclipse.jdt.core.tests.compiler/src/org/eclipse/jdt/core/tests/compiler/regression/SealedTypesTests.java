@@ -41,8 +41,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_17);
 	}
-	public SealedTypesTests(String testName){
-		super(testName);
+	public SealedTypesTests(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually

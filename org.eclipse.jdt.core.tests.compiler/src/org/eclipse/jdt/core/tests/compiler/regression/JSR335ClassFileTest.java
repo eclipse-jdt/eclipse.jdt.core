@@ -28,8 +28,8 @@ public class JSR335ClassFileTest extends AbstractComparableTest {
 
 	String versionString = null;
 
-public JSR335ClassFileTest(String name) {
-	super(name);
+public JSR335ClassFileTest(String name, long compliance) {
+	super(name, compliance);
 }
 // No need for a tearDown()
 @Override

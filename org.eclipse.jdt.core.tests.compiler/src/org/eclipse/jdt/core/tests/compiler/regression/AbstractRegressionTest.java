@@ -1408,8 +1408,8 @@ protected static class JavacTestOptions {
 	protected INameEnvironment javaClassLib;
 	protected TestVerifier verifier;
 	protected boolean shouldSwallowCaptureId;
-	public AbstractRegressionTest(String name) {
-		super(name);
+	public AbstractRegressionTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	/* argument 'inheritedDepth' is not exposed in original API, therefore these helpers are copied below with this arg added */
@@ -1457,7 +1457,7 @@ protected static class JavacTestOptions {
 			return new TestSuite();
 		}
 		TestSuite complianceSuite = new RegressionTestSetup(uniqueCompliance);
-		List<Test> tests = buildTestsList(evaluationTestClass, inheritedDepth);
+		List<Test> tests = buildTestsList(evaluationTestClass, inheritedDepth, ORDERING, uniqueCompliance);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			complianceSuite.addTest(tests.get(index));
 		}

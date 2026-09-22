@@ -30,8 +30,8 @@ public class ArrayTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_NAMES = new String [] { "testIssue4789" };
 	}
-	public ArrayTest(String name) {
-		super(name);
+	public ArrayTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

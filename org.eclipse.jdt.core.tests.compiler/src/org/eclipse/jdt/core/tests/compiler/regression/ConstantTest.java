@@ -28,8 +28,8 @@ import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 @SuppressWarnings({ "rawtypes" })
 public class ConstantTest extends AbstractRegressionTest {
 
-public ConstantTest(String name) {
-	super(name);
+public ConstantTest(String name, long compliance) {
+	super(name, compliance);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...

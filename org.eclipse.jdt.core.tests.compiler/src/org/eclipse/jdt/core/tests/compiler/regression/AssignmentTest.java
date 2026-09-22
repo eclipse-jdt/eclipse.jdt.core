@@ -25,8 +25,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AssignmentTest extends AbstractRegressionTest {
 
-public AssignmentTest(String name) {
-	super(name);
+public AssignmentTest(String name, long compliance) {
+	super(name, compliance);
 }
 @Override
 protected Map getCompilerOptions() {

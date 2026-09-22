@@ -18,8 +18,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "rawtypes" })
 public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 
-	public SuppressWarningsTest(String name) {
-		super(name);
+	public SuppressWarningsTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Test suite() {

@@ -28,8 +28,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class StackMapAttributeTest extends AbstractRegressionTest {
-	public StackMapAttributeTest(String name) {
-		super(name);
+	public StackMapAttributeTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	public static Class testClass() {

@@ -47,7 +47,7 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 	private File _extJar; // external annotation jar
 
 	public AnnotationProcessingCompilerToolTest(String name) {
-		super(name);
+		super(name, 0); // not run at different compliance levels
 	}
 
 	@Override

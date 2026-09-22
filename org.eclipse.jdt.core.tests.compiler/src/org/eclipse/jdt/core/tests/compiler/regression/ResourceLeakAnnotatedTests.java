@@ -31,8 +31,8 @@ static {
 // marker field that influences the call to buildTestsList():
 public static final int INHERITED_DEPTH = 1;
 
-public ResourceLeakAnnotatedTests(String name) {
-	super(name);
+public ResourceLeakAnnotatedTests(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	TestSuite suite = new TestSuite(ResourceLeakAnnotatedTests.class.getName());

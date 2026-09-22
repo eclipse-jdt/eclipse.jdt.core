@@ -80,8 +80,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public ResourceLeakTests(String name) {
-	super(name);
+public ResourceLeakTests(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(ResourceLeakTests.class);

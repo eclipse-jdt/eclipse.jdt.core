@@ -25,8 +25,8 @@ import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 
 public class PackageBindingTest extends AbstractCompilerTest
 {
-	public PackageBindingTest(String name) {
-		super(name);
+	public PackageBindingTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	/**

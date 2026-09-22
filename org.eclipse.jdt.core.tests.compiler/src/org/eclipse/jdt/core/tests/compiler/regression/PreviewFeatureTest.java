@@ -36,8 +36,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public PreviewFeatureTest(String testName){
-		super(testName);
+	public PreviewFeatureTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {

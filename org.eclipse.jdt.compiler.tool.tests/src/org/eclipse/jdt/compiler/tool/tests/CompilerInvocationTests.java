@@ -50,8 +50,8 @@ public class CompilerInvocationTests extends AbstractCompilerToolTest {
 //		TESTS_NUMBERS = new int[] { 5 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 	}
-public CompilerInvocationTests(String name) {
-	super(name);
+public CompilerInvocationTests(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildUniqueComplianceTestSuite(CompilerInvocationTests.class, CompilerOptions.getFirstSupportedJdkLevel());

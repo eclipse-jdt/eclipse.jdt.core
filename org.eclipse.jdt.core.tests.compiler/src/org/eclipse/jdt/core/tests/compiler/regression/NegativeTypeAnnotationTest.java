@@ -34,8 +34,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
-	public NegativeTypeAnnotationTest(String testName){
-		super(testName);
+	public NegativeTypeAnnotationTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 	public void test001() throws Exception {
 		this.runNegativeTest(

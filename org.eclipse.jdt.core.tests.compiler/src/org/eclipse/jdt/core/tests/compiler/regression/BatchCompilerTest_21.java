@@ -33,8 +33,8 @@ public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {
 		return BatchCompilerTest_21.class;
 	}
 
-	public BatchCompilerTest_21(String name) {
-		super(name);
+	public BatchCompilerTest_21(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1774

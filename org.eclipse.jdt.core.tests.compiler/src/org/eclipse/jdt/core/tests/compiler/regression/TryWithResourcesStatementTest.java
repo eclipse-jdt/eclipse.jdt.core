@@ -30,8 +30,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public TryWithResourcesStatementTest(String name) {
-	super(name);
+public TryWithResourcesStatementTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

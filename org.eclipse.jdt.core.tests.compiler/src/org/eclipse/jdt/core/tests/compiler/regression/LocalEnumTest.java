@@ -36,8 +36,8 @@ public class LocalEnumTest extends AbstractComparableTest {
 
 	String reportMissingJavadocComments = null;
 
-	public LocalEnumTest(String name) {
-		super(name);
+	public LocalEnumTest(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables

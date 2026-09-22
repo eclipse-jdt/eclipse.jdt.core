@@ -18,8 +18,8 @@ import junit.framework.Test;
 @SuppressWarnings({ "rawtypes" })
 public class NumericTest extends AbstractRegressionTest {
 
-public NumericTest(String name) {
-	super(name);
+public NumericTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

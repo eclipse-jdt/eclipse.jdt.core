@@ -43,8 +43,8 @@ public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 		return BatchCompilerTest_17.class;
 	}
 
-	public BatchCompilerTest_17(String name) {
-		super(name);
+	public BatchCompilerTest_17(String name, long compliance) {
+		super(name, compliance);
 	}
 
 	static {

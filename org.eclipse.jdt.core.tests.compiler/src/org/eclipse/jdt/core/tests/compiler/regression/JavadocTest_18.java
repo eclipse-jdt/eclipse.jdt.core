@@ -33,8 +33,8 @@ public class JavadocTest_18 extends JavadocTest {
 	String reportJavadocDeprecation = null;
 	String processAnnotations = null;
 
-public JavadocTest_18(String name) {
-	super(name);
+public JavadocTest_18(String name, long compliance) {
+	super(name, compliance);
 }
 
 public static Class javadocTestClass() {

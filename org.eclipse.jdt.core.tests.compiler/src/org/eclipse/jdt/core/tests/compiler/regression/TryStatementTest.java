@@ -34,8 +34,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 74, 75 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public TryStatementTest(String name) {
-	super(name);
+public TryStatementTest(String name, long compliance) {
+	super(name, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());

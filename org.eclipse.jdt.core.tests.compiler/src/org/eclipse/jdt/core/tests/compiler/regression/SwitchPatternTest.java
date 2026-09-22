@@ -35,8 +35,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_21);
 	}
-	public SwitchPatternTest(String testName){
-		super(testName);
+	public SwitchPatternTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	// Enables the tests to run individually
