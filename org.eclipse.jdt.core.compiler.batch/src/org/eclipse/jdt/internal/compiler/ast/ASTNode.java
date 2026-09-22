@@ -239,7 +239,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 
 	// for constructor declaration
 	public static final int IsDefaultConstructor = Bit8;
-	public static final int IsValueConstructor = Bit9;
+	public static final int ShouldInitializeStrictly = Bit9;
 	public static final int IsCanonicalConstructor = Bit10; // record declaration
 
 	// for compilation unit

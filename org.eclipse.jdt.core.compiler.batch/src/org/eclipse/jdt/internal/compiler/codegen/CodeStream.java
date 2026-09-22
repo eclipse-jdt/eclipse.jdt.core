@@ -3139,7 +3139,7 @@ public void generateSyntheticBodyForRecordCanonicalConstructor(SyntheticMethodBi
 	ReferenceBinding superClass = declaringClass.superclass();
 	MethodBinding superCons = superClass.getExactConstructor(new TypeBinding[0]);
 	CompilerOptions compilerOptions = declaringClass.scope.compilerOptions();
-	boolean safeConstruction = JavaFeature.SAFE_RECORD_CONSTRUCTION.isSupported(compilerOptions.sourceLevel, compilerOptions.enablePreviewFeatures);
+	boolean safeConstruction = JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(compilerOptions.sourceLevel, compilerOptions.enablePreviewFeatures);
 	if (!safeConstruction) {
 		aload_0();
 		invoke(Opcodes.OPC_invokespecial, superCons, superClass);

@@ -84,8 +84,14 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	private PrologueInfo prologueInfo;
 
-public ConstructorDeclaration(CompilationResult compilationResult){
+public ConstructorDeclaration(CompilationResult compilationResult) {
 	super(compilationResult);
+}
+
+public ConstructorDeclaration(CompilationResult compilationResult, boolean shouldInitializeStrictly) {
+	super(compilationResult);
+	if (shouldInitializeStrictly)
+		this.bits |= ASTNode.ShouldInitializeStrictly;
 }
 
 FlowInfo getPrologueFlowInfo() {
@@ -792,7 +798,7 @@ public final void buildBody(ASTNode [] astStack, int astPtr, int length, /* @Nul
 	    }
 	}
 
-	boolean superCallPrecedes = (this.bits & ASTNode.IsValueConstructor) == 0;
+	boolean superCallPrecedes = (this.bits & ASTNode.ShouldInitializeStrictly) == 0;
 
 	this.statements = new Statement[length + 1];
 
