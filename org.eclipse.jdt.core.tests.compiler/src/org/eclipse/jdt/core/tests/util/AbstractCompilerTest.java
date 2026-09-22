@@ -572,7 +572,7 @@ public class AbstractCompilerTest extends TestCase {
 	public String getName() {
 		String name = super.getName();
 		if (this.complianceLevel != 0) {
-			name = name + " - " + CompilerOptions.versionFromJdkLevel(this.complianceLevel);
+			name = name + '[' + CompilerOptions.versionFromJdkLevel(this.complianceLevel) + ']';
 		}
 		return name;
 	}
