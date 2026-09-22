@@ -121,9 +121,10 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 				&& !CharOperation.equals(this.currentPackageName, expectedPackageName)) {
 
 			// only report if the unit isn't structurally empty
-			if (this.referenceContext.currentPackage != null
+			if (!this.referenceContext.isSimpleCompilationUnit() &&
+					(this.referenceContext.currentPackage != null
 					|| this.referenceContext.types != null
-					|| this.referenceContext.imports != null) {
+					|| this.referenceContext.imports != null)) {
 				problemReporter().packageIsNotExpectedPackage(this.referenceContext);
 			}
 			this.currentPackageName = expectedPackageName.length == 0 ? CharOperation.NO_CHAR_CHAR : expectedPackageName;

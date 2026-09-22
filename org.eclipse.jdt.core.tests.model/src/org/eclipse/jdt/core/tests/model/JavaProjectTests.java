@@ -2947,4 +2947,78 @@ public void testBug519435() throws Exception {
 		deleteProject("P");
 	}
 }
+
+/*
+ * An implicitly declared class (simple compilation unit) located in a sub folder must not be
+ * flagged with "The declared package "" does not match the expected package "p"".
+ */
+public void testImplicitClassInSubFolderNoPackageError() throws CoreException {
+	if ((org.eclipse.jdt.core.tests.util.AbstractCompilerTest.getPossibleComplianceLevels() & org.eclipse.jdt.core.tests.util.AbstractCompilerTest.F_25) == 0)
+		return;
+	try {
+		IJavaProject project = createJavaProject("PImplicit", new String[] {"src"}, new String[] {"JCL_25_LIB"}, "bin", "25");
+		createFolder("/PImplicit/src/p");
+		createFile("/PImplicit/src/p/main.java",
+			"void main() {\n" +
+			"	System.out.println(\"Hello World\");\n" +
+			"}\n");
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForManualRefresh();
+		waitForAutoBuild();
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "", markers);
+	} finally {
+		deleteProject("PImplicit");
+	}
+}
+/*
+ * Same as above but for a nested folder and an implicit class having a field.
+ */
+public void testImplicitClassInNestedFolderNoPackageError() throws CoreException {
+	if ((org.eclipse.jdt.core.tests.util.AbstractCompilerTest.getPossibleComplianceLevels() & org.eclipse.jdt.core.tests.util.AbstractCompilerTest.F_25) == 0)
+		return;
+	try {
+		IJavaProject project = createJavaProject("PImplicit", new String[] {"src"}, new String[] {"JCL_25_LIB"}, "bin", "25");
+		createFolder("/PImplicit/src/p/q");
+		createFile("/PImplicit/src/p/q/main.java",
+			"int counter = 0;\n" +
+			"void main() {\n" +
+			"	counter++;\n" +
+			"	System.out.println(counter);\n" +
+			"}\n");
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForManualRefresh();
+		waitForAutoBuild();
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "", markers);
+	} finally {
+		deleteProject("PImplicit");
+	}
+}
+/*
+ * A regular compilation unit in a sub folder with no matching package statement is still
+ * reported with the package mismatch problem.
+ */
+public void testRegularClassInSubFolderPackageError() throws CoreException {
+	if ((org.eclipse.jdt.core.tests.util.AbstractCompilerTest.getPossibleComplianceLevels() & org.eclipse.jdt.core.tests.util.AbstractCompilerTest.F_25) == 0)
+		return;
+	try {
+		IJavaProject project = createJavaProject("PImplicit", new String[] {"src"}, new String[] {"JCL_25_LIB"}, "bin", "25");
+		createFolder("/PImplicit/src/p");
+		createFile("/PImplicit/src/p/X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"	}\n" +
+			"}\n");
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForManualRefresh();
+		waitForAutoBuild();
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers",
+			"The declared package \"\" does not match the expected package \"p\"",
+			markers);
+	} finally {
+		deleteProject("PImplicit");
+	}
+}
 }
