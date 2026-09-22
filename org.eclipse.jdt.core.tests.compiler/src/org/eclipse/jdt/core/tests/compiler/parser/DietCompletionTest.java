@@ -17,8 +17,8 @@ import junit.framework.Test;
 import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
 
 public class DietCompletionTest extends AbstractCompletionTest {
-public DietCompletionTest(String testName){
-	super(testName);
+public DietCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(DietCompletionTest.class);

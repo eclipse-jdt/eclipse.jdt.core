@@ -44,8 +44,8 @@ public class SelectionMarkdownTest extends AbstractSelectionTest {
 	ICompilationUnit unit;
 	StringBuilder result;
 
-	public SelectionMarkdownTest(String testName) {
-		super(testName);
+	public SelectionMarkdownTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	static {

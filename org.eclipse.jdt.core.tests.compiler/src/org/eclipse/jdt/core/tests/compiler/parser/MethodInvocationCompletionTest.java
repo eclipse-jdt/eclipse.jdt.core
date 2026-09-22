@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be a MethodInvocation.
  */
 public class MethodInvocationCompletionTest extends AbstractCompletionTest {
-public MethodInvocationCompletionTest(String testName) {
-	super(testName);
+public MethodInvocationCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(MethodInvocationCompletionTest.class);

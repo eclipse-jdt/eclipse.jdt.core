@@ -42,8 +42,8 @@ static {
 public static Test suite() {
 	return buildAllCompliancesTestSuite(StatementRecoveryTest_1_5.class);
 }
-public StatementRecoveryTest_1_5(String testName){
-	super(testName);
+public StatementRecoveryTest_1_5(String testName, long compliance) {
+	super(testName, compliance);
 }
 public void checkParse(
 	char[] source,

@@ -34,8 +34,8 @@ public class DualParseSyntaxErrorTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = CompilerOptions.getFirstSupportedJdkLevel(); //$NON-NLS-1$
 
-public DualParseSyntaxErrorTest(String testName){
-	super(testName);
+public DualParseSyntaxErrorTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public void checkParse(
 	char[] source,

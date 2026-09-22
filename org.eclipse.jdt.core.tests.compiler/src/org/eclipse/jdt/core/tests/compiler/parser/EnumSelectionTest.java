@@ -14,8 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 public class EnumSelectionTest extends AbstractSelectionTest {
-public EnumSelectionTest(String testName) {
-	super(testName);
+public EnumSelectionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85379
 public void test0001() {

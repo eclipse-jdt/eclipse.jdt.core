@@ -25,8 +25,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 public class DocumentElementParserTest extends AbstractCompilerTest {
-public DocumentElementParserTest(String testName) {
-	super(testName);
+public DocumentElementParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public void reset() {
 }

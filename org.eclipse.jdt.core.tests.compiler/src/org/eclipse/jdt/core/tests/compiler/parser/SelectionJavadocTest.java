@@ -48,8 +48,8 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	ICompilationUnit unit;
 	StringBuilder result;
 
-	public SelectionJavadocTest(String testName) {
-		super(testName);
+	public SelectionJavadocTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	static {

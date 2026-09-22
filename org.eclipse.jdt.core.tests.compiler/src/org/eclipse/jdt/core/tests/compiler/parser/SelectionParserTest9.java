@@ -25,8 +25,8 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(SelectionParserTest9.class, F_9);
 }
 
-public SelectionParserTest9(String testName) {
-	super(testName);
+public SelectionParserTest9(String testName, long compliance) {
+	super(testName, compliance);
 }
 
 public void test510339_001_since_9() throws JavaModelException {

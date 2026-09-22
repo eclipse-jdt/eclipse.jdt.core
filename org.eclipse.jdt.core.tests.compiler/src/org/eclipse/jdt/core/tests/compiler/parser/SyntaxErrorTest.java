@@ -31,8 +31,8 @@ public class SyntaxErrorTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = CompilerOptions.getFirstSupportedJdkLevel(); //$NON-NLS-1$
 
-public SyntaxErrorTest(String testName){
-	super(testName);
+public SyntaxErrorTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public void checkParse(
 	char[] source,

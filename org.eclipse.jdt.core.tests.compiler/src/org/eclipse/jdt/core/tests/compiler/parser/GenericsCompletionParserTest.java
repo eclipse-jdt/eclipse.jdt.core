@@ -19,8 +19,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericsCompletionParserTest extends AbstractCompletionTest {
-public GenericsCompletionParserTest(String testName) {
-	super(testName);
+public GenericsCompletionParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(GenericsCompletionParserTest.class);

@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be a FieldAccess.
  */
 public class FieldAccessCompletionTest extends AbstractCompletionTest {
-public FieldAccessCompletionTest(String testName) {
-	super(testName);
+public FieldAccessCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(FieldAccessCompletionTest.class);

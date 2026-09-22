@@ -20,8 +20,8 @@ import junit.framework.Test;
  * or inside an ExplicitConstructorInvocation
  */
 public class ExplicitConstructorInvocationCompletionTest extends AbstractCompletionTest {
-public ExplicitConstructorInvocationCompletionTest(String testName) {
-	super(testName);
+public ExplicitConstructorInvocationCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(ExplicitConstructorInvocationCompletionTest.class);

@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be a ReferenceType.
  */
 public class ReferenceTypeCompletionTest extends AbstractCompletionTest {
-public ReferenceTypeCompletionTest(String testName) {
-	super(testName);
+public ReferenceTypeCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(ReferenceTypeCompletionTest.class);

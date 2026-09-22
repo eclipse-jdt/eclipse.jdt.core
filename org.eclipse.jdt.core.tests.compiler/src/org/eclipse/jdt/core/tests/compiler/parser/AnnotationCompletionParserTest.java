@@ -26,8 +26,8 @@ static {
 	//TESTS_NAMES= new String[]{"test0087"};
 }
 
-public AnnotationCompletionParserTest(String testName) {
-	super(testName);
+public AnnotationCompletionParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(AnnotationCompletionParserTest.class);

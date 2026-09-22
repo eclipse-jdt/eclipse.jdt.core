@@ -33,8 +33,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class EnumDietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 
-public EnumDietRecoveryTest(String testName){
-	super(testName);
+public EnumDietRecoveryTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 
 @Override

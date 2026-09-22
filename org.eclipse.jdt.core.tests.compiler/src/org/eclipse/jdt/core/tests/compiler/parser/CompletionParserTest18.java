@@ -22,8 +22,8 @@ static {
 //	TESTS_NAMES = new String [] { "test0001" };
 }
 
-public CompletionParserTest18(String testName) {
-	super(testName);
+public CompletionParserTest18(String testName, long compliance) {
+	super(testName, compliance);
 }
 
 public static Test suite() {

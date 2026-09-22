@@ -42,8 +42,8 @@ public class AnnotationDietRecoveryTest extends AbstractCompilerTest {
 //		TESTS_NAMES = new String[] { "test0025" };
 	}
 
-public AnnotationDietRecoveryTest(String testName){
-	super(testName);
+public AnnotationDietRecoveryTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);

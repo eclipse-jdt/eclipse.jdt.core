@@ -25,8 +25,8 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(SelectionParserTest14.class, F_14);
 }
 
-public SelectionParserTest14(String testName) {
-	super(testName);
+public SelectionParserTest14(String testName, long compliance) {
+	super(testName, compliance);
 }
 /*
  * Multi constant case statement with ':', selection node is the string constant

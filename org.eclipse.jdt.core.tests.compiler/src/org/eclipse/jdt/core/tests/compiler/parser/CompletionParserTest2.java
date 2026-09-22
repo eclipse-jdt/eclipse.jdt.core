@@ -17,8 +17,8 @@ import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class CompletionParserTest2 extends AbstractCompletionTest {
-public CompletionParserTest2(String testName) {
-	super(testName);
+public CompletionParserTest2(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(CompletionParserTest2.class);

@@ -17,8 +17,8 @@ import junit.framework.Test;
 import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
 
 public class CompletionParserTest extends AbstractCompletionTest {
-public CompletionParserTest(String testName) {
-	super(testName);
+public CompletionParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 static {
 //	TESTS_NAMES = new String[] { "testBug292087" };

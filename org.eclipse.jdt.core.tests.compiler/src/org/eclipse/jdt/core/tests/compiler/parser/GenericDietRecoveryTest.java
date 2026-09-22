@@ -35,8 +35,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class GenericDietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 
-public GenericDietRecoveryTest(String testName){
-	super(testName);
+public GenericDietRecoveryTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 static {
 //	TESTS_NAMES = new String[] { "test0025" };

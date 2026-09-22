@@ -16,8 +16,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import junit.framework.Test;
 
 public class CompletionRecoveryTest extends AbstractCompletionTest {
-public CompletionRecoveryTest(String testName){
-	super(testName);
+public CompletionRecoveryTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 static {
 //	TESTS_NUMBERS = new int[] { 22 };

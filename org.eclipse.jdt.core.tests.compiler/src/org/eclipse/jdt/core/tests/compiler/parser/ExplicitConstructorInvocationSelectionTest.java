@@ -17,8 +17,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
  * Selection is expected to be wrapped with an explicit constructor invocation.
  */
 public class ExplicitConstructorInvocationSelectionTest extends AbstractSelectionTest {
-public ExplicitConstructorInvocationSelectionTest(String testName) {
-	super(testName);
+public ExplicitConstructorInvocationSelectionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 /*
  * ExplicitConstructorInvocation ::= Name '.' 'super' '(' <ArgumentListopt> ')' ';'

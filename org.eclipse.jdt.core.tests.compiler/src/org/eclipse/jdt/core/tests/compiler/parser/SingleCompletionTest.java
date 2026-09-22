@@ -25,8 +25,8 @@ public class SingleCompletionTest extends AbstractCompletionTest {
  * SingleCompletionTest constructor comment.
  * @param testName java.lang.String
  */
-public SingleCompletionTest(String testName) {
-	super(testName);
+public SingleCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 private void run(Class testClass, String methodName) {
 	try {

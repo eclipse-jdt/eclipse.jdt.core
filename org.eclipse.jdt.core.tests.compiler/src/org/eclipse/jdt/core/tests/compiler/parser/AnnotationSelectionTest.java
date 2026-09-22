@@ -14,8 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 public class AnnotationSelectionTest extends AbstractSelectionTest {
-public AnnotationSelectionTest(String testName) {
-	super(testName);
+public AnnotationSelectionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 /*
  * Selection at specific location

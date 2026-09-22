@@ -50,8 +50,8 @@ public class MarkdownCompletionParserTest extends AbstractCompletionTest impleme
 	CompletionJavadoc javadoc;
 	String sourceLevel;
 
-public MarkdownCompletionParserTest(String testName) {
-	super(testName);
+public MarkdownCompletionParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 
 static {

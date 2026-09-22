@@ -16,8 +16,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import junit.framework.Test;
 
 public class CompletionParserTestKeyword extends AbstractCompletionTest {
-public CompletionParserTestKeyword(String testName) {
-	super(testName);
+public CompletionParserTestKeyword(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(CompletionParserTestKeyword.class);

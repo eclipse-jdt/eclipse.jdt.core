@@ -43,8 +43,8 @@ public static Class testClass() {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
-public ParserTest1_7(String testName){
-	super(testName);
+public ParserTest1_7(String testName, long compliance) {
+	super(testName, compliance);
 }
 public void checkParse(
 	char[] source,

@@ -25,11 +25,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.osgi.framework.Bundle;
 
 public class IncrementalTests18 extends BuilderTests {
@@ -41,7 +40,7 @@ public class IncrementalTests18 extends BuilderTests {
 	}
 
 	public static Test suite() {
-		return AbstractCompilerTest.buildUniqueComplianceTestSuite(IncrementalTests18.class, ClassFileConstants.JDK1_8);
+		return TestCase.buildTestSuite(IncrementalTests18.class);
 	}
 
 	private void setupProjectForNullAnnotations() throws JavaModelException {

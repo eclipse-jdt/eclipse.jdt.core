@@ -22,8 +22,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class EnumCompletionParserTest extends AbstractCompletionTest {
-public EnumCompletionParserTest(String testName) {
-	super(testName);
+public EnumCompletionParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(EnumCompletionParserTest.class);

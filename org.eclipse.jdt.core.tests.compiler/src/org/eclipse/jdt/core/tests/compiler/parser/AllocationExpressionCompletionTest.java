@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be an AllocationExpression.
  */
 public class AllocationExpressionCompletionTest extends AbstractCompletionTest {
-public AllocationExpressionCompletionTest(String testName) {
-	super(testName);
+public AllocationExpressionCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(AllocationExpressionCompletionTest.class);

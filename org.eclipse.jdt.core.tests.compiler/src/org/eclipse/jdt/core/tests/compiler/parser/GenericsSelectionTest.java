@@ -14,8 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 public class GenericsSelectionTest extends AbstractSelectionTest {
-public GenericsSelectionTest(String testName) {
-	super(testName);
+public GenericsSelectionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 /*
  * Selection at specific location

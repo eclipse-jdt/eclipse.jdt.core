@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be in a LabeledStatement.
  */
 public class LabelStatementCompletionTest extends AbstractCompletionTest {
-public LabelStatementCompletionTest(String testName) {
-	super(testName);
+public LabelStatementCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(LabelStatementCompletionTest.class);

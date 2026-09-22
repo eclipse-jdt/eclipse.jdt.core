@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be a ClassLiteralAccess.
  */
 public class ClassLiteralAccessCompletionTest extends AbstractCompletionTest {
-public ClassLiteralAccessCompletionTest(String testName) {
-	super(testName);
+public ClassLiteralAccessCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(ClassLiteralAccessCompletionTest.class);

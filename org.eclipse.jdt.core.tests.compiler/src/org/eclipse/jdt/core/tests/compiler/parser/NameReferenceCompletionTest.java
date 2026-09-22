@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be a name reference.
  */
 public class NameReferenceCompletionTest extends AbstractCompletionTest {
-public NameReferenceCompletionTest(String testName) {
-	super(testName);
+public NameReferenceCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(NameReferenceCompletionTest.class);

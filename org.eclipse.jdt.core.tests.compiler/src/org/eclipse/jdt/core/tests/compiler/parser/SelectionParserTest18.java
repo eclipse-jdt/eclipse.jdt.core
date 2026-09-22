@@ -25,8 +25,8 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(SelectionParserTest18.class, F_1_8);
 }
 
-public SelectionParserTest18(String testName) {
-	super(testName);
+public SelectionParserTest18(String testName, long compliance) {
+	super(testName, compliance);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424110, [1.8][hovering] Hover, F3 does not work for method reference in method invocation

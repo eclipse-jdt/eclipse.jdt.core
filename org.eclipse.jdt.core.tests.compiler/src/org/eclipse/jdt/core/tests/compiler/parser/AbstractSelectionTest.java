@@ -37,8 +37,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public abstract class AbstractSelectionTest extends AbstractCompilerTest {
 
 	public final static String NONE = "<NONE>";
-public AbstractSelectionTest(String testName){
-	super(testName);
+public AbstractSelectionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 /*
  * DietParse with selectionNode check

@@ -41,8 +41,8 @@ public class SourceElementParserTest extends AbstractCompilerTest implements ISo
 	private SourcePackage currentPackage;
 	private SourceImport[] currentImports;
 	private int numberOfImports;
-public SourceElementParserTest(String testName) {
-	super(testName);
+public SourceElementParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public SourceElementParserTest(String testName, char[] source) {
 	super(testName);

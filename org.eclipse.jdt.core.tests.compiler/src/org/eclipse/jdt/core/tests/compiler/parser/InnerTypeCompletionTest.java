@@ -19,8 +19,8 @@ import junit.framework.Test;
  * Completion is expected to be in an inner type
  */
 public class InnerTypeCompletionTest extends AbstractCompletionTest {
-public InnerTypeCompletionTest(String testName) {
-	super(testName);
+public InnerTypeCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(InnerTypeCompletionTest.class);

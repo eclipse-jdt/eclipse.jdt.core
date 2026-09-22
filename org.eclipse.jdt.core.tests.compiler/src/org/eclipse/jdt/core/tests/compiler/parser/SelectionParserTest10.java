@@ -28,8 +28,8 @@ public class SelectionParserTest10 extends AbstractSelectionTest {
 		return buildMinimalComplianceTestSuite(SelectionParserTest10.class, F_10);
 	}
 
-	public SelectionParserTest10(String testName) {
-		super(testName);
+	public SelectionParserTest10(String testName, long compliance) {
+		super(testName, compliance);
 	}
 
 	public void test001() throws JavaModelException {

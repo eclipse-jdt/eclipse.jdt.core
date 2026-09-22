@@ -26,8 +26,8 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 		return buildMinimalComplianceTestSuite(PatternMatchingSelectionTest.class, F_16);
 	}
 
-	public PatternMatchingSelectionTest(String testName) {
-		super(testName);
+	public PatternMatchingSelectionTest(String testName, long compliance) {
+		super(testName, compliance);
 	}
 	public void test001() throws JavaModelException {
 		String string =  "public class X {\n"

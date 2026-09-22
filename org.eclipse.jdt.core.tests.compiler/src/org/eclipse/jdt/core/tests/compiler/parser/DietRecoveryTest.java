@@ -40,8 +40,8 @@ public static Test suite() {
 	return buildAllCompliancesTestSuite(DietRecoveryTest.class);
 }
 
-public DietRecoveryTest(String testName){
-	super(testName);
+public DietRecoveryTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 
 public void checkParse(

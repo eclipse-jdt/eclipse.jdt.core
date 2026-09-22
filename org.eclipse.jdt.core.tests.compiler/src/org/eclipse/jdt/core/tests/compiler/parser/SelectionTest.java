@@ -23,8 +23,8 @@ public static Test suite() {
 	return buildAllCompliancesTestSuite(SelectionTest.class);
 }
 
-public SelectionTest(String testName) {
-	super(testName);
+public SelectionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 /*
  * Select superclass

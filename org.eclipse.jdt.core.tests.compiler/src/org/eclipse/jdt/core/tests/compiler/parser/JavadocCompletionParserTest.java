@@ -47,8 +47,8 @@ public class JavadocCompletionParserTest extends AbstractCompletionTest implemen
 	CompletionJavadoc javadoc;
 	String sourceLevel;
 
-public JavadocCompletionParserTest(String testName) {
-	super(testName);
+public JavadocCompletionParserTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 
 static {

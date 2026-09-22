@@ -33,8 +33,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class SelectionTest2 extends AbstractSelectionTest {
 
-public SelectionTest2(String testName) {
-	super(testName);
+public SelectionTest2(String testName, long compliance) {
+	super(testName, compliance);
 }
 boolean thereWasAnNPE = false;
 static class SpecialSelectionParser extends SelectionParser {

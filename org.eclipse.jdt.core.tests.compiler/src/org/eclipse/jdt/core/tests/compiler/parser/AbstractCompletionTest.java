@@ -39,8 +39,8 @@ public abstract class AbstractCompletionTest extends AbstractCompilerTest {
 
 	public final static String NONE = "<NONE>";
 	public final static String NULL = "null";
-public AbstractCompletionTest(String testName){
-	super(testName);
+public AbstractCompletionTest(String testName, long compliance) {
+	super(testName, compliance);
 }
 /*
  * DietParse with completionNode check
