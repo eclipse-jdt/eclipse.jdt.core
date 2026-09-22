@@ -32,9 +32,10 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.FULL_ANALYSIS;
 import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.ConstructorFlowAnalysisMode.PROLOGUE_ANALYSIS;
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.All;
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.FieldsOnly;
-import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.InitializersOnly;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.DECLARED_ENTITIES;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.FIELDS_ONLY;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.IMPLICITS_ONLY;
+import static org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.FieldInitializationMode.INITIALIZERS_ONLY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +84,14 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	private PrologueInfo prologueInfo;
 
-public ConstructorDeclaration(CompilationResult compilationResult){
+public ConstructorDeclaration(CompilationResult compilationResult) {
 	super(compilationResult);
+}
+
+public ConstructorDeclaration(CompilationResult compilationResult, boolean shouldInitializeStrictly) {
+	super(compilationResult);
+	if (shouldInitializeStrictly)
+		this.bits |= ASTNode.ShouldInitializeStrictly;
 }
 
 FlowInfo getPrologueFlowInfo() {
@@ -520,9 +527,8 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (this.statements != null) {
 			for (Statement statement : this.statements) {
 				if (this.constructorCall == statement && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
-					// with JEP 401 (value classes) involved field inits are generated *before* chaining to super constructor
-					if (declaringClass.isValueClass())
-						generateFieldInitializations(declaringType, codeStream, initializerScope, FieldsOnly);
+					if ((this.constructorCall.bits & IsReachable) != 0 && declaringClass.isValueClass()) // For value classes, field initializations are generated *before* chaining to super constructor
+						generateFieldInitializations(declaringType, codeStream, initializerScope, FIELDS_ONLY);
 				}
 				statement.generateCode(this.scope, codeStream);
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
@@ -531,7 +537,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				if (this.constructorCall == statement && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 					// with JEP 492 (Flexible Constructor Bodies) involved field inits are generated only *after* the explicit constructor for identity classes
 					if ((this.constructorCall.bits & IsReachable) != 0)
-						generateFieldInitializations(declaringType, codeStream, initializerScope, declaringClass.isValueClass() ? InitializersOnly : All);
+						generateFieldInitializations(declaringType, codeStream, initializerScope, declaringClass.isValueClass() ? INITIALIZERS_ONLY : DECLARED_ENTITIES);
 				}
 			}
 		}
@@ -539,8 +545,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (this.ignoreFurtherInvestigation) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
-		if ((this.bits & ASTNode.NeedFreeReturn) != 0)
+		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
+			if (this.isCompactConstructor() && !declaringClass.isValueClass())
+				generateFieldInitializations(declaringType, codeStream, initializerScope, IMPLICITS_ONLY);
 			codeStream.return_();
+		}
 		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054
 		codeStream.exitUserScope(this.scope, lvb -> !lvb.isParameter());
 		codeStream.handleRecordAccessorExceptions(this.scope);
@@ -563,30 +572,32 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 }
 
 enum FieldInitializationMode {
-	All,
-	FieldsOnly,
-	InitializersOnly,
+	DECLARED_ENTITIES, // excludes implicit/derived fields (of records)
+	FIELDS_ONLY,
+	INITIALIZERS_ONLY,
+	IMPLICITS_ONLY,
 }
 private void generateFieldInitializations(TypeDeclaration declaringType, CodeStream codeStream, MethodScope initializerScope, FieldInitializationMode initializationMode) {
 	if (declaringType.fields != null) {
 		for (FieldDeclaration field : declaringType.fields) {
 			if (!field.isStatic()) {
-				if (initializationMode == FieldsOnly && field instanceof Initializer)
+				if (initializationMode == FIELDS_ONLY && field instanceof Initializer)
 					continue;
-				if (initializationMode == InitializersOnly && !(field instanceof Initializer))
+				if (initializationMode == INITIALIZERS_ONLY && !(field instanceof Initializer))
 					continue;
 				field.generateCode(initializerScope, codeStream);
 			}
 		}
 	}
-	if (this.isCompactConstructor() && initializationMode != InitializersOnly) {
-		// Note: the body of a compact constructor may not contain a return statement and so will need an injected return
-		for (RecordComponent rc : declaringType.scope.referenceContext.recordComponents) {
-			LocalVariableBinding parameter = this.scope.findVariable(rc.name);
-			FieldBinding field = declaringType.scope.referenceContext.binding.getField(rc.name, true).original();
-			codeStream.aload_0();
-			codeStream.load(parameter);
-			codeStream.fieldAccess(Opcodes.OPC_putfield, field, declaringType.scope.referenceContext.binding);
+	if (initializationMode != DECLARED_ENTITIES && initializationMode != INITIALIZERS_ONLY) {
+		if (this.isCompactConstructor()) {
+			for (RecordComponent rc : declaringType.scope.referenceContext.recordComponents) {
+				LocalVariableBinding parameter = this.scope.findVariable(rc.name);
+				FieldBinding field = declaringType.scope.referenceContext.binding.getField(rc.name, true).original();
+				codeStream.aload_0();
+				codeStream.load(parameter);
+				codeStream.fieldAccess(Opcodes.OPC_putfield, field, declaringType.scope.referenceContext.binding);
+			}
 		}
 	}
 }
@@ -787,7 +798,7 @@ public final void buildBody(ASTNode [] astStack, int astPtr, int length, /* @Nul
 	    }
 	}
 
-	boolean superCallPrecedes = (this.bits & ASTNode.IsValueConstructor) == 0;
+	boolean superCallPrecedes = (this.bits & ASTNode.ShouldInitializeStrictly) == 0;
 
 	this.statements = new Statement[length + 1];
 

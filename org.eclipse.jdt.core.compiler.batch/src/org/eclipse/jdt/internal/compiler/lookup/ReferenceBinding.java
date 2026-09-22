@@ -1834,6 +1834,10 @@ public boolean isValueClass() {
 	return this.isClass() && (this.modifiers & ClassFileConstants.AccIdentity) == 0;
 }
 
+public boolean isStrictlyInitialized() {
+	return false;
+}
+
 public boolean isImplicitType() {
 	return false;
 }

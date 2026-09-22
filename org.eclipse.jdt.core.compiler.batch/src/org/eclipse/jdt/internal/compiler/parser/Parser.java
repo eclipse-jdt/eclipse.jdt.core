@@ -2887,6 +2887,25 @@ protected void consumeConstructorHeader() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
+
+// Answer true if the declaring class of the constructor just parsed calls for strict initialization of fields, false otherwise.
+private boolean shouldInitializeStrictly() {
+	for (int i = this.astPtr; i >=0; i--) {
+		if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
+			if (declaringClass.declarationSourceEnd > 0)
+				continue; // skip preceding member types
+			if ((declaringClass.modifiers & ExtraCompilerModifiers.AccValue) != 0)
+				return true;
+			if ((declaringClass.modifiers & ExtraCompilerModifiers.AccRecord) == 0)
+				return false;
+			if (this.options == null || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.options.sourceLevel, this.options.enablePreviewFeatures))
+				return false;
+			return true;
+		}
+	}
+	return false;
+}
+
 protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	/* recovering - might be an empty message send */
@@ -2900,7 +2919,7 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult, shouldInitializeStrictly());
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
@@ -2972,11 +2991,7 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 	}
 
 	// ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
-	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
-
-	helperConstructorHeaderNameWithTypeParameters(cd);
-}
-private void helperConstructorHeaderNameWithTypeParameters(ConstructorDeclaration cd) {
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult, shouldInitializeStrictly());
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];

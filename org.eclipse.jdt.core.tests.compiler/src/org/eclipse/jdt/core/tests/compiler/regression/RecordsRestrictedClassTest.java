@@ -29,7 +29,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-		TESTS_NAMES = new String[] { "testBug560569_001", "testBug562637_001", "testIssue3951"};
+//		TESTS_NAMES = new String[] { "testBug3504_1"};
 	}
 
 	public static Class<?> testClass() {
@@ -2034,7 +2034,7 @@ public void testBug560531_002() {
 			},
 		"0");
 }
-public void testBug560569_001() throws Exception { // here
+public void testBug560569_001() throws Exception {
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -4320,7 +4320,7 @@ public void testBug563184_002() {
 		},
 		"0");
 }
-public void testBug562637_001() { // here
+public void testBug562637_001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -10290,7 +10290,7 @@ public void testIssue3951() throws Exception {
 			"        [pc: 0, pc: 10] local: classes index: 1 type: java.util.List<java.lang.Class<? extends java.lang.annotation.Annotation>>\n" +
 			"      Method Parameters:\n" +
 			"        mandated classes\n";
-	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM); // here
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3957
 // [Records] Missing @Override annotation on component accessors not complained about by ECJ

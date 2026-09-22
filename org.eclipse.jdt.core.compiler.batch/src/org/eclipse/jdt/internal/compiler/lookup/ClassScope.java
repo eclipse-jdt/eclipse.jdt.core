@@ -190,7 +190,7 @@ public class ClassScope extends Scope {
 			} else if (variableDeclaration instanceof RecordComponent componentDeclaration) {
 				// prefer type from the binding as it holds the null annotations if any:
 				TypeBinding type = componentDeclaration.binding != null ? componentDeclaration.binding.type : variableDeclaration.type.resolvedType;
-				int modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal | (sourceType.isValueClass() ? ClassFileConstants.AccStrictInit : 0);
+				int modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal | (sourceType.isStrictlyInitialized() ? ClassFileConstants.AccStrictInit : 0);
 				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, type, modifiers, sourceType, Constant.NotAConstant);
 				if (componentDeclaration.binding != null)
 					fieldBinding.tagBits |= componentDeclaration.binding.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
@@ -894,7 +894,7 @@ public class ClassScope extends Scope {
 			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum | ExtraCompilerModifiers.AccLocallyUsed;
 			fieldBinding.modifiers|= IMPLICIT_MODIFIERS;
 			return;
-		} else if (declaringClass.isValueClass() && !fieldBinding.isStatic()) {
+		} else if (!fieldBinding.isStatic() && declaringClass.isStrictlyInitialized()) {
 			modifiers |= ClassFileConstants.AccFinal | ClassFileConstants.AccStrictInit;
 		}
 

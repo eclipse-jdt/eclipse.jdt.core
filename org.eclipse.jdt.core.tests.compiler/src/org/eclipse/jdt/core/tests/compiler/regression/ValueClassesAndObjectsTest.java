@@ -865,7 +865,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 					public Point(int x, int y) {
 						this.x = x;
 						super();
-						//this.y = y;
+						this.y = y;
 					}
 					public static void main(String[] args) {
 						Point p1 = new Point (1024, 1024);
@@ -1097,8 +1097,8 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
     }
 
     // Disallow return in constructor prologue
-    public void _testReturnFromPrologue() {
-        runConformTest(new String [] {
+    public void testReturnFromPrologue() {
+        runNegativeTest(new String [] {
                 "X.java",
                 """
 				public value class X  {
@@ -1117,32 +1117,99 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 					}
 				}
                 """},
-        		"In X Ctor Prologue\n" +
-        		"In Super Ctor\n" +
-				"In X Ctor Epilogue");
+        		"----------\n" +
+				"1. WARNING in X.java (at line 1)\n" +
+				"	public value class X  {\n" +
+				"	       ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	return;\n" +
+				"	^^^^^^^\n" +
+				"return; statement not allowed in an early construction context\n" +
+				"----------\n");
     }
 
-    public void _testInnerValueClass() {
+    public void testInnerValueClass() {
         runConformTest(new String [] {
                 "X.java",
                 """
-                public class X {
-					public value class Point {
-					    int x;
-					    int y;
-						public Point(int x, int y) {
-							this.x = x;
-							this.y = y;
-						}
-					public static void main(String[] args) {
-						X x = new X();
-						Point p1 = x.new Point (1024, 1024);
-						System.out.println(p1);
-						Point p2 = new X().new Point(1024, 1024);
-						System.out.println(p1 == p2);
-						Point p3 = x.new Point(1024, 1024);
-						System.out.println(p1 == p3);
-					}
+				public class X {
+
+				    record Y(int x, int y) {
+				    }
+
+				    public value class Point {
+				        int x;
+				        int y;
+
+				        public Point(int x, int y) {
+				            this.x = x;
+				            this.y = y;
+				        }
+
+				        // Forces retention of the outer instance reference by javac, if return X.this; is used as opposed to return null;
+				        X outer() {
+				            return null;
+				           //  return X.this;
+				        }
+
+				        public String toString() {
+				            return "Point(" + x + ", " + y + ")";
+				        }
+				    }
+
+				    public static void main(String[] args) {
+				        X x = new X();
+				        Point p1 = x.new Point(1024, 1024);
+				        System.out.println(p1);
+				        Point p2 = new X().new Point(1024, 1024);
+				        System.out.println(p1 == p2);
+				        Point p3 = x.new Point(1024, 1024);
+				        System.out.println(p1 == p3);
+				    }
+				}
+                """},
+        		"Point(1024, 1024)\n" +
+				"false\n" +
+				"true");
+    }
+
+    public void testStrictlyInitializedRecordClass() {
+        runConformTest(new String [] {
+                "Point.java",
+                """
+				import java.lang.reflect.Field;
+
+				public record Point(int x, int y) {
+
+				    public Point(int x, int y) {
+				        System.out.println(x);
+				        System.out.println(y);
+				        this.x = x;
+				        this.y = y;
+				    }
+
+				    public static void main(String[] args) {
+				        Point p1 = new Point(1024, 1024);
+				        System.out.println(p1);
+				        Point p2 = new Point(512, 512);
+				        System.out.println(p2);
+				        System.out.println(p1 == p2);
+
+				        for (Field field : Point.class.getDeclaredFields()) {
+
+				            String fieldName = field.getName();
+				            String fieldType = field.getType().getSimpleName();
+
+				            int modifiersBitmask = field.getModifiers();
+
+				            System.out.print("Name: " + fieldName);
+				            System.out.print(" (" + fieldType + ")");
+				            if ((modifiersBitmask & 0x800) != 0)
+				                System.out.println(" is strictly initialized");
+				        }
+				    }
 				}
                 """},
         		"1024\n" +
@@ -1151,7 +1218,65 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"512\n" +
 				"512\n" +
 				"Point[x=512, y=512]\n" +
-				"false");
+				"false\n" +
+				"Name: x (int) is strictly initialized\n" +
+				"Name: y (int) is strictly initialized");
     }
+
+    // Same snippet as above but with preview turned off for both compiler and runtime
+    public void testLooselyInitializedRecordClass() {
+ 		runConformTest(new String[] {
+ 			"X.java",
+ 			"""
+            import java.lang.reflect.Field;
+
+            public class X {
+
+                public record Point(int x, int y) {
+
+                    public Point(int x, int y) {
+                        System.out.println(x);
+                        System.out.println(y);
+                        this.x = x;
+                        this.y = y;
+                    }
+                 }
+
+                public static void main(String[] args) {
+                    Point p1 = new Point(1024, 1024);
+                    System.out.println(p1);
+                    Point p2 = new Point(512, 512);
+                    System.out.println(p2);
+                    System.out.println(p1 == p2);
+
+                    for (Field field : Point.class.getDeclaredFields()) {
+
+                        String fieldName = field.getName();
+                        String fieldType = field.getType().getSimpleName();
+
+                        int modifiersBitmask = field.getModifiers();
+
+                        System.out.print("Name: " + fieldName);
+                        System.out.print(" (" + fieldType + ")");
+                        if ((modifiersBitmask & 0x800) != 0)
+                            System.out.println(" is strictly initialized");
+                        else
+                            System.out.println(" is loosely initialized");
+                    }
+                }
+            }
+ 			"""
+ 			},
+			"1024\n" +
+			"1024\n" +
+			"Point[x=1024, y=1024]\n" +
+			"512\n" +
+			"512\n" +
+			"Point[x=512, y=512]\n" +
+			"false\n" +
+			"Name: x (int) is loosely initialized\n" +
+			"Name: y (int) is loosely initialized",
+ 			getCompilerOptions(false), new String[] {}, new JavacTestOptions("-source 28"));
+ 	}
 
  }

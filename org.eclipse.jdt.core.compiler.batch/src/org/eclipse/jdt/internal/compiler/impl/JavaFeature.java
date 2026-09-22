@@ -123,8 +123,8 @@ public enum JavaFeature {
 			Messages.bind(Messages.value_classes_and_objects),
 			new char[][] {TypeConstants.VALUE},
 			true),
-	SAFE_RECORD_CONSTRUCTION(ClassFileConstants.JDK28,
-			Messages.bind(Messages.safe_record_construction),
+	STRICTLY_INITIALIZED_FIELDS(ClassFileConstants.JDK28,
+			Messages.bind(Messages.strictly_initialized_fields),
 			CharOperation.NO_CHAR_CHAR,
 			true),
 	;

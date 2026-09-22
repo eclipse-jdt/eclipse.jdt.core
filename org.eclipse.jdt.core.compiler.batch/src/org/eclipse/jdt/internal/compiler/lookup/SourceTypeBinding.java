@@ -66,6 +66,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -222,7 +223,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 				TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
 				String.valueOf(enclosingType.depth()).toCharArray()),
 			enclosingType,
-			ClassFileConstants.AccDefault | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
+			ClassFileConstants.AccDefault | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic | (isStrictlyInitialized() ? ClassFileConstants.AccStrictInit : 0),
 			this,
 			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(enclosingType, synthField);
@@ -1980,6 +1981,17 @@ public boolean isPrototype() {
 public boolean isImplicitType() {
 	return this.isImplicit;
 }
+
+@Override
+public boolean isStrictlyInitialized() {
+	if (this.isValueClass())
+		return true;
+	CompilerOptions options;
+	if (!this.isRecord() || (options = this.scope.compilerOptions()) == null || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(options.sourceLevel, options.enablePreviewFeatures))
+		return false;
+	return this.scope.referenceContext.compilationResult().usesPreview = true;
+}
+
 @Override
 public ReferenceBinding containerAnnotationType() {
 
