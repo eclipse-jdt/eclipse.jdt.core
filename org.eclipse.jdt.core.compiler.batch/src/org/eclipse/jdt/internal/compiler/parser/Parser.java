@@ -2894,9 +2894,9 @@ private boolean shouldInitializeStrictly() {
 		if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
 			if (declaringClass.declarationSourceEnd > 0)
 				continue; // skip preceding member types
-			if ((declaringClass.modifiers & ExtraCompilerModifiers.AccValue) != 0)
+			if (declaringClass.isValueClass())
 				return true;
-			if ((declaringClass.modifiers & ExtraCompilerModifiers.AccRecord) == 0)
+			if (!declaringClass.isRecord())
 				return false;
 			if (this.options == null || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.options.sourceLevel, this.options.enablePreviewFeatures))
 				return false;
