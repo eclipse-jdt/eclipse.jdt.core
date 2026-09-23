@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -191,7 +195,7 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 	MethodScope methodScope = methodScope();
 	if (methodScope.isStatic != binding.isStatic())
 		return false;
-	if (methodScope.isLambdaScope())
+	if (methodScope.isLambdaScope() || methodScope.isInsideValueClassInitializer())
 		return false;
 	return methodScope.isInsideInitializer() // inside initializer
 			|| ((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod(); // inside constructor or clinit

@@ -1358,4 +1358,98 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
     		"Ok!",
     		options);
     }
+
+    // Instance initializer blocks are run in the late construction phase;
+    public void testInstanceInitializerBlocks() {
+        runNegativeTest(new String [] {
+                "X.java",
+                """
+				public value class X  {
+
+					final int x;
+					final int y;
+					final int z = 15;
+
+					{
+						this.y = 10;
+						this.x++;
+					}
+
+					X() {
+						this.x = 5;
+						super();
+						return;
+					}
+
+					public static void main(String[] args) {
+						new X();
+					}
+
+					void foo() {
+						this.x++; // error
+					}
+				}
+                """},
+        		"----------\n" +
+				"1. WARNING in X.java (at line 1)\n" +
+				"	public value class X  {\n" +
+				"	       ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	this.y = 10;\n" +
+				"	     ^\n" +
+				"The final field X.y cannot be assigned\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 9)\n" +
+				"	this.x++;\n" +
+				"	     ^\n" +
+				"The final field X.x cannot be assigned\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 14)\n" +
+				"	super();\n" +
+				"	^^^^^^^^\n" +
+				"The field \'y\' must be initialized before chaining to the super class constructor\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 23)\n" +
+				"	this.x++; // error\n" +
+				"	     ^\n" +
+				"The final field X.x cannot be assigned\n" +
+				"----------\n");
+    }
+
+    // Instance initializer blocks are run in the late construction phase;
+    public void testInstanceInitializerBlocks_2() { // different order of visitation of the instance initializer block and the field initializers
+        runNegativeTest(new String [] {
+                "X.java",
+                """
+				public value class X  {
+
+                    {
+						this.x = 10;
+					}
+
+					final int x = 20;
+
+					X() {
+
+					}
+
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+                """},
+        		"----------\n" +
+				"1. WARNING in X.java (at line 1)\n" +
+				"	public value class X  {\n" +
+				"	       ^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	this.x = 10;\n" +
+				"	     ^\n" +
+				"The final field X.x cannot be assigned\n" +
+				"----------\n");
+    }
  }

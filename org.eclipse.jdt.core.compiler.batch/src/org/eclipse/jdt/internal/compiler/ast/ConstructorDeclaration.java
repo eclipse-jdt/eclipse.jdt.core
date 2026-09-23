@@ -304,16 +304,18 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 }
 
 private void complainIfStrictInitsAreUninitialized(ExplicitConstructorCall call, FlowInfo flowInfo) {
-	if ((this.bits & ASTNode.ShouldInitializeStrictly) != 0) {
-		for (FieldBinding field : this.binding.declaringClass.fields()) {  // no selective strict initialization as of JDK28, just check all fields
-			if (field.isStatic() || !field.isBlankFinal() || flowInfo.isDefinitelyAssigned(field))
-				continue;
-			if (field.isRecordComponent() && this.isCompactConstructor())
-				flowInfo.markAsDefinitelyAssigned(field);
-			else
-				this.scope.problemReporter().uninitializedStrictInitField(field, call);
-		}
-	}
+    if ((this.bits & ASTNode.ShouldInitializeStrictly) == 0)
+    	return;
+
+    for (FieldBinding field : this.binding.declaringClass.fields()) {  // no selective strict initialization as of JDK28, just check all instance fields
+        if (field.isStatic() || !field.isFinal() || flowInfo.isDefinitelyAssigned(field))
+            continue;
+        flowInfo.markAsDefinitelyAssigned(field);
+        if (field.isRecordComponent() && this.isCompactConstructor())
+            continue;
+        if (field.isBlankFinal())
+            this.scope.problemReporter().uninitializedStrictInitField(field, call);
+    }
 }
 
 private void markFieldsAsInitializedAfterThisCall(ExplicitConstructorCall call, FlowInfo flowInfo) {
