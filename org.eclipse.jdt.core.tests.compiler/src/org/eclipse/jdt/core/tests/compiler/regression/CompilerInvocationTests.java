@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1392,6 +1396,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("ValueClassExtendsIdentityClass", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("IllegalSynchronizedInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("FinalizeMethodUselessInValueClass", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("UninitializedStrictInitField", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -2550,6 +2555,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("ValueClassExtendsIdentityClass", SKIP);
 	    expectedProblemAttributes.put("IllegalSynchronizedInstanceMethod", SKIP);
 	    expectedProblemAttributes.put("FinalizeMethodUselessInValueClass", SKIP);
+	    expectedProblemAttributes.put("UninitializedStrictInitField", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();
