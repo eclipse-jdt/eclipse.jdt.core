@@ -1273,4 +1273,89 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
  			getCompilerOptions(false), new String[] {}, new JavacTestOptions("-source 28"));
  	}
 
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5324
+    // Implement strict/safe construction rules for record classes
+    public void testIssue5324() {
+    	Map<String, String> options = getCompilerOptions(true);
+    	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_28);
+    	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_28);
+    	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_28);
+    	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+
+    	runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"""
+    			import java.util.List;
+
+    			record Node(String label, List<Node> edges) {
+
+    				static void nullCheck(Object arg, Object owner) {
+    					if (arg == null) {
+    						String msg = "null arg for " + owner.toString();
+    						throw new IllegalArgumentException(msg);
+    					}
+    				}
+
+    				public Node {
+    					nullCheck(label, this);
+    					nullCheck(edges, this);
+    				}
+    			}
+    			"""
+    		},
+    		"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	nullCheck(label, this);\n" +
+			"	                 ^^^^\n" +
+			"Cannot use \'this\' in an early construction context\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	nullCheck(edges, this);\n" +
+			"	                 ^^^^\n" +
+			"Cannot use \'this\' in an early construction context\n" +
+			"----------\n",
+    		null,
+    		false,
+    		options);
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5324
+    // Implement strict/safe construction rules for record classes
+    public void testIssue5324_2() {
+    	Map<String, String> options = getCompilerOptions(false);
+    	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_28);
+    	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_28);
+    	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_28);
+    	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+
+    	runConformTest(
+    		new String[] {
+    			"Node.java",
+    			"""
+    			import java.util.List;
+
+    			public record Node(String label, List<Node> edges) {
+
+    				static void nullCheck(Object arg, Object owner) {
+    					if (arg == null) {
+    						String msg = "null arg for " + owner.toString();
+    						throw new IllegalArgumentException(msg);
+    					}
+    				}
+
+    				public Node {
+    					nullCheck(label, this);
+    					nullCheck(edges, this);
+    				}
+
+    				public static void main(String[] args) {
+    					System.out.println("Ok!");
+    				}
+    			}
+    			"""
+    		},
+    		"Ok!",
+    		options);
+    }
  }
