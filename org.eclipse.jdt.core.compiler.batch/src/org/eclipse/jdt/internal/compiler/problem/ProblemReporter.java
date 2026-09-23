@@ -8862,6 +8862,15 @@ public void uninitializedBlankFinalField(FieldBinding field, ASTNode location) {
 		nodeSourceStart(field, location),
 		nodeSourceEnd(field, location));
 }
+public void uninitializedStrictInitField(FieldBinding field, ASTNode location) {
+	String[] arguments = new String[] { new String(field.readableName()) };
+	this.handle(
+		IProblem.UninitializedStrictInitField,
+		arguments,
+		arguments,
+		nodeSourceStart(field, location),
+		nodeSourceEnd(field, location));
+}
 public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
 	char[][] nonNullAnnotationName = this.options.nonNullAnnotationName;
 	if(!field.isNonNull()) {

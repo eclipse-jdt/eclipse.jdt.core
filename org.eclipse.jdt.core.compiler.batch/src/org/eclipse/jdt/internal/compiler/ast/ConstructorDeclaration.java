@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -237,6 +241,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 			if (statement == this.constructorCall) {
 				if (mode == PROLOGUE_ANALYSIS) {
+					complainIfStrictInitsAreUninitialized(this.constructorCall, flowInfo);
 					this.prologueInfo = new PrologueInfo(flowInfo.copy(), cursor);
 					return;
 				}
@@ -295,6 +300,19 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		this.constructorContext = null;
 	} catch (AbortMethod e) {
 		this.ignoreFurtherInvestigation = true;
+	}
+}
+
+private void complainIfStrictInitsAreUninitialized(ExplicitConstructorCall call, FlowInfo flowInfo) {
+	if ((this.bits & ASTNode.ShouldInitializeStrictly) != 0) {
+		for (FieldBinding field : this.binding.declaringClass.fields()) {  // no selective strict initialization as of JDK28, just check all fields
+			if (field.isStatic() || !field.isBlankFinal() || flowInfo.isDefinitelyAssigned(field))
+				continue;
+			if (field.isRecordComponent() && this.isCompactConstructor())
+				flowInfo.markAsDefinitelyAssigned(field);
+			else
+				this.scope.problemReporter().uninitializedStrictInitField(field, call);
+		}
 	}
 }
 
