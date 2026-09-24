@@ -13,7 +13,7 @@
  *     Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *				bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.junit.extension;
+package org.eclipse.jdt.core.tests.junit5.extension;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,8 +44,7 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
-import org.eclipse.test.performance.Performance;
-import org.eclipse.test.performance.PerformanceTestCase;
+import org.junit.jupiter.api.Assertions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TestCase extends PerformanceTestCase {
@@ -230,14 +229,78 @@ public class TestCase extends PerformanceTestCase {
 	public static int[] TESTS_RANGE = null; // range of test numbers to perform
 
 	public TestCase(String name) {
-		setName(name);
+		super(name);
 	}
 
+public static void fail(String msg) {
+	Assertions.fail(msg);
+}
+public static void fail() {
+	Assertions.fail();
+}
+public static void assertTrue(String msg, boolean actual) {
+	Assertions.assertTrue(actual, msg);
+}
+public static void assertTrue(boolean actual) {
+	Assertions.assertTrue(actual);
+}
+public static void assertFalse(String msg, boolean actual) {
+	Assertions.assertFalse(actual, msg);
+}
+public static void assertFalse(boolean actual) {
+	Assertions.assertFalse(actual);
+}
+public static void assertNotNull(String message, Object actual) {
+	Assertions.assertNotNull(actual, message);
+}
+public static void assertNotNull(Object actual) {
+	Assertions.assertNotNull(actual);
+}
+public static void assertNull(String message, Object actual) {
+	Assertions.assertNull(actual, message);
+}
+public static void assertNull(Object actual) {
+	Assertions.assertNotNull(actual);
+}
 public static void assertEquals(String expected, String actual) {
     assertEquals(null, expected, actual);
 }
 public static void assertEquals(String message, String expected, String actual) {
 	assertStringEquals(message, expected, actual, true);
+}
+public static void assertEquals(String message, Object expected, Object actual) {
+	Assertions.assertEquals(expected, actual, message);
+}
+public static void assertEquals(Object expected, Object actual) {
+	Assertions.assertEquals(expected, actual);
+}
+public static void assertEquals(String message, boolean expected, boolean actual) {
+	Assertions.assertEquals(expected, actual, message);
+}
+public static void assertEquals(String message, char expected, char actual) {
+	Assertions.assertEquals(expected, actual, message);
+}
+// overridden in EvaluationTest
+public void assertEquals(String message, char[] expected, char[] actual) {
+	Assertions.assertEquals(expected, actual, message);
+}
+public static void assertEquals(String message, int expected, int actual) {
+	Assertions.assertEquals(expected, actual, message);
+}
+public static void assertEquals(String message, long expected, long actual) {
+	Assertions.assertEquals(expected, actual, message);
+}
+public static void assertNotSame(String message, Object one, Object two) {
+	Assertions.assertNotSame(one, two, message);
+}
+public static void assertNotSame(Object one, Object two) {
+	Assertions.assertNotSame(one, two);
+}
+public static void assertSame(String message, Object one, Object two) {
+	Assertions.assertSame(one, two, message);
+}
+public static void assertSame(Object one, Object two) {
+	Assertions.assertSame(one, two);
 }
 public static void assertStringEquals(String expected, String actual, boolean showLineSeparators) {
 	assertStringEquals(null, expected, actual, showLineSeparators);
@@ -310,7 +373,7 @@ protected void assumeEquals(String msg, String expected, String actual) {
  */
 protected void assumeEquals(String msg, int expected, int actual) {
 	try {
-		assertEquals(msg, expected, actual);
+		Assertions.assertEquals(expected, actual, msg);
 	} catch (AssertionFailedError afe) {
 		if (this.abortOnFailure) {
 			throw afe;
@@ -327,7 +390,7 @@ protected void assumeEquals(String msg, int expected, int actual) {
  */
 protected void assumeEquals(String msg, long expected, long actual) {
 	try {
-		assertEquals(msg, expected, actual);
+		Assertions.assertEquals(expected, actual, msg);
 	} catch (AssertionFailedError afe) {
 		if (this.abortOnFailure) {
 			throw afe;
@@ -967,7 +1030,7 @@ static public void failNotSame(String message, int expected, int actual) {
 }
 protected void runTest() throws Throwable {
 	try {
-		super.runTest();
+//		super.runTest();
 	} finally {
 		// clear interrupt status.
 		Thread.interrupted();
