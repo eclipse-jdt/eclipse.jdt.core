@@ -102,9 +102,18 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 		// bridge will be/would have been generated in the context of the super class since
 		// the bridge itself will be inherited. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362
 		if (originalInherited.declaringClass.isInterface()) {
-			if ((TypeBinding.equalsEquals(concreteMethod.declaringClass, this.type.superclass) && this.type.superclass.isParameterizedType() && !areMethodsCompatible(concreteMethod, originalInherited))
-				|| this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null)
-					this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
+			// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5389
+			// If the concrete method is a default method inherited from some *interface*, then the
+			// covariant-return bridge has already been generated in that declaring interface and is
+			// simply inherited here. Do not re-generating it again.
+			boolean bridgeInheritedFromInterface =
+					concreteMethod.declaringClass.isInterface()
+					&& TypeBinding.notEquals(concreteMethod.declaringClass, this.type);
+			if (!bridgeInheritedFromInterface) {
+				if ((TypeBinding.equalsEquals(concreteMethod.declaringClass, this.type.superclass) && this.type.superclass.isParameterizedType() && !areMethodsCompatible(concreteMethod, originalInherited))
+					|| this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null)
+						this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
+			}
 		}
 		if (analyseNullAnnotations && !concreteMethod.isStatic() && !abstractMethod.isStatic()) {
 			checkNullSpecInheritance(concreteMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, true, abstractMethod, abstractMethods, this.type.scope, null);
