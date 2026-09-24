@@ -35,7 +35,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@ParameterizedClass
+@ParameterizedClass(name = "[{0}]")
 @MethodSource("compliances")
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AbstractCompilerTest extends TestCase {
