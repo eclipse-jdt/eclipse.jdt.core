@@ -22,6 +22,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AbstractComparableTest extends AbstractRegressionTest {
@@ -100,8 +101,13 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		return suite;
 	}
 
+	@Deprecated
 	public AbstractComparableTest(String name) {
 		super(name);
+	}
+
+	public AbstractComparableTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	/*

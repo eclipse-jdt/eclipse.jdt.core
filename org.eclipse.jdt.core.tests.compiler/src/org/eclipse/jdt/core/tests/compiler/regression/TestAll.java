@@ -50,7 +50,6 @@ public static Test suite() {
 
 	// Common test suites
 	ArrayList standardTests = new ArrayList();
-	standardTests.add(ArrayTest.class);
 	standardTests.add(AssignmentTest.class);
 	standardTests.add(BooleanTest.class);
 	standardTests.add(CastTest.class);
@@ -178,7 +177,6 @@ public static Test suite() {
 			AutomaticModuleNamingTest.class,
 			UnnamedModuleTest.class,
 			NullAnnotationTests9.class,
-			AnnotationTest_9.class,
 			JavadocTestForModule.class,
 			TryStatement9Test.class,
 		},
