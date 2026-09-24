@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.search.indexing.IndexingParser;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
+import org.junit.jupiter.api.TestInfo;
 
 public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDocumentElementRequestor, ISourceElementRequestor {
 
@@ -63,8 +64,8 @@ public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDoc
 	private final String referenceCompiler;
 	private final String referenceCompilerTestsScratchArea;
 
-	public AbstractSyntaxTreeTest(String name, String referenceCompiler, String referenceCompilerTestsScratchArea) {
-		super(name);
+	public AbstractSyntaxTreeTest(Compliance compliance, TestInfo info, String referenceCompiler, String referenceCompilerTestsScratchArea) {
+		super(compliance, info);
 		this.referenceCompiler = referenceCompiler;
 		this.referenceCompilerTestsScratchArea = referenceCompilerTestsScratchArea;
 	}

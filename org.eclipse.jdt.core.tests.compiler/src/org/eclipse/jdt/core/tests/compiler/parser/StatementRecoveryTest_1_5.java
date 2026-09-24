@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -27,6 +26,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class StatementRecoveryTest_1_5 extends AbstractCompilerTest {
@@ -39,11 +40,8 @@ static {
 //	TESTS_NAMES = new String[] { "test0037"};
 //	TESTS_RANGE = new int[] {10, 20};
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(StatementRecoveryTest_1_5.class);
-}
-public StatementRecoveryTest_1_5(String testName){
-	super(testName);
+public StatementRecoveryTest_1_5(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 public void checkParse(
 	char[] source,
@@ -238,6 +236,7 @@ protected Map getCompilerOptions() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=142793
+@Test
 public void test0001() {
 
 	String s =
@@ -319,6 +318,7 @@ public void test0001() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=211180
+@Test
 public void test0002() {
 
 	String s =
@@ -382,6 +382,7 @@ public void test0002() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0003() {
 
 	String s =
@@ -444,6 +445,7 @@ public void test0003() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0004() {
 
 	String s =
@@ -506,6 +508,7 @@ public void test0004() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0005() {
 
 	String s =
@@ -581,6 +584,7 @@ public void test0005() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0006() {
 
 	String s =
@@ -656,6 +660,7 @@ public void test0006() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0007() {
 
 	String s =
@@ -733,6 +738,7 @@ public void test0007() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340691
 // Verify that we don't get a recovered enum declaration when the error token is after an
 // incorrectly used modifier
+@Test
 public void test0008() {
 	String s =
 		"public class Try {\n" +

@@ -15,6 +15,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.lang.reflect.InvocationTargetException;
 import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Only 1 test should be in this class
@@ -23,10 +25,9 @@ import junit.framework.TestCase;
 public class SingleCompletionTest extends AbstractCompletionTest {
 /**
  * SingleCompletionTest constructor comment.
- * @param testName java.lang.String
  */
-public SingleCompletionTest(String testName) {
-	super(testName);
+public SingleCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 private void run(Class testClass, String methodName) {
 	try {
@@ -54,6 +55,7 @@ private void run(Class testClass, String methodName) {
 /*
  * The test.
  */
+@Test
 public void test() {
 	run(NameReferenceCompletionTest.class, "testMethodInvocationAnonymousInnerClass2");
 }

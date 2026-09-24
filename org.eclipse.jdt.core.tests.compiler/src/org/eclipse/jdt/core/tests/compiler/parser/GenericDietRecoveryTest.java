@@ -30,13 +30,15 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericDietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 
-public GenericDietRecoveryTest(String testName){
-	super(testName);
+public GenericDietRecoveryTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 static {
 //	TESTS_NAMES = new String[] { "test0025" };
@@ -258,6 +260,7 @@ public void checkParse(
 	}
 }
 
+@Test
 public void test0001() {
 
 	String s =
@@ -294,6 +297,7 @@ public void test0001() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0002() {
 
 	String s =
@@ -323,6 +327,7 @@ public void test0002() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0003() {
 
 	String s =
@@ -359,6 +364,7 @@ public void test0003() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0004() {
 
 	String s =
@@ -395,6 +401,7 @@ public void test0004() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0005() {
 
 	String s =
@@ -434,6 +441,7 @@ public void test0005() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0006() {
 
 	String s =
@@ -473,6 +481,7 @@ public void test0006() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0007() {
 
 	String s =
@@ -511,6 +520,7 @@ public void test0007() {
 		expectedCompletionDietUnitToString, testName);
 }
 
+@Test
 public void test0008() {
 
 	String s =
@@ -552,6 +562,7 @@ public void test0008() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0009() {
 
 	String s =
@@ -592,6 +603,7 @@ public void test0009() {
 		expectedCompletionDietUnitToString, testName);
 }
 
+@Test
 public void test0010() {
 
 	String s =
@@ -634,6 +646,7 @@ public void test0010() {
 		expectedCompletionDietUnitToString, testName);
 }
 
+@Test
 public void test0011() {
 
 	String s =
@@ -670,6 +683,7 @@ public void test0011() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0012() {
 
 	String s =
@@ -706,6 +720,7 @@ public void test0012() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0013() {
 
 	String s =
@@ -742,6 +757,7 @@ public void test0013() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0014() {
 
 	String s =
@@ -778,6 +794,7 @@ public void test0014() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0015() {
 
 	String s =
@@ -814,6 +831,7 @@ public void test0015() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0016() {
 
 	String s =
@@ -850,6 +868,7 @@ public void test0016() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0017() {
 
 	String s =
@@ -886,6 +905,7 @@ public void test0017() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0018() {
 
 	String s =
@@ -922,6 +942,7 @@ public void test0018() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0019() {
 
 	String s =
@@ -977,6 +998,7 @@ public void test0019() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test0020() {
 	String s =
 		"public class X<T> {\n" +
@@ -1044,6 +1066,7 @@ public void test0020() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+@Test
 public void test0021() {
 	String s =
 		"import java.util.*;\n"+
@@ -1077,6 +1100,7 @@ public void test0021() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+@Test
 public void test0022() {
 	String s =
 		"import java.util.*;\n"+
@@ -1108,6 +1132,7 @@ public void test0022() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+@Test
 public void test0023() {
 	String s =
 		"import java.util.*;\n"+
@@ -1140,6 +1165,7 @@ public void test0023() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+@Test
 public void test0024() {
 	String s =
 		"import java.util.*;\n"+
@@ -1171,6 +1197,7 @@ public void test0024() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+@Test
 public void test0025() {
 	String s =
 		"import java.util.*;\n"+
@@ -1202,6 +1229,7 @@ public void test0025() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=113765
+@Test
 public void test0026() {
 	String s =
 		"import java.util.*;\n"+

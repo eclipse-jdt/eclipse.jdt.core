@@ -26,13 +26,15 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class SyntaxErrorTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = CompilerOptions.getFirstSupportedJdkLevel(); //$NON-NLS-1$
 
-public SyntaxErrorTest(String testName){
-	super(testName);
+public SyntaxErrorTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 public void checkParse(
 	char[] source,
@@ -86,6 +88,7 @@ public void checkParse(
 /*
  * Should diagnose parenthesis mismatch
  */
+@Test
 public void test01() {
 
 	String s =
@@ -124,6 +127,7 @@ public void test01() {
 /*
  * Should diagnose brace mismatch
  */
+@Test
 public void test02() {
 
 	String s =
@@ -150,6 +154,7 @@ public void test02() {
 /*
  * Should diagnose parenthesis mismatch
  */
+@Test
 public void test03() {
 
 	String s =
@@ -194,6 +199,7 @@ public void test03() {
 /*
  * Should not diagnose parenthesis mismatch
  */
+@Test
 public void test04() {
 
 	String s =
@@ -231,6 +237,7 @@ public void test04() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=61189
+@Test
 public void test05() {
 
 	String s =
@@ -260,6 +267,7 @@ public void test05() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=61189
+@Test
 public void test06() {
 
 	String s =
@@ -284,6 +292,7 @@ public void test06() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+@Test
 public void test07() {
 
 	String s =
@@ -306,6 +315,7 @@ public void test07() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+@Test
 public void test08() {
 
 	String s =
@@ -328,6 +338,7 @@ public void test08() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+@Test
 public void test09() {
 
 	String s =
@@ -352,6 +363,7 @@ public void test09() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133292
+@Test
 public void test10() {
 
 	String s =
@@ -376,6 +388,7 @@ public void test10() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+@Test
 public void test11() {
 
 	String s =
@@ -399,6 +412,7 @@ public void test11() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+@Test
 public void test12() {
 
 	String s =
@@ -428,6 +442,7 @@ public void test12() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=221266
+@Test
 public void test13() {
 
 	String s =
@@ -453,6 +468,7 @@ public void test13() {
 		testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
+@Test
 public void test14() {
 
 	String s =
@@ -481,6 +497,7 @@ public void test14() {
 		testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210419
+@Test
 public void test15() {
 
 	String s =

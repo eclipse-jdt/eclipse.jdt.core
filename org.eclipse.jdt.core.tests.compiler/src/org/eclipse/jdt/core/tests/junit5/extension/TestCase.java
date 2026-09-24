@@ -227,6 +227,7 @@ public class TestCase extends PerformanceTestCase {
 	public static String[] TESTS_NAMES = null; // list of test names to perform
 	public static int[] TESTS_NUMBERS = null; // list of test numbers to perform
 	public static int[] TESTS_RANGE = null; // range of test numbers to perform
+	public static boolean DISABLE_FILTERS = false;
 
 	public TestCase(String name) {
 		super(name);

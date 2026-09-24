@@ -13,23 +13,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class SelectionParserTest18 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_NAMES = new String[] { "testBug486264_selectionOnLambda_expectLambdaMethod" };
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(SelectionParserTest18.class, F_1_8);
-}
 
-public SelectionParserTest18(String testName) {
-	super(testName);
+public SelectionParserTest18(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424110, [1.8][hovering] Hover, F3 does not work for method reference in method invocation
+@Test
 public void test424110() throws JavaModelException {
 	String string =
 			"public class X {\n" +
@@ -84,6 +83,7 @@ public void test424110() throws JavaModelException {
 			testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424110, [1.8][hovering] Hover, F3 does not work for method reference in method invocation
+@Test
 public void test424110a() throws JavaModelException {
 	String string =
 			"public class X {\n" +
@@ -134,6 +134,7 @@ public void test424110a() throws JavaModelException {
 			testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430572, [1.8] CCE on hovering over 'super' in lambda expression
+@Test
 public void test430572() throws JavaModelException {
 	String string =
 			"@FunctionalInterface\n" +
@@ -180,6 +181,7 @@ public void test430572() throws JavaModelException {
 			testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
+@Test
 public void test476693() throws JavaModelException {
 	String string =
 			"import static java.util.stream.Collectors.toList;\n" +
@@ -252,6 +254,7 @@ public void test476693() throws JavaModelException {
 			expectedReplacedSource,
 			testName);
 }
+@Test
 public void test495912() {
 	String string =
 			"package xy;\n" +
@@ -311,6 +314,7 @@ public void test495912() {
 			expectedReplacedSource,
 			testName);
 }
+@Test
 public void test495912a() {
 	String string =
 			"package xy;\n" +
@@ -373,6 +377,7 @@ public void test495912a() {
 			expectedReplacedSource,
 			testName);
 }
+@Test
 public void test495912b() {
 	String string =
 			"package xy;\n" +
@@ -455,6 +460,7 @@ public void test495912b() {
 			expectedReplacedSource,
 			testName);
 }
+@Test
 public void testBug486264_selectionOnLambda_expectLambdaMethod() {
 	String string =
 			"package xy;\n" +

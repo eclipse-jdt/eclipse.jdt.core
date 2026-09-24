@@ -28,13 +28,15 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class EnumDietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 
-public EnumDietRecoveryTest(String testName){
-	super(testName);
+public EnumDietRecoveryTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 
 @Override
@@ -210,6 +212,7 @@ public void checkParse(
 	}
 }
 
+@Test
 public void test0001() {
 
 	String s =
@@ -251,6 +254,7 @@ public void test0001() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0002() {
 
 	String s =
@@ -298,6 +302,7 @@ public void test0002() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0003() {
 
 	String s =
@@ -347,6 +352,7 @@ public void test0003() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0004() {
 
 	String s =
@@ -400,6 +406,7 @@ public void test0004() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0005() {
 
 	String s =
@@ -454,6 +461,7 @@ public void test0005() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0006() {
 
 	String s =
@@ -512,6 +520,7 @@ public void test0006() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0007() {
 
 	String s =
@@ -570,6 +579,7 @@ public void test0007() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0008() {
 
 	String s =
@@ -623,6 +633,7 @@ public void test0008() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0009() {
 
 	String s =
@@ -676,6 +687,7 @@ public void test0009() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0010() {
 
 	String s =
@@ -735,6 +747,7 @@ public void test0010() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0011() {
 
 	String s =
@@ -793,6 +806,7 @@ public void test0011() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0012() {
 
 	String s =
@@ -853,6 +867,7 @@ public void test0012() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0013() {
 
 	String s =
@@ -914,6 +929,7 @@ public void test0013() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0014() {
 
 	String s =
@@ -1005,6 +1021,7 @@ public void test0014() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76874
  */
+@Test
 public void test0015() {
 
 	String s =
@@ -1067,6 +1084,7 @@ public void test0015() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107580
  */
+@Test
 public void test0016() {
 	String s =
 		"public enum Enum {								\n"
@@ -1110,6 +1128,7 @@ public void test0016() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0017() {
 
 	String s =

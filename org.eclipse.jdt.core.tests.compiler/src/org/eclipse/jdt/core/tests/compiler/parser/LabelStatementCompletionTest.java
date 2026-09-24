@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be in a LabeledStatement.
  */
 public class LabelStatementCompletionTest extends AbstractCompletionTest {
-public LabelStatementCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(LabelStatementCompletionTest.class);
+public LabelStatementCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Completion inside an inner class defined inside a labeled statement.
  */
+@Test
 public void test1FTEO9L() {
 	String cu =
 		"package p; 					\n" +
@@ -206,6 +205,7 @@ public void test1FTEO9L() {
 /*
  * Completion inside a case that has an identifier as its constant expression.
  */
+@Test
 public void testInCaseWithIdentifier() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -247,6 +247,7 @@ public void testInCaseWithIdentifier() {
 /*
  * Completion inside a case that has a number as its constant expression.
  */
+@Test
 public void testInCaseWithNumberConstant() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -288,6 +289,7 @@ public void testInCaseWithNumberConstant() {
 /*
  * Completion inside an inner class defined inside a labeled statement.
  */
+@Test
 public void testInLabeledInnerClass() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -338,6 +340,7 @@ public void testInLabeledInnerClass() {
  * Completion inside an inner class defined inside a labeled statement with a syntax error
  * just before the labeled statement.
  */
+@Test
 public void testInLabeledInnerClassWithErrorBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -390,6 +393,7 @@ public void testInLabeledInnerClassWithErrorBefore() {
 /*
  * Completion inside a labeled statement one level deep.
  */
+@Test
 public void testOneLevelDeep() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -423,6 +427,7 @@ public void testOneLevelDeep() {
 /*
  * Completion inside a labeled statement which is the second one in the method.
  */
+@Test
 public void testSecondLabel() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -457,6 +462,7 @@ public void testSecondLabel() {
 /*
  * Completion inside a labeled statement two level deep.
  */
+@Test
 public void testTwoLevelDeep() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

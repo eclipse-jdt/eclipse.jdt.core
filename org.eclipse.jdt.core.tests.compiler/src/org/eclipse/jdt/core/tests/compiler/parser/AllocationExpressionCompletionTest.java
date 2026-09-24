@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be an AllocationExpression.
  */
 public class AllocationExpressionCompletionTest extends AbstractCompletionTest {
-public AllocationExpressionCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(AllocationExpressionCompletionTest.class);
+public AllocationExpressionCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Completion inside an if statement.
  */
+@Test
 public void testInIfStatement1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -61,6 +60,7 @@ public void testInIfStatement1() {
 		"<complete inside an if statement>"
 	);
 }
+@Test
 public void testInIfStatement2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -100,6 +100,7 @@ public void testInIfStatement2() {
  * ie. ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
  *		where ClassType is a qualified type name
  */
+@Test
 public void testNoQualificationQualifiedTypeName1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -128,6 +129,7 @@ public void testNoQualificationQualifiedTypeName1() {
 		"<complete on non qualified instance creation with qualified type name>"
 	);
 }
+@Test
 public void testNoQualificationQualifiedTypeName2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -162,6 +164,7 @@ public void testNoQualificationQualifiedTypeName2() {
  * ie. ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
  *		where ClassType is a simple type name
  */
+@Test
 public void testNoQualificationSimpleTypeName1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -190,6 +193,7 @@ public void testNoQualificationSimpleTypeName1() {
 		"<complete on non qualified instance creation with simple type name>"
 	);
 }
+@Test
 public void testNoQualificationSimpleTypeName2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -223,6 +227,7 @@ public void testNoQualificationSimpleTypeName2() {
  *
  * ie. ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testQualifiedWithName1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -251,6 +256,7 @@ public void testQualifiedWithName1() {
 		"<complete on name qualified instance creation>"
 	);
 }
+@Test
 public void testQualifiedWithName2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -284,6 +290,7 @@ public void testQualifiedWithName2() {
  *
  * ie. ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testQualifiedWithPrimary1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -312,6 +319,7 @@ public void testQualifiedWithPrimary1() {
 		"<complete on primary qualified instance creation>"
 	);
 }
+@Test
 public void testQualifiedWithPrimary2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

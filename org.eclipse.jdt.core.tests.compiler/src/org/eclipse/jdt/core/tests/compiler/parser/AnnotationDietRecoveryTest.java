@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -29,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 // This test suite test the first implementation of the annotation recovery.
 // Tests must be updated with annotation recovery improvment
@@ -42,11 +43,8 @@ public class AnnotationDietRecoveryTest extends AbstractCompilerTest {
 //		TESTS_NAMES = new String[] { "test0025" };
 	}
 
-public AnnotationDietRecoveryTest(String testName){
-	super(testName);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+public AnnotationDietRecoveryTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 public static Class testClass() {
 	return AnnotationDietRecoveryTest.class;
@@ -227,6 +225,7 @@ public void checkParse(
 	}
 }
 
+@Test
 public void test0001() {
 
 	String s =
@@ -256,6 +255,7 @@ public void test0001() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0002() {
 
 	String s =
@@ -285,6 +285,7 @@ public void test0002() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0003() {
 
 	String s =
@@ -317,6 +318,7 @@ public void test0003() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0004() {
 
 	String s =
@@ -352,6 +354,7 @@ public void test0004() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=79770
  */
+@Test
 public void test0005() {
 
 	String s =
@@ -404,6 +407,7 @@ public void test0005() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0006() {
 
 	String s =
@@ -436,6 +440,7 @@ public void test0006() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0007() {
 
 	String s =
@@ -468,6 +473,7 @@ public void test0007() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0008() {
 
 	String s =
@@ -510,6 +516,7 @@ public void test0008() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0009() {
 
 	String s =
@@ -555,6 +562,7 @@ public void test0009() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+@Test
 public void test0010() {
 
 	String s =
@@ -602,6 +610,7 @@ public void test0010() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=176725
+@Test
 public void test0011() {
 
 	String s =
@@ -648,6 +657,7 @@ public void test0011() {
 		testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210404
+@Test
 public void test0012() {
 
 	String s =
@@ -691,6 +701,7 @@ public void test0012() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0013() {
 
 	String s =
@@ -733,6 +744,7 @@ public void test0013() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0014() {
 
 	String s =
@@ -776,6 +788,7 @@ public void test0014() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0015() {
 
 	String s =
@@ -819,6 +832,7 @@ public void test0015() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0016() {
 
 	String s =
@@ -866,6 +880,7 @@ public void test0016() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0017() {
 
 	String s =
@@ -913,6 +928,7 @@ public void test0017() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0018() {
 
 	String s =
@@ -959,6 +975,7 @@ public void test0018() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0019() {
 
 	String s =
@@ -1004,6 +1021,7 @@ public void test0019() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0020() {
 
 	String s =
@@ -1052,6 +1070,7 @@ public void test0020() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0021() {
 
 	String s =
@@ -1100,6 +1119,7 @@ public void test0021() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0022() {
 
 	String s =
@@ -1151,6 +1171,7 @@ public void test0022() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0023() {
 
 	String s =
@@ -1201,6 +1222,7 @@ public void test0023() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0024() {
 
 	String s =
@@ -1251,6 +1273,7 @@ public void test0024() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0025() {
 
 	String s =
@@ -1300,6 +1323,7 @@ public void test0025() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0026() {
 
 	String s =
@@ -1349,6 +1373,7 @@ public void test0026() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0027() {
 
 	String s =
@@ -1392,6 +1417,7 @@ public void test0027() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0028() {
 
 	String s =
@@ -1435,6 +1461,7 @@ public void test0028() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0030() {
 
 	String s =
@@ -1478,6 +1505,7 @@ public void test0030() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0031() {
 
 	String s =
@@ -1521,6 +1549,7 @@ public void test0031() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0032() {
 
 	String s =
@@ -1564,6 +1593,7 @@ public void test0032() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0033() {
 
 	String s =
@@ -1609,6 +1639,7 @@ public void test0033() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0034() {
 
 	String s =
@@ -1654,6 +1685,7 @@ public void test0034() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+@Test
 public void test0035() {
 
 	String s =
@@ -1697,6 +1729,7 @@ public void test0035() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227855
+@Test
 public void test0036() {
 
 	String s =
@@ -1746,6 +1779,7 @@ public void test0036() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227855
+@Test
 public void test0037() {
 
 	String s =
@@ -1798,6 +1832,7 @@ public void test0037() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464
+@Test
 public void test0038() {
 
 	String s =
@@ -1843,6 +1878,7 @@ public void test0038() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464
+@Test
 public void test0039() {
 
 	String s =
@@ -1888,6 +1924,7 @@ public void test0039() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464
+@Test
 public void test0040() {
 
 	String s =
@@ -1933,6 +1970,7 @@ public void test0040() {
 		testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=366003
+@Test
 public void test0041() {
 
 	String s =

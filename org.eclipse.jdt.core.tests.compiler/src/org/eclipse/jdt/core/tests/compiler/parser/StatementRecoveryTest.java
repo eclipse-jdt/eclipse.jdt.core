@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -27,6 +26,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class StatementRecoveryTest extends AbstractCompilerTest {
 	public static final boolean ONLY_DIET_PLUS_BODY_WITH_STATEMENT_RECOVERY = false;
@@ -38,11 +39,8 @@ static {
 //	TESTS_NAMES = new String[] { "test0037"};
 //	TESTS_RANGE = new int[] {10, 20};
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(StatementRecoveryTest.class);
-}
-public StatementRecoveryTest(String testName){
-	super(testName);
+public StatementRecoveryTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 public void checkParse(
 	char[] source,
@@ -230,6 +228,7 @@ public void checkParse(
 	}
 }
 
+@Test
 public void test0001() {
 
 	String s =
@@ -283,6 +282,7 @@ public void test0001() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0002() {
 
 	String s =
@@ -344,6 +344,7 @@ public void test0002() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0003() {
 
 	String s =
@@ -405,6 +406,7 @@ public void test0003() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0004() {
 
 	String s =
@@ -468,6 +470,7 @@ public void test0004() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0005() {
 
 	String s =
@@ -531,6 +534,7 @@ public void test0005() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0006() {
 
 	String s =
@@ -598,6 +602,7 @@ public void test0006() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0007() {
 
 	String s =
@@ -668,6 +673,7 @@ public void test0007() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0008() {
 
 	String s =
@@ -738,6 +744,7 @@ public void test0008() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0009() {
 
 	String s =
@@ -819,6 +826,7 @@ public void test0009() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0010() {
 
 	String s =
@@ -900,6 +908,7 @@ public void test0010() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0011() {
 
 	String s =
@@ -973,6 +982,7 @@ public void test0011() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0012() {
 
 	String s =
@@ -1046,6 +1056,7 @@ public void test0012() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0013() {
 
 	String s =
@@ -1133,6 +1144,7 @@ public void test0013() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0014() {
 
 	String s =
@@ -1209,6 +1221,7 @@ public void test0014() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0015() {
 
 	String s =
@@ -1285,6 +1298,7 @@ public void test0015() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0016() {
 
 	String s =
@@ -1378,6 +1392,7 @@ public void test0016() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0017() {
 
 	String s =
@@ -1463,6 +1478,7 @@ public void test0017() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0018() {
 
 	String s =
@@ -1548,6 +1564,7 @@ public void test0018() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0019() {
 
 	String s =
@@ -1644,6 +1661,7 @@ public void test0019() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0020() {
 
 	String s =
@@ -1741,6 +1759,7 @@ public void test0020() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0021() {
 
 	String s =
@@ -1816,6 +1835,7 @@ public void test0021() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0022() {
 
 	String s =
@@ -1886,6 +1906,7 @@ public void test0022() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0023() {
 
 	String s =
@@ -1956,6 +1977,7 @@ public void test0023() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0024() {
 
 	String s =
@@ -2037,6 +2059,7 @@ public void test0024() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0025() {
 
 	String s =
@@ -2110,6 +2133,7 @@ public void test0025() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0026() {
 
 	String s =
@@ -2183,6 +2207,7 @@ public void test0026() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0027() {
 
 	String s =
@@ -2270,6 +2295,7 @@ public void test0027() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0028() {
 
 	String s =
@@ -2352,6 +2378,7 @@ public void test0028() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0029() {
 
 	String s =
@@ -2434,6 +2461,7 @@ public void test0029() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0030() {
 
 	String s =
@@ -2527,6 +2555,7 @@ public void test0030() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0031() {
 
 	String s =
@@ -2621,6 +2650,7 @@ public void test0031() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0032() {
 
 	String s =
@@ -2715,6 +2745,7 @@ public void test0032() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0033() {
 
 	String s =
@@ -2787,6 +2818,7 @@ public void test0033() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0034() {
 
 	String s =
@@ -2856,6 +2888,7 @@ public void test0034() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0035() {
 
 	String s =
@@ -2916,6 +2949,7 @@ public void test0035() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0036() {
 
 	String s =
@@ -2991,6 +3025,7 @@ public void test0036() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0037() {
 
 	String s =
@@ -3056,6 +3091,7 @@ public void test0037() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0038() {
 	String s =
 		"package p1;										\n"+
@@ -3195,6 +3231,7 @@ public void test0038() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0039() {
 
 	String s =
@@ -3259,6 +3296,7 @@ public void test0039() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0040() {
 
 	String s =
@@ -3338,6 +3376,7 @@ public void test0040() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0041() {
 
 	String s =
@@ -3440,6 +3479,7 @@ public void test0041() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0042() {
 
 	String s =
@@ -3502,6 +3542,7 @@ public void test0042() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+@Test
 public void test0043() {
 
 	String s =
@@ -3552,6 +3593,7 @@ public void test0043() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173992
+@Test
 public void test0044() {
 
 	String s =
@@ -3659,6 +3701,7 @@ public void test0044() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204662
+@Test
 public void test0045() {
 
 	String s =
@@ -3740,6 +3783,7 @@ public void test0045() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204662
+@Test
 public void test0046() {
 
 	String s =
@@ -3812,6 +3856,7 @@ public void test0046() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204662
+@Test
 public void test0047() {
 
 	String s =
@@ -3883,6 +3928,7 @@ public void test0047() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void testBug430336() {
 
 	String s =

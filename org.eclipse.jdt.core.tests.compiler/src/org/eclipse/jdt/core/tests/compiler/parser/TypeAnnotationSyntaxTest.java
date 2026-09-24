@@ -23,13 +23,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
@@ -46,9 +47,6 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 
 	static final class LocationPrinterVisitor extends ASTVisitor {
@@ -155,8 +153,8 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 			return true;
 		}
 	}
-public TypeAnnotationSyntaxTest(String testName){
-	super(testName, referenceCompiler, jsr308TestScratchArea);
+public TypeAnnotationSyntaxTest(Compliance compliance, TestInfo info){
+	super(compliance, info, referenceCompiler, jsr308TestScratchArea);
 	if (referenceCompiler != null) {
 		File f = new File(jsr308TestScratchArea);
 		if (!f.exists()) {
@@ -230,6 +228,7 @@ public void _test000() throws IOException {
 	traverse(new File("C:\\jsr308tests"));
 }
 
+@Test
 public void test0001() throws IOException {
 	String source = "@Marker class A extends String {}\n;" +
 					"@Marker class B extends @Marker String {}\n" +
@@ -265,6 +264,7 @@ public void test0001() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0001", expectedUnitToString);
 }
+@Test
 public void test0002() throws IOException {
 	String source = "class A extends String {}\n;" +
 					"class B extends @Marker String {}\n" +
@@ -300,6 +300,7 @@ public void test0002() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0002", expectedUnitToString);
 }
+@Test
 public void test0003() throws IOException {
 	String source = "@Marker class A implements Comparable, " +
 					"                   @Marker Serializable," +
@@ -313,6 +314,7 @@ public void test0003() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0003", expectedUnitToString);
 }
+@Test
 public void test0004() throws IOException {
 	String source = "@Marker class A implements Comparable, " +
 					"                   @Marker @SingleMember(0) Serializable," +
@@ -326,6 +328,7 @@ public void test0004() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0004", expectedUnitToString);
 }
+@Test
 public void test0005() throws IOException {
 	String source = "@Marker class A implements Comparable, " +
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
@@ -339,6 +342,7 @@ public void test0005() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0005", expectedUnitToString);
 }
+@Test
 public void test0006() throws IOException {
 	String source = "@Marker class A implements @Marker Comparable, " +
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
@@ -352,6 +356,7 @@ public void test0006() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0006", expectedUnitToString);
 }
+@Test
 public void test007() throws IOException {
 	String source = "@Marker class A extends Object implements Comparable, " +
 					"                   @Marker @SingleMember(10) @Normal(Value=0) Serializable," +
@@ -365,6 +370,7 @@ public void test007() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0007", expectedUnitToString);
 }
+@Test
 public void test0008() throws IOException {
 	String source = "@Marker class A extends @Marker Object implements Comparable, " +
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
@@ -378,6 +384,7 @@ public void test0008() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0008", expectedUnitToString);
 }
+@Test
 public void test0009() throws IOException {
 	String source = "@Marker class A extends @Marker @SingleMember(0) Object implements Comparable, " +
 	"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
@@ -391,6 +398,7 @@ public void test0009() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0009", expectedUnitToString);
 }
+@Test
 public void test0010() throws IOException {
 	String source = "@Marker class A extends @Marker @SingleMember(0) @Normal(Value=0) Object implements Comparable, " +
 	"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
@@ -404,6 +412,7 @@ public void test0010() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0010", expectedUnitToString);
 }
+@Test
 public void test0011() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -421,6 +430,7 @@ public void test0011() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0011", expectedUnitToString);
 }
+@Test
 public void test0012() throws IOException {
 	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
 					"    int[] f[];\n" +
@@ -446,6 +456,7 @@ public void test0012() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0012", expectedUnitToString);
 }
+@Test
 public void test0013() throws IOException {
 	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
 					"    int[] f[];\n" +
@@ -471,6 +482,7 @@ public void test0013() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0013", expectedUnitToString);
 }
+@Test
 public void test0014() throws IOException {
 	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
 					"    int[] f[];\n" +
@@ -497,6 +509,7 @@ public void test0014() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0014", expectedUnitToString);
 
 }
+@Test
 public void test0015() throws IOException {
 	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
 					"    int[] f[];\n" +
@@ -524,6 +537,7 @@ public void test0015() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0015", expectedUnitToString);
 }
 // parameters
+@Test
 public void test0016() throws IOException {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker[][] main(int[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] {\n" +
@@ -539,6 +553,7 @@ public void test0016() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0016", expectedUnitToString);
 }
+@Test
 public void test0017() throws IOException  {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker[][] main(String[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] {\n" +
@@ -554,6 +569,7 @@ public void test0017() throws IOException  {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0017", expectedUnitToString);
 }
+@Test
 public void test0018() throws IOException {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker[][] main(HashMap<String, Object>[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] {\n" +
@@ -569,6 +585,7 @@ public void test0018() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0018", expectedUnitToString);
 }
+@Test
 public void test0019() throws IOException {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker [][] main(HashMap<String, Object>.Iterator[] @SingleMember(10) [][] args[] @Normal(Value = 10) [][])[] @Marker [][] {\n" +
@@ -585,6 +602,7 @@ public void test0019() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0019", expectedUnitToString);
 }
 // varargs annotation
+@Test
 public void test0020() throws IOException {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker[][] main(int[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
@@ -600,6 +618,7 @@ public void test0020() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0020", expectedUnitToString);
 }
+@Test
 public void test0021() throws IOException {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker[][] main(String[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
@@ -615,6 +634,7 @@ public void test0021() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0021", expectedUnitToString);
 }
+@Test
 public void test0022() throws IOException {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker[][] main(HashMap<Integer,String>[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
@@ -630,6 +650,7 @@ public void test0022() throws IOException {
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0022", expectedUnitToString);
 }
+@Test
 public void test0023() throws IOException {
 	String source = "public class A {\n" +
 					"@Marker public int[] @Marker[][] main(HashMap<Integer,String>.Iterator[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
@@ -646,6 +667,7 @@ public void test0023() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0023", expectedUnitToString);
 }
 // local variables
+@Test
 public void test0024() throws IOException {
 	String source = "public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
 					"public static void main(String args[]) {\n" +
@@ -668,6 +690,7 @@ public void test0024() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0024", expectedUnitToString);
 }
 // type parameter
+@Test
 public void test0025() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> void foo() {\n" +
@@ -684,6 +707,7 @@ public void test0025() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0025", expectedUnitToString);
 }
 // Type
+@Test
 public void test0026() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int foo() {\n" +
@@ -697,6 +721,7 @@ public void test0026() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0026", null);
 }
 // Type
+@Test
 public void test0027() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String foo() {\n" +
@@ -710,6 +735,7 @@ public void test0027() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0027", null);
 }
 //Type
+@Test
 public void test0028() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object> foo() {\n" +
@@ -723,6 +749,7 @@ public void test0028() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0028", null);
 }
 // Type
+@Test
 public void test0029() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator foo() {\n" +
@@ -736,6 +763,7 @@ public void test0029() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0029", null);
 }
 //Type
+@Test
 public void test0030() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty[][] foo() {\n" +
@@ -749,6 +777,7 @@ public void test0030() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0030", null);
 }
 //Type
+@Test
 public void test0031() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int[] @NonEmpty[][] foo() {\n" +
@@ -762,6 +791,7 @@ public void test0031() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0031", null);
 }
 // Type
+@Test
 public void test0032() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String[]@NonEmpty[][] foo() {\n" +
@@ -775,6 +805,7 @@ public void test0032() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0032", null);
 }
 //Type
+@Test
 public void test0033() throws IOException {
 	String source = "class A {\n" +
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>[] @NonEmpty[][] foo() {\n" +
@@ -788,6 +819,7 @@ public void test0033() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0033", null);
 }
 // Type0 field declaration.
+@Test
 public void test0034() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -806,6 +838,7 @@ public void test0034() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0034", expectedUnitToString);
 }
 //Type0 field declaration.
+@Test
 public void test0035() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -824,6 +857,7 @@ public void test0035() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0035", expectedUnitToString);
 }
 //Type0 field declaration.
+@Test
 public void test0036() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -842,6 +876,7 @@ public void test0036() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0036", expectedUnitToString);
 }
 //Type0 field declaration.
+@Test
 public void test0037() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -860,6 +895,7 @@ public void test0037() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0037", expectedUnitToString);
 }
 //Type0 field declaration.
+@Test
 public void test0038() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -878,6 +914,7 @@ public void test0038() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0038", expectedUnitToString);
 }
 //Type0 field declaration.
+@Test
 public void test0039() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -896,6 +933,7 @@ public void test0039() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0039", expectedUnitToString);
 }
 //Type0 field declaration.
+@Test
 public void test0040() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -914,6 +952,7 @@ public void test0040() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0040", expectedUnitToString);
 }
 //Type0 field declaration.
+@Test
 public void test0041() throws IOException {
 	String source = "public class A {\n" +
 					"    int[] f[];\n" +
@@ -932,6 +971,7 @@ public void test0041() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0041", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0042() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker int foo() { return 0; }\n" +
@@ -952,6 +992,7 @@ public void test0042() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0042", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0043() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker String foo() { return null; }\n" +
@@ -972,6 +1013,7 @@ public void test0043() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0043", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0044() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer> foo() { return null; }\n" +
@@ -992,6 +1034,7 @@ public void test0044() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0044", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0045() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator foo() { return null; }\n" +
@@ -1012,6 +1055,7 @@ public void test0045() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0045", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0046() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker int[] foo() @NonEmpty[][] { return 0; }\n" +
@@ -1032,6 +1076,7 @@ public void test0046() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0046", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0047() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker String[]  foo() @NonEmpty[][] { return null; }\n" +
@@ -1052,6 +1097,7 @@ public void test0047() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0047", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0048() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer>[] foo() @NonEmpty[][] { return null; }\n" +
@@ -1072,6 +1118,7 @@ public void test0048() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0048", expectedUnitToString);
 }
 //Type0 MethodHeaderName.
+@Test
 public void test0049() throws IOException {
 	String source = "public class A {\n" +
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[]  foo() @NonEmpty[][] { return null; }\n" +
@@ -1092,6 +1139,7 @@ public void test0049() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0049", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0050() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1112,6 +1160,7 @@ public void test0050() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0050", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0051() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1132,6 +1181,7 @@ public void test0051() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0051", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0052() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1152,6 +1202,7 @@ public void test0052() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0052", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0053() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1172,6 +1223,7 @@ public void test0053() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0053", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0054() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1192,6 +1244,7 @@ public void test0054() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0054", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0055() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1212,6 +1265,7 @@ public void test0055() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0055", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0056() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1232,6 +1286,7 @@ public void test0056() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0056", expectedUnitToString);
 }
 //Type0 local variable declaration
+@Test
 public void test0057() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1252,6 +1307,7 @@ public void test0057() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0057", expectedUnitToString);
 }
 //Type0 foreach
+@Test
 public void test0058() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1278,6 +1334,7 @@ public void test0058() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0058", expectedUnitToString);
 }
 //Type0 foreach
+@Test
 public void test0059() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
@@ -1304,6 +1361,7 @@ public void test0059() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0059", expectedUnitToString);
 }
 // cast expression
+@Test
 public void test0060() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void main(String[] args) {\n" +
@@ -1348,6 +1406,7 @@ public void test0060() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0060", expectedUnitToString);
 }
 //cast expression
+@Test
 public void test0061() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void main(String[] args) {\n" +
@@ -1392,6 +1451,7 @@ public void test0061() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0061", expectedUnitToString);
 }
 // instanceof checks
+@Test
 public void test0062() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void main(Object o) {\n" +
@@ -1443,6 +1503,7 @@ public void test0062() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0062", expectedUnitToString);
 }
 // assorted unclassified
+@Test
 public void test0063() throws IOException {
 	String source = "import java.util.HashMap;\n" +
 					"import java.util.Map; \n" +
@@ -1548,6 +1609,7 @@ public void test0063() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0063", expectedUnitToString);
 }
 //assorted unclassified
+@Test
 public void test0064() throws IOException {
 	String source = "class X<T extends @E Object & @F Comparable<? super T>> {}\n";
 	String expectedUnitToString = "class X<T extends @E Object & @F Comparable<? super T>> {\n" +
@@ -1560,6 +1622,7 @@ public void test0064() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test064", expectedUnitToString);
 }
 //type class literal expression
+@Test
 public void test0066() throws IOException {
 	String source = "public class X {\n" +
 			"	<T extends Y<@A String @C[][]@B[]> & Cloneable> void foo(T t) {}\n" +
@@ -1575,6 +1638,7 @@ public void test0066() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0066", expectedUnitToString);
 }
 //check locations
+@Test
 public void test0067() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1594,6 +1658,7 @@ public void test0067() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0067", expectedUnitToString);
 }
 //check locations
+@Test
 public void test0068() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1616,6 +1681,7 @@ public void test0068() throws IOException {
 	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
+@Test
 public void test0069() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1637,6 +1703,7 @@ public void test0069() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@H"));
 }
 //check locations
+@Test
 public void test0070() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1661,6 +1728,7 @@ public void test0070() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
+@Test
 public void test0071() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1685,6 +1753,7 @@ public void test0071() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
 }
 //check locations
+@Test
 public void test0072() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1711,6 +1780,7 @@ public void test0072() throws IOException {
 	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
 }
 //check locations
+@Test
 public void test0073() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1737,6 +1807,7 @@ public void test0073() throws IOException {
 	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
 }
 //check locations
+@Test
 public void test0074() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1765,6 +1836,7 @@ public void test0074() throws IOException {
 	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1)]", locations.get("@B"));
 }
 //check locations
+@Test
 public void test0075() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1793,6 +1865,7 @@ public void test0075() throws IOException {
 	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY]", locations.get("@D"));
 }
 //check locations
+@Test
 public void test0076() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1815,6 +1888,7 @@ public void test0076() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@D"));
 }
 //check locations
+@Test
 public void test0077() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1837,6 +1911,7 @@ public void test0077() throws IOException {
 	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
+@Test
 public void test0078() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1863,6 +1938,7 @@ public void test0078() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@H"));
 }
 //check locations
+@Test
 public void test0079() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1889,6 +1965,7 @@ public void test0079() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@H"));
 }
 //check locations
+@Test
 public void test0080() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1909,6 +1986,7 @@ public void test0080() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), WILDCARD]", locations.get("@A"));
 }
 //check locations
+@Test
 public void test0081() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1931,6 +2009,7 @@ public void test0081() throws IOException {
 	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
+@Test
 public void test0082() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -1954,6 +2033,7 @@ public void test0082() throws IOException {
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY, ARRAY]", locations.get("@G"));
 	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
+@Test
 public void test0083() throws IOException {
 	String source =
 		"@Marker class A {}\n;" +
@@ -1992,6 +2072,7 @@ public void test0083() throws IOException {
 }
 
 // To test Parser.consumeAdditionalBound() with Type annotations
+@Test
 public void test0084() throws IOException {
 	String source =
 		"@Marker interface I<@Negative T> {}\n" +
@@ -2018,6 +2099,7 @@ public void test0084() throws IOException {
 }
 
 // To test Parser.consumeAdditionalBound() with Type annotations
+@Test
 public void test0085() throws IOException {
 	String source =
 		"import java.io.Serializable;\n" +
@@ -2068,6 +2150,7 @@ public void test0085() throws IOException {
 }
 
 // To test Parser.classInstanceCreation() with type annotations
+@Test
 public void test0086() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2100,6 +2183,7 @@ public void test0086() throws IOException {
 }
 
 // To test Parser.classInstanceCreation() with type annotations
+@Test
 public void test0087() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2153,6 +2237,7 @@ public void test0087() throws IOException {
 }
 
 // To test Parser.classInstanceCreation() with type annotations
+@Test
 public void test0088() throws IOException {
 	String source =
 		"import java.io.Serializable;\n" +
@@ -2183,6 +2268,7 @@ public void test0088() throws IOException {
 }
 
 // To test Parser.classInstanceCreation() with type annotations
+@Test
 public void test0089() throws IOException {
 	String source =
 		"import java.io.Serializable;\n" +
@@ -2209,6 +2295,7 @@ public void test0089() throws IOException {
 }
 
 // To test Parser.classInstanceCreation() with type annotations
+@Test
 public void test0090() throws IOException {
 	String source =
 		"class X <@Marker T extends @Readonly String> {\n" +
@@ -2247,6 +2334,7 @@ public void test0090() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithInitializer() with Type Annotations
+@Test
 public void test0091() throws IOException {
 	String source =
 		"class X <@Marker T extends @Readonly String> {\n" +
@@ -2273,6 +2361,7 @@ public void test0091() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithInitializer() with Type Annotations
+@Test
 public void test0092() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2300,6 +2389,7 @@ public void test0092() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithInitializer() with Type Annotations
+@Test
 public void test0093() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2320,6 +2410,7 @@ public void test0093() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithInitializer() with Type Annotations
+@Test
 public void test0094() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2350,6 +2441,7 @@ public void test0094() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithInitializer() with Type Annotations
+@Test
 public void test0095() throws IOException {
 	String source =
 		"import java.util.Arrays;\n" +
@@ -2390,6 +2482,7 @@ public void test0095() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithoutInitializer() with Type Annotations
+@Test
 public void test0096() throws IOException {
 	String source =
 		"class X <@Marker T extends @Readonly String> {\n" +
@@ -2420,6 +2513,7 @@ public void test0096() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithoutInitializer() with Type Annotations
+@Test
 public void test0097() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2440,6 +2534,7 @@ public void test0097() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithoutInitializer() with Type Annotations
+@Test
 public void test0098() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2470,6 +2565,7 @@ public void test0098() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithoutInitializer() with Type Annotations
+@Test
 public void test0099() throws IOException {
 	String source =
 		"import java.util.Arrays;\n" +
@@ -2500,6 +2596,7 @@ public void test0099() throws IOException {
 }
 
 // To test Parser.consumeArrayCreationExpressionWithoutInitializer() with Type Annotations
+@Test
 public void test0100() throws IOException {
 	String source =
 		"import java.util.*;\n" +
@@ -2528,6 +2625,7 @@ public void test0100() throws IOException {
 }
 
 // To test Parser.consumeCastExpressionWithGenericsArray() with Type Annotations
+@Test
 public void test0101() throws IOException {
 	String source =
 		"import java.util.*;\n" +
@@ -2556,6 +2654,7 @@ public void test0101() throws IOException {
 
 // To test Parser.consumeCastExpressionWithGenericsArray() with Type Annotations
 // To test Parser.consumeClassHeaderExtends() with Type Annotations
+@Test
 public void test0102() throws IOException {
 	String source =
 		"class X<E> {\n" +
@@ -2612,6 +2711,7 @@ public void test0102() throws IOException {
 }
 
 // To test Parser.consumeCastExpressionWithGenericsArray() with Type Annotations
+@Test
 public void test0103() throws IOException {
 	String source =
 		"import java.lang.reflect.Array;\n" +
@@ -2634,6 +2734,7 @@ public void test0103() throws IOException {
 }
 
 // To test Parser.consumeCastExpressionWithGenericsArray() with Type Annotations
+@Test
 public void test0104() throws IOException {
 	String source =
 		"import java.util.*;\n" +
@@ -2673,6 +2774,7 @@ public void test0104() throws IOException {
 
 
 // To test Parser.consumeCastExpressionWithPrimitiveType() with Type Annotations
+@Test
 public void test0105() throws IOException {
 	String source =
 		"import java.util.HashMap;\n" +
@@ -2706,6 +2808,7 @@ public void test0105() throws IOException {
 }
 
 // To test Parser.consumeCastExpressionWithPrimitiveType() with Type Annotations
+@Test
 public void test0106() throws IOException {
 	String source =
 		"class X{\n" +
@@ -2732,6 +2835,7 @@ public void test0106() throws IOException {
 // To test Parser.consumeCastExpressionWithQualifiedGenericsArray() with Type Annotations
 // Javac version b76 crashes on type annotations on type arguments to parameterized classes
 // in a qualified generic reference
+@Test
 public void test0107() throws IOException {
 	String source =
 		"class C1<T> {\n" +
@@ -2771,6 +2875,7 @@ public void test0107() throws IOException {
 }
 
 // To test Parser.consumeFormalParameter() with Type Annotations
+@Test
 public void test0108() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2799,6 +2904,7 @@ public void test0108() throws IOException {
 }
 
 // To test Parser.consumeFormalParameter() with Type Annotations
+@Test
 public void test0109() throws IOException {
 	String source =
 		"class X<@Marker T> {\n" +
@@ -2821,6 +2927,7 @@ public void test0109() throws IOException {
 // To test Parser.consumeClassInstanceCreationExpressionQualifiedWithTypeArguments()
 // with Type Annotations
 // Javac b76 crashes with type annotations in qualified class instance creation expression
+@Test
 public void test0110() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2853,6 +2960,7 @@ public void test0110() throws IOException {
 
 // To test Parser.consumeClassInstanceCreationExpressionWithTypeArguments()
 // with Type Annotations
+@Test
 public void test0111() throws IOException {
 	String source =
 		"class X {\n" +
@@ -2877,6 +2985,7 @@ public void test0111() throws IOException {
 }
 
 // To test Parser.consumeEnhancedForStatementHeaderInit() with Type Annotations
+@Test
 public void test0112() throws IOException {
 	String source =
 		"import java.util.*;\n" +
@@ -2949,6 +3058,7 @@ public void test0112() throws IOException {
 }
 
 // To test Parser.consumeEnterAnonymousClassBody() with Type Annotations
+@Test
 public void test0113() throws IOException {
 	String source =
 		"@Marker class X {\n" +
@@ -2977,6 +3087,7 @@ public void test0113() throws IOException {
 }
 
 // To test Parser.consumeEnterAnonymousClassBody() with Type Annotations
+@Test
 public void test0114() throws IOException {
 	String source =
 		"class Toplevel2{\n" +
@@ -3007,6 +3118,7 @@ public void test0114() throws IOException {
 }
 
 // To test Parser.consumeEnterAnonymousClassBody() with Type Annotations
+@Test
 public void test0115() throws IOException {
 	String source =
 		"class X <T> {\n" +
@@ -3056,6 +3168,7 @@ public void test0115() throws IOException {
 }
 
 // To test Parser.consumeInsideCastExpressionLL1() with Type Annotations
+@Test
 public void test0116() throws IOException {
 	String source =
 		"class X{\n" +
@@ -3102,6 +3215,7 @@ public void test0116() throws IOException {
 }
 
 // To test Parser.consumeInstanceOfExpression() with Type Annotations
+@Test
 public void test0117() throws IOException {
 	String source =
 		"import java.util.*;\n" +
@@ -3153,6 +3267,7 @@ public void test0117() throws IOException {
 }
 
 // To test Parser.consumeInstanceOfExpressionWithName() with Type Annotations
+@Test
 public void test0118() throws IOException {
 	String source =
 		"class Outer<E> {\n" +
@@ -3192,6 +3307,7 @@ public void test0118() throws IOException {
 }
 
 // To test Parser.consumeTypeArgument() with Type Annotations
+@Test
 public void test0119() throws IOException {
 	String source =
 		"class X<@SingleMember(1) Xp1 extends @Readonly String, @NonNull Xp2 extends @NonNull Comparable>  extends @Marker XS<@SingleMember(10) Xp2> {\n" +
@@ -3269,6 +3385,7 @@ public void test0119() throws IOException {
 }
 
 // To test Parser.consumeTypeArgument() with Type Annotations
+@Test
 public void test0120() throws IOException {
 	String source =
 		"class X<A1, A2, A3, A4, A5, A6, A7, A8> {\n" +
@@ -3292,6 +3409,7 @@ public void test0120() throws IOException {
 }
 
 // To test Parser.consumeTypeArgumentReferenceType1() with Type Annotations
+@Test
 public void test0121() throws IOException {
 	String source =
 		"@Marker class X <@NonNull T> {\n" +
@@ -3323,6 +3441,7 @@ public void test0121() throws IOException {
 
 // To test Parser.consumeTypeParameter1WithExtendsAndBounds() and Parser.consumeWildcardBoundsSuper() with
 // Type Annotations
+@Test
 public void test0122() throws IOException {
 	String source =
 		"@Marker class Foo extends @Marker Foo1 implements @Marker @SingleMember(10) Comparable<@Marker Foo1> {\n" +
@@ -3362,6 +3481,7 @@ public void test0122() throws IOException {
 }
 
 // To test Parser.consumeTypeParameter1WithExtendsAndBounds() with Type Annotations
+@Test
 public void test0123() throws IOException {
 	String source =
 		"@Marker class Foo extends @Marker Foo1 implements @Marker @SingleMember(10) Comparable {\n" +
@@ -3402,6 +3522,7 @@ public void test0123() throws IOException {
 	checkParse(source.toCharArray(), null, "test0123", expectedUnitToString );
 }
 //To test type annotations on static class member access in a declaration
+@Test
 public void test0125() throws IOException {
 	String source =
 		"public class X extends @A(\"Hello, World!\") Y<@B @C('(') String[] @D[]> {}";
@@ -3414,6 +3535,7 @@ public void test0125() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0125", expectedUnitToString );
 }
 //To test type annotations on static class member access in a declaration
+@Test
 public void test0126() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -3429,6 +3551,7 @@ public void test0126() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0126", expectedUnitToString );
 }
 //To test type annotations on static class member access in a declaration
+@Test
 public void test0127() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -3444,6 +3567,7 @@ public void test0127() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0127", expectedUnitToString );
 }
 //type class literal expression
+@Test
 public void test0128() throws IOException {
 	String source =
 	"public class X {\n" +
@@ -3481,6 +3605,7 @@ public void test0128() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0128", expectedUnitToString );
 }
 //instanceof checks
+@Test
 public void test0129() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void main(Object o) {\n" +
@@ -3502,6 +3627,7 @@ public void test0129() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0129", expectedUnitToString);
 }
 //instanceof checks
+@Test
 public void test0130() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void foo() {\n" +
@@ -3522,6 +3648,7 @@ public void test0130() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 //cast
+@Test
 public void test0131() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -3550,6 +3677,7 @@ public void test0131() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 //cast
+@Test
 public void test0132() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -3578,6 +3706,7 @@ public void test0132() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 //generic type arguments in a generic method invocation
+@Test
 public void test0133() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -3603,6 +3732,7 @@ public void test0133() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 //generic type arguments in a generic method invocation
+@Test
 public void test0134() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -3631,6 +3761,7 @@ public void test0134() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 //generic type arguments in a generic constructor invocation
+@Test
 public void test0135() throws IOException {
 	String source =
 		"public class X {\n" +
@@ -3654,6 +3785,7 @@ public void test0135() throws IOException {
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383600 -- Receiver annotation - new syntax.
+@Test
 public void test0136() throws IOException {
 	String source =
 			"public class X<T> {\n" +
@@ -3694,6 +3826,7 @@ public void test0136() throws IOException {
 }
 // Support type annotations for wildcard
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388085
+@Test
 public void test0137() throws IOException {
 	String source =
 			"class X {\n" +
@@ -3745,6 +3878,7 @@ public void test0137() throws IOException {
 			"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0137", expectedUnitToString);
 }
+@Test
 public void test0138() throws IOException {
 	String source =
 			"import java.lang.annotation.Target;\n" +
@@ -3791,6 +3925,7 @@ public void test0138() throws IOException {
 }
 // Support for annotations on ellipsis in lambda expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432574
+@Test
 public void test0139() throws IOException {
 	String source =
 			"import java.lang.annotation.ElementType;\n" +

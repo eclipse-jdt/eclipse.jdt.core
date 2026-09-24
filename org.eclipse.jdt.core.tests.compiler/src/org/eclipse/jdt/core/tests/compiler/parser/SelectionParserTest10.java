@@ -15,23 +15,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_10)
 public class SelectionParserTest10 extends AbstractSelectionTest {
 	static {
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_NAMES = new String[] { "test001" };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(SelectionParserTest10.class, F_10);
+	public SelectionParserTest10(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public SelectionParserTest10(String testName) {
-		super(testName);
-	}
-
+	@Test
 	public void test001() throws JavaModelException {
 		String string =   "public class X {\n"
 						+ "  public static void main(String[] args) {\n"
@@ -60,6 +61,7 @@ public class SelectionParserTest10 extends AbstractSelectionTest {
 				completionIdentifier, expectedReplacedSource, testName);
 	}
 
+	@Test
 	public void test002() throws JavaModelException {
 		String string =   "public class X {\n"
 						+ "  public static void main(String[] args) {\n"

@@ -13,13 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
 public class GenericsSelectionTest extends AbstractSelectionTest {
-public GenericsSelectionTest(String testName) {
-	super(testName);
+public GenericsSelectionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Selection at specific location
  */
+@Test
 public void test0001() {
 
 	String str =
@@ -57,6 +61,7 @@ public void test0001() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0002() {
 
 	String str =
@@ -98,6 +103,7 @@ public void test0002() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0003() {
 
 	String str =
@@ -135,6 +141,7 @@ public void test0003() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0004() {
 
 	String str =
@@ -176,6 +183,7 @@ public void test0004() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0005() {
 
 	String str =
@@ -213,6 +221,7 @@ public void test0005() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0006() {
 
 	String str =
@@ -254,6 +263,7 @@ public void test0006() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0007() {
 
 	String str =
@@ -291,6 +301,7 @@ public void test0007() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0008() {
 
 	String str =
@@ -332,6 +343,7 @@ public void test0008() {
 /*
  * Selection of simple name
  */
+@Test
 public void test0009() {
 
 	String str =
@@ -369,6 +381,7 @@ public void test0009() {
 /*
  * Selection of simple name
  */
+@Test
 public void test0010() {
 
 	String str =
@@ -410,6 +423,7 @@ public void test0010() {
 /*
  * Selection of qualified name
  */
+@Test
 public void test0011() {
 
 	String str =
@@ -447,6 +461,7 @@ public void test0011() {
 /*
  * Selection of qualified name
  */
+@Test
 public void test0012() {
 
 	String str =
@@ -488,6 +503,7 @@ public void test0012() {
 /*
  * Selection of qualified name
  */
+@Test
 public void test0013() {
 
 	String str =
@@ -525,6 +541,7 @@ public void test0013() {
 /*
  * Selection of qualified name
  */
+@Test
 public void test0014() {
 
 	String str =
@@ -566,6 +583,7 @@ public void test0014() {
 /*
  * Selection of qualified name
  */
+@Test
 public void test0015() {
 
 	String str =
@@ -603,6 +621,7 @@ public void test0015() {
 /*
  * Selection of qualified name
  */
+@Test
 public void test0016() {
 
 	String str =
@@ -641,6 +660,7 @@ public void test0016() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test0017() {
 
 	String str =
@@ -681,6 +701,7 @@ public void test0017() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test0018() {
 
 	String str =
@@ -721,6 +742,7 @@ public void test0018() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test0019() {
 
 	String str =
@@ -767,6 +789,7 @@ public void test0019() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test0020() {
 
 	String str =
@@ -813,6 +836,7 @@ public void test0020() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test0021() {
 
 	String str =
@@ -862,6 +886,7 @@ public void test0021() {
 /*
  * Selection of simple name
  */
+@Test
 public void test0022() {
 
 	String str =
@@ -897,6 +922,7 @@ public void test0022() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=209639
+@Test
 public void test0023() {
 
 	String str =
@@ -938,6 +964,7 @@ public void test0023() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=255142
+@Test
 public void test0024() {
 
 	String str =

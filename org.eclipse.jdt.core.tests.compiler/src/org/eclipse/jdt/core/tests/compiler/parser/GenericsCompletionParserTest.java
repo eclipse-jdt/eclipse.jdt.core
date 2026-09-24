@@ -14,16 +14,14 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericsCompletionParserTest extends AbstractCompletionTest {
-public GenericsCompletionParserTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(GenericsCompletionParserTest.class);
+public GenericsCompletionParserTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 @Override
 protected Map getCompilerOptions() {
@@ -33,6 +31,7 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	return options;
 }
+@Test
 public void test0001(){
 	String str =
 		"public class X  <T extends Z<Y>. {\n" +
@@ -61,6 +60,7 @@ public void test0001(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0002(){
 	String str =
 		"public class X  <T extends Z<Y>.W {\n" +
@@ -89,6 +89,7 @@ public void test0002(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0003(){
 	String str =
 		"public class Test<T extends test0001.X<Y>.Z> {\n" +
@@ -117,6 +118,7 @@ public void test0003(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0004(){
 	String str =
 		"public class X {\n" +
@@ -147,6 +149,7 @@ public void test0004(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0005(){
 	String str =
 		"public class X {\n" +
@@ -177,6 +180,7 @@ public void test0005(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0006(){
 	String str =
 		"public class X {\n" +
@@ -207,6 +211,7 @@ public void test0006(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0007(){
 	String str =
 		"public class X {\n" +
@@ -238,6 +243,7 @@ public void test0007(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0008(){
 	String str =
 		"public class X {\n" +
@@ -269,6 +275,7 @@ public void test0008(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0009(){
 	String str =
 		"public class X {\n" +
@@ -299,6 +306,7 @@ public void test0009(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0010(){
 	String str =
 		"public class X {\n" +
@@ -329,6 +337,7 @@ public void test0010(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0011(){
 	String str =
 		"public class X {\n" +
@@ -359,6 +368,7 @@ public void test0011(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0012(){
 	String str =
 		"public class X {\n" +
@@ -390,6 +400,7 @@ public void test0012(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0013(){
 	String str =
 		"public class X {\n" +
@@ -421,6 +432,7 @@ public void test0013(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0014(){
 	String str =
 		"public class X extends  Y<Z>. {\n" +
@@ -454,6 +466,7 @@ public void test0014(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0015(){
 	String str =
 		"public class X implements I1, Y<Z>. {\n" +
@@ -487,6 +500,7 @@ public void test0015(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0016(){
 	String str =
 		"public class X {\n" +
@@ -523,6 +537,7 @@ public void test0016(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0017(){
 	String str =
 		"public class X {\n" +
@@ -556,6 +571,7 @@ public void test0017(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0018(){
 	String str =
 		"public class X {\n" +
@@ -589,6 +605,7 @@ public void test0018(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0019(){
 	String str =
 		"public class X  {\n" +
@@ -622,6 +639,7 @@ public void test0019(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0020(){
 	String str =
 		"public class X {\n" +
@@ -655,6 +673,7 @@ public void test0020(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0021(){
 	String str =
 		"public class X {\n" +
@@ -686,6 +705,7 @@ public void test0021(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0022(){
 	String str =
 		"public class X {\n" +
@@ -716,6 +736,7 @@ public void test0022(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0023(){
 	String str =
 		"public class X {\n" +
@@ -746,6 +767,7 @@ public void test0023(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0024(){
 	String str =
 		"public class X {\n" +
@@ -776,6 +798,7 @@ public void test0024(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0025(){
 	String str =
 		"public class X {\n" +
@@ -810,6 +833,7 @@ public void test0025(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0026(){
 	String str =
 		"public class X {\n" +
@@ -842,6 +866,7 @@ public void test0026(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0027(){
 	String str =
 		"public class X {\n" +
@@ -873,6 +898,7 @@ public void test0027(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0028(){
 	String str =
 		"public class X {\n" +
@@ -903,6 +929,7 @@ public void test0028(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0029(){
 	String str =
 		"public class X {\n" +
@@ -933,6 +960,7 @@ public void test0029(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0030_Diet(){
 	String str =
 		"public class X {\n" +
@@ -966,6 +994,7 @@ public void test0030_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0030_Method(){
 	String str =
 		"public class X {\n" +
@@ -1000,6 +1029,7 @@ public void test0030_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0031_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1033,6 +1063,7 @@ public void test0031_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0031_Method(){
 	String str =
 		"public class X {\n" +
@@ -1067,6 +1098,7 @@ public void test0031_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0032_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1100,6 +1132,7 @@ public void test0032_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0032_Method(){
 	String str =
 		"public class X {\n" +
@@ -1134,6 +1167,7 @@ public void test0032_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0033_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1167,6 +1201,7 @@ public void test0033_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0033_Method(){
 	String str =
 		"public class X {\n" +
@@ -1201,6 +1236,7 @@ public void test0033_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0034_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1234,6 +1270,7 @@ public void test0034_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0034_Method(){
 	String str =
 		"public class X {\n" +
@@ -1268,6 +1305,7 @@ public void test0034_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0035_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1301,6 +1339,7 @@ public void test0035_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0035_Method(){
 	String str =
 		"public class X {\n" +
@@ -1335,6 +1374,7 @@ public void test0035_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0036_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1368,6 +1408,7 @@ public void test0036_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0036_Method(){
 	String str =
 		"public class X {\n" +
@@ -1402,6 +1443,7 @@ public void test0036_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0037_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1435,6 +1477,7 @@ public void test0037_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0037_Method(){
 	String str =
 		"public class X {\n" +
@@ -1469,6 +1512,7 @@ public void test0037_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0038_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1502,6 +1546,7 @@ public void test0038_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0038_Method(){
 	String str =
 		"public class X {\n" +
@@ -1536,6 +1581,7 @@ public void test0038_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0039_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1569,6 +1615,7 @@ public void test0039_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0039_Method(){
 	String str =
 		"public class X {\n" +
@@ -1603,6 +1650,7 @@ public void test0039_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0040_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1636,6 +1684,7 @@ public void test0040_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0040_Method(){
 	String str =
 		"public class X {\n" +
@@ -1670,6 +1719,7 @@ public void test0040_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0041_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1703,6 +1753,7 @@ public void test0041_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0041_Method(){
 	String str =
 		"public class X {\n" +
@@ -1737,6 +1788,7 @@ public void test0041_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0042_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1770,6 +1822,7 @@ public void test0042_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0042_Method(){
 	String str =
 		"public class X {\n" +
@@ -1804,6 +1857,7 @@ public void test0042_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0043_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1837,6 +1891,7 @@ public void test0043_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0043_Method(){
 	String str =
 		"public class X {\n" +
@@ -1871,6 +1926,7 @@ public void test0043_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0044_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1906,6 +1962,7 @@ public void test0044_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0044_Method(){
 	String str =
 		"public class X {\n" +
@@ -1953,6 +2010,7 @@ public void test0044_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0045_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1987,6 +2045,7 @@ public void test0045_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0045_Method(){
 	String str =
 		"public class X {\n" +
@@ -2033,6 +2092,7 @@ public void test0045_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0046_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2066,6 +2126,7 @@ public void test0046_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0046_Method(){
 	String str =
 		"public class X {\n" +
@@ -2100,6 +2161,7 @@ public void test0046_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0047_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2133,6 +2195,7 @@ public void test0047_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0047_Method(){
 	String str =
 		"public class X {\n" +
@@ -2167,6 +2230,7 @@ public void test0047_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0048_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2200,6 +2264,7 @@ public void test0048_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0048_Method(){
 	String str =
 		"public class X {\n" +
@@ -2234,6 +2299,7 @@ public void test0048_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0049_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2267,6 +2333,7 @@ public void test0049_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0049_Method(){
 	String str =
 		"public class X {\n" +
@@ -2301,6 +2368,7 @@ public void test0049_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0050_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2334,6 +2402,7 @@ public void test0050_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0050_Method(){
 	String str =
 		"public class X {\n" +
@@ -2367,6 +2436,7 @@ public void test0050_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0051_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2400,6 +2470,7 @@ public void test0051_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0051_Method(){
 	String str =
 		"public class X {\n" +
@@ -2433,6 +2504,7 @@ public void test0051_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0052_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2466,6 +2538,7 @@ public void test0052_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0052_Method(){
 	String str =
 		"public class X {\n" +
@@ -2499,6 +2572,7 @@ public void test0052_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0053_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2530,6 +2604,7 @@ public void test0053_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0053_Method(){
 	String str =
 		"public class X {\n" +
@@ -2563,6 +2638,7 @@ public void test0053_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0054_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2594,6 +2670,7 @@ public void test0054_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0054_Method(){
 	String str =
 		"public class X {\n" +
@@ -2627,6 +2704,7 @@ public void test0054_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0055_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2658,6 +2736,7 @@ public void test0055_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0055_Method(){
 	String str =
 		"public class X {\n" +
@@ -2691,6 +2770,7 @@ public void test0055_Method(){
 			"full ast");
 }
 
+@Test
 public void test0056_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2724,6 +2804,7 @@ public void test0056_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0056_Method(){
 	String str =
 		"public class X {\n" +
@@ -2758,6 +2839,7 @@ public void test0056_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0057_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2791,6 +2873,7 @@ public void test0057_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0057_Method(){
 	String str =
 		"public class X {\n" +
@@ -2825,6 +2908,7 @@ public void test0057_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0058_Diet(){
 	String str =
 		"public class X {\n" +
@@ -2858,6 +2942,7 @@ public void test0058_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0058_Method(){
 	String str =
 		"public class X {\n" +
@@ -2892,6 +2977,7 @@ public void test0058_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0059(){
 	String str =
 		"public class X  <T extends Z<Y {\n" +
@@ -2921,6 +3007,7 @@ public void test0059(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0060(){
 	String str =
 		"public class X {\n" +
@@ -2951,6 +3038,7 @@ public void test0060(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0061(){
 	String str =
 		"public class X {\n" +
@@ -2981,6 +3069,7 @@ public void test0061(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0062(){
 	String str =
 		"public class X {\n" +
@@ -3011,6 +3100,7 @@ public void test0062(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0063(){
 	String str =
 		"public class X {\n" +
@@ -3041,6 +3131,7 @@ public void test0063(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0064(){
 	String str =
 		"public class X {\n" +
@@ -3073,6 +3164,7 @@ public void test0064(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0065(){
 	String str =
 		"public class X {\n" +
@@ -3104,6 +3196,7 @@ public void test0065(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0066(){
 	String str =
 		"public class X {\n" +
@@ -3136,6 +3229,7 @@ public void test0066(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0067(){
 	String str =
 		"public class X {\n" +
@@ -3167,6 +3261,7 @@ public void test0067(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0068(){
 	String str =
 		"public class X {\n" +
@@ -3197,6 +3292,7 @@ public void test0068(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0069(){
 	String str =
 		"public class X {\n" +
@@ -3227,6 +3323,7 @@ public void test0069(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0070(){
 	String str =
 		"public class X {\n" +
@@ -3257,6 +3354,7 @@ public void test0070(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0071(){
 	String str =
 		"public class X {\n" +
@@ -3287,6 +3385,7 @@ public void test0071(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0072(){
 	String str =
 		"public class X {\n" +
@@ -3319,6 +3418,7 @@ public void test0072(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0073(){
 	String str =
 		"public class X {\n" +
@@ -3350,6 +3450,7 @@ public void test0073(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0074(){
 	String str =
 		"public class X {\n" +
@@ -3382,6 +3483,7 @@ public void test0074(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0075(){
 	String str =
 		"public class X {\n" +
@@ -3413,6 +3515,7 @@ public void test0075(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0076(){
 	String str =
 		"public class X extends  Y<Z {\n" +
@@ -3443,6 +3546,7 @@ public void test0076(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0077(){
 	String str =
 		"public class X extends  Y<Z> {\n" +
@@ -3472,6 +3576,7 @@ public void test0077(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0078(){
 	String str =
 		"public class X implements I1, Y<Z {\n" +
@@ -3502,6 +3607,7 @@ public void test0078(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0079(){
 	String str =
 		"public class X implements I1, Y<Z> {\n" +
@@ -3531,6 +3637,7 @@ public void test0079(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0080(){
 	String str =
 		"public class X {\n" +
@@ -3565,6 +3672,7 @@ public void test0080(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0081(){
 	String str =
 		"public class X {\n" +
@@ -3599,6 +3707,7 @@ public void test0081(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0082(){
 	String str =
 		"public class X {\n" +
@@ -3632,6 +3741,7 @@ public void test0082(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0083(){
 	String str =
 		"public class X {\n" +
@@ -3666,6 +3776,7 @@ public void test0083(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0084(){
 	String str =
 		"public class X {\n" +
@@ -3699,6 +3810,7 @@ public void test0084(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0085(){
 	String str =
 		"public class X  {\n" +
@@ -3733,6 +3845,7 @@ public void test0085(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0086(){
 	String str =
 		"public class X  {\n" +
@@ -3766,6 +3879,7 @@ public void test0086(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0087(){
 	String str =
 		"public class X {\n" +
@@ -3800,6 +3914,7 @@ public void test0087(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0088(){
 	String str =
 		"public class X {\n" +
@@ -3834,6 +3949,7 @@ public void test0088(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0089(){
 	String str =
 		"public class X {\n" +
@@ -3867,6 +3983,7 @@ public void test0089(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0090(){
 	String str =
 		"public class X {\n" +
@@ -3898,6 +4015,7 @@ public void test0090(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0091(){
 	String str =
 		"public class X {\n" +
@@ -3929,6 +4047,7 @@ public void test0091(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0092(){
 	String str =
 		"public class X {\n" +
@@ -3959,6 +4078,7 @@ public void test0092(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0093(){
 	String str =
 		"public class X {\n" +
@@ -3989,6 +4109,7 @@ public void test0093(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0094(){
 	String str =
 		"public class X {\n" +
@@ -4019,6 +4140,7 @@ public void test0094(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0095(){
 	String str =
 		"public class X {\n" +
@@ -4049,6 +4171,7 @@ public void test0095(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0096(){
 	String str =
 		"public class X {\n" +
@@ -4079,6 +4202,7 @@ public void test0096(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0097(){
 	String str =
 		"public class X {\n" +
@@ -4109,6 +4233,7 @@ public void test0097(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0098(){
 	String str =
 		"public class X {\n" +
@@ -4139,6 +4264,7 @@ public void test0098(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0099_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4172,6 +4298,7 @@ public void test0099_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0099_Method(){
 	String str =
 		"public class X {\n" +
@@ -4206,6 +4333,7 @@ public void test0099_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0100_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4239,6 +4367,7 @@ public void test0100_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0100_Method(){
 	String str =
 		"public class X {\n" +
@@ -4273,6 +4402,7 @@ public void test0100_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0101_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4306,6 +4436,7 @@ public void test0101_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0101_Method(){
 	String str =
 		"public class X {\n" +
@@ -4340,6 +4471,7 @@ public void test0101_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0102_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4373,6 +4505,7 @@ public void test0102_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0102_Method(){
 	String str =
 		"public class X {\n" +
@@ -4407,6 +4540,7 @@ public void test0102_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0103_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4440,6 +4574,7 @@ public void test0103_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0103_Method(){
 	String str =
 		"public class X {\n" +
@@ -4474,6 +4609,7 @@ public void test0103_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0104_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4507,6 +4643,7 @@ public void test0104_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0104_Method(){
 	String str =
 		"public class X {\n" +
@@ -4541,6 +4678,7 @@ public void test0104_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0105_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4574,6 +4712,7 @@ public void test0105_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0105_Method(){
 	String str =
 		"public class X {\n" +
@@ -4608,6 +4747,7 @@ public void test0105_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0106_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4641,6 +4781,7 @@ public void test0106_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0106_Method(){
 	String str =
 		"public class X {\n" +
@@ -4675,6 +4816,7 @@ public void test0106_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0107_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4708,6 +4850,7 @@ public void test0107_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0107_Method(){
 	String str =
 		"public class X {\n" +
@@ -4742,6 +4885,7 @@ public void test0107_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0108_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4775,6 +4919,7 @@ public void test0108_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0108_Method(){
 	String str =
 		"public class X {\n" +
@@ -4809,6 +4954,7 @@ public void test0108_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0109_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4842,6 +4988,7 @@ public void test0109_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0109_Method(){
 	String str =
 		"public class X {\n" +
@@ -4876,6 +5023,7 @@ public void test0109_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0110_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4909,6 +5057,7 @@ public void test0110_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0110_Method(){
 	String str =
 		"public class X {\n" +
@@ -4943,6 +5092,7 @@ public void test0110_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0111_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4976,6 +5126,7 @@ public void test0111_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0111_Method(){
 	String str =
 		"public class X {\n" +
@@ -5010,6 +5161,7 @@ public void test0111_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0112_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5043,6 +5195,7 @@ public void test0112_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0112_Method(){
 	String str =
 		"public class X {\n" +
@@ -5077,6 +5230,7 @@ public void test0112_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0113_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5110,6 +5264,7 @@ public void test0113_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0113_Method(){
 	String str =
 		"public class X {\n" +
@@ -5144,6 +5299,7 @@ public void test0113_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0114_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5177,6 +5333,7 @@ public void test0114_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0114_Method(){
 	String str =
 		"public class X {\n" +
@@ -5211,6 +5368,7 @@ public void test0114_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0115_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5244,6 +5402,7 @@ public void test0115_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0115_Method(){
 	String str =
 		"public class X {\n" +
@@ -5278,6 +5437,7 @@ public void test0115_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0116_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5311,6 +5471,7 @@ public void test0116_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0116_Method(){
 	String str =
 		"public class X {\n" +
@@ -5345,6 +5506,7 @@ public void test0116_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0117_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5378,6 +5540,7 @@ public void test0117_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0117_Method(){
 	String str =
 		"public class X {\n" +
@@ -5412,6 +5575,7 @@ public void test0117_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0118_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5445,6 +5609,7 @@ public void test0118_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0118_Method(){
 	String str =
 		"public class X {\n" +
@@ -5479,6 +5644,7 @@ public void test0118_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0119_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5512,6 +5678,7 @@ public void test0119_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0119_Method(){
 	String str =
 		"public class X {\n" +
@@ -5546,6 +5713,7 @@ public void test0119_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0120_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5579,6 +5747,7 @@ public void test0120_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0120_Method(){
 	String str =
 		"public class X {\n" +
@@ -5613,6 +5782,7 @@ public void test0120_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0121_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5648,6 +5818,7 @@ public void test0121_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0121_Method(){
 	String str =
 		"public class X {\n" +
@@ -5684,6 +5855,7 @@ public void test0121_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0122_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5719,6 +5891,7 @@ public void test0122_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0122_Method(){
 	String str =
 		"public class X {\n" +
@@ -5755,6 +5928,7 @@ public void test0122_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0123_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5789,6 +5963,7 @@ public void test0123_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0123_Method(){
 	String str =
 		"public class X {\n" +
@@ -5824,6 +5999,7 @@ public void test0123_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0124_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5858,6 +6034,7 @@ public void test0124_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0124_Method(){
 	String str =
 		"public class X {\n" +
@@ -5893,6 +6070,7 @@ public void test0124_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0125_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5926,6 +6104,7 @@ public void test0125_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0125_Method(){
 	String str =
 		"public class X {\n" +
@@ -5960,6 +6139,7 @@ public void test0125_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0126_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5993,6 +6173,7 @@ public void test0126_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0126_Method(){
 	String str =
 		"public class X {\n" +
@@ -6027,6 +6208,7 @@ public void test0126_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0127_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6060,6 +6242,7 @@ public void test0127_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0127_Method(){
 	String str =
 		"public class X {\n" +
@@ -6094,6 +6277,7 @@ public void test0127_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0128_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6127,6 +6311,7 @@ public void test0128_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0128_Method(){
 	String str =
 		"public class X {\n" +
@@ -6161,6 +6346,7 @@ public void test0128_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0129_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6194,6 +6380,7 @@ public void test0129_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0129_Method(){
 	String str =
 		"public class X {\n" +
@@ -6228,6 +6415,7 @@ public void test0129_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0130_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6261,6 +6449,7 @@ public void test0130_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0130_Method(){
 	String str =
 		"public class X {\n" +
@@ -6295,6 +6484,7 @@ public void test0130_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0131_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6328,6 +6518,7 @@ public void test0131_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0131_Method(){
 	String str =
 		"public class X {\n" +
@@ -6362,6 +6553,7 @@ public void test0131_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0132_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6395,6 +6587,7 @@ public void test0132_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0132_Method(){
 	String str =
 		"public class X {\n" +
@@ -6429,6 +6622,7 @@ public void test0132_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0133_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6462,6 +6656,7 @@ public void test0133_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0133_Method(){
 	String str =
 		"public class X {\n" +
@@ -6496,6 +6691,7 @@ public void test0133_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0134_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6529,6 +6725,7 @@ public void test0134_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0134_Method(){
 	String str =
 		"public class X {\n" +
@@ -6563,6 +6760,7 @@ public void test0134_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0135_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6596,6 +6794,7 @@ public void test0135_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0135_Method(){
 	String str =
 		"public class X {\n" +
@@ -6630,6 +6829,7 @@ public void test0135_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0136_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6663,6 +6863,7 @@ public void test0136_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0136_Method(){
 	String str =
 		"public class X {\n" +
@@ -6697,6 +6898,7 @@ public void test0136_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0137_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6728,6 +6930,7 @@ public void test0137_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0137_Method(){
 	String str =
 		"public class X {\n" +
@@ -6761,6 +6964,7 @@ public void test0137_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0138_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6792,6 +6996,7 @@ public void test0138_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0138_Method(){
 	String str =
 		"public class X {\n" +
@@ -6825,6 +7030,7 @@ public void test0138_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0139_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6856,6 +7062,7 @@ public void test0139_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0139_Method(){
 	String str =
 		"public class X {\n" +
@@ -6889,6 +7096,7 @@ public void test0139_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0140_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6920,6 +7128,7 @@ public void test0140_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0140_Method(){
 	String str =
 		"public class X {\n" +
@@ -6953,6 +7162,7 @@ public void test0140_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0141_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6984,6 +7194,7 @@ public void test0141_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0141_Method(){
 	String str =
 		"public class X {\n" +
@@ -7017,6 +7228,7 @@ public void test0141_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0142_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7048,6 +7260,7 @@ public void test0142_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0142_Method(){
 	String str =
 		"public class X {\n" +
@@ -7081,6 +7294,7 @@ public void test0142_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0143_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7112,6 +7326,7 @@ public void test0143_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0143_Method(){
 	String str =
 		"public class X {\n" +
@@ -7145,6 +7360,7 @@ public void test0143_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0144_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7176,6 +7392,7 @@ public void test0144_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0144_Method(){
 	String str =
 		"public class X {\n" +
@@ -7208,6 +7425,7 @@ public void test0144_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0145_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7239,6 +7457,7 @@ public void test0145_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0145_Method(){
 	String str =
 		"public class X {\n" +
@@ -7271,6 +7490,7 @@ public void test0145_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0146(){
 	String str =
 		"public class X {\n" +
@@ -7301,6 +7521,7 @@ public void test0146(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0147(){
 	String str =
 		"public class X {\n" +
@@ -7331,6 +7552,7 @@ public void test0147(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0148(){
 	String str =
 		"public class X {\n" +
@@ -7361,6 +7583,7 @@ public void test0148(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0149(){
 	String str =
 		"public class X {\n" +
@@ -7391,6 +7614,7 @@ public void test0149(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0150(){
 	String str =
 		"public class X {\n" +
@@ -7421,6 +7645,7 @@ public void test0150(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0151(){
 	String str =
 		"public class X {\n" +
@@ -7451,6 +7676,7 @@ public void test0151(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0152(){
 	String str =
 		"public class X {\n" +
@@ -7481,6 +7707,7 @@ public void test0152(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0153(){
 	String str =
 		"public class X {\n" +
@@ -7511,6 +7738,7 @@ public void test0153(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0154(){
 	String str =
 		"public class X {\n" +
@@ -7541,6 +7769,7 @@ public void test0154(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0155(){
 	String str =
 		"public class X {\n" +
@@ -7571,6 +7800,7 @@ public void test0155(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0156(){
 	String str =
 		"public class X {\n" +
@@ -7601,6 +7831,7 @@ public void test0156(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0157(){
 	String str =
 		"public class X {\n" +
@@ -7631,6 +7862,7 @@ public void test0157(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0158(){
 	String str =
 		"public class X {\n" +
@@ -7661,6 +7893,7 @@ public void test0158(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0159_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7694,6 +7927,7 @@ public void test0159_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0159_Method(){
 	String str =
 		"public class X {\n" +
@@ -7728,6 +7962,7 @@ public void test0159_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0160_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7761,6 +7996,7 @@ public void test0160_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0160_Method(){
 	String str =
 		"public class X {\n" +
@@ -7795,6 +8031,7 @@ public void test0160_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0161(){
 	String str =
 		"public class X  <T extends Z<Y>> {\n" +
@@ -7823,6 +8060,7 @@ public void test0161(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0162(){
 	String str =
 		"public class X  <T extends X.Z<Y>> {\n" +
@@ -7851,6 +8089,7 @@ public void test0162(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0163(){
 	String str =
 		"public class X  <T extends X<W>.Z<Y>> {\n" +
@@ -7879,6 +8118,7 @@ public void test0163(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0164(){
 	String str =
 		"public class X {\n" +
@@ -7910,6 +8150,7 @@ public void test0164(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0165_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7943,6 +8184,7 @@ public void test0165_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0165_Method(){
 	String str =
 		"public class X {\n" +
@@ -7977,6 +8219,7 @@ public void test0165_Method(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0166_Diet(){
 	String str =
 		"public class X {\n" +
@@ -8010,6 +8253,7 @@ public void test0166_Diet(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0166_Method(){
 	String str =
 		"public class X {\n" +
@@ -8047,6 +8291,7 @@ public void test0166_Method(){
 /*
 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=69598
 */
+@Test
 public void test0167_Diet(){
 	String str =
 		"public class X {\n" +
@@ -8086,6 +8331,7 @@ public void test0167_Diet(){
 /*
 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=69598
 */
+@Test
 public void test0167_Method(){
 	String str =
 		"public class X {\n" +
@@ -8130,6 +8376,7 @@ public void test0167_Method(){
 /*
 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=69598
 */
+@Test
 public void test0168_Diet(){
 	String str =
 		"public class X {\n" +
@@ -8169,6 +8416,7 @@ public void test0168_Diet(){
 /*
 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=69598
 */
+@Test
 public void test0168_Method(){
 	String str =
 		"public class X {\n" +
@@ -8210,6 +8458,7 @@ public void test0168_Method(){
 /*
 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71705
 */
+@Test
 public void test0169(){
 	String str =
 		"public class X {\n"+
@@ -8249,6 +8498,7 @@ public void test0169(){
 /*
 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71705
 */
+@Test
 public void test0170(){
 	String str =
 		"public class X {\n"+
@@ -8315,6 +8565,7 @@ public void _testXXX2(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0171_Diet(){
 	String str =
 		"public class X{\n" +
@@ -8353,6 +8604,7 @@ public void test0171_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0171_Method(){
 	String str =
 		"public class X{\n" +
@@ -8393,6 +8645,7 @@ public void test0171_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0172_Diet(){
 	String str =
 		"public class X{\n" +
@@ -8431,6 +8684,7 @@ public void test0172_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0172_Method(){
 	String str =
 		"public class X{\n" +
@@ -8471,6 +8725,7 @@ public void test0172_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0173_Diet(){
 	String str =
 		"public class X{\n" +
@@ -8509,6 +8764,7 @@ public void test0173_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0173_Method(){
 	String str =
 		"public class X{\n" +
@@ -8549,6 +8805,7 @@ public void test0173_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0174_Diet(){
 	String str =
 		"public class X{\n" +
@@ -8587,6 +8844,7 @@ public void test0174_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0174_Method(){
 	String str =
 		"public class X{\n" +
@@ -8627,6 +8885,7 @@ public void test0174_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0175_Diet(){
 	String str =
 		"public class X{\n" +
@@ -8665,6 +8924,7 @@ public void test0175_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0175_Method(){
 	String str =
 		"public class X{\n" +
@@ -8705,6 +8965,7 @@ public void test0175_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0176_Diet(){
 	String str =
 		"public class X{\n" +
@@ -8743,6 +9004,7 @@ public void test0176_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
+@Test
 public void test0176_Method(){
 	String str =
 		"public class X{\n" +
@@ -8783,6 +9045,7 @@ public void test0176_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68594
  */
+@Test
 public void test0177(){
 	String str =
 		"public class X{\n" +
@@ -8819,6 +9082,7 @@ public void test0177(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
  */
+@Test
 public void test0178(){
 	String str =
 		"public class X <T>{\n" +
@@ -8853,6 +9117,7 @@ public void test0178(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
  */
+@Test
 public void test0179(){
 	String str =
 		"public class X <T>{\n" +
@@ -8887,6 +9152,7 @@ public void test0179(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
  */
+@Test
 public void test0180(){
 	String str =
 		"public class X <T>{\n" +
@@ -8921,6 +9187,7 @@ public void test0180(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72238
  */
+@Test
 public void test0181(){
 	String str =
 		"public class X <T>{\n" +
@@ -8955,6 +9222,7 @@ public void test0181(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=73573
  */
+@Test
 public void test0182(){
 	String str =
 		"public class X <T>{\n" +
@@ -8988,6 +9256,7 @@ public void test0182(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=73573
  */
+@Test
 public void test0183(){
 	String str =
 		"public class X <T>{\n" +
@@ -9021,6 +9290,7 @@ public void test0183(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=75649
  */
+@Test
 public void test0184_Diet(){
 	String str =
 		"public class X <T>{\n" +
@@ -9057,6 +9327,7 @@ public void test0184_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=75649
  */
+@Test
 public void test0184_Method(){
 	String str =
 		"public class X <T>{\n" +
@@ -9094,6 +9365,7 @@ public void test0184_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83236
  */
+@Test
 public void test0185(){
 	String str =
 		"public class Test {\n" +
@@ -9134,6 +9406,7 @@ public void test0185(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
  */
+@Test
 public void test0186(){
 	String str =
 		"public class Test {\n" +
@@ -9166,6 +9439,7 @@ public void test0186(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
  */
+@Test
 public void test0187_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9201,6 +9475,7 @@ public void test0187_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
  */
+@Test
 public void test0187_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9237,6 +9512,7 @@ public void test0187_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80432
  */
+@Test
 public void test0188_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9274,6 +9550,7 @@ public void test0188_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80432
  */
+@Test
 public void test0188_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9314,6 +9591,7 @@ public void test0188_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0189_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9349,6 +9627,7 @@ public void test0189_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0189_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9385,6 +9664,7 @@ public void test0189_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0190_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9420,6 +9700,7 @@ public void test0190_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0190_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9456,6 +9737,7 @@ public void test0190_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0191_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9491,6 +9773,7 @@ public void test0191_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0191_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9527,6 +9810,7 @@ public void test0191_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0192_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9562,6 +9846,7 @@ public void test0192_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
  */
+@Test
 public void test0192_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9598,6 +9883,7 @@ public void test0192_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
  */
+@Test
 public void test0193_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9633,6 +9919,7 @@ public void test0193_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
  */
+@Test
 public void test0193_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9669,6 +9956,7 @@ public void test0193_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
  */
+@Test
 public void test0194_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9704,6 +9992,7 @@ public void test0194_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
  */
+@Test
 public void test0194_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9740,6 +10029,7 @@ public void test0194_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
  */
+@Test
 public void test0195_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -9775,6 +10065,7 @@ public void test0195_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
  */
+@Test
 public void test0195_Method(){
 	String str =
 		"public class Test {\n" +
@@ -9811,6 +10102,7 @@ public void test0195_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
  */
+@Test
 public void test0196(){
 	String str =
 		"public class Test<T> ext{\n" +
@@ -9847,6 +10139,7 @@ public void test0196(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
  */
+@Test
 public void test0197(){
 	String str =
 		"public class Test<T> imp{\n" +
@@ -9883,6 +10176,7 @@ public void test0197(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
  */
+@Test
 public void test0198(){
 	String str =
 		"public class Test<T> extends X ext {\n" +
@@ -9919,6 +10213,7 @@ public void test0198(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
  */
+@Test
 public void test0199(){
 	String str =
 		"public class Test<T> extends X imp {\n" +
@@ -9955,6 +10250,7 @@ public void test0199(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
  */
+@Test
 public void test0200(){
 	String str =
 		"public interface Test<T> ext{\n" +
@@ -9991,6 +10287,7 @@ public void test0200(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
  */
+@Test
 public void test0201(){
 	String str =
 		"public interface Test<T> imp{\n" +
@@ -10027,6 +10324,7 @@ public void test0201(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100302
  */
+@Test
 public void test0202_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -10064,6 +10362,7 @@ public void test0202_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100302
  */
+@Test
 public void test0202_Method(){
 	String str =
 		"public class Test {\n" +
@@ -10105,6 +10404,7 @@ public void test0202_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100302
  */
+@Test
 public void test0203_Diet(){
 	String str =
 		"public class Test {\n" +
@@ -10142,6 +10442,7 @@ public void test0203_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100302
  */
+@Test
 public void test0203_Method(){
 	String str =
 		"public class Test {\n" +
@@ -10183,6 +10484,7 @@ public void test0203_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=103148
  */
+@Test
 public void test0204_Diet(){
 	String str =
 		"public class Test {\n"+
@@ -10227,6 +10529,7 @@ public void test0204_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=103148
  */
+@Test
 public void test0204_Method(){
 	String str =
 		"public class Test {\n"+
@@ -10270,6 +10573,7 @@ public void test0204_Method(){
 			"full ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=123514
+@Test
 public void test0205(){
 	String str =
 		"public class X {\n" +
@@ -10303,6 +10607,7 @@ public void test0205(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0206_Diet(){
 	String str =
 		"public class Test {\n"+
@@ -10338,6 +10643,7 @@ public void test0206_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0206_Method(){
 	String str =
 		"public class Test {\n"+
@@ -10374,6 +10680,7 @@ public void test0206_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0207_Diet(){
 	String str =
 		"public class Test {\n"+
@@ -10409,6 +10716,7 @@ public void test0207_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0207_Method(){
 	String str =
 		"public class Test {\n"+
@@ -10445,6 +10753,7 @@ public void test0207_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0208_Diet(){
 	String str =
 		"public class Test {\n"+
@@ -10480,6 +10789,7 @@ public void test0208_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0208_Method(){
 	String str =
 		"public class Test {\n"+
@@ -10516,6 +10826,7 @@ public void test0208_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0209_Diet(){
 	String str =
 		"public class Test {\n"+
@@ -10551,6 +10862,7 @@ public void test0209_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0209_Method(){
 	String str =
 		"public class Test {\n"+
@@ -10587,6 +10899,7 @@ public void test0209_Method(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0210_Diet(){
 	String str =
 		"public class Test {\n"+
@@ -10622,6 +10935,7 @@ public void test0210_Diet(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
  */
+@Test
 public void test0210_Method(){
 	String str =
 		"public class Test {\n"+
@@ -10656,6 +10970,7 @@ public void test0210_Method(){
 			"full ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83685
+@Test
 public void test0211(){
 	String str =
 		"public class Test{\n" +
@@ -10685,6 +11000,7 @@ public void test0211(){
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void test0212(){
 	String str =
 		"public class Test {\n" +
@@ -10715,6 +11031,7 @@ public void test0212(){
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+@Test
 public void test0213_Diet() {
 
 	String str =
@@ -10756,6 +11073,7 @@ public void test0213_Diet() {
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+@Test
 public void test0213_Method() {
 
 	String str =
@@ -10817,6 +11135,7 @@ public void test0213_Method() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=197400
+@Test
 public void test0214_Diet() {
 
 	String str =
@@ -10853,6 +11172,7 @@ public void test0214_Diet() {
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=197400
+@Test
 public void test0214_Method() {
 
 	String str =
@@ -10890,6 +11210,7 @@ public void test0214_Method() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210273
+@Test
 public void test0215_Diet() {
 
 	String str =
@@ -10924,6 +11245,7 @@ public void test0215_Diet() {
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210273
+@Test
 public void test0215_Method() {
 
 	String str =
@@ -10959,6 +11281,7 @@ public void test0215_Method() {
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void test0216_Diet() {
 
 	String str =
@@ -11003,6 +11326,7 @@ public void test0216_Diet() {
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207631
+@Test
 public void test0217_Method() {
 
 	String str =
@@ -11041,6 +11365,7 @@ public void test0217_Method() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227546
+@Test
 public void test0218_Diet() {
 
 	String str =
@@ -11079,6 +11404,7 @@ public void test0218_Diet() {
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=274557
+@Test
 public void test0219_Diet() {
 
 	String str =
@@ -11112,6 +11438,7 @@ public void test0219_Diet() {
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=274557
+@Test
 public void test0220_Diet() {
 
 	String str =
@@ -11144,6 +11471,7 @@ public void test0220_Diet() {
 			expectedReplacedSource,
 	"diet ast");
 }
+@Test
 public void testBug351426(){
 	String str =
 		"public class X<T> {\n" +
@@ -11178,6 +11506,7 @@ public void testBug351426(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void testBug351426b(){
 	String str =
 		"public class X<T> {\n" +
@@ -11217,6 +11546,7 @@ public void testBug351426b(){
 			expectedReplacedSource,
 			"full ast");
 }
+@Test
 public void testBug351426c(){
 	String str =
 		"public class X<T> {\n" +

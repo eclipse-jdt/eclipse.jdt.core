@@ -13,19 +13,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.junit5.extension.ExecutionFilter;
 import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ExecutionFilter.class)
 public class CompletionParserTest extends AbstractCompletionTest {
-public CompletionParserTest(String testName) {
-	super(testName);
+public CompletionParserTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 static {
-//	TESTS_NAMES = new String[] { "testBug292087" };
+	TESTS_NAMES = new String[] { "testBug292087" };
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(CompletionParserTest.class);
-}
+@Test
 public void testA() {
 	String str =
 		"package p; \n" +
@@ -69,6 +71,7 @@ public void testA() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAA_1() {
 	String str =
 			"package p; \n" +
@@ -119,6 +122,7 @@ public void testAA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAA_2() {
 	String str =
 			"package p; \n" +
@@ -169,6 +173,7 @@ public void testAA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAA_3() {
 	String str =
 			"package p; \n" +
@@ -219,6 +224,7 @@ public void testAA_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAA_4() {
 	String str =
 			"package p; \n" +
@@ -269,6 +275,7 @@ public void testAA_4() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAB_1FHU9LU() {
 	String str =
 			"package p; \n" +
@@ -321,6 +328,7 @@ public void testAB_1FHU9LU() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAC_1FJ8D9Z_1() {
 	String str =
 			"package p; \n" +
@@ -372,6 +380,7 @@ public void testAC_1FJ8D9Z_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAC_1FJ8D9Z_2() {
 	String str =
 			"package p; \n" +
@@ -423,6 +432,7 @@ public void testAC_1FJ8D9Z_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testAC_1FJ8D9Z_3() {
 	String str =
 			"package p; \n" +
@@ -472,6 +482,7 @@ public void testAC_1FJ8D9Z_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testB() {
 	String str =
 		"package p; \n" +
@@ -501,6 +512,7 @@ public void testB() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testBA_1() {
 	String str =
 			"package p; \n" +
@@ -537,6 +549,7 @@ public void testBA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testBA_2() {
 	String str =
 			"package p; \n" +
@@ -572,6 +585,7 @@ public void testBA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testBB_1FHJ8H9() {
 	String str =
 			"package p; \n" +
@@ -608,6 +622,7 @@ public void testBB_1FHJ8H9() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testBC_1FJ4GSG_1() {
 	String str =
 			"package p; \n" +
@@ -664,6 +679,7 @@ public void testBC_1FJ4GSG_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testBC_1FJ4GSG_2() {
 	String str =
 			"package p; \n" +
@@ -720,6 +736,7 @@ public void testBC_1FJ4GSG_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testBC_1FJ4GSG_3() {
 	String str =
 			"package p; \n" +
@@ -777,6 +794,7 @@ public void testBC_1FJ4GSG_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testC() {
 	String str =
 		"package p; \n" +
@@ -811,6 +829,7 @@ public void testC() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testCA_1FGPJQZ() {
 	String str =
 			"package p; \n" +
@@ -849,6 +868,7 @@ public void testCA_1FGPJQZ() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testCB_1FHSKQ9_1() {
 	String str =
 			"package p; \n" +
@@ -893,6 +913,7 @@ public void testCB_1FHSKQ9_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testCB_1FHSKQ9_2() {
 	String str =
 			"package p; \n" +
@@ -932,6 +953,7 @@ public void testCB_1FHSKQ9_2() {
 		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_NUMBER);
 	}
 }
+@Test
 public void testCC_1FJ64I9() {
 	String str =
 			"package p; \n" +
@@ -992,6 +1014,7 @@ public void testCC_1FJ64I9() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testD_1() {
 	String str =
 		"package p; \n" +
@@ -1048,6 +1071,7 @@ public void testD_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testD_2() {
 	String str =
 		"package p; \n" +
@@ -1107,6 +1131,7 @@ public void testD_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testDA_1() {
 	String str =
 			"package p; \n" +
@@ -1150,6 +1175,7 @@ public void testDA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testDA_2() {
 	String str =
 			"package p; \n" +
@@ -1192,6 +1218,7 @@ public void testDA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testDA_3() {
 	String str =
 			"package p; \n" +
@@ -1232,6 +1259,7 @@ public void testDA_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testDA_4() {
 	String str =
 			"package p; \n" +
@@ -1274,6 +1302,7 @@ public void testDA_4() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testDA_5() {
 	String str =
 			"package p; \n" +
@@ -1317,6 +1346,7 @@ public void testDA_5() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testDB_1FHSLDR() {
 	String str =
 			"package p; \n" +
@@ -1356,6 +1386,7 @@ public void testDB_1FHSLDR() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testDC_1FJJ0JR_1() {
 	String str =
 			"package p; \n" +
@@ -1399,6 +1430,7 @@ public void testDC_1FJJ0JR_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testE_1FG1YDS_1() {
 	String str =
 		"package p; \n" +
@@ -1451,6 +1483,7 @@ public void testE_1FG1YDS_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testE_1FG1YDS_2() {
 	String str =
 		"package p; \n" +
@@ -1503,6 +1536,7 @@ public void testE_1FG1YDS_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testE_1FG1YDS_3() {
 	String str =
 		"package p; \n" +
@@ -1554,6 +1588,7 @@ public void testE_1FG1YDS_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testEA_1() {
 	String str =
 			"package p; \n" +
@@ -1597,6 +1632,7 @@ public void testEA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testEA_2() {
 	String str =
 			"package p; \n" +
@@ -1637,6 +1673,7 @@ public void testEA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testEB_1FI74S3() {
 	String str =
 			"package p; \n" +
@@ -1675,6 +1712,7 @@ public void testEB_1FI74S3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testEC_1FSBZ2Y() {
 	String str =
 			"package p; \n" +
@@ -1718,6 +1756,7 @@ public void testEC_1FSBZ2Y() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testF() {
 	String str =
 		"package p; \n" +
@@ -1761,6 +1800,7 @@ public void testF() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testFA_1() {
 	String str =
 			"package p; \n" +
@@ -1797,6 +1837,7 @@ public void testFA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testFA_2() {
 	String str =
 			"package p; \n" +
@@ -1833,6 +1874,7 @@ public void testFA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testFB_1FI74S3() {
 	String str =
 			"package p; \n" +
@@ -1871,6 +1913,7 @@ public void testFB_1FI74S3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testFC_1FSBZ9B() {
 	String str =
 			"package p; \n" +
@@ -1910,6 +1953,7 @@ public void testFC_1FSBZ9B() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testG() {
 	String str =
 		"package p; \n" +
@@ -1953,6 +1997,7 @@ public void testG() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testGA() {
 	String str =
 			"package p; \n" +
@@ -1987,6 +2032,7 @@ public void testGA() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testGB_1FI74S3() {
 	String str =
 			"package p; \n" +
@@ -2025,6 +2071,7 @@ public void testGB_1FI74S3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testGC_1FSHLHV_1() {
 	String str =
 			"package p; \n" +
@@ -2073,6 +2120,7 @@ public void testGC_1FSHLHV_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testGC_1FSHLHV_2() {
 	String str =
 			"package p; \n" +
@@ -2127,6 +2175,7 @@ public void testGC_1FSHLHV_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testGC_1FSHLHV_3() {
 	String str =
 			"package p; \n" +
@@ -2183,6 +2232,7 @@ public void testGC_1FSHLHV_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testGC_1FSHLHV_4() {
 	String str =
 			"package p; \n" +
@@ -2240,6 +2290,7 @@ public void testGC_1FSHLHV_4() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testH() {
 	String str =
 		"package p; \n" +
@@ -2277,6 +2328,7 @@ public void testH() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testHA_1() {
 	String str =
 			"package p; \n" +
@@ -2311,6 +2363,7 @@ public void testHA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testHA_2() {
 	String str =
 			"package p; \n" +
@@ -2345,6 +2398,7 @@ public void testHA_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testHB_1FHSLDR() {
 	String str =
 			"package p; \n" +
@@ -2398,6 +2452,7 @@ public void testHB_1FHSLDR() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testHC_1FMPYO3_1() {
 	String str =
 			"package p; \n" +
@@ -2435,6 +2490,7 @@ public void testHC_1FMPYO3_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testHC_1FMPYO3_2() {
 	String str =
 			"package p; \n" +
@@ -2472,6 +2528,7 @@ public void testHC_1FMPYO3_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testI() {
 	String str =
 		"package p; \n" +
@@ -2500,6 +2557,7 @@ public void testI() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testIA_1FGNBPR_1() {
 	String str =
 			"package p; \n" +
@@ -2553,6 +2611,7 @@ public void testIA_1FGNBPR_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testIA_1FGNBPR_2() {
 	String str =
 			"package p; \n" +
@@ -2608,6 +2667,7 @@ public void testIA_1FGNBPR_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testIB() {
 	String str =
 			"package p; \n" +
@@ -2642,6 +2702,7 @@ public void testIB() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testIC_1FMGUPR() {
 	String str =
 			"package p; \n" +
@@ -2678,6 +2739,7 @@ public void testIC_1FMGUPR() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testJ() {
 	String str =
 		"package p; \n" +
@@ -2714,6 +2776,7 @@ public void testJ() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testJA_1FGQVW2_1() {
 	String str =
 			"package p; \n" +
@@ -2749,6 +2812,7 @@ public void testJA_1FGQVW2_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testJA_1FGQVW2_2() {
 	String str =
 			"package p; \n" +
@@ -2784,6 +2848,7 @@ public void testJA_1FGQVW2_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testJB() {
 	String str =
 			"package p; \n" +
@@ -2818,6 +2883,7 @@ public void testJB() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testJC_1FLG1ZC() {
 	String str =
 			"package p; \n" +
@@ -2854,6 +2920,7 @@ public void testJC_1FLG1ZC() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testK_1() {
 	String str =
 		"package p; \n" +
@@ -2909,6 +2976,7 @@ public void testK_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testK_2() {
 	String str =
 		"package p; \n" +
@@ -2956,6 +3024,7 @@ public void testK_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testK_3() {
 	String str =
 		"package p; \n" +
@@ -3003,6 +3072,7 @@ public void testK_3() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testK_4() {
 	String str =
 		"package p; \n" +
@@ -3050,6 +3120,7 @@ public void testK_4() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testKA_1FH5SU5() {
 	String str =
 			"package p; \n" +
@@ -3099,6 +3170,7 @@ public void testKA_1FH5SU5() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testKB() {
 	String str =
 			"package p; \n" +
@@ -3129,6 +3201,7 @@ public void testKB() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testKC_1FLG1ZC() {
 	String str =
 			"package p; \n" +
@@ -3192,6 +3265,7 @@ public void testKC_1FLG1ZC() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testL_1() {
 	String str =
 		"package p; \n" +
@@ -3228,6 +3302,7 @@ public void testL_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testL_2() {
 	String str =
 		"package p; \n" +
@@ -3265,6 +3340,7 @@ public void testL_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testL_3() {
 	String str =
 		"package p; \n" +
@@ -3303,6 +3379,7 @@ public void testL_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testLA_1FGLMOF() {
 	String str =
 			"package p; \n" +
@@ -3342,6 +3419,7 @@ public void testLA_1FGLMOF() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testLB() {
 	String str =
 			"package p; \n" +
@@ -3382,6 +3460,7 @@ public void testLB() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testLC_1FLG1E2() {
 	String str =
 			"package p; \n" +
@@ -3420,6 +3499,7 @@ public void testLC_1FLG1E2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testM_1FGGLMT() {
 	String str =
 		"package p; \n" +
@@ -3471,6 +3551,7 @@ public void testM_1FGGLMT() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testMA_1() {
 	String str =
 			"package p; \n" +
@@ -3552,6 +3633,7 @@ public void testMA_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testMA_2() {
 	String str =
 			"package p; \n" +
@@ -3633,6 +3715,7 @@ public void testMA_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testMA_3() {
 	String str =
 			"package p; \n" +
@@ -3714,6 +3797,7 @@ public void testMA_3() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testMB_1FHSLMQ_1() {
 	String str =
 			"package p; \n" +
@@ -3757,6 +3841,7 @@ public void testMB_1FHSLMQ_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testMB_1FHSLMQ_2() {
 	String str =
 			"package p; \n" +
@@ -3800,6 +3885,7 @@ public void testMB_1FHSLMQ_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testMC_1FJ8D9Z() {
 	String str =
 			"package p; \n" +
@@ -3838,6 +3924,7 @@ public void testMC_1FJ8D9Z() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testN() {
 	String str =
 		"package p; \n" +
@@ -3908,6 +3995,7 @@ public void testN() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testNA_1() {
 	String str =
 			"package p; \n" +
@@ -3992,6 +4080,7 @@ public void testNA_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testNA_2() {
 	String str =
 			"package p; \n" +
@@ -4076,6 +4165,7 @@ public void testNA_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testNA_3() {
 	String str =
 			"package p; \n" +
@@ -4160,6 +4250,7 @@ public void testNA_3() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testNB() {
 	String str =
 			"package p; \n" +
@@ -4204,6 +4295,7 @@ public void testNB() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testNC_1FJ8D9Z() {
 	String str =
 			"package p; \n" +
@@ -4235,6 +4327,7 @@ public void testNC_1FJ8D9Z() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testO_1FG1YU0() {
 	String str =
 		"package p; \n" +
@@ -4271,6 +4364,7 @@ public void testO_1FG1YU0() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testOA_1() {
 	String str =
 			"package p; \n" +
@@ -4323,6 +4417,7 @@ public void testOA_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testOA_2() {
 	String str =
 			"package p; \n" +
@@ -4377,6 +4472,7 @@ public void testOA_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testOB_1() {
 	String str =
 			"package p; \n" +
@@ -4416,6 +4512,7 @@ public void testOB_1() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testOB_2() {
 	String str =
 			"package p; \n" +
@@ -4452,6 +4549,7 @@ public void testOB_2() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testOC_1FM7J7F() {
 	String str =
 			"package p; \n" +
@@ -4484,6 +4582,7 @@ public void testOC_1FM7J7F() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testP_1FG1YU0() {
 	String str =
 		"package p; \n" +
@@ -4526,6 +4625,7 @@ public void testP_1FG1YU0() {
 		completionIdentifier,
 		expectedReplacedSource,
 		testName); }
+@Test
 public void testPA_1() {
 	String str =
 			"package p; \n" +
@@ -4575,6 +4675,7 @@ public void testPA_1() {
 		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 	}
 }
+@Test
 public void testPA_2() {
 	String str =
 			"package p; \n" +
@@ -4644,6 +4745,7 @@ public void testPA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testPB() {
 	String str =
 			"package p; \n" +
@@ -4718,6 +4820,7 @@ public void testPB() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testPC_1FSU4EF() {
 	String str =
 			"package p; \n" +
@@ -4771,6 +4874,7 @@ public void testPC_1FSU4EF() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testQ_1FG1YU0() {
 	String str =
 		"package p; \n" +
@@ -4807,6 +4911,7 @@ public void testQ_1FG1YU0() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testQA_1() {
 	String str =
 			"package p; \n" +
@@ -4889,6 +4994,7 @@ public void testQA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testQA_2() {
 	String str =
 			"package p; \n" +
@@ -4971,6 +5077,7 @@ public void testQA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testQA_3() {
 	String str =
 			"package p; \n" +
@@ -5053,6 +5160,7 @@ public void testQA_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testQA_4() {
 	String str =
 			"package p; \n" +
@@ -5135,6 +5243,7 @@ public void testQA_4() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testQB_1FIK820() {
 	String str =
 			"package p; \n" +
@@ -5173,6 +5282,7 @@ public void testQB_1FIK820() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testR_1FGD31E() {
 	String str =
 		"package p; \n" +
@@ -5213,6 +5323,7 @@ public void testR_1FGD31E() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testRA_1() {
 	String str =
 			"package p; \n" +
@@ -5279,6 +5390,7 @@ public void testRA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testRA_2() {
 	String str =
 			"package p; \n" +
@@ -5345,6 +5457,7 @@ public void testRA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testRA_3() {
 	String str =
 			"package p; \n" +
@@ -5410,6 +5523,7 @@ public void testRA_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testRB_1FI74S3() {
 	String str =
 			"package p; \n" +
@@ -5448,6 +5562,7 @@ public void testRB_1FI74S3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testS_1FGF64P_1() {
 	String str =
 		"package p; \n" +
@@ -5496,6 +5611,7 @@ public void testS_1FGF64P_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testS_1FGF64P_2() {
 	String str =
 		"package p; \n" +
@@ -5542,6 +5658,7 @@ public void testS_1FGF64P_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testS_1FGF64P_3() {
 	String str =
 		"package p; \n" +
@@ -5590,6 +5707,7 @@ public void testS_1FGF64P_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testSA() {
 	String str =
 			"package p; \n" +
@@ -5623,6 +5741,7 @@ public void testSA() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testSB_1FILFDG() {
 	String str =
 			"package p; \n" +
@@ -5661,6 +5780,7 @@ public void testSB_1FILFDG() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testT_1FGF64P() {
 	String str =
 		"package p; \n" +
@@ -5707,6 +5827,7 @@ public void testT_1FGF64P() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testTA_1FHISJJ_1() {
 	String str =
 			"package p; \n" +
@@ -5749,6 +5870,7 @@ public void testTA_1FHISJJ_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testTA_1FHISJJ_2() {
 	String str =
 			"package p; \n" +
@@ -5797,6 +5919,7 @@ public void testTA_1FHISJJ_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testTA_1FHISJJ_3() {
 	String str =
 			"package p; \n" +
@@ -5840,6 +5963,7 @@ public void testTA_1FHISJJ_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testTB_1FHSLMQ() {
 	String str =
 			"package p; \n" +
@@ -5878,6 +6002,7 @@ public void testTB_1FHSLMQ() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testU_1FGGUME() {
 	String str =
 		"package p; \n" +
@@ -5911,6 +6036,7 @@ public void testU_1FGGUME() {
 		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_NUMBER);
 	}
 }
+@Test
 public void testUA_1FHISJJ_1() {
 	String str =
 			"package p; \n" +
@@ -5958,6 +6084,7 @@ public void testUA_1FHISJJ_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testUA_1FHISJJ_2() {
 	String str =
 			"package p; \n" +
@@ -6001,6 +6128,7 @@ public void testUA_1FHISJJ_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testUB_1FSBZ02() {
 	String str =
 			"package p; \n" +
@@ -6052,6 +6180,7 @@ public void testUB_1FSBZ02() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testV_1FGGUOO_1() {
 	String str =
 		"package p; \n" +
@@ -6087,6 +6216,7 @@ public void testV_1FGGUOO_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testV_1FGGUOO_2() {
 	String str =
 		"package x.y.z; \n" +
@@ -6119,6 +6249,7 @@ public void testV_1FGGUOO_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testVA_1FHISJJ_1() {
 	String str =
 			"package p; \n" +
@@ -6175,6 +6306,7 @@ public void testVA_1FHISJJ_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testVA_1FHISJJ_2() {
 	String str =
 			"package p; \n" +
@@ -6218,6 +6350,7 @@ public void testVA_1FHISJJ_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testVB_1() {
 	String str =
 		"package p; \n" +
@@ -6318,6 +6451,7 @@ public void _testVB_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testVB_3() {
 	String str =
 		"package p; \n" +
@@ -6472,6 +6606,7 @@ public void _testVB_5() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testW_1FGGUS4() {
 	String str =
 		"package p; \n" +
@@ -6517,6 +6652,7 @@ public void testW_1FGGUS4() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testWA_1() {
 	String str =
 			"package p; \n" +
@@ -6552,6 +6688,7 @@ public void testWA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testWA_2() {
 	String str =
 			"package p; \n" +
@@ -6587,6 +6724,7 @@ public void testWA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testWB_1FI313C() {
 	String str =
 			"package p; \n" +
@@ -6667,6 +6805,7 @@ public void testWB_1FI313C() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testX_1FGGV8C_1() {
 	String str =
 		"package p; \n" +
@@ -6772,6 +6911,7 @@ public void testX_1FGGV8C_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testX_1FGGV8C_2() {
 	String str =
 		"package p; \n" +
@@ -6873,6 +7013,7 @@ public void testX_1FGGV8C_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testX_1FGGV8C_3() {
 	String str =
 		"package p; \n" +
@@ -6974,6 +7115,7 @@ public void testX_1FGGV8C_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testX_1FGGV8C_4() {
 	String str =
 		"package p; \n" +
@@ -7075,6 +7217,7 @@ public void testX_1FGGV8C_4() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testX_1FGPE8E() {
 	String str =
 		"package p; \n" +
@@ -7251,6 +7394,7 @@ public void _testXA_1FGGUQF_1FHSL8H_1() {
 		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 	}
 }
+@Test
 public void testXA_1FGGUQF_1FHSL8H_2() {
 	String str =
 			"// int\n" +
@@ -7325,6 +7469,7 @@ public void testXA_1FGGUQF_1FHSL8H_2() {
 		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 	}
 }
+@Test
 public void testXA_1FGGUQF_1FHSL8H_3() {
 	String str =
 			"// int\n" +
@@ -7398,6 +7543,7 @@ public void testXA_1FGGUQF_1FHSL8H_3() {
 		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 	}
 }
+@Test
 public void testXA_1FGGUQF_1FHSL8H_4() {
 	String str =
 			"// int\n" +
@@ -7471,6 +7617,7 @@ public void testXA_1FGGUQF_1FHSL8H_4() {
 		assertEquals("invalid cursor location: ", e.irritant, InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 	}
 }
+@Test
 public void testXB_1FIYM5I_1() {
 	String str =
 			"package p; \n" +
@@ -7516,6 +7663,7 @@ public void testXB_1FIYM5I_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testXB_1FIYM5I_2() {
 	String str =
 			"package p; \n" +
@@ -7561,6 +7709,7 @@ public void testXB_1FIYM5I_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testXB_1FIYM5I_3() {
 	String str =
 			"package p; \n" +
@@ -7606,6 +7755,7 @@ public void testXB_1FIYM5I_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testXB_1FIYM5I_4() {
 	String str =
 			"package p; \n" +
@@ -7651,6 +7801,7 @@ public void testXB_1FIYM5I_4() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testY_1FGPESI() {
 	String str =
 		"package p; \n" +
@@ -7684,6 +7835,7 @@ public void testY_1FGPESI() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testYA_1FGRIUH() {
 	String str =
 			"package p; \n" +
@@ -7754,6 +7906,7 @@ public void testYA_1FGRIUH() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testYB_1FJ4D46_1() {
 	String str =
 			"package p; \n" +
@@ -7790,6 +7943,7 @@ public void testYB_1FJ4D46_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testZ_1FGPF3D_1() {
 	String str =
 		"package p; \n" +
@@ -7824,6 +7978,7 @@ public void testZ_1FGPF3D_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testZ_1FGPF3D_2() {
 	String str =
 		"package p; \n" +
@@ -7856,6 +8011,7 @@ public void testZ_1FGPF3D_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testZA_1() {
 	String str =
 			"package p; \n" +
@@ -7880,6 +8036,7 @@ public void testZA_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testZA_2() {
 	String str =
 			"package p; \n" +
@@ -7904,6 +8061,7 @@ public void testZA_2() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testZA_3() {
 	String str =
 			"package p; \n" +
@@ -7928,6 +8086,7 @@ public void testZA_3() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testZB_1FJ4D46_1() {
 	String str =
 			"package p; \n" +
@@ -7974,6 +8133,7 @@ public void testZB_1FJ4D46_1() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testZB_1FJ4D46_2() {
 	String str =
 			"package p; \n" +
@@ -8022,6 +8182,7 @@ public void testZB_1FJ4D46_2() {
 /**
  * Complete in initializer
  */
+@Test
 public void test001(){
 	String str =
 		"package p;\n" +
@@ -8065,6 +8226,7 @@ public void test001(){
 /**
  * Complete after initializer
  */
+@Test
 public void test002(){
 	String str =
 		"package p;\n" +
@@ -8107,6 +8269,7 @@ public void test002(){
 /**
  * Complete in initializer
  */
+@Test
 public void test003(){
 	String str =
 		"package p;\n" +
@@ -8151,6 +8314,7 @@ public void test003(){
 /**
  * Complete in switch
  */
+@Test
 public void test004(){
 	String str =
 		"public class X {\n" +
@@ -8196,6 +8360,7 @@ public void test004(){
 /**
  * Complete in method type.
  */
+@Test
 public void test005(){
 	String str =
 		"public class X {\n" +
@@ -8228,6 +8393,7 @@ public void test005(){
 /**
  * Complete in method type.
  */
+@Test
 public void test006(){
 	String str =
 		"public class X {\n" +
@@ -8261,6 +8427,7 @@ public void test006(){
 /**
  * Complete in field type.
  */
+@Test
 public void test007(){
 	String str =
 		"public class X {\n" +
@@ -8292,6 +8459,7 @@ public void test007(){
 /**
  * Complete in field type.
  */
+@Test
 public void test008(){
 	String str =
 		"public class X {\n" +
@@ -8324,6 +8492,7 @@ public void test008(){
 /**
  * Complete in field type.
  */
+@Test
 public void test009(){
 	String str =
 		"public class X {\n" +
@@ -8357,6 +8526,7 @@ public void test009(){
 /**
  * Complete in method type.
  */
+@Test
 public void test010(){
 	String str =
 		"public class X {\n" +
@@ -8391,6 +8561,7 @@ public void test010(){
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=25233
  */
+@Test
 public void test011(){
 	String str =
 		"public class X {\n" +
@@ -8428,6 +8599,7 @@ public void test011(){
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=27370
  */
+@Test
 public void test012(){
 	String str =
 		"public class X {\n" +
@@ -8462,6 +8634,7 @@ public void test012(){
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=27735
  */
+@Test
 public void test013(){
 	String str =
 		"public class Bar {\n" +
@@ -8502,6 +8675,7 @@ public void test013(){
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=27941
  */
+@Test
 public void test014(){
 	String str =
 		"public class Bar {\n" +
@@ -8539,6 +8713,7 @@ public void test014(){
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=39502
  */
+@Test
 public void test015(){
 	String str =
 		"public class Bar {\n" +
@@ -8576,6 +8751,7 @@ public void test015(){
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=39502
  */
+@Test
 public void test016(){
 	String str =
 		"public class Bar {\n" +
@@ -8611,6 +8787,7 @@ public void test016(){
 		testName);
 }
 
+@Test
 public void test017(){
 	String str =
 		"public class Bar {\n" +
@@ -8645,6 +8822,7 @@ public void test017(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
 // To verify that assist node parent is set to the the type declaration
 // when completion is requested after implements in a type declaration.
+@Test
 public void testBug310423(){
 	String str =
 		"import java.lang.annotation.Annotation;\n" +
@@ -8697,6 +8875,7 @@ public void testBug310423(){
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+@Test
 public void testBug338789(){
 	String str =
 		"public class Test {\n" +
@@ -8764,6 +8943,7 @@ public void testBug338789(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
 // Qualified assist type reference
+@Test
 public void testBug338789b(){
 	String str =
 		"public class Test {\n" +
@@ -8813,6 +8993,7 @@ public void testBug338789b(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
 // Check that the whole union type ref is part of the completion node parent
+@Test
 public void testBug343637(){
 	String str =
 		"public class Test {\n" +
@@ -8865,6 +9046,7 @@ public void testBug343637(){
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+@Test
 public void testBug346454(){
 	String str =
 		"public class Test<T> {\n" +
@@ -8898,6 +9080,7 @@ public void testBug346454(){
 		testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+@Test
 public void testBug346454b(){
 	String str =
 		"public class Test<T> {\n" +
@@ -8935,6 +9118,7 @@ public void testBug346454b(){
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void testBug346454b2(){
 	// TODO: unsuccessful attempt to show that completion would work right after "<>" but for that
 	// CompletionParser.checkClassInstanceCreation would need to handle parameterized types, which it never did
@@ -8975,6 +9159,7 @@ public void testBug346454b2(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346415
 // To make sure that all catch blocks before the one in which we're invoking assist are avaiable in the ast.
+@Test
 public void testBug346415(){
 	String str =
 		"public class Test {\n" +
@@ -9032,6 +9217,7 @@ public void testBug346415(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
 // To verify that the completion node is found inside a field initializer
 // that contains an anonymous class.
+@Test
 public void testBug292087a(){
 	String str =
 			"package test;\n" +
@@ -9090,6 +9276,7 @@ public void testBug292087a(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
 // To verify that anonymous class inside an array initializer of a recovered field
 // doesn't end up at a bogus location.
+@Test
 public void testBug292087b(){
 	String str =
 			"package test;\n" +

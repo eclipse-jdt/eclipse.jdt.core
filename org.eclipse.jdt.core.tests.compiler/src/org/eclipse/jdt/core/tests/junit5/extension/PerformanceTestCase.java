@@ -37,7 +37,7 @@ public class PerformanceTestCase {
         super();
     }
 
-    protected String name;
+    protected String fName;
     /**
      * Constructs a performance test case with the given name.
      *
@@ -45,7 +45,7 @@ public class PerformanceTestCase {
      *            the name of the performance test case
      */
     public PerformanceTestCase(String name) {
-        this.name = name;
+        this.fName = name;
     }
 
     /**
@@ -195,6 +195,6 @@ public class PerformanceTestCase {
     }
 
     public String getName() {
-        return name;
+        return fName;
     }
 }

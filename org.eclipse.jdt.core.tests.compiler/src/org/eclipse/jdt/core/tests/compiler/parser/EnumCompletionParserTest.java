@@ -15,18 +15,16 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class EnumCompletionParserTest extends AbstractCompletionTest {
-public EnumCompletionParserTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(EnumCompletionParserTest.class);
+public EnumCompletionParserTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -41,6 +39,7 @@ protected Map getCompilerOptions() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83321
  */
+@Test
 public void test0001(){
 	String str =
 		"public class Completion {\n" +
@@ -81,6 +80,7 @@ public void test0001(){
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0002(){
 	String str =
 		"public class Test {\n" +
@@ -147,6 +147,7 @@ public void test0002(){
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0003(){
 	String str =
 		"public class Test {\n" +
@@ -216,6 +217,7 @@ public void test0003(){
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0004(){
 	String str =
 		"public class Test {\n" +
@@ -288,6 +290,7 @@ public void test0004(){
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0005(){
 	String str =
 		"public class Test {\n" +
@@ -357,6 +360,7 @@ public void test0005(){
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0006(){
 	String str =
 		"public class Test {\n" +
@@ -428,6 +432,7 @@ public void test0006(){
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0007(){
 	String str =
 		"public class Test {\n" +
@@ -507,6 +512,7 @@ public void test0007(){
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0008(){
 	String str =
 		"public enum Test {\n" +
@@ -547,6 +553,7 @@ public void test0008(){
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0009(){
 	String str =
 		"public enum Test {\n" +
@@ -589,6 +596,7 @@ public void test0009(){
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0010(){
 	String str =
 		"public enum Test {\n" +
@@ -632,6 +640,7 @@ public void test0010(){
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0011(){
 	String str =
 		"public enum Test {\n" +
@@ -680,6 +689,7 @@ public void test0011(){
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0012(){
 	String str =
 		"public enum Test {\n" +
@@ -729,6 +739,7 @@ public void test0012(){
 	"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+@Test
 public void test0013(){
 	String str =
 		"public enum Test {\n" +
@@ -779,6 +790,7 @@ public void test0013(){
 	"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100868
+@Test
 public void test0014(){
 	String str =
 		"public enum Enum1 {\n"+

@@ -6,8 +6,10 @@ import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
+import org.junit.jupiter.api.Test;
 
 public class StringLiteralTest extends TestCase {
+	@Test
 	public void testAppend() {
 		StringLiteral l1 = new StringLiteral(new char[] { 'a' }, 2, 3, 4);
 		StringLiteral l2 = new StringLiteral(new char[] { 'b' }, 5, 6, 7);

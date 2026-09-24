@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be in an inner type
  */
 public class InnerTypeCompletionTest extends AbstractCompletionTest {
-public InnerTypeCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(InnerTypeCompletionTest.class);
+public InnerTypeCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Test completion in the first method of an anonymous inner class
  */
+@Test
 public void testAnonymousFirstMethod() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -71,6 +70,7 @@ public void testAnonymousFirstMethod() {
 /*
  * Test completion in anonymous inner class with no statement defined before.
  */
+@Test
 public void testAnonymousNoStatementBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -111,6 +111,7 @@ public void testAnonymousNoStatementBefore() {
  * Test completion in anonymous inner class with one field defined before
  * the method containing the completion.
  */
+@Test
 public void testAnonymousOneFieldBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -152,6 +153,7 @@ public void testAnonymousOneFieldBefore() {
 /*
  * Test completion in anonymous inner class with one statement defined before.
  */
+@Test
 public void testAnonymousOneStatementBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -193,6 +195,7 @@ public void testAnonymousOneStatementBefore() {
 /*
  * Test completion in the second method of an anonymous inner class
  */
+@Test
 public void testAnonymousSecondMethod() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -236,6 +239,7 @@ public void testAnonymousSecondMethod() {
 /*
  * Test completion in the first method of a local type declaration
  */
+@Test
 public void testLocalTypeFirstMethod() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -281,6 +285,7 @@ public void testLocalTypeFirstMethod() {
 /*
  * Test completion in local type declaration with no statement defined before.
  */
+@Test
 public void testLocalTypeNoStatementBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -323,6 +328,7 @@ public void testLocalTypeNoStatementBefore() {
  * Test completion in local type declaration with one field defined before
  * the method containing the completion.
  */
+@Test
 public void testLocalTypeOneFieldBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -366,6 +372,7 @@ public void testLocalTypeOneFieldBefore() {
 /*
  * Test completion in local type declaration with one statement defined before.
  */
+@Test
 public void testLocalTypeOneStatementBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -409,6 +416,7 @@ public void testLocalTypeOneStatementBefore() {
 /*
  * Test completion in the second method of a local type declaration
  */
+@Test
 public void testLocalTypeSecondMethod() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

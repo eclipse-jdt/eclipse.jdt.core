@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -29,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class DietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
@@ -36,12 +37,9 @@ public class DietRecoveryTest extends AbstractCompilerTest {
 static {
 //	TESTS_NUMBERS = new int[] { 75 };
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(DietRecoveryTest.class);
-}
 
-public DietRecoveryTest(String testName){
-	super(testName);
+public DietRecoveryTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 
 public void checkParse(
@@ -251,6 +249,7 @@ public void checkParse(
 /*
  * Should treat variables 'h' and 'i' as fields since 'public'.
  */
+@Test
 public void test01() {
 
 	String s =
@@ -336,6 +335,7 @@ public void test01() {
 /*
  * Should filter out local type altogether
  */
+@Test
 public void test02() {
 
 	String s =
@@ -451,6 +451,7 @@ public void test02() {
  * Should still be finding last method (#baz)
  */
 
+@Test
 public void test03() {
 
 	String s =
@@ -538,6 +539,7 @@ public void test03() {
  * Should finding 5 fields.
  */
 
+@Test
 public void test04() {
 
 	String s =
@@ -635,6 +637,7 @@ public void test04() {
  * Diet parse thinks it is successful - no recovery
  */
 
+@Test
 public void test05() {
 
 	String s =
@@ -727,6 +730,7 @@ public void test05() {
  * Recovery will not restart from scratch, and miss some signatures (#baz())
  */
 
+@Test
 public void test06() {
 
 	String s =
@@ -796,6 +800,7 @@ public void test06() {
  * Properly attaching fields/methods to member type
  */
 
+@Test
 public void test08() {
 
 	String s =
@@ -882,6 +887,7 @@ public void test08() {
  * Properly attaching fields/methods to enclosing type
  */
 
+@Test
 public void test09() {
 
 	String s =
@@ -970,6 +976,7 @@ public void test09() {
  * member type opening brace (Y) (and array initializer for (i)).
  */
 
+@Test
 public void test10() {
 
 	String s =
@@ -1057,6 +1064,7 @@ public void test10() {
  * variable 'x' should be eliminated (looks like a local variable)
  */
 
+@Test
 public void test11() {
 
 	String s =
@@ -1122,6 +1130,7 @@ public void test11() {
  * variable 'x' should NOT be eliminated given it looks like a field
  */
 
+@Test
 public void test12() {
 
 	String s =
@@ -1187,6 +1196,7 @@ public void test12() {
  * Should still recover incomplete type signature (missing superclass)
  */
 
+@Test
 public void test13() {
 
 	String s =
@@ -1229,6 +1239,7 @@ public void test13() {
  * Should still recover incomplete method signature (missing opening brace)
  */
 
+@Test
 public void test14() {
 
 	String s =
@@ -1276,6 +1287,7 @@ public void test14() {
  * Should still recover incomplete method signature (missing thrown exceptions)
  */
 
+@Test
 public void test15() {
 
 	String s =
@@ -1335,6 +1347,7 @@ public void test15() {
  * Should still recover incomplete type signature (missing superinterfaces)
  */
 
+@Test
 public void test16() {
 
 	String s =
@@ -1382,6 +1395,7 @@ public void test16() {
  * Should still recover incomplete type signature (missing superinterfaces)
  */
 
+@Test
 public void test17() {
 
 	String s =
@@ -1429,6 +1443,7 @@ public void test17() {
  * Should find member type behind incomplete enclosing type header
  */
 
+@Test
 public void test18() {
 
 	String s =
@@ -1481,6 +1496,7 @@ public void test18() {
  * Should find member type when missing opening brace
  */
 
+@Test
 public void test19() {
 
 	String s =
@@ -1533,6 +1549,7 @@ public void test19() {
  * Should not find fieldX signature behind missing brace
  */
 
+@Test
 public void test20() {
 
 	String s =
@@ -1586,6 +1603,7 @@ public void test20() {
  * Should find Y as member type
  */
 
+@Test
 public void test21() {
 
 	String s =
@@ -1634,6 +1652,7 @@ public void test21() {
  * Should filter out incomplete local type
  */
 
+@Test
 public void test22() {
 
 	String s =
@@ -1732,6 +1751,7 @@ public void test22() {
  * Should filter out incomplete local type and method signature
  */
 
+@Test
 public void test23() {
 
 	String s =
@@ -1830,6 +1850,7 @@ public void test23() {
  * Should filter out anonymous type
  */
 
+@Test
 public void test24() {
 
 	String s =
@@ -1906,6 +1927,7 @@ public void test24() {
  * Should filter out incomplete anonymous type
  */
 
+@Test
 public void test25() {
 
 	String s =
@@ -1988,6 +2010,7 @@ public void test25() {
  * Should filter out incomplete anonymous method
  */
 
+@Test
 public void test26() {
 
 	String s =
@@ -2077,6 +2100,7 @@ public void test26() {
  * Should filter out incomplete local type and local var h
  */
 
+@Test
 public void test27() {
 
 	String s =
@@ -2173,6 +2197,7 @@ public void test27() {
  * Should find <y> as a field in Y
  */
 
+@Test
 public void test28() {
 
 	String s =
@@ -2232,6 +2257,7 @@ public void test28() {
  * Should find <y> as a field in X
  */
 
+@Test
 public void test29() {
 
 	String s =
@@ -2291,6 +2317,7 @@ public void test29() {
  * Should find <y> as a field in X
  */
 
+@Test
 public void test30() {
 
 	String s =
@@ -2350,6 +2377,7 @@ public void test30() {
  * Should recover from partial method header foo()
  */
 
+@Test
 public void test31() {
 
 	String s =
@@ -2487,6 +2515,7 @@ public void _test32() {
  * Should not find message with no argument as a constructor
  */
 
+@Test
 public void test33() {
 
 	String s =
@@ -2537,6 +2566,7 @@ public void test33() {
  * Should not find allocation as a constructor
  */
 
+@Test
 public void test34() {
 
 	String s =
@@ -2591,6 +2621,7 @@ public void test34() {
  * Incomplete field header
  */
 
+@Test
 public void test35() {
 
 	String s =
@@ -2629,6 +2660,7 @@ public void test35() {
  * Incomplete multiple field headers
  */
 
+@Test
 public void test36() {
 
 	String s =
@@ -2669,6 +2701,7 @@ public void test36() {
  * Field header with started string initializer
  */
 
+@Test
 public void test37() {
 
 	String s =
@@ -2707,6 +2740,7 @@ public void test37() {
  * Field header with started string initializer combined with incomplete superinterface
  */
 
+@Test
 public void test38() {
 
 	String s =
@@ -2745,6 +2779,7 @@ public void test38() {
  * Field signature behind keyword implements
  */
 
+@Test
 public void test39() {
 
 	String s =
@@ -2784,6 +2819,7 @@ public void test39() {
  * Field type read as interface
  */
 
+@Test
 public void test40() {
 
 	String s =
@@ -2820,6 +2856,7 @@ public void test40() {
  * Contiguous headers (checking checkpoint positions)
  */
 
+@Test
 public void test41() {
 
 	String s =
@@ -2869,6 +2906,7 @@ public void test41() {
  * Contiguous headers without comma (checking checkpoint positions)
  */
 
+@Test
 public void test42() {
 
 	String s =
@@ -2910,6 +2948,7 @@ public void test42() {
  * Contiguous headers without comma (checking checkpoint positions)
  */
 
+@Test
 public void test43() {
 
 	String s =
@@ -2964,6 +3003,7 @@ public void test43() {
  * Should find static field <x>
  */
 
+@Test
 public void test44() {
 
 	String s =
@@ -3016,6 +3056,7 @@ public void test44() {
  * Missing string literal quote inside method
  */
 
+@Test
 public void test45() {
 
 	String s =
@@ -3059,6 +3100,7 @@ public void test45() {
  * Detecting member type closing when missing brackets
  */
 
+@Test
 public void test46() {
 
 	String s =
@@ -3121,6 +3163,7 @@ public void test46() {
  * Unterminated method arguments
  */
 
+@Test
 public void test47() {
 
 	String s =
@@ -3163,6 +3206,7 @@ public void test47() {
  * Unterminated literal string in method body
  */
 
+@Test
 public void test48() {
 
 	String s =
@@ -3212,6 +3256,7 @@ public void test48() {
  * Unterminated initializer with local declaration
  */
 
+@Test
 public void test49() {
 
 	String s =
@@ -3254,6 +3299,7 @@ public void test49() {
  * Unterminated if statement
  */
 
+@Test
 public void test50() {
 
 	String s =
@@ -3312,6 +3358,7 @@ public void test50() {
  * Unterminated nested block with local declaration
  */
 
+@Test
 public void test51() {
 
 	String s =
@@ -3367,6 +3414,7 @@ public void test51() {
  * Unterminated nested block with field declaration
  */
 
+@Test
 public void test52() {
 
 	String s =
@@ -3412,6 +3460,7 @@ public void test52() {
  * Unterminated initializer with field declaration
  */
 
+@Test
 public void test53() {
 
 	String s =
@@ -3456,6 +3505,7 @@ public void test53() {
  * Invalid class name
  */
 
+@Test
 public void test54() {
 
 	String s =
@@ -3506,6 +3556,7 @@ public void test54() {
  * Unterminated static initializer with field declaration
  */
 
+@Test
 public void test55() {
 
 	String s =
@@ -3554,6 +3605,7 @@ public void test55() {
  * Multiple initializers combined with array initializer
  */
 
+@Test
 public void test56() {
 
 	String s =
@@ -3633,6 +3685,7 @@ public void test56() {
  * Combination of unterminated methods and fields
  */
 
+@Test
 public void test57() {
 
 	String s =
@@ -3690,6 +3743,7 @@ public void test57() {
  * Illegal unicode inside method body
  */
 
+@Test
 public void test58() {
 
 	String s =
@@ -3737,6 +3791,7 @@ public void test58() {
  * Extra identifier in type signature
  */
 
+@Test
 public void test59() {
 
 	String s =
@@ -3777,6 +3832,7 @@ public void test59() {
  * Extra identifier in method signature
  */
 
+@Test
 public void test60() {
 
 	String s =
@@ -3818,6 +3874,7 @@ public void test60() {
  * Extra identifier behind thrown exception
  */
 
+@Test
 public void test61() {
 
 	String s =
@@ -3859,6 +3916,7 @@ public void test61() {
  * Unterminated array initializer
  */
 
+@Test
 public void test62() {
 
 	String s =
@@ -3950,6 +4008,7 @@ public void test62() {
  * Initializer behind array initializer
  */
 
+@Test
 public void test63() {
 
 	String s =
@@ -4002,6 +4061,7 @@ public void test63() {
  * Initializers mixed with fields
  */
 
+@Test
 public void test64() {
 
 	String s =
@@ -4081,6 +4141,7 @@ public void test64() {
  * Should find method behind some()
  */
 
+@Test
 public void test65() {
 
 	String s =
@@ -4166,6 +4227,7 @@ public void test65() {
  * Should detect X(int) as a method with no return type
  */
 
+@Test
 public void test66() {
 
 	String s =
@@ -4217,6 +4279,7 @@ public void test66() {
  * Should detect orphan X(int) as a constructor
  */
 
+@Test
 public void test67() {
 
 	String s =
@@ -4270,6 +4333,7 @@ public void test67() {
  * Empty unit
  */
 
+@Test
 public void test68() {
 
 	String s = "";
@@ -4299,6 +4363,7 @@ public void test68() {
  * Unit reduced to a constructor declaration
  */
 
+@Test
 public void test70() {
 
 	String s =
@@ -4327,6 +4392,7 @@ public void test70() {
  * Should not pick-up any constructor with no arg
  */
 
+@Test
 public void test73() {
 
 	String s =
@@ -4379,6 +4445,7 @@ public void test73() {
  * Should not detect any field
  */
 
+@Test
 public void test74() {
 
 	String s =
@@ -4428,6 +4495,7 @@ public void test74() {
  * Bunch of syntax errors
  */
 
+@Test
 public void test75() {
 
 	String s =
@@ -4541,6 +4609,7 @@ public void test75() {
  * Should find Member as a member type
  */
 
+@Test
 public void test76() {
 
 	String s =
@@ -4624,6 +4693,7 @@ public void test76() {
  * Should not recover duplicate field numberOfDisks
  */
 
+@Test
 public void test77() {
 
 	String s =
@@ -4720,6 +4790,7 @@ public void test77() {
  * Should not detect a field v (1/2)
  */
 
+@Test
 public void test78() {
 
 	String s =
@@ -4776,6 +4847,7 @@ public void test78() {
  * Should not detect a field v (2/2)
  */
 
+@Test
 public void test79() {
 
 	String s =
@@ -4831,6 +4903,7 @@ public void test79() {
  * Should not detect a method bar
  */
 
+@Test
 public void test80() {
 
 	String s =
@@ -4887,6 +4960,7 @@ public void test80() {
  * Should not pick-up any constructor with no arg
  */
 
+@Test
 public void test81() {
 
 	String s =
@@ -4938,6 +5012,7 @@ public void test81() {
  * Should not promote message sending as a method
  */
 
+@Test
 public void test82() {
 
 	String s =
@@ -4993,6 +5068,7 @@ public void test82() {
  * Should not promote message sending as a method 2
  */
 
+@Test
 public void test83() {
 
 	String s =
@@ -5047,6 +5123,7 @@ public void test83() {
  * Should find a static initializer
  */
 
+@Test
 public void test84() {
 
 	String s =
@@ -5092,6 +5169,7 @@ public void test84() {
  * Should find a static initializer
  */
 
+@Test
 public void test85() {
 
 	String s =
@@ -5137,6 +5215,7 @@ public void test85() {
  * Should find an initializer
  */
 
+@Test
 public void test86() {
 
 	String s =
@@ -5179,6 +5258,7 @@ public void test86() {
  * Should find an initializer
  */
 
+@Test
 public void test87() {
 
 	String s =
@@ -5225,6 +5305,7 @@ public void test87() {
  * 1FVRQG0: ITPCOM:WINNT - NullPointerException in recovery mode
  */
 
+@Test
 public void test88() {
 
 	String s =
@@ -5282,6 +5363,7 @@ public void test88() {
  * 1FVRN9V: ITPJCORE:WIN98 - Internal builder error compiling servlet
  */
 
+@Test
 public void test89() {
 
 	String s =
@@ -5335,6 +5417,7 @@ public void test89() {
  * 1FVXQZ4: ITPCOM:WIN98 - Walkback during parsing recovery
  */
 
+@Test
 public void test90() {
 
 	String s =
@@ -5389,6 +5472,7 @@ public void test90() {
  * 1FVXWKI: ITPCOM:WIN98 - Walkback when parsing a bogus interface
  */
 
+@Test
 public void test91() {
 
 	String s =
@@ -5423,6 +5507,7 @@ public void test91() {
  * Variation on 1FVXWKI: ITPCOM:WIN98 - Walkback when parsing a bogus interface
  */
 
+@Test
 public void test92() {
 	String s =
 		"public interface Test {		\n"+
@@ -5455,6 +5540,7 @@ public void test92() {
  * 1FW5A4E: ITPCOM:WIN98 - Walkback reconciling
  */
 
+@Test
 public void test93() {
 	String s =
 		"class X{			\n" +
@@ -5503,6 +5589,7 @@ public void test93() {
  * 1FW3663: ITPCOM:WIN98 - Outline - does not show method #fred()
  */
 
+@Test
 public void test94() {
 	String s =
 		"public class X {						\n" +
@@ -5566,6 +5653,7 @@ public void test94() {
  * 1FW6M5M: ITPJUI:ALL - NPE in SourceElementParser
  */
 
+@Test
 public void test95() {
 	String s =
 		"public interface IP {			\n"+
@@ -5597,6 +5685,7 @@ public void test95() {
  * 1FWHXX7: ITPCOM:WINNT - ClassCastException compiling invalid import
  */
 
+@Test
 public void test96() {
 	String s =
 		"import ;\n"+
@@ -5650,6 +5739,7 @@ public void test96() {
  * variation on 1FWHXX7: ITPCOM:WINNT - ClassCastException compiling invalid import
  */
 
+@Test
 public void test97() {
 	String s =
 		"import ;\n"+
@@ -5701,6 +5791,7 @@ public void test97() {
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=9084
  */
 
+@Test
 public void test98() {
 
 	String s =
@@ -5799,6 +5890,7 @@ public void test98() {
 		expectedCompletionDietUnitToString, testName);
 }
 
+@Test
 public void test99() {
 	String s =
 		"import ;\n"+
@@ -5883,6 +5975,7 @@ public void test99() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test100() {
 	String s =
 		"public class Bug {\n" +
@@ -6036,6 +6129,7 @@ public void _test101() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test102() {
 	String s =
 		"""
@@ -6188,6 +6282,7 @@ final class handlingtoplevelanonymoustest102 {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test103() {
 	String s =
 		"public class X{	\n"+
@@ -6225,6 +6320,7 @@ public void test103() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test104() {
 	String s =
 		"public class P#AField {\n" +
@@ -6269,6 +6365,7 @@ public void test104() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test105() {
 	String s =
 		"public class X {\n" +
@@ -6328,6 +6425,7 @@ public void test105() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test106() {
 	String s =
 		"public class X {\n" +
@@ -6368,6 +6466,7 @@ public void test106() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test107() {
 	String s =
 		"public class X {\n" +
@@ -6410,6 +6509,7 @@ public void test107() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test108() {
 	String s =
 		"public class X {\n" +
@@ -6452,6 +6552,7 @@ public void test108() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test109() {
 	String s =
 		"public class X {\n" +
@@ -6498,6 +6599,7 @@ public void test109() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test110() {
 	String s =
 		"public class X {\n" +
@@ -6572,6 +6674,7 @@ public void test110() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+@Test
 public void test111() {
 	String s =
 		"public class X {\n" +
@@ -6622,6 +6725,7 @@ public void test111() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100797
+@Test
 public void test112() {
 	String s =
 		"public class X {\n"+
@@ -6683,6 +6787,7 @@ public void test112() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111618
+@Test
 public void test113() {
 	String s =
 		"public class X {\n"+
@@ -6729,6 +6834,7 @@ public void test113() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129142
+@Test
 public void test114() {
 	String s =
 		"public class X {\n"+
@@ -6779,6 +6885,7 @@ public void test114() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+@Test
 public void test115() {
 	String s =
 		"public interface Test {\n"+
@@ -6818,6 +6925,7 @@ public void test115() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+@Test
 public void test116() {
 	String s =
 		"public interface Test {\n"+
@@ -6860,6 +6968,7 @@ public void test116() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154811
+@Test
 public void test117() {
 	String s =
 		"public class X {\n" +
@@ -6949,6 +7058,7 @@ public void test117() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154811
+@Test
 public void test117_2() {
 	String s =
 		"public class X {\n" +
@@ -7038,6 +7148,7 @@ public void test117_2() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162056
+@Test
 public void test118() {
 	String s =
 		"interface Irrelevant {}\n"+
@@ -7104,6 +7215,7 @@ public void test118() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162056
+@Test
 public void test119() {
 	String s =
 		"interface Irrelevant {}\n"+
@@ -7179,6 +7291,7 @@ public void test119() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+@Test
 public void test120() {
 	String s =
 		"public class X {\n" +
@@ -7245,6 +7358,7 @@ public void test120() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+@Test
 public void test121() {
 	String s =
 		"public class X {\n" +
@@ -7311,6 +7425,7 @@ public void test121() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+@Test
 public void test122() {
 	String s =
 		"public class Test\n" +
@@ -7384,6 +7499,7 @@ public void test122() {
 		expectedCompletionDietUnitToString, testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+@Test
 public void test123() {
 	String s =
 		"public class SwitchBug {\n" +
@@ -7522,6 +7638,7 @@ public void _test124() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=271680
+@Test
 public void test125() {
 	String s =
 		"public class Test {\n" +
@@ -7606,6 +7723,7 @@ public void test125() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132679
+@Test
 public void test126() {
 	String s =
 		"package p;\n" +
@@ -7679,6 +7797,7 @@ public void test126() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201762
+@Test
 public void test127() {
 	String s =
 		"import org.eclipse.swt.*;\n" +
@@ -7801,6 +7920,7 @@ public void test127() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201762
+@Test
 public void test128() {
 	String s =
 		"import org.eclipse.swt.*;\n" +
@@ -7902,6 +8022,7 @@ public void test128() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405778 - [1.8][dom ast] method body recovery broken (empty body)
+@Test
 public void test405778() {
 		String s =
 			"import java.util.Collection;\n" +
@@ -7978,6 +8099,7 @@ public void test405778() {
 			expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405778 - [1.8][dom ast] method body recovery broken (empty body)
+@Test
 public void test405778a() {
 	String s =
 		"import java.util.Collection;\n" +
@@ -8053,6 +8175,7 @@ public void test405778a() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=456861 - [recovery] NPE in RecoveryScanner since Mars M4
+@Test
 public void test456861() {
 	String s =
 		"import java.awt.Point;\n" +

@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -27,6 +26,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ParserTest1_7 extends AbstractCompilerTest {
@@ -40,11 +41,8 @@ static {
 public static Class testClass() {
 	return ParserTest1_7.class;
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-}
-public ParserTest1_7(String testName){
-	super(testName);
+public ParserTest1_7(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 public void checkParse(
 	char[] source,
@@ -239,6 +237,7 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	return options;
 }
+@Test
 public void test0001() {
 
 	String s =
@@ -342,6 +341,7 @@ public void test0001() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0002() {
 
 	String s =
@@ -445,6 +445,7 @@ public void test0002() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0003() {
 
 	String s =
@@ -520,6 +521,7 @@ public void test0003() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0004() {
 
 	String s =
@@ -609,6 +611,7 @@ public void test0004() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0005() {
 
 	String s =
@@ -698,6 +701,7 @@ public void test0005() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0006() {
 
 	String s =
@@ -801,6 +805,7 @@ public void test0006() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0007() {
 
 	String s =
@@ -869,6 +874,7 @@ public void test0007() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0008() {
 
 	String s =
@@ -937,6 +943,7 @@ public void test0008() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0009() {
 
 	String s =
@@ -1005,6 +1012,7 @@ public void test0009() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0010() {
 
 	String s =
@@ -1073,6 +1081,7 @@ public void test0010() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0011() {
 
 	String s =
@@ -1162,6 +1171,7 @@ public void test0011() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+@Test
 public void test0012() {
 
 	String s =

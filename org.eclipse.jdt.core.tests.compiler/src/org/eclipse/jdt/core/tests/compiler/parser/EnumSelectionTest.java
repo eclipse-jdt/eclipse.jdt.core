@@ -13,11 +13,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
 public class EnumSelectionTest extends AbstractSelectionTest {
-public EnumSelectionTest(String testName) {
-	super(testName);
+public EnumSelectionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85379
+@Test
 public void test0001() {
 
 	String str =

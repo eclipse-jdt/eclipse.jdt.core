@@ -14,22 +14,23 @@
 
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.junit5.extension.ExecutionFilter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ExecutionFilter.class)
 public class CompletionParserTest18 extends AbstractCompletionTest {
 
 static {
 //	TESTS_NAMES = new String [] { "test0001" };
 }
 
-public CompletionParserTest18(String testName) {
-	super(testName);
+public CompletionParserTest18(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(CompletionParserTest18.class, F_1_8);
-}
-
+@Test
 public void test0001() {
 	String string =
 			"interface I { \n" +
@@ -89,6 +90,7 @@ public void test0001() {
 		expectedReplacedSource,
 		"diet ast");
 }
+@Test
 public void test0002() {
 	String string =
 			"interface Foo { \n" +
@@ -125,6 +127,7 @@ public void test0002() {
 		expectedReplacedSource,
 		"diet ast");
 }
+@Test
 public void test0003() {
 	String string =
 			"interface Foo { \n" +
@@ -163,6 +166,7 @@ public void test0003() {
 		expectedReplacedSource,
 		"diet ast");
 }
+@Test
 public void test0004() {
 	String string =
 			"interface Foo {\n" +
@@ -204,6 +208,7 @@ public void test0004() {
 		expectedReplacedSource,
 		"diet ast");
 }
+@Test
 public void test0005() {
 	String string =
 			"interface I {\n" +
@@ -253,6 +258,7 @@ public void test0005() {
 		expectedReplacedSource,
 		"diet ast");
 }
+@Test
 public void test0006() {
 	String string =
 			"interface I {\n" +
@@ -300,6 +306,7 @@ public void test0006() {
 		expectedReplacedSource,
 		"diet ast");
 }
+@Test
 public void test0007() {
 	String string =
 			"public interface Foo { \n" +
@@ -350,6 +357,7 @@ public void test0007() {
 		expectedReplacedSource,
 		"diet ast");
 }
+@Test
 public void test0010() {
 	String string =
 			"interface I {\n" +
@@ -405,6 +413,7 @@ public void test0010() {
 		"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935, [1.8][code select] ICU#codeSelect doesn't work on reference to lambda parameter
+@Test
 public void test417935() {
 	String string =
 			"import java.util.ArrayList;\n" +
@@ -452,6 +461,7 @@ public void test417935() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405126, [1.8][code assist] Lambda parameters incorrectly recovered as fields.
+@Test
 public void test405126() {
 	String string =
 			"public interface Foo { \n" +
@@ -503,6 +513,7 @@ public void test405126() {
 				"diet ast");
 }
 // Verify that locals inside a lambda block don't get promoted to the parent block.
+@Test
 public void testLocalsPromotion() {
 	String string =
 			"interface I {\n" +
@@ -563,6 +574,7 @@ public void testLocalsPromotion() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422107, [1.8][code assist] Invoking code assist just before and after a variable initialized using lambda gives different result
+@Test
 public void testCompletionLocation() {
 	String string =
 			"interface I {\n" +
@@ -605,6 +617,7 @@ public void testCompletionLocation() {
 				expectedReplacedSource,
 				"diet ast");
 }
+@Test
 public void testElidedCompletion() {
 	String string =
 			"class Collections {\n" +
@@ -664,6 +677,7 @@ public void testElidedCompletion() {
 				expectedReplacedSource,
 				"diet ast");
 }
+@Test
 public void testElidedCompletion2() {
 	String string =
 			"class Collections {\n" +
@@ -723,6 +737,7 @@ public void testElidedCompletion2() {
 				expectedReplacedSource,
 				"diet ast");
 }
+@Test
 public void testUnspecifiedReference() {  // verify that completion works on unspecified reference and finds types and names.
 	String string =
 			"interface I {\n" +
@@ -780,6 +795,7 @@ public void testUnspecifiedReference() {  // verify that completion works on uns
 				expectedReplacedSource,
 				"diet ast");
 }
+@Test
 public void testBrokenMethodCall() {  // verify that completion works when the call containing the lambda is broken - i.e missing a semicolon.
 	String string =
 			"interface I {\n" +
@@ -832,6 +848,7 @@ public void testBrokenMethodCall() {  // verify that completion works when the c
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424080, [1.8][completion] Workbench hanging on code completion with lambda expression containing anonymous class
+@Test
 public void test424080() {
 String string =
 			"interface FI {\n" +
@@ -876,6 +893,7 @@ String string =
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425084, [1.8][completion] Eclipse freeze while autocompleting try block in lambda.
+@Test
 public void test425084() {
 	String string =
 			"interface I {\n" +
@@ -917,6 +935,7 @@ public void test425084() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425084, [1.8][completion] Eclipse freeze while autocompleting try block in lambda.
+@Test
 public void test425084b() {
 	String string =
 			"interface I {\n" +
@@ -965,6 +984,7 @@ public void test425084b() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427255, [1.8][code assist] Hang due to infinite loop in Parser.automatonWillShift
+@Test
 public void test427255() {
 	String string =
 			"public class X {\n" +
@@ -1004,6 +1024,7 @@ public void test427255() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427322, [1.8][code assist] Eclipse hangs upon completion just past lambda
+@Test
 public void test427322() {
 	String string =
 			"public class X {\n" +
@@ -1047,6 +1068,7 @@ public void test427322() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427322, [1.8][code assist] Eclipse hangs upon completion just past lambda
+@Test
 public void test427322a() {
 	String string =
 			"public class X {\n" +
@@ -1090,6 +1112,7 @@ public void test427322a() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427463, [1.8][content assist] No completions available in throw statement within lambda body
+@Test
 public void test427463() {
 	String string =
 			"interface FI1 {\n" +
@@ -1136,6 +1159,7 @@ public void test427463() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427117, [1.8][code assist] code assist after lambda as a parameter does not work
+@Test
 public void test427117() {
 	String string =
 			"import java.util.ArrayList;\n" +
@@ -1183,6 +1207,7 @@ public void test427117() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427532, [1.8][code assist] Completion engine does not like intersection casts
+@Test
 public void test427532() {
 	String string =
 			"import java.io.Serializable;\n" +
@@ -1228,6 +1253,7 @@ public void test427532() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735() {
 	String string =
 			"import java.util.List;\n" +
@@ -1274,6 +1300,7 @@ public void test428735() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735a() {
 	String string =
 			"import java.util.List;\n" +
@@ -1325,6 +1352,7 @@ public void test428735a() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735b() {
 	String string =
 			"import java.util.List;\n" +
@@ -1376,6 +1404,7 @@ public void test428735b() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735c() {
 	String string =
 			"import java.util.List;\n" +
@@ -1427,6 +1456,7 @@ public void test428735c() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735d() {
 	String string =
 			"import java.util.List;\n" +
@@ -1478,6 +1508,7 @@ public void test428735d() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735e() { // field
 	String string =
 			"class Person {\n" +
@@ -1524,6 +1555,7 @@ public void test428735e() { // field
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735f() { // local
 	String string =
 			"class Person {\n" +
@@ -1574,6 +1606,7 @@ public void test428735f() { // local
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735g() { // initializer block
 	String string =
 			"import java.util.List;\n" +
@@ -1628,6 +1661,7 @@ public void test428735g() { // initializer block
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
+@Test
 public void test402081() { // initializer block
 	String string =
 			"interface I {\n" +
@@ -1677,6 +1711,7 @@ public void test402081() { // initializer block
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430656, [1.8][content assist] Content assist does not work for method reference argument
+@Test
 public void test430656() {
 	String string =
 			"import java.util.ArrayList;\n" +
@@ -1733,6 +1768,7 @@ public void test430656() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438952, [1.8][content assist] StackOverflowError at org.eclipse.jdt.internal.compiler.ast.SingleTypeReference.traverse(SingleTypeReference.java:108)
+@Test
 public void test438952() {
 	String string =
 			"import java.util.function.Supplier;\n" +
@@ -1781,6 +1817,7 @@ public void test438952() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
+@Test
 public void test435219() {
 			String string =
 				"import java.util.Arrays;\n" +
@@ -1824,6 +1861,7 @@ public void test435219() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression
+@Test
 public void test435682() {
 			String string =
 					"import java.util.Arrays;\n" +
@@ -1865,6 +1903,7 @@ public void test435682() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+@Test
 public void test430667() {
 			String string =
 					"interface D_FI {\n" +
@@ -1909,6 +1948,7 @@ public void test430667() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+@Test
 public void test430667a() {
 			String string =
 					"class D_DemoRefactorings {\n" +
@@ -1954,6 +1994,7 @@ public void test430667a() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+@Test
 public void test430667b() {
 			String string =
 					"public class D_DemoRefactorings {\n" +
@@ -1997,6 +2038,7 @@ public void test430667b() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+@Test
 public void test430667c() {
 			String string =
 					"public interface Foo {\n" +
@@ -2039,6 +2081,7 @@ public void test430667c() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+@Test
 public void test430667d() {
 			String string =
 					"import java.util.Arrays;\n" +
@@ -2076,6 +2119,7 @@ public void test430667d() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446765,
+@Test
 public void test446765() {
 			String string =
 					"class Stepper<T> {\n" +
@@ -2178,6 +2222,7 @@ public void test446765() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+@Test
 public void test428735h()  {
 	String string =
 			"import java.util.List;\n" +
@@ -2231,6 +2276,7 @@ public void test428735h()  {
 		"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+@Test
 public void test422468() { // computing visible elements in lambda scope.
 	String string =
 			"interface I {\n" +
@@ -2303,6 +2349,7 @@ public void test422468() { // computing visible elements in lambda scope.
 		"diet ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=473008
+@Test
 public void test473008() {
 	String string =
 			"interface FooFunctional {\n" +

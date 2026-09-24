@@ -13,22 +13,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class SelectionParserTest9 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_NAMES = new String[] { "test510339_007" };
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(SelectionParserTest9.class, F_9);
+
+public SelectionParserTest9(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
-public SelectionParserTest9(String testName) {
-	super(testName);
-}
-
+@Test
 public void test510339_001_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  exports pack1;\n"
@@ -60,6 +62,7 @@ public void test510339_001_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_002_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  exports pack1 to second;\n"
@@ -91,6 +94,7 @@ public void test510339_002_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_003_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  opens pack1;\n"
@@ -122,6 +126,7 @@ public void test510339_003_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_004_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  opens pack1 to second;\n"
@@ -153,6 +158,7 @@ public void test510339_004_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_005_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  requires second;\n"
@@ -184,6 +190,7 @@ public void test510339_005_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_006_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  uses Z;\n"
@@ -215,6 +222,7 @@ public void test510339_006_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_007_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  uses pack1.Z;\n"
@@ -245,6 +253,7 @@ public void test510339_007_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_008_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  provides Y with Z;\n"
@@ -276,6 +285,7 @@ public void test510339_008_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_009_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  provides pack1.Y with Z;\n"
@@ -307,6 +317,7 @@ public void test510339_009_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_010_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  provides Y with Z;\n"
@@ -338,6 +349,7 @@ public void test510339_010_since_9() throws JavaModelException {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test510339_011_since_9() throws JavaModelException {
 	String string =  "module my.mod {\n"
 			+ "  provides Y with pack1.Z;\n"

@@ -23,13 +23,16 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class DocumentElementParserTest extends AbstractCompilerTest {
-public DocumentElementParserTest(String testName) {
-	super(testName);
+public DocumentElementParserTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 public void reset() {
 }
+@Test
 public void test01() {
 
 	String s =

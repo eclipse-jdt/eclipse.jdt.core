@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be a ReferenceType.
  */
 public class ReferenceTypeCompletionTest extends AbstractCompletionTest {
-public ReferenceTypeCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(ReferenceTypeCompletionTest.class);
+public ReferenceTypeCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Regression test for 1FTZCIG.
  */
+@Test
 public void test1FTZCIG() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -66,6 +65,7 @@ public void test1FTZCIG() {
 /*
  * Block ::= OpenBlock '{' <BlockStatementsopt> '}'
  */
+@Test
 public void testBlock() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -102,6 +102,7 @@ public void testBlock() {
 /*
  * BlockStatements ::= BlockStatements <BlockStatement>
  */
+@Test
 public void testBlockStatements() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -135,6 +136,7 @@ public void testBlockStatements() {
 /*
  * CatchClause ::= 'catch' '(' <FormalParameter> ')' Block
  */
+@Test
 public void testCatchClause1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -175,6 +177,7 @@ public void testCatchClause1() {
 /*
  * CatchClause ::= 'catch' '(' <FormalParameter> ')' Block
  */
+@Test
 public void testCatchClause2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -215,6 +218,7 @@ public void testCatchClause2() {
 /*
  * CatchClause ::= 'catch' '(' <FormalParameter> ')' Block
  */
+@Test
 public void testCatchClause3() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -255,6 +259,7 @@ public void testCatchClause3() {
 /*
  * ClassBody ::= '{' <ClassBodyDeclarationsopt> '}'
  */
+@Test
 public void testClassBody() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -283,6 +288,7 @@ public void testClassBody() {
 /*
  * ClassBodyDeclarations ::= ClassBodyDeclarations <ClassBodyDeclaration>
  */
+@Test
 public void testClassBodyDeclarations() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -313,6 +319,7 @@ public void testClassBodyDeclarations() {
 /*
  * ClassInstanceCreationExpression ::= 'new' <ClassType> '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpression1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -344,6 +351,7 @@ public void testClassInstanceCreationExpression1() {
 /*
  * ClassInstanceCreationExpression ::= 'new' <ClassType> '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpression2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -375,6 +383,7 @@ public void testClassInstanceCreationExpression2() {
 /*
  * ClassInstanceCreationExpression ::= 'new' <ClassType> '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpression3() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -406,6 +415,7 @@ public void testClassInstanceCreationExpression3() {
 /*
  * ClassInstanceCreationExpression ::= 'new' <ClassType> '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpression4() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -437,6 +447,7 @@ public void testClassInstanceCreationExpression4() {
 /*
  * ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionName1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -478,6 +489,7 @@ public void testClassInstanceCreationExpressionName1() {
 /*
  * ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionName2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -519,6 +531,7 @@ public void testClassInstanceCreationExpressionName2() {
 /*
  * ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionName3() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -560,6 +573,7 @@ public void testClassInstanceCreationExpressionName3() {
 /*
  * ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionName4() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -601,6 +615,7 @@ public void testClassInstanceCreationExpressionName4() {
 /*
  * ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionPrimary1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -638,6 +653,7 @@ public void testClassInstanceCreationExpressionPrimary1() {
 /*
  * ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionPrimary2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -675,6 +691,7 @@ public void testClassInstanceCreationExpressionPrimary2() {
 /*
  * ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionPrimary3() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -712,6 +729,7 @@ public void testClassInstanceCreationExpressionPrimary3() {
 /*
  * ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionPrimary4() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -749,6 +767,7 @@ public void testClassInstanceCreationExpressionPrimary4() {
 /*
  * ClassTypeList ::= ClassTypeList ',' <ClassTypeElt>
  */
+@Test
 public void testClassTypeList() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -778,6 +797,7 @@ public void testClassTypeList() {
 /*
  * ConstructorBody ::= NestedMethod '{' <BlockStatementsopt> '}'
  */
+@Test
 public void testConstructorBody() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -808,6 +828,7 @@ public void testConstructorBody() {
 /*
  * ConstructorDeclarator ::= 'Identifier' '(' <FormalParameterListopt> ')'
  */
+@Test
 public void testConstructorDeclarator() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -835,6 +856,7 @@ public void testConstructorDeclarator() {
 /*
  * The reference type is burried in several blocks
  */
+@Test
 public void testDeepReference() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -885,6 +907,7 @@ public void testDeepReference() {
 /*
  * Super ::= 'extends' <ClassType>
  */
+@Test
 public void testExtendsClass() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -910,6 +933,7 @@ public void testExtendsClass() {
 /*
  * ExtendsInterfaces ::= 'extends' <InterfaceTypeList>
  */
+@Test
 public void testExtendsInterface() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -934,6 +958,7 @@ public void testExtendsInterface() {
  * FieldDeclaration ::= Modifiersopt <Type> VariableDeclarators ';'
  * where Modifiersopt is not empty
  */
+@Test
 public void testFieldDeclarationWithModifiers() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -962,6 +987,7 @@ public void testFieldDeclarationWithModifiers() {
  * FieldDeclaration ::= Modifiersopt <Type> VariableDeclarators ';'
  * where Modifiersopt is empty
  */
+@Test
 public void testFieldDeclarationWithoutModifiers() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -989,6 +1015,7 @@ public void testFieldDeclarationWithoutModifiers() {
 /*
  * FormalParameter ::= Modifiers <Type> VariableDeclaratorId
  */
+@Test
 public void testFormalParameter() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1018,6 +1045,7 @@ public void testFormalParameter() {
 /*
  * FormalParameterList ::= FormalParameterList ',' <FormalParameter>
  */
+@Test
 public void testFormalParameterList() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1049,6 +1077,7 @@ public void testFormalParameterList() {
  * or
  * ForStatementNoShortIf ::= 'for' '(' <ForInitopt> ';' Expressionopt ';' ForUpdateopt ')' StatementNoShortIf
  */
+@Test
 public void testForStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1081,6 +1110,7 @@ public void testForStatement() {
 /*
  * Interfaces ::= 'implements' <InterfaceTypeList>
  */
+@Test
 public void testImplements() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1106,6 +1136,7 @@ public void testImplements() {
 /*
  * RelationalExpression ::= RelationalExpression 'instanceof' <ReferenceType>
  */
+@Test
 public void testInstanceOf() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1137,6 +1168,7 @@ public void testInstanceOf() {
 /*
  * InterfaceBody ::= '{' <InterfaceMemberDeclarationsopt> '}'
  */
+@Test
 public void testInterfaceBody() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1162,6 +1194,7 @@ public void testInterfaceBody() {
 /*
  * InterfaceMemberDeclarations ::= InterfaceMemberDeclarations <InterfaceMemberDeclaration>
  */
+@Test
 public void testInterfaceMemberDeclarations() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1191,6 +1224,7 @@ public void testInterfaceMemberDeclarations() {
 /*
  * InterfaceTypeList ::= InterfaceTypeList ',' <InterfaceType>
  */
+@Test
 public void testInterfaceTypeList() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1214,6 +1248,7 @@ public void testInterfaceTypeList() {
 /*
  * LocalVariableDeclaration ::= Modifiers <Type> VariableDeclarators
  */
+@Test
 public void testLocalVariableDeclaration() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1245,6 +1280,7 @@ public void testLocalVariableDeclaration() {
 /*
  * MethodBody ::= NestedMethod '{' <BlockStatementsopt> '}'
  */
+@Test
 public void testMethodBody() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1276,6 +1312,7 @@ public void testMethodBody() {
 /*
  * MethodDeclarator ::= 'Identifier' '(' <FormalParameterListopt> ')' Dimsopt
  */
+@Test
 public void testMethodDeclarator() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1306,6 +1343,7 @@ public void testMethodDeclarator() {
  * MethodHeader ::= Modifiersopt <Type> MethodDeclarator Throwsopt
  * where Modifiersopt is not empty
  */
+@Test
 public void testMethodHeaderWithModifiers() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1335,6 +1373,7 @@ public void testMethodHeaderWithModifiers() {
  * MethodHeader ::= Modifiersopt <Type> MethodDeclarator Throwsopt
  * where Modifiersopt is empty
  */
+@Test
 public void testMethodHeaderWithoutModifiers() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -1364,6 +1403,7 @@ public void testMethodHeaderWithoutModifiers() {
  * Completion on a qualified type reference, where the cursor is in the
  * first type reference.
  */
+@Test
 public void testQualifiedTypeReferenceShrinkAll() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1397,6 +1437,7 @@ public void testQualifiedTypeReferenceShrinkAll() {
 /*
  * Completion on a qualified type reference, where the cursor is right after the first dot.
  */
+@Test
 public void testQualifiedTypeReferenceShrinkAllButOne() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1431,6 +1472,7 @@ public void testQualifiedTypeReferenceShrinkAllButOne() {
  * Completion on a qualified type reference, where the cursor is right after the end
  * of the last type reference.
  */
+@Test
 public void testQualifiedTypeReferenceShrinkNone() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1465,6 +1507,7 @@ public void testQualifiedTypeReferenceShrinkNone() {
  * Completion on a qualified type reference, where the cursor is right after the
  * last dot.
  */
+@Test
 public void testQualifiedTypeReferenceShrinkOne() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1498,6 +1541,7 @@ public void testQualifiedTypeReferenceShrinkOne() {
 /*
  * SwitchBlockStatement ::= SwitchLabels <BlockStatements>
  */
+@Test
 public void testSwitchBlockStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1541,6 +1585,7 @@ public void testSwitchBlockStatement() {
 /*
  * Throws ::= 'throws' <ClassTypeList>
  */
+@Test
 public void testThrows() {
 	runTestCheckDietParse(
 		// compilationUnit:

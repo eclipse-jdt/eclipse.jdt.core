@@ -34,13 +34,18 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.TestInfo;
 
 public abstract class AbstractCompletionTest extends AbstractCompilerTest {
 
 	public final static String NONE = "<NONE>";
 	public final static String NULL = "null";
+@Deprecated
 public AbstractCompletionTest(String testName){
 	super(testName);
+}
+public AbstractCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * DietParse with completionNode check

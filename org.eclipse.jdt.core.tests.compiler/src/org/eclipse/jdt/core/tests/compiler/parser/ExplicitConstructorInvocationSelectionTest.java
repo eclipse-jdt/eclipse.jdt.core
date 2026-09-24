@@ -13,16 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
 /**
  * Selection is expected to be wrapped with an explicit constructor invocation.
  */
 public class ExplicitConstructorInvocationSelectionTest extends AbstractSelectionTest {
-public ExplicitConstructorInvocationSelectionTest(String testName) {
-	super(testName);
+public ExplicitConstructorInvocationSelectionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * ExplicitConstructorInvocation ::= Name '.' 'super' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testNameSuper() {
 	runTestCheckMethodParse(
 		// compilationUnit:
@@ -72,6 +76,7 @@ public void testNameSuper() {
 /*
  * ExplicitConstructorInvocation ::= Name '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testNameThis() {
 	runTestCheckMethodParse(
 		// compilationUnit:
@@ -121,6 +126,7 @@ public void testNameThis() {
 /*
  * ExplicitConstructorInvocation ::= Primary '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testPrimarySuper() {
 	runTestCheckMethodParse(
 		// compilationUnit:
@@ -170,6 +176,7 @@ public void testPrimarySuper() {
 /*
  * ExplicitConstructorInvocation ::= 'super' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testSuper() {
 	runTestCheckMethodParse(
 		// compilationUnit:
@@ -201,6 +208,7 @@ public void testSuper() {
 /*
  * ExplicitConstructorInvocation ::= 'this' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testThis() {
 	runTestCheckMethodParse(
 		// compilationUnit:
