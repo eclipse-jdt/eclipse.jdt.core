@@ -15,14 +15,23 @@
  *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
+
 import java.io.File;
+import java.util.List;
 import java.util.Map;
-import junit.framework.Test;
+//import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
+@ParameterizedClass
+@MethodSource("compliances")
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ArrayTest extends AbstractRegressionTest {
 
@@ -30,18 +39,30 @@ public class ArrayTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_NAMES = new String [] { "testIssue4789" };
 	}
-	public ArrayTest(String name) {
-		super(name);
+	public ArrayTest(Compliance compliance, TestInfo info) {
+		super(info.getDisplayName());
+		this.complianceLevel = CompilerOptions.versionToJdkLevel(compliance.displayName());
 	}
 
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
+	record Compliance(String displayName) {
+		@Override
+		public final String toString() {
+			return "compliance "+this.displayName;
+		}
 	}
+
+	static List<Compliance> compliances() {
+		return List.of(new Compliance("1.8"), new Compliance("27"));
+	}
+//	public static Test suite() {
+//		return buildAllCompliancesTestSuite(testClass());
+//	}
 
 	public static Class testClass() {
 		return ArrayTest.class;
 	}
 
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -55,6 +76,7 @@ public void test001() {
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=28615
  */
+@Test
 public void test002() {
 	this.runConformTest(
 		new String[] {
@@ -66,7 +88,7 @@ public void test002() {
 			"    }\n" +
 			"}",
 		},
-		"-0.0");
+		"0.0");
 }
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=28615

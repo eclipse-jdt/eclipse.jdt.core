@@ -81,6 +81,8 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.osgi.framework.Bundle;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -4192,6 +4194,7 @@ protected void runNegativeTest(
 	protected boolean shouldRunJavac() {
 		return RUN_JAVAC || (RUN_JAVAC_OPT_IN && this.runJavacOptIn);
 	}
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println(this.getClass().getName()+'.'+ getName());
@@ -4282,6 +4285,7 @@ protected void runNegativeTest(
 		this.verifier.shutDown();
 	}
 
+	@AfterEach
 	@Override
 	protected void tearDown() throws Exception {
 		if (this.createdVerifier) {
