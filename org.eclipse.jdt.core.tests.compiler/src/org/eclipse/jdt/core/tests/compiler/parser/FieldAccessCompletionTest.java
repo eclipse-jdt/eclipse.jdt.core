@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be a FieldAccess.
  */
 public class FieldAccessCompletionTest extends AbstractCompletionTest {
-public FieldAccessCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(FieldAccessCompletionTest.class);
+public FieldAccessCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * AdditiveExpression ::= AdditiveExpression '-' <MultiplicativeExpression>
  */
+@Test
 public void testAdditiveExpressionMinus() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -59,6 +58,7 @@ public void testAdditiveExpressionMinus() {
 /*
  * AdditiveExpression ::= AdditiveExpression '+' <MultiplicativeExpression>
  */
+@Test
 public void testAdditiveExpressionPlus() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -90,6 +90,7 @@ public void testAdditiveExpressionPlus() {
 /*
  * AndExpression ::= AndExpression '&' <EqualityExpression>
  */
+@Test
 public void testAndExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -121,6 +122,7 @@ public void testAndExpression() {
 /*
  * ArgumentList ::= ArgumentList ',' <Expression>
  */
+@Test
 public void testArgumentList() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -152,6 +154,7 @@ public void testArgumentList() {
 /*
  * ArrayAccess ::= Name '[' <Expression> ']'
  */
+@Test
 public void testArrayAccess() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -183,6 +186,7 @@ public void testArrayAccess() {
 /*
  * ArrayAccess ::= PrimaryNoNewArray '[' <Expression> ']'
  */
+@Test
 public void testArrayAccessPrimaryNoNewArray() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -214,6 +218,7 @@ public void testArrayAccessPrimaryNoNewArray() {
 /*
  * ArrayInitializer ::= '{' <VariableInitializers> '}'
  */
+@Test
 public void testArrayInitializer() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -245,6 +250,7 @@ public void testArrayInitializer() {
 /*
  * ArrayInitializer ::= '{' <VariableInitializers> , '}'
  */
+@Test
 public void testArrayInitializerComma() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -276,6 +282,7 @@ public void testArrayInitializerComma() {
 /*
  * Assignment ::= LeftHandSide AssignmentOperator <AssignmentExpression>
  */
+@Test
 public void testAssignment() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -307,6 +314,7 @@ public void testAssignment() {
 /*
  * Block ::= OpenBlock '{' <BlockStatementsopt> '}'
  */
+@Test
 public void testBlock() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -342,6 +350,7 @@ public void testBlock() {
 /*
  * BlockStatements ::= BlockStatements <BlockStatement>
  */
+@Test
 public void testBlockStatements() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -375,6 +384,7 @@ public void testBlockStatements() {
 /*
  * ConstructorBody ::= NestedMethod '{' ExplicitConstructorInvocation <BlockStatements> '}'
  */
+@Test
 public void testBlockStatementsInConstructorBody() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -408,6 +418,7 @@ public void testBlockStatementsInConstructorBody() {
  *
  * in a non static initializer.
  */
+@Test
 public void testBlockStatementsInInitializer() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -443,6 +454,7 @@ public void testBlockStatementsInInitializer() {
  *
  * in a static initializer.
  */
+@Test
 public void testBlockStatementsInStaticInitializer() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -480,6 +492,7 @@ public void testBlockStatementsInStaticInitializer() {
  *
  * NB: Valid syntaxically but not semantically
  */
+@Test
 public void testCastExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -515,6 +528,7 @@ public void testCastExpression() {
  * or
  * CastExpression ::= PushLPAREN Expression PushRPAREN <UnaryExpressionNotPlusMinus>
  */
+@Test
 public void testCastExpressionUnaryExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -546,6 +560,7 @@ public void testCastExpressionUnaryExpression() {
 /*
  * ClassInstanceCreationExpression ::= 'new' ClassType '(' <ArgumentListopt> ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -577,6 +592,7 @@ public void testClassInstanceCreationExpression() {
 /*
  * ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionName() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -608,6 +624,7 @@ public void testClassInstanceCreationExpressionName() {
 /*
  * ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' <ArgumentListopt> ')' ClassBodyopt
  */
+@Test
 public void testClassInstanceCreationExpressionPrimary() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -639,6 +656,7 @@ public void testClassInstanceCreationExpressionPrimary() {
 /*
  * ConditionalAndExpression ::= ConditionalAndExpression '&&' <InclusiveOrExpression>
  */
+@Test
 public void testConditionalAndExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -670,6 +688,7 @@ public void testConditionalAndExpression() {
 /*
  * ConditionalExpression ::= ConditionalOrExpression '?' <Expression> ':' ConditionalExpression
  */
+@Test
 public void testConditionalExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -701,6 +720,7 @@ public void testConditionalExpression() {
 /*
  * ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' <ConditionalExpression>
  */
+@Test
 public void testConditionalExpressionConditionalExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -732,6 +752,7 @@ public void testConditionalExpressionConditionalExpression() {
 /*
  * ConditionalOrExpression ::= ConditionalOrExpression '||' <ConditionalAndExpression>
  */
+@Test
 public void testConditionalOrExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -763,6 +784,7 @@ public void testConditionalOrExpression() {
 /*
  * ConstructorBody ::= NestedMethod '{' <BlockStatementsopt> '}'
  */
+@Test
 public void testConstructorBody() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -793,6 +815,7 @@ public void testConstructorBody() {
 /*
  * DimWithOrWithOutExpr ::= '[' <Expression> ']'
  */
+@Test
 public void testDimWithOrWithOutExpr() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -824,6 +847,7 @@ public void testDimWithOrWithOutExpr() {
 /*
  * DoStatement ::= 'do' Statement 'while' '(' <Expression> ')' ';'
  */
+@Test
 public void testDoExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -859,6 +883,7 @@ public void testDoExpression() {
 /*
  * DoStatement ::= 'do' <Statement> 'while' '(' Expression ')' ';'
  */
+@Test
 public void testDoStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -892,6 +917,7 @@ public void testDoStatement() {
 /*
  * EqualityExpression ::= EqualityExpression '==' <RelationalExpression>
  */
+@Test
 public void testEqualityExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -923,6 +949,7 @@ public void testEqualityExpression() {
 /*
  * EqualityExpression ::= EqualityExpression '!=' <RelationalExpression>
  */
+@Test
 public void testEqualityExpressionNot() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -954,6 +981,7 @@ public void testEqualityExpressionNot() {
 /*
  * ExclusiveOrExpression ::= ExclusiveOrExpression '^' <AndExpression>
  */
+@Test
 public void testExclusiveOrExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -987,6 +1015,7 @@ public void testExclusiveOrExpression() {
  * or
  * ConstructorBody ::= NestedMethod '{' <ExplicitConstructorInvocation> BlockStatements '}'
  */
+@Test
 public void testExplicitConstructorInvocationInConstructorBody() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1035,6 +1064,7 @@ public void testExplicitConstructorInvocationInConstructorBody() {
  * or
  * ForStatementNoShortIf ::= 'for' '(' <ForInitopt> ';' Expressionopt ';' ForUpdateopt ')' StatementNoShortIf
  */
+@Test
 public void testForInit() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1069,6 +1099,7 @@ public void testForInit() {
  * or
  * ForStatementNoShortIf ::= 'for' '(' ForInitopt ';' Expressionopt ';' ForUpdateopt ')' <StatementNoShortIf>
  */
+@Test
 public void testForStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1104,6 +1135,7 @@ public void testForStatement() {
  * or
  * ForStatementNoShortIf ::= 'for' '(' ForInitopt ';' <Expressionopt> ';' ForUpdateopt ')' StatementNoShortIf
  */
+@Test
 public void testForStatementExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1139,6 +1171,7 @@ public void testForStatementExpression() {
  * or
  * ForStatementNoShortIf ::= 'for' '(' ForInitopt ';' Expressionopt ';' <ForUpdateopt> ')' StatementNoShortIf
  */
+@Test
 public void testForUpdate() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1172,6 +1205,7 @@ public void testForUpdate() {
 /*
  * IfThenStatement ::= 'if' '(' <Expression> ')' Statement
  */
+@Test
 public void testIfExpresionThen() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1207,6 +1241,7 @@ public void testIfExpresionThen() {
  * or
  * IfThenElseStatementNoShortIf ::= 'if' '(' <Expression> ')' StatementNoShortIf 'else' StatementNoShortIf
  */
+@Test
 public void testIfExpresionThenElse() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1246,6 +1281,7 @@ public void testIfExpresionThenElse() {
  * or
  * IfThenElseStatementNoShortIf ::= 'if' '(' Expression ')' StatementNoShortIf 'else' <StatementNoShortIf>
  */
+@Test
 public void testIfThenElseStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1283,6 +1319,7 @@ public void testIfThenElseStatement() {
 /*
  * IfThenStatement ::= 'if' '(' Expression ')' <Statement>
  */
+@Test
 public void testIfThenStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1318,6 +1355,7 @@ public void testIfThenStatement() {
  * or
  * IfThenElseStatementNoShortIf ::= 'if' '(' Expression ')' <StatementNoShortIf> 'else' StatementNoShortIf
  */
+@Test
 public void testIfThenStatementElse() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1355,6 +1393,7 @@ public void testIfThenStatementElse() {
 /*
  * InclusiveOrExpression ::= InclusiveOrExpression '|' <ExclusiveOrExpression>
  */
+@Test
 public void testInclusiveOrExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1388,6 +1427,7 @@ public void testInclusiveOrExpression() {
  * or
  * LabeledStatementNoShortIf ::= 'Identifier' ':' <StatementNoShortIf>
  */
+@Test
 public void testLabeledStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1421,6 +1461,7 @@ public void testLabeledStatement() {
 /*
  * MethodBody ::= NestedMethod '{' <BlockStatementsopt> '}'
  */
+@Test
 public void testMethodBody() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1452,6 +1493,7 @@ public void testMethodBody() {
 /*
  * MethodInvocation ::= Name '(' <ArgumentListopt> ')'
  */
+@Test
 public void testMethodInvocation() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1483,6 +1525,7 @@ public void testMethodInvocation() {
 /*
  * MethodInvocation ::= Primary '.' 'Identifier' '(' <ArgumentListopt> ')'
  */
+@Test
 public void testMethodInvocationPrimary() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1514,6 +1557,7 @@ public void testMethodInvocationPrimary() {
 /*
  * MethodInvocation ::= 'super' '.' 'Identifier' '(' <ArgumentListopt> ')'
  */
+@Test
 public void testMethodInvocationSuper() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1545,6 +1589,7 @@ public void testMethodInvocationSuper() {
 /*
  * MultiplicativeExpression ::= MultiplicativeExpression '/' <UnaryExpression>
  */
+@Test
 public void testMultiplicativeExpressiondDivision() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1576,6 +1621,7 @@ public void testMultiplicativeExpressiondDivision() {
 /*
  * MultiplicativeExpression ::= MultiplicativeExpression '*' <UnaryExpression>
  */
+@Test
 public void testMultiplicativeExpressionMultiplication() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1607,6 +1653,7 @@ public void testMultiplicativeExpressionMultiplication() {
 /*
  * MultiplicativeExpression ::= MultiplicativeExpression '%' <UnaryExpression>
  */
+@Test
 public void testMultiplicativeExpressionRemainder() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1638,6 +1685,7 @@ public void testMultiplicativeExpressionRemainder() {
 /*
  * PreDecrementExpression ::= '--' PushPosition <UnaryExpression>
  */
+@Test
 public void testPreIncrementExpressionMinusMinus() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1669,6 +1717,7 @@ public void testPreIncrementExpressionMinusMinus() {
 /*
  * PreIncrementExpression ::= '++' PushPosition <UnaryExpression>
  */
+@Test
 public void testPreIncrementExpressionPlusPlus() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1700,6 +1749,7 @@ public void testPreIncrementExpressionPlusPlus() {
 /*
  * PrimaryNoNewArray ::= PushLPAREN <Expression> PushRPAREN
  */
+@Test
 public void testPrimaryNoNewArray() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1731,6 +1781,7 @@ public void testPrimaryNoNewArray() {
 /*
  * RelationalExpression ::= RelationalExpression '>' <ShiftExpression>
  */
+@Test
 public void testRelationalExpressionGreaterThan() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1762,6 +1813,7 @@ public void testRelationalExpressionGreaterThan() {
 /*
  * RelationalExpression ::= RelationalExpression '>=' <ShiftExpression>
  */
+@Test
 public void testRelationalExpressionGreaterThanOrEquals() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1793,6 +1845,7 @@ public void testRelationalExpressionGreaterThanOrEquals() {
 /*
  * RelationalExpression ::= RelationalExpression '<' <ShiftExpression>
  */
+@Test
 public void testRelationalExpressionLessThan() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1824,6 +1877,7 @@ public void testRelationalExpressionLessThan() {
 /*
  * RelationalExpression ::= RelationalExpression '<=' <ShiftExpression>
  */
+@Test
 public void testRelationalExpressionLessThanOrEqual() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1855,6 +1909,7 @@ public void testRelationalExpressionLessThanOrEqual() {
 /*
  * ReturnStatement ::= 'return' <Expressionopt> ';
  */
+@Test
 public void testReturnStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1886,6 +1941,7 @@ public void testReturnStatement() {
 /*
  * ShiftExpression ::= ShiftExpression '<<' <AdditiveExpression>
  */
+@Test
 public void testShiftExpressionLeft() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1917,6 +1973,7 @@ public void testShiftExpressionLeft() {
 /*
  * ShiftExpression ::= ShiftExpression '>>' <AdditiveExpression>
  */
+@Test
 public void testShiftExpressionRight() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1948,6 +2005,7 @@ public void testShiftExpressionRight() {
 /*
  * ShiftExpression ::= ShiftExpression '>>>' <AdditiveExpression>
  */
+@Test
 public void testShiftExpressionRightUnSigned() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1979,6 +2037,7 @@ public void testShiftExpressionRightUnSigned() {
 /*
  * StatementExpressionList ::= StatementExpressionList ',' <StatementExpression>
  */
+@Test
 public void testStatementExpressionList() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2012,6 +2071,7 @@ public void testStatementExpressionList() {
 /*
  * SwitchBlockStatement ::= SwitchLabels <BlockStatements>
  */
+@Test
 public void testSwitchBlockStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2050,6 +2110,7 @@ public void testSwitchBlockStatement() {
 /*
  * SwitchStatement ::= 'switch' OpenBlock '(' <Expression> ')' SwitchBlock
  */
+@Test
 public void testSwitchExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2086,6 +2147,7 @@ public void testSwitchExpression() {
 /*
  * SwitchLabel ::= 'case' <ConstantExpression> ':'
  */
+@Test
 public void testSwitchLabel() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2124,6 +2186,7 @@ public void testSwitchLabel() {
 /*
  * SynchronizedStatement ::= OnlySynchronized '(' <Expression> ')' Block
  */
+@Test
 public void testSynchronizedStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2160,6 +2223,7 @@ public void testSynchronizedStatement() {
 /*
  * ThrowStatement ::= 'throw' <Expression> ';'
  */
+@Test
 public void testThrowExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2191,6 +2255,7 @@ public void testThrowExpression() {
 /*
  * UnaryExpressionNotPlusMinus ::= '~' PushPosition <UnaryExpression>
  */
+@Test
 public void testUnaryExpressionBitwiseComplement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2222,6 +2287,7 @@ public void testUnaryExpressionBitwiseComplement() {
 /*
  * UnaryExpressionNotPlusMinus ::= '!' PushPosition <UnaryExpression>
  */
+@Test
 public void testUnaryExpressionLogicalComplement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2253,6 +2319,7 @@ public void testUnaryExpressionLogicalComplement() {
 /*
  * UnaryExpression ::= '-' PushPosition <UnaryExpression>
  */
+@Test
 public void testUnaryExpressionMinus() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2284,6 +2351,7 @@ public void testUnaryExpressionMinus() {
 /*
  * UnaryExpression ::= '+' PushPosition <UnaryExpression>
  */
+@Test
 public void testUnaryExpressionPlus() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2315,6 +2383,7 @@ public void testUnaryExpressionPlus() {
 /*
  * VariableDeclarator ::= VariableDeclaratorId EnterField '=' ForceNoDiet <VariableInitializer> RestoreDiet ExitField
  */
+@Test
 public void testVariableDeclarator() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2346,6 +2415,7 @@ public void testVariableDeclarator() {
 /*
  * VariableInitializers ::= VariableInitializers ',' <VariableInitializer>
  */
+@Test
 public void testVariableInitializers() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2380,6 +2450,7 @@ public void testVariableInitializers() {
  * or
  * WhileStatementNoShortIf ::= 'while' '(' <Expression> ')' StatementNoShortIf
  */
+@Test
 public void testWhileExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -2414,6 +2485,7 @@ public void testWhileExpression() {
  * or
  * WhileStatementNoShortIf ::= 'while' '(' Expression ')' <StatementNoShortIf>
  */
+@Test
 public void testWhileStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

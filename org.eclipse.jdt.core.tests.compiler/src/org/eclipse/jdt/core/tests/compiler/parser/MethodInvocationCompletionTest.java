@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be a MethodInvocation.
  */
 public class MethodInvocationCompletionTest extends AbstractCompletionTest {
-public MethodInvocationCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(MethodInvocationCompletionTest.class);
+public MethodInvocationCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Completion with no receiver inside a for statement.
  */
+@Test
 public void test1FVVWS8_1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -61,6 +60,7 @@ public void test1FVVWS8_1() {
 /*
  * Completion with no receiver inside an if statement.
  */
+@Test
 public void test1FVVWS8_2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -94,6 +94,7 @@ public void test1FVVWS8_2() {
  * Completion with no receiver inside a for statement
  * and after a field access.
  */
+@Test
 public void test1FW2ZTB_1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -130,6 +131,7 @@ public void test1FW2ZTB_1() {
  * Completion with no receiver inside another message send
  * and after a field access in a previous argument.
  */
+@Test
 public void test1FW2ZTB_2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -164,6 +166,7 @@ public void test1FW2ZTB_2() {
  * Complete on method invocation with expression receiver
  * inside another invocation with no receiver.
  */
+@Test
 public void test1FW35YZ_1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -196,6 +199,7 @@ public void test1FW35YZ_1() {
  * Complete on qualified allocation expression
  * inside an invocation with no receiver.
  */
+@Test
 public void test1FW35YZ_2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -227,6 +231,7 @@ public void test1FW35YZ_2() {
 /*
  * Completion with primary receiver.
  */
+@Test
 public void test1FWYBKF() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -258,6 +263,7 @@ public void test1FWYBKF() {
 /*
  * Completion just after a parameter which is a message send.
  */
+@Test
 public void test1GAJBUQ() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -290,6 +296,7 @@ public void test1GAJBUQ() {
  * Completion just before the second parameter, the first parameter being an empty
  * anonymous class.
  */
+@Test
 public void testAfterEmptyAnonymous() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -322,6 +329,7 @@ public void testAfterEmptyAnonymous() {
 /*
  * Completion just after the first parameter.
  */
+@Test
 public void testAfterFirstParameter() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -353,6 +361,7 @@ public void testAfterFirstParameter() {
 /*
  * Completion just before the first parameter.
  */
+@Test
 public void testBeforeFirstParameter() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -384,6 +393,7 @@ public void testBeforeFirstParameter() {
 /*
  * Completion just before the last parameter.
  */
+@Test
 public void testBeforeLastParameter() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -415,6 +425,7 @@ public void testBeforeLastParameter() {
 /*
  * Completion just before the second parameter.
  */
+@Test
 public void testBeforeSecondParameter() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -446,6 +457,7 @@ public void testBeforeSecondParameter() {
 /*
  * Completion on empty name inside the expression of the first parameter.
  */
+@Test
 public void testEmptyInFirstParameter() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -477,6 +489,7 @@ public void testEmptyInFirstParameter() {
 /*
  * Completion inside the expression of the first parameter.
  */
+@Test
 public void testInFirstParameter() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -508,6 +521,7 @@ public void testInFirstParameter() {
 /*
  * Completion inside an if statement.
  */
+@Test
 public void testInIfStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -544,6 +558,7 @@ public void testInIfStatement() {
 /*
  * Completion in labeled method invocation with expression receiver.
  */
+@Test
 public void testLabeledWithExpressionReceiver() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -577,6 +592,7 @@ public void testLabeledWithExpressionReceiver() {
 /*
  * Completion in labeled method invocation without receiver.
  */
+@Test
 public void testLabeledWithoutReceiver() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -610,6 +626,7 @@ public void testLabeledWithoutReceiver() {
 /*
  * MethodInvocation ::= Name '(' ArgumentListopt ')'
  */
+@Test
 public void testNoReceiver() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -641,6 +658,7 @@ public void testNoReceiver() {
 /*
  * Completion just before the first parameter with a space after the open parenthesis.
  */
+@Test
 public void testSpaceThenFirstParameter() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -672,6 +690,7 @@ public void testSpaceThenFirstParameter() {
 /*
  * MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
  */
+@Test
 public void testSuper() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -703,6 +722,7 @@ public void testSuper() {
 /*
  * Complete on method invocation with expression receiver.
  */
+@Test
 public void testWithExpressionReceiver() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -734,6 +754,7 @@ public void testWithExpressionReceiver() {
 /*
  * Completion with a name receiver.
  */
+@Test
 public void testWithNameReceiver() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -767,6 +788,7 @@ public void testWithNameReceiver() {
 /*
  * Completion with a name receiver after conditional expression.
  */
+@Test
 public void testWithNameReceiverAfterConditionalExpression() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -801,6 +823,7 @@ public void testWithNameReceiverAfterConditionalExpression() {
 /*
  * Completion with a name receiver and 2 arguments.
  */
+@Test
 public void testWithNameReceiverAndTwoArgs() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -834,6 +857,7 @@ public void testWithNameReceiverAndTwoArgs() {
 /*
  * Completion with a qualified name receiver.
  */
+@Test
 public void testWithQualifiedNameReceiver() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

@@ -13,24 +13,26 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_14)
 public class SelectionParserTest14 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_NAMES = new String[] { "test005" };
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(SelectionParserTest14.class, F_14);
-}
 
-public SelectionParserTest14(String testName) {
-	super(testName);
+public SelectionParserTest14(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Multi constant case statement with ':', selection node is the string constant
  */
+@Test
 public void test001() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
@@ -77,6 +79,7 @@ public void test001() throws JavaModelException {
 /*
  * Multi constant case statement with ':', selection node is the first enum constant
  */
+@Test
 public void test002() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(Num num) {\n" +
@@ -127,6 +130,7 @@ public void test002() throws JavaModelException {
 /*
  * Multi constant case statement with ':', selection node is the second string constant
  */
+@Test
 public void test003() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
@@ -173,6 +177,7 @@ public void test003() throws JavaModelException {
 /*
  * Multi constant case statement with ':', selection node is the second enum constant
  */
+@Test
 public void test004() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(Num num) {\n" +
@@ -223,6 +228,7 @@ public void test004() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection node is the string constant
  */
+@Test
 public void test005() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
@@ -270,6 +276,7 @@ public void test005() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection node is the first enum constant
  */
+@Test
 public void test006() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(Num num) {\n" +
@@ -320,6 +327,7 @@ public void test006() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection node is the second string constant
  */
+@Test
 public void test007() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"static final String ONE=\"One\", TWO = \"Two\", THREE=\"Three\";\n" +
@@ -366,6 +374,7 @@ public void test007() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection node is the second enum constant
  */
+@Test
 public void test008() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(Num num) {\n" +
@@ -417,6 +426,7 @@ public void test008() throws JavaModelException {
  * Multi constant case statement with '->', selection is a reference in the case block
  * which same as the switch's expression
  */
+@Test
 public void test009() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(Num num_) {\n" +
@@ -469,6 +479,7 @@ public void test009() throws JavaModelException {
  * Multi constant case statement with '->', selection is a reference in the case block
  * which is referencing a local variable defined in the case block
  */
+@Test
 public void test010() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(Num num_) {\n" +
@@ -525,6 +536,7 @@ public void test010() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection is a referenced name of type enum in switch expression
  */
+@Test
 public void test011() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(Num num_) {\n" +
@@ -571,6 +583,7 @@ public void test011() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
+@Test
 public void test012() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(int num_) {\n" +
@@ -607,6 +620,7 @@ public void test012() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
+@Test
 public void test013() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(int num_) {\n" +
@@ -645,6 +659,7 @@ public void test013() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
+@Test
 public void test014() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(int num_) {\n" +
@@ -685,6 +700,7 @@ public void test014() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
+@Test
 public void test015() throws JavaModelException {
 	String string =  "public class X {\n" +
 	"  public static void foo(int num_) {\n" +
@@ -725,6 +741,7 @@ public void test015() throws JavaModelException {
 /*
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
+@Test
 public void test016() throws JavaModelException {
 	String string =  "public class X {\n" +
 			"	public void bar(int s) {\n" +
@@ -762,6 +779,7 @@ public void test016() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void test017() throws JavaModelException {
 	String string =  "public class X {\n" +
 			"	public void bar(int s) {\n" +
@@ -799,6 +817,7 @@ public void test017() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void test018() throws JavaModelException {
 	String string =  "import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.function.*;\n" +
@@ -857,6 +876,7 @@ public void test018() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void test019() throws JavaModelException {
 	String string =  "import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.function.*;\n" +
@@ -915,6 +935,7 @@ public void test019() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void test020() throws JavaModelException {
 	String string =  "import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.function.*;\n" +
@@ -970,6 +991,7 @@ public void test020() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void test021() throws JavaModelException {
 	String string =  "import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.function.*;\n" +
@@ -1025,6 +1047,7 @@ public void test021() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void test022() throws JavaModelException {
 	String string =  "import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.function.*;\n" +
@@ -1080,6 +1103,7 @@ public void test022() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void testIssue708_1() throws JavaModelException {
 	String string =  "public class X {\n"
 			+ "	public void test(Type type, String string) {\n"
@@ -1133,6 +1157,7 @@ public void testIssue708_1() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+@Test
 public void testIssue708_2() throws JavaModelException {
 	String string =  "public class X {\n"
 			+ "	static public enum Type {\n"

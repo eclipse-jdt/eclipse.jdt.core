@@ -14,9 +14,10 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class JEP286ReservedWordTest extends AbstractRegressionTest {
@@ -28,14 +29,12 @@ public static Class testClass() {
 public void initialize(CompilerTestSetup setUp) {
 	super.initialize(setUp);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
+
+public JEP286ReservedWordTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 
-public JEP286ReservedWordTest(String testName){
-	super(testName);
-}
-
+@Test
 public void test0001_class_var_warning() throws IOException {
 	String classVar =
 		"	public class var { public int a; };\n";
@@ -79,6 +78,7 @@ public void test0001_class_var_warning() throws IOException {
 				errorTail);
 	}
 }
+@Test
 public void test0002_interface_var_warning() throws IOException {
 	String interfaceVar =
 		"	interface var { };\n";
@@ -122,6 +122,7 @@ public void test0002_interface_var_warning() throws IOException {
 				errorTail);
 	}
 }
+@Test
 public void testBug530920() throws IOException {
 	String classX = "public class X<var extends Number> { }\n";
 	this.runNegativeTest(
@@ -143,6 +144,7 @@ public void testBug530920() throws IOException {
 			"'var' should not be used as an type name, since it is a reserved word from source level 10 on\n"
 		);
 }
+@Test
 public void testBug530920a() throws IOException {
 	this.runNegativeTest(
 		new String[] {

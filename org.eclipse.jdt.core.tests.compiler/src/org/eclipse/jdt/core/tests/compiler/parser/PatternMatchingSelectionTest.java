@@ -13,22 +13,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	static {
 		//		TESTS_NUMBERS = new int[] { 1 };
-//				TESTS_NAMES = new String[] { "test005" };
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(PatternMatchingSelectionTest.class, F_16);
+				TESTS_NAMES = new String[] { "test005" };
 	}
 
-	public PatternMatchingSelectionTest(String testName) {
-		super(testName);
+	public PatternMatchingSelectionTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
+	@Test
 	public void test001() throws JavaModelException {
 		String string =  "public class X {\n"
 				+ "    protected Object x_ = \"FIELD X\";\n"
@@ -64,6 +66,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 		checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 				selectionIdentifier, expectedReplacedSource, testName);
 	}
+	@Test
 	public void test002() throws JavaModelException {
 		String string =  "public class X {\n"
 				+ "    protected Object x_ = \"FIELD X\";\n"
@@ -103,6 +106,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 		checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 				selectionIdentifier, expectedReplacedSource, testName);
 	}
+	@Test
 	public void test003() throws JavaModelException {
 		String string =  "public class X {\n"
 				+ "    protected Object x_ = \"FIELD X\";\n"
@@ -135,6 +139,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 		checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 				selectionIdentifier, expectedReplacedSource, testName);
 	}
+	@Test
 	public void test004() throws JavaModelException {
 		String string =  "public class X {\n"
 				+ "    @SuppressWarnings(\"preview\")\n"
@@ -167,6 +172,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/769
 	// Open Declaration(F3) broken in pattern instanceof #769
+	@Test
 	public void testGH769() throws JavaModelException {
 		String source =
 				"import java.util.Random;\n" +
@@ -231,6 +237,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1568
 	// Current text selection cannot be opened in an editor #1568
+	@Test
 	public void testGH1568() {
 		if (this.complianceLevel < ClassFileConstants.JDK17)
 			return;

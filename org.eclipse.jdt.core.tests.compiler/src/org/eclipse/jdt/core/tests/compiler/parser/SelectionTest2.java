@@ -30,11 +30,13 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class SelectionTest2 extends AbstractSelectionTest {
 
-public SelectionTest2(String testName) {
-	super(testName);
+public SelectionTest2(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 boolean thereWasAnNPE = false;
 static class SpecialSelectionParser extends SelectionParser {
@@ -154,6 +156,7 @@ void checkMethodParse(
 /*
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=30946
  */
+@Test
 public void testBug30946() {
 	final SpecialSelectionParser parser = createParser();
 	Thread query = new Thread(

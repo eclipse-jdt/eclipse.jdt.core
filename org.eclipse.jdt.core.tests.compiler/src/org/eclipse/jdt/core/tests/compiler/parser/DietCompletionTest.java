@@ -13,19 +13,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class DietCompletionTest extends AbstractCompletionTest {
-public DietCompletionTest(String testName){
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(DietCompletionTest.class);
+public DietCompletionTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 /*
  * Complete on superclass
  */
+@Test
 public void test01() {
 
 	String str =
@@ -59,6 +58,7 @@ public void test01() {
 /*
  * Complete on superinterface
  */
+@Test
 public void test02() {
 
 	String str =
@@ -95,6 +95,7 @@ public void test02() {
 /*
  * Complete on qualified superclass
  */
+@Test
 public void test03() {
 
 	String str =
@@ -130,6 +131,7 @@ public void test03() {
 /*
  * Complete on qualified superinterface
  */
+@Test
 public void test04() {
 
 	String str =
@@ -163,6 +165,7 @@ public void test04() {
 /*
  * Complete on incomplete superclass
  */
+@Test
 public void test05() {
 
 	String str =
@@ -196,6 +199,7 @@ public void test05() {
 /*
  * Complete on incomplete superinterface
  */
+@Test
 public void test06() {
 
 	String str =
@@ -229,6 +233,7 @@ public void test06() {
 /*
  * Complete on incomplete qualified superclass
  */
+@Test
 public void test07() {
 
 	String str =
@@ -261,6 +266,7 @@ public void test07() {
 /*
  * Complete on incomplete qualified superinterface
  */
+@Test
 public void test08() {
 
 	String str =
@@ -294,6 +300,7 @@ public void test08() {
 /*
  * Complete inside qualified superclass
  */
+@Test
 public void test09() {
 
 	String str =
@@ -325,6 +332,7 @@ public void test09() {
 /*
  * Complete inside qualified superinterface
  */
+@Test
 public void test10() {
 
 	String str =
@@ -355,6 +363,7 @@ public void test10() {
 /*
  * Complete inside qualified superclass ending with dot
  */
+@Test
 public void test11() {
 
 	String str =
@@ -386,6 +395,7 @@ public void test11() {
 /*
  * Complete inside qualified superinterface ending with dot
  */
+@Test
 public void test12() {
 
 	String str =
@@ -417,6 +427,7 @@ public void test12() {
 /*
  * Complete on empty superclass
  */
+@Test
 public void test13() {
 
 	String str =
@@ -450,6 +461,7 @@ public void test13() {
 /*
  * Complete on empty superinterface
  */
+@Test
 public void test14() {
 
 	String str =
@@ -483,6 +495,7 @@ public void test14() {
 /*
  * Complete on empty superclass followed by identifier
  */
+@Test
 public void test15() {
 
 	String str =
@@ -515,6 +528,7 @@ public void test15() {
 /*
  * Complete on keyword extends
  */
+@Test
 public void test16() {
 
 	String str =
@@ -550,6 +564,7 @@ public void test16() {
 /*
  * Complete in keyword extends
  */
+@Test
 public void test17() {
 
 	String str =
@@ -585,6 +600,7 @@ public void test17() {
 /*
  * Complete in field type
  */
+@Test
 public void test18() {
 
 	String str =
@@ -618,6 +634,7 @@ public void test18() {
 /*
  * Complete at beginning of field type
  */
+@Test
 public void test19() {
 
 	String str =
@@ -651,6 +668,7 @@ public void test19() {
 /*
  * Complete at beginning of superclass
  */
+@Test
 public void test20() {
 
 	String str =
@@ -682,6 +700,7 @@ public void test20() {
 /*
  * Complete in return type
  */
+@Test
 public void test21() {
 
 	String str =
@@ -714,6 +733,7 @@ public void test21() {
 /*
  * Complete in argument type
  */
+@Test
 public void test22() {
 
 	String str =
@@ -748,6 +768,7 @@ public void test22() {
 /*
  * Complete in return type
  */
+@Test
 public void test23() {
 
 	String str =
@@ -780,6 +801,7 @@ public void test23() {
 /*
  * Complete in argument type (no closing brace for type)
  */
+@Test
 public void test24() {
 
 	String str =
@@ -815,6 +837,7 @@ public void test24() {
 /*
  * Complete in return type with modifiers
  */
+@Test
 public void test25() {
 
 	String str =
@@ -847,6 +870,7 @@ public void test25() {
 /*
  * Complete in field initialization
  */
+@Test
 public void test26() {
 
 	String str =
@@ -879,6 +903,7 @@ public void test26() {
 /*
  * Complete in nth argument type
  */
+@Test
 public void test27() {
 
 	String str =
@@ -913,6 +938,7 @@ public void test27() {
 /*
  * Complete in nth argument qualified type
  */
+@Test
 public void test28() {
 
 	String str =
@@ -947,6 +973,7 @@ public void test28() {
 /*
  * Complete in nth thrown exception qualified type
  */
+@Test
 public void test29() {
 
 	String str =
@@ -980,6 +1007,7 @@ public void test29() {
 /*
  * Complete in completed argument
  */
+@Test
 public void test30() {
 
 	String str =
@@ -1013,6 +1041,7 @@ public void test30() {
 /*
  * Negative test: no diet completion in allocation expression
  */
+@Test
 public void test31() {
 
 	String str =
@@ -1048,6 +1077,7 @@ public void test31() {
 /*
  * Completion in package statement
  */
+@Test
 public void test32() {
 
 	String str =
@@ -1088,6 +1118,7 @@ public void test32() {
 /*
  * Completion in import statement
  */
+@Test
 public void test33() {
 
 	String str =
@@ -1140,6 +1171,7 @@ public void test33() {
 	buffer.toString()
 	]
  */
+@Test
 public void test34() {
 
 	String str =
@@ -1170,6 +1202,7 @@ public void test34() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test34a() {
 
 	String str =
@@ -1200,6 +1233,7 @@ public void test34a() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test34b() {
 
 	String str =
@@ -1230,6 +1264,7 @@ public void test34b() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test34c() {
 
 	String str =
@@ -1275,6 +1310,7 @@ public void test34c() {
 	buffer.toString()
 	]
  */
+@Test
 public void test35() {
 
 	String str =
@@ -1308,6 +1344,7 @@ public void test35() {
 /*
  * Invalid completion inside a comment
  */
+@Test
 public void test36() {
 
 	String str =
@@ -1341,6 +1378,7 @@ public void test36() {
 /*
  * Invalid completion inside a string literal
  */
+@Test
 public void test37() {
 
 	String str =
@@ -1376,6 +1414,7 @@ public void test37() {
 /*
  * Invalid completion inside a number literal
  */
+@Test
 public void test38() {
 
 	String str =
@@ -1410,6 +1449,7 @@ public void test38() {
 /*
  * Completion in import statement at the end of the unit
  */
+@Test
 public void test39() {
 
 	String str =
@@ -1438,6 +1478,7 @@ public void test39() {
 /*
  * Completion in import statement at the end of the unit (qualified empty name)
  */
+@Test
 public void test40() {
 
 	String str =
@@ -1466,6 +1507,7 @@ public void test40() {
 /*
  * Should not find any diet completion
  */
+@Test
 public void test41() {
 
 	String str =
@@ -1506,6 +1548,7 @@ public void test41() {
 /*
  * Complete on array type with prefix dimensions
  */
+@Test
 public void test42() {
 
 	String str =
@@ -1540,6 +1583,7 @@ public void test42() {
 /*
  * Complete on array type with postfix dimensions
  */
+@Test
 public void test43() {
 
 	String str =
@@ -1574,6 +1618,7 @@ public void test43() {
 /*
  * Complete in return type behind other member
  */
+@Test
 public void test44() {
 
 	String str =
@@ -1608,6 +1653,7 @@ public void test44() {
 /*
  * Complete in return type behind other member
  */
+@Test
 public void test45() {
 
 	String str =
@@ -1642,6 +1688,7 @@ public void test45() {
 /*
  * Complete on name in field initializer
  */
+@Test
 public void test46() {
 
 	String str =
@@ -1676,6 +1723,7 @@ public void test46() {
 /*
  * Complete in field initializer in innner class
  */
+@Test
 public void test47() {
 
 	String str =
@@ -1716,6 +1764,7 @@ public void test47() {
 /*
  * Should not find fake field of type <CompleteOnType:f>
  */
+@Test
 public void test48() {
 
 	String str =
@@ -1766,6 +1815,7 @@ public void test48() {
 /*
  * Completion in middle of package import statement
  */
+@Test
 public void test49() {
 
 	String str =
@@ -1798,6 +1848,7 @@ public void test49() {
 /*
  * Complete on instance creation in field initializer.
  */
+@Test
 public void test50() {
 
 	String str =
@@ -1832,6 +1883,7 @@ public void test50() {
 /*
  * Complete on member access in field initializer.
  */
+@Test
 public void test51() {
 
 	String str =
@@ -1866,6 +1918,7 @@ public void test51() {
 /*
  * Complete on class literal access in field initializer.
  */
+@Test
 public void test52() {
 
 	String str =
@@ -1900,6 +1953,7 @@ public void test52() {
 /*
  * Complete on method invocation in field initializer.
  */
+@Test
 public void test53() {
 
 	String str =
@@ -1934,6 +1988,7 @@ public void test53() {
 /*
  * Should not find fake field of type <CompleteOnType:f>
  */
+@Test
 public void test54() {
 
 	String str =
@@ -1984,6 +2039,7 @@ public void test54() {
 /*
  * Complete on anonymous type in field initializer.
  */
+@Test
 public void test55() {
 
 	String str =

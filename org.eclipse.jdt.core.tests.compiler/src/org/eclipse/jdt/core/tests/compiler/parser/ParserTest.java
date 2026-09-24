@@ -18,6 +18,8 @@ import java.util.Map;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ParserTest extends AbstractRegressionTest {
@@ -26,9 +28,10 @@ static {
 //		TESTS_NUMBERS = new int[] { 18 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 }
-public ParserTest(String name) {
-	super(name);
+public ParserTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
+@Test
 public void test001() {
 	this.runNegativeTest(
 		new String[] {
@@ -47,6 +50,7 @@ public void test001() {
 		"----------\n"
 	);
 }
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -65,6 +69,7 @@ public void test002() {
 		"----------\n"
 	);
 }
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -92,6 +97,7 @@ public void test003() {
 		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n");
 }
+@Test
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
@@ -110,6 +116,7 @@ public void test004() {
 		"----------\n"
 	);
 }
+@Test
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
@@ -128,6 +135,7 @@ public void test005() {
 		"----------\n"
 	);
 }
+@Test
 public void test006() {
 	this.runNegativeTest(
 		new String[] {
@@ -155,6 +163,7 @@ public void test006() {
 		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n");
 }
+@Test
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -177,6 +186,7 @@ public void test007() {
 		"----------\n"
 	);
 }
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -204,6 +214,7 @@ public void test008() {
 		"----------\n"
 	);
 }
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -222,6 +233,7 @@ public void test009() {
 		"----------\n"
 	);
 }
+@Test
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -261,6 +273,7 @@ public void _test011() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40681
  */
+@Test
 public void test012() {
 	Hashtable nls = new Hashtable();
 	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
@@ -292,6 +305,7 @@ public void test012() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40681
  */
+@Test
 public void test013() {
 	Hashtable nls = new Hashtable();
 	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
@@ -323,6 +337,7 @@ public void test013() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
+@Test
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -349,6 +364,7 @@ public void test014() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
  */
+@Test
 public void test015() {
 	this.runNegativeTest(
 		new String[] {
@@ -372,6 +388,7 @@ public void test015() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
  */
+@Test
 public void test016() {
 	this.runNegativeTest(
 		new String[] {
@@ -390,6 +407,7 @@ public void test016() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
  */
+@Test
 public void test017() {
 	this.runNegativeTest(
 		new String[] {
@@ -408,6 +426,7 @@ public void test017() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
  */
+@Test
 public void test018() {
 	this.runNegativeTest(
 		new String[] {
@@ -426,6 +445,7 @@ public void test018() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=12287
  */
+@Test
 public void test019() {
 	this.runNegativeTest(
 		new String[] {
@@ -453,6 +473,7 @@ public void test019() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=38895
  */
+@Test
 public void test020() {
 	this.runNegativeTest(
 		new String[] {
@@ -489,6 +510,7 @@ public void test020() {
 		"----------\n"
 	);
 }
+@Test
 public void test021() {
 	StringBuilder buffer = new StringBuilder();
 	buffer.append("public class X {\n");
@@ -569,6 +591,7 @@ public void test021() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
  */
+@Test
 public void test022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
@@ -592,6 +615,7 @@ public void test022() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
  */
+@Test
 public void test023() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
@@ -615,6 +639,7 @@ public void test023() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
  */
+@Test
 public void test024() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
@@ -638,6 +663,7 @@ public void test024() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160337
  */
+@Test
 public void test025() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
@@ -671,6 +697,7 @@ public void test025() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160337
  */
+@Test
 public void test026() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
@@ -711,6 +738,7 @@ public void test026() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173992
  */
+@Test
 public void test027() {
 	this.runNegativeTest(
 		new String[] {
@@ -789,6 +817,7 @@ public void _test028() {
 		true,
 		options);
 }
+@Test
 public void testBug485477() {
 	runNegativeTest(
 		new String[] {
@@ -825,6 +854,7 @@ public void testBug485477() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5217
 // OPTION_GenerateClassFiles silently ignores GENERATE/DO_NOT_GENERATE — accepts only enabled/disabled
+@Test
 public void testIssue5217() {
 	CompilerOptions options = new CompilerOptions(Map.of(
 	        CompilerOptions.OPTION_GenerateClassFiles, CompilerOptions.DO_NOT_GENERATE));

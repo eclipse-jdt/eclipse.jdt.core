@@ -29,13 +29,15 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class DualParseSyntaxErrorTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = CompilerOptions.getFirstSupportedJdkLevel(); //$NON-NLS-1$
 
-public DualParseSyntaxErrorTest(String testName){
-	super(testName);
+public DualParseSyntaxErrorTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 public void checkParse(
 	char[] source,
@@ -98,6 +100,7 @@ public void checkParse(
 		Util.convertToIndependantLineDelimiter(computedSyntaxErrorDiagnosis));
 }
 
+@Test
 public void test01() {
 
 	String s =
@@ -119,6 +122,7 @@ public void test01() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test02() {
 
 	String s =
@@ -144,6 +148,7 @@ public void test02() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test03() {
 
 	String s =
@@ -174,6 +179,7 @@ public void test03() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test04() {
 
 	String s =
@@ -200,6 +206,7 @@ public void test04() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test05() {
 
 	String s =
@@ -226,6 +233,7 @@ public void test05() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test06() {
 
 	String s =
@@ -253,6 +261,7 @@ public void test06() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test07() {
 
 	String s =
@@ -280,6 +289,7 @@ public void test07() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test08() {
 
 	String s =
@@ -305,6 +315,7 @@ public void test08() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test09() {
 
 	String s =
@@ -331,6 +342,7 @@ public void test09() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+@Test
 public void test10() {
 
 	String s =

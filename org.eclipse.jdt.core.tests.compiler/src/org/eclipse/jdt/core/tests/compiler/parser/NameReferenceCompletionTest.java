@@ -13,23 +13,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be a name reference.
  */
 public class NameReferenceCompletionTest extends AbstractCompletionTest {
-public NameReferenceCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(NameReferenceCompletionTest.class);
+public NameReferenceCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Regression test for 1FTZ849.
  * The instance creation before the completion is not properly closed, and thus
  * the completion parser used to think the completion was on a type.
  */
+@Test
 public void test1FTZ849() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -63,6 +62,7 @@ public void test1FTZ849() {
 /*
  * Completion in a field initializer with no syntax error.
  */
+@Test
 public void test1FUUP73() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -114,6 +114,7 @@ public void test1FUUP73() {
 /*
  * Regression test for 1FVRQQA.
  */
+@Test
 public void test1FVRQQA_1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -147,6 +148,7 @@ public void test1FVRQQA_1() {
 /*
  * Regression test for 1FVRQQA.
  */
+@Test
 public void test1FVRQQA_2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -180,6 +182,7 @@ public void test1FVRQQA_2() {
 /*
  * Regression test for 1FVT66Q.
  */
+@Test
 public void test1FVT66Q_1() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -227,6 +230,7 @@ public void test1FVT66Q_1() {
 /*
  * Regression test for 1FVT66Q.
  */
+@Test
 public void test1FVT66Q_2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -270,6 +274,7 @@ public void test1FVT66Q_2() {
 /*
  * Regression test for 1G8DE30.
  */
+@Test
 public void test1G8DE30() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -309,6 +314,7 @@ public void test1G8DE30() {
 /*
  * Completion on an empty name reference.
  */
+@Test
 public void testEmptyNameReference() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -342,6 +348,7 @@ public void testEmptyNameReference() {
 /*
  * Completion on an empty name reference after a cast.
  */
+@Test
 public void testEmptyNameReferenceAfterCast() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -374,6 +381,7 @@ public void testEmptyNameReferenceAfterCast() {
 /*
  * Completion on an empty name reference after + operator.
  */
+@Test
 public void testEmptyNameReferenceAfterPlus() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -406,6 +414,7 @@ public void testEmptyNameReferenceAfterPlus() {
 /*
  * Completion on an empty name reference in an array dimension.
  */
+@Test
 public void testEmptyNameReferenceInArrayDim() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -438,6 +447,7 @@ public void testEmptyNameReferenceInArrayDim() {
 /*
  * Completion on an empty name reference in inner class.
  */
+@Test
 public void testEmptyNameReferenceInInnerClass() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -480,6 +490,7 @@ public void testEmptyNameReferenceInInnerClass() {
 /*
  * Completion in the statement following an if expression.
  */
+@Test
 public void testInIfThenStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -513,6 +524,7 @@ public void testInIfThenStatement() {
 /*
  * Completion in the statement following an if expression.
  */
+@Test
 public void testInIfThenWithInstanceOfStatement() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -547,6 +559,7 @@ public void testInIfThenWithInstanceOfStatement() {
 /*
  * Completion on a name reference inside an inner class in a field initializer.
  */
+@Test
 public void testInnerClassFieldInitializer() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -582,6 +595,7 @@ public void testInnerClassFieldInitializer() {
 /*
  * Completion on an empty name reference inside an invocation in a field initializer.
  */
+@Test
 public void testInvocationFieldInitializer() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -614,6 +628,7 @@ public void testInvocationFieldInitializer() {
  * Completion inside an anonymous inner class which is
  * inside a method invocation with receiver.
  */
+@Test
 public void testMethodInvocationAnonymousInnerClass() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -656,6 +671,7 @@ public void testMethodInvocationAnonymousInnerClass() {
  * Completion on a qualified name reference, where the cursor is in the
  * first type reference.
  */
+@Test
 public void testQualifiedNameReferenceShrinkAll() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -689,6 +705,7 @@ public void testQualifiedNameReferenceShrinkAll() {
 /*
  * Completion on a qualified name reference, where the cursor is right after the first dot.
  */
+@Test
 public void testQualifiedNameReferenceShrinkAllButOne() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -735,6 +752,7 @@ public void testQualifiedNameReferenceShrinkAllButOne() {
 /*
  * Completion on a qualified name reference, where the cursor is right after the first dot.
  */
+@Test
 public void testQualifiedNameReferenceShrinkAllButOne2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -769,6 +787,7 @@ public void testQualifiedNameReferenceShrinkAllButOne2() {
  * Completion on a qualified name reference,where the cursor is right after the end
  * of the last name reference.
  */
+@Test
 public void testQualifiedNameReferenceShrinkNone() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -816,6 +835,7 @@ public void testQualifiedNameReferenceShrinkNone() {
  * Completion on a qualified name reference, where the cursor is right after the end
  * of the last type reference.
  */
+@Test
 public void testQualifiedNameReferenceShrinkNone2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -850,6 +870,7 @@ public void testQualifiedNameReferenceShrinkNone2() {
  * Completion on a qualified name reference, where the cursor is right after the
  * last dot.
  */
+@Test
 public void testQualifiedNameReferenceShrinkOne() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -897,6 +918,7 @@ public void testQualifiedNameReferenceShrinkOne() {
  * Completion on a qualified name reference, where the cursor is right after the
  * last dot.
  */
+@Test
 public void testQualifiedNameReferenceShrinkOne2() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -930,6 +952,7 @@ public void testQualifiedNameReferenceShrinkOne2() {
 /*
  * Completion on a qualified name reference that contains a unicode.
  */
+@Test
 public void testUnicode() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

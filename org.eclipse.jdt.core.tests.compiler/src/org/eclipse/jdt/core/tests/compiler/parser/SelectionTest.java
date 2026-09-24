@@ -13,22 +13,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class SelectionTest extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 53 };
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(SelectionTest.class);
-}
 
-public SelectionTest(String testName) {
-	super(testName);
+public SelectionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Select superclass
  */
+@Test
 public void test01() {
 
 	String str =
@@ -67,6 +66,7 @@ public void test01() {
 /*
  * Select superinterface
  */
+@Test
 public void test02() {
 
 	String str =
@@ -108,6 +108,7 @@ public void test02() {
 /*
  * Select qualified superclass
  */
+@Test
 public void test03() {
 
 	String str =
@@ -143,6 +144,7 @@ public void test03() {
 /*
  * Select package from qualified superclass
  */
+@Test
 public void test04() {
 
 	String str =
@@ -178,6 +180,7 @@ public void test04() {
 /*
  * Select message send
  */
+@Test
 public void test05() {
 
 	String str =
@@ -217,6 +220,7 @@ public void test05() {
 /*
  * Select message send with recovery before
  */
+@Test
 public void test06() {
 
 	String str =
@@ -256,6 +260,7 @@ public void test06() {
 /*
  * Select message send with sibling method
  */
+@Test
 public void test07() {
 
 	String str =
@@ -301,6 +306,7 @@ public void test07() {
 /*
  * Select field reference
  */
+@Test
 public void test08() {
 
 	String str =
@@ -343,6 +349,7 @@ public void test08() {
 /*
  * Select field reference with syntax errors
  */
+@Test
 public void test09() {
 
 	String str =
@@ -385,6 +392,7 @@ public void test09() {
 /*
  * Select field reference inside message receiver
  */
+@Test
 public void test10() {
 
 	String str =
@@ -427,6 +435,7 @@ public void test10() {
 /*
  * Select allocation
  */
+@Test
 public void test11() {
 
 	String str =
@@ -471,6 +480,7 @@ public void test11() {
 /*
  * Select qualified allocation
  */
+@Test
 public void test12() {
 
 	String str =
@@ -524,6 +534,7 @@ public void test12() {
 /*
  * Select qualified name reference receiver
  */
+@Test
 public void test13() {
 
 	String str =
@@ -565,6 +576,7 @@ public void test13() {
 /*
  * Select qualified name reference
  */
+@Test
 public void test14() {
 
 	String str =
@@ -606,6 +618,7 @@ public void test14() {
 /*
  * Select variable type with modifier
  */
+@Test
 public void test15() {
 
 	String str =
@@ -647,6 +660,7 @@ public void test15() {
 /*
  * Select variable type
  */
+@Test
 public void test16() {
 
 	String str =
@@ -688,6 +702,7 @@ public void test16() {
 /*
  * Select name
  */
+@Test
 public void test17() {
 
 	String str =
@@ -730,6 +745,7 @@ public void test17() {
 /*
  * Select anonymous type
  */
+@Test
 public void test18() {
 
 	String str =
@@ -777,6 +793,7 @@ public void test18() {
 /*
  * Select cast type
  */
+@Test
 public void test19() {
 
 	String str =
@@ -820,6 +837,7 @@ public void test19() {
 /*
  * Select package
  */
+@Test
 public void test20() {
 
 	String str =
@@ -863,6 +881,7 @@ public void test20() {
 /*
  * Select import
  */
+@Test
 public void test21() {
 
 	String str =
@@ -906,6 +925,7 @@ public void test21() {
 /*
  * Select import on demand
  */
+@Test
 public void test22() {
 
 	String str =
@@ -949,6 +969,7 @@ public void test22() {
 /*
  * Select array initializer type
  */
+@Test
 public void test23() {
 
 	String str =
@@ -991,6 +1012,7 @@ public void test23() {
 /*
  * Select nested type superclass with syntax error behind
  */
+@Test
 public void test24() {
 
 	String str =
@@ -1047,6 +1069,7 @@ public void test24() {
 /*
  * Select super
  */
+@Test
 public void test25() {
 
 	String str =
@@ -1090,6 +1113,7 @@ public void test25() {
 /*
  * Select qualified super
  */
+@Test
 public void test26() {
 
 	String str =
@@ -1140,6 +1164,7 @@ public void test26() {
 /*
  * Select super constructor call
  */
+@Test
 public void test27() {
 
 	String str =
@@ -1181,6 +1206,7 @@ public void test27() {
 /*
  * Select qualified super constructor call
  */
+@Test
 public void test28() {
 
 	String str =
@@ -1236,6 +1262,7 @@ public void test28() {
 /*
  * Select qualified super constructor call with arguments
  */
+@Test
 public void test29() {
 
 	String str =
@@ -1291,6 +1318,7 @@ public void test29() {
 /*
  * Select super constructor call with arguments
  */
+@Test
 public void test30() {
 
 	String str =
@@ -1332,6 +1360,7 @@ public void test30() {
 /*
  * Regression test for 1FVQ0LK
  */
+@Test
 public void test31() {
 
 	String str =
@@ -1377,6 +1406,7 @@ public void test31() {
 /*
  * Regression test for 1FWT4AJ: ITPCOM:WIN98 - SelectionParser produces duplicate type declaration
  */
+@Test
 public void test32() {
 
 	String str =
@@ -1427,6 +1457,7 @@ public void test32() {
 /*
  * Regression test for 1G4CLZM: ITPJUI:WINNT - 'Import Selection' - Set not found
  */
+@Test
 public void test33() {
 
 	String str =
@@ -1474,6 +1505,7 @@ public void test33() {
 /*
  * Regression test for 1GB99S3: ITPJUI:WINNT - SH: NPE in editor while getting hover help
  */
+@Test
 public void test34() {
 
 	String str =
@@ -1520,6 +1552,7 @@ public void test34() {
 /*
  * Select this constructor call
  */
+@Test
 public void test35() {
 
 	String str =
@@ -1566,6 +1599,7 @@ public void test35() {
 /*
  * Select qualified this constructor call
  */
+@Test
 public void test36() {
 
 	String str =
@@ -1621,6 +1655,7 @@ public void test36() {
 /*
  * Select qualified this constructor call with arguments
  */
+@Test
 public void test37() {
 
 	String str =
@@ -1676,6 +1711,7 @@ public void test37() {
 /*
  * Select this constructor call with arguments
  */
+@Test
 public void test38() {
 
 	String str =
@@ -1717,6 +1753,7 @@ public void test38() {
 /*
  * bugs 3293 search does not work in inner class (1GEUQHJ)
  */
+@Test
 public void test39() {
 
 	String str =
@@ -1764,6 +1801,7 @@ public void test39() {
 /*
  * bugs 3229 OpenOnSelection - strange behaviour of code resolve (1GAVL08)
  */
+@Test
 public void test40() {
 
 	String str =
@@ -1801,6 +1839,7 @@ public void test40() {
 /*
  * bugs 11475 selection on local name.
  */
+@Test
 public void test41() {
 
 	String str =
@@ -1842,6 +1881,7 @@ public void test41() {
 /*
  * bugs 11475 selection on argument name.
  */
+@Test
 public void test42() {
 
 	String str =
@@ -1881,6 +1921,7 @@ public void test42() {
 /*
  * bugs 11475 selection on argument name inside catch statement.
  */
+@Test
 public void test43() {
 
 	String str =
@@ -1923,6 +1964,7 @@ public void test43() {
 /*
  * bugs 15430
  */
+@Test
 public void test44() {
 
 	String str =
@@ -1960,6 +2002,7 @@ public void test44() {
 /*
  * bugs 14468
  */
+@Test
 public void test45() {
 
 	String str =
@@ -2005,6 +2048,7 @@ public void test45() {
 /*
  * bugs 14468
  */
+@Test
 public void test46() {
 
 	String str =
@@ -2046,6 +2090,7 @@ public void test46() {
 /*
  * bugs 14468
  */
+@Test
 public void test47() {
 
 	String str =
@@ -2087,6 +2132,7 @@ public void test47() {
 /*
  * bugs 14468
  */
+@Test
 public void test48() {
 
 	String str =
@@ -2124,6 +2170,7 @@ public void test48() {
 /*
  * bugs 28064
  */
+@Test
 public void test49() {
 
 	String str =
@@ -2163,6 +2210,7 @@ public void test49() {
 /*
  * bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=52422
  */
+@Test
 public void test50() {
 
 	String str =
@@ -2216,6 +2264,7 @@ public void test50() {
 /*
  * bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=52422
  */
+@Test
 public void test51() {
 
 	String str =
@@ -2277,6 +2326,7 @@ public void test51() {
 /*
  * bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=52422
  */
+@Test
 public void test52() {
 
 	String str =
@@ -2336,6 +2386,7 @@ public void test52() {
 		expectedReplacedSource,
 		testName);
 }
+@Test
 public void test53() {
 
 	String str =
@@ -2376,6 +2427,7 @@ public void test53() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84001
+@Test
 public void test54() {
 
 	String str =
@@ -2415,6 +2467,7 @@ public void test54() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84001
+@Test
 public void test55() {
 
 	String str =
@@ -2520,6 +2573,7 @@ public void _test56() {
  * doesn't result in a bad selection when nested in a method invocation.
  * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/848
  */
+@Test
 public void testInstanceOfFieldGh848() {
 	String str =
 		"public class X {                     \n" +

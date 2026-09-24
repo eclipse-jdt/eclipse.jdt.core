@@ -13,24 +13,23 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be an ExplicitConstructorInvocation
  * or inside an ExplicitConstructorInvocation
  */
 public class ExplicitConstructorInvocationCompletionTest extends AbstractCompletionTest {
-public ExplicitConstructorInvocationCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(ExplicitConstructorInvocationCompletionTest.class);
+public ExplicitConstructorInvocationCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Completion on a qualified 'super' constructor invocation.
  *
  * ie. ExplicitConstructorInvocation ::= Primary '.' 'super' '(' ArgumentListopt ')' ';'
  */
+@Test
 public void testPrimarySuper() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -80,6 +79,7 @@ public void testPrimarySuper() {
  *
  * ie. ExplicitConstructorInvocation ::= Primary '.' 'this' '(' ArgumentListopt ')' ';'
  */
+@Test
 public void testPrimaryThis() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -129,6 +129,7 @@ public void testPrimaryThis() {
  *
  * ie. ExplicitConstructorInvocation ::= 'super' '(' ArgumentListopt ')' ';'
  */
+@Test
 public void testSuper() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -160,6 +161,7 @@ public void testSuper() {
  *
  * ie. ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
  */
+@Test
 public void testThis() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -189,6 +191,7 @@ public void testThis() {
 /*
  * ExplicitConstructorInvocation ::= Name '.' 'super' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testWrapperNameSuper() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -236,6 +239,7 @@ public void testWrapperNameSuper() {
 /*
  * ExplicitConstructorInvocation ::= Name '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testWrapperNameThis() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -283,6 +287,7 @@ public void testWrapperNameThis() {
 /*
  * ExplicitConstructorInvocation ::= Primary '.' 'this' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testWrapperPrimarySuper() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -330,6 +335,7 @@ public void testWrapperPrimarySuper() {
 /*
  * ExplicitConstructorInvocation ::= 'super' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testWrapperSuper() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -359,6 +365,7 @@ public void testWrapperSuper() {
 /*
  * ExplicitConstructorInvocation ::= 'this' '(' <ArgumentListopt> ')' ';'
  */
+@Test
 public void testWrapperThis() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
