@@ -17,21 +17,17 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
-//import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.params.ParameterizedClass;
-import org.junit.jupiter.params.provider.MethodSource;
 
-@ParameterizedClass
-@MethodSource("compliances")
+@MinimalCompliance(AbstractCompilerTest.F_1_8)
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ArrayTest extends AbstractRegressionTest {
 
@@ -40,23 +36,8 @@ public class ArrayTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String [] { "testIssue4789" };
 	}
 	public ArrayTest(Compliance compliance, TestInfo info) {
-		super(info.getDisplayName());
-		this.complianceLevel = CompilerOptions.versionToJdkLevel(compliance.displayName());
+		super(compliance, info);
 	}
-
-	record Compliance(String displayName) {
-		@Override
-		public final String toString() {
-			return "compliance "+this.displayName;
-		}
-	}
-
-	static List<Compliance> compliances() {
-		return List.of(new Compliance("1.8"), new Compliance("27"));
-	}
-//	public static Test suite() {
-//		return buildAllCompliancesTestSuite(testClass());
-//	}
 
 	public static Class testClass() {
 		return ArrayTest.class;
