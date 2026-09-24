@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -182,10 +187,12 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 				int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
 				for (int i = 0; i < otherMax; i++)
 					reportDeclaration(qNameRef.otherBindings[i], locator, declPattern.knownFields);
-			} else if (reference instanceof SingleNameReference ) {
-				if(((SingleNameReference) reference).binding instanceof FieldBinding) {
-					reportDeclaration((FieldBinding)((SingleNameReference) reference).binding, locator, declPattern.knownFields);
-				}
+			} else if (reference instanceof SingleNameReference singleNameReference) {
+				Binding binding = singleNameReference.binding;
+				if (binding instanceof LarvalProxyBinding proxy)
+					binding = proxy.getLarvalField();
+				if (binding instanceof FieldBinding field)
+					reportDeclaration(field, locator, declPattern.knownFields);
 			}
 		}
 	} else if (reference instanceof ImportReference) {
@@ -203,6 +210,8 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 		int end = (int) position;
 		this.match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, start, end-start+1, fieldReference);
 		locator.report(this.match);
+	} else if (reference instanceof ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+		matchReportReference(referenceOfFieldOfThis.fieldReference(), element, localElement, otherElements, elementBinding, accuracy, locator); // recurse on the wrapped field reference
 	} else if (reference instanceof SingleNameReference) {
 		int offset = reference.sourceStart;
 		this.match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
@@ -357,6 +366,8 @@ public int resolveLevel(ASTNode possiblelMatchingNode) {
 }
 @Override
 public int resolveLevel(Binding binding) {
+	if (binding instanceof LarvalProxyBinding proxy)
+		binding = proxy.getLarvalField();
 	if (binding == null) return INACCURATE_MATCH;
 	if( binding instanceof LocalVariableBinding) {
 		// for matching the component in constructor of a record

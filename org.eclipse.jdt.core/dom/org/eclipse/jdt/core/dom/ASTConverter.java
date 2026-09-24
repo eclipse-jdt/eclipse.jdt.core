@@ -2977,6 +2977,9 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Reference reference) {
+		if (reference instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+			return convert(referenceOfFieldOfThis.fieldReference());
+		}
 		if (reference instanceof org.eclipse.jdt.internal.compiler.ast.NameReference) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.NameReference) reference);
 		}
@@ -3364,6 +3367,8 @@ class ASTConverter {
 							int end = localDeclaration.declarationEnd;
 							variableDeclarationExpression.setSourceRange(start, end - start + 1);
 							tryStatement.resources().add(variableDeclarationExpression);
+						} else if (resource instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+							tryStatement.resources().add(convert(referenceOfFieldOfThis.fieldReference()));
 						} else if (resource instanceof NameReference) {
 							tryStatement.resources().add(convert((NameReference) resource));
 						} else if (resource instanceof FieldReference) {

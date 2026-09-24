@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -195,10 +200,22 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 			// - If the expression name appears in an early construction context of C (8.8.7.1),
 			// 		then it is the left-hand operand of a simple assignment expression (15.26),
 			//		and the declaration of the named variable lacks an initializer.
+			ConstructorDeclaration constructor = scope.methodScope().referenceContext instanceof ConstructorDeclaration c ? c : null;
 			if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) {
 				// Error: not 'left-hand operand of a simple assignment expression'
 				if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
-					scope.problemReporter().fieldReadInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+					boolean complain = true;
+					/* In general in the right context, we expect the field to have been swapped with the proxy local already
+					   Two exceptions are: When a wrapped ThisReference is resolved as a FieldReference: we want to tolerate these
+					   Secondly, when we have meandered into a lambda/local class from the prologue. FieldBinding will still say it is larval
+					   but it should not be swapped with proxy, we should report an error instead
+				    */
+					if (fieldBinding.needsProxyLocal()) {
+						if (scope.getProxy(fieldBinding) instanceof LarvalProxyBinding proxy && proxy.declaringScope == scope.methodScope())
+							complain = false;
+					}
+					if (complain)
+						scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
 				}
 				// otherwise we leave it to later phase to detect if required enclosing instance is available
 				return;
@@ -207,6 +224,12 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 				scope.problemReporter().superFieldAssignInEarlyConstructionContext(this, fieldBinding);
 				return;
 			} else {
+				if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions())) {
+					if (constructor != null && !constructor.invokesSuper()) {
+						scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+						return;
+					}
+				}
 				if (scope.methodScope().isLambdaScope()) {
 					scope.problemReporter().fieldAssignInEarlyConstructionContextInLambda(this, fieldBinding);
 					return;

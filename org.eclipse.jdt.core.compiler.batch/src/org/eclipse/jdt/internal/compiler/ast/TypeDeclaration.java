@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -86,8 +86,12 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public TypeDeclaration[] memberTypes;
 	public SourceTypeBinding binding;
 	public ClassScope scope;
+
 	public MethodScope initializerScope;
 	public MethodScope staticInitializerScope;
+	public ConstructionContext constructionContext;
+	public InitializationFlowContext initializerContext;
+
 	public boolean ignoreFurtherInvestigation = false;
 	public int maxFieldCount;
 	public int declarationSourceStart;
@@ -381,6 +385,8 @@ public ConstructorDeclaration createDefaultConstructor(boolean needExplicitConst
 	//the constructor
 	ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
 	constructor.bits |= ASTNode.IsDefaultConstructor;
+	if (isValueClass())
+		constructor.bits |= ASTNode.ShouldInitializeStrictly;
 	constructor.selector = this.name;
 	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
 
@@ -486,6 +492,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 
 	constructor.scope = new MethodScope(this.scope, constructor, true);
 	constructor.bindArguments();
+	constructor.constructionContext = new ConstructionContext(constructor);
 	constructor.statements[0].resolve(constructor.scope);
 
 	MethodBinding[] methodBindings = sourceType.methods(); // trigger sorting
@@ -745,20 +752,20 @@ private void internalAnalyseCode(FlowContext flowContext, final FlowInfo flowInf
 	// for local classes we use the flowContext as our parent, but never use an initialization context for this purpose
 	// see Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 	FlowContext parentContext = (flowContext instanceof InitializationFlowContext) ? null : flowContext;
-	InitializationFlowContext initializerContext = new InitializationFlowContext(parentContext, this, flowInfo, flowContext, this.initializerScope);
+	this.initializerContext = new InitializationFlowContext(parentContext, this, flowInfo, flowContext, this.initializerScope);
 	// no static initializer in local classes, thus no need to set parent:
 	InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.staticInitializerScope);
 	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();	// discards info about fields of inclosing classes
 	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 
-	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
+	if (!this.isValueClass() && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
 		if (this.methods != null) {
 			// collect field initializations happening in constructor prologues
 			FlowInfo prologueInfo = null;
 			for (AbstractMethodDeclaration method : this.methods) {
 				if (method instanceof ConstructorDeclaration constructor && constructor.invokesSuper()) {
 					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
-					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), PROLOGUE_ANALYSIS);
+					constructor.analyseCode(this.scope, this.initializerContext, ctorInfo, ctorInfo.reachMode(), PROLOGUE_ANALYSIS);
 					ctorInfo = constructor.getPrologueFlowInfo();
 					if (ctorInfo != null) {
 						if (prologueInfo == null)
@@ -773,6 +780,8 @@ private void internalAnalyseCode(FlowContext flowContext, final FlowInfo flowInf
 		}
 	}
 
+	if (this.isValueClass())
+		this.constructionContext.enterFieldAnalysis(nonStaticFieldInfo);
 	if (this.fields != null) {
 		for (FieldDeclaration field : this.fields) {
 			if (field.isStatic()) {
@@ -792,8 +801,11 @@ private void internalAnalyseCode(FlowContext flowContext, final FlowInfo flowInf
 				if ((nonStaticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 					field.bits &= ~ASTNode.IsReachable;
 
-				initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
-				nonStaticFieldInfo = field.analyseCode(this.initializerScope, initializerContext, nonStaticFieldInfo);
+				if (field instanceof Initializer && this.isValueClass()) // initializers feature in (early) late construction for value classes.
+					continue;
+
+				this.initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
+				nonStaticFieldInfo = field.analyseCode(this.initializerScope, this.initializerContext, nonStaticFieldInfo);
 
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
@@ -808,6 +820,9 @@ private void internalAnalyseCode(FlowContext flowContext, final FlowInfo flowInf
 			}
 		}
 	}
+	if (this.isValueClass())
+		this.constructionContext.leaveFieldAnalysis(nonStaticFieldInfo, this.initializerContext);
+
 	if (this.memberTypes != null) {
 		for (TypeDeclaration memberType : this.memberTypes) {
 			if (flowContext != null){ // local type
@@ -847,7 +862,7 @@ private void internalAnalyseCode(FlowContext flowContext, final FlowInfo flowInf
 			} else if (method instanceof ConstructorDeclaration cd) {
 				ConstructorFlowAnalysisMode mode = cd.getPrologueFlowInfo() != null ? EPILOGUE_ANALYSIS : FULL_ANALYSIS;
 				// constructors that chain to an alternate constructor via `this(...)` should not see field initialization or any other prologue!
-				cd.analyseCode(this.scope, initializerContext, cd.invokesSuper() ? constructorInfo.copy() : outerInfo.copy(), outerInfo.reachMode(), mode);
+				cd.analyseCode(this.scope, this.initializerContext, cd.invokesSuper() ? constructorInfo.copy() : outerInfo.copy(), outerInfo.reachMode(), mode);
 			} else { // regular method
 				// JUnit 5 only accepts methods without arguments for method sources
 				if (method.arguments == null && jUnitMethodSourceValues.includes(method.selector) && method.binding != null) {
@@ -1325,6 +1340,12 @@ public void resolve() {
 			rc.resolve(this.initializerScope);
 		}
 
+		this.constructionContext = null;
+		if (this.isValueClass()) {
+			this.constructionContext = new ConstructionContext(this);
+			this.constructionContext.enterFieldsResolution();
+		}
+
 		if (this.fields != null) {
 			for (int i = 0, count = this.fields.length; i < count; i++) {
 				FieldDeclaration field = this.fields[i];
@@ -1366,6 +1387,9 @@ public void resolve() {
 				if (isDeprecated)
 					checkMemberOfDeprecated(sourceType, field.binding, field);
 			}
+		}
+		if (this.constructionContext != null) {
+			this.constructionContext.leaveFieldsResolution();
 		}
 		if (this.maxFieldCount < localMaxFieldCount) {
 			this.maxFieldCount = localMaxFieldCount;
@@ -1497,63 +1521,70 @@ private void checkMemberOfDeprecated(SourceTypeBinding declaringType, Binding me
 @Override
 public void resolve(BlockScope blockScope) {
 
-	// need to build its scope first and proceed with binding's creation
-	if ((this.bits & ASTNode.IsAnonymousType) == 0) {
-		// check collision scenarii
-		Binding existing = blockScope.getType(this.name);
-		if (existing instanceof ReferenceBinding
-				&& existing != this.binding
-				&& existing.isValidBinding()) {
-			ReferenceBinding existingType = (ReferenceBinding) existing;
-			if (existingType instanceof TypeVariableBinding) {
-				blockScope.problemReporter().typeHiding(this, (TypeVariableBinding) existingType);
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=312989, check for collision with enclosing type.
-				Scope outerScope = blockScope.parent;
-checkOuterScope:while (outerScope != null) {
-					Binding existing2 = outerScope.getType(this.name);
-					if (existing2 instanceof TypeVariableBinding && existing2.isValidBinding()) {
-						TypeVariableBinding tvb = (TypeVariableBinding) existingType;
-						Binding declaringElement = tvb.declaringElement;
-						if (declaringElement instanceof ReferenceBinding
-								&& CharOperation.equals(((ReferenceBinding) declaringElement).sourceName(), this.name)) {
-							blockScope.problemReporter().typeCollidesWithEnclosingType(this);
+	MethodScope methodScope = blockScope.methodScope();
+	methodScope.switchContext(this);
+
+	try {
+		// need to build its scope first and proceed with binding's creation
+		if ((this.bits & ASTNode.IsAnonymousType) == 0) {
+			// check collision scenarii
+			Binding existing = blockScope.getType(this.name);
+			if (existing instanceof ReferenceBinding
+					&& existing != this.binding
+					&& existing.isValidBinding()) {
+				ReferenceBinding existingType = (ReferenceBinding) existing;
+				if (existingType instanceof TypeVariableBinding) {
+					blockScope.problemReporter().typeHiding(this, (TypeVariableBinding) existingType);
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=312989, check for collision with enclosing type.
+					Scope outerScope = blockScope.parent;
+	checkOuterScope:while (outerScope != null) {
+						Binding existing2 = outerScope.getType(this.name);
+						if (existing2 instanceof TypeVariableBinding && existing2.isValidBinding()) {
+							TypeVariableBinding tvb = (TypeVariableBinding) existingType;
+							Binding declaringElement = tvb.declaringElement;
+							if (declaringElement instanceof ReferenceBinding
+									&& CharOperation.equals(((ReferenceBinding) declaringElement).sourceName(), this.name)) {
+								blockScope.problemReporter().typeCollidesWithEnclosingType(this);
+								break checkOuterScope;
+							}
+						} else if (existing2 instanceof ReferenceBinding
+								&& existing2.isValidBinding()
+								&& outerScope.isDefinedInType((ReferenceBinding) existing2)) {
+								blockScope.problemReporter().typeCollidesWithEnclosingType(this);
+								break checkOuterScope;
+						} else if (existing2 == null) {
 							break checkOuterScope;
 						}
-					} else if (existing2 instanceof ReferenceBinding
-							&& existing2.isValidBinding()
-							&& outerScope.isDefinedInType((ReferenceBinding) existing2)) {
-							blockScope.problemReporter().typeCollidesWithEnclosingType(this);
-							break checkOuterScope;
-					} else if (existing2 == null) {
-						break checkOuterScope;
+						outerScope = outerScope.parent;
 					}
-					outerScope = outerScope.parent;
-				}
-			} else if (existingType instanceof LocalTypeBinding
-						&& ((LocalTypeBinding) existingType).scope.methodScope() == blockScope.methodScope()) {
-					// dup in same method
+				} else if (existingType instanceof LocalTypeBinding
+							&& ((LocalTypeBinding) existingType).scope.methodScope() == blockScope.methodScope()) {
+						// dup in same method
+						blockScope.problemReporter().duplicateNestedType(this);
+				} else if (existingType instanceof LocalTypeBinding && blockScope.isLambdaSubscope()
+						&& blockScope.enclosingLambdaScope().enclosingMethodScope() == ((LocalTypeBinding) existingType).scope.methodScope()) {
 					blockScope.problemReporter().duplicateNestedType(this);
-			} else if (existingType instanceof LocalTypeBinding && blockScope.isLambdaSubscope()
-					&& blockScope.enclosingLambdaScope().enclosingMethodScope() == ((LocalTypeBinding) existingType).scope.methodScope()) {
-				blockScope.problemReporter().duplicateNestedType(this);
-			} else if (blockScope.isDefinedInType(existingType)) {
-				//	collision with enclosing type
-				blockScope.problemReporter().typeCollidesWithEnclosingType(this);
-			} else if (blockScope.isDefinedInSameUnit(existingType)){ // only consider hiding inside same unit
-				// hiding sibling
-				blockScope.problemReporter().typeHiding(this, existingType);
+				} else if (blockScope.isDefinedInType(existingType)) {
+					//	collision with enclosing type
+					blockScope.problemReporter().typeCollidesWithEnclosingType(this);
+				} else if (blockScope.isDefinedInSameUnit(existingType)){ // only consider hiding inside same unit
+					// hiding sibling
+					blockScope.problemReporter().typeHiding(this, existingType);
+				}
 			}
+			blockScope.addLocalType(this);
 		}
-		blockScope.addLocalType(this);
-	}
 
-	if (this.binding != null) {
-		// remember local types binding for innerclass emulation propagation
-		blockScope.referenceCompilationUnit().record((LocalTypeBinding)this.binding);
+		if (this.binding != null) {
+			// remember local types binding for innerclass emulation propagation
+			blockScope.referenceCompilationUnit().record((LocalTypeBinding)this.binding);
 
-		// binding is not set if the receiver could not be created
-		resolve();
-		updateMaxFieldCount();
+			// binding is not set if the receiver could not be created
+			resolve();
+			updateMaxFieldCount();
+		}
+	} finally {
+		methodScope.switchContext(methodScope.referenceContext);
 	}
 }
 

@@ -97,6 +97,10 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 				.analyseCode(initializationScope, flowContext, flowInfo)
 				.unconditionalInits();
 		flowInfo.markAsDefinitelyAssigned(this.binding);
+		if (this.binding.needsProxyLocal()) {
+		    LarvalProxyBinding proxy = (LarvalProxyBinding) initializationScope.getProxy(this.binding);
+	    	flowInfo.markAsDefinitelyAssigned(proxy);
+		}
 	}
 	CompilerOptions options = initializationScope.compilerOptions();
 	if (this.initialization != null && this.binding != null) {

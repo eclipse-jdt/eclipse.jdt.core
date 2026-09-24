@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -763,6 +763,35 @@ public void detectAPILeaks(ASTNode typeNode, TypeBinding type) {
 			}
 		};
 		typeNode.traverse(visitor, this);
+	}
+}
+
+public Map<FieldBinding, LarvalProxyBinding> proxies;
+
+public void setProxies(Map<FieldBinding, LarvalProxyBinding> proxies) { // for registering and de-registering, null map in the latter case.
+	this.proxies = proxies;
+}
+
+@Override
+public Binding getProxy(FieldBinding field) {
+	LarvalProxyBinding proxy = this.proxies != null ? this.proxies.get(field) : null;
+	if (proxy != null) {
+		proxy.useFlag = LocalVariableBinding.USED;
+		return proxy;
+	}
+	return field;
+}
+@Override
+public void switchContext(ReferenceContext newContext) {
+	if (this.proxies == null)
+		return;
+	// We are in a proxy holding method context - i.e constructor or instance fields initializer scope.
+	// Strictly speaking, this flipping of bits is not necessary for correctness, just for sanitary/hygiene purposes.
+	if (classScope().insideEarlyConstructionContext) {
+		if (this.referenceContext != newContext)
+			this.proxies.keySet().forEach(field -> field.tagBits &= ~TagBits.NeedsProxyLocal); // meandering off to a lambda or local class
+		else
+			this.proxies.keySet().forEach(field -> field.tagBits |= TagBits.NeedsProxyLocal);  // back in Kansas
 	}
 }
 }

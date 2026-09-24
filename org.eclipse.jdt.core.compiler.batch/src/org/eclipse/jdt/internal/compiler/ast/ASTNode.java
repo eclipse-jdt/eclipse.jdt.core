@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Matt McCutchen - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
@@ -200,6 +205,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 	// for type, method and field declarations
 	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
 	public static final int HasBeenResolved = Bit5; // field decl only (to handle forward references)
+	public static final int HasBeenAnalysed = Bit5; // for value class instance initializer blocks to avoid repeated analysis.
 
 	// for lambda expressions
 	public static final int ArgumentsTypeElided = Bit2; // A lambda with var typed arguments is considered to be type elided, but the Arguments themselves are considered var typed.
@@ -572,12 +578,14 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 	}
 
 	public boolean isQualifiedSuper() {
-
 		return false;
 	}
 
 	public boolean isThis() {
+		return false;
+	}
 
+	public boolean isQualifiedThis() {
 		return false;
 	}
 

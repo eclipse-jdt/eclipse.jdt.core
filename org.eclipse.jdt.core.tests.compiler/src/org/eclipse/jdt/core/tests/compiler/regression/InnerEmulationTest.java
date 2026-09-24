@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -3895,7 +3900,7 @@ public void test114() {
 		"	super(s);\n" +
 		"	      ^\n" +
 		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
-		? "Cannot read field s in an early construction context\n"
+		? "Cannot refer to field s in an early construction context\n"
 		: "Cannot refer to an instance field s while explicitly invoking a constructor\n") +
 		"----------\n");
 }

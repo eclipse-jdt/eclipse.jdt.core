@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1656,5 +1660,75 @@ public void testBug478_originalReproducer_structuralWalk() throws Exception {
 	assertNotNull("binding for qualifier Style in initializer (was FAILED)", initQualifierBinding);
 	assertTrue("qualifier Style binds to TYPE in initializer",
 			initQualifierBinding.getKind() == IBinding.TYPE);
+}
+
+public void testEarlyFieldReadResolvesToDeclaredField() throws Exception {
+	setUpJCLClasspathVariables("28", false);
+	try {
+		IJavaProject project = createJavaProject(
+				"P5433DOM", new String[] {"src"},
+				new String[] {"CONVERTER_JCL_28_LIB"}, "bin", "28");
+		project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+		createFile("/P5433DOM/src/X.java", """
+				public class X {
+				    int f;
+				    X() {
+				        f = 7;
+				        int early = f;
+				        super();
+				        int late = f;
+				    }
+				}
+				""");
+
+		ICompilationUnit source = getCompilationUnit("/P5433DOM/src/X.java");
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setSource(source);
+		parser.setProject(project);
+		parser.setCompilerOptions(project.getOptions(true));
+		parser.setResolveBindings(true);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+
+		for (IProblem problem : unit.getProblems()) {
+			assertFalse("Unexpected compilation error: " + problem, problem.isError());
+		}
+
+		TypeDeclaration type = (TypeDeclaration) unit.types().get(0);
+		FieldDeclaration declaration = (FieldDeclaration) type.bodyDeclarations().get(0);
+		IVariableBinding field = ((VariableDeclarationFragment)
+				declaration.fragments().get(0)).resolveBinding();
+
+		MethodDeclaration constructor = (MethodDeclaration) type.bodyDeclarations().get(1);
+		List<?> statements = constructor.getBody().statements();
+		VariableDeclarationStatement earlyStatement =
+				(VariableDeclarationStatement) statements.get(1);
+		VariableDeclarationStatement lateStatement =
+				(VariableDeclarationStatement) statements.get(3);
+
+		SimpleName earlyRead = (SimpleName) ((VariableDeclarationFragment)
+				earlyStatement.fragments().get(0)).getInitializer();
+		SimpleName lateRead = (SimpleName) ((VariableDeclarationFragment)
+				lateStatement.fragments().get(0)).getInitializer();
+
+		assertNotNull("Field declaration has no binding", field);
+		IVariableBinding lateBinding = (IVariableBinding) lateRead.resolveBinding();
+		assertNotNull("Late read has no binding", lateBinding);
+		assertTrue("Late read should resolve to a field", lateBinding.isField());
+		assertEquals(field.getKey(), lateBinding.getKey());
+
+		IVariableBinding earlyBinding = (IVariableBinding) earlyRead.resolveBinding();
+		assertNotNull("Early read has no binding", earlyBinding);
+		assertTrue("Early source reference should resolve to the field, not a proxy local",
+				earlyBinding.isField());
+		assertEquals("Early and late reads must resolve to the same declared field",
+				field.getKey(), earlyBinding.getKey());
+	} finally {
+		deleteProject("P5433DOM");
+	}
 }
 }

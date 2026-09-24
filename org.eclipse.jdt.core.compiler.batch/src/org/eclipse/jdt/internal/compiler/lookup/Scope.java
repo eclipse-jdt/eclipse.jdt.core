@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2020,6 +2025,38 @@ public abstract class Scope {
 
 	public boolean resolvingGuardExpression() {
 		return false;
+	}
+
+
+	public Binding getProxy(FieldBinding larvalField) {
+		MethodScope methodScope = methodScope();
+		return methodScope != null ? methodScope.getProxy(larvalField) : larvalField;
+	}
+
+	/* API
+	 *
+	 *	Answer the binding that corresponds to the argument name.
+	 *	flag is a mask of the following values VARIABLE (= FIELD or LOCAL), TYPE, PACKAGE.
+	 *	Only bindings corresponding to the mask can be answered.
+	 *
+	 *	For example, getBinding("foo", VARIABLE, site) will answer
+	 *	the binding for the field or local named "foo" (or an error binding if none exists).
+	 *	If a type named "foo" exists, it will not be detected (and an error binding will be answered)
+	 *
+	 *	The VARIABLE mask has precedence over the TYPE mask.
+	 *
+	 *	If the VARIABLE mask is not set, neither fields nor locals will be looked for.
+	 *
+	 *	InvocationSite implements:
+	 *		isSuperAccess(); this is used to determine if the discovered field is visible.
+	 *
+	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
+	 */
+	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve, boolean needProxyLocal) {
+		Binding binding = getBinding(name, mask, invocationSite, needResolve);
+		if (!needProxyLocal || !binding.needsProxyLocal())
+			return binding;
+		return getProxy((FieldBinding) binding); // only one that answers true to isLarval()
 	}
 
 	/* API
@@ -5068,6 +5105,11 @@ public abstract class Scope {
 			}
 		} while ((current = current.parent) != null);
 		return null;
+	}
+
+	public void switchContext(ReferenceContext newContext) { // if newContext matches receiver, then we are back from rendezvous/detour
+		if (this.parent != null)
+			this.parent.switchContext(newContext); // any one in ancestry who cares should have the buck stop with them
 	}
 
 	/**

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -6624,7 +6628,7 @@ public void test406614() {
 				1. ERROR in X.java (at line 9)
 					this(() -> this.f);
 					           ^^^^^^
-				Cannot read field f in an early construction context
+				Cannot refer to field f in an early construction context
 				----------
 				2. ERROR in X.java (at line 12)
 					this(() -> this.g());
@@ -6639,7 +6643,7 @@ public void test406614() {
 				4. ERROR in X.java (at line 15)
 					this(() -> f);
 					           ^
-				Cannot read field f in an early construction context
+				Cannot refer to field f in an early construction context
 				----------
 				5. ERROR in X.java (at line 18)
 					this(() -> g());

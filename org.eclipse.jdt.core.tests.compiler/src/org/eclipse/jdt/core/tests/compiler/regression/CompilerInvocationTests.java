@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -1373,6 +1373,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("ExpressionInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("FieldReadInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("FieldReferenceInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("ThisInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("AllocationInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("MessageSendInEarlyConstructionContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2532,6 +2533,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", SKIP);
 	    expectedProblemAttributes.put("ExpressionInEarlyConstructionContext",  SKIP);
 	    expectedProblemAttributes.put("FieldReadInEarlyConstructionContext",  SKIP);
+	    expectedProblemAttributes.put("FieldReferenceInEarlyConstructionContext",  SKIP);
 	    expectedProblemAttributes.put("ThisInEarlyConstructionContext",  SKIP);
 	    expectedProblemAttributes.put("AllocationInEarlyConstructionContext",  SKIP);
 	    expectedProblemAttributes.put("MessageSendInEarlyConstructionContext",  SKIP);

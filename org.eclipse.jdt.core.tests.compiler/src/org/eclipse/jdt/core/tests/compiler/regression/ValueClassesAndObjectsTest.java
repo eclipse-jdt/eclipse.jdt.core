@@ -1452,4 +1452,2307 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"The final field X.x cannot be assigned\n" +
 				"----------\n");
     }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5329
+    // With preview enabled, allow fields to be read in early construction contexts
+    // Fields that are initialized at declaration site cannot be read in early construction context! (since the initialization happens at super() boundary)
+    public void testFieldReadsInEarlyConstruction() { // check illegal access via FieldReference, SingleNameReference & QualifiedNameReference
+        runNegativeTest(
+            new String[] {
+                "X.java",
+                """
+                public class X {
+                    X xo = new X();
+                    int x;
+                    int y;
+                    int z = 10;
+                    int k = 0;
+                    X() {
+                        x = 42;
+                        y = x + xo.x + z + this.k;
+                        super();
+                        System.out.println("x = " + x + ", y = " + y);
+                    }
+
+                    public static void main() {
+                        new X();
+                    }
+                }
+                """
+            },
+            "----------\n" +
+    		"1. ERROR in X.java (at line 9)\n" +
+    		"	y = x + xo.x + z + this.k;\n" +
+    		"	        ^\n" +
+    		"Cannot refer to field xo in an early construction context\n" +
+    		"----------\n" +
+    		"2. ERROR in X.java (at line 9)\n" +
+    		"	y = x + xo.x + z + this.k;\n" +
+    		"	               ^\n" +
+    		"Cannot refer to field z in an early construction context\n" +
+    		"----------\n" +
+    		"3. ERROR in X.java (at line 9)\n" +
+    		"	y = x + xo.x + z + this.k;\n" +
+    		"	                   ^^^^^^\n" +
+    		"Cannot refer to field k in an early construction context\n" +
+    		"----------\n");
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5329
+    // With preview enabled, allow fields to be read in early construction contexts
+    public void testFieldReadsInEarlyConstruction_2() {
+        runNegativeTest(
+            new String[] {
+                "X.java",
+                """
+                public class X {
+                    final X xo;
+                    int x;
+                    int y;
+                    X() {
+                        x = 42;
+                        y = x + xo.x;
+                        super();
+                        System.out.println("x = " + x + ", y = " + y);
+                    }
+
+                    public static void main() {
+                        new X();
+                    }
+                }
+                """
+            },
+            "----------\n" +
+    		"1. ERROR in X.java (at line 7)\n" +
+    		"	y = x + xo.x;\n" +
+    		"	        ^^\n" +
+    		"The blank final field xo may not have been initialized\n" +
+    		"----------\n");
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5329
+    // With preview enabled, allow fields to be read in early construction contexts
+    public void testFieldReadsInEarlyConstruction_3() {
+        runConformTest(
+            new String[] {
+                "X.java",
+                """
+                public class X {
+                    final String xo;
+                    int x;
+                    int y;
+                    X() {
+                        x = 42;
+                        xo = "Hello";
+                        y = x + xo.length();
+                        super();
+                        System.out.println("x = " + x + ", y = " + y);
+                    }
+
+                    public static void main() {
+                        new X();
+                    }
+                }
+                """
+            },
+            "x = 42, y = 47");
+    }
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5329
+	// Exercise reads found in the prologue, including receivers and operands
+	// of assignments, plus the argument of the explicit constructor call.
+	public void testFieldReadsInEarlyConstructor() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X extends SuperType {
+			    static int staticField = 17;
+
+			    int directRead;
+			    int assigned;
+			    int rhsRead;
+			    int[] array;
+			    int index;
+			    Box object;
+			    int compound;
+			    int increment;
+			    int constructorArgument;
+			    Box qualifiedRoot;
+			    int afterConstructorCall;
+			    final int blankFinal;
+
+			    static class Box {
+			        int field;
+			    }
+
+			    X(int rhsRead) {
+			        directRead = 1;
+			        assigned = rhsRead;             // parameter shadows the field rhsRead
+			        this.rhsRead = 3;
+			        array = new int[2];
+			        index = 1;
+			        array[index] = directRead + assigned;
+			        object = new Box();
+			        object.field = array[index];   // object is read on the LHS
+			        compound = 4;
+			        compound += object.field;       // reads old compound and object
+			        increment = 2;
+			        this.increment++;               // reads old increment
+			        constructorArgument = 5;
+			        qualifiedRoot = new Box();
+			        qualifiedRoot.field = 7;
+			        blankFinal = 11;
+			        int localOnly = 6;
+
+			        System.out.println("pre=" + directRead + "," + this.assigned
+			            + "," + this.rhsRead + "," + array[index] + ","
+			            + object.field + "," + compound + "," + increment
+			            + "," + blankFinal + "," + staticField + "," + localOnly);
+			        super(constructorArgument + qualifiedRoot.field + blankFinal);
+			        afterConstructorCall = directRead;
+			        System.out.println("after=" + afterConstructorCall + ","
+			            + compound + "," + blankFinal);
+			    }
+
+			    public static void main(String[] args) {
+			        new X(9);
+			    }
+			}
+
+			class SuperType {
+			    SuperType(int value) {
+			        System.out.println("super=" + value);
+			    }
+			}
+			"""
+		},
+		"pre=1,9,3,10,10,14,3,11,17,6\n" +
+		"super=23\n" +
+		"after=1,14,11");
+	}
+
+	public void testTooEagerReadOfFinalField() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    final int i = 42;
+						    final double d;
+						    X() {
+						        System.out.println("i = " + i);
+						        System.out.println("d = " + d); // flow analysis not done due to resolve error in previous line
+						        super();
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"----------\n" +
+						"1. ERROR in X.java (at line 5)\n" +
+						"	System.out.println(\"i = \" + i);\n" +
+						"	                            ^\n" +
+						"Cannot refer to field i in an early construction context\n" +
+						"----------\n");
+	}
+
+	public void testTooEagerReadOfBlankFinalField() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    final double d;
+						    X() {
+						        System.out.println("d = " + d);
+						        super();
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"----------\n" +
+						"1. ERROR in X.java (at line 4)\n" +
+						"	System.out.println(\"d = \" + d);\n" +
+						"	                            ^\n" +
+						"The blank final field d may not have been initialized\n" +
+						"----------\n");
+	}
+	public void testDefaultInitializationsInEarlyReads() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    boolean b;
+						    char c;
+						    byte by;
+						    short s;
+						    int i;
+						    long l;
+						    float f;
+						    double d;
+						    String string;
+						    X() {
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + l);
+						        System.out.println("f = " + f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						        super();
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"b = false\n" +
+						"c = \u0000\n" +
+						"by = 0\n" +
+						"s = 0\n" +
+						"i = 0\n" +
+						"l = 0\n" +
+						"f = 0.0\n" +
+						"d = 0.0\n" +
+						"string = null");
+	}
+
+	public void testDefaultInitializationsInEarlyReadsThroughThis() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    boolean b;
+						    char c;
+						    byte by;
+						    short s;
+						    int i;
+						    long l;
+						    float f;
+						    double d;
+						    String string;
+						    X() {
+						        c = 'A';
+						        this.i = 42;
+						        s = 99;
+						        this.f = 134.456f;
+						        d = 456.789;
+						        this.l = 9876543;
+						        string = "Hello world";
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + this.c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + this.l);
+						        System.out.println("f = " + this.f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						        super();
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + this.c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + this.l);
+						        System.out.println("f = " + this.f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"b = false\n" +
+						"c = A\n" +
+						"by = 0\n" +
+						"s = 99\n" +
+						"i = 42\n" +
+						"l = 9876543\n" +
+						"f = 134.456\n" +
+						"d = 456.789\n" +
+						"string = Hello world\n" +
+						"b = false\n" +
+						"c = A\n" +
+						"by = 0\n" +
+						"s = 99\n" +
+						"i = 42\n" +
+						"l = 9876543\n" +
+						"f = 134.456\n" +
+						"d = 456.789\n" +
+						"string = Hello world");
+	}
+
+	public void testFieldAssignmentInSuperCallIsPreserved() {
+	    runConformTest(
+	        new String[] {
+	            "X.java",
+	            """
+	            class S {
+	                S(int i, int j) {}
+	            }
+	            public class X extends S {
+	                int x;
+	                int y;
+	                X() {
+	                    super(x = 42, y += 99);
+	                    System.out.println(x + " " + y);
+	                }
+	                public static void main(String[] args) {
+	                    new X();
+	                }
+	            }
+	            """
+	        },
+	        "42 99");
+	}
+
+	public void testTooEagerReadOfSuperField() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						class Super {
+						    int i;
+						    Super(int k) {}
+						}
+
+						 class Test extends Super {
+						    Test() {
+						        super(i);
+						    }
+						}
+			    		""" },
+						"----------\n" +
+						"1. ERROR in X.java (at line 8)\n" +
+						"	super(i);\n" +
+						"	      ^\n" +
+						"Cannot refer to field i in an early construction context\n" +
+						"----------\n");
+	}
+
+	public void testProxyFlush() {
+	    runConformTest(
+	        new String[] {
+	            "X.java",
+	            """
+				class S {
+				    S() {
+				    }
+				}
+
+				public class X extends S {
+				    int x;
+
+				    {
+				        x = 2;
+				    }
+
+				    X() {
+				        x = 1;
+				        int ignored = x; // causes x to receive a proxy
+				        super();
+				    }
+
+				    public static void main(String[] args) {
+				        System.out.print(new X().x);
+				    }
+				}
+	            """
+	        },
+	        "2");
+	}
+
+	public void testFieldAccessBeforeAlternateConstructorCall() {
+	    runNegativeTest(
+	        new String[] {
+	            "X.java",
+	            """
+				class S {
+				    S() {
+				    }
+				}
+
+				public class X extends S {
+				    int x;
+
+				    {
+				        x = 2;
+				    }
+
+				    X(int x) {}
+				    X() {
+				        x = 1;
+				        int ignored = x;
+				        this(x);
+				        System.out.println(x);
+				    }
+
+				    public static void main(String[] args) {
+				        System.out.print(new X().x);
+				    }
+				}
+	            """
+	        },
+	        "----------\n" +
+    		"1. ERROR in X.java (at line 15)\n" +
+    		"	x = 1;\n" +
+    		"	^\n" +
+    		"Cannot refer to field x in an early construction context\n" +
+    		"----------\n" +
+    		"2. ERROR in X.java (at line 16)\n" +
+    		"	int ignored = x;\n" +
+    		"	              ^\n" +
+    		"Cannot refer to field x in an early construction context\n" +
+    		"----------\n" +
+    		"3. ERROR in X.java (at line 17)\n" +
+    		"	this(x);\n" +
+    		"	     ^\n" +
+    		"Cannot refer to field x in an early construction context\n" +
+    		"----------\n");
+	}
+
+	// ===== Value classes: instance fields in early construction context =====
+
+	// Initializer value is readable (simple name) in a super-chaining prologue
+	public void testValueClassECC_Conform_01() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 42;
+				{
+					System.out.println("Init block");
+				}
+				X() {
+					System.out.println(f);
+					super();
+					System.out.println("epilogue");
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"42\n" +
+			"Init block\n" +
+			"epilogue");
+	}
+
+	// Initializer value is readable (this-qualified) in a super-chaining prologue
+	public void testValueClassECC_Conform_02() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 42;
+				X() {
+					System.out.println(this.f);
+					super();
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"42");
+	}
+
+	// Field initializers execute before any prologue statement
+	public void testValueClassECC_Conform_03() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = init();
+				static int init() {
+					System.out.println("initializer");
+					return 1;
+				}
+				X() {
+					System.out.println("prologue");
+					super();
+					System.out.println("epilogue");
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"initializer\n" +
+			"prologue\n" +
+			"epilogue");
+	}
+
+	// Initializers run in declaration order; later ones see earlier ones
+	public void testValueClassECC_Conform_04() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int a = 1;
+				int b = a + 1;
+				X() {
+					System.out.println(a + " " + b);
+					super();
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"1 2");
+	}
+
+	// Blank field written then read in prologue
+	public void testValueClassECC_Conform_05() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X(int v) {
+					f = v;
+					System.out.println(f);
+					super();
+				}
+				public static void main(String[] args) {
+					new X(7);
+				}
+			}
+			"""
+			},
+			"7");
+	}
+
+	// Blank field computed from an initialized field in prologue; value survives construction
+	public void testValueClassECC_Conform_06() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int x = 10;
+				int y;
+				X() {
+					y = x * 2;
+					System.out.println(this.y);
+					super();
+				}
+				public static void main(String[] args) {
+					System.out.println(new X().y);
+				}
+			}
+			"""
+			},
+			"20\n" +
+			"20");
+	}
+
+	// Blank field definitely assigned on all paths, then read
+	public void testValueClassECC_Conform_07() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X(boolean b) {
+					if (b)
+						f = 1;
+					else
+						f = 2;
+					System.out.println(f);
+					super();
+				}
+				public static void main(String[] args) {
+					new X(false);
+				}
+			}
+			"""
+			},
+			"2");
+	}
+
+	// Fields (initialized and blank) read in the argument of super(..)
+	public void testValueClassECC_Conform_08() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			abstract value class Base {
+				Base(int v) {
+					System.out.println("base " + v);
+				}
+			}
+			public value class X extends Base {
+				int f = 3;
+				int g;
+				X() {
+					g = f + 1;
+					super(f + g);
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"base 7");
+	}
+
+	// Initializers run exactly once when construction goes through this(..)
+	public void testValueClassECC_Conform_09() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				static int count;
+				int f = count();
+				static int count() {
+					return ++count;
+				}
+				X() {
+					this(0);
+				}
+				X(int i) {
+					super();
+				}
+				public static void main(String[] args) {
+					X x = new X();
+					System.out.println(count + " " + x.f);
+				}
+			}
+			"""
+			},
+			"1 1");
+	}
+
+	// A this-chaining constructor may read fields in its epilogue
+	public void testValueClassECC_Conform_10() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 5;
+				X() {
+					this(1);
+					System.out.println(f);
+				}
+				X(int i) {
+					super();
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"5");
+	}
+
+	// Initialized fields of every type read in prologue (code generation)
+	public void testValueClassECC_Conform_11() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				boolean b = true;
+				char c = 'c';
+				byte by = 1;
+				short s = 2;
+				int i = 3;
+				long l = 4L;
+				float fl = 5.5f;
+				double d = 6.5;
+				String str = "s";
+				X() {
+					System.out.println(b + " " + c + " " + by + " " + s + " " + i + " " + l + " " + fl + " " + d + " " + str);
+					super();
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"true c 1 2 3 4 5.5 6.5 s");
+	}
+
+	// Blank fields of every type written then read in prologue (code generation)
+	public void testValueClassECC_Conform_12() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				boolean b;
+				char c;
+				byte by;
+				short s;
+				int i;
+				long l;
+				float fl;
+				double d;
+				String str;
+				X() {
+					b = true;
+					c = 'c';
+					by = 1;
+					s = 2;
+					i = 3;
+					l = 4L;
+					fl = 5.5f;
+					d = 6.5;
+					str = "s";
+					System.out.println(b + " " + c + " " + by + " " + s + " " + i + " " + l + " " + fl + " " + d + " " + str);
+					super();
+				}
+				public static void main(String[] args) {
+					X x = new X();
+					System.out.println(x.l + " " + x.d + " " + x.str);
+				}
+			}
+			"""
+			},
+			"true c 1 2 3 4 5.5 6.5 s\n" +
+			"4 6.5 s");
+	}
+
+	// Initializer block runs in late construction: after super(), before epilogue
+	public void testValueClassECC_Conform_13() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = init();
+				static int init() {
+					System.out.println("initializer");
+					return 1;
+				}
+				{
+					System.out.println("block " + f);
+				}
+				X() {
+					System.out.println("prologue");
+					super();
+					System.out.println("epilogue");
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"initializer\n" +
+			"prologue\n" +
+			"block 1\n" +
+			"epilogue");
+	}
+
+	// Initializer block may read a field assigned in the prologue
+	public void testValueClassECC_Conform_14() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				{
+					System.out.println(f);
+				}
+				X() {
+					f = 7;
+					super();
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+			},
+			"7");
+	}
+
+	// Each super-chaining constructor sees the initializers
+	public void testValueClassECC_Conform_15() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				int g;
+				X() {
+					g = f + 1;
+					super();
+				}
+				X(int i) {
+					g = f + i;
+					super();
+				}
+				public static void main(String[] args) {
+					System.out.println(new X().g + " " + new X(10).g);
+				}
+			}
+			"""
+			},
+			"2 11");
+	}
+
+	// Parameter shadows field: simple name binds to parameter, this.f to the initialized field
+	public void testValueClassECC_Conform_16() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				X(int f) {
+					System.out.println(f + " " + this.f);
+					super();
+				}
+				public static void main(String[] args) {
+					new X(2);
+				}
+			}
+			"""
+			},
+			"2 1");
+	}
+
+	// Initialized field read repeatedly (loop) in prologue
+	public void testValueClassECC_Conform_17() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 3;
+				int g;
+				X() {
+					int sum = 0;
+					for (int i = 0; i < f; i++)
+						sum += f;
+					g = sum;
+					super();
+				}
+				public static void main(String[] args) {
+					System.out.println(new X().g);
+				}
+			}
+			"""
+			},
+			"9");
+	}
+
+	// Read of blank field before assignment
+	public void testValueClassECC_Negative_01() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X() {
+					System.out.println(f);
+					f = 1;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	System.out.println(f);\n" +
+			"	                   ^\n" +
+			"The blank final field f may not have been initialized\n" +
+			"----------\n");
+	}
+
+	// Read of blank field after assignment on only one path
+	public void testValueClassECC_Negative_02() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X(boolean b) {
+					if (b)
+						f = 1;
+					System.out.println(f);
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	System.out.println(f);\n" +
+			"	                   ^\n" +
+			"The blank final field f may not have been initialized\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"The field \'f\' must be initialized before chaining to the super class constructor\n" +
+			"----------\n");
+	}
+
+	// Blank field assigned twice in prologue
+	public void testValueClassECC_Negative_03() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X() {
+					f = 1;
+					f = 2;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	f = 2;\n" +
+			"	^\n" +
+			"The final field f may already have been assigned\n" +
+			"----------\n");
+	}
+
+	// Initialized field assigned again in prologue
+	public void testValueClassECC_Negative_04() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				X() {
+					f = 2;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	f = 2;\n" +
+			"	^\n" +
+			"Cannot assign field 'f' in an early construction context, because it has an initializer\n" +
+			"----------\n");
+	}
+
+	// Initialized field compound-assigned in prologue
+	public void testValueClassECC_Negative_05() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				X() {
+					this.f += 2;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	this.f += 2;\n" +
+			"	     ^\n" +
+			"The final field X.f cannot be assigned\n" +
+			"----------\n");
+	}
+
+	// Blank field compound-assigned before any assignment
+	public void testValueClassECC_Negative_06() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X() {
+					f += 1;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	f += 1;\n" +
+			"	^\n" +
+			"The blank final field f may not have been initialized\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	f += 1;\n" +
+			"	^\n" +
+			"The final field X.f cannot be assigned\n" +
+			"----------\n");
+	}
+
+	// Initializer reads a blank field: initializers run before the prologue assigns it
+	public void testValueClassECC_Negative_07() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int y;
+				int x = y + 1;
+				X() {
+					y = 1;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	int x = y + 1;\n" +
+			"	        ^\n" +
+			"The blank final field y may not have been initialized\n" +
+			"----------\n");
+	}
+
+	// this(..)-chaining prologue may not read an initialized field (simple name)
+	public void testValueClassECC_Negative_08() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				X() {
+					int i = f;
+					this(i);
+				}
+				X(int i) {
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	int i = f;\n" +
+			"	        ^\n" +
+			"Cannot refer to field f in an early construction context\n" +
+			"----------\n");
+	}
+
+	// this(..)-chaining prologue may not read an initialized field (this-qualified)
+	public void testValueClassECC_Negative_09() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				X() {
+					int i = this.f;
+					this(i);
+				}
+				X(int i) {
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	int i = this.f;\n" +
+			"	        ^^^^^^\n" +
+			"Cannot refer to field f in an early construction context\n" +
+			"----------\n");
+	}
+
+	// this(..)-chaining prologue may not write a blank field
+	public void testValueClassECC_Negative_10() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X() {
+					f = 1;
+					this(2);
+				}
+				X(int i) {
+					f = i;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	f = 1;\n" +
+			"	^\n" +
+			"Cannot refer to field f in an early construction context\n" +
+			"----------\n");
+	}
+
+	// Field may not be referenced in the arguments of this(..)
+	public void testValueClassECC_Negative_11() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				X() {
+					this(f);
+				}
+				X(int i) {
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	this(f);\n" +
+			"	     ^\n" +
+			"Cannot refer to field f in an early construction context\n" +
+			"----------\n");
+	}
+
+	// Blank field never assigned before super()
+	public void testValueClassECC_Negative_12() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X() {
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"The field 'f' must be initialized before chaining to the super class constructor\n" +
+			"----------\n");
+	}
+
+	// Blank field assigned only after super() is too late
+	public void testValueClassECC_Negative_13() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X() {
+					super();
+					f = 1;
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"The field 'f' must be initialized before chaining to the super class constructor\n" +
+			"----------\n");
+	}
+
+	// Initializer-side assignment + prologue write in this(..) target still counts once:
+	// initialized field is not re-assignable in the super-chaining target
+	public void testValueClassECC_Negative_14() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				X() {
+					this(2);
+				}
+				X(int i) {
+					f = i;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	f = i;\n" +
+			"	^\n" +
+			"Cannot assign field 'f' in an early construction context, because it has an initializer\n" +
+			"----------\n");
+	}
+
+	// Lambda in prologue may not read a field
+	public void testValueClassECC_Negative_15() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				X() {
+					f = 1;
+					Runnable r = () -> System.out.println(f);
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	Runnable r = () -> System.out.println(f);\n" +
+			"	                                      ^\n" +
+			"Cannot refer to field f in an early construction context\n" +
+			"----------\n");
+	}
+
+	// Initializer block may not assign a blank field
+	public void testValueClassECC_Negative_16() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				{
+					f = 1;
+				}
+				X() {
+					f = 2;
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	f = 1;\n" +
+			"	^\n" +
+			"The final field X.f cannot be assigned\n" +
+			"----------\n");
+	}
+
+	// Initializer block may not assign an initialized field
+	public void testValueClassECC_Negative_17() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				{
+					this.f = 2;
+				}
+				X() {
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	this.f = 2;\n" +
+			"	     ^\n" +
+			"The final field X.f cannot be assigned\n" +
+			"----------\n");
+	}
+
+	// Initializer block may not assign a blank field only there (not a substitute for the prologue)
+	public void testValueClassECC_Negative_18() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f;
+				{
+					f = 1;
+				}
+				X() {
+					super();
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	f = 1;\n" +
+			"	^\n" +
+			"The final field X.f cannot be assigned\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"The field 'f' must be initialized before chaining to the super class constructor\n" +
+			"----------\n");
+	}
+
+	public void testStrictFieldInitializationWithSyntheticDefaultConstructor() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				value class X {
+					int f;
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	value class X {\n" +
+			"	^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	value class X {\n" +
+			"	            ^\n" +
+			"The field \'f\' must be initialized before chaining to the super class constructor\n" +
+			"----------\n");
+	}
+
+	public void testIdentityRecordWithUninitializedComponent() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				record X(int value) {
+					public X(int value) {
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public X(int value) {\n" +
+			"	       ^^^^^^^^^^^^\n" +
+			"The field \'value\' must be initialized before chaining to the super class constructor\n" +
+			"----------\n");
+	}
+
+	public void testAnnotatedSuperConstructorTypeArgument() throws Exception {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+
+			@Target(ElementType.TYPE_USE)
+			@Retention(RetentionPolicy.RUNTIME)
+			@interface A {}
+
+			class Base {
+				<T> Base(T value) {}
+			}
+
+			public class X extends Base {
+				X() {
+					<@A String>super("ok");
+				}
+				void main() {}
+			}
+			"""
+		}, "");
+
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(
+			new java.io.File(OUTPUT_DIR, "X.class"));
+		String actualOutput = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileBytesDisassembler()
+			.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.SYSTEM);
+
+		assertTrue("Missing annotated constructor type argument:\n" + actualOutput,
+			java.util.regex.Pattern.compile(
+				"@A\\(\\R\\s*target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT"
+				+ "\\R\\s*offset = \\d+\\R\\s*type argument index = 0")
+				.matcher(actualOutput).find());
+	}
+
+	public void testFalseProxy() throws Exception {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			value class X {
+			    int f;
+
+			    X() {
+			        int f = 1;
+			        System.out.println(f);
+			        super();
+			    }
+			}
+			"""
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	value class X {\n" +
+		"	^^^^^\n" +
+		"You are using a preview language feature that may or may not be supported in a future release\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 5)\n" +
+		"	int f = 1;\n" +
+		"	    ^\n" +
+		"The local variable f is hiding a field from type X\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"The field \'f\' must be initialized before chaining to the super class constructor\n" +
+		"----------\n");
+	}
+
+	public void testPrematureProxy() throws Exception {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			class S {
+			    S() {
+			        init();
+			    }
+			    void init() {}
+			}
+
+			public class X extends S {
+			    int x;
+
+			    X() {
+			        int x = 1;      // local shadows the field
+			        int y = x;      // reads the LOCAL, not the field
+			        if (y != 1)
+			            throw new AssertionError(y);
+			        super();
+			    }
+
+			    @Override
+			    void init() {
+			        this.x = 42;    // field written during super()
+			    }
+
+			    public static void main(String[] args) {
+			        System.out.println(new X().x);
+			    }
+			}
+			"""
+		},
+		"42");
+	}
+
+	public void testProxyDoesntLeakIntoLambdaOrLocalClass() throws Exception {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			import java.util.function.Supplier;
+
+			public class X {
+				int f;
+
+				X() {
+					int early = f; // force proxy
+
+					Supplier<Integer> s = () -> f;
+					class L {
+						L() {
+							int e = f;
+						}
+
+						int get() {
+							return f;
+						}
+					}
+
+					int a = s.get();
+					int b = new L().get();
+					if (a != 0 || b != 0) {
+						throw new AssertionError(a + ":" + b);
+					}
+					super();
+				}
+
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 9)\n" +
+		"	Supplier<Integer> s = () -> f;\n" +
+		"	                            ^\n" +
+		"Cannot refer to field f in an early construction context\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 12)\n" +
+		"	int e = f;\n" +
+		"	        ^\n" +
+		"Cannot refer to field f in an early construction context\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 16)\n" +
+		"	return f;\n" +
+		"	       ^\n" +
+		"Cannot refer to field f in an early construction context\n" +
+		"----------\n");
+	}
+
+	public void testInheritedFieldReadInEarlyConstructionContext() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				class S {
+				    int inherited;
+				}
+
+				public class X extends S {
+				    int own;
+
+				    X() {
+				        int a = inherited; // inherited field: should be rejected
+				        int b = own;       // current-class field
+				        super();
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	int a = inherited; // inherited field: should be rejected\n" +
+			"	        ^^^^^^^^^\n" +
+			"Cannot refer to field inherited in an early construction context\n" +
+			"----------\n"
+		);
+	}
+
+	public void testUnreachableConstructorCallDoesNotLeakProxies() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+			    int f = 42;
+
+			    X() {
+			        int early = f;
+			        if (true) {
+			            throw new RuntimeException();
+			        }
+			        super();
+			    }
+
+			    X(int value) {
+			        super();
+			        System.out.println(f);
+			    }
+
+			    public static void main(String[] args) {
+			        new X(1);
+			    }
+			}
+			"""
+		}, "42");
+	}
+
+	public void testProxyFlushDoesNotClobberWritesDuringSuper() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			class S {
+			    S() {
+			        init();
+			    }
+			    void init() {}
+			}
+
+			public class X extends S {
+			    int x;
+			    int y = 99;
+			    X() {
+			        x = 1;
+			        int y = x;      // reads the LOCAL, not the field
+			        if (y != 1)
+			            throw new AssertionError(y);
+			        super();
+			    }
+
+			    @Override
+			    void init() {
+			        this.x = 42;    // field written during super()
+			        this.y = 24;    // field written during super()
+			    }
+
+			    public static void main(String[] args) {
+			        X x = new X();
+			        System.out.println(x.x);
+			        System.out.println(x.y);
+			    }
+			}
+			"""
+		},
+		"42\n99");
+	}
+
+	public void testValueFieldWithInstanceMethodInvocationInitializer() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int a = foo();
+				int b = a + c;
+				int c = sfoo();
+				X() {
+					System.out.println(a + " " + b);
+					super();
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+				int foo() {
+					return 99;
+				}
+				static int sfoo() {
+				    return 44;
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	public value class X {\n" +
+		"	       ^^^^^\n" +
+		"You are using a preview language feature that may or may not be supported in a future release\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	int a = foo();\n" +
+		"	        ^^^^^\n" +
+		"Cannot invoke method foo() in an early construction context\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	int b = a + c;\n" +
+		"	            ^\n" +
+		"Cannot refer to field c in an early construction context\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 3)\n" +
+		"	int b = a + c;\n" +
+		"	            ^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n");
+	}
+
+	public void testValueFieldWithStaticMethodInvocationInitializer() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int a = sfoo();
+				int b = a + 10;
+				int c = a + b;
+				X() {
+					System.out.println(a + " " + b + " " + c);
+					super();
+				}
+				public static void main(String[] args) {
+					new X();
+				}
+				int foo() {
+					return 99;
+				}
+				static int sfoo() {
+				    return 44;
+				}
+			}
+			"""
+		},
+				"44 54 98");
+	}
+
+	public void testNoVerifyErrorOnQualifiedThis() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			class ProblemReporter {
+			    public void record() {
+			    }
+			}
+
+			interface ISourceElementRequestor {
+			    void acceptProblem(String problem);
+			}
+
+			public class X {
+			    ISourceElementRequestor requestor;
+			    ProblemReporter problemReporter;
+
+			    public X() {
+			        this.requestor = p -> System.out.println(p);
+			        this.problemReporter = new ProblemReporter() {
+			            @Override
+			            public void record() {
+			                X.this.requestor.acceptProblem("No Problem");
+			            }
+			        };
+			    }
+
+			    public static void main(String[] args) {
+			       new X().problemReporter.record();
+			    }
+			}
+			"""
+		},
+		"No Problem");
+	}
+
+	public void testThrowInValueInitBlock() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+			    int f;
+			    int g = 1;
+
+			    X() {
+			        f = 10;
+			        System.out.println("init block marker");
+			        super();
+			        System.out.println(f + g);
+			    }
+
+			    {
+			        System.out.println("initializer");
+			        if (true) {
+			            throw new RuntimeException("boom");
+			        }
+			    }
+
+			    public static void main(String[] args) {
+			        try {
+			            new X();
+			        } catch (RuntimeException e) {
+			            System.out.println(e.getMessage());
+			        }
+			    }
+			}
+			"""
+		},
+		"init block marker\n" +
+		"initializer\n" +
+		"boom");
+	}
+
+	// Value class initializer blocks run immediately before the constructor epilogue;
+	// an initializer that completes abruptly must render the epilogue unreachable.
+	public void testInitializerFlowInfoReachesEpilogue() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int f = 1;
+				{
+					throw new RuntimeException("boom");
+				}
+				X() {
+					super();
+					System.out.println(f);
+				}
+			}
+			"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	{\n" +
+			"		throw new RuntimeException(\"boom\");\n" +
+			"	}\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Initializer does not complete normally\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 8)\n" +
+			"	System.out.println(f);\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n");
+	}
+
+	public void testDeadCodeAfterThrowingInitializerBlock() {
+		Map<String, String> options = getCompilerOptions(true);
+		options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public value class X {
+					int f = 1;
+
+					{
+						if (true)
+							throw new RuntimeException("boom");
+					}
+
+					X() {
+						super();
+						System.out.println(f);
+					}
+
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"\tpublic value class X {\n" +
+			"\t       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"\tSystem.out.println(f);\n" +
+			"\t^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n",
+			null,
+			false,
+			options);
+	}
+
+	public void testECC_proxy_slot_isolation_01() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int a = 1;
+				int b = a + 1;
+
+				X(int p) {
+					int local = p;
+					super();
+				}
+
+				public static void main(String[] args) {
+					X x = new X(7);
+					System.out.println(x.a);
+					System.out.println(x.b);
+				}
+			}
+			""",
+		}, "1\n2");
+	}
+
+	public void testECC_proxy_slot_isolation_02() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int a = 1;
+				int b = a + 1;
+
+				X(int p) {
+					int local = p + 40;
+					super();
+				}
+
+				public static void main(String[] args) {
+					System.out.println(new X(7).a);
+				}
+			}
+			""",
+		}, "1");
+	}
+
+	public void testECC_legal_read_of_declared_field() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				int x;
+
+				X() {
+					x = 10;
+					int y = x;
+					super();
+					System.out.println(y);
+				}
+
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			""",
+		}, "10");
+	}
+
+	public void testECC_legal_read_of_this_field() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				int x;
+
+				X() {
+					x = 42;
+					int y = this.x;
+					super();
+					System.out.println(y);
+				}
+
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			""",
+		}, "42");
+	}
+
+	public void testECC_legal_read_in_expression_and_assignment() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+				int x;
+				int y;
+
+				X() {
+					x = 5;
+					y = x + 2;
+					super();
+					System.out.println(y);
+				}
+
+				public static void main(String[] args) {
+					new X();
+				}
+			}
+			""",
+		}, "7");
+	}
+
+	public void testImportedInitializerProxyAliasingReproducer() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int a = 1;
+				int b = a + 1; // initializer reads a, so constructor imports proxy for a
+
+				X(int p) {
+					int observed = a;   // keep imported proxy for a live in constructor
+					int local = p + 40; // candidate competing slot
+					super();
+					System.out.println(a);
+					System.out.println(b);
+					System.out.println(observed);
+					System.out.println(local);
+				}
+
+				public static void main(String[] args) {
+					X x = new X(7);
+					System.out.println(x.a);
+					System.out.println(x.b);
+				}
+			}
+			"""
+		}, "1\n2\n1\n47\n1\n2");
+	}
+
+	public void testImportedInitializerProxyDoesNotAliasNarrowConstructorLocal() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				long a = 1L;
+				long b = a + 1L; // forces an imported proxy for long field a
+
+				X(int parameter) {
+					int local = parameter + 40; // one-slot local; must not overlap long proxy
+					super();
+
+					// Keep the constructor local live across the proxy flush.
+					System.out.println("local=" + local);
+				}
+
+				public static void main(String[] args) {
+					X x = new X(7);
+					System.out.println("a=" + x.a);
+					System.out.println("b=" + x.b);
+				}
+			}
+			"""
+		}, "local=47\na=1\nb=2");
+	}
+
+	public void testImportedInitializerProxyDoesNotAliasWideConstructorLocal() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+				int a = 1;
+				int b = a + 1; // forces an imported proxy for int field a
+
+				X(int parameter) {
+					long local = parameter + 40L; // two-slot local
+					super();
+
+					System.out.println("local=" + local);
+				}
+
+				public static void main(String[] args) {
+					X x = new X(7);
+					System.out.println("local-check=" + 47L);
+					System.out.println("a=" + x.a);
+					System.out.println("b=" + x.b);
+				}
+			}
+			"""
+		},
+		"local=47\n" +
+		"local-check=47\n" +
+		"a=1\n" +
+		"b=2");
+	}
+
+	public void testProxyCreationResumesAfterLambdaDetour() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			interface I { int get(); }
+
+			public class X {
+			    int a;
+			    int b;
+
+			    X() {
+			        a = 1;
+			        I i = () -> 0;   // detour out and back
+			        int x = b;       // first read of b after return: must still get proxy
+			        super();
+			        System.out.println(x);
+			    }
+
+			    public static void main(String[] args) {
+			        new X();
+			    }
+			}
+			"""
+		}, "0");
+	}
+
+	public void testProxyCreationResumesAfterLocalClassDetour() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+			    int a;
+			    int b;
+
+			    X() {
+			        a = 1;
+			        class L {
+			            int get() { return 0; }
+			        }
+			        int x = b;   // first read of b after detour: must still get proxy
+			        super();
+			        System.out.println(x);
+			    }
+
+			    public static void main(String[] args) {
+			        new X();
+			    }
+			}
+			"""
+		}, "0");
+	}
+
+	public void testValueFieldInitializerProxyCreationResumesAfterLambdaDetour() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			interface I { int get(); }
+
+			public value class X {
+			    int a = 1;
+			    int b = ((java.util.function.IntSupplier) (() -> 0)).getAsInt() + a;
+
+			    X() {
+			        System.out.println(b);
+			        super();
+			    }
+
+			    public static void main(String[] args) {
+			        new X();
+			    }
+			}
+			"""
+		}, "1");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5327
+	// javac 28b16 seems to have started to set this bit.
+	public void _testValueFieldInitializerProxyCreationResumesAfterAnonymousClassDetour() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			interface I { int get(); }
+
+			public value class X {
+			    int a = 1;
+			    int b = (new I() {
+			        @Override
+			        public int get() { return 0; }
+			    }).get() + a;
+
+			    X() {
+			        System.out.println(b);
+			        super();
+			    }
+
+			    public static void main(String[] args) {
+			        new X();
+			    }
+			}
+			"""
+		}, "1");
+	}
+
+	public void testDeadCodeAfterThrowingInitializerBlock_AllConstructors_NoRepeatedInitializerAnalysis() {
+		Map<String, String> options = getCompilerOptions(true);
+		options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public value class X {
+					int f = 1;
+
+					{
+						throw new RuntimeException("boom");
+					}
+
+					X() {
+						super();
+						System.out.println("ctor0");
+					}
+
+					X(int i) {
+						super();
+						System.out.println("ctor1");
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	{\n" +
+			"		throw new RuntimeException(\"boom\");\n" +
+			"	}\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Initializer does not complete normally\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	System.out.println(\"ctor0\");\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 15)\n" +
+			"	System.out.println(\"ctor1\");\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n",
+			null,
+			false,
+			options);
+	}
  }

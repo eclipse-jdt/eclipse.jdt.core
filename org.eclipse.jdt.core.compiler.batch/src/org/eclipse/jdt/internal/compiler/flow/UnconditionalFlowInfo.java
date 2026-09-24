@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -935,7 +939,7 @@ public boolean isDefinitelyAssigned(FieldBinding field) {
 @Override
 public boolean isDefinitelyAssigned(LocalVariableBinding local) {
 	// do not want to complain in unreachable code if local declared in reachable code
-	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0 && (local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0) {
+	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0 && local.declaration != null && (local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0) {
 		return true;
 	}
 	return isDefinitelyAssigned(local.id + this.maxFieldCount);
