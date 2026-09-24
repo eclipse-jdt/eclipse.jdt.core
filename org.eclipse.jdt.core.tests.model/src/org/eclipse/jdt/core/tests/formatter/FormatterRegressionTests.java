@@ -16501,8 +16501,7 @@ public void testIssue2977() {
 				}
 				""";
 		String expected = """
-				public record X(String a, @SuppressWarnings({
-						"a", "b" }) String b) {
+				public record X(String a, @SuppressWarnings({ "a", "b" }) String b) {
 
 				}
 				""";
@@ -16527,8 +16526,7 @@ public void testIssue2977() {
 				}
 				""";
 		String expected = """
-				public record X2(String a, @SuppressWarnings({
-						"a", "b" }) String b) implements Runnable, AutoCloseable {
+				public record X2(String a, @SuppressWarnings({ "a", "b" }) String b) implements Runnable, AutoCloseable {
 
 					@Override
 					public void run() {
