@@ -46,6 +46,7 @@ import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 import org.eclipse.test.performance.Performance;
 import org.eclipse.test.performance.PerformanceTestCase;
+import org.junit.jupiter.api.Assertions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TestCase extends PerformanceTestCase {
@@ -233,6 +234,10 @@ public class TestCase extends PerformanceTestCase {
 		setName(name);
 	}
 
+public static void assertTrue(String msg, boolean actual) {
+	Assertions.assertTrue(actual, msg);
+}
+
 public static void assertEquals(String expected, String actual) {
     assertEquals(null, expected, actual);
 }
@@ -310,7 +315,7 @@ protected void assumeEquals(String msg, String expected, String actual) {
  */
 protected void assumeEquals(String msg, int expected, int actual) {
 	try {
-		assertEquals(msg, expected, actual);
+		Assertions.assertEquals(expected, actual, msg);
 	} catch (AssertionFailedError afe) {
 		if (this.abortOnFailure) {
 			throw afe;
@@ -327,7 +332,7 @@ protected void assumeEquals(String msg, int expected, int actual) {
  */
 protected void assumeEquals(String msg, long expected, long actual) {
 	try {
-		assertEquals(msg, expected, actual);
+		Assertions.assertEquals(expected, actual, msg);
 	} catch (AssertionFailedError afe) {
 		if (this.abortOnFailure) {
 			throw afe;
