@@ -186,7 +186,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"abstract class X<T> implements @Readonly List<@Readonly T> { }\n",
 		},
 		"");
-		String pos = isJRE21Plus ? "28" : "23";
+		String pos = "23";
 		String expectedOutput =
 				"  RuntimeInvisibleTypeAnnotations: \n" +
 				"    #" + pos + " @Readonly(\n" +
