@@ -2938,6 +2938,17 @@ public MethodBinding getRecordComponentAccessor(char[] name) {
 	return null;
 }
 
+private Map<FieldBinding, LocalVariableBinding> proxies;
+
+public void setProxies(Map<FieldBinding, LocalVariableBinding> proxies) { // for registering and de-registering, null map in the latter case.
+	this.proxies = proxies;
+}
+
+@Override
+public Binding getShadowingProxy(FieldBinding field) { // Should not be invoked of !(field.isShadowedByProxy())
+	return this.proxies != null ? this.proxies.get(field) : null;
+}
+
 public void cleanUp() {
 	if (this.environment != null) {
 		// delegate so as to clean all variants of this prototype:

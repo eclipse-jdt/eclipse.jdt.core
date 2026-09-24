@@ -7132,6 +7132,8 @@ private int nodeSourceStart(Binding field, ASTNode node, int index) {
 	} else if (node instanceof ParameterizedQualifiedTypeReference) {
 		ParameterizedQualifiedTypeReference reference = (ParameterizedQualifiedTypeReference) node;
 		return (int) (reference.sourcePositions[0]>>>32);
+	} else if (node instanceof ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+		return (int) (referenceOfFieldOfThis.nameSourcePosition >> 32);
 	}
 	return node.sourceStart;
 }
@@ -12038,7 +12040,7 @@ public void mismatchedParameterNameInCanonicalConstructor(RecordComponentBinding
 		arg.sourceStart,
 		arg.sourceEnd);
 }
-public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, FieldReference fieldRef) {
+public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, Reference fieldRef) {
 	String[] arguments = new String[] { new String(field.name) };
 	this.handle(
 		IProblem.RecordIllegalExplicitFinalFieldAssignInCompactConstructor,

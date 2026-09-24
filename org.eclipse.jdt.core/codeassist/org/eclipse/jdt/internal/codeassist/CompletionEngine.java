@@ -7857,6 +7857,9 @@ public final class CompletionEngine
 			int receiverStart = -1;
 			int receiverEnd = -1;
 
+			if (receiver instanceof ReferenceOfFieldOfThis referenceOfFieldOfThis)
+				receiver = referenceOfFieldOfThis.fieldReference();
+
 			if (receiver instanceof QualifiedNameReference) {
 				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) receiver;
 

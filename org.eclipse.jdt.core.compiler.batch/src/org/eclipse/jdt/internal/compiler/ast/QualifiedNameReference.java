@@ -1006,7 +1006,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// the TC is Flag_Type Flag_LocalField and Flag_TypeLocalField
 	this.actualReceiverType = scope.enclosingReceiverType();
 	this.constant = Constant.NotAConstant;
-	if ((this.binding = scope.getBinding(this.tokens, this.bits & ASTNode.RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
+	if ((this.binding = scope.getBinding(this.tokens, this.bits & ASTNode.RestrictiveFlagMASK, this, true /*resolve*/, true /* check for larval proxy */)).isValidBinding()) {
 		switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 			case Binding.VARIABLE : //============only variable===========
 			case Binding.TYPE | Binding.VARIABLE :

@@ -330,6 +330,11 @@ public ReferenceBinding getDeclaringClass() {
 	return this.declaringClass;
 }
 
+@Override
+public Binding getShadowingProxy() {
+	return this.declaringClass != null ? this.declaringClass.getShadowingProxy(this) : null;
+}
+
 /* Answer true if the receiver has default visibility
 */
 public final boolean isDefault() {

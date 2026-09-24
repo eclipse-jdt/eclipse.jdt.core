@@ -4010,11 +4010,11 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	// FieldAccess ::= Primary '.' 'Identifier'
 	// FieldAccess ::= 'super' '.' 'Identifier'
 
-	FieldReference fr =
-		new FieldReference(
-			this.identifierStack[this.identifierPtr],
-			this.identifierPositionStack[this.identifierPtr--]);
+	char [] source = this.identifierStack[this.identifierPtr];
+	long pos = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
+
+	FieldReference fr = new FieldReference(source, pos);
 	if (isSuperAccess) {
 		//considers the fieldReference beginning at the 'super' ....
 		fr.sourceStart = this.intStack[this.intPtr--];
@@ -4022,10 +4022,16 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		pushOnExpressionStack(fr);
 	} else {
 		//optimize push/pop
-		fr.receiver = this.expressionStack[this.expressionPtr];
+		Expression tos = this.expressionStack[this.expressionPtr];
+		fr.receiver = tos;
 		//field reference begins at the receiver
 		fr.sourceStart = fr.receiver.sourceStart;
-		this.expressionStack[this.expressionPtr] = fr;
+		if (tos instanceof ThisReference thisReference && thisReference.toString().equals("this")) { //$NON-NLS-1$
+			ReferenceOfFieldOfThis referenceOfFieldOfThis = new ReferenceOfFieldOfThis(source, pos, fr);
+			this.expressionStack[this.expressionPtr] = referenceOfFieldOfThis;
+		} else {
+			this.expressionStack[this.expressionPtr] = fr;
+		}
 	}
 }
 protected void consumeFieldDeclaration() {
@@ -6401,12 +6407,8 @@ protected void consumeResourceAsThis() {
 	pushOnAstStack(ref);
 }
 protected void consumeResourceAsFieldAccess() {
-	// Resource ::= FieldAccess
-	FieldReference ref = (FieldReference) this.expressionStack[this.expressionPtr--];
-	//NameReference ref = getUnspecifiedReference(true);
-	//ref.bits |= ASTNode.IsCapturedOuterLocal;
-	pushOnAstStack(ref);
- }
+	pushOnAstStack(this.expressionStack[this.expressionPtr--]);
+}
 protected void consumeResourceAsLocalVariableDeclaration() {
 	// Resource ::= Type PushModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
 	// Resource ::= Modifiers Type PushRealModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization

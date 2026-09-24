@@ -486,6 +486,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 
 	constructor.scope = new MethodScope(this.scope, constructor, true);
 	constructor.bindArguments();
+	constructor.prologueResolutionContext = new PrologueResolutionContext(constructor);
 	constructor.statements[0].resolve(constructor.scope);
 
 	MethodBinding[] methodBindings = sourceType.methods(); // trigger sorting
