@@ -92,6 +92,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		ModuleDeclaration module = unit.getModule();
 		assertTrue("Incorrect Module Name", module.getName().getFullyQualifiedName().equals("m"));
 	}
+
 	public void test1() {
 		String contents =
 				"package p;\n" +
@@ -2025,5 +2026,50 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
                 }
             }
         }
+	}
+
+	public void testGH4530_001() {
+		String contents =
+				"""
+				package p;
+				import java.util.function.Function;
+				public class X {
+					public static void main(String[] args) {
+						Function<Integer, Integer> myFunc = a -> a;
+						System.out.println("yippeeee!");
+						word
+					}
+				}
+				""";
+		ASTNode node = runConversion(AST_JLS_LATEST, contents, true, true, true, "p/X.java");
+		assertTrue("should be compilation unit", node instanceof CompilationUnit);
+		CompilationUnit unit = (CompilationUnit)node;
+		TypeDeclaration typeDecl = (TypeDeclaration)unit.types().get(0);
+		MethodDeclaration methodDecl = (MethodDeclaration)typeDecl.getMethods()[0];
+		Block block = methodDecl.getBody();
+		assertEquals(block.statements().size(), 2);
+	}
+
+	public void testGH4530_002() {
+		String contents =
+				"""
+				package p;
+				import java.util.stream.Stream;
+				public class X {
+					public static void main(String[] args) {
+						int a = 4;
+						Stream.iterate(0,i -> ++i).limit(10);
+						"String".var
+					}
+				}
+				""";
+		ASTNode node = runConversion(AST_JLS_LATEST, contents, true, true, true, "p/X.java");
+		assertTrue("should be compilation unit", node instanceof CompilationUnit);
+		CompilationUnit unit = (CompilationUnit)node;
+		TypeDeclaration typeDecl = (TypeDeclaration)unit.types().get(0);
+		MethodDeclaration methodDecl = (MethodDeclaration)typeDecl.getMethods()[0];
+		Block block = methodDecl.getBody();
+		assertEquals(block.statements().size(), 3);
+		assertTrue(block.statements().get(2) instanceof ExpressionStatement);
 	}
 }
