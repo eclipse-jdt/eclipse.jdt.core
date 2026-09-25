@@ -1290,6 +1290,11 @@ public void test045() {
 				"----------\n" +
 				"6. ERROR in X.java (at line 27)\n" +
 				"	new X().new Y().f();\n" +
+				"	^^^^^^^^^^^^^^^\n" +
+				"Y cannot be resolved to a type\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 27)\n" +
+				"	new X().new Y().f();\n" +
 				"	            ^\n" +
 				"X.Y cannot be resolved to a type\n" +
 				"----------\n");

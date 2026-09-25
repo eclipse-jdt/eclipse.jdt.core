@@ -1771,7 +1771,10 @@ public void test0043() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"",
+			"MissingType[ANONYMOUS_CLASS_DECLARATION]{, Lmissing.MissingType;, ()V, null, null, [73, 73], 40}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, [61, 72], 40}\n" +
+			"MissingType[METHOD_REF<CONSTRUCTOR>]{, Lmissing.MissingType;, ()V, MissingType, null, [73, 73], 40}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, [61, 72], 40}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=260717
