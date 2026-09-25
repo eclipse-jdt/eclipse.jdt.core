@@ -303,8 +303,8 @@ public class SearchableEnvironment
 	/**
 	 * Find the modules that start with the given prefix.
 	 * A valid prefix is a qualified name separated by periods
-	 * (ex. java.util).
-	 * The packages found are passed to:
+	 * (ex. java.xml).
+	 * The modules found are passed to:
 	 *    ISearchRequestor.acceptModule(char[][] moduleName)
 	 */
 	public void findModules(char[] prefix, ISearchRequestor requestor, IJavaProject javaProject) {
@@ -314,8 +314,8 @@ public class SearchableEnvironment
 	/**
 	 * Find the module with the given name.
 	 * A valid qualified name separated by periods
-	 * (ex. java.util).
-	 * The packages found are passed to:
+	 * (ex. java.base).
+	 * The module found is passed to:
 	 *    ISearchRequestor.acceptModule(char[][] moduleName)
 	 */
 	public void findModule(char[] name, ISearchRequestor requestor, IJavaProject javaProject) {
