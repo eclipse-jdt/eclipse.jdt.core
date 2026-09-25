@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -362,8 +363,10 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		File file = new File(fileName);
 		char[] content = Util.getFileCharContent(file, null);
 		CompilerOptions options = new CompilerOptions();
-		options.sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
-		options.targetJDK = CompilerOptions.getFirstSupportedJdkLevel();
+		Map<String, String> map  = options.getMap();
+		map.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		map.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+		options.set(map);
 		ProblemReporter problemReporter =
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.exitAfterAllProblems(),

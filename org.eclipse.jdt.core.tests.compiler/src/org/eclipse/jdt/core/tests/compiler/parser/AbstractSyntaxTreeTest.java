@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Locale;
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -71,9 +72,11 @@ public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDoc
 	public void checkParse(int parserToCheck, char[] source, String expectedSyntaxErrorDiagnosis,
 			String testName, String expectedUnitToString, ASTVisitor visitor) throws IOException {
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = CompilerOptions.getFirstSupportedJdkLevel();
-		options.sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
-		options.targetJDK = CompilerOptions.getFirstSupportedJdkLevel();
+		Map<String, String> map  = options.getMap();
+		map.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+		map.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		map.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+		options.set(map);
 		checkParse(parserToCheck, source, expectedSyntaxErrorDiagnosis, testName, expectedUnitToString, visitor, options);
 	}
 	public void checkParse(int parserToCheck, char[] source, String expectedSyntaxErrorDiagnosis,
