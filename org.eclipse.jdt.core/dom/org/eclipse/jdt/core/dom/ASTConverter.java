@@ -2973,6 +2973,9 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Reference reference) {
+		if (reference instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+			return convert(referenceOfFieldOfThis.fieldReference());
+		}
 		if (reference instanceof org.eclipse.jdt.internal.compiler.ast.NameReference) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.NameReference) reference);
 		}

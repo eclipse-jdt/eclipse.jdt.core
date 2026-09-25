@@ -11986,7 +11986,7 @@ public void mismatchedParameterNameInCanonicalConstructor(RecordComponentBinding
 		arg.sourceStart,
 		arg.sourceEnd);
 }
-public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, FieldReference fieldRef) {
+public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, Reference fieldRef) {
 	String[] arguments = new String[] { new String(field.name) };
 	this.handle(
 		IProblem.RecordIllegalExplicitFinalFieldAssignInCompactConstructor,

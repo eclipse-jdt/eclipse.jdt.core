@@ -193,6 +193,8 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 		return false;
 	if (methodScope.isLambdaScope())
 		return false;
+	if (!binding.isStatic() && methodScope.referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor())
+		return false;
 	return methodScope.isInsideInitializer() // inside initializer
 			|| ((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod(); // inside constructor or clinit
 }

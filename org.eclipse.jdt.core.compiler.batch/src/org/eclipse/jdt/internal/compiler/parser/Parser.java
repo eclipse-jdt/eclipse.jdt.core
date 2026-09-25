@@ -6388,12 +6388,8 @@ protected void consumeResourceAsThis() {
 	pushOnAstStack(ref);
 }
 protected void consumeResourceAsFieldAccess() {
-	// Resource ::= FieldAccess
-	FieldReference ref = (FieldReference) this.expressionStack[this.expressionPtr--];
-	//NameReference ref = getUnspecifiedReference(true);
-	//ref.bits |= ASTNode.IsCapturedOuterLocal;
-	pushOnAstStack(ref);
- }
+	pushOnAstStack(this.expressionStack[this.expressionPtr--]);
+}
 protected void consumeResourceAsLocalVariableDeclaration() {
 	// Resource ::= Type PushModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
 	// Resource ::= Modifiers Type PushRealModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
