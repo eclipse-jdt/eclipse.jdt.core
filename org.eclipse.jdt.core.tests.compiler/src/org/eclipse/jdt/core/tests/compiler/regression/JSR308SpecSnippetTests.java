@@ -813,10 +813,10 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"");
 		String expectedOutput =
 				"    RuntimeInvisibleTypeAnnotations: \n" +
-				"      #21 @Immutable(\n" +
+				"      #22 @Immutable(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"      )\n" +
-				"      #22 @Readonly(\n" +
+				"      #23 @Readonly(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"        location = [INNER_TYPE]\n" +
 				"      )\n";
@@ -846,14 +846,14 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"");
 		String expectedOutput =
 				"    RuntimeInvisibleTypeAnnotations: \n" +
-				"      #21 @A(\n" +
+				"      #23 @A(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"      )\n" +
-				"      #22 @B(\n" +
+				"      #24 @B(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"        location = [INNER_TYPE]\n" +
 				"      )\n" +
-				"      #23 @C(\n" +
+				"      #25 @C(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"        location = [INNER_TYPE, INNER_TYPE]\n" +
 				"      )\n";
