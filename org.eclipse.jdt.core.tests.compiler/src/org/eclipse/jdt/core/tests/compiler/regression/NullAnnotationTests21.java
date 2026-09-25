@@ -988,7 +988,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// disabling the tests since String Template is no longer there - not removing the test in case it comes back later.
 	public void _testGH1964_since_22() {
-		if (this.complianceLevel < ClassFileConstants.JDK23)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK23)
 			return;
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();

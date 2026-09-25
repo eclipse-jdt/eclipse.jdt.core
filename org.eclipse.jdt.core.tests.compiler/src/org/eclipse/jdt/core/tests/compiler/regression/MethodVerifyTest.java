@@ -13436,6 +13436,7 @@ public void testBug467776_regression() {
 		},
 		compilerOptions);
 }
+@RunAlways
 public void testBug500673() {
 	runNegativeTest(
 		new String[] {
@@ -13451,7 +13452,7 @@ public void testBug500673() {
 		"1. ERROR in mfi.java (at line 2)\n" +
 		"	public transient void a(Throwable throwable);\n" +
 		"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		(this.complianceLevel < ClassFileConstants.JDK9 ?
+		(this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 				"Illegal modifier for the interface method a; only public, abstract, default, static and strictfp are permitted\n" :
 				"Illegal modifier for the interface method a; only public, private, abstract, default, static and strictfp are permitted\n"
 		) +

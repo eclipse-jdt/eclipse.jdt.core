@@ -2275,6 +2275,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// illegal / unchecked for cast & instanceof with complex type
+	@RunAlways
 	public void testUnsupportedLocation04() {
 		runNegativeTest(
 			new String[] {
@@ -2301,7 +2302,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}" +
 				"}\n"
 			},
-			((this.complianceLevel >= ClassFileConstants.JDK16) ?
+			((this.fetchComplianceLevel() >= ClassFileConstants.JDK16) ?
 					"----------\n" +
 					"1. WARNING in p\\X.java (at line 6)\n" +
 					"	if (!(arg instanceof List<@NonNull X>))\n" +
@@ -2325,7 +2326,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	return (java.util.List<@NonNull X>)arg;\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Null type safety: Unchecked cast from List<X> to List<@NonNull X>\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK16
+			(this.fetchComplianceLevel() >= ClassFileConstants.JDK16
 			?
 			"----------\n" +
 			"4. WARNING in p\\X.java (at line 8)\n" +
@@ -8564,6 +8565,7 @@ public void testBug466713c() {
 		"");
 }
 // variant for https://bugs.eclipse.org/bugs/show_bug.cgi?id=466713#c5
+@RunAlways
 public void testBug466713d() {
 	runNegativeTest(
 		new String[] {
@@ -8582,7 +8584,7 @@ public void testBug466713d() {
 		"----------\n" +
 		"1. ERROR in Bug.java (at line 3)\n" +
 		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" +
-		((this.complianceLevel >= ClassFileConstants.JDK16) ?
+		((this.fetchComplianceLevel() >= ClassFileConstants.JDK16) ?
 				"	       ^\n" +
 				"Type Object cannot be safely cast to Iterator<String>\n"
 				:
@@ -17991,8 +17993,9 @@ public void testBug518839_BTB() {
 		"----------\n"
 	);
 }
+@RunAlways
 public void testBug531040() {
-	if (this.complianceLevel < ClassFileConstants.JDK10)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10)
 		return;
 	runNegativeTestWithLibs(
 		new String[] {
@@ -18220,8 +18223,9 @@ public void testBug540264() {
 		JavacTestOptions.DEFAULT
 	);
 }
+@RunAlways
 public void testBug542707_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	// switch expression has a functional type with interesting type inference and various null issues:
 	Runner runner = new Runner();
@@ -20018,8 +20022,9 @@ public void testGH5042() throws Exception {
 		"");
 }
 
+@RunAlways
 public void testGH5042b() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	// documents reporting against instanceof and cast
 	runNegativeTestWithLibs(new String[] {

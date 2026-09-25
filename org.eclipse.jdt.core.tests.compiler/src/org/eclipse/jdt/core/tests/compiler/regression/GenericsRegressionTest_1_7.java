@@ -437,6 +437,7 @@ public void test003() {
 		"SUCCESS");
 }
 
+@RunAlways
 public void test004b() {
 	this.runNegativeTest(
 		new String[] {
@@ -452,7 +453,7 @@ public void test004b() {
 			"	}\n" +
 			"}",
 		},
-		this.complianceLevel < ClassFileConstants.JDK9 ?
+		this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 5)\n" +
 		"	new X<>().new X2<>(){\n" +
@@ -1080,6 +1081,7 @@ public void test0027() {
 );
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345239
+@RunAlways
 public void test0028() {
 	String[] testFiles = new String[] {
 			"X.java",
@@ -1090,7 +1092,7 @@ public void test0028() {
 			"     X<String>.Y<String> y = x.new Y<>() {};\n" +
 			"}\n"
 		};
-	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) {
 		this.runNegativeTest(
 			testFiles,
 			"----------\n" +

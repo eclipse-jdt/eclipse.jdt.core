@@ -104,15 +104,16 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=No
 	 */
+	@RunAlways
 	public void test001() {
-		if (this.complianceLevel >= ClassFileConstants.JDK17) {
+		if (this.fetchComplianceLevel() >= ClassFileConstants.JDK17) {
 			return;
 		}
 		String[] classLibs = getClasspathWithPreviewAPI();
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		String output = this.complianceLevel == ClassFileConstants.JDK17 ?
+		String output = this.fetchComplianceLevel() == ClassFileConstants.JDK17 ?
 				"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +
 				"	Zork z = null;\n" +
@@ -180,15 +181,16 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=yes
 	 */
+	@RunAlways
 	public void test002() {
-		if (this.complianceLevel >= ClassFileConstants.JDK17) {
+		if (this.fetchComplianceLevel() >= ClassFileConstants.JDK17) {
 			return;
 		}
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		String[] classLibs = getClasspathWithPreviewAPI();
-		String output = this.complianceLevel == ClassFileConstants.JDK17 ?
+		String output = this.fetchComplianceLevel() == ClassFileConstants.JDK17 ?
 				"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +
 				"	Zork z = null;\n" +
@@ -241,8 +243,9 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=true, SuppressWarning=No
 	 */
+	@RunAlways
 	public void test003() {
-		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+		if (this.fetchComplianceLevel() < ClassFileConstants.getLatestJDKLevel())
 			return;
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
@@ -292,8 +295,9 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=true, SuppressWarning=Yes
 	 */
+	@RunAlways
 	public void test004() {
-		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+		if (this.fetchComplianceLevel() < ClassFileConstants.getLatestJDKLevel())
 			return;
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
@@ -326,15 +330,16 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			options.put(CompilerOptions.OPTION_EnablePreviews, old);
 		}
 	}
+	@RunAlways
 	public void test005() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
-		if (this.complianceLevel == ClassFileConstants.getLatestJDKLevel())
+		if (this.fetchComplianceLevel() == ClassFileConstants.getLatestJDKLevel())
 			options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		try {
-			if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+			if (this.fetchComplianceLevel() < ClassFileConstants.getLatestJDKLevel())
 				assertFalse(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(new CompilerOptions(options)));
 			else
 				assertTrue(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(new CompilerOptions(options)));
@@ -345,8 +350,9 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=No, Parameterized Type
 	 */
+	@RunAlways
 	public void test006() {
-		if (this.complianceLevel >= ClassFileConstants.JDK17) {
+		if (this.fetchComplianceLevel() >= ClassFileConstants.JDK17) {
 			return;
 		}
 		String[] classLibs = getClasspathWithPreviewAPI();
@@ -395,8 +401,9 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5156
 	// Preview API usage must honor OPTION_ReportPreviewFeatures instead of always
 	// being reported as a warning.
+	@RunAlways
 	public void testGHIssue5156() {
-		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel()) {
+		if (this.fetchComplianceLevel() < ClassFileConstants.getLatestJDKLevel()) {
 			return;
 		}
 		String[] classLibs = getClasspathWithPreviewAPI();

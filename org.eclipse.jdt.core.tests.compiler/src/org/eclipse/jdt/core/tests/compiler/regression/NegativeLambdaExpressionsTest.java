@@ -472,14 +472,15 @@ public void test013() {
 				);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384595, Reject illegal modifiers on lambda arguments.
+@RunAlways
 public void test014() {
-	String extra = this.complianceLevel < ClassFileConstants.JDK17 ? "" :
+	String extra = this.fetchComplianceLevel() < ClassFileConstants.JDK17 ? "" :
 		"----------\n" +
 		"2. WARNING in X.java (at line 5)\n" +
 		"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
 		"	                                              ^^^^^^^^\n" +
 		"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n";
-	int offset = this.complianceLevel < ClassFileConstants.JDK17 ? 0 : 1;
+	int offset = this.fetchComplianceLevel() < ClassFileConstants.JDK17 ? 0 : 1;
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -6552,6 +6553,7 @@ public void testSuperReference03() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call.
+@RunAlways
 public void test406614() {
 	this.runNegativeTest(
 			new String[] {
@@ -6580,7 +6582,7 @@ public void test406614() {
 				"	}\n" +
 				"}\n"
 			},
-			(!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+			(!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)
 			?
 				"----------\n" +
 				"1. ERROR in X.java (at line 9)\n" +
@@ -7507,15 +7509,16 @@ public void testIntersectionCast() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421711, [1.8][compiler] '_' as identifier for a lambda parameter should be rejected.
+@RunAlways
 public void testUnderScoreParameter() {
-		if (this.complianceLevel >= ClassFileConstants.JDK22)
+		if (this.fetchComplianceLevel() >= ClassFileConstants.JDK22)
 			return;
-		String level = this.complianceLevel >= ClassFileConstants.JDK9 ? "ERROR" : "WARNING";
-		String errorMessage = this.complianceLevel >= ClassFileConstants.JDK9 ? "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n" : "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n";
-		if (this.complianceLevel >= ClassFileConstants.JDK22) {
+		String level = this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? "ERROR" : "WARNING";
+		String errorMessage = this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n" : "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n";
+		if (this.fetchComplianceLevel() >= ClassFileConstants.JDK22) {
 			errorMessage = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable\n";
 		}
-		String otherErrorMessage = this.complianceLevel >= ClassFileConstants.JDK22 ? errorMessage : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
+		String otherErrorMessage = this.fetchComplianceLevel() >= ClassFileConstants.JDK22 ? errorMessage : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
 		this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -9744,6 +9747,7 @@ public void test433588a() {
 		errMessage);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433735, [1.8] Discrepancy with javac when dealing with local classes in lambda expressions
+@RunAlways
 public void test433735() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -9774,7 +9778,7 @@ public void test433735() {
 			"	}\n" +
 			"}\n"
 			};
-	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)) {
 		runner.runConformTest();
 	} else {
 		runner.expectedCompilerLog =
@@ -9788,6 +9792,7 @@ public void test433735() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
+@RunAlways
 public void test432531a() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -9813,7 +9818,7 @@ public void test432531a() {
 			"	}\n" +
 			"}"
 		};
-	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false)) {
 		runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in Y.java (at line 7)\n" +

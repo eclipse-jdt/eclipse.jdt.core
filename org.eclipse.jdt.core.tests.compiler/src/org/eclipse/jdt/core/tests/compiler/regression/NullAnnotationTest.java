@@ -10463,8 +10463,9 @@ public void testBug530970_on_field_bin() {
 		"----------\n"
 	);
 }
+@RunAlways
 public void testBug542707_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -10517,8 +10518,9 @@ public void testBug542707_001() {
 /**
  * should not throw IOOBE while building - a safety check test case.
  */
+@RunAlways
 public void testBug542707_002() {
-	if (this.complianceLevel != ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() != ClassFileConstants.JDK14)
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -10555,8 +10557,9 @@ public void testBug542707_002() {
 		"----------\n"
 	);
 }
+@RunAlways
 public void testBug542707_003() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// outer expected type (from assignment) is propagated deeply into a switch expression
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10585,8 +10588,9 @@ public void testBug542707_003() {
 	runner.runNegativeTest();
 }
 
+@RunAlways
 public void testBug542707_003_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// outer expected type (from assignment) is propagated deeply into a switch expression
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10615,8 +10619,9 @@ public void testBug542707_003_1() {
 	runner.runNegativeTest();
 }
 
+@RunAlways
 public void testBug542707_003_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10657,8 +10662,9 @@ public void testBug542707_003_2() {
 	runner.runNegativeTest();
 }
 
+@RunAlways
 public void testBug542707_003_3() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10699,8 +10705,9 @@ public void testBug542707_003_3() {
 	runner.runNegativeTest();
 }
 
+@RunAlways
 public void testBug542707_003_4() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10741,8 +10748,9 @@ public void testBug542707_003_4() {
 	runner.runNegativeTest();
 }
 
+@RunAlways
 public void testBug542707_003_5() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10785,7 +10793,7 @@ public void testBug542707_003_5() {
 
 // failing, see https://bugs.eclipse.org/543860
 public void _testBug542707_004() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return; // switch expression
 	// outer expected type (from method parameter) is propagated deeply into a switch expression
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10815,8 +10823,9 @@ public void _testBug542707_004() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@RunAlways
 public void testBug542707_005() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// switch value must not be null (@Nullable)
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10844,8 +10853,9 @@ public void testBug542707_005() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@RunAlways
 public void testBug542707_006() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return; // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return; // switch expression
 	// switch value must not be null (pot-null by flow analysis)
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -10890,8 +10900,9 @@ public void testBug545715() {
 		},
 	    "");
 }
+@RunAlways
 public void testBug548418_001a() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10946,8 +10957,9 @@ public void testBug548418_001a() {
 			"Null type mismatch: required '@NonNull X' but the provided value is null\n" +
 			"----------\n");
 }
+@RunAlways
 public void testBug548418_001b() {
-	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10993,8 +11005,9 @@ public void testBug548418_001b() {
 		"----------\n"
 	);
 }
+@RunAlways
 public void testBug548418_002a() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -11032,8 +11045,9 @@ public void testBug548418_002a() {
 		"----------\n"
 	);
 }
+@RunAlways
 public void testBug548418_002b() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -11437,7 +11451,7 @@ public void testBug565246() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3319
 // [Enhanced Switch][Null] Inconsistent nullness propagation
 public void _testIssue3319() {
-	if (this.complianceLevel < ClassFileConstants.JDK21)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.IGNORE); // has no effect
@@ -11521,8 +11535,9 @@ public void _testIssue3319() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_1a() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	runNegativeTest(
 			new String[] {
@@ -11549,8 +11564,9 @@ public void testIssue3971_1a() {
 			this.LIBS,
 			false/*shouldFlush*/);
 }
+@RunAlways
 public void testIssue3971_1b() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	runConformTestWithLibs(
 			new String[] {
@@ -11573,8 +11589,9 @@ public void testIssue3971_1b() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -11647,8 +11664,9 @@ public void testIssue3971_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_3() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
@@ -11673,8 +11691,9 @@ public void testIssue3971_3() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_4() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -11741,8 +11760,9 @@ public void testIssue3971_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_5() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -11809,8 +11829,9 @@ public void testIssue3971_5() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_6() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	runNegativeTest(
 			new String[] {
@@ -11841,8 +11862,9 @@ public void testIssue3971_6() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_7() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -11910,8 +11932,9 @@ public void testIssue3971_7() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971#issuecomment-2863645113
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_8() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	runNegativeTest(
 			new String[] {
@@ -11958,8 +11981,9 @@ public void testIssue3971_8() {
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 //[Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_9a() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	runNegativeTest(
 			new String[] {
@@ -11987,8 +12011,9 @@ public void testIssue3971_9a() {
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 //[Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@RunAlways
 public void testIssue3971_9b() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");

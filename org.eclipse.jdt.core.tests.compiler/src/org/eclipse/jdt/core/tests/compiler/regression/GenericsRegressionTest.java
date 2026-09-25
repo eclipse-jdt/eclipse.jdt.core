@@ -2005,6 +2005,7 @@ public void test339478n() {
 		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" +
 		"----------\n");
 }
+@RunAlways
 public void test339478o() {
 	String log_18 =
 			"----------\n" +
@@ -2020,7 +2021,7 @@ public void test339478o() {
 			"	     ^^^^^^^^^^^\n" +
 			"The method newMethod() of type new X<Object>(){} must override or implement a supertype method\n" +
 			"----------\n";
-	String errorMsg = this.complianceLevel < ClassFileConstants.JDK9 ? log_18 : log_9;
+	String errorMsg = this.fetchComplianceLevel() < ClassFileConstants.JDK9 ? log_18 : log_9;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2038,6 +2039,7 @@ public void test339478o() {
 		},
 		errorMsg);
 }
+@RunAlways
 public void test339478p() {
 	String log_18 =
 			"----------\n" +
@@ -2071,7 +2073,7 @@ public void test339478p() {
 			"	     ^^^^^^^^^^^\n" +
 			"The method newMethod() of type new X<Object>(){} must override or implement a supertype method\n" +
 			"----------\n";
-	String errorMsg = this.complianceLevel < ClassFileConstants.JDK9 ? log_18 : log_9;
+	String errorMsg = this.fetchComplianceLevel() < ClassFileConstants.JDK9 ? log_18 : log_9;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -6269,8 +6271,9 @@ public void testBug552388b() {
 		},
 		output);
 }
+@RunAlways
 public void testBug561544() {
-	if (this.complianceLevel < ClassFileConstants.JDK11)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK11)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNAVOIDABLE_GENERIC_TYPE_PROBLEMS, JavaCore.DISABLED);
@@ -6313,8 +6316,9 @@ public void testBug561544() {
 	);
 }
 
+@RunAlways
 public void testBug576524() {
-	if (this.complianceLevel >= ClassFileConstants.JDK16) {
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK16) {
 		this.runConformTest(
 			new String[] {
 				"Singleton.java",
@@ -6668,8 +6672,9 @@ public void testIssue1802() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3624
 // Internal compiler error: java.lang.AssertionError: array store with invalid types at org.eclipse.jdt.internal.compiler.codegen.OperandStack.xastore
+@RunAlways
 public void testIssue3624() {
-	if (this.complianceLevel >= ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK14)
 		this.runConformTest(
 			new String[] {
 				"FailToCompile.java",
@@ -6931,8 +6936,9 @@ public void testGH4235() {
 			"""
 		});
 }
+@RunAlways
 public void testGH4236() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return; // uses records
 	runConformTest(new String[]{
 			"A.java",
@@ -6998,8 +7004,9 @@ public void testGH4314() {
             """
     });
 }
+@RunAlways
 public void testGH4314b() {
-	if (this.complianceLevel < ClassFileConstants.JDK22)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK22)
 		return; // uses unnamed lambda param
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -7029,8 +7036,9 @@ public void testGH4314b() {
 	runner.javacTestOptions = JavacHasABug.JavacBug8016196;
 	runner.runConformTest();
 }
+@RunAlways
 public void testGH4314c() {
-	if (this.complianceLevel < ClassFileConstants.JDK22)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK22)
 		return; // uses unnamed lambda param
 	runConformTest(new String[] {
 			"Test.java",
@@ -7079,8 +7087,9 @@ public void testGH4557() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4891
 // "Internal inconsistency" Warning when mixing lambda expressions with bounded wildcards
+@RunAlways
 public void testIssue4891() {
-	if (this.complianceLevel < ClassFileConstants.JDK22)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK22)
 		return;
 
 	Runner runner = new Runner();

@@ -3303,6 +3303,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@RunAlways
 	public void test066_codeblocks_methodReference() throws Exception {
 		Runner runner = new Runner();
 		runner.testFiles =
@@ -3326,7 +3327,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"	int value() default -1;\n" +
 				"}\n",
 			};
-		if (this.complianceLevel < ClassFileConstants.JDK9) { // luckily introduction of ecj warning and javac crash coincide
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) { // luckily introduction of ecj warning and javac crash coincide
 			runner.runConformTest();
 		} else {
 			runner.expectedCompilerLog =

@@ -1265,8 +1265,9 @@ public void testBug404146() {
 			"}\n"
 		});
 }
+@RunAlways
 public void testBug488569_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) {
 		this.runNegativeTest(
 			new String[] {
 					"X.java",

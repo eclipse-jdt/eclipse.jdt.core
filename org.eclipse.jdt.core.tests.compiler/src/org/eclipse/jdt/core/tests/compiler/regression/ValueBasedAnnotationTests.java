@@ -35,7 +35,7 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		if (this.complianceLevel >= ClassFileConstants.getLatestJDKLevel()) {
+		if (this.complianceLevel() >= ClassFileConstants.getLatestJDKLevel()) {
 			defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		}
 		return defaultOptions;

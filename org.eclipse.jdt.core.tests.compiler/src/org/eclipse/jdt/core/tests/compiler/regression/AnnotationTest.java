@@ -1066,14 +1066,15 @@ public class AnnotationTest extends AbstractComparableTest {
 
 	// check annotation member modifiers (validity unchanged despite grammar change from JSR 335 - default methods)
 	// and https://bugs.eclipse.org/bugs/show_bug.cgi?id=3383968
+	@RunAlways
 	public void test039a() {
-		String extra = this.complianceLevel < ClassFileConstants.JDK17 ? "" :
+		String extra = this.fetchComplianceLevel() < ClassFileConstants.JDK17 ? "" :
 				"----------\n" +
 				"1. WARNING in X.java (at line 2)\n" +
 				"	strictfp double val() default 0.1;\n" +
 				"	^^^^^^^^\n" +
 				"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n";
-		int offset = this.complianceLevel < ClassFileConstants.JDK17 ? 0 : 1;
+		int offset = this.fetchComplianceLevel() < ClassFileConstants.JDK17 ? 0 : 1;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10826,8 +10827,9 @@ public void test384567_2() {
 }
 // Bug 416107 - Incomplete error message for member interface and annotation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=416107
+@RunAlways
 public void test416107a() {
-	if (this.complianceLevel < ClassFileConstants.JDK16) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 	    this.runNegativeTest(
 	            new String[] {
 	                "X.java",
@@ -10861,8 +10863,9 @@ public void test416107a() {
 
 	}
 }
+@RunAlways
 public void test416107b() {
-	if (this.complianceLevel < ClassFileConstants.JDK16) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -11278,8 +11281,9 @@ public void testBug386692() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=464977
+@RunAlways
 public void testBug464977() throws Exception {
-	if (this.complianceLevel > ClassFileConstants.JDK1_8) {
+	if (this.fetchComplianceLevel() > ClassFileConstants.JDK1_8) {
 		return; // Enough to run in 3 levels rather!
 	}
 	boolean apt = this.enableAPT;
@@ -11287,7 +11291,7 @@ public void testBug464977() throws Exception {
 			"public class DeprecatedClass {\n" +
 			"}";
 	String version = "";
-	if  (this.complianceLevel == ClassFileConstants.JDK1_8) {
+	if  (this.fetchComplianceLevel() == ClassFileConstants.JDK1_8) {
 		version = "1.8 : 52.0";
 	}
 	String expectedOutput = "// Compiled from DeprecatedClass.java (version " + version + ", super bit, deprecated)\n" +
@@ -12001,8 +12005,9 @@ public void testBugVisibility() {
 		},
 		"");
 }
+@RunAlways
 public void testIssue2400() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) {
 		return;
 	}
 	Map<String, String> customOptions = getCompilerOptions();
@@ -12042,8 +12047,9 @@ public void testIssue2400() {
 		customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, bkup);
 	}
 }
+@RunAlways
 public void testIssue4107() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) {
 		return;
 	}
 	runNegativeTest(
@@ -12071,8 +12077,9 @@ public void testIssue4107() {
 			null,
 			true);
 }
+@RunAlways
 public void testGH4243() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK16) return; // uses records
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16) return; // uses records
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -12161,8 +12168,9 @@ public void testIssue1216() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3046
 // [Records] private static class in record used in an annotation is allowed by ECJ but not javac
+@RunAlways
 public void testIssue3046() {
-	if (this.complianceLevel < ClassFileConstants.JDK16) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		return;
 	}
 	runNegativeTest(

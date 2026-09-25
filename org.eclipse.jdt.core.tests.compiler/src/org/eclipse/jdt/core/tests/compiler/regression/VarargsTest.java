@@ -3420,8 +3420,9 @@ public class VarargsTest extends AbstractComparableTest {
 			"");
 		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=488658
+		@RunAlways
 		public void testBug488658_001() throws Exception {
-			if (this.complianceLevel < ClassFileConstants.JDK9) return;
+			if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 			this.runConformTest(
 				new String[] {
 					"X.java",

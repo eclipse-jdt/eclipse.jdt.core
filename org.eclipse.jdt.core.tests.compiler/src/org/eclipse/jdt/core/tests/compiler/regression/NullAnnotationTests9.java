@@ -361,8 +361,9 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	@RunAlways
 	public void testBug536037a() {
-		if (this.complianceLevel < ClassFileConstants.JDK10) return;
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK10) return;
 		runConformTestWithLibs(
 			new String[] {
 				"Bar.java",
@@ -377,9 +378,10 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 			"");
 		this.verifier.shutDown();
 	}
+	@RunAlways
 	public void testBug536037b() {
 		// tests combination of declaration null-annotations & 'var':
-		if (this.complianceLevel < ClassFileConstants.JDK10) return;
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK10) return;
 		Map<String, String> options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "test.NonNull");
 		options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "test.Nullable");

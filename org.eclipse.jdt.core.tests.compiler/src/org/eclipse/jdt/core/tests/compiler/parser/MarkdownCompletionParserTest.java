@@ -103,7 +103,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 private char[][] getAdditionalTagsPerLevels() {
-	return JavadocCompletionParserTest.getAdditionalTagsPerLevels(this.complianceLevel);
+	return JavadocCompletionParserTest.getAdditionalTagsPerLevels(this.complianceLevel());
 }
 
 protected void verifyCompletionInJavadoc(String source, String after) {
@@ -196,7 +196,7 @@ protected void verifyAllTagsCompletion() {
 				TAG_DOC_ROOT
 			};
 	char[][] additionalTags = getAdditionalTagsPerLevels();
-	allTagsFinal = this.complianceLevel > ClassFileConstants.JDK1_8 ? allTagsJava9Plus  :  this.complianceLevel == ClassFileConstants.JDK1_8 ? allTagsJava8 : allTags  ;
+	allTagsFinal = this.fetchComplianceLevel() > ClassFileConstants.JDK1_8 ? allTagsJava9Plus  :  this.fetchComplianceLevel() == ClassFileConstants.JDK1_8 ? allTagsJava8 : allTags  ;
 	if (additionalTags != null) {
 		int length = allTagsFinal.length;
 		int add = additionalTags.length;
@@ -417,17 +417,17 @@ public void test020() {
 	char[][] expectedTags = new char[][] {
 		TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD
 	};
-	if (this.complianceLevel > ClassFileConstants.JDK9
-			&& this.complianceLevel < ClassFileConstants.JDK12) {
+	if (this.fetchComplianceLevel() > ClassFileConstants.JDK9
+			&& this.fetchComplianceLevel() < ClassFileConstants.JDK12) {
 		expectedTags = new char[][] {
 			TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD, TAG_SUMMARY
 		};
-	} else if (this.complianceLevel >= ClassFileConstants.JDK12
-			&& this.complianceLevel < ClassFileConstants.JDK18) {
+	} else if (this.fetchComplianceLevel() >= ClassFileConstants.JDK12
+			&& this.fetchComplianceLevel() < ClassFileConstants.JDK18) {
 		expectedTags = new char[][] {
 			TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
 		};
-	} else if (this.complianceLevel >= ClassFileConstants.JDK18) {
+	} else if (this.fetchComplianceLevel() >= ClassFileConstants.JDK18) {
 		expectedTags = new char[][] {
 			TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_SNIPPET
 		};
@@ -615,7 +615,7 @@ public void test031() {
 		"///\n" +
 		"module newproj {}\n";
 	verifyCompletionInJavadoc(source, "@u");
-	char[][] allTags = this.complianceLevel < ClassFileConstants.JDK9
+	char[][] allTags = this.fetchComplianceLevel() < ClassFileConstants.JDK9
 		? null
 		: new char[][] { TAG_USES  };
 	verifyCompletionOnJavadocTag("u".toCharArray(), allTags, false);
@@ -633,7 +633,7 @@ public void test032() {
 		"///\n" +
 		"module newproj {}\n";
 	verifyCompletionInJavadoc(source, "@p");
-	char[][] allTags = this.complianceLevel < ClassFileConstants.JDK9
+	char[][] allTags = this.fetchComplianceLevel() < ClassFileConstants.JDK9
 		? new char[][] { TAG_PARAM }
 		: new char[][] { TAG_PARAM, TAG_PROVIDES  };
 	verifyCompletionOnJavadocTag("p".toCharArray(), allTags, false);
@@ -652,9 +652,9 @@ public void test033() {
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "@s");
 
-	char[][] allTags = (this.complianceLevel < ClassFileConstants.JDK10
-			? null : (this.complianceLevel < ClassFileConstants.JDK12 ? new char[][] { TAG_SUMMARY }
-			: (this.complianceLevel < ClassFileConstants.JDK18 ? new char[][] { TAG_SUMMARY , TAG_SYSTEM_PROPERTY }
+	char[][] allTags = (this.fetchComplianceLevel() < ClassFileConstants.JDK10
+			? null : (this.fetchComplianceLevel() < ClassFileConstants.JDK12 ? new char[][] { TAG_SUMMARY }
+			: (this.fetchComplianceLevel() < ClassFileConstants.JDK18 ? new char[][] { TAG_SUMMARY , TAG_SYSTEM_PROPERTY }
 			: new char[][] { TAG_SUMMARY,  TAG_SYSTEM_PROPERTY, TAG_SNIPPET  })));
 	verifyCompletionOnJavadocTag("s".toCharArray(), allTags, false);
 	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
@@ -664,7 +664,7 @@ public void test033() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 public void test034() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK18)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -683,7 +683,7 @@ public void test034() {
 
 }
 public void test035() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK18)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -702,7 +702,7 @@ public void test035() {
 
 }
 public void test036() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK18)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -721,7 +721,7 @@ public void test036() {
 
 }
 public void test037() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK18)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
