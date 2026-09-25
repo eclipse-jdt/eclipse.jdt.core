@@ -13,28 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import java.util.ArrayList;
-import junit.framework.Test;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 /**
  * Run all tests defined in this package.
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public class TestAll extends EvaluationTest {
-public TestAll(String name) {
-	super(name);
-}
-public static Test suite() {
-	ArrayList testClasses = new ArrayList();
-	testClasses.add(SanityTestEvaluationContext.class);
-	testClasses.add(SanityTestEvaluationResult.class);
-	testClasses.add(VariableTest.class);
-	testClasses.add(CodeSnippetTest.class);
-	testClasses.add(NegativeCodeSnippetTest.class);
-	testClasses.add(NegativeVariableTest.class);
-	testClasses.add(DebugEvaluationTest.class);
-	testClasses.add(EvaluationContextWrapperTest.class);
-
-	return AbstractCompilerTest.buildAllCompliancesTestSuite(TestAll.class, DebugEvaluationSetup.class, testClasses);
-}
-}
+@Suite
+@SelectClasses({
+	SanityTestEvaluationContext.class,
+	SanityTestEvaluationResult.class,
+	VariableTest.class,
+	CodeSnippetTest.class,
+	NegativeCodeSnippetTest.class,
+	NegativeVariableTest.class,
+	DebugEvaluationTest.class,
+	EvaluationContextWrapperTest.class
+})
+public class TestAll  { }

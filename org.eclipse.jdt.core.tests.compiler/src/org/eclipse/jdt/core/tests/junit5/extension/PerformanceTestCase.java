@@ -52,6 +52,10 @@ public class PerformanceTestCase {
      * Overridden to create a default performance meter for this test case.
      */
     @BeforeEach
+    protected final void callSetup() throws Exception {
+    	setUp();
+    }
+
     protected void setUp() throws Exception {
         Performance performance = Performance.getDefault();
         fPerformanceMeter = performance.createPerformanceMeter(performance.getDefaultScenarioId(this));

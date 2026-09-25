@@ -19,9 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
@@ -33,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.InstallException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DebugEvaluationTest extends EvaluationTest {
@@ -70,20 +70,14 @@ public class DebugEvaluationTest extends EvaluationTest {
 	public JDIStackFrame jdiStackFrame;
 	VirtualMachine jdiVM;
 
-	public DebugEvaluationTest(String name) {
-		super(name);
+	public DebugEvaluationTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
-	public static Test setupSuite(Class clazz) {
-		ArrayList testClasses = new ArrayList();
-		testClasses.add(clazz);
-		return buildAllCompliancesTestSuite(clazz, DebugEvaluationSetup.class, testClasses);
+	@Override
+	protected EvaluationSetup newEvaluationSetup(long level) {
+		return new DebugEvaluationSetup(level);
 	}
-	public static Test suite() {
-		return setupSuite(testClass());
-	}
-	public static Class testClass() {
-		return DebugEvaluationTest.class;
-	}
+
 	public void compileAndDeploy(String source, String className) {
 		resetEnv(); // needed to reinitialize the caches
 		File directory = new File(SOURCE_DIRECTORY);
@@ -197,6 +191,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 	/**
 	 * Sanity test of IEvaluationContext.evaluate(char[], char[][], char[][], int[], char[], boolean, boolean, IRunner, INameEnvironment, ConfigurableOption[], IRequestor , IProblemFactory)
 	 */
+	@Test
 	public void test001() throws Exception {
 		String userCode =
 			"";
@@ -218,6 +213,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 /**
  * Return 'this'.
  */
+@Test
 public void test002() throws Exception {
 	try {
 		String sourceA002 =
@@ -266,6 +262,7 @@ public void test002() throws Exception {
 /**
  * Return 'this'.
  */
+@Test
 public void test003() throws Exception {
 	try {
 		String sourceA003 =
@@ -312,6 +309,7 @@ public void test003() throws Exception {
 /**
  * Return 'thread'.
  */
+@Test
 public void test004() throws Exception {
 	String userCode =
 		"java.lang.Thread thread = new Thread() {\n" +
@@ -337,6 +335,7 @@ public void test004() throws Exception {
 /**
  * Return 'x'.
  */
+@Test
 public void test005() throws Exception {
 	try {
 		String sourceA005 =
@@ -374,6 +373,7 @@ public void test005() throws Exception {
 /**
  * Return 'x' + new Object(){ int foo(){ return 17; }}.foo();
  */
+@Test
 public void test006() throws Exception {
 	try {
 		String sourceA006 =
@@ -411,6 +411,7 @@ public void test006() throws Exception {
 /**
  * Return a static field.
  */
+@Test
 public void test007() throws Exception {
 	try {
 		String sourceA007 =
@@ -448,6 +449,7 @@ public void test007() throws Exception {
 /**
  * Return x + new Object(){ int foo(int x){ return x; }}.foo(14);
  */
+@Test
 public void test008() throws Exception {
 	try {
 		String sourceA008 =
@@ -485,6 +487,7 @@ public void test008() throws Exception {
 /**
  * Free return of local variable 's'.
  */
+@Test
 public void test009() throws Exception {
 	String userCode =
 		"String s = \"test009\";\n";
@@ -506,6 +509,7 @@ public void test009() throws Exception {
 /**
  * Return 'this'.
  */
+@Test
 public void test010() throws Exception {
 	try {
 		String sourceA010 =
@@ -547,6 +551,7 @@ public void test010() throws Exception {
 /**
  * Return local variable 'v'.
  */
+@Test
 public void test011() throws Exception {
 	String userCode =
 		"String s = \"s\";\n" +
@@ -672,6 +677,7 @@ public void _test015() throws Exception {
 /**
  * Check java.lang.System.out == null
  */
+@Test
 public void test016() throws Exception {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
@@ -695,6 +701,7 @@ public void test016() throws Exception {
 /**
  * Check the third prime number is 5
  */
+@Test
 public void test017() throws Exception {
 	String userCode = "";
 
@@ -747,6 +754,7 @@ public void test017() throws Exception {
 /**
  * changing the value of a public field
  */
+@Test
 public void test018() throws Exception {
 	try {
 		String sourceA018 =
@@ -788,6 +796,7 @@ public void test018() throws Exception {
  * Access to super reference
  */
 // disabled since result has problem: Pb(422) super cannot be used in the code snippet code
+@Test
 public void test019() throws Exception {
   try {
 		String sourceA019 =
@@ -825,6 +834,7 @@ public void test019() throws Exception {
 /**
  * Implicit message expression
  */
+@Test
 public void test020() throws Exception {
 	try {
 		String sourceA =
@@ -869,6 +879,7 @@ public void test020() throws Exception {
 /**
  * Implicit message expression
  */
+@Test
 public void test021() throws Exception {
 	try {
 		String sourceA21 =
@@ -916,6 +927,7 @@ public void test021() throws Exception {
 /**
  * Qualified Name Reference: b.s
  */
+@Test
 public void test022() throws Exception {
 	try {
 		String sourceB22 =
@@ -976,6 +988,7 @@ public void test022() throws Exception {
 /**
  * Qualified Name Reference: b.c.c
  */
+@Test
 public void test023() throws Exception {
 	try {
 		String sourceC23 =
@@ -1042,6 +1055,7 @@ public void test023() throws Exception {
 /**
  * Array Reference
  */
+@Test
 public void test024() throws Exception {
 	try {
 		String sourceC24 =
@@ -1110,6 +1124,7 @@ public void test024() throws Exception {
 /**
  * Array Reference
  */
+@Test
 public void test025() throws Exception {
 	try {
 		String sourceA25 =
@@ -1163,6 +1178,7 @@ public void test025() throws Exception {
 /**
  * Array Reference
  */
+@Test
 public void test026() throws Exception {
 	try {
 		String sourceA26 =
@@ -1206,6 +1222,7 @@ public void test026() throws Exception {
 /**
  * Array Reference
  */
+@Test
 public void test027() throws Exception {
 	try {
 		String sourceA27 =
@@ -1258,6 +1275,7 @@ public void test027() throws Exception {
 /**
  * Array Reference
  */
+@Test
 public void test028() throws Exception {
 	try {
 		String sourceA28 =
@@ -1312,6 +1330,7 @@ public void test028() throws Exception {
 /**
  * Array Reference
  */
+@Test
 public void test029() throws Exception {
 	try {
 		String sourceA29 =
@@ -1366,6 +1385,7 @@ public void test029() throws Exception {
 /**
  * Array Reference: ArrayIndexOutOfBoundException
  */
+@Test
 public void test030() throws Exception {
 	try {
 		String sourceA30 =
@@ -1424,6 +1444,7 @@ public void test030() throws Exception {
 /**
  * Read access to an instance private member of the enclosing class
  */
+@Test
 public void test031() throws Exception {
 	try {
 		String sourceA31 =
@@ -1462,6 +1483,7 @@ public void test031() throws Exception {
 /**
  * Read access to a instance private member of the class different from the enclosing class
  */
+@Test
 public void test032() throws Exception {
 	try {
 		String sourceA32 =
@@ -1518,6 +1540,7 @@ public void test032() throws Exception {
 /**
  * Read access to an instance private member of the enclosing class
  */
+@Test
 public void test033() throws Exception {
 	try {
 		String sourceA33 =
@@ -1579,6 +1602,7 @@ public void test033() throws Exception {
 /**
  * Write access to an instance private member of the enclosing class
  */
+@Test
 public void test034() throws Exception {
 	try {
 		String sourceA34 =
@@ -1613,6 +1637,7 @@ public void test034() throws Exception {
 /**
  * Read access to a static private member of the enclosing class
  */
+@Test
 public void test035() throws Exception {
 	try {
 		String sourceA35 =
@@ -1651,6 +1676,7 @@ public void test035() throws Exception {
 /**
  * Coumpound assignement to an instance private member of the enclosing class
  */
+@Test
 public void test036() throws Exception {
 	try {
 		String sourceA36 =
@@ -1685,6 +1711,7 @@ public void test036() throws Exception {
 /**
  * Coumpound assignement to an instance private member of the enclosing class
  */
+@Test
 public void test037() throws Exception {
 	try {
 		String sourceA37 =
@@ -1719,6 +1746,7 @@ public void test037() throws Exception {
 /**
  * Coumpound assignement to an instance private member of the enclosing class
  */
+@Test
 public void test038() throws Exception {
 	try {
 		String sourceA38 =
@@ -1751,6 +1779,7 @@ public void test038() throws Exception {
 /**
  * Coumpound assignement to an static private member of the enclosing class
  */
+@Test
 public void test039() throws Exception {
 	try {
 		String sourceA39 =
@@ -1783,6 +1812,7 @@ public void test039() throws Exception {
 /**
  * Coumpound assignement to an static private member of the enclosing class
  */
+@Test
 public void test040() throws Exception {
 	try {
 		String sourceA40 =
@@ -1815,6 +1845,7 @@ public void test040() throws Exception {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
+@Test
 public void test041() throws Exception {
 	try {
 		String sourceA41 =
@@ -1847,6 +1878,7 @@ public void test041() throws Exception {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
+@Test
 public void test042() throws Exception {
 	try {
 		String sourceA42 =
@@ -1879,6 +1911,7 @@ public void test042() throws Exception {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
+@Test
 public void test043() throws Exception {
 	try {
 		String sourceA43 =
@@ -1911,6 +1944,7 @@ public void test043() throws Exception {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
+@Test
 public void test044() throws Exception {
 	try {
 		String sourceA44 =
@@ -1943,6 +1977,7 @@ public void test044() throws Exception {
 /**
  * Coumpound assignement to an static private final member of the enclosing class
  */
+@Test
 public void test045() throws Exception {
 	try {
 		String sourceA45 =
@@ -1975,6 +2010,7 @@ public void test045() throws Exception {
 /**
  * Coumpound assignement to an static protected final member of the enclosing class
  */
+@Test
 public void test046() throws Exception {
 	try {
 		String sourceA46 =
@@ -2007,6 +2043,7 @@ public void test046() throws Exception {
 /**
  * Return the value of a private static field throught a private static field
  */
+@Test
 public void test047() throws Exception {
 	try {
 		String sourceA47 =
@@ -2041,6 +2078,7 @@ public void test047() throws Exception {
  * Return the value of a private static field throught a private static field
  * Using private field emulation on a field reference.
  */
+@Test
 public void test048() throws Exception {
 	try {
 		String sourceA48 =
@@ -2075,6 +2113,7 @@ public void test048() throws Exception {
  * Compound assignment of a private field.
  * Using private field emulation on a field reference.
  */
+@Test
 public void test049() throws Exception {
 	try {
 		String sourceA49 =
@@ -2109,6 +2148,7 @@ public void test049() throws Exception {
  * Compound assignment of a private field.
  * Using private field emulation on a field reference.
  */
+@Test
 public void test050() throws Exception {
 	try {
 		String sourceA50 =
@@ -2143,6 +2183,7 @@ public void test050() throws Exception {
  * Assignment of a private field.
  * Using private field emulation on a field reference.
  */
+@Test
 public void test051() throws Exception {
 	try {
 		String sourceA51 =
@@ -2177,6 +2218,7 @@ public void test051() throws Exception {
  * Assignment of a private field.
  * Using private field emulation on a field reference.
  */
+@Test
 public void test052() throws Exception {
 	try {
 		String sourceA52 =
@@ -2211,6 +2253,7 @@ public void test052() throws Exception {
  * Post assignement of a private field.
  * Using private field emulation on a field reference.
  */
+@Test
 public void test053() throws Exception {
 	try {
 		String sourceA53 =
@@ -2245,6 +2288,7 @@ public void test053() throws Exception {
  * Post assignement of a private field.
  * Using private field emulation on a field reference.
  */
+@Test
 public void test054() throws Exception {
 	try {
 		String sourceA54 =
@@ -2278,6 +2322,7 @@ public void test054() throws Exception {
 /**
  * Read access to a private method.
  */
+@Test
 public void test055() throws Exception {
 	try {
 		String sourceA55 =
@@ -2312,6 +2357,7 @@ public void test055() throws Exception {
 /**
  * Read access to a private method.
  */
+@Test
 public void test056() throws Exception {
 	try {
 		String sourceA56 =
@@ -2346,6 +2392,7 @@ public void test056() throws Exception {
 /**
  * Read access to a private method.
  */
+@Test
 public void test057() throws Exception {
 	try {
 		String sourceA57 =
@@ -2380,6 +2427,7 @@ public void test057() throws Exception {
 /**
  * Read access to a private method.
  */
+@Test
 public void test058() throws Exception {
 	try {
 		String sourceA58 =
@@ -2414,6 +2462,7 @@ public void test058() throws Exception {
 /**
  * Read access to a private method.
  */
+@Test
 public void test059() throws Exception {
 	try {
 		String sourceA59 =
@@ -2448,6 +2497,7 @@ public void test059() throws Exception {
 /**
  * Read access to a private method.
  */
+@Test
 public void test060() throws Exception {
 	try {
 		String sourceA60 =
@@ -2485,6 +2535,7 @@ public void test060() throws Exception {
 /**
  * Read access to a private method.
  */
+@Test
 public void test061() throws Exception {
 	try {
 		String sourceA61 =
@@ -2522,6 +2573,7 @@ public void test061() throws Exception {
 /**
  * Static context with a declaring type.
  */
+@Test
 public void test062() throws Exception {
 	try {
 		String sourceA62 =
@@ -2553,6 +2605,7 @@ public void test062() throws Exception {
 /**
  * Return non-static field in static environment.
  */
+@Test
 public void testNegative001() throws InstallException {
 	try {
 		String sourceANegative001 =
@@ -2609,6 +2662,7 @@ public void testNegative001() throws InstallException {
 /**
  * Return non-static field in static environment.
  */
+@Test
 public void testNegative002() throws Exception {
 	try {
 		String sourceANegative002 =
@@ -2665,6 +2719,7 @@ public void testNegative002() throws Exception {
 /**
  * Return inexisting field in static environment.
  */
+@Test
 public void testNegative003() throws InstallException {
 	try {
 		String sourceANegative003 =
@@ -2721,6 +2776,7 @@ public void testNegative003() throws InstallException {
 /**
  * Check java.lang.System.out = null returns an error
  */
+@Test
 public void testNegative004() throws InstallException {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
@@ -2749,6 +2805,7 @@ public void testNegative004() throws InstallException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=102778
  */
+@Test
 public void test063() throws Exception {
 	try {
 		String sourceA63 =
@@ -2798,6 +2855,7 @@ public void test063() throws Exception {
 		removeTempClass("A62");
 	}
 }
+@Test
 public void test065() {
 	try {
 		String sourceA65 =
@@ -2847,6 +2905,7 @@ public void test065() {
 		removeTempClass("A65");
 	}
 }
+@Test
 public void test066() {
 	try {
 		String sourceA66 =
@@ -2896,6 +2955,7 @@ public void test066() {
 		removeTempClass("A66");
 	}
 }
+@Test
 public void test067() {
 	try {
 		String sourceA67 =
@@ -2952,6 +3012,7 @@ public void test067() {
 		removeTempClass("A67");
 	}
 }
+@Test
 public void test068() {
 	try {
 		String sourceSuperA68 =
@@ -3011,6 +3072,7 @@ public void test068() {
 		removeTempClass("SuperA68");
 	}
 }
+@Test
 public void test069() {
 	try {
 		String sourceA69 =
@@ -3077,6 +3139,7 @@ public void test069() {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=178861
  */
+@Test
 public void testNegative005() throws InstallException {
 	String userCode = "";
 	JDIStackFrame stackFrame = new JDIStackFrame(
