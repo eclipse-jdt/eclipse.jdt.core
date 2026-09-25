@@ -14,13 +14,14 @@
 package org.eclipse.jdt.core.tests.eval;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * Test the code snippet evaluation.
  * This assumes that the EvaluationContext class and that the EvaluationResult class
@@ -31,8 +32,8 @@ public class CodeSnippetTest extends EvaluationTest {
 /**
  * Creates a new CodeSnippetTest.
  */
-public CodeSnippetTest(String name) {
-	super(name);
+public CodeSnippetTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /**
  * Returns a requestor that expects no result.
@@ -48,9 +49,7 @@ private IRequestor getNoResultRequestor() {
 static {
 //	TESTS_NAMES = new String[] {"testDiamond"};
 }
-public static Test suite() {
-	return setupSuite(testClass());
-}
+
 @Override
 public Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
@@ -68,6 +67,7 @@ public Map getCompilerOptions() {
  * Tests code snippet that throws a checked exception.
  * (Regression test for 1G0T5XK)
  */
+@Test
 public void testCheckedException() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"try {",
@@ -84,6 +84,7 @@ public static Class testClass() {
  * Tests that no errors are reported for an empty statement followed by an expression.
  * (Regression test for PR #1G1HGHE)
  */
+@Test
 public void testEmptyStatement() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -101,6 +102,7 @@ public void testEmptyStatement() {
 /**
  * Tests that an error is reported for an empty import.
  */
+@Test
 public void testEvaluateEmptyImport() {
 	try {
 		char[] importName = new char[0];
@@ -120,6 +122,7 @@ public void testEvaluateEmptyImport() {
 /**
  * Tests that an error is reported for an existing package and a non existing type imports.
  */
+@Test
 public void testEvaluateExistingPackageAndNonExistingTypeImports() {
 	try {
 		char[] importName = "non.existing.Type".toCharArray();
@@ -139,6 +142,7 @@ public void testEvaluateExistingPackageAndNonExistingTypeImports() {
 /**
  * Tests that an error is reported for a non existing package and an existing type imports.
  */
+@Test
 public void testEvaluateNonExistingPackageAndExistingTypeImports() {
 	try {
 		char[] importName = "non.existing.*".toCharArray();
@@ -158,6 +162,7 @@ public void testEvaluateNonExistingPackageAndExistingTypeImports() {
 /**
  * Tests that an error is reported for a non existing package import.
  */
+@Test
 public void testEvaluateNonExistingPackageImport() {
 	try {
 		char[] importName = "non.existing.*".toCharArray();
@@ -177,6 +182,7 @@ public void testEvaluateNonExistingPackageImport() {
 /**
  * Tests that an error is reported for a non existing type import.
  */
+@Test
 public void testEvaluateNonExistingTypeImport() {
 	try {
 		char[] importName = "non.existing.Type".toCharArray();
@@ -196,6 +202,7 @@ public void testEvaluateNonExistingTypeImport() {
 /**
  * Tests that no errors are reported for valid package and type imports.
  */
+@Test
 public void testEvaluateValidPackageAndTypeImports() {
 	try {
 		this.context.setImports(new char[][] {"java.util.Enumeration".toCharArray(), "java.lang.reflect.*".toCharArray()});
@@ -208,6 +215,7 @@ public void testEvaluateValidPackageAndTypeImports() {
 /**
  * Tests that no errors are reported for a valid package import.
  */
+@Test
 public void testEvaluateValidPackageImport() {
 	try {
 		this.context.setImports(new char[][] {"java.io.*".toCharArray()});
@@ -220,6 +228,7 @@ public void testEvaluateValidPackageImport() {
 /**
  * Tests that no errors are reported for a valid type import.
  */
+@Test
 public void testEvaluateValidTypeImport() {
 	try {
 		this.context.setImports(new char[][] {"java.math.BigInteger".toCharArray()});
@@ -232,6 +241,7 @@ public void testEvaluateValidTypeImport() {
 /**
  * Tests code snippet that include a finally block triggered by an error.
  */
+@Test
 public void testFinallyError() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"try {",
@@ -244,6 +254,7 @@ public void testFinallyError() {
 /**
  * Tests code snippet that include one finally block.
  */
+@Test
 public void testFinallyOneBlock() {
 	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {
 		"try {",
@@ -259,6 +270,7 @@ public void testFinallyOneBlock() {
 /**
  * Tests code snippet that include 2 finally blocks.
  */
+@Test
 public void testFinallyTwoBlock() {
 	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {
 		"try {",
@@ -280,6 +292,7 @@ public void testFinallyTwoBlock() {
  * Tests the free return addition at the end of the code snippet
  * for an anonymous inner class.
  */
+@Test
 public void testFreeReturnAnonymous() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"new Object() {",
@@ -293,6 +306,7 @@ public void testFreeReturnAnonymous() {
  * Tests the free return addition at the end of the code snippet
  * for a class declaration followed by an expression.
  */
+@Test
 public void testFreeReturnClassDeclaration() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class Point {",
@@ -310,6 +324,7 @@ public void testFreeReturnClassDeclaration() {
  * Tests the free return addition at the end of the code snippet
  * for an expression.
  */
+@Test
 public void testFreeReturnExpression() {
 	evaluateWithExpectedDisplayString("(1 + 2) * 3.0 / 4".toCharArray(), "2.25".toCharArray());
 }
@@ -317,6 +332,7 @@ public void testFreeReturnExpression() {
  * Tests the free return addition at the end of the code snippet
  * for an integer.
  */
+@Test
 public void testFreeReturnInteger() {
 	evaluateWithExpectedDisplayString("1".toCharArray(), "1".toCharArray());
 }
@@ -324,6 +340,7 @@ public void testFreeReturnInteger() {
  * Tests the free return addition at the end of the code snippet
  * for a local variable declaration followed by an expression.
  */
+@Test
 public void testFreeReturnLocalVar() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"int i = 99;",
@@ -334,6 +351,7 @@ public void testFreeReturnLocalVar() {
  * Tests the free return addition at the end of the code snippet
  * for a statement followed by an expression.
  */
+@Test
 public void testFreeReturnStatement() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"int i = 2;",
@@ -346,6 +364,7 @@ public void testFreeReturnStatement() {
 /**
  * Tests code snippet that include a package import.
  */
+@Test
 public void testImportPackage() {
 	try {
 		this.context.setImports(new char[][] {"java.io.*".toCharArray()});
@@ -358,6 +377,7 @@ public void testImportPackage() {
 /**
  * Tests code snippet that include a type import.
  */
+@Test
 public void testImportType() {
 	try {
 		this.context.setImports(new char[][] {"java.math.BigInteger".toCharArray()});
@@ -370,6 +390,7 @@ public void testImportType() {
 /**
  * Tests code snippet that include a type import and a package import.
  */
+@Test
 public void testImportTypeAndPackage() {
 	try {
 		this.context.setImports(new char[][] {"java.util.Enumeration".toCharArray(), "java.lang.reflect.*".toCharArray()});
@@ -382,6 +403,7 @@ public void testImportTypeAndPackage() {
 /**
  * Tests code snippet that include an anonymous inner class.
  */
+@Test
 public void testInnerClassAnonymous() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"return new Object() {",
@@ -394,6 +416,7 @@ public void testInnerClassAnonymous() {
 /**
  * Tests code snippet that include a named inner class.
  */
+@Test
 public void testInnerClassNamed() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -421,18 +444,21 @@ public void _testPackage() {
 /**
  * Tests the return value display strings for a boolean.
  */
+@Test
 public void testReturnDisplayStringBoolean() {
 	evaluateWithExpectedDisplayString("return true;".toCharArray(), "true".toCharArray());
 }
 /**
  * Tests the return value display strings for a character.
  */
+@Test
 public void testReturnDisplayStringCharacter() {
 	evaluateWithExpectedDisplayString("return 'c';".toCharArray(), "c".toCharArray());
 }
 /**
  * Tests the return value display strings for a double.
  */
+@Test
 public void testReturnDisplayStringDouble() {
 	evaluateWithExpectedDisplayString("return 1.0;".toCharArray(), "1.0".toCharArray());
 }
@@ -440,24 +466,28 @@ public void testReturnDisplayStringDouble() {
  * Tests the return value display strings for no explicit returned value
  * because of an empty code snippet.
  */
+@Test
 public void testReturnDisplayStringEmptyCodeSnippet() {
 	evaluateWithExpectedDisplayString(new char[0], null);
 }
 /**
  * Tests the return value display strings for a float.
  */
+@Test
 public void testReturnDisplayStringFloat() {
 	evaluateWithExpectedDisplayString("return (float)1.0;".toCharArray(), "1.0".toCharArray());
 }
 /**
  * Tests the return value display strings for an integer.
  */
+@Test
 public void testReturnDisplayStringInteger() {
 	evaluateWithExpectedDisplayString("return 1;".toCharArray(), "1".toCharArray());
 }
 /**
  * Tests the return value display strings for a long.
  */
+@Test
 public void testReturnDisplayStringLong() {
 	evaluateWithExpectedDisplayString("return (long)1;".toCharArray(), "1".toCharArray());
 }
@@ -466,12 +496,14 @@ public void testReturnDisplayStringLong() {
  * with no explicit returned value (implicitly the last expression is
  * wrapped inside a return statement).
  */
+@Test
 public void testReturnDisplayStringNoExplicitReturnedValue() {
 	evaluateWithExpectedDisplayString("new String(\"hello\".toCharArray());".toCharArray(), "hello".toCharArray());
 }
 /**
  * Tests the return value display strings for an object.
  */
+@Test
 public void testReturnDisplayStringObject() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"return new Object() {",
@@ -484,12 +516,14 @@ public void testReturnDisplayStringObject() {
 /**
  * Tests the return value display strings for a short.
  */
+@Test
 public void testReturnDisplayStringShort() {
 	evaluateWithExpectedDisplayString("return (short)1;".toCharArray(), "1".toCharArray());
 }
 /**
  * Tests the return value display strings for a String.
  */
+@Test
 public void testReturnDisplayStringString() {
 	evaluateWithExpectedDisplayString("return \"hello\";".toCharArray(), "hello".toCharArray());
 }
@@ -497,174 +531,203 @@ public void testReturnDisplayStringString() {
  * Tests the return value display strings for a code snippet
  * with a void returned value.
  */
+@Test
 public void testReturnDisplayStringVoid() {
 	evaluateWithExpectedDisplayString("new Thread().start()".toCharArray(), null);
 }
 /**
  * Tests the return type for a boolean.
  */
+@Test
 public void testReturnTypeBoolean() {
 	evaluateWithExpectedType("return true;".toCharArray(), "boolean".toCharArray());
 }
 /**
  * Tests the return type for a boolean array.
  */
+@Test
 public void testReturnTypeBooleanArray() {
 	evaluateWithExpectedType("return new boolean[] {true};".toCharArray(), "[Z".toCharArray());
 }
 /**
  * Tests the return type for a Boolean object.
  */
+@Test
 public void testReturnTypeBooleanObject() {
 	evaluateWithExpectedType("return Boolean.valueOf(true);".toCharArray(), "java.lang.Boolean".toCharArray());
 }
 /**
  * Tests the return type for a char.
  */
+@Test
 public void testReturnTypeChar() {
 	evaluateWithExpectedType("return 'c';".toCharArray(), "char".toCharArray());
 }
 /**
  * Tests the return type for a Character object.
  */
+@Test
 public void testReturnTypeCharacterObject() {
 	evaluateWithExpectedType("return Character.valueOf('c');".toCharArray(), "java.lang.Character".toCharArray());
 }
 /**
  * Tests the return type for a char array.
  */
+@Test
 public void testReturnTypeCharArray() {
 	evaluateWithExpectedType("return new char[] {'c'};".toCharArray(), "[C".toCharArray());
 }
 /**
  * Tests the return type for a double.
  */
+@Test
 public void testReturnTypeDouble() {
 	evaluateWithExpectedType("return 1.0;".toCharArray(), "double".toCharArray());
 }
 /**
  * Tests the return type for a double array.
  */
+@Test
 public void testReturnTypeDoubleArray() {
 	evaluateWithExpectedType("return new double[] {1.0};".toCharArray(), "[D".toCharArray());
 }
 /**
  * Tests the return type for a Double object.
  */
+@Test
 public void testReturnTypeDoubleObject() {
 	evaluateWithExpectedType("return Double.valueOf(1.0);".toCharArray(), "java.lang.Double".toCharArray());
 }
 /**
  * Tests the return type for an empty code snippet.
  */
+@Test
 public void testReturnTypeEmptyCodeSnippet() {
 	evaluateWithExpectedType(new char[0], null);
 }
 /**
  * Tests the return type for a float.
  */
+@Test
 public void testReturnTypeFloat() {
 	evaluateWithExpectedType("return (float)1.0;".toCharArray(), "float".toCharArray());
 }
 /**
  * Tests the return type for a float array.
  */
+@Test
 public void testReturnTypeFloatArray() {
 	evaluateWithExpectedType("return new float[] {(float)1.0};".toCharArray(), "[F".toCharArray());
 }
 /**
  * Tests the return type for a Float object.
  */
+@Test
 public void testReturnTypeFloatObject() {
 	evaluateWithExpectedType("return Float.valueOf(1.0f);".toCharArray(), "java.lang.Float".toCharArray());
 }
 /**
  * Tests the return type for an int.
  */
+@Test
 public void testReturnTypeInt() {
 	evaluateWithExpectedType("return 1;".toCharArray(), "int".toCharArray());
 }
 /**
  * Tests the return type for an Integer object.
  */
+@Test
 public void testReturnTypeIntegerObject() {
 	evaluateWithExpectedType("return Integer.valueOf(1);".toCharArray(), "java.lang.Integer".toCharArray());
 }
 /**
  * Tests the return type for a long.
  */
+@Test
 public void testReturnTypeLong() {
 	evaluateWithExpectedType("return (long)1;".toCharArray(), "long".toCharArray());
 }
 /**
  * Tests the return type for a long array.
  */
+@Test
 public void testReturnTypeLongArray() {
 	evaluateWithExpectedType("return new long[] {(long)1};".toCharArray(), "[J".toCharArray());
 }
 /**
  * Tests the return type for a Long object.
  */
+@Test
 public void testReturnTypeLongObject() {
 	evaluateWithExpectedType("return Long.valueOf(1);".toCharArray(), "java.lang.Long".toCharArray());
 }
 /**
  * Tests the return type for no explicit returned value.
  */
+@Test
 public void testReturnTypeNoExplicitReturnedValue() {
 	evaluateWithExpectedType("new Object();".toCharArray(), "java.lang.Object".toCharArray());
 }
 /**
  * Tests the return type for an Object.
  */
+@Test
 public void testReturnTypeObject() {
 	evaluateWithExpectedType("return new Object();".toCharArray(), "java.lang.Object".toCharArray());
 }
 /**
  * Tests the return type for an Object array.
  */
+@Test
 public void testReturnTypeObjectArray() {
 	evaluateWithExpectedType("return new Object[] {new Object()};".toCharArray(), "[Ljava.lang.Object;".toCharArray());
 }
 /**
  * Tests the return type for a short.
  */
+@Test
 public void testReturnTypeShort() {
 	evaluateWithExpectedType("return (short)1;".toCharArray(), "short".toCharArray());
 }
 /**
  * Tests the return type for a short array.
  */
+@Test
 public void testReturnTypeShortArray() {
 	evaluateWithExpectedType("return new short[] {(short)1};".toCharArray(), "[S".toCharArray());
 }
 /**
  * Tests the return type for a Short object.
  */
+@Test
 public void testReturnTypeShortObject() {
 	evaluateWithExpectedType("return Short.valueOf((short)1);".toCharArray(), "java.lang.Short".toCharArray());
 }
 /**
  * Tests the return type for an int array.
  */
+@Test
 public void testReturnTypesIntArray() {
 	evaluateWithExpectedType("return new int[] {1};".toCharArray(), "[I".toCharArray());
 }
 /**
  * Tests the return type for a String.
  */
+@Test
 public void testReturnTypeString() {
 	evaluateWithExpectedType("return \"hello\";".toCharArray(), "java.lang.String".toCharArray());
 }
 /**
  * Tests the return type for a String array.
  */
+@Test
 public void testReturnTypeStringArray() {
 	evaluateWithExpectedType("return new String[] {\"hello\"};".toCharArray(), "[Ljava.lang.String;".toCharArray());
 }
 /**
  * Tests the return type for a void value.
  */
+@Test
 public void testReturnTypeVoid() {
 	evaluateWithExpectedType("new Thread().start()".toCharArray(), null);
 }
@@ -672,6 +735,7 @@ public void testReturnTypeVoid() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -699,6 +763,7 @@ public void testRunMethodInAnonymous() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous2() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -726,6 +791,7 @@ public void testRunMethodInAnonymous2() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous3() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -753,6 +819,7 @@ public void testRunMethodInAnonymous3() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous4() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -780,6 +847,7 @@ public void testRunMethodInAnonymous4() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous5() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -808,6 +876,7 @@ public void testRunMethodInAnonymous5() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous6() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -836,6 +905,7 @@ public void testRunMethodInAnonymous6() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous7() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -864,6 +934,7 @@ public void testRunMethodInAnonymous7() {
  * Tests that the run() method defined in an anonymous class doesn't interfer with the
  * code snippet support (see PR #1G1C0HR).
  */
+@Test
 public void testRunMethodInAnonymous8() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 		"class X {",
@@ -891,6 +962,7 @@ public void testRunMethodInAnonymous8() {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89632
  */
+@Test
 public void testFor89632() {
 	try {
 		this.context.setImports(new char[][] {"java.util.*".toCharArray()});
@@ -916,6 +988,7 @@ public void testFor89632() {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=345334
  */
+@Test
 public void testBug345334() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.ERROR);
@@ -930,6 +1003,7 @@ public void testBug345334() {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=343693
  */
+@Test
 public void testDiamond() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 			"class X<T> {",
@@ -947,6 +1021,7 @@ public void testDiamond() {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=464656
  */
+@Test
 public void testBug464656() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 			"java.util.stream.Stream<String> s = java.util.stream.Stream.of(\"a\",\"b\");\n" +
@@ -954,6 +1029,7 @@ public void testBug464656() {
 			"Optional[a]".toCharArray());
 }
 
+@Test
 public void testBug571310_ThisReciever() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 			"class Outer {",
@@ -969,6 +1045,7 @@ public void testBug571310_ThisReciever() {
 			"15".toCharArray());
 }
 
+@Test
 public void testBug571310_LocalVarReciever() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 			"class Outer {",
@@ -985,6 +1062,7 @@ public void testBug571310_LocalVarReciever() {
 			"15".toCharArray());
 }
 
+@Test
 public void testBug571310_QualifiedReciever() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 			"class Outer {",
@@ -1003,6 +1081,7 @@ public void testBug571310_QualifiedReciever() {
 			"new Outer().boo().get();"}),
 			"15".toCharArray());
 }
+@Test
 public void testBug571310_SynthVarReciever() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 			"class Outer {",
@@ -1022,6 +1101,7 @@ public void testBug571310_SynthVarReciever() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1060
 // NPE when inspecting scrapbook expression that uses Java 8 features
+@Test
 public void testGH1060() {
 	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
 			"return java.time.format.DateTimeFormatter\r\n"

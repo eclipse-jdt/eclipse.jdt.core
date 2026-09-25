@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "rawtypes" })
 public class CompilerTestSetup extends TestSuite {
 
-	long complianceLevel;
+	public final long complianceLevel;
 
 	public CompilerTestSetup(long complianceLevel) {
 		super(CompilerOptions.versionFromJdkLevel(complianceLevel));

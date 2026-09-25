@@ -18,12 +18,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import junit.framework.Test;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -48,6 +45,9 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.eval.InstallException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class EvaluationContextWrapperTest extends EvaluationTest {
 
@@ -60,20 +60,12 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 //		TESTS_NAMES = new String[] { "testBug573589_StaticImport" };
 	}
 
-	public EvaluationContextWrapperTest(String name) {
-		super(name);
+	public EvaluationContextWrapperTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
-
-	public static Test setupSuite(Class clazz) {
-		List<Class<?>> testClasses = new ArrayList<>();
-		testClasses.add(clazz);
-		return buildAllCompliancesTestSuite(clazz, DebugEvaluationSetup.class, testClasses);
-	}
-	public static Test suite() {
-		return setupSuite(testClass());
-	}
-	public static Class<?> testClass() {
-		return EvaluationContextWrapperTest.class;
+	@Override
+	protected EvaluationSetup newEvaluationSetup(long level) {
+		return new DebugEvaluationSetup(level);
 	}
 
 	@Override
@@ -82,6 +74,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		this.project = createProject("EvaluationContextWrapperTest");
 	}
 
+	@AfterEach
 	@Override
 	protected void tearDown() throws Exception {
 		delete(this.project);
@@ -89,6 +82,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		super.tearDown();
 	}
 
+	@Test
 	public void testBug573589_StaticImport() throws Exception {
 		try {
 			StringBuilder source = new StringBuilder();
@@ -114,6 +108,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		}
 	}
 
+	@Test
 	public void testBug573589_StaticImport_AttachedSource() throws Exception {
 		try {
 			StringBuilder source = new StringBuilder();

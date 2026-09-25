@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -874,6 +875,7 @@ public boolean isIndexDisabledForTest() {
 	return this.indexDisabledForTest;
 }
 
+@Override
 protected void setUp() throws Exception {
 	if (JavaCore.getPlugin() != null && isIndexDisabledForTest()) {
 		disableIndexer();
@@ -976,6 +978,7 @@ public void stopMeasuring() {
 	super.stopMeasuring();
 }
 
+@AfterEach
 protected void tearDown() throws Exception {
 	super.tearDown();
 

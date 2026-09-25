@@ -14,13 +14,14 @@
 package org.eclipse.jdt.core.tests.eval;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * Negative tests for code snippet. Only compilation problems should be reported in
  * these tests.
@@ -30,12 +31,10 @@ public class NegativeCodeSnippetTest extends EvaluationTest implements ProblemSe
 /**
  * Creates a new NegativeCodeSnippetTest.
  */
-public NegativeCodeSnippetTest(String name) {
-	super(name);
+public NegativeCodeSnippetTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return setupSuite(testClass());
-}
+
 /**
  * Test a scenario where the change of the package declaration causes a problem in a code snippet.
  */
@@ -80,6 +79,7 @@ public static Class testClass() {
  * Test a code snippet which declares a class that uses an expression as a returned statement
  * in one of its methods.
  */
+@Test
 public void testExpressionInInnerClass() {
 	//TODO (david) Syntax error diagnose should be improved in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
@@ -94,6 +94,7 @@ public void testExpressionInInnerClass() {
 /**
  * Test extra closing curly bracket.
  */
+@Test
 public void testExtraClosingCurlyBracket() {
 	//TODO (david) Syntax error diagnose should be improved in this case.
 	// just an expression with an extra curly bracket
@@ -110,6 +111,7 @@ public void testExtraClosingCurlyBracket() {
 /**
  * Test extra open round bracket.
  */
+@Test
 public void testExtraOpenRoundBracket() {
 	evaluateWithExpectedProblem(
 		"foo((a);".toCharArray(),
@@ -118,6 +120,7 @@ public void testExtraOpenRoundBracket() {
 /**
  * Test a code snippet that contains an expression followed by a semi-colon.
  */
+@Test
 public void testExtraSemiColonInExpression() {
 	evaluateWithExpectedProblem(
 		"1;".toCharArray(),
@@ -127,6 +130,7 @@ public void testExtraSemiColonInExpression() {
  * Test access to a non existing field.
  * (regression test for bug 25250 Scrapbook shows wrong error message)
  */
+@Test
 public void testInvalidField() {
 	evaluateWithExpectedProblem(
 		("String s = \"\";\n" +
@@ -136,6 +140,7 @@ public void testInvalidField() {
 /**
  * Test a code snippet which is valid but the evaluation context imports have problems.
  */
+@Test
 public void testInvalidImport() {
 	try {
 		// problem on the first import
@@ -162,6 +167,7 @@ public void testInvalidImport() {
 /**
  * Test use of this.
  */
+@Test
 public void testInvalidUseOfThisInSnippet() {
 	evaluateWithExpectedProblem(
 		"this".toCharArray(),
@@ -170,6 +176,7 @@ public void testInvalidUseOfThisInSnippet() {
 /**
  * Test use of this.
  */
+@Test
 public void testInvalidUseOfThisInSnippet2() {
 	// just an expression with an extra curly bracket
 	evaluateWithExpectedProblem(
@@ -179,6 +186,7 @@ public void testInvalidUseOfThisInSnippet2() {
 /**
  * Test a code snippet that misses a closing round bracket.
  */
+@Test
 public void testMissingClosingRoundBracket() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"System.out.println(\"3 + 3\";"}),
@@ -187,6 +195,7 @@ public void testMissingClosingRoundBracket() {
 /**
  * Test a code snippet that contains a string that misses the closing double quote .
  */
+@Test
 public void testMissingDoubleQuote() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"System.out.println(\"3 + 3 = );",
@@ -196,6 +205,7 @@ public void testMissingDoubleQuote() {
 /**
  * Test an expression which is not the last statement.
  */
+@Test
 public void testNonLastExpressionStatement() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"1 == '1';",
@@ -205,6 +215,7 @@ public void testNonLastExpressionStatement() {
 /**
  * Test a problem in the returned expression.
  */
+@Test
 public void testProblemInExpression() {
 	evaluateWithExpectedProblem(
 		"new Object(); 3 + ".toCharArray(),
@@ -213,6 +224,7 @@ public void testProblemInExpression() {
 /**
  * Test a problem in the returned expression.
  */
+@Test
 public void testProblemInExpression2() {
 	evaluateWithExpectedProblem(
 		"new UnknownClass()".toCharArray(),
@@ -221,6 +233,7 @@ public void testProblemInExpression2() {
 /**
  * Test a code snippet which declares a class that has a problem.
  */
+@Test
 public void testProblemInInnerClass() {
 	// class declared before the last expression
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
@@ -246,6 +259,7 @@ public void testProblemInInnerClass() {
 /**
  * Test a problem in the statement before the returned expression.
  */
+@Test
 public void testProblemInPreviousStatement() {
 	//TODO (david) Syntax error diagnose should be improved in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
@@ -256,6 +270,7 @@ public void testProblemInPreviousStatement() {
 /**
  * Test a code snippet that has a problem in a return statement.
  */
+@Test
 public void testProblemInReturnStatement() {
 	evaluateWithExpectedProblem(
 		"return 1 ++ 1;".toCharArray(),
@@ -264,6 +279,7 @@ public void testProblemInReturnStatement() {
 /**
  * Test a scenario where the removal of an import causes a problem in a code snippet.
  */
+@Test
 public void testRemoveImport() {
 	try {
 		// define the import
@@ -290,6 +306,7 @@ public void testRemoveImport() {
 /**
  * Test a scenario where the removal of a variable causes a problem in a code snippet.
  */
+@Test
 public void testRemoveVariable() {
 	GlobalVariable var = null;
 	try {
@@ -321,6 +338,7 @@ public void testRemoveVariable() {
 /**
  * Test a code snippet that contains an expression which is not reachable.
  */
+@Test
 public void testUnreachableExpression() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"return 1 + 1;",
@@ -331,6 +349,7 @@ public void testUnreachableExpression() {
  * Test a code snippet which is valid but never uses the evaluation context imports.
  * (regression test for bug 18922 Scrapbook does not come back when errors in snippet)
  */
+@Test
 public void testUnusedImport() {
 	try {
 		this.context.setImports(new char[][] {"java.util.*".toCharArray()});
@@ -356,6 +375,7 @@ public void testUnusedImport() {
 /**
  * Test a code snippet that has warnings but no errors.
  */
+@Test
 public void testWarning() {
 	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {
 		"int i;",
