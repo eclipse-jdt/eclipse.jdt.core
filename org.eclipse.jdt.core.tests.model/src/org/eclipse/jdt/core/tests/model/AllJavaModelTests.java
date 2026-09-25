@@ -85,6 +85,9 @@ private static Class[] getAllTestClasses() {
 		WorkingCopyNotInClasspathTests.class,
 		HierarchyOnWorkingCopiesTests.class,
 
+		// Headless tracing configuration
+		TracingSuiteConfigurationTests.class,
+
 		// test IJavaModel
 		JavaModelTests.class,
 
