@@ -1047,7 +1047,7 @@ public class JavadocParser extends AbstractCommentParser {
 	@Override
 	protected void  pushSnippetText(char[] text, int start, int end, boolean addNewLine, Object snippetTag) {
 		// The tag gets its description => clear the flag
-		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
+		this.tagWaitingForDescription = NO_TAG_VALUE;
 	}
 
 	@Override
@@ -1059,7 +1059,7 @@ public class JavadocParser extends AbstractCommentParser {
 	@Override
 	protected void pushExternalSnippetText(char[] text, int start, int end, boolean addNewLine, Object snippetTag) {
 		// The tag gets its description => clear the flag
-		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
+		this.tagWaitingForDescription = NO_TAG_VALUE;
 	}
 
 	/*
