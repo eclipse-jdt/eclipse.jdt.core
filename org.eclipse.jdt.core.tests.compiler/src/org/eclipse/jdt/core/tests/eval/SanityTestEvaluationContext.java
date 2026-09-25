@@ -13,11 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * Sanity test the IEvaluationContext interface.
  * For in depth tests, see VariableTest or CodeSnippetTest.
@@ -27,15 +28,13 @@ public class SanityTestEvaluationContext extends EvaluationTest {
 /**
  * Creates a new SanityEvaluationContextTest.
  */
-public SanityTestEvaluationContext(String name) {
-	super(name);
-}
-public static Test suite() {
-	return setupSuite(testClass());
+public SanityTestEvaluationContext(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /**
  * Sanity test of IEvaluationContext.allVariables()
  */
+@Test
 public void testAllVariables() {
 	// No variables defined yet
 	GlobalVariable[] vars = this.context.allVariables();
@@ -75,6 +74,7 @@ public static Class testClass() {
 /**
  * Sanity test of IEvaluationContext.evaluate(char[], INameEnvironment, ConfigurableOption[], IRequestor , IProblemFactory)
  */
+@Test
 public void testEvaluate() {
 	Requestor requestor = new Requestor();
 	char[] snippet = "return 1;".toCharArray();
@@ -93,6 +93,7 @@ public void testEvaluate() {
 /**
  * Sanity test of IEvaluationContext.evaluateImports(INameEnvironment, IRequestor , IProblemFactory)
  */
+@Test
 public void testEvaluateImports() {
 	try {
 		// Define imports
@@ -114,6 +115,7 @@ public void testEvaluateImports() {
 /**
  * Sanity test of IEvaluationContext.evaluateVariable(IGlobalVariable, IRequestor)
  */
+@Test
 public void testEvaluateVariable() {
 	GlobalVariable var = null;
 	try {
@@ -155,6 +157,7 @@ public void testEvaluateVariable() {
 /**
  * Sanity test of IEvaluationContext.evaluateVariables(INameEnvironment, ConfigurableOption[], IRequestor, IProblemFactory)
  */
+@Test
 public void testEvaluateVariables() {
 	GlobalVariable var = null;
 	try {
@@ -184,6 +187,7 @@ public void testEvaluateVariables() {
 /**
  * Sanity test of IEvaluationContext.getImports() and IEvaluationContext.setImports(char[][])
  */
+@Test
 public void testGetSetImports() {
 	try {
 		// No imports
@@ -205,6 +209,7 @@ public void testGetSetImports() {
 /**
  * Sanity test of IEvaluationContext.getPackageName() and IEvaluationContext.setPackageName(char[])
  */
+@Test
 public void testGetSetPackageName() {
 	try {
 		// Default package
@@ -224,6 +229,7 @@ public void testGetSetPackageName() {
  * Sanity test of IEvaluationContext.newVariable(char[], char[], char[]) and
  * IEvaluationContext.deleteVariable(IGlobalVariable)
  */
+@Test
 public void testNewDeleteVariable() {
 	// Define 1 variable
 	GlobalVariable var = this.context.newVariable("int".toCharArray(), "deleted".toCharArray(), null);

@@ -81,6 +81,8 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
 import org.osgi.framework.Bundle;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1408,8 +1410,12 @@ protected static class JavacTestOptions {
 	protected INameEnvironment javaClassLib;
 	protected TestVerifier verifier;
 	protected boolean shouldSwallowCaptureId;
+	@Deprecated
 	public AbstractRegressionTest(String name) {
 		super(name);
+	}
+	public AbstractRegressionTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	/* argument 'inheritedDepth' is not exposed in original API, therefore these helpers are copied below with this arg added */
@@ -4282,6 +4288,7 @@ protected void runNegativeTest(
 		this.verifier.shutDown();
 	}
 
+	@AfterEach
 	@Override
 	protected void tearDown() throws Exception {
 		if (this.createdVerifier) {

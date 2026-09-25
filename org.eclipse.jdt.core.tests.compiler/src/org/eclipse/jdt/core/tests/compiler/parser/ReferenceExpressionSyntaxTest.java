@@ -15,8 +15,9 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
@@ -31,12 +32,9 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
 
-	public ReferenceExpressionSyntaxTest(String testName){
-		super(testName, referenceCompiler, jsr335TestScratchArea);
+	public ReferenceExpressionSyntaxTest(Compliance compliance, TestInfo info){
+		super(compliance, info, referenceCompiler, jsr335TestScratchArea);
 		if (referenceCompiler != null) {
 			File f = new File(jsr335TestScratchArea);
 			if (!f.exists()) {
@@ -55,6 +53,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		}
 	}
 	// Reference expression - super:: form, without type arguments.
+	@Test
 	public void test0001() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -101,6 +100,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0001", expectedUnitToString);
 	}
 	// Reference expression - super:: form, with type arguments.
+	@Test
 	public void test0002() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -147,6 +147,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0002", expectedUnitToString);
 	}
 	// Reference expression - SimpleName:: form, without type arguments.
+	@Test
 	public void test0003() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -187,6 +188,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0003", expectedUnitToString);
 	}
 	// Reference expression - SimpleName:: form, with type arguments.
+	@Test
 	public void test0004() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -227,6 +229,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0004", expectedUnitToString);
 	}
 	// Reference expression - QualifiedName:: form, without type arguments.
+	@Test
 	public void test0005() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -274,6 +277,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0005", expectedUnitToString);
 	}
 	// Reference expression - QualifiedName:: form, with type arguments.
+	@Test
 	public void test0006() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -321,6 +325,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0006", expectedUnitToString);
 	}
 	// Reference expression - Primary:: form, without type arguments.
+	@Test
 	public void test0007() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -361,6 +366,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0007", expectedUnitToString);
 	}
 	// Reference expression - primary:: form, with type arguments.
+	@Test
 	public void test0008() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -401,6 +407,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0008", expectedUnitToString);
 	}
 	// Reference expression - X<T>:: form, without type arguments.
+	@Test
 	public void test0009() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -441,6 +448,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0009", expectedUnitToString);
 	}
 	// Reference expression - X<T>:: form, with type arguments.
+	@Test
 	public void test0010() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -481,6 +489,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0010", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Name:: form, without type arguments.
+	@Test
 	public void test0011() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -528,6 +537,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0011", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Name:: form, with type arguments.
+	@Test
 	public void test0012() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -575,6 +585,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0012", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Y<K>:: form, without type arguments.
+	@Test
 	public void test0013() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -622,6 +633,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0013", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Y<K>:: form, with type arguments.
+	@Test
 	public void test0014() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -669,6 +681,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0014", expectedUnitToString);
 	}
 	// Constructor reference expression - X<T>.Y<K>::new form, with type arguments.
+	@Test
 	public void test0015() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -714,6 +727,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0015", expectedUnitToString);
 	}
 	// Reference expression - PrimitiveType[]:: form, with type arguments.
+	@Test
 	public void test0016() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -741,6 +755,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0016", expectedUnitToString);
 	}
 	// Reference expression - Name[]:: form, with type arguments.
+	@Test
 	public void test0017() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -768,6 +783,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0017", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Y<K>[]:: form, with type arguments.
+	@Test
 	public void test0018() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -805,6 +821,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384320, syntax error while mixing 308 and 335.
+	@Test
 	public void test0019() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -837,6 +854,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 
 	// Reference expression - Name::new forms, with/without type arguments.
+	@Test
 	public void test0020() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -909,6 +927,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0003", expectedUnitToString);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385132
+	@Test
 	public void test385132() throws IOException {
 		String source = "::";
 		String expectedErrorString =
@@ -922,6 +941,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER , source.toCharArray(), expectedErrorString, "test385132", null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385374, Support for 308 style type annotations on 335 constructs.
+	@Test
 	public void test385374() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -977,6 +997,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	   This test has been rendered meaningless as the grammar has been so throughly changed - Type annotations are not accepted via modifiers in the first place.
 	   Disabling this test as we don't want fragile and unstable tests that are at the whimsy of the diagnose parser's complex algorithms.
 	*/
+	@Test
 	public void test385374a() throws IOException {
 		// Nop.
 	}

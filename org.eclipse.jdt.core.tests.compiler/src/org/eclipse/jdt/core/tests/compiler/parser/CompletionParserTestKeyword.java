@@ -13,18 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class CompletionParserTestKeyword extends AbstractCompletionTest {
-public CompletionParserTestKeyword(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(CompletionParserTestKeyword.class);
+public CompletionParserTestKeyword(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0001(){
 	String str =
 		"abst";
@@ -52,6 +51,7 @@ public void test0001(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0002(){
 	String str =
 		"abst zzz";
@@ -79,6 +79,7 @@ public void test0002(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0003(){
 	String str =
 		"package p;\n" +
@@ -108,6 +109,7 @@ public void test0003(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0004(){
 	String str =
 		"package p;\n" +
@@ -137,6 +139,7 @@ public void test0004(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0005(){
 	String str =
 		"package p;\n" +
@@ -168,6 +171,7 @@ public void test0005(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0006(){
 	String str =
 		"package p;\n" +
@@ -199,6 +203,7 @@ public void test0006(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0007(){
 	String str =
 		"package p;\n" +
@@ -230,6 +235,7 @@ public void test0007(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0008(){
 	String str =
 		"package p;\n" +
@@ -261,6 +267,7 @@ public void test0008(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0009(){
 	String str =
 		"package p;\n" +
@@ -292,6 +299,7 @@ public void test0009(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0010(){
 	String str =
 		"package p;\n" +
@@ -323,6 +331,7 @@ public void test0010(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0011(){
 	String str =
 		"package p;\n" +
@@ -353,6 +362,7 @@ public void test0011(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0012(){
 	String str =
 		"package p;\n" +
@@ -389,6 +399,7 @@ public void test0012(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0013(){
 	String str =
 		"package p;\n" +
@@ -425,6 +436,7 @@ public void test0013(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0014(){
 	String str =
 		"package p;\n" +
@@ -456,6 +468,7 @@ public void test0014(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0015(){
 	String str =
 		"package p;\n" +
@@ -491,6 +504,7 @@ public void test0015(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0016(){
 	String str =
 		"package p;\n" +
@@ -526,6 +540,7 @@ public void test0016(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0017(){
 	String str =
 		"package p;\n" +
@@ -561,6 +576,7 @@ public void test0017(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0018(){
 	String str =
 		"package p;\n" +
@@ -596,6 +612,7 @@ public void test0018(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0019(){
 	String str =
 		"package p;\n" +
@@ -631,6 +648,7 @@ public void test0019(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0020(){
 	String str =
 		"package p;\n" +
@@ -668,6 +686,7 @@ public void test0020(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0021_Diet(){
 	String str =
 		"package p;\n" +
@@ -706,6 +725,7 @@ public void test0021_Diet(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0021_Method(){
 	String str =
 		"package p;\n" +
@@ -745,6 +765,7 @@ public void test0021_Method(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0022_Diet(){
 	String str =
 		"package p;\n" +
@@ -783,6 +804,7 @@ public void test0022_Diet(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0022_Method(){
 	String str =
 		"package p;\n" +
@@ -822,6 +844,7 @@ public void test0022_Method(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0023_Diet(){
 	String str =
 		"package p;\n" +
@@ -860,6 +883,7 @@ public void test0023_Diet(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0023_Method(){
 	String str =
 		"package p;\n" +
@@ -899,6 +923,7 @@ public void test0023_Method(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0024_Diet(){
 	String str =
 		"package p;\n" +
@@ -939,6 +964,7 @@ public void test0024_Diet(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0024_Method(){
 	String str =
 		"package p;\n" +
@@ -983,6 +1009,7 @@ public void test0024_Method(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0025_Diet(){
 	String str =
 		"package p;\n" +
@@ -1021,6 +1048,7 @@ public void test0025_Diet(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0025_Method(){
 	String str =
 		"package p;\n" +
@@ -1060,6 +1088,7 @@ public void test0025_Method(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0026_Diet(){
 	String str =
 		"package p;\n" +
@@ -1100,6 +1129,7 @@ public void test0026_Diet(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0026_Method(){
 	String str =
 		"package p;\n" +
@@ -1141,6 +1171,7 @@ public void test0026_Method(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0027_Diet(){
 	String str =
 		"package p;\n" +
@@ -1179,6 +1210,7 @@ public void test0027_Diet(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0027_Method(){
 	String str =
 		"package p;\n" +
@@ -1218,6 +1250,7 @@ public void test0027_Method(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0028_Diet(){
 	String str =
 		"package p;\n" +
@@ -1257,6 +1290,7 @@ public void test0028_Diet(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0028_Method(){
 	String str =
 		"package p;\n" +
@@ -1297,6 +1331,7 @@ public void test0028_Method(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0029(){
 	String str =
 		"cla";
@@ -1324,6 +1359,7 @@ public void test0029(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0030(){
 	String str =
 		"public cla";
@@ -1351,6 +1387,7 @@ public void test0030(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0031(){
 	String str =
 		"public final cla";
@@ -1378,6 +1415,7 @@ public void test0031(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0032(){
 	String str =
 		"public final cla X";
@@ -1405,6 +1443,7 @@ public void test0032(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0033(){
 	String str =
 		"public class X {\n" +
@@ -1438,6 +1477,7 @@ public void test0033(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0034(){
 	String str =
 		"public class X {\n" +
@@ -1471,6 +1511,7 @@ public void test0034(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0035(){
 	String str =
 		"public class X {\n" +
@@ -1504,6 +1545,7 @@ public void test0035(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0036(){
 	String str =
 		"public class X {\n" +
@@ -1537,6 +1579,7 @@ public void test0036(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0037_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1573,6 +1616,7 @@ public void test0037_Diet(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0037_Method(){
 	String str =
 		"public class X {\n" +
@@ -1610,6 +1654,7 @@ public void test0037_Method(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0038_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1646,6 +1691,7 @@ public void test0038_Diet(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0038_Method(){
 	String str =
 		"public class X {\n" +
@@ -1683,6 +1729,7 @@ public void test0038_Method(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0039_Diet(){
 	String str =
 		"public class X {\n" +
@@ -1719,6 +1766,7 @@ public void test0039_Diet(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0039_Method(){
 	String str =
 		"public class X {\n" +
@@ -1756,6 +1804,7 @@ public void test0039_Method(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0040_Diet(){
 	String str =
 		"package p;\n" +
@@ -1794,6 +1843,7 @@ public void test0040_Diet(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0040_Method(){
 	String str =
 		"package p;\n" +
@@ -1833,6 +1883,7 @@ public void test0040_Method(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0041_Diet(){
 	String str =
 		"package p;\n" +
@@ -1873,6 +1924,7 @@ public void test0041_Diet(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0041_Method(){
 	String str =
 		"package p;\n" +
@@ -1917,6 +1969,7 @@ public void test0041_Method(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0042_Diet(){
 	String str =
 		"package p;\n" +
@@ -1955,6 +2008,7 @@ public void test0042_Diet(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0042_Method(){
 	String str =
 		"package p;\n" +
@@ -1994,6 +2048,7 @@ public void test0042_Method(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0043_Diet(){
 	String str =
 		"package p;\n" +
@@ -2035,6 +2090,7 @@ public void test0043_Diet(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0043_Method(){
 	String str =
 		"package p;\n" +
@@ -2079,6 +2135,7 @@ public void test0043_Method(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0044_Diet(){
 	String str =
 		"package p;\n" +
@@ -2117,6 +2174,7 @@ public void test0044_Diet(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0044_Method(){
 	String str =
 		"package p;\n" +
@@ -2156,6 +2214,7 @@ public void test0044_Method(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0045_Diet(){
 	String str =
 		"package p;\n" +
@@ -2194,6 +2253,7 @@ public void test0045_Diet(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0045_Method(){
 	String str =
 		"package p;\n" +
@@ -2233,6 +2293,7 @@ public void test0045_Method(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0046_Diet(){
 	String str =
 		"package p;\n" +
@@ -2272,6 +2333,7 @@ public void test0046_Diet(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0046_Method(){
 	String str =
 		"package p;\n" +
@@ -2312,6 +2374,7 @@ public void test0046_Method(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0047(){
 	String str =
 		"ext";
@@ -2339,6 +2402,7 @@ public void test0047(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0048(){
 	String str =
 		"X ext";
@@ -2366,6 +2430,7 @@ public void test0048(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0049(){
 	String str =
 		"ext Y";
@@ -2393,6 +2458,7 @@ public void test0049(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0050(){
 	String str =
 		"class X ext";
@@ -2423,6 +2489,7 @@ public void test0050(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0051(){
 	String str =
 		"class X ext Y";
@@ -2453,6 +2520,7 @@ public void test0051(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0052(){
 	String str =
 		"class X ext Y {";
@@ -2485,6 +2553,7 @@ public void test0052(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0053(){
 	String str =
 		"class X extends Y ext";
@@ -2515,6 +2584,7 @@ public void test0053(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0054(){
 	String str =
 		"class X implements Y ext";
@@ -2545,6 +2615,7 @@ public void test0054(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0055_Diet(){
 	String str =
 		"package p;\n" +
@@ -2583,6 +2654,7 @@ public void test0055_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0055_Method(){
 	String str =
 		"package p;\n" +
@@ -2622,6 +2694,7 @@ public void test0055_Method(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0056_Diet(){
 	String str =
 		"package p;\n" +
@@ -2661,6 +2734,7 @@ public void test0056_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0056_Method(){
 	String str =
 		"package p;\n" +
@@ -2701,6 +2775,7 @@ public void test0056_Method(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0057_Diet(){
 	String str =
 		"package p;\n" +
@@ -2739,6 +2814,7 @@ public void test0057_Diet(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0057_Method(){
 	String str =
 		"package p;\n" +
@@ -2778,6 +2854,7 @@ public void test0057_Method(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0058_Diet(){
 	String str =
 		"package p;\n" +
@@ -2816,6 +2893,7 @@ public void test0058_Diet(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0058_Method(){
 	String str =
 		"package p;\n" +
@@ -2855,6 +2933,7 @@ public void test0058_Method(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0059_Diet(){
 	String str =
 		"package p;\n" +
@@ -2893,6 +2972,7 @@ public void test0059_Diet(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0059_Method(){
 	String str =
 		"package p;\n" +
@@ -2932,6 +3012,7 @@ public void test0059_Method(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0060(){
 	String str =
 		"impl";
@@ -2959,6 +3040,7 @@ public void test0060(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0061(){
 	String str =
 		"X impl";
@@ -2986,6 +3068,7 @@ public void test0061(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0062(){
 	String str =
 		"impl Y";
@@ -3013,6 +3096,7 @@ public void test0062(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0063(){
 	String str =
 		"class X impl";
@@ -3043,6 +3127,7 @@ public void test0063(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0064(){
 	String str =
 		"class X impl Y";
@@ -3073,6 +3158,7 @@ public void test0064(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0065(){
 	String str =
 		"class X impl Y {";
@@ -3105,6 +3191,7 @@ public void test0065(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0066(){
 	String str =
 		"class X extends Y impl";
@@ -3135,6 +3222,7 @@ public void test0066(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0067(){
 	String str =
 		"class X implements Y impl";
@@ -3165,6 +3253,7 @@ public void test0067(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0068(){
 	String str =
 		"impo";
@@ -3192,6 +3281,7 @@ public void test0068(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0069(){
 	String str =
 		"package p;\n" +
@@ -3221,6 +3311,7 @@ public void test0069(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0070(){
 	String str =
 		"package p;\n" +
@@ -3252,6 +3343,7 @@ public void test0070(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0071(){
 	String str =
 		"impo p2.Y";
@@ -3279,6 +3371,7 @@ public void test0071(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0072(){
 	String str =
 		"int";
@@ -3306,6 +3399,7 @@ public void test0072(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0073(){
 	String str =
 		"public int";
@@ -3333,6 +3427,7 @@ public void test0073(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0074(){
 	String str =
 		"public abstract int";
@@ -3360,6 +3455,7 @@ public void test0074(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0075(){
 	String str =
 		"public abstract int X";
@@ -3387,6 +3483,7 @@ public void test0075(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0076(){
 	String str =
 		"public class X {\n" +
@@ -3420,6 +3517,7 @@ public void test0076(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0077(){
 	String str =
 		"public class X {\n" +
@@ -3453,6 +3551,7 @@ public void test0077(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0078(){
 	String str =
 		"public class X {\n" +
@@ -3486,6 +3585,7 @@ public void test0078(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0079(){
 	String str =
 		"public class X {\n" +
@@ -3519,6 +3619,7 @@ public void test0079(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0080_Diet(){
 	String str =
 		"public class X {\n" +
@@ -3555,6 +3656,7 @@ public void test0080_Diet(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0080_Method(){
 	String str =
 		"public class X {\n" +
@@ -3592,6 +3694,7 @@ public void test0080_Method(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0081_Diet(){
 	String str =
 		"public class X {\n" +
@@ -3628,6 +3731,7 @@ public void test0081_Diet(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0081_Method(){
 	String str =
 		"public class X {\n" +
@@ -3665,6 +3769,7 @@ public void test0081_Method(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0082_Diet(){
 	String str =
 		"public class X {\n" +
@@ -3701,6 +3806,7 @@ public void test0082_Diet(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0082_Method(){
 	String str =
 		"public class X {\n" +
@@ -3738,6 +3844,7 @@ public void test0082_Method(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0083(){
 	String str =
 		"public final int";
@@ -3765,6 +3872,7 @@ public void test0083(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0084(){
 	String str =
 		"public final int X";
@@ -3792,6 +3900,7 @@ public void test0084(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0085(){
 	String str =
 		"pac";
@@ -3819,6 +3928,7 @@ public void test0085(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0086(){
 	String str =
 		"pac p";
@@ -3846,6 +3956,7 @@ public void test0086(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0087(){
 	String str =
 		"package p;" +
@@ -3875,6 +3986,7 @@ public void test0087(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0088(){
 	String str =
 		"import p;" +
@@ -3904,6 +4016,7 @@ public void test0088(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0089(){
 	String str =
 		"class X {}" +
@@ -3936,6 +4049,7 @@ public void test0089(){
 /*
  * Test for 'return' keyword.
  */
+@Test
 public void test0090_Diet(){
 	String str =
 		"public class X {\n" +
@@ -3972,6 +4086,7 @@ public void test0090_Diet(){
 /*
  * Test for 'return' keyword.
  */
+@Test
 public void test0090_Method(){
 	String str =
 		"public class X {\n" +
@@ -4009,6 +4124,7 @@ public void test0090_Method(){
 /*
  * Test for 'throw' keyword.
  */
+@Test
 public void test0091_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4045,6 +4161,7 @@ public void test0091_Diet(){
 /*
  * Test for 'throw' keyword.
  */
+@Test
 public void test0091_Method(){
 	String str =
 		"public class X {\n" +
@@ -4082,6 +4199,7 @@ public void test0091_Method(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0092_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4118,6 +4236,7 @@ public void test0092_Diet(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0092_Method(){
 	String str =
 		"public class X {\n" +
@@ -4155,6 +4274,7 @@ public void test0092_Method(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0093_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4191,6 +4311,7 @@ public void test0093_Diet(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0093_Method(){
 	String str =
 		"public class X {\n" +
@@ -4229,6 +4350,7 @@ public void test0093_Method(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0094_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4265,6 +4387,7 @@ public void test0094_Diet(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0094_Method(){
 	String str =
 		"public class X {\n" +
@@ -4303,6 +4426,7 @@ public void test0094_Method(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0095_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4339,6 +4463,7 @@ public void test0095_Diet(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0095_Method(){
 	String str =
 		"public class X {\n" +
@@ -4377,6 +4502,7 @@ public void test0095_Method(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0096_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4413,6 +4539,7 @@ public void test0096_Diet(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0096_Method(){
 	String str =
 		"public class X {\n" +
@@ -4451,6 +4578,7 @@ public void test0096_Method(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0097_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4487,6 +4615,7 @@ public void test0097_Diet(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0097_Method(){
 	String str =
 		"public class X {\n" +
@@ -4525,6 +4654,7 @@ public void test0097_Method(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0098_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4561,6 +4691,7 @@ public void test0098_Diet(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0098_Method(){
 	String str =
 		"public class X {\n" +
@@ -4598,6 +4729,7 @@ public void test0098_Method(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0099_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4634,6 +4766,7 @@ public void test0099_Diet(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0099_Method(){
 	String str =
 		"public class X {\n" +
@@ -4671,6 +4804,7 @@ public void test0099_Method(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0100_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4707,6 +4841,7 @@ public void test0100_Diet(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0100_Method(){
 	String str =
 		"public class X {\n" +
@@ -4744,6 +4879,7 @@ public void test0100_Method(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0101(){
 	String str =
 		"public class X {\n" +
@@ -4779,6 +4915,7 @@ public void test0101(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0102(){
 	String str =
 		"public class X {\n" +
@@ -4814,6 +4951,7 @@ public void test0102(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0103(){
 	String str =
 		"public class X {\n" +
@@ -4849,6 +4987,7 @@ public void test0103(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0104(){
 	String str =
 		"public class X {\n" +
@@ -4884,6 +5023,7 @@ public void test0104(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0105(){
 	String str =
 		"public class X {\n" +
@@ -4917,6 +5057,7 @@ public void test0105(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0106(){
 	String str =
 		"public class X {\n" +
@@ -4952,6 +5093,7 @@ public void test0106(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0107_Diet(){
 	String str =
 		"public class X {\n" +
@@ -4988,6 +5130,7 @@ public void test0107_Diet(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0107_Method(){
 	String str =
 		"public class X {\n" +
@@ -5025,6 +5168,7 @@ public void test0107_Method(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0108_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5061,6 +5205,7 @@ public void test0108_Diet(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0108_Method(){
 	String str =
 		"public class X {\n" +
@@ -5099,6 +5244,7 @@ public void test0108_Method(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0109_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5135,6 +5281,7 @@ public void test0109_Diet(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0109_Method(){
 	String str =
 		"public class X {\n" +
@@ -5172,6 +5319,7 @@ public void test0109_Method(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0110_Diet(){
 	String str =
 		"public class X {\n" +
@@ -5208,6 +5356,7 @@ public void test0110_Diet(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0110_Method(){
 	String str =
 		"public class X {\n" +
@@ -5246,6 +5395,7 @@ public void test0110_Method(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0111(){
 	String str =
 		"fin";
@@ -5273,6 +5423,7 @@ public void test0111(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0112(){
 	String str =
 		"public fin";
@@ -5300,6 +5451,7 @@ public void test0112(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0113(){
 	String str =
 		"fin zzz";
@@ -5327,6 +5479,7 @@ public void test0113(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0114(){
 	String str =
 		"final fin";
@@ -5354,6 +5507,7 @@ public void test0114(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0115(){
 	String str =
 		"abstract fin";
@@ -5381,6 +5535,7 @@ public void test0115(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0116(){
 	String str =
 		"public fin class X {}";
@@ -5412,6 +5567,7 @@ public void test0116(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0117(){
 	String str =
 		"public class X {\n" +
@@ -5445,6 +5601,7 @@ public void test0117(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0118(){
 	String str =
 		"public class X {\n" +
@@ -5478,6 +5635,7 @@ public void test0118(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0119(){
 	String str =
 		"public class X {\n" +
@@ -5511,6 +5669,7 @@ public void test0119(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0120(){
 	String str =
 		"public class X {\n" +
@@ -5544,6 +5703,7 @@ public void test0120(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0121(){
 	String str =
 		"public class X {\n" +
@@ -5577,6 +5737,7 @@ public void test0121(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0122(){
 	String str =
 		"public class X {\n" +
@@ -5610,6 +5771,7 @@ public void test0122(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0123(){
 	String str =
 		"public class X {\n" +
@@ -5643,6 +5805,7 @@ public void test0123(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0124(){
 	String str =
 		"public class X {\n" +
@@ -5676,6 +5839,7 @@ public void test0124(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0125(){
 	String str =
 		"public class X {\n" +
@@ -5709,6 +5873,7 @@ public void test0125(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0126(){
 	String str =
 		"public class X {\n" +
@@ -5742,6 +5907,7 @@ public void test0126(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0127(){
 	String str =
 		"public class X {\n" +
@@ -5775,6 +5941,7 @@ public void test0127(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0128(){
 	String str =
 		"public class X {\n" +
@@ -5808,6 +5975,7 @@ public void test0128(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0129(){
 	String str =
 		"public class X {\n" +
@@ -5841,6 +6009,7 @@ public void test0129(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0130(){
 	String str =
 		"public class X {\n" +
@@ -5874,6 +6043,7 @@ public void test0130(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0131(){
 	String str =
 		"public class X {\n" +
@@ -5907,6 +6077,7 @@ public void test0131(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0132(){
 	String str =
 		"public class X {\n" +
@@ -5940,6 +6111,7 @@ public void test0132(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0133(){
 	String str =
 		"public class X {\n" +
@@ -5973,6 +6145,7 @@ public void test0133(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0134(){
 	String str =
 		"public class X {\n" +
@@ -6006,6 +6179,7 @@ public void test0134(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0135(){
 	String str =
 		"public class X {\n" +
@@ -6039,6 +6213,7 @@ public void test0135(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0136(){
 	String str =
 		"public class X {\n" +
@@ -6072,6 +6247,7 @@ public void test0136(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0137(){
 	String str =
 		"public class X {\n" +
@@ -6105,6 +6281,7 @@ public void test0137(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0138(){
 	String str =
 		"public class X {\n" +
@@ -6138,6 +6315,7 @@ public void test0138(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0139(){
 	String str =
 		"public class X {\n" +
@@ -6171,6 +6349,7 @@ public void test0139(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0140(){
 	String str =
 		"public class X {\n" +
@@ -6204,6 +6383,7 @@ public void test0140(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0141(){
 	String str =
 		"public class X {\n" +
@@ -6237,6 +6417,7 @@ public void test0141(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0142(){
 	String str =
 		"public class X {\n" +
@@ -6270,6 +6451,7 @@ public void test0142(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0143(){
 	String str =
 		"public class X {\n" +
@@ -6303,6 +6485,7 @@ public void test0143(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0144(){
 	String str =
 		"public class X {\n" +
@@ -6336,6 +6519,7 @@ public void test0144(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0145(){
 	String str =
 		"public class X {\n" +
@@ -6369,6 +6553,7 @@ public void test0145(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0146(){
 	String str =
 		"public class X {\n" +
@@ -6402,6 +6587,7 @@ public void test0146(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0147_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6438,6 +6624,7 @@ public void test0147_Diet(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0147_Method(){
 	String str =
 		"public class X {\n" +
@@ -6475,6 +6662,7 @@ public void test0147_Method(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0148_Diet(){
 	String str =
 		"public class X {\n" +
@@ -6511,6 +6699,7 @@ public void test0148_Diet(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0148_Method(){
 	String str =
 		"public class X {\n" +
@@ -6548,6 +6737,7 @@ public void test0148_Method(){
 /*
  * Test for 'static' keyword.
  */
+@Test
 public void test0149(){
 	String str =
 		"public class X {\n" +
@@ -6581,6 +6771,7 @@ public void test0149(){
 /*
  * Test for 'static' keyword.
  */
+@Test
 public void test0150(){
 	String str =
 		"public class X {\n" +
@@ -6614,6 +6805,7 @@ public void test0150(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0151(){
 	String str =
 		"pub";
@@ -6641,6 +6833,7 @@ public void test0151(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0152(){
 	String str =
 		"final pub";
@@ -6668,6 +6861,7 @@ public void test0152(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0153(){
 	String str =
 		"public pub";
@@ -6695,6 +6889,7 @@ public void test0153(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0154(){
 	String str =
 		"private pub";
@@ -6722,6 +6917,7 @@ public void test0154(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0155(){
 	String str =
 		"public class X{}\n" +
@@ -6754,6 +6950,7 @@ public void test0155(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0156(){
 	String str =
 		"public class X{\n" +
@@ -6787,6 +6984,7 @@ public void test0156(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0157(){
 	String str =
 		"public class X{\n" +
@@ -6820,6 +7018,7 @@ public void test0157(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0158(){
 	String str =
 		"public class X{\n" +
@@ -6853,6 +7052,7 @@ public void test0158(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0159(){
 	String str =
 		"public class X{\n" +
@@ -6886,6 +7086,7 @@ public void test0159(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0160(){
 	String str =
 		"public class X{\n" +
@@ -6919,6 +7120,7 @@ public void test0160(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0161(){
 	String str =
 		"pro";
@@ -6946,6 +7148,7 @@ public void test0161(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0162(){
 	String str =
 		"final pro";
@@ -6973,6 +7176,7 @@ public void test0162(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0163(){
 	String str =
 		"public pro";
@@ -7000,6 +7204,7 @@ public void test0163(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0164(){
 	String str =
 		"private pro";
@@ -7027,6 +7232,7 @@ public void test0164(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0165(){
 	String str =
 		"public class X{}\n" +
@@ -7059,6 +7265,7 @@ public void test0165(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0166(){
 	String str =
 		"public class X{\n" +
@@ -7092,6 +7299,7 @@ public void test0166(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0167(){
 	String str =
 		"public class X{\n" +
@@ -7125,6 +7333,7 @@ public void test0167(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0168(){
 	String str =
 		"public class X{\n" +
@@ -7158,6 +7367,7 @@ public void test0168(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0169(){
 	String str =
 		"public class X{\n" +
@@ -7191,6 +7401,7 @@ public void test0169(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0170(){
 	String str =
 		"public class X{\n" +
@@ -7224,6 +7435,7 @@ public void test0170(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0171(){
 	String str =
 		"pri";
@@ -7251,6 +7463,7 @@ public void test0171(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0172(){
 	String str =
 		"final pri";
@@ -7278,6 +7491,7 @@ public void test0172(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0173(){
 	String str =
 		"public pri";
@@ -7305,6 +7519,7 @@ public void test0173(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0174(){
 	String str =
 		"private pri";
@@ -7332,6 +7547,7 @@ public void test0174(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0175(){
 	String str =
 		"public class X{}\n" +
@@ -7364,6 +7580,7 @@ public void test0175(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0176(){
 	String str =
 		"public class X{\n" +
@@ -7397,6 +7614,7 @@ public void test0176(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0177(){
 	String str =
 		"public class X{\n" +
@@ -7430,6 +7648,7 @@ public void test0177(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0178(){
 	String str =
 		"public class X{\n" +
@@ -7463,6 +7682,7 @@ public void test0178(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0179(){
 	String str =
 		"public class X{\n" +
@@ -7496,6 +7716,7 @@ public void test0179(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0180(){
 	String str =
 		"public class X{\n" +
@@ -7529,6 +7750,7 @@ public void test0180(){
 /*
  * Test for 'super' keyword.
  */
+@Test
 public void test0181_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7565,6 +7787,7 @@ public void test0181_Diet(){
 /*
  * Test for 'super' keyword.
  */
+@Test
 public void test0181_Method(){
 	String str =
 		"public class X {\n" +
@@ -7602,6 +7825,7 @@ public void test0181_Method(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0182_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7638,6 +7862,7 @@ public void test0182_Diet(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0182_Method(){
 	String str =
 		"public class X {\n" +
@@ -7675,6 +7900,7 @@ public void test0182_Method(){
 /*
  * Test for 'true' keyword.
  */
+@Test
 public void test0183_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7711,6 +7937,7 @@ public void test0183_Diet(){
 /*
  * Test for 'true' keyword.
  */
+@Test
 public void test0183_Method(){
 	String str =
 		"public class X {\n" +
@@ -7748,6 +7975,7 @@ public void test0183_Method(){
 /*
  * Test for 'false' keyword.
  */
+@Test
 public void test0184_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7784,6 +8012,7 @@ public void test0184_Diet(){
 /*
  * Test for 'false' keyword.
  */
+@Test
 public void test0184_Method(){
 	String str =
 		"public class X {\n" +
@@ -7821,6 +8050,7 @@ public void test0184_Method(){
 /*
  * Test for 'null' keyword.
  */
+@Test
 public void test0185_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7857,6 +8087,7 @@ public void test0185_Diet(){
 /*
  * Test for 'null' keyword.
  */
+@Test
 public void test0185_Method(){
 	String str =
 		"public class X {\n" +
@@ -7894,6 +8125,7 @@ public void test0185_Method(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0186_Diet(){
 	String str =
 		"public class X {\n" +
@@ -7930,6 +8162,7 @@ public void test0186_Diet(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0186_Method(){
 	String str =
 		"public class X {\n" +
@@ -7967,6 +8200,7 @@ public void test0186_Method(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0187_Diet(){
 	String str =
 		"public class X {\n" +
@@ -8003,6 +8237,7 @@ public void test0187_Diet(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0187_Method(){
 	String str =
 		"public class X {\n" +
@@ -8040,6 +8275,7 @@ public void test0187_Method(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0188_Diet(){
 	String str =
 		"public class X {\n" +
@@ -8076,6 +8312,7 @@ public void test0188_Diet(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0188_Method(){
 	String str =
 		"public class X {\n" +
@@ -8114,6 +8351,7 @@ public void test0188_Method(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0189_Diet(){
 	String str =
 		"public class X {\n" +
@@ -8151,6 +8389,7 @@ public void test0189_Diet(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0189_Method(){
 	String str =
 		"public class X {\n" +
@@ -8189,6 +8428,7 @@ public void test0189_Method(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0190_Diet(){
 	String str =
 		"package p;\n" +
@@ -8229,6 +8469,7 @@ public void test0190_Diet(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0190_Method(){
 	String str =
 		"package p;\n" +
@@ -8270,6 +8511,7 @@ public void test0190_Method(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0191_Diet(){
 	String str =
 		"package p;\n" +
@@ -8310,6 +8552,7 @@ public void test0191_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0191_Method(){
 	String str =
 		"package p;\n" +
@@ -8351,6 +8594,7 @@ public void test0191_Method(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0192_Diet(){
 	String str =
 		"package p;\n" +
@@ -8391,6 +8635,7 @@ public void test0192_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0192_Method(){
 	String str =
 		"package p;\n" +
@@ -8432,6 +8677,7 @@ public void test0192_Method(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0193_Diet(){
 	String str =
 		"public class X {\n" +
@@ -8468,6 +8714,7 @@ public void test0193_Diet(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0193_Method(){
 	String str =
 		"public class X {\n" +
@@ -8532,6 +8779,7 @@ public void test0193_Method(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0194(){
 	String str =
 		"#\n" +
@@ -8560,6 +8808,7 @@ public void test0194(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0195(){
 	String str =
 		"#\n" +
@@ -8588,6 +8837,7 @@ public void test0195(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0196(){
 	String str =
 		"#\n" +
@@ -8618,6 +8868,7 @@ public void test0196(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0197(){
 	String str =
 		"#\n" +
@@ -8648,6 +8899,7 @@ public void test0197(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0198(){
 	String str =
 		"#\n" +
@@ -8680,6 +8932,7 @@ public void test0198(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0199(){
 	String str =
 		"#\n" +
@@ -8712,6 +8965,7 @@ public void test0199(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0200(){
 	String str =
 		"#\n" +
@@ -8744,6 +8998,7 @@ public void test0200(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0201(){
 	String str =
 		"#\n" +
@@ -8776,6 +9031,7 @@ public void test0201(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0202(){
 	String str =
 		"#\n" +
@@ -8808,6 +9064,7 @@ public void test0202(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0203(){
 	String str =
 		"#\n" +
@@ -8840,6 +9097,7 @@ public void test0203(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0204(){
 	String str =
 		"#\n" +
@@ -8871,6 +9129,7 @@ public void test0204(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0205(){
 	String str =
 		"#\n" +
@@ -8908,6 +9167,7 @@ public void test0205(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0206(){
 	String str =
 		"#\n" +
@@ -8945,6 +9205,7 @@ public void test0206(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0207(){
 	String str =
 		"#\n" +
@@ -8977,6 +9238,7 @@ public void test0207(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0208(){
 	String str =
 		"#\n" +
@@ -9013,6 +9275,7 @@ public void test0208(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0209(){
 	String str =
 		"#\n" +
@@ -9049,6 +9312,7 @@ public void test0209(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0210(){
 	String str =
 		"#\n" +
@@ -9085,6 +9349,7 @@ public void test0210(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0211(){
 	String str =
 		"#\n" +
@@ -9121,6 +9386,7 @@ public void test0211(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0212(){
 	String str =
 		"#\n" +
@@ -9157,6 +9423,7 @@ public void test0212(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0213(){
 	String str =
 		"#\n" +
@@ -9195,6 +9462,7 @@ public void test0213(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0214_Diet(){
 	String str =
 		"package p;\n" +
@@ -9234,6 +9502,7 @@ public void test0214_Diet(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0214_Method(){
 	String str =
 		"package p;\n" +
@@ -9274,6 +9543,7 @@ public void test0214_Method(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0216_Diet(){
 	String str =
 		"package p;\n" +
@@ -9313,6 +9583,7 @@ public void test0216_Diet(){
 /*
  * Test for 'abstract' keyword.
  */
+@Test
 public void test0216_Method(){
 	String str =
 		"package p;\n" +
@@ -9353,6 +9624,7 @@ public void test0216_Method(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0217_Diet(){
 	String str =
 		"package p;\n" +
@@ -9392,6 +9664,7 @@ public void test0217_Diet(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0217_Method(){
 	String str =
 		"package p;\n" +
@@ -9432,6 +9705,7 @@ public void test0217_Method(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0218_Diet(){
 	String str =
 		"package p;\n" +
@@ -9473,6 +9747,7 @@ public void test0218_Diet(){
 /*
  * Test for 'break' keyword.
  */
+@Test
 public void test0218_Method(){
 	String str =
 		"package p;\n" +
@@ -9518,6 +9793,7 @@ public void test0218_Method(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0219_Diet(){
 	String str =
 		"package p;\n" +
@@ -9557,6 +9833,7 @@ public void test0219_Diet(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0219_Method(){
 	String str =
 		"package p;\n" +
@@ -9597,6 +9874,7 @@ public void test0219_Method(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0220_Diet(){
 	String str =
 		"package p;\n" +
@@ -9638,6 +9916,7 @@ public void test0220_Diet(){
 /*
  * Test for 'case' keyword.
  */
+@Test
 public void test0220_Method(){
 	String str =
 		"package p;\n" +
@@ -9682,6 +9961,7 @@ public void test0220_Method(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0221_Diet(){
 	String str =
 		"package p;\n" +
@@ -9721,6 +10001,7 @@ public void test0221_Diet(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0221_Method(){
 	String str =
 		"package p;\n" +
@@ -9761,6 +10042,7 @@ public void test0221_Method(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0222_Diet(){
 	String str =
 		"package p;\n" +
@@ -9801,6 +10083,7 @@ public void test0222_Diet(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0222_Method(){
 	String str =
 		"package p;\n" +
@@ -9842,6 +10125,7 @@ public void test0222_Method(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0223(){
 	String str =
 		"#\n" +
@@ -9870,6 +10154,7 @@ public void test0223(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0224(){
 	String str =
 		"#\n" +
@@ -9898,6 +10183,7 @@ public void test0224(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0225(){
 	String str =
 		"#\n" +
@@ -9926,6 +10212,7 @@ public void test0225(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0226(){
 	String str =
 		"#\n" +
@@ -9954,6 +10241,7 @@ public void test0226(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0227(){
 	String str =
 		"#\n" +
@@ -9988,6 +10276,7 @@ public void test0227(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0228(){
 	String str =
 		"#\n" +
@@ -10022,6 +10311,7 @@ public void test0228(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0229(){
 	String str =
 		"#\n" +
@@ -10056,6 +10346,7 @@ public void test0229(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0230(){
 	String str =
 		"#\n" +
@@ -10090,6 +10381,7 @@ public void test0230(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0231_Diet(){
 	String str =
 		"public class X {\n" +
@@ -10127,6 +10419,7 @@ public void test0231_Diet(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0231_Method(){
 	String str =
 		"public class X {\n" +
@@ -10165,6 +10458,7 @@ public void test0231_Method(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0232_Diet(){
 	String str =
 		"public class X {\n" +
@@ -10202,6 +10496,7 @@ public void test0232_Diet(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0232_Method(){
 	String str =
 		"public class X {\n" +
@@ -10240,6 +10535,7 @@ public void test0232_Method(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0233_Diet(){
 	String str =
 		"public class X {\n" +
@@ -10277,6 +10573,7 @@ public void test0233_Diet(){
 /*
  * Test for 'class' keyword.
  */
+@Test
 public void test0233_Method(){
 	String str =
 		"public class X {\n" +
@@ -10315,6 +10612,7 @@ public void test0233_Method(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0234_Diet(){
 	String str =
 		"package p;\n" +
@@ -10354,6 +10652,7 @@ public void test0234_Diet(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0234_Method(){
 	String str =
 		"package p;\n" +
@@ -10394,6 +10693,7 @@ public void test0234_Method(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0235_Diet(){
 	String str =
 		"package p;\n" +
@@ -10435,6 +10735,7 @@ public void test0235_Diet(){
 /*
  * Test for 'continue' keyword.
  */
+@Test
 public void test0235_Method(){
 	String str =
 		"package p;\n" +
@@ -10480,6 +10781,7 @@ public void test0235_Method(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0236_Diet(){
 	String str =
 		"package p;\n" +
@@ -10519,6 +10821,7 @@ public void test0236_Diet(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0236_Method(){
 	String str =
 		"package p;\n" +
@@ -10559,6 +10862,7 @@ public void test0236_Method(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0237_Diet(){
 	String str =
 		"package p;\n" +
@@ -10601,6 +10905,7 @@ public void test0237_Diet(){
 /*
  * Test for 'default' keyword.
  */
+@Test
 public void test0237_Method(){
 	String str =
 		"package p;\n" +
@@ -10646,6 +10951,7 @@ public void test0237_Method(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0238_Diet(){
 	String str =
 		"package p;\n" +
@@ -10685,6 +10991,7 @@ public void test0238_Diet(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0238_Method(){
 	String str =
 		"package p;\n" +
@@ -10725,6 +11032,7 @@ public void test0238_Method(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0239_Diet(){
 	String str =
 		"package p;\n" +
@@ -10764,6 +11072,7 @@ public void test0239_Diet(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0239_Method(){
 	String str =
 		"package p;\n" +
@@ -10804,6 +11113,7 @@ public void test0239_Method(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0240_Diet(){
 	String str =
 		"package p;\n" +
@@ -10844,6 +11154,7 @@ public void test0240_Diet(){
 /*
  * Test for 'else' keyword.
  */
+@Test
 public void test0240_Method(){
 	String str =
 		"package p;\n" +
@@ -10885,6 +11196,7 @@ public void test0240_Method(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0241(){
 	String str =
 		"#\n" +
@@ -10913,6 +11225,7 @@ public void test0241(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0242(){
 	String str =
 		"#\n" +
@@ -10941,6 +11254,7 @@ public void test0242(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0243(){
 	String str =
 		"#\n" +
@@ -10969,6 +11283,7 @@ public void test0243(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0244(){
 	String str =
 		"#\n" +
@@ -11000,6 +11315,7 @@ public void test0244(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0245(){
 	String str =
 		"#\n" +
@@ -11031,6 +11347,7 @@ public void test0245(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0246(){
 	String str =
 		"#\n" +
@@ -11064,6 +11381,7 @@ public void test0246(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0247(){
 	String str =
 		"#\n" +
@@ -11095,6 +11413,7 @@ public void test0247(){
 /*
  * Test for 'extends' keyword.
  */
+@Test
 public void test0248(){
 	String str =
 		"#\n" +
@@ -11126,6 +11445,7 @@ public void test0248(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0249_Diet(){
 	String str =
 		"package p;\n" +
@@ -11165,6 +11485,7 @@ public void test0249_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0249_Method(){
 	String str =
 		"package p;\n" +
@@ -11205,6 +11526,7 @@ public void test0249_Method(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0250_Diet(){
 	String str =
 		"package p;\n" +
@@ -11245,6 +11567,7 @@ public void test0250_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0250_Method(){
 	String str =
 		"package p;\n" +
@@ -11286,6 +11609,7 @@ public void test0250_Method(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0251_Diet(){
 	String str =
 		"package p;\n" +
@@ -11325,6 +11649,7 @@ public void test0251_Diet(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0251_Method(){
 	String str =
 		"package p;\n" +
@@ -11365,6 +11690,7 @@ public void test0251_Method(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0252_Diet(){
 	String str =
 		"package p;\n" +
@@ -11404,6 +11730,7 @@ public void test0252_Diet(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0252_Method(){
 	String str =
 		"package p;\n" +
@@ -11444,6 +11771,7 @@ public void test0252_Method(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0253_Diet(){
 	String str =
 		"package p;\n" +
@@ -11483,6 +11811,7 @@ public void test0253_Diet(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0253_Method(){
 	String str =
 		"package p;\n" +
@@ -11523,6 +11852,7 @@ public void test0253_Method(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0254(){
 	String str =
 		"#\n" +
@@ -11551,6 +11881,7 @@ public void test0254(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0255(){
 	String str =
 		"#\n" +
@@ -11579,6 +11910,7 @@ public void test0255(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0256(){
 	String str =
 		"#\n" +
@@ -11607,6 +11939,7 @@ public void test0256(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0257(){
 	String str =
 		"#\n" +
@@ -11638,6 +11971,7 @@ public void test0257(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0258(){
 	String str =
 		"#\n" +
@@ -11669,6 +12003,7 @@ public void test0258(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0259(){
 	String str =
 		"#\n" +
@@ -11702,6 +12037,7 @@ public void test0259(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0260(){
 	String str =
 		"#\n" +
@@ -11733,6 +12069,7 @@ public void test0260(){
 /*
  * Test for 'implements' keyword.
  */
+@Test
 public void test0261(){
 	String str =
 		"#\n" +
@@ -11764,6 +12101,7 @@ public void test0261(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0262(){
 	String str =
 		"#\n" +
@@ -11792,6 +12130,7 @@ public void test0262(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0263(){
 	String str =
 		"#\n" +
@@ -11822,6 +12161,7 @@ public void test0263(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0264(){
 	String str =
 		"#\n" +
@@ -11854,6 +12194,7 @@ public void test0264(){
 /*
  * Test for 'import' keyword.
  */
+@Test
 public void test0265(){
 	String str =
 		"#\n" +
@@ -11882,6 +12223,7 @@ public void test0265(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0266(){
 	String str =
 		"#\n" +
@@ -11910,6 +12252,7 @@ public void test0266(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0267(){
 	String str =
 		"#\n" +
@@ -11938,6 +12281,7 @@ public void test0267(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0268(){
 	String str =
 		"#\n" +
@@ -11966,6 +12310,7 @@ public void test0268(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0269(){
 	String str =
 		"#\n" +
@@ -11994,6 +12339,7 @@ public void test0269(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0270(){
 	String str =
 		"#\n" +
@@ -12028,6 +12374,7 @@ public void test0270(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0271(){
 	String str =
 		"#\n" +
@@ -12062,6 +12409,7 @@ public void test0271(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0272(){
 	String str =
 		"#\n" +
@@ -12096,6 +12444,7 @@ public void test0272(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0273(){
 	String str =
 		"#\n" +
@@ -12130,6 +12479,7 @@ public void test0273(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0274_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12167,6 +12517,7 @@ public void test0274_Diet(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0274_Method(){
 	String str =
 		"public class X {\n" +
@@ -12205,6 +12556,7 @@ public void test0274_Method(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0275_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12242,6 +12594,7 @@ public void test0275_Diet(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0275_Method(){
 	String str =
 		"public class X {\n" +
@@ -12280,6 +12633,7 @@ public void test0275_Method(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0276_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12317,6 +12671,7 @@ public void test0276_Diet(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0276_Method(){
 	String str =
 		"public class X {\n" +
@@ -12355,6 +12710,7 @@ public void test0276_Method(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0277(){
 	String str =
 		"#\n" +
@@ -12383,6 +12739,7 @@ public void test0277(){
 /*
  * Test for 'interface' keyword.
  */
+@Test
 public void test0278(){
 	String str =
 		"#\n" +
@@ -12411,6 +12768,7 @@ public void test0278(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0279(){
 	String str =
 		"#\n" +
@@ -12439,6 +12797,7 @@ public void test0279(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0280(){
 	String str =
 		"#\n" +
@@ -12467,6 +12826,7 @@ public void test0280(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0281(){
 	String str =
 		"#\n" +
@@ -12497,6 +12857,7 @@ public void test0281(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0282(){
 	String str =
 		"#\n" +
@@ -12527,6 +12888,7 @@ public void test0282(){
 /*
  * Test for 'package' keyword.
  */
+@Test
 public void test0283(){
 	String str =
 		"#\n" +
@@ -12560,6 +12922,7 @@ public void test0283(){
 /*
  * Test for 'return' keyword.
  */
+@Test
 public void test0284_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12597,6 +12960,7 @@ public void test0284_Diet(){
 /*
  * Test for 'return' keyword.
  */
+@Test
 public void test0284_Method(){
 	String str =
 		"public class X {\n" +
@@ -12635,6 +12999,7 @@ public void test0284_Method(){
 /*
  * Test for 'throw' keyword.
  */
+@Test
 public void test0285_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12672,6 +13037,7 @@ public void test0285_Diet(){
 /*
  * Test for 'throw' keyword.
  */
+@Test
 public void test0285_Method(){
 	String str =
 		"public class X {\n" +
@@ -12710,6 +13076,7 @@ public void test0285_Method(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0286_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12747,6 +13114,7 @@ public void test0286_Diet(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0286_Method(){
 	String str =
 		"public class X {\n" +
@@ -12785,6 +13153,7 @@ public void test0286_Method(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0287_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12822,6 +13191,7 @@ public void test0287_Diet(){
 /*
  * Test for 'try' keyword.
  */
+@Test
 public void test0287_Method(){
 	String str =
 		"public class X {\n" +
@@ -12861,6 +13231,7 @@ public void test0287_Method(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0288_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12898,6 +13269,7 @@ public void test0288_Diet(){
 /*
  * Test for 'do' keyword.
  */
+@Test
 public void test0288_Method(){
 	String str =
 		"public class X {\n" +
@@ -12937,6 +13309,7 @@ public void test0288_Method(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0289_Diet(){
 	String str =
 		"public class X {\n" +
@@ -12974,6 +13347,7 @@ public void test0289_Diet(){
 /*
  * Test for 'for' keyword.
  */
+@Test
 public void test0289_Method(){
 	String str =
 		"public class X {\n" +
@@ -13013,6 +13387,7 @@ public void test0289_Method(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0290_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13050,6 +13425,7 @@ public void test0290_Diet(){
 /*
  * Test for 'if' keyword.
  */
+@Test
 public void test0290_Method(){
 	String str =
 		"public class X {\n" +
@@ -13089,6 +13465,7 @@ public void test0290_Method(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0291_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13126,6 +13503,7 @@ public void test0291_Diet(){
 /*
  * Test for 'switch' keyword.
  */
+@Test
 public void test0291_Method(){
 	String str =
 		"public class X {\n" +
@@ -13165,6 +13543,7 @@ public void test0291_Method(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0292_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13202,6 +13581,7 @@ public void test0292_Diet(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0292_Method(){
 	String str =
 		"public class X {\n" +
@@ -13240,6 +13620,7 @@ public void test0292_Method(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0293_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13277,6 +13658,7 @@ public void test0293_Diet(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0293_Method(){
 	String str =
 		"public class X {\n" +
@@ -13315,6 +13697,7 @@ public void test0293_Method(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0294_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13352,6 +13735,7 @@ public void test0294_Diet(){
 /*
  * Test for 'new' keyword.
  */
+@Test
 public void test0294_Method(){
 	String str =
 		"public class X {\n" +
@@ -13390,6 +13774,7 @@ public void test0294_Method(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0295(){
 	String str =
 		"#\n" +
@@ -13426,6 +13811,7 @@ public void test0295(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0296(){
 	String str =
 		"#\n" +
@@ -13462,6 +13848,7 @@ public void test0296(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0297(){
 	String str =
 		"#\n" +
@@ -13498,6 +13885,7 @@ public void test0297(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0298(){
 	String str =
 		"#\n" +
@@ -13534,6 +13922,7 @@ public void test0298(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0299(){
 	String str =
 		"#\n" +
@@ -13568,6 +13957,7 @@ public void test0299(){
 /*
  * Test for 'throws' keyword.
  */
+@Test
 public void test0300(){
 	String str =
 		"#\n" +
@@ -13604,6 +13994,7 @@ public void test0300(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0301_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13641,6 +14032,7 @@ public void test0301_Diet(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0301_Method(){
 	String str =
 		"public class X {\n" +
@@ -13679,6 +14071,7 @@ public void test0301_Method(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0302_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13716,6 +14109,7 @@ public void test0302_Diet(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0302_Method(){
 	String str =
 		"public class X {\n" +
@@ -13755,6 +14149,7 @@ public void test0302_Method(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0303_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13792,6 +14187,7 @@ public void test0303_Diet(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0303_Method(){
 	String str =
 		"public class X {\n" +
@@ -13830,6 +14226,7 @@ public void test0303_Method(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0304_Diet(){
 	String str =
 		"public class X {\n" +
@@ -13867,6 +14264,7 @@ public void test0304_Diet(){
 /*
  * Test for 'assert' keyword.
  */
+@Test
 public void test0304_Method(){
 	String str =
 		"public class X {\n" +
@@ -13906,6 +14304,7 @@ public void test0304_Method(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0305(){
 	String str =
 		"#\n" +
@@ -13934,6 +14333,7 @@ public void test0305(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0306(){
 	String str =
 		"#\n" +
@@ -13962,6 +14362,7 @@ public void test0306(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0307(){
 	String str =
 		"#\n" +
@@ -13990,6 +14391,7 @@ public void test0307(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0308(){
 	String str =
 		"#\n" +
@@ -14018,6 +14420,7 @@ public void test0308(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0309(){
 	String str =
 		"#\n" +
@@ -14046,6 +14449,7 @@ public void test0309(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0310(){
 	String str =
 		"#\n" +
@@ -14078,6 +14482,7 @@ public void test0310(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0311(){
 	String str =
 		"#\n" +
@@ -14112,6 +14517,7 @@ public void test0311(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0312(){
 	String str =
 		"#\n" +
@@ -14146,6 +14552,7 @@ public void test0312(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0313(){
 	String str =
 		"#\n" +
@@ -14180,6 +14587,7 @@ public void test0313(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0314(){
 	String str =
 		"#\n" +
@@ -14214,6 +14622,7 @@ public void test0314(){
 /*
  * Test for 'final' keyword.
  */
+@Test
 public void test0315(){
 	String str =
 		"#\n" +
@@ -14248,6 +14657,7 @@ public void test0315(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0316(){
 	String str =
 		"#\n" +
@@ -14282,6 +14692,7 @@ public void test0316(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0317(){
 	String str =
 		"#\n" +
@@ -14316,6 +14727,7 @@ public void test0317(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0318(){
 	String str =
 		"#\n" +
@@ -14350,6 +14762,7 @@ public void test0318(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0319(){
 	String str =
 		"#\n" +
@@ -14384,6 +14797,7 @@ public void test0319(){
 /*
  * Test for 'native' keyword.
  */
+@Test
 public void test0320(){
 	String str =
 		"#\n" +
@@ -14418,6 +14832,7 @@ public void test0320(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0321(){
 	String str =
 		"#\n" +
@@ -14452,6 +14867,7 @@ public void test0321(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0322(){
 	String str =
 		"#\n" +
@@ -14486,6 +14902,7 @@ public void test0322(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0323(){
 	String str =
 		"#\n" +
@@ -14520,6 +14937,7 @@ public void test0323(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0324(){
 	String str =
 		"#\n" +
@@ -14554,6 +14972,7 @@ public void test0324(){
 /*
  * Test for 'strictfp' keyword.
  */
+@Test
 public void test0325(){
 	String str =
 		"#\n" +
@@ -14588,6 +15007,7 @@ public void test0325(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0326(){
 	String str =
 		"#\n" +
@@ -14622,6 +15042,7 @@ public void test0326(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0327(){
 	String str =
 		"#\n" +
@@ -14656,6 +15077,7 @@ public void test0327(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0328(){
 	String str =
 		"#\n" +
@@ -14690,6 +15112,7 @@ public void test0328(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0329(){
 	String str =
 		"#\n" +
@@ -14724,6 +15147,7 @@ public void test0329(){
 /*
  * Test for 'volatile' keyword.
  */
+@Test
 public void test0330(){
 	String str =
 		"#\n" +
@@ -14758,6 +15182,7 @@ public void test0330(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0331(){
 	String str =
 		"#\n" +
@@ -14792,6 +15217,7 @@ public void test0331(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0332(){
 	String str =
 		"#\n" +
@@ -14826,6 +15252,7 @@ public void test0332(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0333(){
 	String str =
 		"#\n" +
@@ -14860,6 +15287,7 @@ public void test0333(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0334(){
 	String str =
 		"#\n" +
@@ -14894,6 +15322,7 @@ public void test0334(){
 /*
  * Test for 'transient' keyword.
  */
+@Test
 public void test0335(){
 	String str =
 		"#\n" +
@@ -14928,6 +15357,7 @@ public void test0335(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0336(){
 	String str =
 		"#\n" +
@@ -14962,6 +15392,7 @@ public void test0336(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0337(){
 	String str =
 		"#\n" +
@@ -14996,6 +15427,7 @@ public void test0337(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0338(){
 	String str =
 		"#\n" +
@@ -15030,6 +15462,7 @@ public void test0338(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0339(){
 	String str =
 		"#\n" +
@@ -15064,6 +15497,7 @@ public void test0339(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0340(){
 	String str =
 		"#\n" +
@@ -15098,6 +15532,7 @@ public void test0340(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0341_Diet(){
 	String str =
 		"public class X {\n" +
@@ -15135,6 +15570,7 @@ public void test0341_Diet(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0341_Method(){
 	String str =
 		"public class X {\n" +
@@ -15173,6 +15609,7 @@ public void test0341_Method(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0342_Diet(){
 	String str =
 		"public class X {\n" +
@@ -15210,6 +15647,7 @@ public void test0342_Diet(){
 /*
  * Test for 'synchronized' keyword.
  */
+@Test
 public void test0342_Method(){
 	String str =
 		"public class X {\n" +
@@ -15249,6 +15687,7 @@ public void test0342_Method(){
 /*
  * Test for 'static' keyword.
  */
+@Test
 public void test0343(){
 	String str =
 		"#\n" +
@@ -15283,6 +15722,7 @@ public void test0343(){
 /*
  * Test for 'static' keyword.
  */
+@Test
 public void test0344(){
 	String str =
 		"#\n" +
@@ -15317,6 +15757,7 @@ public void test0344(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0345(){
 	String str =
 		"#\n" +
@@ -15345,6 +15786,7 @@ public void test0345(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0346(){
 	String str =
 		"#\n" +
@@ -15373,6 +15815,7 @@ public void test0346(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0347(){
 	String str =
 		"#\n" +
@@ -15401,6 +15844,7 @@ public void test0347(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0348(){
 	String str =
 		"#\n" +
@@ -15429,6 +15873,7 @@ public void test0348(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0349(){
 	String str =
 		"#\n" +
@@ -15462,6 +15907,7 @@ public void test0349(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0350(){
 	String str =
 		"#\n" +
@@ -15496,6 +15942,7 @@ public void test0350(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0351(){
 	String str =
 		"#\n" +
@@ -15530,6 +15977,7 @@ public void test0351(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0352(){
 	String str =
 		"#\n" +
@@ -15564,6 +16012,7 @@ public void test0352(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0353(){
 	String str =
 		"#\n" +
@@ -15598,6 +16047,7 @@ public void test0353(){
 /*
  * Test for 'public' keyword.
  */
+@Test
 public void test0354(){
 	String str =
 		"#\n" +
@@ -15632,6 +16082,7 @@ public void test0354(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0355(){
 	String str =
 		"#\n" +
@@ -15660,6 +16111,7 @@ public void test0355(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0356(){
 	String str =
 		"#\n" +
@@ -15688,6 +16140,7 @@ public void test0356(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0357(){
 	String str =
 		"#\n" +
@@ -15716,6 +16169,7 @@ public void test0357(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0358(){
 	String str =
 		"#\n" +
@@ -15744,6 +16198,7 @@ public void test0358(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0359(){
 	String str =
 		"#\n" +
@@ -15777,6 +16232,7 @@ public void test0359(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0360(){
 	String str =
 		"#\n" +
@@ -15811,6 +16267,7 @@ public void test0360(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0361(){
 	String str =
 		"#\n" +
@@ -15845,6 +16302,7 @@ public void test0361(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0362(){
 	String str =
 		"#\n" +
@@ -15879,6 +16337,7 @@ public void test0362(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0363(){
 	String str =
 		"#\n" +
@@ -15913,6 +16372,7 @@ public void test0363(){
 /*
  * Test for 'protected' keyword.
  */
+@Test
 public void test0364(){
 	String str =
 		"#\n" +
@@ -15947,6 +16407,7 @@ public void test0364(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0365(){
 	String str =
 		"#\n" +
@@ -15975,6 +16436,7 @@ public void test0365(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0366(){
 	String str =
 		"#\n" +
@@ -16003,6 +16465,7 @@ public void test0366(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0367(){
 	String str =
 		"#\n" +
@@ -16031,6 +16494,7 @@ public void test0367(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0368(){
 	String str =
 		"#\n" +
@@ -16059,6 +16523,7 @@ public void test0368(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0369(){
 	String str =
 		"#\n" +
@@ -16092,6 +16557,7 @@ public void test0369(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0370(){
 	String str =
 		"#\n" +
@@ -16126,6 +16592,7 @@ public void test0370(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0371(){
 	String str =
 		"#\n" +
@@ -16160,6 +16627,7 @@ public void test0371(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0372(){
 	String str =
 		"#\n" +
@@ -16194,6 +16662,7 @@ public void test0372(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0373(){
 	String str =
 		"#\n" +
@@ -16228,6 +16697,7 @@ public void test0373(){
 /*
  * Test for 'private' keyword.
  */
+@Test
 public void test0374(){
 	String str =
 		"#\n" +
@@ -16262,6 +16732,7 @@ public void test0374(){
 /*
  * Test for 'super' keyword.
  */
+@Test
 public void test0375_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16299,6 +16770,7 @@ public void test0375_Diet(){
 /*
  * Test for 'super' keyword.
  */
+@Test
 public void test0375_Method(){
 	String str =
 		"public class X {\n" +
@@ -16337,6 +16809,7 @@ public void test0375_Method(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0376_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16374,6 +16847,7 @@ public void test0376_Diet(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0376_Method(){
 	String str =
 		"public class X {\n" +
@@ -16412,6 +16886,7 @@ public void test0376_Method(){
 /*
  * Test for 'true' keyword.
  */
+@Test
 public void test0377_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16449,6 +16924,7 @@ public void test0377_Diet(){
 /*
  * Test for 'true' keyword.
  */
+@Test
 public void test0377_Method(){
 	String str =
 		"public class X {\n" +
@@ -16487,6 +16963,7 @@ public void test0377_Method(){
 /*
  * Test for 'false' keyword.
  */
+@Test
 public void test0378_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16524,6 +17001,7 @@ public void test0378_Diet(){
 /*
  * Test for 'false' keyword.
  */
+@Test
 public void test0378_Method(){
 	String str =
 		"public class X {\n" +
@@ -16562,6 +17040,7 @@ public void test0378_Method(){
 /*
  * Test for 'null' keyword.
  */
+@Test
 public void test0379_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16599,6 +17078,7 @@ public void test0379_Diet(){
 /*
  * Test for 'null' keyword.
  */
+@Test
 public void test0379_Method(){
 	String str =
 		"public class X {\n" +
@@ -16637,6 +17117,7 @@ public void test0379_Method(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0380_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16674,6 +17155,7 @@ public void test0380_Diet(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0380_Method(){
 	String str =
 		"public class X {\n" +
@@ -16712,6 +17194,7 @@ public void test0380_Method(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0381_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16749,6 +17232,7 @@ public void test0381_Diet(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0381_Method(){
 	String str =
 		"public class X {\n" +
@@ -16787,6 +17271,7 @@ public void test0381_Method(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0382_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16824,6 +17309,7 @@ public void test0382_Diet(){
 /*
  * Test for 'instanceof' keyword.
  */
+@Test
 public void test0382_Method(){
 	String str =
 		"public class X {\n" +
@@ -16863,6 +17349,7 @@ public void test0382_Method(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0384_Diet(){
 	String str =
 		"public class X {\n" +
@@ -16901,6 +17388,7 @@ public void test0384_Diet(){
 /*
  * Test for 'while' keyword.
  */
+@Test
 public void test0384_Method(){
 	String str =
 		"public class X {\n" +
@@ -16940,6 +17428,7 @@ public void test0384_Method(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0385_Diet(){
 	String str =
 		"package p;\n" +
@@ -16981,6 +17470,7 @@ public void test0385_Diet(){
 /*
  * Test for 'catch' keyword.
  */
+@Test
 public void test0385_Method(){
 	String str =
 		"package p;\n" +
@@ -17023,6 +17513,7 @@ public void test0385_Method(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0386_Diet(){
 	String str =
 		"package p;\n" +
@@ -17064,6 +17555,7 @@ public void test0386_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0386_Method(){
 	String str =
 		"package p;\n" +
@@ -17106,6 +17598,7 @@ public void test0386_Method(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0387_Diet(){
 	String str =
 		"package p;\n" +
@@ -17147,6 +17640,7 @@ public void test0387_Diet(){
 /*
  * Test for 'finally' keyword.
  */
+@Test
 public void test0387_Method(){
 	String str =
 		"package p;\n" +
@@ -17189,6 +17683,7 @@ public void test0387_Method(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0388_Diet(){
 	String str =
 		"public class X {\n" +
@@ -17226,6 +17721,7 @@ public void test0388_Diet(){
 /*
  * Test for 'this' keyword.
  */
+@Test
 public void test0388_Method(){
 	String str =
 		"public class X {\n" +

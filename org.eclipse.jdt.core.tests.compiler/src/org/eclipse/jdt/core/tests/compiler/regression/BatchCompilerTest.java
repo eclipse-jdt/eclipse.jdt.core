@@ -48,10 +48,8 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.SourceVersion;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
@@ -75,18 +73,18 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 	public BatchCompilerTest(String name) {
 		super(name);
 	}
-	/**
-	 * This test suite only needs to be run on one compliance.
-	 * As it includes some specific 1.8 tests, it must be used with a least a 1.8 VM
-	 * and not be duplicated in general test suite.
-	 * @see TestAll
-	 */
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-	public static Class<? extends TestCase> testClass() {
-		return BatchCompilerTest.class;
-	}
+//	/**
+//	 * This test suite only needs to be run on one compliance.
+//	 * As it includes some specific 1.8 tests, it must be used with a least a 1.8 VM
+//	 * and not be duplicated in general test suite.
+//	 * @see TestAll
+//	 */
+//	public static Test suite() {
+//		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+//	}
+//	public static Class<? extends TestCase> testClass() {
+//		return BatchCompilerTest.class;
+//	}
 	static class StringMatcher extends Matcher {
 		private final String expected;
 		private final Normalizer normalizer;

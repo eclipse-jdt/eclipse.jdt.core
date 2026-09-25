@@ -16,7 +16,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionJavadoc;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTag;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -30,10 +31,13 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * This gets all its tests from JavadocCompletionParserTest
  * but instead of regular Javadoc, the tests use markdown format
  */
+@MinimalCompliance(AbstractCompilerTest.F_23)
 @SuppressWarnings({ "unchecked" })
 public class MarkdownCompletionParserTest extends AbstractCompletionTest implements JavadocTagConstants {
 	public static int INLINE_ALL_TAGS_LENGTH = 0;
@@ -50,8 +54,8 @@ public class MarkdownCompletionParserTest extends AbstractCompletionTest impleme
 	CompletionJavadoc javadoc;
 	String sourceLevel;
 
-public MarkdownCompletionParserTest(String testName) {
-	super(testName);
+public MarkdownCompletionParserTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 static {
@@ -59,10 +63,6 @@ static {
 //	TESTS_NUMBERS = new int[] { 8 };
 //	TESTS_RANGE = new int[] { 20, -1 };
 //	TESTS_NAMES = new String[] { "test029" };
-}
-
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(MarkdownCompletionParserTest.class, F_23);
 }
 
 /* (non-Javadoc)
@@ -209,6 +209,7 @@ protected void verifyAllTagsCompletion() {
 /**
  * tests Test completions for javadoc tag names
  */
+@Test
 public void test001() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -220,6 +221,7 @@ public void test001() {
 	verifyAllTagsCompletion();
 }
 
+@Test
 public void test002() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -231,6 +233,7 @@ public void test002() {
 	verifyCompletionOnJavadocTag("none".toCharArray(), null, false);
 }
 
+@Test
 public void test003() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -243,6 +246,7 @@ public void test003() {
 	verifyCompletionOnJavadocTag(new char[] { 'v' }, allTags, false);
 }
 
+@Test
 public void test004() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -254,6 +258,7 @@ public void test004() {
 	verifyCompletionOnJavadocTag("deprec".toCharArray(), new char[][] { TAG_DEPRECATED }, false);
 }
 
+@Test
 public void test005() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -266,6 +271,7 @@ public void test005() {
 	verifyCompletionOnJavadocTag("link".toCharArray(), allTags, false);
 }
 
+@Test
 public void test006() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -287,6 +293,7 @@ public void test006() {
 	verifyCompletionOnJavadocTag(null, allTags, false);
 }
 
+@Test
 public void test007() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -321,6 +328,7 @@ public void _test008() {
  * bug 113506: [javadoc][assist] No tag proposals when there is a prefix on a line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113506"
  */
+@Test
 public void test010() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -335,6 +343,7 @@ public void test010() {
 	);
 }
 
+@Test
 public void test011() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -348,6 +357,7 @@ public void test011() {
 		">"
 	);
 }
+@Test
 public void test012() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -362,6 +372,7 @@ public void test012() {
 	);
 }
 
+@Test
 public void test013() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -375,6 +386,7 @@ public void test013() {
 		">"
 	);
 }
+@Test
 public void test014() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -389,6 +401,7 @@ public void test014() {
 	);
 }
 
+@Test
 public void test015() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -407,6 +420,7 @@ public void test015() {
  * test Bug 113469: CompletionOnJavadocTag token is not correct
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113649"
  */
+@Test
 public void test020() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -438,6 +452,7 @@ public void test020() {
 	assertEquals("Invalid tag end position", 28, completionTag.tagSourceEnd+1);
 }
 
+@Test
 public void test021() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -451,6 +466,7 @@ public void test021() {
 	assertEquals("Invalid tag end position", 28, completionTag.tagSourceEnd+1);
 }
 
+@Test
 public void test022() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -464,6 +480,7 @@ public void test022() {
 	assertEquals("Invalid tag end position", 28, completionTag.tagSourceEnd+1);
 }
 
+@Test
 public void test023() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -477,6 +494,7 @@ public void test023() {
 	assertEquals("Invalid tag end position", 32, completionTag.tagSourceEnd+1);
 }
 
+@Test
 public void test024() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -494,6 +512,7 @@ public void test024() {
  * test Bug 114091: [assist][javadoc] eternal loop
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114091"
  */
+@Test
 public void test025() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -520,6 +539,7 @@ public void test025() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+@Test
 public void test026() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -536,6 +556,7 @@ public void test026() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+@Test
 public void test027() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -551,6 +572,7 @@ public void test027() {
 	int end = source.indexOf('>');
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
+@Test
 public void test028() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -577,6 +599,7 @@ public void test028() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+@Test
 public void test029() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -592,6 +615,7 @@ public void test029() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+@Test
 public void test030() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -608,6 +632,7 @@ public void test030() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+@Test
 public void test031() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -626,6 +651,7 @@ public void test031() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+@Test
 public void test032() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -644,6 +670,7 @@ public void test032() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+@Test
 public void test033() {
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -663,6 +690,7 @@ public void test033() {
 	int end = source.indexOf('+');
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
+@Test
 public void test034() {
 	if(this.complianceLevel < ClassFileConstants.JDK18)
 		return;
@@ -682,6 +710,7 @@ public void test034() {
 	verifyCompletionOnJavadocTag("highligh".toCharArray(), allTags, false);
 
 }
+@Test
 public void test035() {
 	if(this.complianceLevel < ClassFileConstants.JDK18)
 		return;
@@ -701,6 +730,7 @@ public void test035() {
 	verifyCompletionOnJavadocTag("rep".toCharArray(), allTags, false);
 
 }
+@Test
 public void test036() {
 	if(this.complianceLevel < ClassFileConstants.JDK18)
 		return;
@@ -720,6 +750,7 @@ public void test036() {
 	verifyCompletionOnJavadocTag("dep".toCharArray(), allTags, false);
 
 }
+@Test
 public void test037() {
 	if(this.complianceLevel < ClassFileConstants.JDK18)
 		return;
@@ -739,6 +770,7 @@ public void test037() {
 	verifyCompletionOnJavadocTag("lin".toCharArray(), allTags, false);
 
 }
+@Test
 public void testTypeLink() {
 	// create assist node for unfinished markdown link
 	String source = """
@@ -755,6 +787,7 @@ public void testTypeLink() {
 			>"""
 	);
 }
+@Test
 public void testTypeLink_lastLine() {
 	// create assist node for unfinished markdown link at end of comment
 	String source = """
@@ -770,6 +803,7 @@ public void testTypeLink_lastLine() {
 			>"""
 	);
 }
+@Test
 public void testTypeLink_lastLine_emptyReference() {
 	// create assist node for unfinished markdown link at end of comment
 	String source = """

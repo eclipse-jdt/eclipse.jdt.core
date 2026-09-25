@@ -28,10 +28,15 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.junit5.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 
+@ParameterizedClass(name = "[{0}]")
+@MethodSource("compliances")
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AbstractCompilerTest extends TestCase {
 
@@ -118,6 +123,38 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_26, ClassFileConstants.MAJOR_VERSION_26},
 		new int[] {F_27, ClassFileConstants.MAJOR_VERSION_27},
 	};
+
+	protected record Compliance(String displayName) {
+		@Override
+		public final String toString() {
+			return "compliance "+this.displayName;
+		}
+	}
+
+	static List<Compliance> compliances(TestInfo info) {
+		int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		List<Compliance> compliances = new ArrayList<>();
+		int min = getMinCompliance(info);
+		for (int v=0; v < AbstractCompilerTest.NUM_VERSIONS; v++) {
+			int level = AbstractCompilerTest.F_1_8 << v;
+			if ((possibleComplianceLevels & level) != 0 && level >= min) {
+				long complianceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_1_8+v);
+				compliances.add(new Compliance(CompilerOptions.versionFromJdkLevel(complianceLevel)));
+			}
+		}
+		return compliances;
+	}
+
+	protected static int getMinCompliance(TestInfo info) {
+		try {
+			MinimalCompliance minCompliance = info.getTestClass().get().getAnnotation(MinimalCompliance.class);
+			if (minCompliance != null)
+				return minCompliance.value();
+		} catch (SecurityException e) {
+			// ignore, use default below
+		}
+		return F_1_8;
+	}
 
 	/**
 	 * Build a test suite made of test suites for all possible running VM compliances .
@@ -557,9 +594,14 @@ public class AbstractCompilerTest extends TestCase {
 		builder.append("\"");
 		return builder.toString();
 	}
-
+	@Deprecated
 	public AbstractCompilerTest(String name) {
 		super(name);
+	}
+
+	public AbstractCompilerTest(Compliance compliance, TestInfo testInfo) {
+		super(testInfo.getDisplayName());
+		this.complianceLevel = CompilerOptions.versionToJdkLevel(compliance.displayName());
 	}
 
 	protected Map getCompilerOptions() {

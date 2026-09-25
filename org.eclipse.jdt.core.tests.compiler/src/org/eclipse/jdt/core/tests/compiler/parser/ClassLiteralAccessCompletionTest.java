@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Completion is expected to be a ClassLiteralAccess.
  */
 public class ClassLiteralAccessCompletionTest extends AbstractCompletionTest {
-public ClassLiteralAccessCompletionTest(String testName) {
-	super(testName);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(ClassLiteralAccessCompletionTest.class);
+public ClassLiteralAccessCompletionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Completion on the keyword 'class' on an array type
  */
+@Test
 public void testArrayType() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -60,6 +59,7 @@ public void testArrayType() {
  * Test access to the keyword 'class' on an array type
  * where the keyword is non empty.
  */
+@Test
 public void testArrayTypeWithNonEmptyIdentifier() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -91,6 +91,7 @@ public void testArrayTypeWithNonEmptyIdentifier() {
 /*
  * Completion on the keyword 'class' on a primitive array type
  */
+@Test
 public void testPrimitiveArrayType() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -123,6 +124,7 @@ public void testPrimitiveArrayType() {
  * Completion on the keyword 'class' on a primitive array type where the
  * keyword is non empty
  */
+@Test
 public void testPrimitiveArrayTypeWithNonEmptyIdentifier() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -154,6 +156,7 @@ public void testPrimitiveArrayTypeWithNonEmptyIdentifier() {
 /*
  * Completion on the keyword 'class' on a primitive type
  */
+@Test
 public void testPrimitiveType() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -186,6 +189,7 @@ public void testPrimitiveType() {
  * Completion on the keyword 'class' on a primitive type where the
  * keyword is non empty
  */
+@Test
 public void testPrimitiveTypeWithNonEmptyIdentifier() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

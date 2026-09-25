@@ -13,23 +13,23 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * Sanity test the IEvaluationResult interface.
  * For in depth tests, see VariableTest or CodeSnippetTest.
  */
-@SuppressWarnings({ "rawtypes" })
 public class SanityTestEvaluationResult extends EvaluationTest {
 	EvaluationResult result;
 /**
  * Creates a new SanityEvaluationResultTest.
  */
-public SanityTestEvaluationResult(String name) {
-	super(name);
+public SanityTestEvaluationResult(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /**
  * Initializes this test with an evaluation result coming from the
@@ -50,15 +50,10 @@ protected void setUp() throws Exception {
 		throw new Error(e.getMessage());
 	}
 }
-public static Test suite() {
-	return setupSuite(testClass());
-}
-public static Class testClass() {
-	return SanityTestEvaluationResult.class;
-}
 /**
  * Sanity test of IEvaluationResult.getEvaluationType()
  */
+@Test
 public void testGetEvaluationType() {
 	int evaluationType = this.result.getEvaluationType();
 	assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, evaluationType);
@@ -66,6 +61,7 @@ public void testGetEvaluationType() {
 /**
  * Sanity test of IEvaluationResult.getProblems()
  */
+@Test
 public void testGetProblems() {
 	CategorizedProblem[] problems = this.result.getProblems();
 	assertTrue("Problems", problems == null || problems.length == 0);
@@ -73,12 +69,14 @@ public void testGetProblems() {
 /**
  * Sanity test of IEvaluationResult.getValue()
  */
+@Test
 public void testGetValue() {
 	// TBD: Not implemented yet
 }
 /**
  * Sanity test of IEvaluationResult.getValueDisplayString()
  */
+@Test
 public void testGetValueDisplayString() {
 	char[] displayString = this.result.getValueDisplayString();
 	assertEquals("Value display string", "1".toCharArray(), displayString);
@@ -86,6 +84,7 @@ public void testGetValueDisplayString() {
 /**
  * Sanity test of IEvaluationResult.getValueTypeName()
  */
+@Test
 public void testGetValueTypeName() {
 	char[] typeName = this.result.getValueTypeName();
 	assertEquals("Value type name", "int".toCharArray(), typeName);
@@ -93,24 +92,28 @@ public void testGetValueTypeName() {
 /**
  * Sanity test of IEvaluationResult.hasErrors()
  */
+@Test
 public void testHasErrors() {
 	assertTrue("Result has no errors", !this.result.hasErrors());
 }
 /**
  * Sanity test of IEvaluationResult.hasProblems()
  */
+@Test
 public void testHasProblems() {
 	assertTrue("Result has no problems", !this.result.hasProblems());
 }
 /**
  * Sanity test of IEvaluationResult.hasValue()
  */
+@Test
 public void testHasValue() {
 	assertTrue("Result has a value", this.result.hasValue());
 }
 /**
  * Sanity test of IEvaluationResult.hasWarnings()
  */
+@Test
 public void testHasWarnings() {
 	assertTrue("Result has no warnings", !this.result.hasWarnings());
 }

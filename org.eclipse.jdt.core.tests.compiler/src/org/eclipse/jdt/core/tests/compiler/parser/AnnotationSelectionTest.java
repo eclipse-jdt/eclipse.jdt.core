@@ -13,13 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
 public class AnnotationSelectionTest extends AbstractSelectionTest {
-public AnnotationSelectionTest(String testName) {
-	super(testName);
+public AnnotationSelectionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /*
  * Selection at specific location
  */
+@Test
 public void test0001() {
 
 	String str =
@@ -55,6 +59,7 @@ public void test0001() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0002() {
 
 	String str =
@@ -90,6 +95,7 @@ public void test0002() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0003() {
 
 	String str =
@@ -125,6 +131,7 @@ public void test0003() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0004() {
 
 	String str =
@@ -196,6 +203,7 @@ public void _test0005() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0006() {
 
 	String str =
@@ -235,6 +243,7 @@ public void test0006() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0007() {
 
 	String str =
@@ -274,6 +283,7 @@ public void test0007() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0008() {
 
 	String str =
@@ -311,6 +321,7 @@ public void test0008() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0009() {
 
 	String str =
@@ -349,6 +360,7 @@ public void test0009() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0010() {
 
 	String str =
@@ -388,6 +400,7 @@ public void test0010() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0011() {
 
 	String str =
@@ -429,6 +442,7 @@ public void test0011() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0012() {
 
 	String str =
@@ -470,6 +484,7 @@ public void test0012() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0013() {
 
 	String str =
@@ -505,6 +520,7 @@ public void test0013() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0014() {
 
 	String str =
@@ -540,6 +556,7 @@ public void test0014() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0015() {
 
 	String str =
@@ -575,6 +592,7 @@ public void test0015() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0016() {
 
 	String str =
@@ -610,6 +628,7 @@ public void test0016() {
 /*
  * Selection at specific location
  */
+@Test
 public void test0017() {
 
 	String str =

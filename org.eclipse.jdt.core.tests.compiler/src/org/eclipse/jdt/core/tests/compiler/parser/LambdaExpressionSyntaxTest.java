@@ -15,8 +15,9 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
@@ -31,12 +32,9 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
 
-	public LambdaExpressionSyntaxTest(String testName){
-		super(testName, referenceCompiler, jsr335TestScratchArea);
+	public LambdaExpressionSyntaxTest(Compliance compliance, TestInfo info){
+		super(compliance, info, referenceCompiler, jsr335TestScratchArea);
 		if (referenceCompiler != null) {
 			File f = new File(jsr335TestScratchArea);
 			if (!f.exists()) {
@@ -55,6 +53,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		}
 	}
 	// type elided, unparenthesized parameter + expression body lambda in casting context.
+	@Test
 	public void test0001() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -81,6 +80,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0001", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda as initializer.
+	@Test
 	public void test0002() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -109,6 +109,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0002", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda as initializer, full lambda is parenthesized.
+	@Test
 	public void test0003() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -137,6 +138,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0003", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda as RHS of assignment, full lambda is parenthesized.
+	@Test
 	public void test0004() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -167,6 +169,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0004", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda in return statement, full lambda is parenthesized.
+	@Test
 	public void test0005() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -201,6 +204,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0005", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda in conditional expression.
+	@Test
 	public void test0006() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -229,6 +233,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0006", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda in message send.
+	@Test
 	public void test0007() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -263,6 +268,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0007", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda in constructor call.
+	@Test
 	public void test0008() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -295,6 +301,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0008", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda in lambda.
+	@Test
 	public void test0009() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -321,6 +328,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0009", expectedUnitToString);
 	}
 	// type elided, unparenthesized parameter + expression body lambda in an initializer block
+	@Test
 	public void test00010() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -357,6 +365,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test00010", expectedUnitToString);
 	}
 	// type elided, parenthesized parameter + expression body lambda in casting context.
+	@Test
 	public void test0011() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -383,6 +392,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0011", expectedUnitToString);
 	}
 	// Normal & minimal parameter list + expression body lambda in assignment context.
+	@Test
 	public void test0012() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -411,6 +421,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0012", expectedUnitToString);
 	}
 	// Normal parameter list, with modifiers & annotations  + expression body lambda in invocation context.
+	@Test
 	public void test0013() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -448,6 +459,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0013", expectedUnitToString);
 	}
 	// Vararg parameter list, with modifiers & annotations + expression body lambda in message send context.
+	@Test
 	public void test0014() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -485,6 +497,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0014", expectedUnitToString);
 	}
 	// multi parameter type elided list + expression body lambda in return statement.
+	@Test
 	public void test0015() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -519,6 +532,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0015", expectedUnitToString);
 	}
 	// multi parameter type specified list + block body lambda in return statement.
+	@Test
 	public void test0016() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -555,6 +569,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0016", expectedUnitToString);
 	}
 	// noarg + block body lambda
+	@Test
 	public void test0017() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -583,6 +598,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0017", expectedUnitToString);
 	}
 	// Assorted tests.
+	@Test
 	public void test0018() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -643,6 +659,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 
 	// like test0001() but body expression is an assignment
+	@Test
 	public void test0019() throws IOException {
 		String source =
 				"interface I {\n" +
@@ -674,6 +691,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	// Coverage:  exercise this condition in Parser.consumeExpression():
 	//   if (this.valueLambdaNestDepth >= 0 && this.stateStackLengthStack[this.valueLambdaNestDepth] == this.stateStackTop - 1)
 	// make sure we see a (true && false) combination
+	@Test
 	public void testNestedLambda01() throws IOException {
 		String source =
 				"public class C {\n" +
@@ -704,6 +722,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "testNestedLambda01", expectedUnitToString);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385132
+	@Test
 	public void test385132() throws IOException {
 		String source = "->";
 		String expectedErrorString =

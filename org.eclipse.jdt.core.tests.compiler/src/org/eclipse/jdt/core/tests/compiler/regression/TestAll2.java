@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2026 GK Software and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9,24 +9,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.eval;
+package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
-/**
- * Run all tests defined in this package.
- */
+
 @Suite
 @SelectClasses({
-	SanityTestEvaluationContext.class,
-	SanityTestEvaluationResult.class,
-	VariableTest.class,
-	CodeSnippetTest.class,
-	NegativeCodeSnippetTest.class,
-	NegativeVariableTest.class,
-	DebugEvaluationTest.class,
-	EvaluationContextWrapperTest.class
+	ArrayTest.class,
+	AnnotationTest_9.class
 })
-public class TestAll  { }
+public class TestAll2 { }

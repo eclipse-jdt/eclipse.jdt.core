@@ -14,14 +14,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class ComplianceDiagnoseTest extends AbstractRegressionTest {
-	public ComplianceDiagnoseTest(String name) {
-		super(name);
+	public ComplianceDiagnoseTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
@@ -29,9 +30,6 @@ static {
 //	TESTS_NAMES = new String[] { "test0042" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 21, 50 };
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
 }
 public static Class testClass() {
 	return ComplianceDiagnoseTest.class;
@@ -115,6 +113,7 @@ public void runComplianceParserTest(
 			this.runNegativeTest(testFiles, expected22ProblemLog);
 		}
 	}
+@Test
 public void test0001() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -153,6 +152,7 @@ public void test0001() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0002() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -192,6 +192,7 @@ public void test0002() {
 	);
 }
 // TODO: Fix this and Enable
+@Test
 public void test0003() {
 	String[] testFiles = new String[] {
 		"x/X.java", """
@@ -222,6 +223,7 @@ public void test0003() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0004() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -263,6 +265,7 @@ public void test0004() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0005() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -302,6 +305,7 @@ public void test0005() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0006() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -344,6 +348,7 @@ public void test0006() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0007() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -386,6 +391,7 @@ public void test0007() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0008() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -425,6 +431,7 @@ public void test0008() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0009() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -450,6 +457,7 @@ public void test0009() {
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testPatternsInCase() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -683,6 +691,7 @@ public void testPatternsInCase() {
 				expectedProblemLogFrom21);
 	}
 }
+@Test
 public void test0010() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -741,6 +750,7 @@ public void test0010() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0011() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -796,6 +806,7 @@ public void test0011() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0012() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -832,6 +843,7 @@ public void test0012() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0013() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -881,6 +893,7 @@ public void test0013() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0014() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -919,6 +932,7 @@ public void test0014() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0015() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -961,6 +975,7 @@ public void test0015() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0016() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1011,6 +1026,7 @@ public void test0016() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0017() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1064,6 +1080,7 @@ public void test0017() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0018() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1109,6 +1126,7 @@ public void test0018() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0019() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1178,6 +1196,7 @@ public void test0019() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0020() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1226,6 +1245,7 @@ public void test0020() {
 	);
 }
 //TODO (david) suspicious behavior
+@Test
 public void test0021() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1271,6 +1291,7 @@ public void test0021() {
 	);
 }
 //TODO (david) suspicious behavior
+@Test
 public void test0022() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1320,6 +1341,7 @@ public void test0022() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0023() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1390,6 +1412,7 @@ public void _test0024() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0025() {
 	String[] testFiles = new String[] {
 		"x/X.java", """
@@ -1426,6 +1449,7 @@ public void test0025() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0026() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1478,6 +1502,7 @@ public void test0026() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0027() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1525,6 +1550,7 @@ public void test0027() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0028() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1580,6 +1606,7 @@ public void test0028() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0029() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1690,6 +1717,7 @@ public void _test0030() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0031() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1798,6 +1826,7 @@ public void _test0032() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0033() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1836,6 +1865,7 @@ public void test0033() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0034() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1886,6 +1916,7 @@ public void test0034() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0035() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1919,6 +1950,7 @@ public void test0035() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0036() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1963,6 +1995,7 @@ public void test0036() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0037() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2012,6 +2045,7 @@ public void test0037() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0038() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2051,6 +2085,7 @@ public void test0038() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0039() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2094,6 +2129,7 @@ public void test0039() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0040() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2137,6 +2173,7 @@ public void test0040() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0041() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2170,6 +2207,7 @@ public void test0041() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0042() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2268,6 +2306,7 @@ public void test0042() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72942
  */
+@Test
 public void test0043() {
 	String[] testFiles = new String[] {
 		"x/X.java", """
@@ -2307,6 +2346,7 @@ public void test0043() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=62472
  */
+@Test
 public void test0044() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2364,6 +2404,7 @@ public void test0044() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=62472
  */
+@Test
 public void test0045() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2399,6 +2440,7 @@ public void test0045() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74519
  */
+@Test
 public void test0046() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2429,6 +2471,7 @@ public void test0046() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74519
  */
+@Test
 public void test0047() {
 	String[] testFiles = new String[] {
 		"A.java",
@@ -2463,6 +2506,7 @@ public void test0047() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0048() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2497,6 +2541,7 @@ public void test0048() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0049() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2558,6 +2603,7 @@ public void test0049() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0050() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2614,6 +2660,7 @@ public void test0050() {
 		expected17ProblemLog
 	);
 }
+@Test
 public void test0051() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2658,6 +2705,7 @@ public void test0051() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154811
+@Test
 public void test0052() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2722,6 +2770,7 @@ public void test0052() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=42243
+@Test
 public void test0053() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2757,6 +2806,7 @@ public void test0053() {
 		expected15ProblemLog
 	);
 }
+@Test
 public void test0054() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2797,6 +2847,7 @@ public void test0054() {
 }
 
 // rethrow should not be precisely computed in 1.6-
+@Test
 public void test0056() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2873,6 +2924,7 @@ public void test0056() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778,  [1.8][compiler] Conditional operator expressions should propagate target types
+@Test
 public void testBug399778() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2902,6 +2954,7 @@ public void testBug399778() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778,  [1.8][compiler] Conditional operator expressions should propagate target types
+@Test
 public void testBug399778a() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2932,6 +2985,7 @@ public void testBug399778a() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=399769:  Use of '_' as identifier name should trigger a diagnostic
+@Test
 public void testBug399781() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -3055,6 +3109,7 @@ public void testBug399781() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850: [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
 // FAIL: sub-optimal overload picked
+@Test
 public void test401850() {
 	this.runConformTest(
 			new String[] {
@@ -3075,6 +3130,7 @@ public void test401850() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=421477: [1.8][compiler] strange error message for default method in class
+@Test
 public void test421477() {
 	this.runNegativeTest(
 			new String[] {
@@ -3098,6 +3154,7 @@ public void test421477() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=428605: [1.8] Error highlighting can be improved for default methods
+@Test
 public void test428605() {
 	this.runNegativeTest(
 			new String[] {
@@ -3113,6 +3170,7 @@ public void test428605() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440285
 // [1.8] Compiler allows array creation reference with type arguments
+@Test
 public void testBug440285() {
 	runNegativeTest(new String [] {
 		"X.java",
@@ -3135,6 +3193,7 @@ public void testBug440285() {
 		"Type arguments are not allowed here\n" +
 		"----------\n");
 }
+@Test
 public void testBug531714_001() {
 	if (this.complianceLevel >= ClassFileConstants.JDK12)
 		return;
@@ -3192,6 +3251,7 @@ public void testBug531714_001() {
 		expectedProblemLog
 	);
 }
+@Test
 public void testBug531714_002() {
 	if (this.complianceLevel >= ClassFileConstants.JDK12)
 		return;
@@ -3259,6 +3319,7 @@ public void testBug531714_002() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2008
 // Support for identifier '_' for old compile source/target versions
+@Test
 public void testIssue2008() {
 	String[] testFiles = new String[] {
 		"X.java",

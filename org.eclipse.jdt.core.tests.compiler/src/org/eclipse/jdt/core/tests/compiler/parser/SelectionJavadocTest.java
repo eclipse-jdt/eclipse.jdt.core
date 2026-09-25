@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.select.SelectionJavadoc;
 import org.eclipse.jdt.internal.codeassist.select.SelectionParser;
@@ -36,6 +35,8 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Class to test selection in Javadoc comments.
@@ -48,17 +49,13 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	ICompilationUnit unit;
 	StringBuilder result;
 
-	public SelectionJavadocTest(String testName) {
-		super(testName);
+	public SelectionJavadocTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
 //		TESTS_NUMBERS = new int[] { 9, 10 };
 //		TESTS_RANGE = new int[] { 26, -1 };
-	}
-
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(SelectionJavadocTest.class);
 	}
 
 	class JavadocSelectionVisitor extends ASTVisitor {
@@ -180,6 +177,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	    return optionsMap;
     }
 
+	@Test
 	public void test01() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -194,6 +192,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		assertValid("/**<SelectOnMethod:#foo()>*/\n");
 	}
 
+	@Test
 	public void test02() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -208,6 +207,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		assertValid("/**<SelectOnMethod:#foo()>*/\n");
 	}
 
+	@Test
 	public void test03() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -219,6 +219,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		assertValid("/**<SelectOnType:Test>*/\n");
 	}
 
+	@Test
 	public void test04() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -230,6 +231,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		assertValid("/**<SelectOnType:Test>*/\n");
 	}
 
+	@Test
 	public void test05() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -242,6 +244,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		assertValid("/**<SelectOnField:#field>*/\n");
 	}
 
+	@Test
 	public void test06() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -254,6 +257,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		assertValid("/**<SelectOnField:#field>*/\n");
 	}
 
+	@Test
 	public void test07() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -287,6 +291,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test08() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -320,6 +325,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test09() {
 		setUnit("test/junit/Test.java",
 			"package test.junit;\n" +
@@ -367,6 +373,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test10() {
 		setUnit("test/junit/Test.java",
 			"package test.junit;\n" +
@@ -413,6 +420,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test11() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -431,6 +439,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test12() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -449,6 +458,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test13() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -467,6 +477,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test14() {
 		setUnit("Test.java",
 			"/**\n" +
@@ -507,6 +518,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test15() {
 		setUnit("Test.java",
 			"/**\n" +
@@ -563,6 +575,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test16() {
 		setUnit("Test.java",
 			"/**\n" +
@@ -588,6 +601,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test17() {
 		setUnit("Test.java",
 			"/**\n" +
@@ -633,6 +647,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test18() {
 		setUnit("Test.java",
 			"/**\n" +
@@ -678,6 +693,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test19() {
 		setUnit("Test.java",
 			"/**\n" +
@@ -708,6 +724,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test20() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -739,6 +756,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test21() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -770,6 +788,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test22() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -790,6 +809,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test23() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -823,6 +843,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test24() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -856,6 +877,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		);
 	}
 
+	@Test
 	public void test25() {
 		setUnit("Test.java",
 			"public class Test {\n" +
@@ -882,6 +904,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	 * bug 192449: [javadoc][assist] SelectionJavadocParser should not report problems
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=192449"
 	 */
+	@Test
 	public void test26() {
 		setUnit("Test.java",
 			"/**\n" +

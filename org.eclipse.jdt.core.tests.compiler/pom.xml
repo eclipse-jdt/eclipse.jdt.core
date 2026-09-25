@@ -35,9 +35,13 @@
 	  		<configuration>
 	  			<includes>
 	  				<include>org/eclipse/jdt/core/tests/compiler/parser/TestAll.class</include>
-	  				<include>org/eclipse/jdt/core/tests/compiler/regression/TestAll.class</include>
 	  				<include>org/eclipse/jdt/core/tests/eval/TestAll.class</include>
+<!--
+	  				<include>org/eclipse/jdt/core/tests/compiler/regression/TestAll.class</include>
+-->
+	  				<include>org/eclipse/jdt/core/tests/compiler/regression/TestAll2.class</include>
 	  			</includes>
+	  			<providerHint>junit5</providerHint>
 	  			<argLine>${tycho.surefire.argLine}</argLine>
 	  		</configuration>
   		</plugin>

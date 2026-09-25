@@ -13,8 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * Test the global variable evaluation.
  * This assumes that the EvaluationContext class and that the GlobalVariable class
@@ -25,15 +26,13 @@ public class VariableTest extends EvaluationTest {
 /**
  * Creates a new EvaluationContextTest.
  */
-public VariableTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return setupSuite(testClass());
+public VariableTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 /**
  * Tests the individual evaluation of variables with expected values of all kind of types.
  */
+@Test
 public void testAllKindOfValues() {
 	try {
 		// Creates the variables
@@ -81,6 +80,7 @@ public static Class testClass() {
 /**
  * Tests the assignment of a global variable in a code snippet.
  */
+@Test
 public void testCodeSnippetVarAssign() {
 	try {
 		// Creates the variables
@@ -144,6 +144,7 @@ public void testCodeSnippetVarAssign() {
 /**
  * Tests the retrieval of a global variable from a code snippet.
  */
+@Test
 public void testCodeSnippetVarRetrieval() {
 	try {
 		// Creates the variables
@@ -188,6 +189,7 @@ public void testCodeSnippetVarRetrieval() {
 /**
  * Tests variables that include one or more imports.
  */
+@Test
 public void testImports() {
 	try {
 		// import a package
@@ -218,6 +220,7 @@ public void testImports() {
 /**
  * Tests the additions and deletion of variables, installing them each time.
  */
+@Test
 public void testSeveralVariableInstallations() {
 	try {
 		// Creates 6 variables

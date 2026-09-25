@@ -14,17 +14,17 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.io.IOException;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 
-	public ModuleDeclarationSyntaxTest(String name, String referenceCompiler,
-			String referenceCompilerTestsScratchArea) {
-		super(name, referenceCompiler, referenceCompilerTestsScratchArea);
-	}
 	public static Class<?> testClass() {
 		return ModuleDeclarationSyntaxTest.class;
 	}
@@ -32,17 +32,15 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
-	}
 
 	static {
 		//		TESTS_NAMES = new String[] { "test0009" };
 		//		TESTS_NUMBERS = new int[] { 133, 134, 135 };
 	}
-	public ModuleDeclarationSyntaxTest(String testName){
-		super(testName, null, null);
+	public ModuleDeclarationSyntaxTest(Compliance compliance, TestInfo info){
+		super(compliance, info, null, null);
 	}
+	@Test
 	public void test0001() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -56,6 +54,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0002() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -71,6 +70,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0003() throws IOException {
 		String source =
 				"module org.astro {\n" +
@@ -86,6 +86,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0004() throws IOException {
 		String source =
 				"module org.astro {\n" +
@@ -101,6 +102,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0005() throws IOException {
 		String source =
 				"module com.socket {\n" +
@@ -120,6 +122,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0006() throws IOException {
 		String source =
 				"module org.fastsocket {\n" +
@@ -138,6 +141,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0007() throws IOException {
 		String source =
 				"module org.fastsocket {\n" +
@@ -157,6 +161,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), expectedErrorString, "module-info", null, null, options);
 	}
+	@Test
 	public void test0008() throws IOException {
 		String source =
 				"module @Marker com.greetings {\n" +
@@ -182,6 +187,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	@Test
 	public void test0009() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -212,6 +218,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	@Test
 	public void test0010() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -230,6 +237,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	@Test
 	public void test0011() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -260,6 +268,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	@Test
 	public void test0012() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -278,6 +287,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	@Test
 	public void test0013() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -296,6 +306,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	@Test
 	public void test0014() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -319,6 +330,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	@Test
 	public void test0015() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -334,6 +346,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0016() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -349,6 +362,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0017() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -364,6 +378,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0018() throws IOException {
 		String source =
 				"import com.socket.spi.NetworkSocketProvider;\n" +
@@ -384,6 +399,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0019() throws IOException {
 		String source =
 				"import com.socket.spi.*;\n" +
@@ -404,6 +420,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0020() throws IOException {
 		String source =
 				"open module com.greetings {\n" +
@@ -419,6 +436,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0021() throws IOException {
 		String source =
 				"module org.fastsocket {\n" +
@@ -437,6 +455,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0022() throws IOException {
 		String source =
 				"module org.astro {\n" +
@@ -452,6 +471,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0023() throws IOException {
 		String source =
 				"module org.astro {\n" +
@@ -467,6 +487,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0024() throws IOException {
 		String source =
 				"module org.astro {\n" +
@@ -486,6 +507,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0025() throws IOException {
 		String source =
 				"@Foo\n" +
@@ -507,6 +529,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void test0026() throws IOException {
 		String source =
 				"@Foo\n" +
@@ -529,6 +552,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 
+	@Test
 	public void test0027() throws IOException {
 		String source =
 				"@Foo @Bar(x = 2) @Baz(\"true\")\n" +
@@ -551,6 +575,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 
+	@Test
 	public void testBug518626() throws IOException {
 		String source =
 				"module module.test {\n" +
@@ -566,6 +591,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void testbug488541() throws IOException {
 		String source =
 				"module module {\n" +
@@ -587,6 +613,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void testbug488541a() throws IOException {
 		String source =
 			"import module.pack1.exports.pack2;\n" +
@@ -618,6 +645,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	@Test
 	public void testbug488541b() throws IOException {
 		String source =
 				"module module {\n" +

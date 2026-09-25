@@ -13,21 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class CompletionRecoveryTest extends AbstractCompletionTest {
-public CompletionRecoveryTest(String testName){
-	super(testName);
+public CompletionRecoveryTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 static {
 //	TESTS_NUMBERS = new int[] { 22 };
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(CompletionRecoveryTest.class);
-}
 /*
  * Complete on variable behind ill-formed declaration
  */
+@Test
 public void test01() {
 
 	String str =
@@ -67,6 +66,7 @@ public void test01() {
 /*
  * Complete on variable behind ill-formed declaration and nested block
  */
+@Test
 public void test02() {
 
 	String str =
@@ -111,6 +111,7 @@ public void test02() {
 /*
  * Complete on variable behind ill-formed declaration and inside local type field initialization
  */
+@Test
 public void test03() {
 
 	String str =
@@ -156,6 +157,7 @@ public void test03() {
 /*
  * Complete on variable behind closed scope
  */
+@Test
 public void test04() {
 
 	String str =
@@ -198,6 +200,7 @@ public void test04() {
 /*
  * Complete on variable str with sibling method stringAppend()
  */
+@Test
 public void test05() {
 
 	String str =
@@ -252,6 +255,7 @@ public void test05() {
  * Complete on variable str with sibling method stringAppend(), eliminating
  * uninteresting method bodies
  */
+@Test
 public void test06() {
 
 	String str =
@@ -311,6 +315,7 @@ public void test06() {
 /*
  * Complete on new keyword
  */
+@Test
 public void test07(){
 
 	String str =
@@ -349,6 +354,7 @@ public void test07(){
 /*
  * Complete on field type in anonymous type.
  */
+@Test
 public void test08() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -400,6 +406,7 @@ public void test08() {
 /*
  * Complete on argument name
  */
+@Test
 public void test09() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -444,6 +451,7 @@ public void test09() {
 /*
  * Complete on argument name
  */
+@Test
 public void test10() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -488,6 +496,7 @@ public void test10() {
 /*
  * Complete inside method with incomplete signature
  */
+@Test
 public void test11() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -533,6 +542,7 @@ public void test11() {
 /*
  * Complete on argument name with class decl later on
  */
+@Test
 public void test12() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -573,6 +583,7 @@ public void test12() {
 /*
  * Complete behind array type
  */
+@Test
 public void test13() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -604,6 +615,7 @@ public void test13() {
 /*
  * Complete inside array type
  */
+@Test
 public void test14() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -635,6 +647,7 @@ public void test14() {
 /*
  * Complete inside array type
  */
+@Test
 public void test15() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -666,6 +679,7 @@ public void test15() {
 /*
  * Complete behind invalid array type
  */
+@Test
 public void test16() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -699,6 +713,7 @@ public void test16() {
 /*
  * Complete behind invalid base type
  */
+@Test
 public void test17() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -736,6 +751,7 @@ public void test17() {
 /*
  * Complete behind incomplete local method header
  */
+@Test
 public void test18() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -772,6 +788,7 @@ public void test18() {
 /*
  * Complete behind catch variable
  */
+@Test
 public void test19() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -806,6 +823,7 @@ public void test19() {
 /*
  * Complete on catch variable
  */
+@Test
 public void test20() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -843,6 +861,7 @@ public void test20() {
 /*
  * Complete on catch variable after syntax error
  */
+@Test
 public void test21() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -883,6 +902,7 @@ public void test21() {
  * Complete on constructor type name
  * 1G1HF7P: ITPCOM:WIN98 - CodeAssist may not work in constructor signature
  */
+@Test
 public void test22() {
 	runTestCheckDietParse(
 		// compilationUnit:
@@ -924,6 +944,7 @@ public void test22() {
 /**
  * Complete in initializer in recovery mode
  */
+@Test
 public void test23() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -962,6 +983,7 @@ public void test23() {
 /**
  * Complete after initializer in recovery mode
  */
+@Test
 public void test24() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1001,6 +1023,7 @@ public void test24() {
 /**
  * Complete after dot, before a number {@code .<|>12}
  */
+@Test
 public void test25() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:
@@ -1033,6 +1056,7 @@ public void test25() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=201762
+@Test
 public void test26() {
 	this.runTestCheckMethodParse(
 		// compilationUnit:

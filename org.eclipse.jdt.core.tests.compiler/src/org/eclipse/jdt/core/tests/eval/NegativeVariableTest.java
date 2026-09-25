@@ -13,32 +13,28 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * Negative tests for variables. Only compilation problems should be reported in
  * these tests.
  */
-@SuppressWarnings({ "rawtypes" })
 public class NegativeVariableTest extends EvaluationTest implements ProblemSeverities, ProblemReasons {
 /**
  * Creates a new NegativeVariableTest.
  */
-public NegativeVariableTest(String name) {
-	super(name);
+public NegativeVariableTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return setupSuite(testClass());
-}
-public static Class testClass() {
-	return NegativeVariableTest.class;
-}
+
 /**
  * Test a variable that has a problem in its initializer.
  */
+@Test
 public void testInitializerProblem() {
 	// Problem in first variable
 	GlobalVariable var = null;
@@ -115,6 +111,7 @@ public void _testInvalidName() {
 /**
  * Test a variable that has a problem in its type declaration.
  */
+@Test
 public void testUnknownType() {
 	// Problem in first variable
 	GlobalVariable var = null;

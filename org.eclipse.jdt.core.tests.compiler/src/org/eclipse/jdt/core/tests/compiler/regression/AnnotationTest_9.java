@@ -12,25 +12,26 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class AnnotationTest_9 extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "testGH1654" };
 	}
 
-    public AnnotationTest_9(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return buildMinimalComplianceTestSuite(testClass(), F_9);
+    public AnnotationTest_9(Compliance compliance, TestInfo info) {
+        super(compliance, info);
     }
 
     public static Class<?> testClass() {
         return AnnotationTest_9.class;
     }
 
+    @Test
     public void testBug532913() throws Exception {
 	    runConformTest(
 	        new String[] {
@@ -50,6 +51,7 @@ public class AnnotationTest_9 extends AbstractComparableTest {
                     "}\n",
             },"", null, false, null);
 	}
+    @Test
     public void testBug521054a() throws Exception {
     	this.runNegativeTest(
     		new String[] {
@@ -66,6 +68,7 @@ public class AnnotationTest_9 extends AbstractComparableTest {
     		"----------\n",
     		null, true);
     }
+    @Test
     public void testBug521054b() throws Exception {
     	this.runNegativeTest(
     		new String[] {
@@ -86,6 +89,7 @@ public class AnnotationTest_9 extends AbstractComparableTest {
     		"----------\n",
     		null, true);
     }
+    @Test
     public void testBug521054c() throws Exception {
     	this.runNegativeTest(
     		new String[] {
@@ -106,6 +110,7 @@ public class AnnotationTest_9 extends AbstractComparableTest {
     		"----------\n",
     		null, true);
     }
+	@Test
 	public void testGH1654() {
 		runConformTest(
 			new String[] {
@@ -146,6 +151,7 @@ public class AnnotationTest_9 extends AbstractComparableTest {
 			}
 			);
 	}
+	@Test
 	public void testGH4059() {
 		runConformTest(
 			new String[] {

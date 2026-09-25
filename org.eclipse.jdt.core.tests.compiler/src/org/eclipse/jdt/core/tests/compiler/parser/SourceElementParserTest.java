@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -29,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SourceElementParserTest extends AbstractCompilerTest implements ISourceElementRequestor {
@@ -41,19 +42,12 @@ public class SourceElementParserTest extends AbstractCompilerTest implements ISo
 	private SourcePackage currentPackage;
 	private SourceImport[] currentImports;
 	private int numberOfImports;
-public SourceElementParserTest(String testName) {
-	super(testName);
-}
-public SourceElementParserTest(String testName, char[] source) {
-	super(testName);
-	this.source = source;
+public SourceElementParserTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 static {
 //	TESTS_NUMBERS = new int[] { 81 };
 //	TESTS_NAMES = new String[] {"test63"};
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(SourceElementParserTest.class);
 }
 /**
  * acceptAnnotationTypeReference method comment.
@@ -393,6 +387,7 @@ public void setImports() {
 	}
 	this.currentType.setImports(this.currentImports);
 }
+@Test
 public void test01() {
 
 	String s =
@@ -469,6 +464,7 @@ public void test01() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test02() {
 
 	String s =
@@ -499,6 +495,7 @@ public void test02() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test03() {
 
 	String s =
@@ -574,6 +571,7 @@ public void test03() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test04() {
 
 	String s =
@@ -653,6 +651,7 @@ public void test04() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test05() {
 
 	String s =
@@ -732,6 +731,7 @@ public void test05() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test06() {
 
 	String s =
@@ -823,6 +823,7 @@ public void test06() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test07() {
 
 	String s =
@@ -915,6 +916,7 @@ public void test07() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test08() {
 
 	String s =
@@ -977,6 +979,7 @@ public void test08() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test09() {
 
 	String s =
@@ -1042,6 +1045,7 @@ public void test09() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test10() {
 
 	String s =
@@ -1108,6 +1112,7 @@ public void test10() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test11() {
 
 	String s =
@@ -1189,6 +1194,7 @@ public void test11() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test12() {
 
 	String s =
@@ -1274,6 +1280,7 @@ public void test12() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test13() {
 
 	String s =
@@ -1354,6 +1361,7 @@ public void test13() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test14() {
 
 	String s =
@@ -1422,6 +1430,7 @@ public void test14() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test15() {
 
 	String s =
@@ -1518,6 +1527,7 @@ public void test15() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test16() {
 
 	String s =
@@ -1612,6 +1622,7 @@ public void test16() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test17() {
 
 	String s =
@@ -1710,6 +1721,7 @@ public void test17() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test18() {
 
 	String s =
@@ -1806,6 +1818,7 @@ public void test18() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test19() {
 
 	String s =
@@ -1881,6 +1894,7 @@ public void test19() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test20() {
 
 	String s =
@@ -1960,6 +1974,7 @@ public void test20() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test21() {
 
 	String s =
@@ -2038,6 +2053,7 @@ public void test21() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test22() {
 
 	String s =
@@ -2085,6 +2101,7 @@ public void test22() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test23() {
 
 	String s =
@@ -2139,6 +2156,7 @@ public void test23() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test24() {
 
 	String s =
@@ -2193,6 +2211,7 @@ public void test24() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test25() {
 
 	String s =
@@ -2250,6 +2269,7 @@ public void test25() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test26() {
 
 	String s =
@@ -2320,6 +2340,7 @@ public void test26() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test27() {
 
 	String s =
@@ -2391,6 +2412,7 @@ public void test27() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test28() {
 
 	String s =
@@ -2454,6 +2476,7 @@ public void test28() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test29() {
 
 	String s =
@@ -2537,6 +2560,7 @@ public void test29() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test30() {
 
 	String s =
@@ -2619,6 +2643,7 @@ public void test30() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test31() {
 
 	String s =
@@ -2701,6 +2726,7 @@ public void test31() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test32() {
 
 	String s =
@@ -2766,6 +2792,7 @@ public void test32() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test33() {
 
 	String s =
@@ -2830,6 +2857,7 @@ public void test33() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test34() {
 
 	String s =
@@ -2912,6 +2940,7 @@ public void test34() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test35() {
 
 	String s =
@@ -2990,6 +3019,7 @@ public void test35() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test36() {
 
 	String s =
@@ -3067,6 +3097,7 @@ public void test36() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test37() {
 
 	String s =
@@ -3150,6 +3181,7 @@ public void test37() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test38() {
 
 	String s =
@@ -3231,6 +3263,7 @@ public void test38() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test39() {
 
 	String s =
@@ -3313,6 +3346,7 @@ public void test39() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test40() {
 
 	String s =
@@ -3393,6 +3427,7 @@ public void test40() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test41() {
 
 	String s =
@@ -3452,6 +3487,7 @@ public void test41() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test42() {
 
 	String s =
@@ -3497,6 +3533,7 @@ public void test42() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test43() {
 
 	String s =
@@ -3541,6 +3578,7 @@ public void test43() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test44() {
 
 	String s =
@@ -3590,6 +3628,7 @@ public void test44() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test45() {
 
 	String s =
@@ -3638,6 +3677,7 @@ public void test45() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test46() {
 
 	String s =
@@ -3683,6 +3723,7 @@ public void test46() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test47() {
 
 	String s =
@@ -3727,6 +3768,7 @@ public void test47() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test48() {
 
 	String s =
@@ -3768,6 +3810,7 @@ public void test48() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test49() {
 
 	String s =
@@ -3808,6 +3851,7 @@ public void test49() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test50() {
 
 	String s =
@@ -3854,6 +3898,7 @@ public void test50() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test51() {
 
 	String s =
@@ -3899,6 +3944,7 @@ public void test51() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test52() {
 
 	String s =
@@ -3955,6 +4001,7 @@ public void test52() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test53() {
 
 	String s =
@@ -4006,6 +4053,7 @@ public void test53() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test54() {
 
 	String s =
@@ -4070,6 +4118,7 @@ public void test54() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test55() {
 
 	String s =
@@ -4133,6 +4182,7 @@ public void test55() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test56() {
 
 	String s =
@@ -4194,6 +4244,7 @@ public void test56() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test57() {
 
 	String s =
@@ -4254,6 +4305,7 @@ public void test57() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test58() {
 
 	String s =
@@ -4304,6 +4356,7 @@ public void test58() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test59() {
 
 	String s =
@@ -4353,6 +4406,7 @@ public void test59() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test60() {
 
 	String s =
@@ -4412,6 +4466,7 @@ public void test60() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test61() {
 
 	String s =
@@ -4458,6 +4513,7 @@ public void test61() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test62() {
 
 	String s =
@@ -4630,6 +4686,7 @@ public void _test64() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test65() {
 
 	String s =
@@ -4691,6 +4748,7 @@ public void test65() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test66() {
 
 	String s =
@@ -4752,6 +4810,7 @@ public void test66() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test67() {
 
 	String s =
@@ -4806,6 +4865,7 @@ public void test67() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test68() {
 
 	String s =
@@ -4860,6 +4920,7 @@ public void test68() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test69() {
 
 	String s =
@@ -4920,6 +4981,7 @@ public void test69() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test70() {
 
 	String s =
@@ -4974,6 +5036,7 @@ public void test70() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test71() {
 
 	String s =
@@ -5034,6 +5097,7 @@ public void test71() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test72() {
 
 	String s =
@@ -5058,6 +5122,7 @@ public void test72() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test73() {
 
 	String s =
@@ -5094,6 +5159,7 @@ public void test73() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test74() {
 
 	String s =
@@ -5142,6 +5208,7 @@ public void test74() {
 /*
  * bugs  16126
  */
+@Test
 public void test75() {
 	String s =
 		"public class P#AField {\n" +
@@ -5166,6 +5233,7 @@ public void test75() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test76() {
 
 	String s =
@@ -5222,6 +5290,7 @@ public void test76() {
  * Bug 99662:[1.5] JavaModel returns inexistent IType for package-info ICompilationUnits
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99662"
  */
+@Test
 public void testBug99662() {
 
 	String s =
@@ -5341,6 +5410,7 @@ public void _test80() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
+@Test
 public void test81() {
 
 	Map options = getCompilerOptions();
@@ -5419,6 +5489,7 @@ public void test81() {
 		this.currentType.toString());
 }
 
+@Test
 public void test82() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getLatestVersion());
@@ -5458,6 +5529,7 @@ public void test82() {
 	assertEquals(451, this.currentType.getFields()[2].getDeclarationSourceStart());
 	assertEquals(528, this.currentType.getFields()[2].getDeclarationSourceEnd());
 }
+@Test
 public void test83() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getLatestVersion());

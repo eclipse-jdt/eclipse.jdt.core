@@ -15,14 +15,19 @@
  *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
+
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_1_8)
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ArrayTest extends AbstractRegressionTest {
 
@@ -30,18 +35,15 @@ public class ArrayTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_NAMES = new String [] { "testIssue4789" };
 	}
-	public ArrayTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
+	public ArrayTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	public static Class testClass() {
 		return ArrayTest.class;
 	}
 
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -55,11 +57,13 @@ public void test001() {
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=28615
  */
+@Test
 public void test002() {
 	this.runConformTest(
 		new String[] {
 			"A.java",
 			"public class A {\n" +
+			"	record Needs16() {}\n" +
 			"    public static void main(String[] args) {\n" +
 			"        float[] tab = new float[] {-0.0f};\n" +
 			"        System.out.print(tab[0]);\n" +
@@ -71,6 +75,7 @@ public void test002() {
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=28615
  */
+@Test
 public void test003() {
 	this.runConformTest(
 		new String[] {
@@ -87,6 +92,7 @@ public void test003() {
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=28615
  */
+@Test
 public void test004() {
 	this.runConformTest(
 		new String[] {
@@ -103,6 +109,7 @@ public void test004() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=37387
  */
+@Test
 public void test005() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -144,6 +151,7 @@ public void test005() throws Exception {
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=80597
  */
+@Test
 public void test006() {
 	this.runNegativeTest(
 		new String[] {
@@ -164,6 +172,7 @@ public void test006() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=85203
  */
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -186,6 +195,7 @@ public void test007() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=85125
  */
+@Test
 public void test008() {
 	this.runConformTest(
 		new String[] {
@@ -204,6 +214,7 @@ public void test008() {
 }
 // check deep resolution of faulty initializer (no array expected type)
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=120263
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -227,6 +238,7 @@ public void test009() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124101
+@Test
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -244,6 +256,7 @@ public void test010() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148807 - variation
+@Test
 public void test011() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -304,6 +317,7 @@ public void test011() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148807 - variation
+@Test
 public void test012() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -355,6 +369,7 @@ public void test012() throws Exception {
 }
 //check resolution of faulty initializer
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179477
+@Test
 public void test013() {
 	this.runNegativeTest(
 		new String[] {
@@ -394,6 +409,7 @@ public void test013() {
 		"----------\n");
 }
 // Check return type of array#clone()
+@Test
 public void test014() throws Exception {
 	Map optionsMap = getCompilerOptions();
 	this.runConformTest(
@@ -410,6 +426,7 @@ public void test014() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247307 - variation
 //Check return type of array#clone()
+@Test
 public void test015() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -424,6 +441,7 @@ public void test015() throws Exception {
 }
 //https:bugs.eclipse.org/bugs/show_bug.cgi?id=247307 - variation
 //Check constant pool declaring class of array#clone()
+@Test
 public void test016() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -466,6 +484,7 @@ public void test016() throws Exception {
 }
 
 //Check constant pool declaring class of array#clone()
+@Test
 public void test017() throws Exception {
 	Map optionsMap = getCompilerOptions();
 	this.runConformTest(
@@ -513,6 +532,7 @@ public void test017() throws Exception {
 }
 
 // https://bugs.eclipse.org/331872 -  [compiler] NPE in Scope.createArrayType when attempting qualified access from type parameter
+@Test
 public void test018() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -539,6 +559,7 @@ public void test018() throws Exception {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=409247 - [1.8][compiler] Verify error with code allocating multidimensional array
+@Test
 public void test019() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -554,6 +575,7 @@ public void test019() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4789
 // Internal compiler error caused by AssertionError: array store with invalid types
+@Test
 public void testIssue4789() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
