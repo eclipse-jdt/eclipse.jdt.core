@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -20,12 +21,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -51,6 +54,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 	protected Set<String> packageCache;
 	protected final File jdkHome;
 	protected String modulePath;
+	protected Set<String> currentReleaseModules;
 
 	public ClasspathJep247(File jdkHome, String release, AccessRuleSet accessRuleSet) {
 		super(new File(new File(jdkHome, "lib"), JRTUtil.JRT_FS_JAR), false, accessRuleSet, null); //$NON-NLS-1$
@@ -68,6 +72,10 @@ public class ClasspathJep247 extends ClasspathJrt {
 	}
 	@Override
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			return super.findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly);
+		}
 		if (!isPackage(qualifiedPackageName, moduleName))
 			return null; // most common case
 
@@ -117,10 +125,22 @@ public class ClasspathJep247 extends ClasspathJrt {
 		if (!Files.exists(this.fs.getPath(this.releaseInHex))) {
 			throw new IllegalArgumentException("release " + this.compliance + " is not found in the system");  //$NON-NLS-1$//$NON-NLS-2$
 		}
+		Path systemModules = this.fs.getPath(this.releaseInHex, "system-modules"); //$NON-NLS-1$
+		if (Files.isRegularFile(systemModules)) {
+			// Per JEP 247, ct.sym uses this file for the current release instead of storing duplicate signatures.
+			// Read classes from the live JRT image, but expose only the standard modules listed by ct.sym.
+			this.currentReleaseModules = Set.copyOf(Files.readAllLines(systemModules, StandardCharsets.UTF_8));
+		}
 		super.initialize();
 	}
 	@Override
 	public void loadModules() {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			super.loadModules();
+			this.moduleNamesCache.retainAll(this.currentReleaseModules);
+			return;
+		}
 		// Modules below level 9 are not dealt with here. Leave it to ClasspathJrt
 		if (this.jdklevel <= ClassFileConstants.JDK1_8) {
 			super.loadModules();
@@ -188,6 +208,24 @@ public class ClasspathJep247 extends ClasspathJrt {
 	}
 
 	@Override
+	public Collection<String> getModuleNames(Collection<String> limitModules, Function<String, IModule> getModule) {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			return selectModules(this.moduleNamesCache, limitModules, getModule);
+		}
+		return super.getModuleNames(limitModules, getModule);
+	}
+
+	@Override
+	public IModule getModule(char[] moduleName) {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null && !this.currentReleaseModules.contains(String.valueOf(moduleName))) {
+			return null;
+		}
+		return super.getModule(moduleName);
+	}
+
+	@Override
 	void acceptModule(ClassFileReader reader, Map<String, IModule> cache) {
 		// Modules below level 9 are not dealt with here. Leave it to ClasspathJrt
 		if (this.jdklevel <= ClassFileConstants.JDK1_8) {
@@ -208,6 +246,23 @@ public class ClasspathJep247 extends ClasspathJrt {
 	}
 	@Override
 	public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			if (moduleName != null && !this.currentReleaseModules.contains(moduleName)) {
+				return null;
+			}
+			char[][] declaringModules = super.getModulesDeclaringPackage(qualifiedPackageName, moduleName);
+			if (moduleName != null || declaringModules == null) {
+				return declaringModules;
+			}
+			List<char[]> filteredModules = new ArrayList<>(declaringModules.length);
+			for (char[] declaringModule : declaringModules) {
+				if (this.currentReleaseModules.contains(String.valueOf(declaringModule))) {
+					filteredModules.add(declaringModule);
+				}
+			}
+			return filteredModules.isEmpty() ? null : filteredModules.toArray(char[][]::new);
+		}
 		if (this.packageCache == null) {
 			this.packageCache = new HashSet<>(41);
 			this.packageCache.add(Util.EMPTY_STRING);
