@@ -39,6 +39,9 @@ private static Class[] getAllTestClasses() {
 
 		// Enter each test here, grouping the tests that are related
 
+		// Test infrastructure
+		JobFamilyWaitTests.class,
+
 		// Binding key tests
 		BindingKeyTests.class,
 
