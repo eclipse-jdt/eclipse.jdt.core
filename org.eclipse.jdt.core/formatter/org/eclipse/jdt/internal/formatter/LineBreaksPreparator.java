@@ -730,9 +730,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 					: this.tm.firstIndexAfter(nodeBeforeOpenBrace, TokenNameLBRACE);
 		}
 		int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
-		if (node.getParent() instanceof MethodDeclaration) {
-			openBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
-		}
 		Token openBraceToken = this.tm.get(openBraceIndex);
 		Token closeBraceToken = this.tm.get(closeBraceIndex);
 		handleBracePosition(openBraceToken, closeBraceIndex, bracePosition);
