@@ -485,11 +485,11 @@ public boolean isEquivalent(Reference reference) {
 
 private char[][] getThisFieldTokens(int nestingCount) {
 	char[][] result = null;
-	if (this.receiver.isThis() && ! (this.receiver instanceof QualifiedThisReference)) {
+	if (this.receiver instanceof ReferenceOfFieldOfThis referenceOfFieldOfThis) {
 		// found an inner-most this-reference, start building the token array:
 		result = new char[nestingCount][];
 		// fill it front to tail while traveling back out:
-		result[0] = this.token;
+		result[0] = referenceOfFieldOfThis.token;
 	} else if (this.receiver instanceof FieldReference) {
 		result = ((FieldReference)this.receiver).getThisFieldTokens(nestingCount+1);
 		if (result != null) {

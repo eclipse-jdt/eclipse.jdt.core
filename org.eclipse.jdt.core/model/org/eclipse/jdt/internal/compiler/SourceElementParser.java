@@ -419,7 +419,11 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	// FieldAccess ::= Primary '.' 'Identifier'
 	// FieldAccess ::= 'super' '.' 'Identifier'
 	super.consumeFieldAccess(isSuperAccess);
-	FieldReference fr = (FieldReference) this.expressionStack[this.expressionPtr];
+	FieldReference fr;
+	if (this.expressionStack[this.expressionPtr] instanceof FieldReference fieldReference)
+		fr = fieldReference;
+	else
+		fr = ((ReferenceOfFieldOfThis) this.expressionStack[this.expressionPtr]).fieldReference();
 	if (this.reportReferenceInfo) {
 		this.requestor.acceptFieldReference(fr.token, fr.sourceStart);
 	}
