@@ -203,6 +203,13 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 		int end = (int) position;
 		this.match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, start, end-start+1, fieldReference);
 		locator.report(this.match);
+	} else if (reference instanceof ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+		FieldReference fieldReference =  referenceOfFieldOfThis.fieldReference();
+		long position = fieldReference.nameSourcePosition;
+		int start = (int) (position >>> 32);
+		int end = (int) position;
+		this.match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, start, end-start+1, fieldReference);
+		locator.report(this.match);
 	} else if (reference instanceof SingleNameReference) {
 		int offset = reference.sourceStart;
 		this.match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);

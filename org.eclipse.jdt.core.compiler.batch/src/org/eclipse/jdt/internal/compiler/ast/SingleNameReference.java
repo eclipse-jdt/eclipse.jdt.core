@@ -110,7 +110,10 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					}
 					flowInfo.markAsDefinitelyAssigned(fieldBinding);
 				} else {
-					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
+					if (currentScope.methodScope().referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor())
+						currentScope.problemReporter().illegalExplicitAssignmentInCompactConstructor(fieldBinding, this);
+					else
+						currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
 				}
 			} else if (!isCompound && (fieldBinding.isNonNull() || fieldBinding.type.isTypeVariable())
 						&& TypeBinding.equalsEquals(fieldBinding.declaringClass, currentScope.enclosingReceiverType())) { // inherited fields are not tracked here
