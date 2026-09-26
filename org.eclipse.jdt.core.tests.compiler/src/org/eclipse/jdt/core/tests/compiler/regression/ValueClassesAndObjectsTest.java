@@ -1452,4 +1452,148 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"The final field X.x cannot be assigned\n" +
 				"----------\n");
     }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5329
+    // With preview enabled, allow fields to be read in early construction contexts
+    // Fields that are initialized at declaration site cannot be read in early construction context! (since the initialization happens at super() boundary)
+    public void testFieldReadsInEarlyConstruction() { // check illegal access via FieldReference, SingleNameReference & QualifiedNameReference
+        runNegativeTest(
+            new String[] {
+                "X.java",
+                """
+                public class X {
+                    X xo = new X();
+                    int x;
+                    int y;
+                    int z = 10;
+                    int k = 0;
+                    X() {
+                        x = 42;
+                        y = x + xo.x + z + this.k;
+                        super();
+                        System.out.println("x = " + x + ", y = " + y);
+                    }
+
+                    public static void main() {
+                        new X();
+                    }
+                }
+                """
+            },
+            "----------\n" +
+    		"1. ERROR in X.java (at line 9)\n" +
+    		"	y = x + xo.x + z + this.k;\n" +
+    		"	        ^\n" +
+    		"Cannot read field xo in an early construction context\n" +
+    		"----------\n" +
+    		"2. ERROR in X.java (at line 9)\n" +
+    		"	y = x + xo.x + z + this.k;\n" +
+    		"	               ^\n" +
+    		"Cannot read field z in an early construction context\n" +
+    		"----------\n" +
+    		"3. ERROR in X.java (at line 9)\n" +
+    		"	y = x + xo.x + z + this.k;\n" +
+    		"	                   ^^^^^^\n" +
+    		"Cannot read field k in an early construction context\n" +
+    		"----------\n");
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5329
+    // With preview enabled, allow fields to be read in early construction contexts
+    public void testFieldReadsInEarlyConstruction_2() {
+        runNegativeTest(
+            new String[] {
+                "X.java",
+                """
+                public class X {
+                    final X xo;
+                    int x;
+                    int y;
+                    X() {
+                        x = 42;
+                        y = x + xo.x;
+                        super();
+                        System.out.println("x = " + x + ", y = " + y);
+                    }
+
+                    public static void main() {
+                        new X();
+                    }
+                }
+                """
+            },
+            "----------\n" +
+    		"1. ERROR in X.java (at line 7)\n" +
+    		"	y = x + xo.x;\n" +
+    		"	        ^^\n" +
+    		"The blank final field xo may not have been initialized\n" +
+    		"----------\n");
+    }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5329
+    // With preview enabled, allow fields to be read in early construction contexts
+    public void testFieldReadsInEarlyConstruction_3() {
+        runConformTest(
+            new String[] {
+                "X.java",
+                """
+                public class X {
+                    final String xo;
+                    int x;
+                    int y;
+                    X() {
+                        x = 42;
+                        xo = "Hello";
+                        y = x + xo.length();
+                        super();
+                        System.out.println("x = " + x + ", y = " + y);
+                    }
+
+                    public static void main() {
+                        new X();
+                    }
+                }
+                """
+            },
+            "x = 42, y = 47");
+    }
+
+	public void _testThis() {
+		runConformTest(new String[] { "X.java", """
+				    		class PrologueFieldReferencesCollectorTestSource extends SuperType {
+
+					int directRead;
+					int assigned;
+					int rhsRead;
+					int array;
+					int index;
+					int object;
+					int compound;
+					int increment;
+					int constructorArgument;
+					int qualifiedRoot;
+					int afterConstructorCall;
+
+					static int staticField;
+
+					PrologueFieldReferencesCollectorTestSource(int rhsRead) {
+						directRead = 1;
+						assigned = rhsRead;
+						array[index] = rhsRead;
+						object.field = rhsRead;
+						compound += rhsRead;
+						increment++;
+						super(constructorArgument + qualifiedRoot.leaf);
+						afterConstructorCall = directRead;
+					}
+				}
+
+				class SuperType {
+
+					SuperType(int value) {
+					}
+				}
+				    		""" }, "x = 42, y = 47");
+	}
+
  }

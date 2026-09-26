@@ -98,6 +98,8 @@ public ConstructorDeclaration(CompilationResult compilationResult, boolean shoul
 		this.bits |= ASTNode.ShouldInitializeStrictly;
 }
 
+public PrologueResolutionContext prologueResolutionContext;
+
 FlowInfo getPrologueFlowInfo() {
 	if (this.prologueInfo == null) // may be null when `this.ignoreFurtherInvestigation` is true; epilogue analysis will be skipped too.
 		return null;
@@ -304,6 +306,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 }
 
 private void complainIfStrictInitsAreUninitialized(ExplicitConstructorCall call, FlowInfo flowInfo) {
+
+	this.prologueResolutionContext.larvalProxies().ifPresent(map -> map.keySet().forEach(flowInfo::markAsDefinitelyAssigned));
+
     if ((this.bits & ASTNode.ShouldInitializeStrictly) == 0)
     	return;
 
@@ -543,6 +548,8 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 
 		this.scope.enterEarlyConstructionContext();
 
+		this.prologueResolutionContext.larvalProxies().ifPresent(map -> map.values().forEach(codeStream::addProxy));
+
 		// generate statements
 		if (this.statements != null) {
 			for (Statement statement : this.statements) {
@@ -620,6 +627,12 @@ private void generateFieldInitializations(TypeDeclaration declaringType, CodeStr
 			}
 		}
 	}
+
+	this.prologueResolutionContext.larvalProxies().ifPresent(map -> map.forEach((field, proxy) -> {
+        codeStream.aload_0();
+        codeStream.load(proxy);
+        codeStream.fieldAccess(Opcodes.OPC_putfield, field, declaringType.scope.referenceContext.binding);
+    }));
 }
 
 @Override
@@ -766,6 +779,7 @@ public void resolve(ClassScope upperScope) {
 	}
 	super.resolve(upperScope);
 }
+
 /*
  * Type checking for constructor, just another method, except for special check
  * for recursive constructor invocations.
@@ -783,9 +797,12 @@ public void resolveStatements() {
 	if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
 		this.scope.problemReporter().methodNeedBody(this);
 	}
-	this.scope.enterEarlyConstructionContext();
+
+	this.prologueResolutionContext = new PrologueResolutionContext(this);
+	this.prologueResolutionContext.enter();
 	super.resolveStatements();
-	this.scope.leaveEarlyConstructionContext(); // code completion may work with diet mode constructors! These don't have ecc to issue leave!
+	this.prologueResolutionContext.leave(); // code completion may work with diet mode constructors! These don't have ecc to issue leave!
+
 	if (sourceType.id == TypeIds.T_JavaLangObject) {
 		if (this.constructorCall != null && this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 			if (this.constructorCall.accessMode == ExplicitConstructorCall.Super)

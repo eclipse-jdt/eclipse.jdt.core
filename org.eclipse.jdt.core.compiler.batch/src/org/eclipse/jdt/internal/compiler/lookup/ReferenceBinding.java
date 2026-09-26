@@ -2666,4 +2666,7 @@ static class DysfunctionalInterfaceException extends RuntimeException {
 		super(message);
 	}
 }
+public Binding getShadowingProxy(FieldBinding fieldBinding) {
+	return null;
+}
 }

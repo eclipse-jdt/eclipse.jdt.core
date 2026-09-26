@@ -106,7 +106,7 @@ public interface TagBits {
 	long BeginAnnotationCheck = ASTNode.Bit32L;
 	long EndAnnotationCheck = ASTNode.Bit33L;
 
-	// currently unused: ASTNode.Bit35L
+	long IsShadowedByProxy = ASTNode.Bit35L; // for field bindings overshadowed by larval proxy local.
 
 	// standard annotations
 	// 9-bits for targets

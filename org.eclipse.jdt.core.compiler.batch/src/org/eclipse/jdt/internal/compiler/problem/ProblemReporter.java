@@ -7105,7 +7105,7 @@ private int nodeSourceStart(Binding field, ASTNode node, int index) {
 		return (int) (fieldReference.nameSourcePosition >> 32);
 	} else 	if (node instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) node;
-		if (ref.binding == field) {
+		if (ref.binding == field || (ref.binding instanceof LarvalProxyBinding larvalProxy && larvalProxy.getShadowedBinding() == field)) {
 			if (index == 0) {
 				return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1] >> 32);
 			} else {
@@ -7132,6 +7132,8 @@ private int nodeSourceStart(Binding field, ASTNode node, int index) {
 	} else if (node instanceof ParameterizedQualifiedTypeReference) {
 		ParameterizedQualifiedTypeReference reference = (ParameterizedQualifiedTypeReference) node;
 		return (int) (reference.sourcePositions[0]>>>32);
+	} else if (node instanceof ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+		return (int) (referenceOfFieldOfThis.nameSourcePosition >> 32);
 	}
 	return node.sourceStart;
 }
@@ -8899,6 +8901,10 @@ public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
 		nodeSourceEnd(field, location));
 }
 public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location, Scope scope) {
+	if (binding instanceof LarvalProxyBinding larvalProxy) {
+		uninitializedBlankFinalField(larvalProxy.getShadowedBinding(), location);
+		return;
+	}
 	binding.markAsUninitializedIn(scope);
 	String[] arguments = new String[] {new String(binding.readableName())};
 	this.handle(
@@ -12038,7 +12044,7 @@ public void mismatchedParameterNameInCanonicalConstructor(RecordComponentBinding
 		arg.sourceStart,
 		arg.sourceEnd);
 }
-public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, FieldReference fieldRef) {
+public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, Reference fieldRef) {
 	String[] arguments = new String[] { new String(field.name) };
 	this.handle(
 		IProblem.RecordIllegalExplicitFinalFieldAssignInCompactConstructor,

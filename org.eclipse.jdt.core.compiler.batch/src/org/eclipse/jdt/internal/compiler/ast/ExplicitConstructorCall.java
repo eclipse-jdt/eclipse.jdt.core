@@ -497,7 +497,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 		} finally {
 			methodScope.isConstructorCall = false;
-			methodScope.leaveEarlyConstructionContext();
+			methodScope.leavePrologueResolutionContext();
 		}
 	}
 

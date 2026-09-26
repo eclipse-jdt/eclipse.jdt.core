@@ -2041,6 +2041,30 @@ public abstract class Scope {
 	 *
 	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
 	 */
+	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve, boolean larvalProxyShadows) {
+		Binding binding = getBinding(name, mask, invocationSite, needResolve);
+		return larvalProxyShadows && binding.isShadowedByProxy() ? binding.getShadowingProxy() : binding;
+	}
+
+	/* API
+	 *
+	 *	Answer the binding that corresponds to the argument name.
+	 *	flag is a mask of the following values VARIABLE (= FIELD or LOCAL), TYPE, PACKAGE.
+	 *	Only bindings corresponding to the mask can be answered.
+	 *
+	 *	For example, getBinding("foo", VARIABLE, site) will answer
+	 *	the binding for the field or local named "foo" (or an error binding if none exists).
+	 *	If a type named "foo" exists, it will not be detected (and an error binding will be answered)
+	 *
+	 *	The VARIABLE mask has precedence over the TYPE mask.
+	 *
+	 *	If the VARIABLE mask is not set, neither fields nor locals will be looked for.
+	 *
+	 *	InvocationSite implements:
+	 *		isSuperAccess(); this is used to determine if the discovered field is visible.
+	 *
+	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
+	 */
 	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve) {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		LookupEnvironment env = unitScope.environment;

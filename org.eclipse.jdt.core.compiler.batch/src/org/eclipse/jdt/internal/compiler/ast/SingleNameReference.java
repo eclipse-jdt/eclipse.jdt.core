@@ -110,7 +110,10 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					}
 					flowInfo.markAsDefinitelyAssigned(fieldBinding);
 				} else {
-					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
+					if (currentScope.methodScope().referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor())
+						currentScope.problemReporter().illegalExplicitAssignmentInCompactConstructor(fieldBinding, this);
+					else
+						currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
 				}
 			} else if (!isCompound && (fieldBinding.isNonNull() || fieldBinding.type.isTypeVariable())
 						&& TypeBinding.equalsEquals(fieldBinding.declaringClass, currentScope.enclosingReceiverType())) { // inherited fields are not tracked here
@@ -998,7 +1001,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.binding = scope.getField(this.actualReceiverType, this.token, this);
 	} else {
 		this.actualReceiverType = scope.enclosingSourceType();
-		this.binding = scope.getBinding(this.token, this.bits & ASTNode.RestrictiveFlagMASK, this, true /*resolve*/);
+		this.binding = scope.getBinding(this.token, this.bits & ASTNode.RestrictiveFlagMASK, this, true /*resolve*/, true /* check for larval proxy */);
 	}
 	if (this.binding.isValidBinding()) {
 		switch (this.bits & ASTNode.RestrictiveFlagMASK) {
