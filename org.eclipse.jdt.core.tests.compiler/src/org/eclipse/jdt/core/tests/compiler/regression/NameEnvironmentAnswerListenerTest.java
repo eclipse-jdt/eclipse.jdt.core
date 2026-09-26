@@ -33,11 +33,13 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class NameEnvironmentAnswerListenerTest extends AbstractComparableTest {
 
-	public NameEnvironmentAnswerListenerTest(String name) {
-		super(name);
+	public NameEnvironmentAnswerListenerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	/**
@@ -87,6 +89,7 @@ public class NameEnvironmentAnswerListenerTest extends AbstractComparableTest {
 		}
 	}
 
+	@Test
 	public void testNameEnvironmentAnswerListener() throws IOException {
 		String path = LIB_DIR;
 		if(!path.endsWith(File.separator)) {

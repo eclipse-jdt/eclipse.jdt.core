@@ -12,26 +12,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_17)
 public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	static {
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_17);
-	}
-	public static Class testClass() {
-		return ClassFileReaderTest_17.class;
-	}
-
-	public ClassFileReaderTest_17(String name) {
-		super(name);
+	public ClassFileReaderTest_17(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Needed to run tests individually from JUnit
@@ -41,6 +37,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		this.complianceLevel = ClassFileConstants.JDK17;
 	}
 
+	@Test
 	public void testBug564227_001() throws Exception {
 		String source =
 				"sealed class X permits Y, Z{\n" +
@@ -60,6 +57,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		assertTrue(CharOperation.equals(permittedSubtypesNames, expected));
 
 	}
+	@Test
 	public void testBug565782_001() throws Exception {
 		String source =
 				"sealed interface I {}\n"+
@@ -81,6 +79,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		int modifiers = classFileReader.getModifiers();
 		assertTrue("sealed modifier expected", (modifiers & ExtraCompilerModifiers.AccSealed) != 0);
 	}
+	@Test
 	public void testBug565782_002() throws Exception {
 		String source =
 				"sealed interface I {}\n"+
@@ -104,6 +103,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		int modifiers = classFileReader.getModifiers();
 		assertTrue("sealed modifier expected", (modifiers & ExtraCompilerModifiers.AccSealed) != 0);
 	}
+	@Test
 	public void testBug545510_1() throws Exception {
 		String source =
 				"strictfp class X {\n"+
@@ -114,6 +114,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		int modifiers = classFileReader.getModifiers();
 		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
 	}
+	@Test
 	public void testBug545510_2() throws Exception {
 		String source =
 				"class X {\n"+
@@ -126,6 +127,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		int modifiers = method.getModifiers();
 		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
 	}
+	@Test
 	public void testBug545510_3() throws Exception {
 		String source =
 				"strictfp class X {\n"+
@@ -138,6 +140,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		int modifiers = method.getModifiers();
 		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
 	}
+	@Test
 	public void testWildcardBinding() throws Exception {
 		String source =
 				"public class X {    \n"

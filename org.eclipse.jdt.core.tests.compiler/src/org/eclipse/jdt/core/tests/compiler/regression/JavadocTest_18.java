@@ -14,12 +14,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_18)
 public class JavadocTest_18 extends JavadocTest {
 
 	String docCommentSupport = CompilerOptions.ENABLED;
@@ -33,22 +37,14 @@ public class JavadocTest_18 extends JavadocTest {
 	String reportJavadocDeprecation = null;
 	String processAnnotations = null;
 
-public JavadocTest_18(String name) {
-	super(name);
-}
-
-public static Class javadocTestClass() {
-	return JavadocTest_18.class;
+public JavadocTest_18(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
 static {
 
-}
-
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(javadocTestClass(), F_18);
 }
 
 @Override
@@ -109,6 +105,7 @@ protected void setUp() throws Exception {
 
 
 
+@Test
 public void test001() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -140,6 +137,7 @@ public void test001() {
 	);
 }
 
+@Test
 public void test002() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -166,6 +164,7 @@ public void test002() {
 	);
 }
 
+@Test
 public void test003() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -195,6 +194,7 @@ public void test003() {
 	);
 }
 
+@Test
 public void test004() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -212,6 +212,7 @@ public void test004() {
 	);
 }
 
+@Test
 public void test005() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -238,6 +239,7 @@ public void test005() {
 	);
 }
 
+@Test
 public void test006() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -263,6 +265,7 @@ public void test006() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void test007() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -289,6 +292,7 @@ public void test007() {
 	);
 }
 
+@Test
 public void test008() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -314,6 +318,7 @@ public void test008() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void test009() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
@@ -340,6 +345,7 @@ public void test009() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void test010() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;

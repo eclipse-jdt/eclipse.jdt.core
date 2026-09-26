@@ -14,14 +14,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.TestInfo;
 
 /** Run tests from the super class with (legacy) declaration annotations. */
 public class NullDeclarationAnnotationTest extends NullAnnotationTest {
 
-	public NullDeclarationAnnotationTest(String name) {
-		super(name);
+	// marker field that influences the call to buildTestsList():
+	public static final int INHERITED_DEPTH = 1;
+
+	public NullDeclarationAnnotationTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -30,16 +32,6 @@ public class NullDeclarationAnnotationTest extends NullAnnotationTest {
 //			TESTS_NAMES = new String[] { "testBug545715" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
-	}
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite(testClass().getName());
-		buildMinimalComplianceTestSuite(FIRST_SUPPORTED_JAVA_VERSION, 1, suite, testClass());
-		return suite;
-	}
-
-	public static Class testClass() {
-		return NullDeclarationAnnotationTest.class;
 	}
 
 	public boolean useDeclarationAnnotations() {

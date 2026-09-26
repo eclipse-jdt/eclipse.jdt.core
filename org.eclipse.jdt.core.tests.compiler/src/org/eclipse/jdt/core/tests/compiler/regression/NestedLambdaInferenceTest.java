@@ -13,20 +13,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class NestedLambdaInferenceTest extends AbstractRegressionTest {
 	private static final int NESTING_DEPTH = 24;
 
-	public NestedLambdaInferenceTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(NestedLambdaInferenceTest.class, F_1_8);
+	public NestedLambdaInferenceTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5206
+	@Test
 	public void testIssue5206GenericRouteChain() {
 		runNestedLambdaTest("GenericRouteChain", """
 			<V extends Red> V route(Red marker, Work<V> work) { return null; }
@@ -44,6 +42,7 @@ public class NestedLambdaInferenceTest extends AbstractRegressionTest {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5206
+	@Test
 	public void testIssue5206ConcreteRouteChain() {
 		runNestedLambdaTest("ConcreteRouteChain", """
 			String route(Red marker, Work<Red> work) { return ""; }
@@ -61,6 +60,7 @@ public class NestedLambdaInferenceTest extends AbstractRegressionTest {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5206
+	@Test
 	public void testIssue5206InterleavedParameterizedLambdas() {
 		this.runConformTest(new String[] {
 			"InterleavedLambdas.java",

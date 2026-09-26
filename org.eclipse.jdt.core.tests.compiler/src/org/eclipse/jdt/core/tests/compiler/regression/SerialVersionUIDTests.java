@@ -18,15 +18,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SerialVersionUIDTests extends AbstractRegressionTest {
 
-public SerialVersionUIDTests(String name) {
-	super(name);
+public SerialVersionUIDTests(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
@@ -37,12 +38,6 @@ static {
 //	 	TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-public static Class testClass() {
-	return SerialVersionUIDTests.class;
-}
 @Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
@@ -50,6 +45,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -65,6 +61,7 @@ public void test001() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
+@Test
 public void test002() {
 	this.runConformTest(
 		new String[] {
@@ -78,6 +75,7 @@ public void test002() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -96,6 +94,7 @@ public void test003() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
+@Test
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
@@ -114,6 +113,7 @@ public void test004() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
+@Test
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
@@ -131,6 +131,7 @@ public void test005() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
+@Test
 public void test006() {
 	this.runConformTest(
 		new String[] {
@@ -145,6 +146,7 @@ public void test006() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203241
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=116733
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=94352
+@Test
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -212,6 +214,7 @@ public void _test010() {
 		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+@Test
 public void test011() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
@@ -234,6 +237,7 @@ public void test011() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+@Test
 public void test012() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
@@ -256,6 +260,7 @@ public void test012() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+@Test
 public void test013() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
@@ -278,6 +283,7 @@ public void test013() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+@Test
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
@@ -300,6 +306,7 @@ public void test014() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+@Test
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
@@ -325,6 +332,7 @@ public void test015() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+@Test
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);

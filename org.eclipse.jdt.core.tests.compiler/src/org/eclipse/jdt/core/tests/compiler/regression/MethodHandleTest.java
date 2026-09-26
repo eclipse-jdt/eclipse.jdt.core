@@ -14,29 +14,24 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Regression test for MethodHandle.invokeExact(..)/invokeGeneric(..) invocation
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MethodHandleTest extends AbstractRegressionTest {
-	public MethodHandleTest(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-
-	public static Class testClass() {
-		return MethodHandleTest.class;
+	public MethodHandleTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
 //		TESTS_NAMES = new String [] { "test009" };
 	}
 
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -95,6 +90,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			"foo:3\n" +
 			"bar");
 	}
+	@Test
 	public void test002() {
 		this.runConformTest(
 			new String[] {
@@ -125,6 +121,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			},
 			"This is ok");
 	}
+	@Test
 	public void test003() {
 		this.runConformTest(
 			new String[] {
@@ -154,6 +151,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void test004() {
 		this.runConformTest(
 			new String[] {
@@ -183,6 +181,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void test005() {
 		this.runConformTest(
 			new String[] {
@@ -212,6 +211,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void test006() {
 		this.runConformTest(
 			new String[] {
@@ -245,6 +245,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			"follow\n" +
 			"Expected exception");
 	}
+	@Test
 	public void test007() {
 		this.runConformTest(
 			new String[] {
@@ -271,6 +272,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			"Inside foo");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386259, wrong unnecessary cast warning.
+	@Test
 	public void test009() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -307,6 +309,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386259 variation.
+	@Test
 	public void test010() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -348,6 +351,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=466748
+	@Test
 	public void test011() {
 		this.runConformTest(
 			new String[] {

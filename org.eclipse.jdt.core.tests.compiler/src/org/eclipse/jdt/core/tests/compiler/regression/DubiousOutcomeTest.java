@@ -13,8 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.DubiousOutcome;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * <b>README:</b> this class captures the actual outcome of examples where we doubt if the outcome is correct,
@@ -35,16 +36,11 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 
-	public DubiousOutcomeTest(String name) {
-		super(name);
-	}
-	public static Class<?> testClass() {
-		return DubiousOutcomeTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
+	public DubiousOutcomeTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
+	@Test
 	public void testGH1591() {
 		// javac accepts
 		Runner runner = new Runner();
@@ -77,6 +73,7 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testHohwille_20160104() {
 		// see https://github.com/m-m-m/util/issues/166#issuecomment-168652351
 		/* javac:
@@ -109,6 +106,7 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testHohwille_20180606() {
 		/* see https://github.com/m-m-m/util/issues/166#issuecomment-395133804
 		  javac:
@@ -144,6 +142,7 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 		runner.javacTestOptions = DubiousOutcome.JavacErrorsEclipseNone;
 		runner.runConformTest();
 	}
+	@Test
 	public void testHohwille_20231104() {
 		/* see https://github.com/m-m-m/util/issues/166#issuecomment-1793234294
 		   and https://bugs.openjdk.org/browse/JDK-8319461
@@ -209,6 +208,7 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 		runner.javacTestOptions = DubiousOutcome.JDK8319461;
 		runner.runConformTest();
 	}
+	@Test
 	public void testJDK8319461() {
 		/* Hohwille's reduction of the above
 			javac (the warning is irrelevant, could be easily avoided:
@@ -255,6 +255,7 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH4226() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -281,6 +282,7 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 		runner.javacTestOptions = DubiousOutcome.JDK8364144;
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH4263() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {

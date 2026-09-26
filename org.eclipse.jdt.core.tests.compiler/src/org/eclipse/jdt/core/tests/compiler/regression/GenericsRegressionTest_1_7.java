@@ -20,9 +20,10 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericsRegressionTest_1_7 extends AbstractRegressionTest {
@@ -32,12 +33,10 @@ static {
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public GenericsRegressionTest_1_7(String name) {
-	super(name);
+public GenericsRegressionTest_1_7(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-}
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -54,6 +53,7 @@ public void test001() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test001a() {
 	this.runNegativeTest(
 		new String[] {
@@ -75,6 +75,7 @@ public void test001a() {
 		"The method testFunction(String) in the type X<String> is not applicable for the arguments (int)\n" +
 		"----------\n");
 }
+@Test
 public void test001b() {
 	this.runConformTest(
 		new String[] {
@@ -90,6 +91,7 @@ public void test001b() {
 		"SUCCESS");
 }
 // fields
+@Test
 public void test001b_1() {
 	this.runConformTest(
 		new String[] {
@@ -104,6 +106,7 @@ public void test001b_1() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test001c() {
 	this.runNegativeTest(
 		new String[] {
@@ -124,6 +127,7 @@ public void test001c() {
 		"----------\n");
 }
 // fields
+@Test
 public void test001c_1() {
 	this.runNegativeTest(
 		new String[] {
@@ -143,6 +147,7 @@ public void test001c_1() {
 		"The method add(int, String) in the type ArrayList<String> is not applicable for the arguments (int)\n" +
 		"----------\n");
 }
+@Test
 public void test001d() {
 	this.runConformTest(
 			new String[] {
@@ -160,6 +165,7 @@ public void test001d() {
 			},
 			"SUCCESS");
 }
+@Test
 public void test001e() {
 	this.runConformTest(
 			new String[] {
@@ -177,6 +183,7 @@ public void test001e() {
 			},
 			"SUCCESS");
 }
+@Test
 public void test001f() {
 	this.runNegativeTest(
 		new String[] {
@@ -206,6 +213,7 @@ public void test001f() {
 		"----------\n");
 }
 // fields
+@Test
 public void test001f_1() {
 	this.runConformTest(
 		new String[] {
@@ -226,6 +234,7 @@ public void test001f_1() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test001g() {
 	this.runNegativeTest(
 		new String[] {
@@ -250,6 +259,7 @@ public void test001g() {
 		"Cannot infer type arguments for X2<>\n" +
 		"----------\n");
 }
+@Test
 public void test001g_1() {
 	this.runConformTest(
 		new String[] {
@@ -271,6 +281,7 @@ public void test001g_1() {
 		},
 		"SUCCESS\n1");
 }
+@Test
 public void test001h() {
 	this.runNegativeTest(
 		new String[] {
@@ -304,6 +315,7 @@ public void test001h() {
 		"The method methodx(String) in the type X<String>.X2<String> is not applicable for the arguments (int)\n" +
 		"----------\n");
 }
+@Test
 public void test001h_1() {
 	this.runNegativeTest(
 		new String[] {
@@ -349,6 +361,7 @@ public void test001h_1() {
 		"Type safety: The method methodx(Object) belongs to the raw type X.X2. References to generic type X<T>.X2<T> should be parameterized\n" +
 		"----------\n");
 }
+@Test
 public void test001h_2() {
 	this.runConformTest(
 		new String[] {
@@ -369,6 +382,7 @@ public void test001h_2() {
 		},
 		"1");
 }
+@Test
 public void test001i() {
 	this.runNegativeTest(
 		new String[] {
@@ -395,6 +409,7 @@ public void test001i() {
 		"Cannot infer type arguments for X22<>\n" +
 		"----------\n");
 }
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -421,6 +436,7 @@ public void test002() {
 		"Type safety: The method testFunction(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
 		"----------\n");
 }
+@Test
 public void test003() {
 	this.runConformTest(
 		new String[] {
@@ -437,6 +453,7 @@ public void test003() {
 		"SUCCESS");
 }
 
+@Test
 public void test004b() {
 	this.runNegativeTest(
 		new String[] {
@@ -466,6 +483,7 @@ public void test004b() {
 			"The method newMethod() of type new X<Object>.X2<Object>(){} must override or implement a supertype method\n" +
 			"----------\n");
 }
+@Test
 public void test004c() {
 	this.runConformTest(
 		new String[] {
@@ -489,6 +507,7 @@ public void test004c() {
 		"1");
 }
 
+@Test
 public void test006() {
 	this.runConformTest(
 		new String[] {
@@ -512,6 +531,7 @@ public void test006() {
 		"SUCCESS");
 }
 // shows the difference between using <> and the raw type - different semantics
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -539,6 +559,7 @@ public void test007() {
 		"1\n" +
 		"2");
 }
+@Test
 public void test007a() {
 	this.runConformTest(
 			new String[] {
@@ -563,6 +584,7 @@ public void test007a() {
 			"SUCCESS");
 }
 //shows the difference between using <> and the raw type - different semantics
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -604,6 +626,7 @@ public void test008() {
 		"----------\n");
 }
 
+@Test
 public void test0014() {
 	this.runConformTest(
 		new String[] {
@@ -622,6 +645,7 @@ public void test0014() {
 		"SUCCESS\n" +
 		"123");
 }
+@Test
 public void test0014a() {
 	this.runNegativeTest(
 		new String[] {
@@ -644,6 +668,7 @@ public void test0014a() {
 		"The method testFunction(String, Integer) in the type X<String,Integer> is not applicable for the arguments (int, String)\n" +
 		"----------\n");
 }
+@Test
 public void test0015() {
 	this.runConformTest(
 		new String[] {
@@ -664,6 +689,7 @@ public void test0015() {
 		"const.1\nconst.2");
 }
 // To verify that <> cannot be used with explicit type arguments to generic constructor.
+@Test
 public void test0016() {
 	this.runNegativeTest(
 		new String[] {
@@ -693,6 +719,7 @@ public void test0016() {
 		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" +
 		"----------\n");
 }
+@Test
 public void test0016a() {
 	this.runConformTest(  // javac fails to compile this, looks buggy
 		new String[] {
@@ -713,6 +740,7 @@ public void test0016a() {
 		"const.1\nconst.2");
 }
 // To verify that <> cannot be used with explicit type arguments to a generic constructor.
+@Test
 public void test0016b() {
 	this.runNegativeTest(
 		new String[] {
@@ -752,6 +780,7 @@ public void test0016b() {
 }
 //To verify that a parameterized invocation of a generic constructor works even if <> is used
 //to elide class type parameters. This test handles fields
+@Test
 public void test0016c() {
 	this.runConformTest(
 		new String[] {
@@ -775,6 +804,7 @@ public void test0016c() {
 		"const.1\nconst.1\nconst.2");
 }
 // To verify that <> cannot be used with explicit type arguments to generic constructor.
+@Test
 public void test0017() {
 	this.runNegativeTest(
 		new String[] {
@@ -809,6 +839,7 @@ public void test0017() {
 }
 // To verify that a parameterized invocation of a non-generic constructor works even if <> is used
 // to elide class type parameters.
+@Test
 public void test0017a() {
 	this.runConformTest(
 		new String[] {
@@ -831,6 +862,7 @@ public void test0017a() {
 		"const.1\nconst.1\nconst.2");
 }
 // To verify that the correct constructor is found by parameter substitution in the diamond case
+@Test
 public void test0018() {
 	this.runConformTest(
 		new String[] {
@@ -852,6 +884,7 @@ public void test0018() {
 }
 // To verify that the correct constructor is found by parameter substitution
 // in the diamond case -- fields
+@Test
 public void test0018b() {
 	this.runConformTest(
 		new String[] {
@@ -874,6 +907,7 @@ public void test0018b() {
 		},
 		"const.1\nconst.1\nconst.2");
 }
+@Test
 public void test0019() {
 	this.runNegativeTest(
 		new String[] {
@@ -890,6 +924,7 @@ public void test0019() {
 		"----------\n");
 }
 // check inference at method argument position.
+@Test
 public void test0020() {
 	this.runNegativeTest(
 		new String[] {
@@ -909,6 +944,7 @@ public void test0020() {
 		"----------\n");
 }
 //check inference at method argument position.
+@Test
 public void test0021() {
 	this.runNegativeTest(
 			new String[] {
@@ -923,6 +959,7 @@ public void test0021() {
 			},
 			"");
 }
+@Test
 public void test0022() {
 	this.runConformTest(
 		new String[] {
@@ -943,6 +980,7 @@ public void test0022() {
 		},
 		"");
 }
+@Test
 public void test0023() {
 	this.runNegativeTest(
 		new String[] {
@@ -979,6 +1017,7 @@ public void test0023() {
 		"----------\n");
 }
 // check inference at return expression.
+@Test
 public void test0024() {
 	this.runNegativeTest(
 		new String[] {
@@ -998,6 +1037,7 @@ public void test0024() {
 		"----------\n");
 }
 // check inference at cast expression.
+@Test
 public void test0025() {
 	this.runNegativeTest(
 		new String[] {
@@ -1017,6 +1057,7 @@ public void test0025() {
 		"----------\n");
 }
 // Test various scenarios.
+@Test
 public void test0026() {
 	this.runNegativeTest(
 		new String[] {
@@ -1047,6 +1088,7 @@ public void test0026() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=344655
+@Test
 public void test0027() {
 	this.runNegativeTest(
 		new String[] {
@@ -1080,6 +1122,7 @@ public void test0027() {
 );
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345239
+@Test
 public void test0028() {
 	String[] testFiles = new String[] {
 			"X.java",
@@ -1109,6 +1152,7 @@ public void test0028() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359
+@Test
 public void test0029() {
 	this.runNegativeTest(
 		new String[] {
@@ -1126,6 +1170,7 @@ public void test0029() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359
+@Test
 public void test0029a() {
 	this.runNegativeTest(
 		new String[] {
@@ -1145,6 +1190,7 @@ public void test0029a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+@Test
 public void test0030() {
 	this.runNegativeTest(
 		new String[] {
@@ -1164,6 +1210,7 @@ public void test0030() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+@Test
 public void test0031() {
 	this.runConformTest(
 		new String[] {
@@ -1178,6 +1225,7 @@ public void test0031() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+@Test
 public void test0032() {
 	this.runConformTest(
 		new String[] {
@@ -1194,6 +1242,7 @@ public void test0032() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+@Test
 public void test0033() {
 	this.runNegativeTest(
 		new String[] {
@@ -1215,6 +1264,7 @@ public void test0033() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0034() {
 	this.runNegativeTest(
 		new String[] {
@@ -1280,6 +1330,7 @@ public void test0034() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0034b() {
 	this.runNegativeTest(
 		new String[] {
@@ -1309,6 +1360,7 @@ public void test0034b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0035() {
 	this.runNegativeTest(
 		new String[] {
@@ -1380,6 +1432,7 @@ public void test0035() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0036() {
 	this.runNegativeTest(
 		new String[] {
@@ -1449,6 +1502,7 @@ public void test0036() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0034a() {
 	this.runNegativeTest(
 		new String[] {
@@ -1474,6 +1528,7 @@ public void test0034a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0035a() {
 	this.runNegativeTest(
 		new String[] {
@@ -1509,6 +1564,7 @@ public void test0035a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0036a() {
 	this.runNegativeTest(
 		new String[] {
@@ -1542,6 +1598,7 @@ public void test0036a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+@Test
 public void test0037() {
 	this.runNegativeTest(
 		new String[] {
@@ -1589,6 +1646,7 @@ public void test0037() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=341795
+@Test
 public void test0038() {
 	this.runConformTest(
 		new String[] {
@@ -1610,6 +1668,7 @@ public void test0038() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319436
+@Test
 public void test0039() {
 	this.runConformTest(
 		new String[] {
@@ -1626,6 +1685,7 @@ public void test0039() {
 		},
 		"");
 }
+@Test
 public void test0042() {
 	this.runNegativeTest(
 		new String[] {
@@ -1639,6 +1699,7 @@ public void test0042() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0043() {
 	this.runConformTest(
 		new String[] {
@@ -1658,6 +1719,7 @@ public void test0043() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0044() {
 	this.runNegativeTest(
 		new String[] {
@@ -1680,6 +1742,7 @@ public void test0044() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0045() {
 	this.runConformTest(
 		new String[] {
@@ -1698,6 +1761,7 @@ public void test0045() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0046() {
 	this.runConformTest(
 		new String[] {
@@ -1716,6 +1780,7 @@ public void test0046() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0047() {
 	this.runConformTest(
 		new String[] {
@@ -1735,6 +1800,7 @@ public void test0047() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0048() {
 	this.runNegativeTest(
 		new String[] {
@@ -1759,6 +1825,7 @@ public void test0048() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0049() {
 	this.runConformTest(
 		new String[] {
@@ -1779,6 +1846,7 @@ public void test0049() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0050() {
 	this.runConformTest(
 		new String[] {
@@ -1796,6 +1864,7 @@ public void test0050() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+@Test
 public void test0051() {
 	this.runConformTest(
 		new String[] {
@@ -1815,6 +1884,7 @@ public void test0051() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0052() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -1889,6 +1959,7 @@ public void test0052() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0052b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -1951,6 +2022,7 @@ public void test0052b() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0052c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -1991,6 +2063,7 @@ public void test0052c() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0052d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2018,6 +2091,7 @@ public void test0052d() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0053() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2046,6 +2120,7 @@ public void test0053() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0054() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2071,6 +2146,7 @@ public void test0054() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0055() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2130,6 +2206,7 @@ public void test0055() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
 // qualified allocation
+@Test
 public void test0056() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2174,6 +2251,7 @@ public void test0056() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
 // qualified allocation
+@Test
 public void test0056b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2207,6 +2285,7 @@ public void test0056b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
 // qualified allocation
+@Test
 public void test0056c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2239,6 +2318,7 @@ public void test0056c() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0057() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2267,6 +2347,7 @@ public void test0057() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0058() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2296,6 +2377,7 @@ public void test0058() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+@Test
 public void test0059() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2318,6 +2400,7 @@ public void test0059() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=361441
+@Test
 public void test0061() {
 	this.runNegativeTest(
 		new String[] {
@@ -2347,6 +2430,7 @@ public void test0061() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428220, [1.8][compiler] Javadoc processing interferes with type inference.
+@Test
 public void test428220() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -2373,6 +2457,7 @@ public void test428220() {
 		"----------\n", null, true, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428220, [1.8][compiler] Javadoc processing interferes with type inference.
+@Test
 public void test428220a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -2399,6 +2484,7 @@ public void test428220a() {
 		"----------\n", null, true, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=442929, [1.8][compiler] ClassCastException during runtime where is no cast
+@Test
 public void test442929() {
 	this.runConformTest(
 		new String[] {
@@ -2438,6 +2524,7 @@ public void test442929() {
 		"Expected CCE");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448028, [1.8] 1.8 cannot infer type arguments where 1.7 does
+@Test
 public void test448028() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -2517,6 +2604,7 @@ public void test448028() {
 			null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449619,  [1.8][compiler] Qualified <> allocation fails to compile.
+@Test
 public void test449619() {
 	String source = "public class X {\n" +
 			   "	public class Y<T> {\n" +
@@ -2535,6 +2623,7 @@ public void test449619() {
 		   "");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429733, [1.8][bytecode] Bad type on operand stack
+@Test
 public void test429733() {
 	runConformTest(
 		new String[] {
@@ -2557,6 +2646,7 @@ public void test429733() {
 		"1.1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429733, [1.8][bytecode] Bad type on operand stack
+@Test
 public void test429733a() {
 	runConformTest(
 		new String[] {
@@ -2579,6 +2669,7 @@ public void test429733a() {
 		"1.1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394
+@Test
 public void test375394a() {
 	this.runNegativeTest(
 		new String[] {
@@ -2607,6 +2698,7 @@ public void test375394a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing
+@Test
 public void test427728b() {
 	runConformTest(
 		new String[] {
@@ -2630,6 +2722,7 @@ public void test427728b() {
 		},
 		"");
 }
+@Test
 public void testBug456508() {
 	runNegativeTest(
 		new String[] {
@@ -2672,6 +2765,7 @@ public void testBug456508() {
 		"Type safety: A generic array of QueryAtom<PGroepAccount,PAccount> is created for a varargs parameter\n" +
 		"----------\n");
 }
+@Test
 public void testBug462083() {
 	runConformTest(
 		new String[] {
@@ -2695,6 +2789,7 @@ public void testBug462083() {
 			"}\n"
 		});
 }
+@Test
 public void testBug469653() {
 	String codeContent =
 		"import java.util.*;\n" +
@@ -2719,6 +2814,7 @@ public void testBug469653() {
 		"Type mismatch: cannot convert from Iterator<capture#1-of ? extends String> to Iterator<String>\n" +
 		"----------\n");
 }
+@Test
 public void testBug488649_JDK6791481_ex1() {
 	int count = 1;
 	runNegativeTest(
@@ -2746,6 +2842,7 @@ public void testBug488649_JDK6791481_ex1() {
 		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
 		"----------\n");
 }
+@Test
 public void testGH1326() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -2765,6 +2862,7 @@ public void testGH1326() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testGH1326_alt() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();

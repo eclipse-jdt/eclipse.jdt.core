@@ -13,12 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 // Bug 488662 - [1.9] Allow private methods in interfaces
-@SuppressWarnings({ "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 
 // Static initializer to specify tests subset using TESTS_* static variables
@@ -29,26 +30,12 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
-	}
-
-	public static Test setUpTest(Test test) throws Exception {
-		TestCase.setUpTest(test);
-		RegressionTestSetup suite = new RegressionTestSetup(ClassFileConstants.JDK9);
-		suite.addTest(test);
-		return suite;
-	}
-
-	public static Class testClass() {
-		return InterfaceMethodsTest_9.class;
-	}
-
-	public InterfaceMethodsTest_9(String name) {
-		super(name);
+	public InterfaceMethodsTest_9(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// private method - positive test
+	@Test
 	public void testBug488662_001() {
 		runConformTest(
 		new String[] {
@@ -61,6 +48,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		"");
 	}
 	// private method legal combination of modifiers - positive test
+	@Test
 	public void testBug488662_002() {
 		runConformTest(
 		new String[] {
@@ -73,6 +61,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		"");
 	}
 	// private method legal combination of modifiers - positive test
+	@Test
 	public void testBug488662_003() {
 		runConformTest(
 		new String[] {
@@ -86,6 +75,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 	}
 
 	// missing method body - negative test
+	@Test
 	public void testBug488662_004() {
 		runNegativeTest(
 		new String[] {
@@ -104,6 +94,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 	}
 
 	// illegal modifier combination - negative test
+	@Test
 	public void testBug488662_005() {
 		runNegativeTest(
 		new String[] {
@@ -126,6 +117,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"----------\n");
 	}
 	// illegal modifier combination - negative test
+	@Test
 	public void testBug488662_006() {
 		runNegativeTest(
 		new String[] {
@@ -143,6 +135,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 	}
 
 	// illegal modifier combination - negative test
+	@Test
 	public void testBug488662_007() {
 		runNegativeTest(
 		new String[] {
@@ -165,6 +158,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 	}
 
 	// reduced visibility modifier - negative test
+	@Test
 	public void testBug488662_008() {
 		runNegativeTest(
 		new String[] {
@@ -188,6 +182,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 
 
 	// No unimplemented method error - positive test
+	@Test
 	public void testBug488662_009() {
 		runConformTest(
 		new String[] {
@@ -208,6 +203,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 		"");
 	}
 	// illegal modifier combination - multiple errors - negative test
+	@Test
 	public void testBug488662_010() {
 		runNegativeTest(
 		new String[] {
@@ -224,6 +220,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"----------\n");
 	}
 	// illegal modifier combination - negative test
+	@Test
 	public void testBug488662_011() {
 		runNegativeTest(
 		new String[] {
@@ -245,6 +242,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"----------\n");
 	}
 	// illegal modifier combination - multiple errors - negative test
+	@Test
 	public void testBug488662_012() {
 		runNegativeTest(
 		new String[] {
@@ -270,6 +268,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"This method requires a body instead of a semicolon\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug517926() {
 		runNegativeTest(
 			new String[] {
@@ -293,6 +292,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"The method name(String) of type A must override or implement a supertype method\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug521743() {
 		runConformTest(
 			new String[] {
@@ -306,6 +306,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			},
 			"");
 	}
+	@Test
 	public void testBug520795() {
 		runNegativeTest(
 			new String[] {
@@ -330,6 +331,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"The method foo() from the type I is not visible\n" +
 			"----------\n" );
 	}
+	@Test
 	public void testBug520795a() {
 		runConformTest(
 			new String[] {
@@ -347,6 +349,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 				"}\n"
 		});
 	}
+	@Test
 	public void testBug520795b() {
 		runNegativeTest(
 			new String[] {
@@ -369,6 +372,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"This static method of interface X.I can only be accessed as X.I.foo\n" +
 			"----------\n" );
 	}
+	@Test
 	public void testBug520795c() {
 		runNegativeTest(
 			new String[] {
@@ -394,6 +398,7 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"This static method of interface X.I can only be accessed as X.I.foo\n" +
 			"----------\n" );
 	}
+	@Test
 	public void testBug518272() {
 		runConformTest(
 			new String[] {

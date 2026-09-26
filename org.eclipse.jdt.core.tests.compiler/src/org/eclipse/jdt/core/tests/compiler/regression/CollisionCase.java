@@ -13,21 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class CollisionCase extends AbstractRegressionTest {
 
-public CollisionCase(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-public static Class testClass() {
-	return CollisionCase.class;
+public CollisionCase(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -49,6 +44,7 @@ public void test001() {
 		"SUCCESS");
 }
 
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -71,6 +67,7 @@ public void test002() {
 		"----------\n");
 }
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=84886
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {

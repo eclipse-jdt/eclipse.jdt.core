@@ -15,11 +15,15 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJrt;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	protected static final String NONNULL_BY_DEFAULT_ANNOTATION_CONTENT = "package org.eclipse.jdt.annotation;\n" +
@@ -105,22 +109,8 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	/**
-	 * This test suite only needs to be run on one compliance.
-	 * As it includes some specific 1.5 tests, it must be used with a least a 1.5 VM
-	 * and not be duplicated in general test suite.
-	 * @see TestAll
-	 */
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-
-	public static Class<?> testClass() {
-		return NullAnnotationBatchCompilerTest.class;
-	}
-
-	public NullAnnotationBatchCompilerTest(String name) {
-		super(name);
+	public NullAnnotationBatchCompilerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -140,6 +130,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 	// -err option - regression tests to check option nullAnnot
 	// Null warnings because of annotations, null spec violations plus one specific problem configured as errors
+	@Test
 	public void test314_warn_options() {
 		this.runNegativeTest(
 			new String[] {
@@ -188,6 +179,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	// -warn option - regression tests to check option nullAnnot and missingNullDefault
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+	@Test
 	public void test315_warn_options() {
 		this.runConformTest(
 			new String[] {
@@ -227,6 +219,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	// -warn option - regression tests to check option nullAnnot and missingNullDefault
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+	@Test
 	public void test315_warn_options_a() {
 		this.runConformTest(
 			new String[] {
@@ -259,6 +252,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	// -warn option - regression tests to check option nullAnnot and missingNullDefault
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+	@Test
 	public void test315_warn_options_b() {
 		this.runNegativeTest(
 			new String[] {
@@ -296,6 +290,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 	// -warn option - regression tests to check option nullAnnot
 	// option syntax error
+	@Test
 	public void test316_warn_options() {
 		this.runNegativeTest(
 			new String[] {
@@ -323,6 +318,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
 	// -warn option - regression tests to check option syntacticAnalysis
 	// Null warnings because of annotations, null spec violations, suppressed by null-check
+	@Test
 	public void test316b_warn_options() {
 		this.runConformTest(
 			new String[] {
@@ -356,6 +352,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 	// -warn option - regression tests to check option nullAnnot (no args)
 	// Null warnings because of annotations, null spec violations
+	@Test
 	public void test313_warn_options() {
 		this.runConformTest(
 			new String[] {
@@ -404,6 +401,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	// Bug 388281 - [compiler][null] inheritance of null annotations as an option
 	// -warn option - regression tests to check option inheritNullAnnot
+	@Test
 	public void test320_warn_options() {
 		this.runNegativeTest(
 			new String[] {
@@ -444,6 +442,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 
 	// -warn option - test multiple sets of null annotations
+	@Test
 	public void testBug466291() {
 		this.runConformTest(
 			new String[] {
@@ -526,6 +525,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 
 	//-warn option - test multiple sets of null annotations, three (partial) sets of secondary annotations
+	@Test
 	public void testBug466291b() {
 		this.runConformTest(
 			new String[] {
@@ -612,6 +612,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	// Bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
 	// property file enables null annotation support
+	@Test
 	public void testBug375366c() throws IOException {
 		createOutputTestDirectory("regression/.settings");
 		Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
@@ -665,6 +666,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	// Bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
 	// property file enables null annotation support, one optional warning disabled
+	@Test
 	public void testBug375366d() throws IOException {
 		createOutputTestDirectory("regression/.settings");
 		Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
@@ -714,6 +716,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	// Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
 	// - single external annotation directory
+	@Test
 	public void test440477() throws IOException {
 		String annots_dir = Util.getOutputDirectory() + File.separator + "annots";
 		String annots_java_util = annots_dir + File.separator + "java/util";
@@ -856,6 +859,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 	// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
 	// - two external annotation directories as part of the sourcepath/classpath
+	@Test
 	public void test440687a() throws IOException {
 
 		String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
@@ -877,6 +881,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 	// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
 	// - two external annotation directories specifically configured.
+	@Test
 	public void test440687b() throws IOException {
 
 		String annots_dir = Util.getOutputDirectory() + File.separator + "annots1";
@@ -900,6 +905,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 	// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
 	// - single external annotation zip with 2 entries
+	@Test
 	public void test440687c() throws IOException {
 
 		String annots_dir = Util.getOutputDirectory() + File.separator + "annots";
@@ -921,6 +927,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 	// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
 	// - missing argument after -annotationpath
+	@Test
 	public void test440687d() throws IOException {
 		runTest440687("-annotationpath", // missing argument
 						"",
@@ -929,6 +936,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 
 	// project is configured for eea (directory on classpath), but no specific file for Map found
+	@Test
 	public void test490010NoEeaFile1() throws IOException {
 
 		String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
@@ -968,6 +976,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 
 	// project is configured for eea (jar on classpath), but no specific file for Map found
+	@Test
 	public void test490010NoEeaFile2() throws IOException {
 
 		String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
@@ -1010,6 +1019,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 
 	// project is configured for eea (dedicated annotation zip), but no specific file for Map found
+	@Test
 	public void test490010NoEeaFile3() throws IOException {
 
 		String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
@@ -1050,12 +1060,15 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 				"4 problems (4 warnings)\n",
 				true);
 	}
+	@Test
 	public void testBug571055_explicit() throws IOException {
 		runTestBug571055(false, false);
 	}
+	@Test
 	public void testBug571055_inherit() throws IOException {
 		runTestBug571055(true, false);
 	}
+	@Test
 	public void testBug571055_dedicatedAnnotationPath() throws IOException {
 		runTestBug571055(false, true);
 	}
@@ -1145,6 +1158,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 		this.runNegativeTest(testFiles, commandLine, "", expectedCompilerMessage, false);
 	}
 
+	@Test
 	public void testGHTycho1641() throws IOException {
 		try {
 			// tests external annotations with --release option
@@ -1188,6 +1202,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 		}
 	}
 
+	@Test
 	public void testGH703() {
 		// replicates NullTypeAnnotationTest.testBug456584() but with --release option
 		runConformTest(
@@ -1221,6 +1236,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 					"",
 					true);
 	}
+	@Test
 	public void testGH1452_src() throws IOException {
 		String annotationPath = "/annotations";
 		new File(OUTPUT_DIR+annotationPath+"/some/sillyPackage").mkdirs();
@@ -1295,6 +1311,7 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 			Util.delete(Util.getOutputDirectory());
 		}
 	}
+	@Test
 	public void testGH1452_bin() throws IOException {
 		String jarPath = OUTPUT_DIR+"/lib.jar";
 		String annotationZip = OUTPUT_DIR+"/annotations.zip";

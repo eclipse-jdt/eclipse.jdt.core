@@ -14,25 +14,20 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int[] { 24 };
 	}
-	public UnderscoresInLiteralsTest(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+	public UnderscoresInLiteralsTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Class testClass() {
-		return UnderscoresInLiteralsTest.class;
-	}
-
+	@Test
 	public void test001() {
 		this.runNegativeTest(
 			new String[] {
@@ -50,6 +45,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test002() {
 		this.runNegativeTest(
 			new String[] {
@@ -67,6 +63,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -84,6 +81,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test004() {
 		this.runNegativeTest(
 			new String[] {
@@ -101,6 +99,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test005() {
 		this.runNegativeTest(
 			new String[] {
@@ -118,6 +117,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -135,6 +135,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test007() {
 		this.runNegativeTest(
 			new String[] {
@@ -152,6 +153,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test008() {
 		this.runNegativeTest(
 			new String[] {
@@ -169,6 +171,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test009() {
 		this.runNegativeTest(
 			new String[] {
@@ -186,6 +189,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
@@ -203,6 +207,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
@@ -220,6 +225,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
@@ -237,6 +243,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test013() {
 		this.runNegativeTest(
 			new String[] {
@@ -254,6 +261,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"_01234567 cannot be resolved to a variable\n" +
 			"----------\n");
 	}
+	@Test
 	public void test014() {
 		this.runNegativeTest(
 			new String[] {
@@ -271,6 +279,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test015() {
 		this.runNegativeTest(
 			new String[] {
@@ -288,6 +297,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test016() {
 		this.runNegativeTest(
 			new String[] {
@@ -305,6 +315,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test017() {
 		this.runNegativeTest(
 			new String[] {
@@ -322,6 +333,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test018() {
 		this.runNegativeTest(
 			new String[] {
@@ -339,6 +351,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test019() {
 		this.runNegativeTest(
 			new String[] {
@@ -356,6 +369,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test020() {
 		this.runNegativeTest(
 			new String[] {
@@ -373,6 +387,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test021() {
 		this.runNegativeTest(
 			new String[] {
@@ -390,6 +405,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			"Underscores have to be located within digits\n" +
 			"----------\n");
 	}
+	@Test
 	public void test022() {
 		Map customedOptions = getCompilerOptions();
 		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
@@ -414,6 +430,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			true,
 			customedOptions);
 	}
+	@Test
 	public void test023() {
 		this.runConformTest(
 			new String[] {
@@ -426,6 +443,7 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 			},
 			"78187493520");
 	}
+	@Test
 	public void test024() {
 		this.runConformTest(
 			new String[] {

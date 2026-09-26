@@ -13,21 +13,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class LambdaShapeTests extends AbstractRegressionTest {
 static {
 //		TESTS_NAMES = new String[] { "test016"};
 //		TESTS_NUMBERS = new int[] { 50 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 }
-public LambdaShapeTests(String name) {
-	super(name);
+public LambdaShapeTests(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -121,6 +119,7 @@ public void test001() {
 			"}\n",
 		});
 }
+@Test
 public void test002() {
 	this.runConformTest(
 		new String[] {
@@ -160,6 +159,7 @@ public void test002() {
 			"}\n"
 		});
 }
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -193,6 +193,7 @@ public void test003() {
 		"Void methods cannot return a value\n" +
 		"----------\n");
 }
+@Test
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
@@ -227,6 +228,7 @@ public void test004() {
 		"Void methods cannot return a value\n" +
 		"----------\n");
 }
+@Test
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
@@ -260,6 +262,7 @@ public void test005() {
 		"Void methods cannot return a value\n" +
 		"----------\n");
 }
+@Test
 public void test006() {
 	this.runNegativeTest(
 		new String[] {
@@ -295,6 +298,7 @@ public void test006() {
 		"Void methods cannot return a value\n" +
 		"----------\n");
 }
+@Test
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -331,6 +335,7 @@ public void test007() {
 		"Void methods cannot return a value\n" +
 		"----------\n");
 }
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -366,6 +371,7 @@ public void test008() {
 		"Void methods cannot return a value\n" +
 		"----------\n");
 }
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -390,6 +396,7 @@ public void test009() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -419,6 +426,7 @@ public void test010() {
 		"Dead code\n" +
 		"----------\n");
 }
+@Test
 public void test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -453,6 +461,7 @@ public void test011() {
 		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
 		"----------\n");
 }
+@Test
 public void test012() {
 	this.runNegativeTest(
 		new String[] {
@@ -482,6 +491,7 @@ public void test012() {
 		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
 		"----------\n");
 }
+@Test
 public void test013() {
 	this.runNegativeTest(
 		new String[] {
@@ -506,6 +516,7 @@ public void test013() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -529,6 +540,7 @@ public void test014() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test015() {
 	this.runNegativeTest(
 		new String[] {
@@ -553,6 +565,7 @@ public void test015() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test016() {
 	this.runNegativeTest(
 		new String[] {
@@ -575,6 +588,7 @@ public void test016() {
 		"This lambda expression must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test017() {
 	this.runNegativeTest(
 		new String[] {
@@ -601,6 +615,7 @@ public void test017() {
 		"Unreachable code\n" +
 		"----------\n");
 }
+@Test
 public void test018() {
 	this.runNegativeTest(
 		new String[] {
@@ -629,6 +644,7 @@ public void test018() {
 		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
 		"----------\n");
 }
+@Test
 public void test019() {
 	this.runNegativeTest(
 		new String[] {
@@ -652,6 +668,7 @@ public void test019() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test020() {
 	this.runConformTest(
 		new String[] {
@@ -673,6 +690,7 @@ public void test020() {
 			"}\n"
 		});
 }
+@Test
 public void test021() {
 	this.runNegativeTest(
 		new String[] {
@@ -711,6 +729,7 @@ public void test021() {
 		"The label inner is never explicitly referenced\n" +
 		"----------\n");
 }
+@Test
 public void test022() {
 	this.runConformTest(
 		new String[] {
@@ -754,6 +773,7 @@ public void test022() {
 			"}\n"
 		});
 }
+@Test
 public void test023() {
 	this.runConformTest(
 		new String[] {
@@ -778,6 +798,7 @@ public void test023() {
 			"}\n"
 		});
 }
+@Test
 public void test024() {
 	this.runNegativeTest(
 		new String[] {
@@ -806,6 +827,7 @@ public void test024() {
 		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
 		"----------\n");
 }
+@Test
 public void test025() {
 	this.runNegativeTest(
 		new String[] {
@@ -829,6 +851,7 @@ public void test025() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test026() {
 	this.runNegativeTest(
 		new String[] {
@@ -867,6 +890,7 @@ public void test026() {
 		"The label inner is never explicitly referenced\n" +
 		"----------\n");
 }
+@Test
 public void test027() {
 	this.runConformTest(
 		new String[] {
@@ -908,6 +932,7 @@ public void test027() {
 			"}\n"
 		});
 }
+@Test
 public void test028() {
 	this.runConformTest(
 		new String[] {
@@ -957,6 +982,7 @@ public void test028() {
 			"}\n"
 		});
 }
+@Test
 public void test029() {
 	this.runNegativeTest(
 		new String[] {
@@ -981,6 +1007,7 @@ public void test029() {
 		"This lambda expression must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test030() {
 	this.runNegativeTest(
 		new String[] {
@@ -1011,6 +1038,7 @@ public void test030() {
 		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
 		"----------\n");
 }
+@Test
 public void test031() {
 	this.runNegativeTest(
 		new String[] {
@@ -1047,6 +1075,7 @@ public void test031() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test032() {
 	this.runNegativeTest(
 		new String[] {
@@ -1091,6 +1120,7 @@ public void test032() {
 		"Dead code\n" +
 		"----------\n");
 }
+@Test
 public void test033() {
 	this.runConformTest(
 		new String[] {
@@ -1129,6 +1159,7 @@ public void test033() {
 			"}\n"
 		});
 }
+@Test
 public void test034() {
 	this.runNegativeTest(
 		new String[] {
@@ -1165,6 +1196,7 @@ public void test034() {
 		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" +
 		"----------\n");
 }
+@Test
 public void test035() {
 	this.runNegativeTest(
 		new String[] {
@@ -1190,6 +1222,7 @@ public void test035() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test036() {
 	this.runNegativeTest(
 		new String[] {
@@ -1226,6 +1259,7 @@ public void test036() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test037() {
 	this.runNegativeTest(
 		new String[] {
@@ -1269,6 +1303,7 @@ public void test037() {
 		"Dead code\n" +
 		"----------\n");
 }
+@Test
 public void test038() {
 	this.runConformTest(
 		new String[] {
@@ -1304,6 +1339,7 @@ public void test038() {
 			"}\n"
 		});
 }
+@Test
 public void test039() {
 	this.runNegativeTest(
 		new String[] {
@@ -1330,6 +1366,7 @@ public void test039() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test040() {
 	this.runNegativeTest(
 		new String[] {
@@ -1358,6 +1395,7 @@ public void test040() {
 		"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" +
 		"----------\n");
 }
+@Test
 public void test041() {
 	this.runConformTest(
 		new String[] {
@@ -1397,6 +1435,7 @@ public void test041() {
 			"}\n"
 		});
 }
+@Test
 public void test042() {
 	this.runNegativeTest(
 		new String[] {
@@ -1424,6 +1463,7 @@ public void test042() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test043() {
 	this.runNegativeTest(
 		new String[] {
@@ -1452,6 +1492,7 @@ public void test043() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test044() {
 	this.runNegativeTest(
 		new String[] {
@@ -1493,6 +1534,7 @@ public void test044() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test045() {
 	this.runNegativeTest(
 		new String[] {
@@ -1521,6 +1563,7 @@ public void test045() {
 		"This method must return a result of type String\n" +
 		"----------\n");
 }
+@Test
 public void test046() {
 	this.runNegativeTest(
 		new String[] {
@@ -1558,6 +1601,7 @@ public void test046() {
 		"finally block does not complete normally\n" +
 		"----------\n");
 }
+@Test
 public void testSwitch() {
 	this.runConformTest(
 		new String[] {
@@ -1591,6 +1635,7 @@ public void testSwitch() {
 		},
 		"goo(I)");
 }
+@Test
 public void testSwitch2() {
 	this.runNegativeTest(
 		new String[] {
@@ -1629,6 +1674,7 @@ public void testSwitch2() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testSwitch3() {
 	this.runNegativeTest(
 		new String[] {
@@ -1665,6 +1711,7 @@ public void testSwitch3() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testSwitch4() {
 	this.runNegativeTest(
 		new String[] {
@@ -1702,6 +1749,7 @@ public void testSwitch4() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testSwitch5() {
 	this.runNegativeTest(
 		new String[] {
@@ -1731,6 +1779,7 @@ public void testSwitch5() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testSwitch6() {
 	this.runNegativeTest(
 		new String[] {
@@ -1759,6 +1808,7 @@ public void testSwitch6() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testWhileThis() {
 	this.runNegativeTest(
 		new String[] {
@@ -1788,6 +1838,7 @@ public void testWhileThis() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testWhile2() {
 	this.runConformTest(
 		new String[] {
@@ -1812,6 +1863,7 @@ public void testWhile2() {
 		},
 		"goo(I)");
 }
+@Test
 public void testWhile3() {
 	this.runConformTest(
 		new String[] {
@@ -1836,6 +1888,7 @@ public void testWhile3() {
 		},
 		"goo(I)");
 }
+@Test
 public void testWhile4() {
 	this.runNegativeTest(
 		new String[] {
@@ -1865,6 +1918,7 @@ public void testWhile4() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo() {
 	this.runConformTest(
 		new String[] {
@@ -1889,6 +1943,7 @@ public void testDo() {
 		},
 		"goo(I)");
 }
+@Test
 public void testDo2() {
 	this.runConformTest(
 		new String[] {
@@ -1913,6 +1968,7 @@ public void testDo2() {
 		},
 		"goo(I)");
 }
+@Test
 public void testDo3() {
 	this.runConformTest(
 		new String[] {
@@ -1937,6 +1993,7 @@ public void testDo3() {
 		},
 		"goo(I)");
 }
+@Test
 public void testDo4() {
 	this.runNegativeTest(
 		new String[] {
@@ -1965,6 +2022,7 @@ public void testDo4() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo5() {
 	this.runNegativeTest(
 		new String[] {
@@ -1992,6 +2050,7 @@ public void testDo5() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo6() {
 	this.runNegativeTest(
 		new String[] {
@@ -2019,6 +2078,7 @@ public void testDo6() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo7() {
 	this.runNegativeTest(
 		new String[] {
@@ -2046,6 +2106,7 @@ public void testDo7() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo8() {
 	this.runConformTest(
 		new String[] {
@@ -2068,6 +2129,7 @@ public void testDo8() {
 		},
 		"goo(I)");
 }
+@Test
 public void testDo9() {
 	this.runConformTest(
 		new String[] {
@@ -2096,6 +2158,7 @@ public void testDo9() {
 		},
 		"J");
 }
+@Test
 public void testDo10() {
 	this.runNegativeTest(
 		new String[] {
@@ -2127,6 +2190,7 @@ public void testDo10() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo11() {
 	this.runNegativeTest(
 		new String[] {
@@ -2160,6 +2224,7 @@ public void testDo11() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo12() {
 	this.runNegativeTest(
 		new String[] {
@@ -2193,6 +2258,7 @@ public void testDo12() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo13() {
 	this.runConformTest(
 		new String[] {
@@ -2221,6 +2287,7 @@ public void testDo13() {
 		},
 		"I");
 }
+@Test
 public void testDo14() {
 	this.runNegativeTest(
 		new String[] {
@@ -2257,6 +2324,7 @@ public void testDo14() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo15() {
 	this.runNegativeTest(
 		new String[] {
@@ -2285,6 +2353,7 @@ public void testDo15() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo16() {
 	this.runNegativeTest(
 		new String[] {
@@ -2313,6 +2382,7 @@ public void testDo16() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo17() {
 	this.runNegativeTest(
 		new String[] {
@@ -2342,6 +2412,7 @@ public void testDo17() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testDo18() {
 	this.runConformTest(
 		new String[] {
@@ -2368,6 +2439,7 @@ public void testDo18() {
 		},
 		"I");
 }
+@Test
 public void testDo19() {
 	this.runConformTest(
 		new String[] {
@@ -2399,6 +2471,7 @@ public void testDo19() {
 		},
 		"J");
 }
+@Test
 public void testDo20() {
 	this.runConformTest(
 		new String[] {
@@ -2430,6 +2503,7 @@ public void testDo20() {
 		},
 		"J");
 }
+@Test
 public void testDo21() {
 	this.runConformTest(
 		new String[] {
@@ -2460,6 +2534,7 @@ public void testDo21() {
 		},
 		"I");
 }
+@Test
 public void testDo22() {
 	this.runConformTest(
 		new String[] {
@@ -2491,6 +2566,7 @@ public void testDo22() {
 		},
 		"J");
 }
+@Test
 public void testDo23() {
 	this.runConformTest(
 		new String[] {
@@ -2522,6 +2598,7 @@ public void testDo23() {
 		},
 		"I");
 }
+@Test
 public void testDo24() {
 	this.runConformTest(
 		new String[] {
@@ -2553,6 +2630,7 @@ public void testDo24() {
 		},
 		"J");
 }
+@Test
 public void testDo25() {
 	this.runConformTest(
 		new String[] {
@@ -2584,6 +2662,7 @@ public void testDo25() {
 		},
 		"J");
 }
+@Test
 public void testDo26() {
 	this.runConformTest(
 		new String[] {
@@ -2615,6 +2694,7 @@ public void testDo26() {
 		},
 		"I");
 }
+@Test
 public void testForeach() {
 	this.runNegativeTest(
 		new String[] {
@@ -2643,6 +2723,7 @@ public void testForeach() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testForeach2() {
 	this.runNegativeTest(
 		new String[] {
@@ -2688,6 +2769,7 @@ public void testForeach2() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testForeach3() {
 	this.runNegativeTest(
 		new String[] {
@@ -2733,6 +2815,7 @@ public void testForeach3() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testForeach4() {
 	this.runNegativeTest(
 		new String[] {
@@ -2762,6 +2845,7 @@ public void testForeach4() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testIf() {
 	this.runNegativeTest(
 		new String[] {
@@ -2789,6 +2873,7 @@ public void testIf() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testIf2() {
 	this.runNegativeTest(
 		new String[] {
@@ -2816,6 +2901,7 @@ public void testIf2() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testIf3() {
 	this.runConformTest(
 		new String[] {
@@ -2840,6 +2926,7 @@ public void testIf3() {
 		},
 		"goo(I)");
 }
+@Test
 public void testCFor() {
 	this.runNegativeTest(
 		new String[] {
@@ -2868,6 +2955,7 @@ public void testCFor() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testCFor2() {
 	this.runConformTest(
 		new String[] {
@@ -2891,6 +2979,7 @@ public void testCFor2() {
 		},
 		"goo(I)");
 }
+@Test
 public void testTry() {
 	this.runConformTest(
 		new String[] {
@@ -2914,6 +3003,7 @@ public void testTry() {
 		},
 		"goo(I)");
 }
+@Test
 public void testTry2() {
 	this.runNegativeTest(
 		new String[] {
@@ -2941,6 +3031,7 @@ public void testTry2() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testTry3() {
 	this.runNegativeTest(
 		new String[] {
@@ -2969,6 +3060,7 @@ public void testTry3() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testTry4() {
 	this.runConformTest(
 		new String[] {
@@ -2993,6 +3085,7 @@ public void testTry4() {
 		},
 		"goo(I)");
 }
+@Test
 public void testWhileTrue() {
 	this.runConformTest(
 		new String[] {
@@ -3014,6 +3107,7 @@ public void testWhileTrue() {
 		},
 		"goo(I)");
 }
+@Test
 public void testWhileTrue2() {
 	this.runConformTest(
 		new String[] {
@@ -3038,6 +3132,7 @@ public void testWhileTrue2() {
 		},
 		"goo(I)");
 }
+@Test
 public void testWhileTrue3() {
 	this.runNegativeTest(
 		new String[] {
@@ -3065,6 +3160,7 @@ public void testWhileTrue3() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" +
 		"----------\n");
 }
+@Test
 public void testLabeledStatement() {
 	this.runConformTest(
 		new String[] {
@@ -3096,6 +3192,7 @@ public void testLabeledStatement() {
 		},
 		"J");
 }
+@Test
 public void testLabeledStatement2() {
 	this.runConformTest(
 		new String[] {
@@ -3128,6 +3225,7 @@ public void testLabeledStatement2() {
 		},
 		"J");
 }
+@Test
 public void testLabeledStatement3() {
 	this.runConformTest(
 		new String[] {
@@ -3160,6 +3258,7 @@ public void testLabeledStatement3() {
 		},
 		"J");
 }
+@Test
 public void testLabeledStatement4() {
 	this.runConformTest(
 		new String[] {
@@ -3192,6 +3291,7 @@ public void testLabeledStatement4() {
 		},
 		"J");
 }
+@Test
 public void testLabeledStatement5() {
 	this.runConformTest(
 		new String[] {
@@ -3225,6 +3325,7 @@ public void testLabeledStatement5() {
 		"I");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=470232 NPE at org.eclipse.jdt.internal.compiler.ast.WhileStatement.doesNotCompleteNormally
+@Test
 public void testBug470232_While() {
 	this.runConformTest(
 		new String[] {
@@ -3244,6 +3345,7 @@ public void testBug470232_While() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=470232 NPE at org.eclipse.jdt.internal.compiler.ast.WhileStatement.doesNotCompleteNormally
+@Test
 public void testBug470232_Do() {
 	this.runConformTest(
 		new String[] {
@@ -3263,6 +3365,7 @@ public void testBug470232_Do() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=470232 NPE at org.eclipse.jdt.internal.compiler.ast.WhileStatement.doesNotCompleteNormally
+@Test
 public void testBug470232_For() {
 	this.runConformTest(
 		new String[] {
@@ -3280,8 +3383,5 @@ public void testBug470232_For() {
 			"    }\n" +
 			"}\n"
 		});
-}
-public static Class testClass() {
-	return LambdaShapeTests.class;
 }
 }

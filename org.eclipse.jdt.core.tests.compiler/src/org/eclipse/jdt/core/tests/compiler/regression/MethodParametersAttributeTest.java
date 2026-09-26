@@ -18,7 +18,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -28,21 +27,19 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	String versionString = null;
-	public MethodParametersAttributeTest(String name) {
-		super(name);
+	public MethodParametersAttributeTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 	// No need for a tearDown()
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.versionString = AbstractCompilerTest.getVersionString(this.complianceLevel);
-	}
-	@SuppressWarnings("rawtypes")
-	public static Class testClass() {
-		return MethodParametersAttributeTest.class;
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -52,9 +49,6 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testBug359495" };
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 
 	String originalSource =
@@ -92,6 +86,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		"}\n" +
 		"";
 
+	@Test
 	public void test001() throws Exception {
 
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -173,6 +168,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 			assertSubstring(actualOutput, expectedOutput);
 	}
+	@Test
 	public void test002() throws Exception {
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -240,6 +236,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test003() throws Exception {
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -314,6 +311,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test004() throws Exception {
 
 		// Test the results of the ClassFileReader
@@ -328,6 +326,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertEquals("mutableMessage", new String(methodInfos[2].getArgumentNames()[1]));
 	}
 
+	@Test
 	public void test005() throws Exception {
 		// Test the results of the ClassFileReader where some of the paramers are synthetic and/or mandated
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames$1Local.class";
@@ -340,6 +339,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertEquals("this$0", new String(methodInfos[0].getArgumentNames()[0]));
 		assertEquals("val$capturedB", new String(methodInfos[0].getArgumentNames()[1]));
 	}
+	@Test
 	public void test006() throws Exception {
 		// Test that the code generator can emit the names, so the ClassFileReader may read them back
 
@@ -371,6 +371,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test007() throws Exception {
 		// Test that the code generator can emit the names, so the disassembler may read them back (same source as was compiled with javac)
 
@@ -466,6 +467,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test008() throws Exception {
 		// Test that the code generator can emit synthetic and mandated names, just to match javac as closely as possibly
 
@@ -545,6 +547,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test009() throws Exception {
 		// Test that the code generator can emit synthetic and mandated names, just to match javac as closely as possibly
 
@@ -675,6 +678,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test010() throws Exception {
 		// Test that the non private inner class gets a mandated enclosing instance parameter.
 
@@ -711,6 +715,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test011() throws Exception {
 		// Test that a private inner class does not get a mandated enclosing instance parameter.
 
@@ -747,6 +752,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test012() throws Exception {
 
 		this.runParameterNameTest(
@@ -790,6 +796,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test013() throws Exception {
 		// Test that synthesized enum constructor arguments show up as synthetic
 
@@ -827,6 +834,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test014() throws Exception {
 		// Test that the name argument of enum valueOf shows up as mandated
 
@@ -861,6 +869,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
+	@Test
 	public void test015() throws Exception {
 		// Test that the name argument of enum valueOf shows up as mandated
 
@@ -899,6 +908,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=476528
+	@Test
 	public void test016() throws Exception {
 		// Test that the name argument of enum valueOf shows up as mandated
 

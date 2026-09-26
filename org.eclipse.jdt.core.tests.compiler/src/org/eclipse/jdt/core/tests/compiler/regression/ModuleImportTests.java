@@ -17,12 +17,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_23)
 public class ModuleImportTests extends AbstractModuleCompilationTest {
 
 	static {
@@ -31,18 +35,11 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public ModuleImportTests(String name) {
-		super(name);
+	public ModuleImportTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_23);
-	}
-
-	public static Class<?> testClass() {
-		return ModuleImportTests.class;
-	}
-
+	@Test
 	public void test001_simpleOK() throws IOException, ClassFormatException {
 		runConformModuleTest(
 			new String[] {
@@ -72,6 +69,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test001_simple_24() throws IOException, ClassFormatException {
 		runNegativeModuleTest(
 			new String[] {
@@ -114,6 +112,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 			"not supported");
 	}
 
+	@Test
 	public void test002_moduleNotRead() {
 		runNegativeModuleTest(
 			new String[] {
@@ -155,6 +154,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "read");
 	}
 
+	@Test
 	public void test003_unresolvableModule() {
 		runNegativeModuleTest(
 			new String[] {
@@ -197,6 +197,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "imported module not found");
 	}
 
+	@Test
 	public void test004_selfImport_OK() throws IOException, ClassFormatException {
 		String modsDir = getSourceDir() +  File.separator + "mods";
 		String modOneDir = modsDir + File.separator + "mod.one";
@@ -238,6 +239,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test005_selfImport_NOK() {
 		String modsDir = getSourceDir() +  File.separator + "mods";
 		String modOneDir = modsDir + File.separator + "mod.one";
@@ -281,6 +283,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"cannot find symbol"); // javac additionally reports warning: [module] module not found: mod.other
 	}
 
+	@Test
 	public void test006_selfImportInModule() throws IOException, ClassFormatException {
 		String modsDir = getSourceDir()+  File.separator + "mods";
 		String modOneDir = modsDir + File.separator + "mod.one";
@@ -317,6 +320,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test007_shadowing() throws IOException, ClassFormatException {
 		String srcDir = getSourceDir();
 		List<String> files = new ArrayList<>();
@@ -356,6 +360,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test008_shadowing() throws IOException, ClassFormatException {
 		String srcDir = getSourceDir();
 		List<String> files = new ArrayList<>();
@@ -396,6 +401,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test008_shadowing_static_nested() throws IOException, ClassFormatException {
 		String srcDir = getSourceDir() + File.separator + "src";
 		List<String> files = new ArrayList<>();
@@ -434,6 +440,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test009_ambiguous_modules() {
 		String srcDir = getSourceDir();
 		List<String> files = new ArrayList<>();
@@ -507,6 +514,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"reference to Connection is ambiguous");
 	}
 
+	@Test
 	public void test009_ambiguous_modules2() {
 		// module conflict via separate module imports based on separate requires directly in mod.two
 		String srcDir = getSourceDir();
@@ -564,6 +572,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"reference to Connection is ambiguous");
 	}
 
+	@Test
 	public void test010_notAccessible() {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String modOneDir = srcDir + File.separator + "mod.one";
@@ -624,6 +633,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"cannot find symbol");
 	}
 
+	@Test
 	public void test011_transitive() throws IOException, ClassFormatException {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String modOneDir = srcDir + File.separator + "mod.one";
@@ -675,6 +685,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test012_redundant() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR + File.separator + "p", "X.java",
@@ -721,6 +732,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"cannot find symbol");
 	}
 
+	@Test
 	public void test013_inUnnamedModule() throws IOException, ClassFormatException {
 		runConformModuleTest(
 			new String[] {
@@ -741,6 +753,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test014_moduleAsPackageName_regular() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR + File.separator + "module", "Z.java",
@@ -759,6 +772,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	}
 
 
+	@Test
 	public void test014_moduleAsPackageName_moduleInfo() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR + File.separator + "module", "Z.java",
@@ -777,6 +791,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files, commandLine, "", "");
 	}
 
+	@Test
 	public void testIllegalModifierRequiresJavaBase_2() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
@@ -800,6 +815,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"modifier static not allowed here");
 	}
 
+	@Test
 	public void testIllegalModifierRequiresJavaBase_3() throws IOException, ClassFormatException {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
@@ -816,6 +832,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				this.complianceLevel < ClassFileConstants.JDK25); // Skipped for javac < 25 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
+	@Test
 	public void testIllegalModifierRequiresJavaBase_3_24() throws IOException, ClassFormatException {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
@@ -839,6 +856,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"not supported");
 	}
 
+	@Test
 	public void testIllegalModifierRequiresJavaBase_4() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
@@ -863,6 +881,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	}
 
 
+	@Test
 	public void testUseRequiresTransitiveJavaBase() throws IOException, ClassFormatException {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",

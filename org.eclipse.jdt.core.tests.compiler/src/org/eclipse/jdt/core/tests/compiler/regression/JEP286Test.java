@@ -16,9 +16,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -27,23 +27,20 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_10)
 public class JEP286Test extends AbstractRegressionTest {
 
-public static Class testClass() {
-	return JEP286Test.class;
-}
 @Override
 public void initialize(CompilerTestSetup setUp) {
 	super.initialize(setUp);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_10);
-}
 
-public JEP286Test(String testName){
-	super(testName);
+public JEP286Test(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 static {
 //	TESTS_NAMES = new String[] { "test0018_project_variable_types" };
@@ -117,6 +114,7 @@ private final static class InferredTypeVerifier extends ASTVisitor {
 		}
 	}
 
+@Test
 public void test0001_local_variable_inference() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -130,6 +128,7 @@ public void test0001_local_variable_inference() throws IOException {
 			},
 			"SUCCESS");
 }
+@Test
 public void test0002_inferred_for() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -146,6 +145,7 @@ public void test0002_inferred_for() throws IOException {
 			},
 			"SUCCESS 3");
 }
+@Test
 public void test0003_inferred_enhanced_for() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -162,6 +162,7 @@ public void test0003_inferred_enhanced_for() throws IOException {
 			},
 			"SUCCESS 3");
 }
+@Test
 public void test0004_try_with_resources() throws IOException {
 	try(java.io.Writer w = new java.io.StringWriter()) {
 		w.write("SUCCESS!\n");
@@ -182,6 +183,7 @@ public void test0004_try_with_resources() throws IOException {
 			},
 			"SUCCESS");
 }
+@Test
 public void test0005_no_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -205,6 +207,7 @@ public void test0005_no_initializer() throws IOException {
 			"Cannot use 'var' on variable without initializer\n" +
 			"----------\n");
 }
+@Test
 public void test0006_multiple_declarators() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -228,6 +231,7 @@ public void test0006_multiple_declarators() throws IOException {
 			"'var' is not allowed in a compound declaration\n" +
 			"----------\n");
 }
+@Test
 public void test0007_var_in_wrong_place() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -258,6 +262,7 @@ public void test0007_var_in_wrong_place() throws IOException {
 			"'var' is not allowed here\n" +
 			"----------\n");
 }
+@Test
 public void test0008_null_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -275,6 +280,7 @@ public void test0008_null_initializer() throws IOException {
 			"Cannot infer type for local variable initialized to 'null'\n" +
 			"----------\n");
 }
+@Test
 public void test0008_void_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -295,6 +301,7 @@ public void test0008_void_initializer() throws IOException {
 			"Variable initializer is 'void' -- cannot infer variable type\n" +
 			"----------\n");
 }
+@Test
 public void test0009_var_as_type_name() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -310,6 +317,7 @@ public void test0009_var_as_type_name() throws IOException {
 			"'var' is not a valid type name\n" +
 			"----------\n");
 }
+@Test
 public void test0010_array_initializer() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -327,6 +335,7 @@ public void test0010_array_initializer() throws IOException {
 			"Array initializer needs an explicit target-type\n" +
 			"----------\n");
 }
+@Test
 public void test0011_array_type() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -350,6 +359,7 @@ public void test0011_array_type() throws IOException {
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
+@Test
 public void test0012_self_reference() throws IOException {
 
 	// BTW: This will give a VerifyError: int a = ((java.util.concurrent.Callable<Integer>)(() -> true ? 1 : a)).call();
@@ -398,6 +408,7 @@ public void test0012_self_reference() throws IOException {
 		    "The field new Callable<Integer>(){}.d is hiding another local variable defined in an enclosing scope\n" +
 		    	"----------\n");
 }
+@Test
 public void test0013_lambda() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -415,6 +426,7 @@ public void test0013_lambda() throws IOException {
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n");
 }
+@Test
 public void test0014_method_reference() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -432,6 +444,7 @@ public void test0014_method_reference() throws IOException {
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n");
 }
+@Test
 public void test0015_complain_over_all_poly_encountered() throws Exception {
 
 	this.runNegativeTest(
@@ -455,6 +468,7 @@ public void test0015_complain_over_all_poly_encountered() throws Exception {
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n");
 }
+@Test
 public void test0016_dont_capture_deep_poly_expressions() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -473,6 +487,7 @@ public void test0016_dont_capture_deep_poly_expressions() throws IOException {
 //	e[0] = null;
 //}
 
+@Test
 public void test0017_simple_variable_types() throws Exception {
 	InferredTypeVerifier typeVerifier = new InferredTypeVerifier();
 	this.runConformTest(
@@ -503,6 +518,7 @@ public void test0017_simple_variable_types() throws Exception {
 			typeVerifier);
 	Assert.assertEquals(7, typeVerifier.localsChecked);
 }
+@Test
 public void test0018_primitive_variable_types() throws Exception {
 	InferredTypeVerifier typeVerifier = new InferredTypeVerifier();
 	this.runConformTest(
@@ -555,6 +571,7 @@ public void test0018_primitive_variable_types() throws Exception {
 			typeVerifier);
 	Assert.assertEquals(24, typeVerifier.localsChecked);
 }
+@Test
 public void test0018_project_variable_types() throws Exception {
 	InferredTypeVerifier typeVerifier = new InferredTypeVerifier();
 	this.runConformTest(
@@ -665,6 +682,7 @@ public void test0018_project_variable_types() throws Exception {
 			typeVerifier);
 	Assert.assertEquals(39, typeVerifier.localsChecked);
 }
+@Test
 public void testBug531832() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -682,6 +700,7 @@ public void testBug531832() throws IOException {
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
+@Test
 public void testBug530879() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -700,6 +719,7 @@ public void testBug530879() throws IOException {
 			"Can only iterate over an array or an instance of java.lang.Iterable\n" +
 			"----------\n");
 }
+@Test
 public void testBug530879a() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -717,6 +737,7 @@ public void testBug530879a() throws IOException {
 			"Can only iterate over an array or an instance of java.lang.Iterable\n" +
 			"----------\n");
 }
+@Test
 public void testBug532349() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -732,6 +753,7 @@ public void testBug532349() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532349a() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -750,6 +772,7 @@ public void testBug532349a() throws IOException {
 			"class Y<T extends Boolean> {}"
 		});
 }
+@Test
 public void testBug532349b() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -768,6 +791,7 @@ public void testBug532349b() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532351() throws IOException {
 	this.runNegativeTest(
 		new String[] {
@@ -789,6 +813,7 @@ public void testBug532351() throws IOException {
 		"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" +
 		"----------\n");
 }
+@Test
 public void testBug531025() {
 	runNegativeTest(
 		new String[] {
@@ -847,6 +872,7 @@ public void testBug531025() {
 		"The annotation @AnnT is disallowed for this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug532349_001() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -863,6 +889,7 @@ public void testBug532349_001() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532349_002() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -880,6 +907,7 @@ public void testBug532349_002() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532349_003() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -897,6 +925,7 @@ public void testBug532349_003() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532349_004() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -915,6 +944,7 @@ public void testBug532349_004() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532349_005() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -934,6 +964,7 @@ public void testBug532349_005() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532349_006() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -953,6 +984,7 @@ public void testBug532349_006() throws IOException {
 			"}",
 		});
 }
+@Test
 public void testBug532349_007() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -974,6 +1006,7 @@ public void testBug532349_007() throws IOException {
 			"}",
 		});
 }
+@Test
 public void testBug532349_008() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -996,6 +1029,7 @@ public void testBug532349_008() throws IOException {
 			"}",
 		});
 }
+@Test
 public void testBug532349_009() throws IOException {
 	this.runNegativeTest(
 		new String[] {
@@ -1022,6 +1056,7 @@ public void testBug532349_009() throws IOException {
 		"Type mismatch: cannot convert from I to Serializable\n" +
 		"----------\n");
 }
+@Test
 public void testBug532349_010() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1039,6 +1074,7 @@ public void testBug532349_010() throws IOException {
 			"class D implements I, Serializable { public void doSomething() {} }\n"
 		});
 }
+@Test
 public void testBug532349_11() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1058,6 +1094,7 @@ public void testBug532349_11() throws IOException {
 			"class W<T extends D<?>> { T t; }\n"
 		});
 }
+@Test
 public void testBug532349_12() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1073,6 +1110,7 @@ public void testBug532349_12() throws IOException {
 			"class D<R extends Y>{ R r;}\n"
 		});
 }
+@Test
 public void testBug532349_13() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1088,6 +1126,7 @@ public void testBug532349_13() throws IOException {
 			"class D<R extends Y<? extends Number>>{ R r;}\n"
 		});
 }
+@Test
 public void testBug532349_14() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1113,6 +1152,7 @@ public void testBug532349_14() throws IOException {
 			"}"
 		});
 }
+@Test
 public void testBug532349_15() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1158,6 +1198,7 @@ public void testBug532349_15() throws IOException {
 			"}"
 		}, "");
 }
+@Test
 public void testBug532349_0016() throws IOException {
 	this.runNegativeTest(
 		new String[] {
@@ -1182,6 +1223,7 @@ public void testBug532349_0016() throws IOException {
 		"Type mismatch: cannot convert from Integer to Number & I\n" +
 		"----------\n");
 }
+@Test
 public void testBug532349_0017() throws IOException {
 	this.runNegativeTest(
 		new String[] {
@@ -1205,6 +1247,7 @@ public void testBug532349_0017() throws IOException {
 		"Type mismatch: cannot convert from Y<Integer> to Y<? super Q>\n" +
 		"----------\n");
 }
+@Test
 public void testBug532920() throws IOException {
 	this.runNegativeTest(
 		new String[] {
@@ -1233,6 +1276,7 @@ public void testBug532920() throws IOException {
 		"Can only iterate over an array or an instance of java.lang.Iterable\n" +
 		"----------\n");
 }
+@Test
 public void testBug567183_1() {
 	this.runNegativeTest(
 			new String[] {
@@ -1275,6 +1319,7 @@ public void testBug567183_1() {
 			"The type Item is not visible\n" +
 			"----------\n");
 }
+@Test
 public void testBug567183_2() {
 	this.runNegativeTest(
 			new String[] {
@@ -1320,6 +1365,7 @@ public void testBug567183_2() {
 			"The type Item is not visible\n" +
 			"----------\n");
 }
+@Test
 public void testBug567183_3() {
 	this.runNegativeTest(
 			new String[] {
@@ -1352,6 +1398,7 @@ public void testBug567183_3() {
 			},
 			"");
 }
+@Test
 public void testBug567183_4() {
 	this.runNegativeTest(
 			new String[] {
@@ -1388,6 +1435,7 @@ public void testBug567183_4() {
 			"The type Item is not visible\n" +
 			"----------\n");
 }
+@Test
 public void testIssue600_1() {
 	this.runNegativeTest(
 			new String[] {
@@ -1406,6 +1454,7 @@ public void testIssue600_1() {
 			"\'var\' cannot be used with type arguments\n" +
 			"----------\n");
 }
+@Test
 public void testIssue600_2() {
 	this.runNegativeTest(
 			new String[] {
@@ -1425,6 +1474,7 @@ public void testIssue600_2() {
 			+ "'var' cannot be used with type arguments\n"
 			+ "----------\n");
 }
+@Test
 public void testIssue600_3() {
 	this.runNegativeTest(
 			new String[] {
@@ -1445,6 +1495,7 @@ public void testIssue600_3() {
 			+ "'var' cannot be used with type arguments\n"
 			+ "----------\n");
 }
+@Test
 public void testIssue600_4() {
 	this.runNegativeTest(
 			new String[] {
@@ -1465,6 +1516,7 @@ public void testIssue600_4() {
 			+ "'var' cannot be used with type arguments\n"
 			+ "----------\n");
 }
+@Test
 public void testIssue5202ArrayDownwardsProjection() {
 	this.runConformTest(
 		new String[] {

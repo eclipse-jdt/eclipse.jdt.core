@@ -13,14 +13,17 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-
+@MinimalCompliance(AbstractCompilerTest.F_14)
 public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
@@ -28,14 +31,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testBug545567_18" };
 	}
 
-	public static Class<?> testClass() {
-		return SwitchExpressionsYieldTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_14);
-	}
-	public SwitchExpressionsYieldTest(String testName){
-		super(testName);
+	public SwitchExpressionsYieldTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	@Override
@@ -74,6 +71,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			JavacTestOptions.forRelease(JavaCore.VERSION_14, javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
+	@Test
 	public void testBug544073_000() {
 		runConformTest(
 				new String[] {
@@ -97,6 +95,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"1");
 	}
+	@Test
 	public void testBug544073_001() {
 		runConformTest(
 				new String[] {
@@ -117,6 +116,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"3");
 	}
+	@Test
 	public void testBug544073_002() {
 		runConformTest(
 				new String[] {
@@ -149,6 +149,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"Got Exception - expected");
 	}
+	@Test
 	public void testBug544073_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -177,6 +178,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_004() {
 		this.runNegativeTest(
 			new String[] {
@@ -206,6 +208,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Case constant of type String is incompatible with switch selector type int\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_005() {
 		this.runNegativeTest(
 			new String[] {
@@ -241,6 +244,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	 *  must contain all the enum constants of that enum type
 	 *  Add a missing enum test case
 	 */
+	@Test
 	public void testBug544073_006() {
 		this.runNegativeTest(
 			new String[] {
@@ -279,6 +283,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	 * should compile - test for adding additional nesting in variables
 	 * dev note: ref consumeToken().case Switch
 	 */
+	@Test
 	public void testBug544073_007() {
 		runConformTest(
 				new String[] {
@@ -305,6 +310,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"100");
 	}
+	@Test
 	public void testBug544073_009() {
 		runConformTest(
 			new String[] {
@@ -324,6 +330,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	@Test
 	public void testBug544073_010() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -363,6 +370,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_011() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -390,6 +398,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_012() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -418,6 +427,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_013() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
@@ -457,6 +467,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			options.put(CompilerOptions.OPTION_Source, release);
 		}
 	}
+	@Test
 	public void testBug544073_014() {
 			String[] testFiles = new String[] {
 					"X.java",
@@ -492,6 +503,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					testFiles,
 					expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_015() {
 		// switch expression is not a Primary
 		Runner runner = new Runner();
@@ -519,6 +531,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testBug544073_016() {
 		runConformTest(
 			new String[] {
@@ -547,6 +560,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * A simple multi constant case statement, compiled and run as expected
 	 */
+	@Test
 	public void testBug544073_017() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -576,6 +590,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * A simple multi constant case statement, compiler reports missing enum constants
 	 */
+	@Test
 	public void testBug544073_018() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -609,6 +624,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * A simple multi constant case statement with duplicate enums
 	 */
+	@Test
 	public void testBug544073_019() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -643,6 +659,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * A simple multi constant case statement with duplicate enums
 	 */
+	@Test
 	public void testBug544073_020() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -684,6 +701,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	/*
 	 */
+	@Test
 	public void testBug544073_021() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -715,6 +733,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
 		runner.runWarningTest();
 	}
+	@Test
 	public void testBug544073_022() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -748,6 +767,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Simple switch case with string literals
 	 */
+	@Test
 	public void testBug544073_023() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -782,6 +802,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_024() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -819,6 +840,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	 * Switch with multi constant case statements with string literals
 	 * two string literals with same hashcode
 	 */
+	@Test
 	public void testBug544073_025() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -855,6 +877,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch with multi constant case statements with integer constants
 	 */
+	@Test
 	public void testBug544073_026() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -893,6 +916,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant with mixed constant types, reported
 	 */
+	@Test
 	public void testBug544073_027() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -927,6 +951,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant without break statement, reported
 	 */
+	@Test
 	public void testBug544073_028() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
@@ -964,6 +989,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant without yield statement, reported
 	 */
+	@Test
 	public void testBug544073_029() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
@@ -997,6 +1023,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant with duplicate int constants
 	 */
+	@Test
 	public void testBug544073_030() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -1027,6 +1054,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant with duplicate String literals
 	 */
+	@Test
 	public void testBug544073_031() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -1057,6 +1085,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant with illegal qualified enum constant
 	 */
+	@Test
 	public void testBug544073_032() {
 		if (this.complianceLevel >= ClassFileConstants.JDK21)
 			return;
@@ -1085,6 +1114,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_033() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -1108,6 +1138,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_034() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -1127,6 +1158,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				"");
 	}
+	@Test
 	public void testBug544073_035() {
 		// TODO: Fix me
 		this.runNegativeTest(
@@ -1168,6 +1200,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Breaking out of switch expressions not permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_036() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -1193,6 +1226,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_037() {
 		String[] testFiles = new String[] {
 			"X.java",
@@ -1214,6 +1248,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String expectedOutput = "hello world";
 		runConformTest(testFiles, expectedOutput);
 	}
+	@Test
 	public void testBug544073_038() {
 		String[] testFiles = new String[] {
 			"X.java",
@@ -1235,6 +1270,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String expectedOutput = "hello world";
 		runConformTest(testFiles, expectedOutput);
 	}
+	@Test
 	public void testBug544073_039() {
 		String[] testFiles = new String[] {
 			"X.java",
@@ -1263,6 +1299,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String expectedOutput = "NPE as expected";
 		runConformTest(testFiles, expectedOutput);
 	}
+	@Test
 	public void testBug544073_040() {
 		String[] testFiles = new String[] {
 			"X.java",
@@ -1292,6 +1329,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String expectedOutput = "NPE as expected";
 		runConformTest(testFiles, expectedOutput);
 	}
+	@Test
 	public void testBug544073_041() {
 		// require resolving/inferring of poly-switch-expression during ASTNode.resolvePolyExpressionArguments()
 		String[] testFiles = new String[] {
@@ -1314,6 +1352,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String expectedOutput = "3";
 		runConformTest(testFiles, expectedOutput);
 	}
+	@Test
 	public void testBug544073_042() {
 		runConformTest(
 			new String[] {
@@ -1345,6 +1384,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"inside foo\n"
 			+ "0");
 	}
+	@Test
 	public void testBug544073_043() {
 		runConformTest(
 			new String[] {
@@ -1371,6 +1411,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug544073_044() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -1398,6 +1439,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_045() {
 		runConformTest(
 			new String[] {
@@ -1418,6 +1460,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug544073_046() {
 		runConformTest(
 			new String[] {
@@ -1438,6 +1481,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10");
 	}
+	@Test
 	public void testBug544073_047() {
 		runConformTest(
 			new String[] {
@@ -1462,6 +1506,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug544073_048() {
 		this.runNegativeTest(
 			new String[] {
@@ -1500,6 +1545,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"A Switch expression should cover all possible values\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_049() {
 		runConformTest(
 			new String[] {
@@ -1519,6 +1565,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"false");
 	}
+	@Test
 	public void testBug544073_050() {
 		runConformTest(
 			new String[] {
@@ -1541,6 +1588,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	@Test
 	public void testBug544073_051() {
 		Map<String, String> customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -1565,6 +1613,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	@Test
 	public void testBug544073_052() {
 		Map<String, String> customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -1589,6 +1638,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	@Test
 	public void testBug544073_053() {
 		Map<String, String> customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -1611,6 +1661,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"",
 			customOptions);
 	}
+	@Test
 	public void testBug544073_054() {
 		runConformTest(
 			new String[] {
@@ -1634,6 +1685,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"i:1");
 	}
+	@Test
 	public void testBug544073_055() {
 		runConformTest(
 			new String[] {
@@ -1658,6 +1710,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"i:1");
 	}
+	@Test
 	public void testBug544073_056() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -1690,6 +1743,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug544073_057() {
 		runConformTest(
 			new String[] {
@@ -1712,6 +1766,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug544073_058() {
 		runConformTest(
 			new String[] {
@@ -1733,6 +1788,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug544073_059() {
 		runConformTest(
 			new String[] {
@@ -1752,6 +1808,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug544073_060() {
 		runConformTest(
 			new String[] {
@@ -1771,6 +1828,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug544073_061() {
 		runConformTest(
 			new String[] {
@@ -1790,6 +1848,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug544073_062() {
 		runConformTest(
 			new String[] {
@@ -1809,6 +1868,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug544073_063() {
 		runConformTest(
 			new String[] {
@@ -1828,6 +1888,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug544073_064() {
 		runConformTest(
 			new String[] {
@@ -1856,6 +1917,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug544073_065() {
 		runConformTest(
 			new String[] {
@@ -1879,6 +1941,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		},
 		"1");
 	}
+	@Test
 	public void testBug544073_066() {
 		runConformTest(
 			new String[] {
@@ -1900,6 +1963,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		},
 		"Success");
 	}
+	@Test
 	public void testBug544073_067() {
 		runConformTest(
 			new String[] {
@@ -1925,6 +1989,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		},
 		"9");
 	}
+	@Test
 	public void testBug544073_068() {
 		runConformTest(
 			new String[] {
@@ -1948,6 +2013,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"0");
 	}
 	// see comment 12 in the bug
+	@Test
 	public void testBug513766_01() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1978,6 +2044,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runner.javacTestOptions = JavacHasABug.JavacBug8179483_switchExpression;
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testBug544073_070() {
 		runNegativeTest(
 			new String[] {
@@ -2011,6 +2078,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"A switch expression should have at least one result expression\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_071() {
 		String message =
 				"----------\n" +
@@ -2035,6 +2103,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			getCompilerOptions(),
 			"-Xlint:preview");
 	}
+	@Test
 	public void testBug544073_072() {
 		String message =
 				"----------\n" +
@@ -2057,6 +2126,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			message);
 	}
+	@Test
 	public void testBug544073_074() {
 		runConformTest(
 			new String[] {
@@ -2077,6 +2147,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		},
 		"5");
 	}
+	@Test
 	public void testBug544073_075() {
 		runConformTest(
 			new String[] {
@@ -2097,6 +2168,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		},
 		"5");
 	}
+	@Test
 	public void testBug544073_076() {
 		this.runNegativeTest(
 			new String[] {
@@ -2134,6 +2206,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_077() {
 		this.runNegativeTest(
 			new String[] {
@@ -2166,6 +2239,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Return within switch expressions not permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_078() {
 		this.runNegativeTest(
 			new String[] {
@@ -2193,6 +2267,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Duplicate case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_079() {
 		this.runNegativeTest(
 			new String[] {
@@ -2225,6 +2300,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Duplicate case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544073_80() {
 		runConformTest(
 				new String[] {
@@ -2251,6 +2327,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"2");
 	}
+	@Test
 	public void testBug544073_81() {
 		this.runNegativeTest(
 				new String[] {
@@ -2284,6 +2361,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2323
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression
+	@Test
 	public void testIssue2323() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -2314,6 +2392,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"");
 	}
+	@Test
 	public void testBug547891_01() {
 		this.runNegativeTest(
 				new String[] {
@@ -2333,6 +2412,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug547891_02() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2362,6 +2442,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug547891_03() {
 		this.runNegativeTest(
 				new String[] {
@@ -2386,6 +2467,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"'yield' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 14\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug547891_04() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2414,6 +2496,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug547891_05() {
 		this.runNegativeTest(
 				new String[] {
@@ -2438,6 +2521,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"'yield' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 14\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug547891_06() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2471,6 +2555,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug547891_07() {
 		this.runNegativeTest(
 				new String[] {
@@ -2495,6 +2580,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"'yield' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 14\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug547891_08() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2528,6 +2614,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug547891_09() {
 		this.runNegativeTest(
 				new String[] {
@@ -2546,6 +2633,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"'yield' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 14\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug547891_10() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2573,6 +2661,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug547891_11() {
 		this.runNegativeTest(
 				new String[] {
@@ -2597,6 +2686,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"'yield' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 14\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug547891_12() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2630,6 +2720,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug547891_13() {
 		this.runNegativeTest(
 				new String[] {
@@ -2654,6 +2745,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"'yield' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 14\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug547891_14() {
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2687,6 +2779,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				testFiles,
 				expectedProblemLog);
 	}
+	@Test
 	public void testBug547891_15() {
 		String message =
 				"----------\n" +
@@ -2731,6 +2824,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			message);
 	}
+	@Test
 	public void testBug547891_16() {
 		String message =
 				"----------\n" +
@@ -2776,6 +2870,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			message);
 	}
+	@Test
 	public void testBug547891_17() {
 		runConformTest(
 			new String[] {
@@ -2800,6 +2895,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"99");
 	}
+	@Test
 	public void testBug547891_18() {
 		runConformTest(
 			new String[] {
@@ -2824,6 +2920,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"-1");
 	}
+	@Test
 	public void testBug547891_19() {
 		runConformTest(
 			new String[] {
@@ -2848,6 +2945,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"99");
 	}
+	@Test
 	public void testBug547891_20() {
 		runConformTest(
 			new String[] {
@@ -2872,6 +2970,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"-1");
 	}
+	@Test
 	public void testBug547891_21() {
 		String message =
 				"----------\n" +
@@ -2903,6 +3002,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			message);
 	}
+	@Test
 	public void testBug547891_22() {
 		runConformTest(
 			new String[] {
@@ -2931,6 +3031,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"256");
 	}
+	@Test
 	public void testBug547891_23() {
 		runConformTest(
 			new String[] {
@@ -2960,6 +3061,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1024");
 	}
+	@Test
 	public void testBug547891_24() {
 		runConformTest(
 			new String[] {
@@ -2981,6 +3083,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"101");
 	}
+	@Test
 	public void testBug547891_25() {
 		runConformTest(
 			new String[] {
@@ -3002,6 +3105,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10200");
 	}
+	@Test
 	public void testBug547891_26() {
 		runConformTest(
 			new String[] {
@@ -3023,6 +3127,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10200");
 	}
+	@Test
 	public void testBug547891_27() {
 		runConformTest(
 			new String[] {
@@ -3044,6 +3149,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"110");
 	}
+	@Test
 	public void testBug547891_28() {
 		runConformTest(
 			new String[] {
@@ -3066,6 +3172,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"100");
 	}
+	@Test
 	public void testBug547891_29() {
 		runConformTest(
 			new String[] {
@@ -3088,6 +3195,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"300");
 	}
+	@Test
 	public void testBug550354_01() {
 		runConformTest(
 			new String[] {
@@ -3108,6 +3216,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug548418_01() {
 		runConformTest(
 			new String[] {
@@ -3130,6 +3239,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"99");
 	}
+	@Test
 	public void testBug550853_01() {
 		runConformTest(
 			new String[] {
@@ -3152,6 +3262,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug550861_01() {
 		runConformTest(
 			new String[] {
@@ -3172,6 +3283,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug551030a() {
 		this.runNegativeTest(
 			new String[] {
@@ -3196,6 +3308,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"String literal is not properly closed by a double-quote\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug551030b() {
 		this.runNegativeTest(
 			new String[] {
@@ -3220,6 +3333,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"String literal is not properly closed by a double-quote\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug544943() {
 		runConformTest(
 			new String[] {
@@ -3255,6 +3369,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug544943_2() {
 		runConformTest(
 			new String[] {
@@ -3280,6 +3395,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug552764_001() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
@@ -3317,6 +3433,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void testBug552764_002() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
@@ -3355,6 +3472,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void testBug552764_003() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
@@ -3388,6 +3506,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void testBug558067_001() {
 		this.runNegativeTest(
 				new String[] {
@@ -3429,6 +3548,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Unreachable code\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug558067_002() {
 		this.runNegativeTest(
 				new String[] {
@@ -3486,6 +3606,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Breaking out of switch expressions not permitted\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug558067_003() {
 		this.runNegativeTest(
 				new String[] {
@@ -3527,6 +3648,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Unreachable code\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug558067_004() {
 		this.runNegativeTest(
 				new String[] {
@@ -3565,6 +3687,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Breaking out of switch expressions not permitted\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug558067_005() {
 		this.runNegativeTest(
 				new String[] {
@@ -3603,6 +3726,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Continue out of switch expressions not permitted\n" +
 				"----------\n");
 	}
+		@Test
 		public void testConversion1() {
 		runConformTest(
 				new String[] {
@@ -3631,6 +3755,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"int");
 	}
+	@Test
 	public void testConversion2() {
 		runConformTest(
 				new String[] {
@@ -3659,6 +3784,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"double");
 	}
+	@Test
 	public void testConversion3() {
 		runConformTest(
 				new String[] {
@@ -3687,6 +3813,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"float");
 	}
+	@Test
 	public void testConversion4() {
 		runConformTest(
 				new String[] {
@@ -3715,6 +3842,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"int");
 	}
+	@Test
 	public void testConversion5() {
 		runConformTest(
 				new String[] {
@@ -3740,6 +3868,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"char");
 	}
+	@Test
 	public void testBug545567_1() {
 		runConformTest(
 				new String[] {
@@ -3764,6 +3893,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"3");
 	}
+	@Test
 	public void testBug545567_2() {
 		runConformTest(
 				new String[] {
@@ -3788,6 +3918,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"3.0");
 	}
+	@Test
 	public void testBug545567_3() {
 		runConformTest(
 				new String[] {
@@ -3812,6 +3943,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"three");
 	}
+	@Test
 	public void testBug545567_4() {
 		runConformTest(
 				new String[] {
@@ -3839,6 +3971,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"three");
 	}
+	@Test
 	public void testBug545567_5() {
 		runConformTest(
 				new String[] {
@@ -3864,6 +3997,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"one");
 	}
 
+	@Test
 	public void testBug545567_5_1() {
 		runConformTest(
 				new String[] {
@@ -3899,6 +4033,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"some X");
 	}
 
+	@Test
 	public void testBug545567_6() {
 		runConformTest(
 				new String[] {
@@ -3925,6 +4060,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"zero");
 	}
+	@Test
 	public void testBug545567_7() {
 		runConformTest(
 				new String[] {
@@ -3948,6 +4084,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"zero");
 	}
+	@Test
 	public void testBug545567_8() {
 		runConformTest(
 				new String[] {
@@ -3974,6 +4111,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"3");
 	}
+	@Test
 	public void testBug545567_9() {
 		runConformTest(
 				new String[] {
@@ -4016,6 +4154,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"6");
 	}
+	@Test
 	public void testBug545567_10() {
 		runConformTest(
 				new String[] {
@@ -4058,6 +4197,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"33");
 	}
+	@Test
 	public void testBug545567_11() {
 		runConformTest(
 				new String[] {
@@ -4097,6 +4237,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"13");
 	}
+	@Test
 	public void testBug545567_12() {
 		runConformTest(
 				new String[] {
@@ -4136,6 +4277,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"33");
 	}
+	@Test
 	public void testBug545567_13() {
 		runConformTest(
 			new String[] {
@@ -4175,6 +4317,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"33");
 	}
+	@Test
 	public void testBug545567_14() {
 		runConformTest(
 			new String[] {
@@ -4213,6 +4356,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"30");
 	}
+	@Test
 	public void testBug545567_15() {
 		runConformTest(
 			new String[] {
@@ -4241,6 +4385,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"100\n1");
 	}
+	@Test
 	public void testBug545567_16() {
 		runConformTest(
 			new String[] {
@@ -4279,6 +4424,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	@Test
 	public void testBug545567_17() {
 		runConformTest(
 			new String[] {
@@ -4319,6 +4465,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"30\n"+
 			"3");
 	}
+	@Test
 	public void testBug545567_18() {
 		runConformTest(
 			new String[] {
@@ -4350,6 +4497,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	@Test
 	public void testBug545567_19() {
 		runConformTest(
 			new String[] {
@@ -4388,6 +4536,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"3");
 	}
 	// test with Autocloseable
+	@Test
 	public void testBug545567_20() {
 		runConformTest(
 			new String[] {
@@ -4419,6 +4568,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	@Test
 	public void testBug545567_21() {
 		runConformTest(
 			new String[] {
@@ -4488,6 +4638,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	@Test
 	public void testBug545567_23() {
 		runConformTest(
 			new String[] {
@@ -4522,6 +4673,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	@Test
 	public void testBug545567_24() {
 		runConformTest(
 			new String[] {
@@ -4563,6 +4715,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	@Test
 	public void testBug545567_25() {
 		runConformTest(
 			new String[] {
@@ -4604,6 +4757,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	@Test
 	public void testBug571929_normal() {
 		runConformTest(
 			new String[] {
@@ -4629,6 +4783,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"true");
 	}
+	@Test
 	public void testBug571929_lambda() {
 		runConformTest(
 			new String[] {
@@ -4657,6 +4812,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"true");
 	}
+	@Test
 	public void testBug561762_001() {
 		this.runNegativeTest(
 				new String[] {
@@ -4693,6 +4849,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n");
 
 	}
+	@Test
 	public void testBug561766_001() {
 		this.runNegativeTest(
 				new String[] {
@@ -4718,6 +4875,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n");
 
 	}
+	@Test
 	public void testBug561766_002() {
 		this.runNegativeTest(
 				new String[] {
@@ -4766,6 +4924,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	}
 
+	@Test
 	public void testBug562129() {
 		if (this.complianceLevel < ClassFileConstants.JDK14) return;
 		runNegativeTest(
@@ -4795,6 +4954,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"r cannot be resolved to a variable\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug572121() {
 		Map<String, String> compilerOptions = getCompilerOptions();
 		// must disable this option to trigger compilation restart
@@ -4834,6 +4994,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				compilerOptions
 				);
 	}
+	@Test
 	public void testBug562198_001() {
 		runConformTest(
 			new String[] {
@@ -4862,6 +5023,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug562728_001() {
 		runConformTest(
 			new String[] {
@@ -4883,6 +5045,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"default");
 	}
+	@Test
 	public void testBug562728_002() {
 		runConformTest(
 			new String[] {
@@ -4905,6 +5068,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"default");
 	}
+	@Test
 	public void testBug562728_003() {
 		this.runNegativeTest(
 				new String[] {
@@ -4933,6 +5097,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n");
 
 	}
+	@Test
 	public void testBug562728_004() {
 		this.runNegativeTest(
 		new String[] {
@@ -4965,6 +5130,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"The method Zork() is undefined for the type X\n" +
 		"----------\n");
 	}
+	@Test
 	public void testBug562728_005() {
 		this.runNegativeTest(
 		new String[] {
@@ -4997,6 +5163,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 		"----------\n");
 	}
+	@Test
 	public void testBug562728_006() {
 		this.runNegativeTest(
 		new String[] {
@@ -5034,6 +5201,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 		"----------\n");
 	}
+    @Test
     public void testBug562728_007() {
         this.runNegativeTest(
         new String[] {
@@ -5065,6 +5233,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"Return within switch expressions not permitted\n" +
         "----------\n");
 }
+	@Test
 	public void testBug563023_001() {
 		runConformTest(
 			new String[] {
@@ -5089,6 +5258,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+    @Test
     public void testBug563023_002() {
         this.runNegativeTest(
     		new String[] {
@@ -5121,6 +5291,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
+    @Test
     public void testBug563023_003() {
         this.runNegativeTest(
     		new String[] {
@@ -5150,6 +5321,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
+    @Test
     public void testBug563023_004() {
         this.runNegativeTest(
     		new String[] {
@@ -5180,6 +5352,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"Syntax error on token \"0\", delete this token\n" +
         "----------\n");
 }
+    @Test
     public void testBug563023_005() {
         this.runNegativeTest(
     		new String[] {
@@ -5210,6 +5383,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
+	@Test
 	public void testBug563023_006() {
 		runConformTest(
 			new String[] {
@@ -5239,6 +5413,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+    @Test
     public void testBug563023_007() {
         this.runNegativeTest(
     		new String[] {
@@ -5277,6 +5452,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
         "----------\n");
 }
+	@Test
 	public void testBug563147_001() {
 		runConformTest(
 			new String[] {
@@ -5301,6 +5477,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug563147_002() {
 		runConformTest(
 			new String[] {
@@ -5338,6 +5515,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug563147_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -5385,6 +5563,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug565156_001() {
 		runConformTest(
 			new String[] {
@@ -5410,6 +5589,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug565156_002() {
 		runConformTest(
 			new String[] {
@@ -5435,6 +5615,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug565156_003() {
 		runConformTest(
 			new String[] {
@@ -5461,6 +5642,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"20");
 	}
+	@Test
 	public void testBug565156_004() {
 		runConformTest(
 			new String[] {
@@ -5495,6 +5677,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"20");
 	}
+	@Test
 	public void testBug565156_005() {
 		runConformTest(
 			new String[] {
@@ -5529,6 +5712,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"100");
 	}
+	@Test
 	public void testBug565156_006() {
 		runConformTest(
 			new String[] {
@@ -5569,6 +5753,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10");
 	}
+	@Test
 	public void testBug565156_007() {
 		runConformTest(
 			new String[] {
@@ -5610,6 +5795,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10");
 	}
+	@Test
 	public void testBug547193_001() {
 		runConformTest(
 			new String[] {
@@ -5628,6 +5814,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void testBug565844_01() {
 		runConformTest(
 				new String[] {
@@ -5646,6 +5833,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
+	@Test
 	public void testBug565844_02() {
 		runConformTest(
 				new String[] {
@@ -5664,6 +5852,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"true");
 	}
+	@Test
 	public void testBug565844_03() {
 		runConformTest(
 				new String[] {
@@ -5684,6 +5873,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
+	@Test
 	public void testBug565844_04() {
 		runConformTest(
 				new String[] {
@@ -5704,6 +5894,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
+	@Test
 	public void testBug565844_05() {
 		runNegativeTest(
 				new String[] {
@@ -5729,6 +5920,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"case expressions must be constant expressions\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug565844_06() {
 		runConformTest(
 				new String[] {
@@ -5747,6 +5939,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
+	@Test
 	public void testBug565844_07() {
 		runNegativeTest(
 				new String[] {
@@ -5860,6 +6053,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
+	@Test
 	public void testBug566125_01() {
 		runConformTest(
 				new String[] {
@@ -5889,6 +6083,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	}
 	// Same as above, but with explicit yield
+	@Test
 	public void testBug566125_02() {
 		runConformTest(
 				new String[] {
@@ -5917,6 +6112,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"true");
 
 	}
+	@Test
 	public void testBug566125_03() {
 		runConformTest(
 				new String[] {
@@ -5946,6 +6142,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	}
 	// Long -> float is accepted
+	@Test
 	public void testBug566125_04() {
 		runConformTest(
 				new String[] {
@@ -5969,6 +6166,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"true");
 
 	}
+	@Test
 	public void testBug566125_05() {
 		runConformTest(
 				new String[] {
@@ -6009,6 +6207,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				);
 
 	}
+	@Test
 	public void testBug566125_06() {
 		runNegativeTest(
 				new String[] {
@@ -6045,6 +6244,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n"
 				);
 	}
+	@Test
 	public void testBug566125_07() {
 		runNegativeTest(
 				new String[] {
@@ -6082,6 +6282,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				);
 	}
 	// Same as 07() but with explicit yield
+	@Test
 	public void testBug566125_08() {
 		runNegativeTest(
 				new String[] {
@@ -6118,6 +6319,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n"
 				);
 	}
+	@Test
 	public void testBug567112_001() {
 		runNegativeTest(
 				new String[] {
@@ -6140,6 +6342,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Syntax error, insert \";\" to complete BlockStatements\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug571833_01() {
 		runConformTest(
 			new String[] {
@@ -6163,6 +6366,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		);
 
 	}
+	@Test
 	public void testBug572382() {
 		runConformTest(
 				new String[] {
@@ -6183,6 +6387,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				);
 
 	}
+	@Test
 	public void testBug576026() {
 		this.runConformTest(
 				new String[] {
@@ -6205,6 +6410,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"Success");
 	}
+	@Test
 	public void testBug576861_001() {
 		this.runConformTest(
 				new String[] {
@@ -6226,6 +6432,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"hello");
 	}
+	@Test
 	public void testBug577220_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -6257,6 +6464,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Syntax error, insert \";\" to complete BlockStatements\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue966_001() {
 		this.runConformTest(
 				new String[] {
@@ -6276,6 +6484,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/53
 	// continue without label is incorrectly handled in a switch expression
+	@Test
 	public void testGHIssue53() {
 		runNegativeTest(
 			new String[] {
@@ -6327,6 +6536,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testGH520() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -6355,6 +6565,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1394
 	// switch statement with yield and try/catch produces EmptyStackException
+	@Test
 	public void testGHI1394() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_UseStringConcatFactory, CompilerOptions.ENABLED);
@@ -6383,6 +6594,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1",
 				options);
 	}
+	@Test
 	public void testGHI1394_2() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_UseStringConcatFactory, CompilerOptions.ENABLED);
@@ -6419,6 +6631,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1394
 	// switch statement with yield and try/catch produces EmptyStackException
+	@Test
 	public void testGHI1394_min() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_UseStringConcatFactory, CompilerOptions.ENABLED);
@@ -6449,6 +6662,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1727
 	// Internal compiler error: java.util.EmptyStackException
+	@Test
 	public void testGHI1727() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -6474,6 +6688,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1686
 	// Switch statement with yield in synchronized and try-catch blocks results in ArrayIndexOutOfBoundsException
+	@Test
 	public void testGHI1686() {
 		this.runConformTest(
 				new String[] {
@@ -6505,6 +6720,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1686
 	// Switch statement with yield in synchronized and try-catch blocks results in ArrayIndexOutOfBoundsException
+	@Test
 	public void testGHI1686_works() {
 		this.runConformTest(
 				new String[] {
@@ -6531,6 +6747,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
 	// NPE in switch with Enum
+	@Test
 	public void testGHI1767() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -6602,6 +6819,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
 	// NPE in switch with Enum
+	@Test
 	public void testGHI1767_minimal() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -6628,6 +6846,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@Test
 	public void testGHI1820() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -6658,6 +6877,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@Test
 	public void testGHI1820_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -6694,6 +6914,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@Test
 	public void testGHI1820_3() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -6720,6 +6941,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@Test
 	public void testGHI1820_4() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -6750,6 +6972,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@Test
 	public void testGHI1820_5() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -6783,6 +7006,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/377
 	// [switch-expression] Invalid compiler error with switch expression
+	@Test
 	public void testGH377() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -6824,6 +7048,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
 	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	@Test
 	public void testIssue2231() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -6856,6 +7081,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
 	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	@Test
 	public void testIssue2231_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -6888,6 +7114,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@Test
 	public void testIssue2228() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -6931,6 +7158,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@Test
 	public void testIssue2228_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -6973,6 +7201,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@Test
 	public void testIssue2228_3() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -7012,6 +7241,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@Test
 	public void testIssue2228_4() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -7041,6 +7271,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@Test
 	public void testIssue2228_5() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -7085,6 +7316,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@Test
 	public void testIssue2228_6() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -7124,6 +7356,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2233
 	// [Switch-Expression] Assertion failure while compiling enum class that uses switch expression with try block
+	@Test
 	public void testIssue2233() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -7156,6 +7389,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2322
 	// [Switch Expression] Internal compiler error: java.util.EmptyStackException at java.base/java.util.Stack.peek
+	@Test
 	public void testIssue2322() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7187,6 +7421,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	@Test
 	public void testIssue2335() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7234,6 +7469,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	@Test
 	public void testIssue2335_min() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7266,6 +7502,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	@Test
 	public void testIssue2335_other() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7293,6 +7530,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2349
 	// [Switch Expression] Verify error at runtime with switch expression and exception handling inside lambda expression
+	@Test
 	public void testIssue2349() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7319,6 +7557,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
 	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	@Test
 	public void testIssue2360() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7360,6 +7599,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
 	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	@Test
 	public void testIssue2360_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7392,6 +7632,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2363
 	// [Switch Expressions] Compiler crashes with Switch expressions mixed with exception handling
+	@Test
 	public void testIssue2363() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7420,6 +7661,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2366
 	// [Switch Expression] Assertion fails when IDE is launched with JVM option -ea
+	@Test
 	public void testIssue2366() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7462,6 +7704,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7498,6 +7741,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7534,6 +7778,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_3() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7570,6 +7815,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_4() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7602,6 +7848,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_5() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7634,6 +7881,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_6() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7667,6 +7915,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_7() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7712,6 +7961,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_8() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -7741,6 +7991,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@Test
 	public void testIssue2382_9() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7791,6 +8042,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2387
 	// [Switch Expression] Empty Stack exception compiling switch expression with exception handling
+	@Test
 	public void testIssue2387() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7824,6 +8076,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2423
 	// [Switch-expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression with exception handling
+	@Test
 	public void testIssue2423() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7855,6 +8108,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2447
 	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	@Test
 	public void testIssue2447() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7888,6 +8142,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2451
 	// Internal compiler error: java.lang.AssertionError: Anomalous/Inconsistent operand stack!
+	@Test
 	public void testIssue2451() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7931,6 +8186,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2453
 	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	@Test
 	public void testIssue2453() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7958,6 +8214,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2455
 	// [Switch-expressions] java.lang.VerifyError: Bad type on operand stack
+	@Test
 	public void testIssue2455() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -7988,6 +8245,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2485
 	// Empty stack error compiling project with broken classpath
+	@Test
 	public void testIssue2485() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -8016,6 +8274,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2476
 	// [Switch expressions] java.lang.VerifyError: Bad type on operand stack
+	@Test
 	public void testIssue2476() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -8048,6 +8307,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 
 	// test mixing of -> and : in the same switch
+	@Test
 	public void testMixingCaseStyles() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -8076,6 +8336,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3205
 	// [Switch Expressions] ECJ accepts ambiguous method invocation involving switch expressions with poly type result expression
+	@Test
 	public void testIssue3205() {
 		this.runConformTest(
 				new String[] {
@@ -8132,6 +8393,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3205
 	// [Switch Expressions] ECJ accepts ambiguous method invocation involving switch expressions with poly type result expression
+	@Test
 	public void testIssue3205_2() {
 		this.runNegativeTest(
 				new String[] {
@@ -8192,6 +8454,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 
 	// fails when run as org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests.testBug542559_0012
+	@Test
 	public void testBug542559_0012() {
 		this.runConformTest(
 				new String[] {
@@ -8259,6 +8522,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"3");
 	}
 
+	@Test
 	public void testConditionalSwitchLabel() {
 		this.runConformTest(
 				new String[] {
@@ -8281,6 +8545,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3283
 	// ECJ fails to recognize "yield" as a contextual keyword when there is a case fall-through
+	@Test
 	public void testIssue3283() {
 		this.runConformTest(
 				new String[] {
@@ -8306,6 +8571,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=566124
 	// Widening conversions combined with method invocation and switch expressions doesn't work
+	@Test
 	public void testBug566124() {
 		this.runConformTest(
 				new String[] {
@@ -8340,6 +8606,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3481
 	// [Switch Expression] yield does not work with bitwise complement ~
+	@Test
 	public void testIssue3481() {
 		this.runConformTest(
 				new String[] {
@@ -8379,6 +8646,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3554
 	// [Switch Expressions] ArrayIndexOutOfBoundsException in Scope.leastContainingInvocation for sealed class and switch
+	@Test
 	public void testIssue3554() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -8419,6 +8687,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3920
 	// Java 24 switch expression and type inference generates wrong/unsecure bytecode
+	@Test
 	public void testIssue3920() {
 		this.runConformTest(
 				new String[] {
@@ -8445,6 +8714,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4113
 	// ECJ Internal Error when compiling
+	@Test
 	public void testIssue4113() {
 		this.runConformTest(
 				new String[] {
@@ -8466,6 +8736,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4165
 	// [LVTI][Switch Expressions] ECJ crashes with NPE compiling faulty program
+	@Test
 	public void testIssue4165() {
 		this.runConformTest(
 				new String[] {
@@ -8499,6 +8770,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4165
 	// [LVTI][Switch Expressions] ECJ crashes with NPE compiling faulty program
+	@Test
 	public void testIssue4165_2() {
 		this.runNegativeTest(
 				new String[] {
@@ -8547,6 +8819,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4397
 	// [Switch expression] Compiling causes an ArrayIndexOutOfBoundsException
+	@Test
 	public void testIssue4397() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -8607,6 +8880,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5201
 	// VerifyError: Instruction type does not match stack map with for loop in switch
+	@Test
 	public void testIssue5201() {
 		this.runConformTest(
 				new String[] {
@@ -8631,6 +8905,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5201
 	// VerifyError: Instruction type does not match stack map with for loop in switch
+	@Test
 	public void testIssue5201_full() {
 		this.runConformTest(
 				new String[] {

@@ -15,11 +15,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_21)
 public class RecordPatternProjectTest extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 21");
@@ -29,14 +33,8 @@ public class RecordPatternProjectTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testIssue2160" };
 	}
 	private String extraLibPath;
-	public static Class<?> testClass() {
-		return RecordPatternProjectTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_21);
-	}
-	public RecordPatternProjectTest(String testName){
-		super(testName);
+	public RecordPatternProjectTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
@@ -124,6 +122,7 @@ public class RecordPatternProjectTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2160
 	// VerifyError with code with record patterns and Optional
+	@Test
 	public void testIssue2160() {
 		runConformTest(new String[] {
 				"bug/Interpreter.java",

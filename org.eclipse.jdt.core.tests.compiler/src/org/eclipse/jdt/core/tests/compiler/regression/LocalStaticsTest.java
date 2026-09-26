@@ -15,13 +15,17 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class LocalStaticsTest extends AbstractRegressionTest {
 
 	static {
@@ -30,14 +34,8 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testBug569444_001"};
 	}
 
-	public static Class<?> testClass() {
-		return LocalStaticsTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
-	}
-	public LocalStaticsTest(String testName){
-		super(testName);
+	public LocalStaticsTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -105,6 +103,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		return result;
 	}
 
+	@Test
 	public void testBug566284_001() {
 		runConformTest(
 			new String[] {
@@ -132,6 +131,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void testBug566284_002() {
 		runConformTest(
 			new String[] {
@@ -157,6 +157,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"0");
 	}
+	@Test
 	public void testBug566284_003() {
 		runNegativeTest(
 			new String[] {
@@ -215,6 +216,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 
+	@Test
 	public void testBug566518_001() {
 		runConformTest(
 			new String[] {
@@ -245,6 +247,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"5");
 	}
 
+	@Test
 	public void testBug566518_002() {
 		runConformTest(
 			new String[] {
@@ -271,6 +274,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"0");
 	}
 
+	@Test
 	public void testBug566518_003() {
 		runConformTest(
 			new String[] {
@@ -297,6 +301,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"0");
 	}
 
+	@Test
 	public void testBug566518_004() {
 		runConformTest(
 			new String[] {
@@ -323,6 +328,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"0");
 	}
 
+	@Test
 	public void testBug566518_005() {
 		runNegativeTest(
 			new String[] {
@@ -362,6 +368,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 
+	@Test
 	public void testBug566518_006() {
 		runConformTest(
 			new String[] {
@@ -393,6 +400,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"");
 	}
 	// 6.5.5.1
+	@Test
 	public void testBug566715_001() {
 		runNegativeTest(
 			new String[] {
@@ -419,6 +427,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 6.5.5.1
+	@Test
 	public void testBug566715_002() {
 		runNegativeTest(
 			new String[] {
@@ -445,6 +454,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 6.5.5.1
+	@Test
 	public void testBug566715_003() {
 		runNegativeTest(
 			new String[] {
@@ -464,6 +474,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.1.1/14.3
+	@Test
 	public void testBug566720_001() {
 		runNegativeTest(
 			new String[] {
@@ -483,6 +494,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.1.1/14.3
+	@Test
 	public void testBug566720_002() {
 		runNegativeTest(
 			new String[] {
@@ -502,6 +514,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.1.1
+	@Test
 	public void testBug566720_003() {
 		runNegativeTest(
 			new String[] {
@@ -521,6 +534,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.1.1
+	@Test
 	public void testBug566720_004() {
 		runNegativeTest(
 			new String[] {
@@ -540,6 +554,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.1.1
+	@Test
 	public void testBug566720_005() {
 		runNegativeTest(
 			new String[] {
@@ -557,6 +572,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug566748_001() {
 		runNegativeTest(
 			new String[] {
@@ -632,6 +648,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		 	"----------\n"
 			);
 	}
+	@Test
 	public void testBug566748_002() {
 		runNegativeTest(
 			new String[] {
@@ -706,6 +723,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.6
+	@Test
 	public void testBug564557AnnotInterface_001() {
 		runNegativeTest(
 			new String[] {
@@ -728,6 +746,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.6
+	@Test
 	public void testBug564557AnnotInterface_002() {
 		runNegativeTest(
 			new String[] {
@@ -750,6 +769,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.4 && 15.12.3
+	@Test
 	public void testBug564557MethodInvocation_003() {
 		runNegativeTest(
 			new String[] {
@@ -779,6 +799,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 9.4 && 15.12.3
+	@Test
 	public void testBug564557MethodInvocation_004() {
 		runNegativeTest(
 			new String[] {
@@ -822,6 +843,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 13.1
+	@Test
 	public void testBug564557BinaryForm_005() throws Exception {
 		runConformTest(
 			new String[] {
@@ -841,6 +863,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		LocalStaticsTest.verifyClassFile(expectedOutput, "X$1I.class");
 	}
 	// 14.3 for enum
+	@Test
 	public void testBug564557BinaryForm_006() throws Exception {
 		runConformTest(
 			new String[] {
@@ -860,6 +883,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		LocalStaticsTest.verifyClassFile(expectedOutput, "X$1I.class");
 	}
 	// 15.8.3
+	@Test
 	public void testBug564557thisInStatic_007() {
 		runNegativeTest(
 			new String[] {
@@ -894,6 +918,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			);
 	}
 	// 15.8.3
+	@Test
 	public void testBug564557thisInStatic_008() {
 		runNegativeTest(
 			new String[] {
@@ -922,6 +947,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		 	"----------\n"
 			);
 	}
+	@Test
 	public void testBug568514LocalEnums_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -940,6 +966,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug568514LocalEnums_002() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
@@ -963,6 +990,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			options
 		);
 	}
+	@Test
 	public void testBug568514LocalEnums_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -983,6 +1011,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		);
 	}
 
+	@Test
 	public void testBug568514LocalEnums_004() {
 		this.runNegativeTest(
 			new String[] {
@@ -1003,6 +1032,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		);
 	}
 
+	@Test
 	public void testBug566579_001() {
 		runConformTest(
 			new String[] {
@@ -1039,6 +1069,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void testBug566579_002() {
 		runConformTest(
 			new String[] {
@@ -1056,6 +1087,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void testBug566579_003() {
 		runConformTest(
 			new String[] {
@@ -1074,6 +1106,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void testBug566579_004() {
 		runConformTest(
 			new String[] {
@@ -1095,6 +1128,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void testBug569444_001() {
 		runConformTest(
 			new String[] {
@@ -1116,6 +1150,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	@Test
 	public void testBug569444_002() {
 		runConformTest(
 			new String[] {
@@ -1136,6 +1171,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	@Test
 	public void testBug569444_003() {
 		runConformTest(
 			new String[] {
@@ -1167,6 +1203,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	@Test
 	public void testBug569444_004() {
 		runNegativeTest(
 			new String[] {
@@ -1188,6 +1225,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Illegal modifier for the local class zzz; only abstract or final is permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug569444_005() {
 		runNegativeTest(
 			new String[] {
@@ -1220,6 +1258,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug569444_006() {
 		runNegativeTest(
 			new String[] {
@@ -1252,6 +1291,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug571163_001() {
 		runNegativeTest(
 			new String[] {
@@ -1285,6 +1325,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Cannot use this in a static context\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug571300_001() {
 		runConformTest(
 			new String[] {
@@ -1308,6 +1349,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"I.Z");
 	}
+	@Test
 	public void testBug571274_001() {
 		runNegativeTest(
 			new String[] {
@@ -1341,6 +1383,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Cannot make a static reference to the non-static type T\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug566774_001() {
 		runNegativeTest(
 				new String[] {
@@ -1360,6 +1403,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"Cannot make a static reference to the non-static field b\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug566774_002() {
 		runNegativeTest(
 				new String[] {
@@ -1391,6 +1435,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testBug566774_003() {
 		runNegativeTest(
 				new String[] {
@@ -1421,6 +1466,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"Local variable i is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug566774_004() {
 		runNegativeTest(
 				new String[] {
@@ -1458,6 +1504,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"Local variable i is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug572994_001() {
 		runNegativeTest(
 			new String[] {
@@ -1486,6 +1533,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug572994_002() {
 		runNegativeTest(
 			new String[] {
@@ -1514,6 +1562,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"Cannot use this in a static context\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug572994_003() {
 		runNegativeTest(
 			new String[] {
@@ -1543,6 +1592,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// Test that static field inside inner types are properly initialized
+	@Test
 	public void testBug574791_1() {
 		runConformTest(
 			new String[] {
@@ -1601,6 +1651,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	}
 	// Test that the static initializer is generated only when required
 	// i.e., when the (anonymous) inner class contains a static field
+	@Test
 	public void testBug574791_2() throws Exception {
 		runConformTest(
 			new String[] {
@@ -1643,6 +1694,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			content = getClassfileContent("Test$2.class");
 			assertTrue("Unexpected code found", content.indexOf(expectedOutput) == -1);
 	}
+	@Test
 	public void testBug574791_3() {
 		runConformTest(
 			new String[] {
@@ -1707,6 +1759,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	}
 	// ECJ reports about non-existing modifiers on a local class in a switch expression
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4584
+	@Test
 	public void testIssue4584() throws Exception {
 		runConformTest(
 			new String[] {
@@ -1732,6 +1785,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"OK!");
 	}
 	// JLS 16 8.1.3: an inner class (here an anonymous class) may declare static members.
+	@Test
 	public void testIssue2860StaticMembersInAnonymousClass() throws Exception {
 		runConformTest(
 			new String[] {
@@ -1758,6 +1812,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"true");
 	}
 	// JLS 16 8.1.3: an inner class (here a named local class) may declare static members.
+	@Test
 	public void testIssue2860StaticMembersInLocalClass() throws Exception {
 		runConformTest(
 			new String[] {
@@ -1787,6 +1842,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"true");
 	}
 	// A static class member of a local/anonymous class is illegal before source 16.
+	@Test
 	public void testIssue2860StaticMembersInLocalClassPre16() throws Exception {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);

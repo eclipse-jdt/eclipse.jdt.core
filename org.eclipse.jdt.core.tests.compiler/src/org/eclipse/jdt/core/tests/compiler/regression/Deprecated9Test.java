@@ -17,19 +17,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class Deprecated9Test extends AbstractRegressionTest9 {
-	public Deprecated9Test(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
+	public Deprecated9Test(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
@@ -53,6 +54,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 	// guard variant for DeprecatedTest#test015 using an annotation
+	@Test
 	public void test002() {
 		Map<String, String> customOptions = new HashMap<>();
 		customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, CompilerOptions.WARNING);
@@ -101,6 +103,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void test002binary() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -147,6 +150,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191909
+	@Test
 	public void test004() {
 		Map<String, String> customOptions = new HashMap<>();
 		customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, CompilerOptions.WARNING);
@@ -184,6 +188,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	// Bug 354536 - compiling package-info.java still depends on the order of compilation units
+	@Test
 	public void test005a() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -211,6 +216,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void test005b() {
 		Map<String, String> customOptions = new HashMap<>();
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
@@ -237,6 +243,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			},
 			customOptions);
 	}
+	@Test
 	public void test005c() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -278,6 +285,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
+	@Test
 	public void test006() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -309,6 +317,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 	// method overriding
+	@Test
 	public void test007() {
 		Map<String, String> customOptions = new HashMap<>();
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
@@ -347,6 +356,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testSinceSource() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -417,6 +427,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testSinceBinary() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -493,6 +504,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testSinceTerminally() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -565,6 +577,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testDeprecatedPackageExport() {
 		associateToModule("mod1",
 				"p1/package-info.java", "p1/C1.java",
@@ -603,6 +616,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void testDeprecatedModule() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -650,6 +664,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testDeprecatedProvidedServices() {
 		javacUsePathOption(" --module-source-path ");
 		associateToModule("mod0", "module-info.java", "p1/IServiceDep.java", "p1/IServiceDepSince.java", "p1/IServiceTermDep.java", "p1/IServiceTermDepSince.java");
@@ -761,6 +776,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testDeprecatedUsedServices() {
 		javacUsePathOption(" --module-path ");
 
@@ -830,6 +846,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testBug533063_1() throws Exception {
 		INameEnvironment save = this.javaClassLib;
 		try {
@@ -865,6 +882,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			this.javaClassLib = save;
 		}
 	}
+	@Test
 	public void testBug533063_2() throws Exception {
 		javacUsePathOption(" --module-path ");
 
@@ -890,6 +908,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testBug534304() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -930,6 +949,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"CMissing cannot be resolved to a type\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug542795() throws Exception {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
@@ -977,6 +997,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				"----------\n";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testGH1431() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1002,6 +1023,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH1412() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1030,6 +1052,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		};
 		runner.runConformTest();
 	}
+	@Test
 	public void testJEP211_2() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1066,6 +1089,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				""";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testJEP211_3() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1101,6 +1125,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				""";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testGH4580() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1134,6 +1159,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH4579_fromNonDeprecated() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1210,6 +1236,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			""";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testGH4579_fromOrdinarilyDeprecated() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1274,6 +1301,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			""";
 		runner.runWarningTest();
 	}
+	@Test
 	public void testGH4579_fromTerminallyDeprecated() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();

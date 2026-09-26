@@ -14,8 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 @SuppressWarnings({ "rawtypes" })
 public class TryStatement17Test extends AbstractRegressionTest {
 
@@ -24,12 +25,10 @@ static {
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public TryStatement17Test(String name) {
-	super(name);
+public TryStatement17Test(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-}
+@Test
 public void test001() {
 	this.runNegativeTest(
 		new String[] {
@@ -55,6 +54,7 @@ public void test001() {
 		"The exception FileNotFoundException is already caught by the alternative IOException\n" +
 		"----------\n");
 }
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -90,6 +90,7 @@ public void test002() {
 		"The exception FileNotFoundException is already caught by the alternative IOException\n" +
 		"----------\n");
 }
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -117,6 +118,7 @@ public void test003() {
 		"The exception FileNotFoundException is already caught by the alternative IOException\n" +
 		"----------\n");
 }
+@Test
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
@@ -149,6 +151,7 @@ public void test004() {
 		"The exception FileNotFoundException is already caught by the alternative IOException\n" +
 		"----------\n");
 }
+@Test
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
@@ -182,6 +185,7 @@ public void test005() {
 		"----------\n");
 }
 //Test that lub is not used for checking for checking the exceptions
+@Test
 public void test006() {
 	this.runNegativeTest(
 		new String[] {
@@ -222,6 +226,7 @@ public void test006() {
 		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n");
 }
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -245,6 +250,7 @@ public void test007() {
 		"Caught Foo");
 }
 // test that lub is not used for precise rethrow
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -282,6 +288,7 @@ public void test008() {
 		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n");
 }
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -306,6 +313,7 @@ public void test009() {
 		"----------\n");
 }
 //Test that union type checks are done for a precise throw too
+@Test
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -347,6 +355,7 @@ public void test010() {
 		"----------\n");
 }
 // Test that a rethrow is precisely computed
+@Test
 public void test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -391,6 +400,7 @@ public void test011() {
 		"----------\n");
 }
 //Test that a rethrow is precisely computed
+@Test
 public void test012() {
 	this.runNegativeTest(
 		new String[] {
@@ -438,6 +448,7 @@ public void test012() {
 }
 // Test that if the rethrow argument is modified (not effectively final), then it is not precisely
 // computed
+@Test
 public void test013() {
 	this.runNegativeTest(
 		new String[] {
@@ -480,6 +491,7 @@ public void test013() {
 
 // Test that if the rethrow argument is modified in a different flow (not effectively final), then also precise throw
 // should not be computed
+@Test
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -527,6 +539,7 @@ public void test014() {
 // test015 moved into org.eclipse.jdt.core.tests.compiler.regression.TryStatementTest.test070()
 
 // Test precise rethrow works good even in nested try catch block
+@Test
 public void test016() {
 	this.runNegativeTest(
 		new String[] {
@@ -575,6 +588,7 @@ public void test016() {
 		"----------\n");
 }
 // Test lub computation.
+@Test
 public void test017() {
 	this.runNegativeTest(
 		new String[] {
@@ -655,6 +669,7 @@ public void test017() {
 		"----------\n");
 }
 // Test explicit final modifiers
+@Test
 public void test018() {
 	this.runNegativeTest(
 		new String[] {
@@ -703,6 +718,7 @@ public void test018() {
 		"----------\n");
 }
 // Test explicit final modifiers
+@Test
 public void test019() {
 	this.runNegativeTest(
 		new String[] {
@@ -751,6 +767,7 @@ public void test019() {
 		"----------\n");
 }
 // Test that for unchecked exceptions, we don't do any precise analysis.
+@Test
 public void test020() {
 	this.runConformTest(
 		new String[] {
@@ -772,6 +789,7 @@ public void test020() {
 		"All done");
 }
 // Test multicatch behavior.
+@Test
 public void test021() {
 	this.runConformTest(
 		new String[] {
@@ -805,6 +823,7 @@ public void test021() {
 		"java.lang.ArrayStoreException\n" +
 		"java.lang.ArrayIndexOutOfBoundsException");
 }
+@Test
 public void test022() {
 	this.runNegativeTest(
 			new String[] {
@@ -827,6 +846,7 @@ public void test022() {
     			"----------\n"
 			);
 }
+@Test
 public void test023() {
 	this.runNegativeTest(
 			new String[] {
@@ -860,6 +880,7 @@ public void test023() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340486
+@Test
 public void test024() {
 	this.runNegativeTest(
 			new String[] {
@@ -884,6 +905,7 @@ public void test024() {
 			"The exception FileNotFoundException is already caught by the alternative IOException\n" +
 			"----------\n");
 }
+@Test
 public void test024a() {
 	this.runNegativeTest(
 			new String[] {
@@ -909,6 +931,7 @@ public void test024a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=344824
+@Test
 public void test025() {
 	this.runNegativeTest(
 			new String[] {
@@ -953,6 +976,7 @@ public void test025() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345522
+@Test
 public void test026() {
 	this.runNegativeTest(
 			new String[] {
@@ -976,6 +1000,7 @@ public void test026() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345522
+@Test
 public void test026a() {
 	this.runNegativeTest(
 			new String[] {
@@ -1005,6 +1030,7 @@ public void test026a() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=345579
+@Test
 public void test027() {
 	this.runConformTest(
 			new String[] {
@@ -1023,6 +1049,7 @@ public void test027() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=350361
+@Test
 public void test028() {
 	this.runConformTest(
 			new String[] {
@@ -1041,6 +1068,7 @@ public void test028() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
+@Test
 public void test029() { // with finally
 	this.runConformTest(
 			new String[] {
@@ -1062,6 +1090,7 @@ public void test029() { // with finally
 			"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
+@Test
 public void test030() { // no finally
 	this.runConformTest(
 			new String[] {
@@ -1081,6 +1110,7 @@ public void test030() { // no finally
 			"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
+@Test
 public void test031() { // with finally
 	this.runConformTest(
 			new String[] {
@@ -1128,6 +1158,7 @@ public void test031() { // with finally
 			"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
+@Test
 public void test032() { // no finally
 	this.runConformTest(
 			new String[] {
@@ -1174,6 +1205,7 @@ public void test032() { // no finally
 			"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=391092
+@Test
 public void testBug391092() {
 	this.runNegativeTest(
 		new String[] {
@@ -1224,6 +1256,7 @@ public void testBug391092() {
 	}
 
 //Bug 404146 - nested try-catch-finally-blocks leads to unrunnable Java byte code
+@Test
 public void testBug404146() {
 	runConformTest(
 		new String[] {
@@ -1265,6 +1298,7 @@ public void testBug404146() {
 			"}\n"
 		});
 }
+@Test
 public void testBug488569_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) {
 		this.runNegativeTest(
@@ -1321,6 +1355,7 @@ public void testBug488569_001() {
 	}
 }
 
+@Test
 public void testMultiCatchMapIndexing() {
 	this.runConformTest(
 		new String[] {

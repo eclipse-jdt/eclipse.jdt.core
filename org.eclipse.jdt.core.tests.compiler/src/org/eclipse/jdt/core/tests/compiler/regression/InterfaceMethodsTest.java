@@ -16,15 +16,15 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 // See https://bugs.eclipse.org/380501
 // Bug 380501 - [1.8][compiler] Add support for default methods (JSR 335)
@@ -40,26 +40,12 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-
-	public static Test setUpTest(Test test) throws Exception {
-		TestCase.setUpTest(test);
-		RegressionTestSetup suite = new RegressionTestSetup(ClassFileConstants.JDK1_8);
-		suite.addTest(test);
-		return suite;
-	}
-
-	public static Class testClass() {
-		return InterfaceMethodsTest.class;
-	}
-
-	public InterfaceMethodsTest(String name) {
-		super(name);
+	public InterfaceMethodsTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// default methods with various modifiers, positive cases
+	@Test
 	public void testModifiers1() {
 		runConformTest(
 		new String[] {
@@ -79,6 +65,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 
 	// default methods with various modifiers, negative cases
+	@Test
 	public void testModifiers1a() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
 		String op = this.complianceLevel < ClassFileConstants.JDK17 ?
@@ -145,6 +132,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// default methods with various modifiers, simple syntax error blows the parser
+	@Test
 	public void testModifiers1b() {
 		runNegativeTest(
 		new String[] {
@@ -190,6 +178,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// regular interface with illegal modifiers
+	@Test
 	public void testModifiers2() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
 		String op = this.complianceLevel < ClassFileConstants.JDK17 ?
@@ -286,6 +275,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// default & regular methods with modifiers that are illegal even for default methods
+	@Test
 	public void testModifiers3() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
 		runNegativeTest(
@@ -333,6 +323,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// if an interface methods is explicitly "abstract" it cannot have a (default) body
+	@Test
 	public void testModifiers4() {
 		runNegativeTest(
 		new String[] {
@@ -370,6 +361,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// class implements interface with default method.
 	// - no need to implement this interface method as it is not abstract
+	@Test
 	public void testModifiers5() {
 		runConformTest(
 			new String[] {
@@ -392,6 +384,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// class implements interface with default method.
 	// - no need to implement this interface method as it is not abstract, but other abstract method exists
+	@Test
 	public void testModifiers6() {
 		runNegativeTest(
 			new String[] {
@@ -412,6 +405,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// a default method has a semicolon body / an undocumented empty body
+	@Test
 	public void testModifiers7() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNDOCUMENTED_EMPTY_BLOCK, JavaCore.ERROR);
@@ -443,6 +437,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 9.4.2  - default method cannot override method from Object
 	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
 	// new error message
+	@Test
 	public void testObjectMethod1() {
 		runNegativeTest(
 			new String[] {
@@ -462,6 +457,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 9.4.2  - default method cannot override method from Object
 	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
 	// when using a type variable this is already reported as a name clash
+	@Test
 	public void testObjectMethod2() {
 		runNegativeTest(
 			new String[] {
@@ -481,6 +477,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 9.4.2  - default method cannot override method from Object
 	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
 	// one error for final method is enough
+	@Test
 	public void testObjectMethod3() {
 		runNegativeTest(
 			new String[] {
@@ -502,6 +499,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
 	// an inherited default methods clashes with another inherited method
 	// simple case
+	@Test
 	public void testInheritedDefaultOverrides01() {
 		runNegativeTest(
 			new String[] {
@@ -529,6 +527,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
 	// an inherited default methods clashes with another inherited method
 	// indirect inheritance
+	@Test
 	public void testInheritedDefaultOverrides02() {
 		runNegativeTest(
 			new String[] {
@@ -561,6 +560,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 9.4.1
 	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
 	// Parameterized case is already reported as a clash
+	@Test
 	public void testInheritedDefaultOverrides03() {
 		runNegativeTest(
 			new String[] {
@@ -593,6 +593,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 9.4.1
 	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
 	// Parameterized case is already reported as a clash - inverse case of previous
+	@Test
 	public void testInheritedDefaultOverrides04() {
 		runNegativeTest(
 			new String[] {
@@ -622,6 +623,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
+	@Test
 	public void testDefaultNonclash() {
 		runNegativeTest(
 			new String[] {
@@ -653,6 +655,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
+	@Test
 	public void testDefaultNonclash2() {
 		runNegativeTest(
 			new String[] {
@@ -684,6 +687,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testDefaultNonclash3() {
 		runNegativeTest(
 			new String[] {
@@ -717,6 +721,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
+	@Test
 	public void testDefaultNonclash4() {
 		runNegativeTest(
 			new String[] {
@@ -747,6 +752,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420080
+	@Test
 	public void testDefaultNonclash5() {
 		runConformTest(
 			new String[] {
@@ -771,6 +777,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 9.4.1
 	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
 	// Don't report conflict between the same method inherited on two paths.
+	@Test
 	public void testInheritedDefaultOverrides05() {
 		runConformTest(
 			new String[] {
@@ -785,6 +792,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 9.4.1
 	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
 	// extract from SuperTypeTest.test013():
+	@Test
 	public void testInheritedDefaultOverrides06() {
 		runConformTest(
 			new String[] {
@@ -799,6 +807,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// JLS 8.1.1.1 abstract Classes
 	// Default method overrides an abstract method from its super interface
+	@Test
 	public void testAbstract01() {
 		runConformTest(
 			new String[] {
@@ -818,6 +827,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// JLS 8.1.1.1 abstract Classes
 	// Default method conflicts with independent interface method
+	@Test
 	public void testAbstract02() {
 		runNegativeTest(
 			new String[] {
@@ -846,6 +856,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 8.1.1.1 abstract Classes
 	// Default method conflicts independent interface method
 	// same as above except for order of implements list
+	@Test
 	public void testAbstract02a() {
 		runNegativeTest(
 			new String[] {
@@ -874,6 +885,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 8.1.1.1 abstract Classes
 	// Default method does not override independent abstract method
 	// class is abstract
+	@Test
 	public void testAbstract02b() {
 		runNegativeTest(
 			new String[] {
@@ -898,6 +910,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// same as above but only interfaces
+	@Test
 	public void testAbstract02c() {
 		runNegativeTest(
 			new String[] {
@@ -923,6 +936,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// JLS 8.1.1.1 abstract Classes
 	// Default method overrides an abstract method from its super interface - class implements both
+	@Test
 	public void testAbstract03() {
 		runConformTest(
 			new String[] {
@@ -944,6 +958,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 8.1.1.1 abstract Classes
 	// Default method overrides an abstract method from its super interface - class implements both
 	// same as above except for order of implements list
+	@Test
 	public void testAbstract03a() {
 		runConformTest(
 			new String[] {
@@ -964,6 +979,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// JLS 8.1.1.1 abstract Classes
 	// default method is not inherited because a more specific abstract method is.
+	@Test
 	public void testAbstract04() {
 		runNegativeTest(
 			new String[] {
@@ -991,6 +1007,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// JLS 8.1.1.1 abstract Classes
 	// default method is not inherited because a more specific abstract method is.
 	// same as above except for order of implements list
+	@Test
 	public void testAbstract04a() {
 		runNegativeTest(
 			new String[] {
@@ -1016,6 +1033,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// abstract class method trumps otherwise conflicting default methods: the conflict scenario
+	@Test
 	public void testAbstract05() {
 		runNegativeTest(
 			new String[] {
@@ -1040,6 +1058,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// abstract class method trumps otherwise conflicting default methods: conflict resolved
+	@Test
 	public void testAbstract06() {
 		runNegativeTest(
 			new String[] {
@@ -1079,6 +1098,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// abstract class method trumps otherwise conflicting default methods: conflict resolved
 	// variant: second method is not a default method
+	@Test
 	public void testAbstract06a() {
 		runNegativeTest(
 			new String[] {
@@ -1117,6 +1137,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// abstract class method trumps otherwise conflicting default methods: conflict not resolved due to insufficient visibility
+	@Test
 	public void testAbstract6b() {
 		runNegativeTest(
 			new String[] {
@@ -1146,6 +1167,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// abstract class method trumps otherwise conflicting default method: only one default method
+	@Test
 	public void testAbstract07() {
 		runNegativeTest(
 			new String[] {
@@ -1176,6 +1198,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// class inherits two override equivalent methods,
 	// must be declared abstract, although one of the methods is a default method.
+	@Test
 	public void testAbstract08() {
 		runNegativeTest(
 			new String[] {
@@ -1200,6 +1223,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// an annotation type cannot have default methods
+	@Test
 	public void testAnnotation1() {
 		runNegativeTest(
 			new String[] {
@@ -1217,6 +1241,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// basic situation similar to AmbiguousMethodTest.test009()
+	@Test
 	public void testSuperCall1() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1248,6 +1273,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// - call to super of outer
 	// - target method is not a default method
 	// - attempt to use this syntax for a super-ctor call
+	@Test
 	public void testSuperCall2() {
 		this.runNegativeTest(
 			new String[] {
@@ -1306,6 +1332,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// with execution
+	@Test
 	public void testSuperCall3() {
 		this.runConformTest(
 			new String[] {
@@ -1338,6 +1365,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// 15.12.1
 	// https://bugs.eclipse.org/404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+	@Test
 	public void testSuperCall4() {
 		this.runNegativeTest(
 			new String[] {
@@ -1374,6 +1402,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// 15.12.1
 	// https://bugs.eclipse.org/404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+	@Test
 	public void testSuperCall5() {
 		this.runNegativeTest(
 			new String[] {
@@ -1407,6 +1436,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// 15.12.3
 	// https://bugs.eclipse.org/404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+	@Test
 	public void testSuperCall6() {
 		this.runNegativeTest(
 			new String[] {
@@ -1443,6 +1473,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// Bug 401235 - [1.8][compiler] 'this' reference must be allowed in default methods and local classes
+	@Test
 	public void testThisReference1() {
 		this.runConformTest(
 			new String[] {
@@ -1479,6 +1510,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test for different legal and illegal keywords for static and default methods in interfaces
+	@Test
 	public void testStaticMethod01() {
 		runNegativeTest(
 				new String[] {
@@ -1515,6 +1547,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test invocation of static methods with different contexts - negative tests
+	@Test
 	public void testStaticMethod02() {
 		runNegativeTest(
 				new String[] {
@@ -1558,6 +1591,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test invocation of static methods with different contexts - positive tests
+	@Test
 	public void testStaticMethod03() throws Exception {
 		runConformTest(
 			new String[] {
@@ -1613,6 +1647,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test invocation of static methods with different contexts - negative tests
+	@Test
 	public void testStaticMethod04() {
 		runNegativeTest(
 				new String[] {
@@ -1703,6 +1738,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	@Test
 	public void testStaticMethod05() {
 		runNegativeTest(
 				new String[] {
@@ -1737,6 +1773,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test that extending interfaces inherit visible fields and inner types.
+	@Test
 	public void testStaticMethod06() {
 		runConformTest(
 				new String[] {
@@ -1766,6 +1803,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test that type parameter from enclosing type is not allowed to be referred to in static interface methods
+	@Test
 	public void testStaticMethod07() {
 		runNegativeTest(
 				new String[] {
@@ -1789,6 +1827,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	@Test
 	public void testStaticMethod08() {
 		runNegativeTest(
 				new String[] {
@@ -1805,6 +1844,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	@Test
 	public void testStaticMethod09() {
 		runNegativeTest(
 				new String[] {
@@ -1824,6 +1864,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	@Test
 	public void testStaticMethod10() {
 		runNegativeTest(
 				new String[] {
@@ -1844,6 +1885,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	@Test
 	public void testStaticMethod11() {
 		runNegativeTest(
 				new String[] {
@@ -1863,6 +1905,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	@Test
 	public void testStaticMethod12() {
 		runNegativeTest(
 				new String[] {
@@ -1889,6 +1932,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	@Test
 	public void testStaticMethod13() {
 		runNegativeTest(
 				new String[] {
@@ -1913,6 +1957,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406619, [1.8][compiler] Incorrect suggestion that method can be made static.
+	@Test
 	public void test406619() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -1935,6 +1980,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// class implements interface with default method.
 	// - witness for NoSuchMethodError in synthetic method (SuperMethodAccess) - turned out to be a JVM bug
+	@Test
 	public void testSuperAccess01() {
 		runConformTest(
 			new String[] {
@@ -1957,6 +2003,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// class implements interface with default method.
 	// - intermediate public interface
+	@Test
 	public void testSuperAccess02() {
 		runConformTest(
 			new String[] {
@@ -1981,6 +2028,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/421796 - Bug 421796 - [1.8][compiler] java.lang.AbstractMethodError executing default method code.
+	@Test
 	public void testSuperAccess03() {
 		runConformTest(
 			new String[] {
@@ -2008,6 +2056,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// Variant of test MethodVerifyTest.test144() from https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034
+	@Test
 	public void testBridge01() {
 		this.runNegativeTest(
 			new String[] {
@@ -2040,6 +2089,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// yet another variant, checking that exactly one bridge method is created, so that
 	// the most specific method is dynamically invoked via all declared types.
+	@Test
 	public void testBridge02() {
 		this.runConformTest(
 			new String[] {
@@ -2231,6 +2281,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
     }
 
     // test for different error messages in modifiers.
+	@Test
 	public void test400977() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
 		String extra = this.complianceLevel >= ClassFileConstants.JDK17 ?
@@ -2271,6 +2322,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420084,  [1.8] static interface method cannot be resolved without receiver when imported statically
+	@Test
 	public void testBug420084() {
 		runNegativeTest(
 			new String[] {
@@ -2290,6 +2342,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
+	@Test
 	public void testBug421543() {
 		runNegativeTest(
 			new String[] {
@@ -2316,6 +2369,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
+	@Test
 	public void testBug421543a() {
 		runNegativeTest(
 			new String[] {
@@ -2342,6 +2396,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
+	@Test
 	public void testBug421543b() {
 		runConformTest(
 			new String[] {
@@ -2359,6 +2414,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421797, [1.8][compiler] ClassFormatError with default methods & I.super.foo() syntax
+	@Test
 	public void testBug421797() {
 		runConformTest(
 			new String[] {
@@ -2386,6 +2442,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422731, [1.8] Ambiguous method not reported on overridden default method
+	@Test
 	public void test422731() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2420,6 +2477,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler
+	@Test
 	public void test425719() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2443,6 +2501,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"class method");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425718, [1.8] default method changes access privilege of protected overridden method from Object
+	@Test
 	public void test425718() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2470,6 +2529,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426318, [1.8][compiler] Bogus name clash error in the presence of default methods and varargs
+	@Test
 	public void test426318() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2498,6 +2558,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424914, [1.8][compiler] No error shown for method reference with super enclosed in an interface
+	@Test
 	public void test424914() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2535,6 +2596,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424914, [1.8][compiler] No error shown for method reference with super enclosed in an interface
+	@Test
 	public void test424914a() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2561,6 +2623,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"B.foo");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427478, [1.8][compiler] Wrong "Duplicate default methods" error on AbstractDoubleSpliterator
+	@Test
 	public void test427478() throws Exception { // extracted smaller test case.
 		this.runConformTest(
 			new String[] {
@@ -2587,6 +2650,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427478, [1.8][compiler] Wrong "Duplicate default methods" error on AbstractDoubleSpliterator
+	@Test
 	public void test427478a() throws Exception { // full test case.
 		this.runConformTest(
 			new String[] {
@@ -2628,6 +2692,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423467, [1.8][compiler] wrong error for functional interface with @Override default method
+	@Test
 	public void test423467() throws Exception { // full test case.
 		this.runConformTest(
 			new String[] {
@@ -2657,6 +2722,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438471, Java 1.8 functional interface rejected if it extends an interface which overrides another interface's method
+	@Test
 	public void test438471() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2679,6 +2745,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350, [1.8][compiler] Missing bridge method in interface results in AbstractMethodError
+	@Test
 	public void test436350() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2719,6 +2786,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350, [1.8][compiler] Missing bridge method in interface results in AbstractMethodError
+	@Test
 	public void test436350a() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2792,6 +2860,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"Lambda expression value: 6.0");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437522, [1.8][compiler] Missing compile error in Java 8 mode for Interface.super.field access
+	@Test
 	public void testBug437522() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -2897,6 +2966,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437522, [1.8][compiler] Missing compile error in Java 8 mode for Interface.super.field access
 	// Example JLS: 15.11.2-1.
+	@Test
 	public void testBug437522a() throws Exception {
 		runConformTest(
 			true,
@@ -2946,6 +3016,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"", JavacTestOptions.DEFAULT);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=453552, Invalid '@FunctionalInterface error when two interfaces extend the same functional interface.
+	@Test
 	public void test453552() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2969,6 +3040,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			});
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=453552, Invalid '@FunctionalInterface error when two interfaces extend the same functional interface.
+	@Test
 	public void test453552_comment2() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2991,6 +3063,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			});
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	@Test
 	public void test477891_comment0() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3021,6 +3094,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	@Test
 	public void test477891_comment0_a() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3051,6 +3125,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	@Test
 	public void test477891_comment3_a() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3078,6 +3153,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	@Test
 	public void test477891_comment3_b() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3105,6 +3181,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+		@Test
 		public void test477891_comment3_c() throws Exception {
 			this.runNegativeTest(
 				new String[] {
@@ -3131,6 +3208,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"----------\n");
 		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+		@Test
 		public void test477891_comment3_d() throws Exception {
 			this.runNegativeTest(
 				new String[] {
@@ -3156,6 +3234,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"The default method spliterator() inherited from Y<E> conflicts with another method inherited from X<E>\n" +
 				"----------\n");
 		}
+	@Test
 	public void test458547_comment0_a() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3184,6 +3263,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"The default method foo() inherited from JavaTest.D conflicts with another method inherited from JavaTest.C\n" +
 			"----------\n");
 	}
+	@Test
 	public void test458547_comment0_b() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3213,6 +3293,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug539743() {
 		runConformTest(
 		new String[] {
@@ -3242,6 +3323,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		"");
 	}
 
+	@Test
 	public void testJDK8337980() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -3301,6 +3383,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			}
 			"""});
 	}
+	@Test
 	public void testGH1600_2() {
 		runConformTest(new String[] {"Test.java",
 			"""
@@ -3337,6 +3420,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"no13");
 	}
 	// Additional test case from https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4727#issuecomment-3771030157
+	@Test
 	public void testGH1600_3() {
 		runNegativeTest(new String[] {"Test.java",
 			"""
@@ -3375,6 +3459,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// Additional test case from https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4763
+	@Test
 	public void testGH1600_4_from_issue4763() {
 		runConformTest(new String[] {"eclipsebugpoc/MainClass.java",
 			"""

@@ -46,8 +46,10 @@ import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@ExtendWith(ExecutionFilter.class)
 public class TestCase extends PerformanceTestCase {
 
 	// Filters
@@ -262,7 +264,7 @@ public static void assertNull(String message, Object actual) {
 	Assertions.assertNull(actual, message);
 }
 public static void assertNull(Object actual) {
-	Assertions.assertNotNull(actual);
+	Assertions.assertNull(actual);
 }
 public static void assertEquals(String expected, String actual) {
     assertEquals(null, expected, actual);

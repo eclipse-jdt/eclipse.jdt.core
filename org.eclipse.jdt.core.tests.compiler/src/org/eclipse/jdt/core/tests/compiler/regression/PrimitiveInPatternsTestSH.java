@@ -14,17 +14,21 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @PreviewTest
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_27)
 public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 27 -Xlint:-preview");
@@ -79,14 +83,8 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testPrimitivePatternInSwitch" };
 	}
 	private String extraLibPath;
-	public static Class<?> testClass() {
-		return PrimitiveInPatternsTestSH.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_27);
-	}
-	public PrimitiveInPatternsTestSH(String testName) {
-		super(testName);
+	public PrimitiveInPatternsTestSH(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -204,6 +202,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// https://cr.openjdk.org/~abimpoudis/instanceof/jep455-20240424/specs/instanceof-jls.html#jls-5.1.2
 	// 5.7 Testing Contexts
 	// Identity Conversion
+	@Test
 	public void testIdentity() throws IOException, ClassFormatException {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
@@ -235,6 +234,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
 		verifyClassFile("version 27 : 71.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testIdentityPattern() {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
@@ -266,6 +266,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
 	}
 
+	@Test
 	public void testIdentity_functionLhs() {
 		// one sample should suffice here:
 		runConformTest(new String[] {
@@ -292,6 +293,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void testIdentityPattern_functionLhs() {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
@@ -458,28 +460,34 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		testWideningFrom(prim, idx, useMax, expectedOut);
 		testWideningFrom_pattern(prim, idx, useMax, expectedOut);
 	}
+	@Test
 	public void testWideningByte() {
 		testWideningFrom_both("byte", 1, false, "49|49|49|49.0|49.0|");
 		testWideningFrom_both("byte", 1, true, "127|127|127|127.0|127.0|");
 	}
+	@Test
 	public void testWideningChar() {
 		testWideningFrom_both("char", 2, false, "49|49|49|49.0|49.0|"); // '1'
 		testWideningFrom_both("char", 2, true, "122|122|122|122.0|122.0|"); // 'z'
 	}
+	@Test
 	public void testWideningShort() {
 		testWideningFrom_both("short", 3, false, "49|49|49.0|49.0|");
 		testWideningFrom_both("short", 3, true, "32767|32767|32767.0|32767.0|");
 	}
+	@Test
 	public void testWideningInt() {
 		testWideningFrom_both("int", 4, false, "49|49.0|49.0|");
 		// max-int -> float is not exact
 		testWideningFrom_both("int", 4, true, "2147483647|-1.0|"+String.valueOf((double) Integer.MAX_VALUE)+'|');
 	}
+	@Test
 	public void testWideningLong() {
 		testWideningFrom_both("long", 5, false, "49.0|49.0|");
 		// max-long -> float/double is not exact
 		testWideningFrom_both("long", 5, true, "-1.0|-1.0|");
 	}
+	@Test
 	public void testWideningFloat() {
 		testWideningFrom_both("float", 6, false, "49.0|");
 		testWideningFrom_both("float", 6, true, String.valueOf((double) Float.MAX_VALUE)+"|");
@@ -636,30 +644,37 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		testNarrowingFrom(prim, idx, useMax, expectedOut);
 		testNarrowingFrom_pattern(prim, idx, useMax, expectedOut);
 	}
+	@Test
 	public void testNarrowingDouble() {
 		testNarrowingFrom_both("double", 7, false, "49|1|49|49|49|49.0|");
 		testNarrowingFrom_both("double", 7, true, "-1|-|-1|-1|-1|-1.0|");
 	}
+	@Test
 	public void testNarrowingFloat() {
 		testNarrowingFrom_both("float", 6, false, "49|1|49|49|49|");
 		testNarrowingFrom_both("float", 6, true, "-1|-|-1|-1|-1|");
 	}
+	@Test
 	public void testNarrowingLong() {
 		testNarrowingFrom_both("long", 5, false, "49|1|49|49|");
 		testNarrowingFrom_both("long", 5, true, "-1|-|-1|-1|");
 	}
+	@Test
 	public void testNarrowingInt() {
 		testNarrowingFrom_both("int", 4, false, "49|1|49|");
 		testNarrowingFrom_both("int", 4, true, "-1|-|-1|");
 	}
+	@Test
 	public void testNarrowingShort() {
 		testNarrowingFrom_both("short", 3, false, "49|1|");
 		testNarrowingFrom_both("short", 3, true, "-1|32767|");
 	}
+	@Test
 	public void testNarrowingChar() {
 		testNarrowingFrom_both("char", 2, false, "49|"); // '1'
 	}
 
+	@Test
 	public void testNarrowingChar_various() {
 		runConformTest(new String[] {
 			"X.java",
@@ -733,6 +748,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"49|49|49|127|32767|-1|");
 	}
 
+	@Test
 	public void testBoxing() {
 		//	public class X {
 		//		public static Boolean boolean2Boolean(boolean v) {
@@ -789,6 +805,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runConformTest(new String[] { "X.java", classX.toString() },
 				"true|49|1|49|49|49|49.0|49.0|");
 	}
+	@Test
 	public void testBoxing_pattern() {
 		//	public class X {
 		//		public static Boolean boolean2Boolean() {
@@ -852,6 +869,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"true|49|1|49|49|49|49.0|49.0|");
 	}
 
+	@Test
 	public void testUnboxing() {
 		//	public class X {
 		//		public static boolean Boolean2boolean(Boolean v) {
@@ -908,6 +926,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runConformTest(new String[] { "X.java", classX.toString() },
 				"true|49|1|49|49|49|49.0|49.0|");
 	}
+	@Test
 	public void testUnboxing_pattern() {
 		//	public class X {
 		//		public static Boolean boolean2Boolean() {
@@ -1032,30 +1051,39 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runConformTest(new String[] { "X.java", classX.toString() }, expectedOut);
 	}
 
+	@Test
 	public void test2Comparable_boolean() {
 		primitive2Comparable("boolean", 0, "true|true|true|");
 	}
+	@Test
 	public void test2Comparable_byte() {
 		primitive2Comparable("byte", 1, "49|49|49|49|");
 	}
+	@Test
 	public void test2Comparable_char() {
 		primitive2Comparable("char", 2, "1|1|1|"); // '1'
 	}
+	@Test
 	public void test2Comparable_short() {
 		primitive2Comparable("short", 3, "49|49|49|49|");
 	}
+	@Test
 	public void test2Comparable_int() {
 		primitive2Comparable("int", 4, "49|49|49|49|");
 	}
+	@Test
 	public void test2Comparable_long() {
 		primitive2Comparable("long", 5, "49|49|49|49|");
 	}
+	@Test
 	public void test2Comparable_float() {
 		primitive2Comparable("float", 6, "49.0|49.0|49.0|49.0|");
 	}
+	@Test
 	public void test2Comparable_double() {
 		primitive2Comparable("double", 7, "49.0|49.0|49.0|49.0|");
 	}
+	@Test
 	public void test2Number_NOK() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1091,6 +1119,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			""");
 	}
 
+	@Test
 	public void testNonPrim001() {
 		// no preview used
 		super.runConformTest(new String[] {
@@ -1115,6 +1144,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"true");
 	}
 
+	@Test
 	public void testPrimitivePatternInSwitch() {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
@@ -1150,6 +1180,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
 	}
 
+	@Test
 	public void testPrimitivePatternInSwitch_unbox() {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
@@ -1185,6 +1216,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"false|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
 	}
 
+	@Test
 	public void testPrimitivePatternInSwitch_narrowConst_NOK() {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
@@ -1262,6 +1294,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				""");
 	}
 
+	@Test
 	public void testPrimitivePatternInSwitch_narrowUnbox() {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
@@ -1334,6 +1367,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runNegativeTest(new String[] { "X.java", classX },
 				expectedError);
 	}
+	@Test
 	public void testPrimitivePatternInSwitchShort_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Short", 3, "",
 				"""
@@ -1350,6 +1384,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				----------
 				""");
 	}
+	@Test
 	public void testPrimitivePatternInSwitchInt_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Integer", 4,
 				"@SuppressWarnings(\"preview\")",
@@ -1367,6 +1402,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				----------
 				""");
 	}
+	@Test
 	public void testPrimitivePatternInSwitchLong_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Long", 5,
 				"@SuppressWarnings(\"preview\")",
@@ -1389,6 +1425,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				----------
 				""");
 	}
+	@Test
 	public void testPrimitivePatternInSwitchFloat_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Float", 6,
 				"@SuppressWarnings(\"preview\")",
@@ -1416,6 +1453,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				----------
 				""");
 	}
+	@Test
 	public void testPrimitivePatternInSwitchDouble_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Double", 7,
 				"@SuppressWarnings(\"preview\")",
@@ -1448,6 +1486,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				----------
 				""");
 	}
+	@Test
 	public void testPrimitivePatternInSwitch_Character_unboxAndNarrow_NOK() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1493,6 +1532,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			""");
 	}
 
+	@Test
 	public void testPrimitivePatternInSwitch_Character_unboxAndWiden() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1533,6 +1573,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"97|98|99.0|100.0");
 	}
 
+	@Test
 	public void testPrimitivePatternInSwitch_widenUnbox() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1631,22 +1672,28 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				""");
 		runConformTest(new String[] {"X.java", clazz.toString()}, expectedOuts);
 	}
+	@Test
 	public void testInstanceof_widenUnbox_Byte() {
 		testInstanceof_widenUnbox("Byte", 1, "49+49|49+49|49+49|49.0+49.0|49.0+49.0|");
 	}
+	@Test
 	public void testInstanceof_widenUnbox_Short() {
 		testInstanceof_widenUnbox("Short", 3, "49+49|49+49|49.0+49.0|49.0+49.0|");
 	}
+	@Test
 	public void testInstanceof_widenUnbox_Integer() {
 		testInstanceof_widenUnbox("Integer", 4, "49+49|49.0+49.0|49.0+49.0|");
 	}
+	@Test
 	public void testInstanceof_widenUnbox_Long() {
 		testInstanceof_widenUnbox("Long", 5, "49.0+49.0|49.0+49.0|");
 	}
+	@Test
 	public void testInstanceof_widenUnbox_Float() {
 		testInstanceof_widenUnbox("Float", 6, "49.0+49.0|");
 	}
 
+	@Test
 	public void testInstanceof_widenUnboxWiden() {
 		// see https://bugs.openjdk.org/browse/JDK-8342397
 		// which links to our https://mail.openjdk.org/pipermail/compiler-dev/2024-September/027630.html
@@ -1709,6 +1756,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			111
 			111""");
 	}
+	@Test
 	public void testInstanceof_genericExpression() { // regression test for a checkCast which we failed to generate earlier
 		runConformTest(new String[] {
 				"X.java",
@@ -1729,6 +1777,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void testPrimitivePatternInSwitch_more() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1778,6 +1827,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"true|v=false|1.0|1.5|v=1.6|A|2|_");
 	}
 
+	@Test
 	public void testPrimitivePatternInSwitch_byteToChar_notExhaustive() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1876,22 +1926,28 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					.replace("CALLS", calls.toString());
 		runConformTest(new String[] { "X.java", classX }, expectedOut);
 	}
+	@Test
 	public void testNarrowingInSwitchFromShort() {
 		testNarrowingInSwitchFrom("short", 3, "10|12|30|630|");
 	}
+	@Test
 	public void testNarrowingInSwitchFromInt() {
 		testNarrowingInSwitchFrom("int", 4, "10|12|30|630|40|80040|");
 	}
+	@Test
 	public void testNarrowingInSwitchFromLong() {
 		testNarrowingInSwitchFrom("long", 5, "10|12|30|630|40|80040|50|10000000050|");
 	}
+	@Test
 	public void testNarrowingInSwitchFromFloat() {
 		testNarrowingInSwitchFrom("float", 6, "10.0|12.0|30.0|630.0|40.0|80040.0|50.0|1.0E10|60.0|1.2E21|");
 	}
+	@Test
 	public void testNarrowingInSwitchFromDouble() {
 		testNarrowingInSwitchFrom("double", 7, "10.0|12.0|30.0|630.0|40.0|80040.0|50.0|1.000000005E10|60.0|1.2E21|70.0|1.4E41|");
 	}
 
+	@Test
 	public void testSwitchOn_long_wrongSelector() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1934,6 +1990,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	@Test
 	public void testSwitchOn_Float_wrongSelector() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1981,6 +2038,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	@Test
 	public void testSwitchOnBoxed_OK() {
 		// constant cases for all boxed primitive types except Boolean
 		// run as separate tests.
@@ -2012,6 +2070,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			runConformTest_skipPreviewCheck(new String[] { "XBOX.java".replace("BOX", BOXES[i]), classX }, "12-2");
 		}
 	}
+	@Test
 	public void testSwitchOn_Boolean_OK() {
 		runConformTest_skipPreviewCheck(new String[] {
 			"X.java",
@@ -2033,6 +2092,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		"1-1");
 	}
 
+	@Test
 	public void testDuplicateBoolCase() {
 		// saw SOE when executing bogus byte code:
 		runNegativeTest(new String[] {
@@ -2074,6 +2134,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testBooleanSwitchExhaustive_OK() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2094,6 +2155,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"10");
 	}
+	@Test
 	public void testBooleanSwitchExhaustive_NOK_1() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2126,6 +2188,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testBooleanSwitchExhaustive_NOK_2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2169,6 +2232,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testBooleanSwitchExhaustive_NOK_3() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2212,6 +2276,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	// exhaustiveness with identity conversion is already cover testNarrowingInSwitchFrom()
 
+	@Test
 	public void testShortSwitchExhaustive_int_Number_Comparable() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2252,6 +2317,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"080808");
 	}
 
+	@Test
 	public void testIntSwitchExhaustive_NOK() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2297,6 +2363,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			""");
 	}
 
+	@Test
 	public void testIntSwitchExhaustive_OK() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2329,6 +2396,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"1.0|3.0|1.0|3.0");
 	}
 
+	@Test
 	public void testLongSwitchExhaustive_NOK() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2389,6 +2457,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			""");
 	}
 
+	@Test
 	public void testPrimitiveRecordComponent_narrow() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2413,6 +2482,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"Yay!");
 	}
 
+	@Test
 	public void testPrimitiveRecordComponent_unbox() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2432,6 +2502,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"Yay");
 	}
 
+	@Test
 	public void testPrimitiveRecordComponent_unboxAndWiden() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2451,6 +2522,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"Yay");
 	}
 
+	@Test
 	public void testPrimitiveRecordComponent_narrowingAndUnboxing_nested() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2477,6 +2549,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	}
 
+	@Test
 	public void testCoversTypePlusDefault() {
 		// case int i "covers" type Integer but is not unconditional
 		runConformTest(new String[] {
@@ -2500,6 +2573,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"true");
 	}
 
+	@Test
 	public void testUnconditionPlusDefault() {
 		// case int i "covers" type int and is unconditional
 		// various combinations of dominance with/without default
@@ -2575,6 +2649,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				""");
 	}
 
+	@Test
 	public void testIncompatiblePrimitiveInInstanceof() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2604,6 +2679,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3113
 	// [Switch][Record patterns] Unexpected operand error with switch pattern and widening unboxing conversion
+	@Test
 	public void testGH3113_ok() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2627,6 +2703,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3265
 	// [Primitive Patterns] Wrong duplicate case error
+	@Test
 	public void testIssue3265() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2655,6 +2732,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3265
 	// [Primitive Patterns] Wrong duplicate case error
+	@Test
 	public void testIssue3265_2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2705,6 +2783,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3337
 	// [Enhanced Switch][Primitive Patterns] ECJ tolerates default case in boolean switch with both true and false cases.
+	@Test
 	public void testIssue3337() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -2733,6 +2812,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"Switch cannot have both boolean values and a default label\n" +
 			"----------\n");
 	}
+	@Test
 	public void testJDK8348410_negative() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions(false); // preview NOT enabled
@@ -2774,6 +2854,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runner.javacTestOptions = JavacHasABug.JavacBug8348410;
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testJDK8348410_positive() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions(true); // preview enabled
@@ -2799,6 +2880,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	@Test
 	public void testJDK8348410_previewFlag() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions(true); // preview enabled
@@ -2827,6 +2909,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				""";
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH3128() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2846,6 +2929,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testJDK8348901() {
 		// according to https://bugs.openjdk.org/browse/JDK-8348901 the null type is to be admitted when case null is present
 		runConformTest(new String[] {
@@ -2863,6 +2947,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"Null");
 	}
+	@Test
 	public void testGH3369_statement() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2883,6 +2968,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"This expression yields no value\n" +
 			"----------\n");
 	}
+	@Test
 	public void testGH3369_expression() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2904,6 +2990,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"This expression yields no value\n" +
 			"----------\n");
 	}
+	@Test
 	public void testJEP530Example1() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2931,6 +3018,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3007,6 +3095,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example2_short() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3052,6 +3141,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example2_long_integral() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3128,6 +3218,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example2_long_fp() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3178,6 +3269,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example2_float() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3267,6 +3359,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example2_double() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3356,6 +3449,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example3() {
 		// no primitives, but new dominance rule from JEP 530
 		runNegativeTest(new String[] {
@@ -3384,6 +3478,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example5() {
 		runNegativeTest(new String[] {
 				"Dominance.java",
@@ -3410,6 +3505,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testJEP530Example6() {
 		runConformTest(new String[] {
 				"X.java",
@@ -3429,6 +3525,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testJEP530Example7() {
 		runConformTest(new String[] {
 				"X.java",

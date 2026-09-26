@@ -14,20 +14,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocTestForInterface extends JavadocTest {
-	public JavadocTestForInterface(String name) {
-		super(name);
-	}
-	public static Class javadocTestClass() {
-		return JavadocTestForInterface.class;
-	}
-
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(javadocTestClass());
+	public JavadocTestForInterface(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
 	}
@@ -48,6 +42,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	 * Javadoc comment of Interface
 	 */
 	// Unexpected tag
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -61,6 +56,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test002() {
 		this.runNegativeTest(
 			new String[] {
@@ -81,6 +77,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -101,6 +98,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test004() {
 		this.runNegativeTest(
 			new String[] {
@@ -121,6 +119,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test005() {
 		this.runNegativeTest(
 			new String[] {
@@ -141,6 +140,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -179,6 +179,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test007() {
 		this.runConformTest(
 			new String[] {
@@ -196,6 +197,7 @@ public class JavadocTestForInterface extends JavadocTest {
 			);
 	}
 
+	@Test
 	public void test008() {
 		this.runConformTest(
 			new String[] {
@@ -209,6 +211,7 @@ public class JavadocTestForInterface extends JavadocTest {
 			);
 	}
 
+	@Test
 	public void test009() {
 		this.runConformTest(
 			new String[] {
@@ -223,6 +226,7 @@ public class JavadocTestForInterface extends JavadocTest {
 
 
 	// @see tag
+	@Test
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
@@ -250,6 +254,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test011() {
 		this.runConformTest(
 			new String[] {
@@ -265,6 +270,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
@@ -292,6 +298,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test013() {
 		this.runConformTest(
 			new String[] {
@@ -307,6 +314,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see Classes references
+	@Test
 	public void test020() {
 		runConformReferenceTest(
 			new String[] {
@@ -327,6 +335,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test021() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -372,6 +381,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test022() {
 		runConformReferenceTest(
 			new String[] {
@@ -392,6 +402,7 @@ public class JavadocTestForInterface extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test023() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -420,6 +431,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test024() {
 		runConformReferenceTest(
 			new String[] {
@@ -440,6 +452,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see Field references
+	@Test
 	public void test030() {
 		runConformReferenceTest(
 			new String[] {
@@ -456,6 +469,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test031() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -507,6 +521,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test032() {
 		runConformReferenceTest(
 			new String[] {
@@ -526,6 +541,7 @@ public class JavadocTestForInterface extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test033() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -579,6 +595,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see method references
+	@Test
 	public void test040() {
 		this.runConformTest(
 			new String[] {
@@ -599,6 +616,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test041() {
 		this.runNegativeTest(
 			new String[] {
@@ -621,6 +639,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test042() {
 		this.runConformTest(
 			new String[] {
@@ -645,6 +664,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test043() {
 		this.runNegativeTest(
 			new String[] {
@@ -669,6 +689,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test044() {
 		this.runNegativeTest(
 			new String[] {
@@ -725,6 +746,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test045() {
 		this.runConformTest(
 			new String[] {
@@ -746,6 +768,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test046() {
 		this.runConformTest(
 			new String[] {
@@ -768,6 +791,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test047() {
 		runConformReferenceTest(
 			new String[] {
@@ -786,6 +810,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test048() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -825,6 +850,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test049() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -858,6 +884,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test050() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -897,6 +924,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test051() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -930,6 +958,7 @@ public class JavadocTestForInterface extends JavadocTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test052() {
 		runConformReferenceTest(
 			new String[] {
@@ -949,6 +978,7 @@ public class JavadocTestForInterface extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test053() {
 		runConformReferenceTest(
 			new String[] {
@@ -970,6 +1000,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	 * Javadoc method comment in Interface
 	 */
 	// @deprecated tag
+	@Test
 	public void test060() {
 		this.runConformTest(
 			true,
@@ -997,6 +1028,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 
+	@Test
 	public void test061() {
 		this.runNegativeTest(
 			new String[] {
@@ -1050,6 +1082,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test062() {
 		this.runNegativeTest(
 			new String[] {
@@ -1083,6 +1116,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test063() {
 		this.runNegativeTest(
 			new String[] {
@@ -1150,6 +1184,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @param tag
+	@Test
 	public void test064() {
 		this.runConformTest(
 			new String[] {
@@ -1163,6 +1198,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test065() {
 		this.runConformTest(new String[] {
 				"IX.java",
@@ -1171,6 +1207,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test066() {
 		this.runNegativeTest(
 			new String[] {
@@ -1198,6 +1235,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test067() {
 		this.runConformTest(
 			new String[] {
@@ -1214,6 +1252,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test068() {
 		this.runNegativeTest(
 			new String[] {
@@ -1243,6 +1282,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test069() {
 		this.runNegativeTest(
 			new String[] {
@@ -1272,6 +1312,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test070() {
 		this.runNegativeTest(
 			new String[] {
@@ -1312,6 +1353,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @throws/@exception tag
+	@Test
 	public void test071() {
 		this.runConformTest(
 			new String[] {
@@ -1328,6 +1370,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test072() {
 		this.runNegativeTest(
 			new String[] {
@@ -1353,6 +1396,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test073() {
 		this.runNegativeTest(
 			new String[] {
@@ -1379,6 +1423,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test074() {
 		this.runNegativeTest(
 			new String[] {
@@ -1430,6 +1475,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @return tag
+	@Test
 	public void test080() {
 		this.runConformTest(
 			new String[] {
@@ -1444,6 +1490,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test081() {
 		this.runConformTest(
 			new String[] {
@@ -1458,6 +1505,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test082() {
 		this.runNegativeTest(
 			new String[] {
@@ -1477,6 +1525,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test083() {
 		this.runNegativeTest(
 			new String[] {
@@ -1499,6 +1548,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test084() {
 		this.runNegativeTest(
 			new String[] {
@@ -1521,6 +1571,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see tag: string
+	@Test
 	public void test090() {
 		this.runNegativeTest(
 			new String[] {
@@ -1548,6 +1599,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test091() {
 		this.runConformTest(
 			new String[] {
@@ -1564,6 +1616,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see tag: URL
+	@Test
 	public void test092() {
 		this.runNegativeTest(
 			new String[] {
@@ -1592,6 +1645,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see tag: class references
+	@Test
 	public void test095() {
 		runConformReferenceTest(
 			new String[] {
@@ -1612,6 +1666,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test096() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -1657,6 +1712,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test097() {
 		runConformReferenceTest(
 			new String[] {
@@ -1677,6 +1733,7 @@ public class JavadocTestForInterface extends JavadocTest {
 			);
 	}
 
+	@Test
 	public void test098() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -1705,6 +1762,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test099() {
 		runConformReferenceTest(
 			new String[] {
@@ -1725,6 +1783,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see tag: field references
+	@Test
 	public void test105() {
 		runConformReferenceTest(
 			new String[] {
@@ -1741,6 +1800,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test106() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -1792,6 +1852,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test107() {
 		runConformReferenceTest(
 			new String[] {
@@ -1811,6 +1872,7 @@ public class JavadocTestForInterface extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test108() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -1864,6 +1926,7 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	// @see method references
+	@Test
 	public void test110() {
 		this.runConformTest(
 			new String[] {
@@ -1884,6 +1947,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test111() {
 		this.runNegativeTest(
 			new String[] {
@@ -1909,6 +1973,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test112() {
 		this.runConformTest(
 			new String[] {
@@ -1933,6 +1998,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test113() {
 		this.runNegativeTest(
 			new String[] {
@@ -1957,6 +2023,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test114() {
 		this.runNegativeTest(
 			new String[] {
@@ -2013,6 +2080,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test115() {
 		this.runConformTest(
 			new String[] {
@@ -2034,6 +2102,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test116() {
 		this.runConformTest(
 			new String[] {
@@ -2056,6 +2125,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test117() {
 		runConformReferenceTest(
 			new String[] {
@@ -2074,6 +2144,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test118() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -2113,6 +2184,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test119() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -2146,6 +2218,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test120() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -2185,6 +2258,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test121() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -2218,6 +2292,7 @@ public class JavadocTestForInterface extends JavadocTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test122() {
 		runConformReferenceTest(
 			new String[] {
@@ -2237,6 +2312,7 @@ public class JavadocTestForInterface extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test123() {
 		runConformReferenceTest(
 			new String[] {

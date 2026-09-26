@@ -14,8 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocTest_1_5 extends JavadocTest {
@@ -28,12 +29,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	String reportMissingJavadocComments = null;
 	String reportMissingJavadocCommentsVisibility = null;
 
-	public JavadocTest_1_5(String name) {
-		super(name);
-	}
-
-	public static Class testClass() {
-		return JavadocTest_1_5.class;
+	public JavadocTest_1_5(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -43,9 +40,6 @@ public class JavadocTest_1_5 extends JavadocTest {
 //		TESTS_NAMES = new String[] { "testBug331872d" };
 //		TESTS_NUMBERS = new int[] { 101283 };
 //		TESTS_RANGE = new int[] { 23, -1 };
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	@Override
@@ -101,6 +95,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	/* (non-Javadoc)
 	 * Test @param for generic class type parameter
 	 */
+	@Test
 	public void test003() {
 		this.runConformTest(
 			new String[] {
@@ -113,6 +108,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test004() {
 		this.runConformTest(
 			new String[] {
@@ -125,6 +121,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test005() {
 		this.runConformTest(
 			new String[] {
@@ -139,6 +136,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -158,6 +156,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test007() {
 		this.runNegativeTest(
 			new String[] {
@@ -177,6 +176,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test008() {
 		this.runNegativeTest(
 			new String[] {
@@ -203,6 +203,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test009() {
 		this.runNegativeTest(
 			new String[] {
@@ -231,6 +232,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test010() {
 		this.runConformTest(
 			new String[] {
@@ -245,6 +247,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
@@ -273,6 +276,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
@@ -301,6 +305,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test013() {
 		this.runNegativeTest(
 			new String[] {
@@ -325,6 +330,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test014() {
 		this.runNegativeTest(
 			new String[] {
@@ -349,6 +355,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test015() {
 		this.runNegativeTest(
 			new String[] {
@@ -369,6 +376,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test016() {
 		this.runNegativeTest(
 			new String[] {
@@ -389,6 +397,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test017() {
 		this.runNegativeTest(
 			new String[] {
@@ -409,6 +418,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test018() {
 		this.runNegativeTest(
 			new String[] {
@@ -433,6 +443,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test019() {
 		this.runNegativeTest(
 			new String[] {
@@ -471,6 +482,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test020() {
 		this.runNegativeTest(
 			new String[] {
@@ -497,6 +509,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test021() {
 		this.runNegativeTest(
 			new String[] {
@@ -527,6 +540,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"----------\n"
 		);
 	}
+	@Test
 	public void test022() {
 		this.runNegativeTest(
 			new String[] {
@@ -556,6 +570,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	/* (non-Javadoc)
 	 * Test @param for generic method type parameter
 	 */
+	@Test
 	public void test023() {
 		this.runConformTest(
 			new String[] {
@@ -570,6 +585,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test024() {
 		this.runConformTest(
 			new String[] {
@@ -586,6 +602,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test025() {
 		this.runConformTest(
 			new String[] {
@@ -604,6 +621,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test026() {
 		this.runNegativeTest(
 			new String[] {
@@ -627,6 +645,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test027() {
 		this.runNegativeTest(
 			new String[] {
@@ -658,6 +677,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test028() {
 		this.runNegativeTest(
 			new String[] {
@@ -708,6 +728,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test029() {
 		this.runNegativeTest(
 			new String[] {
@@ -740,6 +761,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test030() {
 		this.runConformTest(
 			new String[] {
@@ -758,6 +780,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void test031() {
 		this.runNegativeTest(
 			new String[] {
@@ -798,6 +821,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test032() {
 		this.runNegativeTest(
 			new String[] {
@@ -830,6 +854,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test033() {
 		this.runNegativeTest(
 			new String[] {
@@ -858,6 +883,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test034() {
 		this.runNegativeTest(
 			new String[] {
@@ -916,6 +942,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test035() {
 		this.runNegativeTest(
 			new String[] {
@@ -956,6 +983,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	// TODO (david) recovery seems not to work properly here:
 	// we should have type parameters in method declaration.
+	@Test
 	public void test036() {
 		this.runNegativeTest(
 			new String[] {
@@ -995,6 +1023,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"----------\n"
 		);
 	}
+	@Test
 	public void test037() {
 		this.runNegativeTest(
 			new String[] {
@@ -1019,6 +1048,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"----------\n"
 		);
 	}
+	@Test
 	public void test038() {
 		this.runNegativeTest(
 			new String[] {
@@ -1067,6 +1097,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void test039() {
 		this.runNegativeTest(
 			new String[] {
@@ -1116,6 +1147,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test040() {
 		runConformReferenceTest(
 			new String[] {
@@ -1133,6 +1165,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Test fix for bug 80257: [javadoc] Invalid missing reference warning on @see or @link tags
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
 	 */
+	@Test
 	public void testBug80257() {
 		runNegativeTest(
 			new String[] {
@@ -1203,6 +1236,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Test fix for bug 83127: [1.5][javadoc][dom] Wrong / strange bindings for references in javadoc to methods with type variables as parameter types
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83127"
 	 */
+	@Test
 	public void testBug83127a() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1258,6 +1292,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug83127b() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1303,6 +1338,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug83127c() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1345,6 +1381,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug83127d() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1392,6 +1429,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug83127e() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1439,6 +1477,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug83127f() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runConformTest(
@@ -1473,6 +1512,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug83127g() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1521,6 +1561,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug83127h() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1569,6 +1610,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 83393: [1.5][javadoc] reference to vararg method also considers non-array type as correct
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83393"
 	 */
+	@Test
 	public void testBug83393a() {
 		runConformTest(
 			new String[] {
@@ -1593,6 +1635,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug83393b() {
 		runNegativeTest(
 			new String[] {
@@ -1665,6 +1708,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
 	 */
+	@Test
 	public void testBug83804() {
 		runNegativeTest(
 			new String[] {
@@ -1828,6 +1872,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 95286: [1.5][javadoc] package-info.java incorrectly flags "Missing comment for public declaration"
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95286"
 	 */
+	@Test
 	public void testBug95286_Default() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
@@ -1841,6 +1886,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug95286_Private() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
@@ -1859,6 +1905,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 95521: [1.5][javadoc] validation with @see tag not working for generic method
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95521"
 	 */
+	@Test
 	public void testBug95521() {
 		runConformTest(
 			new String[] {
@@ -1890,6 +1937,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug95521b() {
 		runConformTest(
 			new String[] {
@@ -1937,6 +1985,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 96237: [javadoc] Inner types must be qualified
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=96237"
 	 */
+	@Test
 	public void testBug96237_Public01() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runConformTest(
@@ -1956,6 +2005,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Public02() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runConformTest(
@@ -1975,6 +2025,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Public03() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -2029,6 +2080,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Public04() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -2068,6 +2120,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Public05() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -2098,6 +2151,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Public06() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -2146,6 +2200,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Public07() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -2211,6 +2266,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Public08() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -2243,6 +2299,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Private01() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -2262,6 +2319,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private02() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runNegativeTest(
@@ -2289,6 +2347,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Private03() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runNegativeTest(
@@ -2343,6 +2402,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Private04() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runNegativeTest(
@@ -2382,6 +2442,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug96237_Private05() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -2398,6 +2459,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private06() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -2420,6 +2482,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private07() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -2447,6 +2510,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private08() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -2472,6 +2536,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 101283: [1.5][javadoc] Javadoc validation raises missing implementation in compiler
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=101283"
 	 */
+	@Test
 	public void testBug101283a() {
 		runNegativeTest(
 			new String[] {
@@ -2511,6 +2576,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug101283b() {
 		runNegativeTest(
 			new String[] {
@@ -2550,6 +2616,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug101283c() {
 		runNegativeTest(
 			new String[] {
@@ -2589,6 +2656,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug101283d() {
 		runNegativeTest(
 			new String[] {
@@ -2629,6 +2697,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	// Verify duplicate test case: bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102735
+	@Test
 	public void testBug101283e() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 		runNegativeTest(
@@ -2660,6 +2729,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug101283f() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(
@@ -2685,6 +2755,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	// Verify that ProblemReasons.InheritedNameHidesEnclosingName is not reported as Javadoc error
+	@Test
 	public void testBug101283g() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(
@@ -2728,6 +2799,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 112346: [javadoc] {&#064;inheritedDoc} should be inactive for non-overridden method
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=112346"
 	 */
+	@Test
 	public void testBug112346() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runConformTest(
@@ -2750,6 +2822,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 119857: [javadoc] Some inner class references should be flagged as unresolved
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=119857"
 	 */
+	@Test
 	public void testBug119857() {
 		runConformTest(
 			new String[] {
@@ -2804,6 +2877,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Fields() {
 		runConformTest(
 			new String[] {
@@ -2822,6 +2896,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Methods() {
 		runConformTest(
 			new String[] {
@@ -2847,6 +2922,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Types() {
 		runConformTest(
 			new String[] {
@@ -2872,6 +2948,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Private01() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runConformTest(
@@ -2893,6 +2970,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Public01() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -2923,6 +3001,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
+	@Test
 	public void testBug119857_Private02() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runConformTest(
@@ -2946,6 +3025,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Public02() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -2970,6 +3050,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Public03() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -3007,6 +3088,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 132430: [1.5][javadoc] Unwanted missing tag warning for overridden method with parameter containing type variable
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=132430"
 	 */
+	@Test
 	public void testBug132430() {
 		runConformTest(
 			new String[] {
@@ -3030,6 +3112,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug132430b() {
 		runConformTest(
 			new String[] {
@@ -3052,6 +3135,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug132430c() {
 		runConformTest(
 			new String[] {
@@ -3080,6 +3164,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 145007: [1.5][javadoc] Generics + Inner Class -> Javadoc "missing @throws" warning
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=145007"
 	 */
+	@Test
 	public void testBug145007() {
 		runConformTest(
 			new String[] {
@@ -3110,6 +3195,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 87500: [1.5][javadoc][options] Add a 'Consider enum values' option to warn/error on 'Missing javadoc comments'.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87500"
 	 */
+	@Test
 	public void testBug87500a() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
@@ -3153,6 +3239,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug87500b() {
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runConformTest(
@@ -3171,6 +3258,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 204749  [1.5][javadoc] NPE in JavadocQualifiedTypeReference
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204749"
 	 */
+	@Test
 	public void testBug204749a() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
@@ -3193,6 +3281,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug204749b() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
@@ -3212,6 +3301,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 209936  Missing code implementation in the compiler on inner classes
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936"
 	 */
+	@Test
 	public void testBug209936a() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
 		runNegativeTest(
@@ -3250,6 +3340,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936b() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
 		runNegativeTest(
@@ -3287,6 +3378,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_GenericMemberImplicitReference() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3335,6 +3427,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_GenericMemberSingleReference() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3388,6 +3481,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_GenericMemberQualifiedSingleReference() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
 		runNegativeTest(
@@ -3435,6 +3529,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_GenericMemberFullyQualifiedSingleReference() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
 		runNegativeTest(
@@ -3482,6 +3577,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberImplicitReference() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3530,6 +3626,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberSingleReference1(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3583,6 +3680,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberSingleReference2(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3636,6 +3734,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberSingleReference3(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3689,6 +3788,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberSingleReference4(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3742,6 +3842,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberQualifiedSingleReference1() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3783,6 +3884,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberQualifiedSingleReference2() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
@@ -3832,6 +3934,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void testBug209936_MemberFullyQualifiedSingleReference() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
 		runNegativeTest(
@@ -3881,6 +3984,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, verify that we complain about @inheritDoc
 	// being used in package level javadoc.
+	@Test
 	public void testBug247037a() {
 		runNegativeTest(
 			new String[] {
@@ -3913,6 +4017,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, verify that we complain about @inheritDoc
 	// being used in package level javadoc (variation)
+	@Test
 	public void testBug247037b() {
 		runNegativeTest(
 			new String[] {
@@ -3954,6 +4059,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * 				3. References to valid Java elements with qualified names are ACCEPTED
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286918"
 	 */
+	@Test
 	public void testBug284333() {
 		runNegativeTest(new String[]{
 				"goo/bar/package-info.java",
@@ -4033,6 +4139,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * 	 			2. References without qualified names to valid Java elements in other packages are REPORTED
 	 * 				3. References with qualified names to valid Java elements are accepted
 	 */
+	@Test
 	public void testBug284333a() {
 		runNegativeTest(new String[]{
 				"goo/bar/package-info.java",
@@ -4107,6 +4214,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * 	 			2. References without qualified names to imported Java elements in other packages are ACCEPTED
 	 * 				3. References with qualified names to valid Java elements are ACCEPTED
 	 */
+	@Test
 	public void testBug284333b() {
 		runConformTest(new String[] {
 				"goo/bar/package-info.java",
@@ -4161,6 +4269,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581
 	// To test the javadoc option CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters
+	@Test
 	public void testBug322581a() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
@@ -4193,6 +4302,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581
 	// To test the javadoc option CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters
+	@Test
 	public void testBug322581b() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
@@ -4235,6 +4345,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	@Test
 	public void testBug331872() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
@@ -4266,6 +4377,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	@Test
 	public void testBug331872b() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
@@ -4297,6 +4409,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	@Test
 	public void testBug331872c() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
@@ -4328,6 +4441,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	@Test
 	public void testBug331872d() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);

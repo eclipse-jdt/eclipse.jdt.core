@@ -15,23 +15,21 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 public class StringConcatTest extends AbstractComparableTest {
 
 	static {
 		///	TESTS_NAMES = new String[] { "test001" };
 	}
 
-	public StringConcatTest(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(StringConcatTest.class, F_1_8);
+	public StringConcatTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	private String getClassFileContents( String classFileName, int mode) throws IOException,
@@ -65,6 +63,7 @@ public class StringConcatTest extends AbstractComparableTest {
 		verifyOutput(result, expectedOutput, positive);
 	}
 
+	@Test
 	public void test001() throws IOException, ClassFormatException {
 		this.runConformTest(
 				new String[] {
@@ -125,6 +124,7 @@ public class StringConcatTest extends AbstractComparableTest {
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 	// Test string concat for a simple BinaryExpression
+	@Test
 	public void test002() throws IOException, ClassFormatException {
 		this.runConformTest(
 				new String[] {
@@ -156,6 +156,7 @@ public class StringConcatTest extends AbstractComparableTest {
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 	// Test binary expression whose first operand is a field and therefore already loaded into the stack
+	@Test
 	public void test003() throws IOException, ClassFormatException {
 		this.runConformTest(
 				new String[] {
@@ -221,6 +222,7 @@ public class StringConcatTest extends AbstractComparableTest {
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
 	// Test a binary expression (with string concat) whose one operand is not a string type
+	@Test
 	public void test004() throws IOException, ClassFormatException {
 		this.runConformTest(
 				new String[] {
@@ -252,6 +254,7 @@ public class StringConcatTest extends AbstractComparableTest {
 	}
 
 	// Test for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1201
+	@Test
 	public void test005() throws Exception {
 		this.runConformTest(
 				new String[] {

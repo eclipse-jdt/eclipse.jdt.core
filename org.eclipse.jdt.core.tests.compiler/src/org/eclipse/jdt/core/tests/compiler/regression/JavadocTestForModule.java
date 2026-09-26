@@ -29,10 +29,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class JavadocTestForModule extends AbstractBatchCompilerTest {
 
 	static {
@@ -41,16 +45,8 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public JavadocTestForModule(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
-	}
-
-	public static Class<?> testClass() {
-		return JavadocTestForModule.class;
+	public JavadocTestForModule(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	protected void writeFileCollecting(List<String> collectedFiles, String directoryName, String fileName, String source) {
@@ -352,6 +348,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		}
 	}
 
+	@Test
 	public void testBug549855a() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -425,6 +422,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
+	@Test
 	public void testBug549855b() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -498,6 +496,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"service-type not found");
 	}
 
+	@Test
 	public void testBug549855c() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -575,6 +574,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				JavacTestOptions.JavacHasABug.NoWarningForDuplicateJavadocTag);
 	}
 
+	@Test
 	public void testBug549855d() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -628,6 +628,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 		runConformModuleTest(files, buffer, "", "", false);
 	}
 
+	@Test
 	public void testBug549855e() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -697,6 +698,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
+	@Test
 	public void testBug549855f() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -766,6 +768,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
+	@Test
 	public void testBug549855g() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -839,6 +842,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
+	@Test
 	public void testBug549855h() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -912,6 +916,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"reference not found");
 	}
 
+	@Test
 	public void testBug549855i() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -950,6 +955,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"no comment");
 	}
 
+	@Test
 	public void testBug562960() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);

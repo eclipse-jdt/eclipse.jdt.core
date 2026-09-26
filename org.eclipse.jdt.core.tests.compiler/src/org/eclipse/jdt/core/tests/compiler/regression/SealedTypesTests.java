@@ -15,18 +15,22 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_17)
 public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	static {
@@ -35,14 +39,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testBug566846_001"};
 	}
 
-	public static Class<?> testClass() {
-		return SealedTypesTests.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_17);
-	}
-	public SealedTypesTests(String testName){
-		super(testName);
+	public SealedTypesTests(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -96,6 +94,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 
+	@Test
 	public void testBug563430_001() {
 		runConformTest(
 			new String[] {
@@ -109,6 +108,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug563430_001a() {
 		runConformTest(
 			new String[] {
@@ -123,6 +123,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug563430_002() {
 		runConformTest(
 			new String[] {
@@ -138,6 +139,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug562715_001() {
 		runConformTest(
 			new String[] {
@@ -152,6 +154,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_002() {
 		runConformTest(
 			new String[] {
@@ -167,6 +170,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_003() {
 		runConformTest(
 			new String[] {
@@ -181,6 +185,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_004() {
 		runConformTest(
 			new String[] {
@@ -197,6 +202,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_004a() {
 		runConformTest(
 			new String[] {
@@ -211,6 +217,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_005() {
 		this.runNegativeTest(
 			new String[] {
@@ -233,6 +240,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Sealed type X lacks a permits clause and no type from the same compilation unit declares X as its direct supertype\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug562715_006() {
 		this.runNegativeTest(
 			new String[] {
@@ -255,6 +263,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug562715_007() {
 		runConformTest(
 			new String[] {
@@ -269,6 +278,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_008() {
 		runConformTest(
 			new String[] {
@@ -283,6 +293,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_009() {
 		runConformTest(
 			new String[] {
@@ -298,6 +309,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug562715_010() {
 		this.runNegativeTest(
 			new String[] {
@@ -326,6 +338,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	// TODO : Enable after error flag code implemented
+	@Test
 	public void testBug562715_011() {
 		this.runNegativeTest(
 			new String[] {
@@ -354,6 +367,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug562715_xxx() {
 		this.runNegativeTest(
 			new String[] {
@@ -382,6 +396,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -403,6 +418,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Permitted type Z does not declare X as a direct supertype\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -444,6 +460,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The class A cannot extend the class X as it is not a permitted subtype of X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -465,6 +482,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The class Y with a sealed direct supertype X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_004() {
 		this.runNegativeTest(
 			new String[] {
@@ -492,6 +510,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The class Y with a sealed direct supertype X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_005() {
 		this.runNegativeTest(
 			new String[] {
@@ -512,6 +531,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The class Y with a sealed direct supertype X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_006() {
 		this.runNegativeTest(
 			new String[] {
@@ -533,6 +553,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The class Y with a sealed direct supertype X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_007() {
 		this.runNegativeTest(
 			new String[] {
@@ -548,6 +569,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The non-sealed class Y must have a sealed direct supertype\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_008() {
 		this.runNegativeTest(
 			new String[] {
@@ -573,6 +595,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The non-sealed interface Y must have a sealed direct superinterface\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_009() {
 		this.runConformTest(
 			new String[] {
@@ -586,6 +609,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void testBug563806_010() {
 		this.runNegativeTest(
 			new String[] {
@@ -605,6 +629,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The class Y cannot extend the class X as it is not a permitted subtype of X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_011() {
 		this.runConformTest(
 			new String[] {
@@ -620,6 +645,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug563806_012() {
 		this.runNegativeTest(
 			new String[] {
@@ -639,6 +665,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type Y that implements the sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_013() {
 		this.runNegativeTest(
 			new String[] {
@@ -654,6 +681,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_014() {
 		this.runNegativeTest(
 			new String[] {
@@ -684,6 +712,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type Y that extends the sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_015() {
 		this.runNegativeTest(
 			new String[] {
@@ -699,6 +728,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"A type declaration X that has a permits clause should have a sealed modifier\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_016() {
 		this.runNegativeTest(
 			new String[] {
@@ -715,6 +745,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"A type declaration X that has a permits clause should have a sealed modifier\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_017() {
 		this.runNegativeTest(
 			new String[] {
@@ -730,6 +761,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"A type declaration X that has a permits clause should have a sealed modifier\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_018() {
 		this.runNegativeTest(
 			new String[] {
@@ -746,6 +778,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"A type declaration X that has a permits clause should have a sealed modifier\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_019() {
 		this.runNegativeTest(
 			new String[] {
@@ -765,6 +798,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_020() {
 		this.runNegativeTest(
 			new String[] {
@@ -784,6 +818,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_021() {
 		this.runNegativeTest(
 			new String[] {
@@ -803,6 +838,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Permitted type Y in an unnamed module should be declared in the same package p1 of declaring type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_022() {
 		associateToModule("mod.one", "p1/X.java");
 		associateToModule("mod.two", "p2/Y.java");
@@ -839,6 +875,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testBug563806_023() {
 		associateToModule("mod.one", "p1/X.java");
 		associateToModule("mod.two", "p2/Y.java");
@@ -875,6 +912,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testBug563806_024() {
 		associateToModule("mod.one", "p1/X.java");
 		associateToModule("mod.two", "p2/Y.java");
@@ -911,6 +949,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testBug563806_025() {
 		associateToModule("mod.one", "p1/X.java");
 		associateToModule("mod.one", "p2/Y.java");
@@ -930,6 +969,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void testBug563806_026() {
 		associateToModule("mod.one", "p1/X.java", "p2/Y.java");
 		Runner runner = new Runner();
@@ -948,6 +988,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void testBug563806_027() {
 		associateToModule("mod.one", "p1/X.java");
 		associateToModule("mod.one", "p2/Y.java");
@@ -967,6 +1008,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void testBug563806_028() {
 		this.runNegativeTest(
 			new String[] {
@@ -982,6 +1024,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Illegal modifier for the enum X; only public is permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_029() {
 		this.runNegativeTest(
 			new String[] {
@@ -997,6 +1040,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Illegal modifier for the enum X; only public is permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_030() {
 		this.runNegativeTest(
 			new String[] {
@@ -1013,6 +1057,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Illegal modifier for the member enum Y; only public, protected, private & static are permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_031() {
 		this.runNegativeTest(
 			new String[] {
@@ -1029,6 +1074,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Illegal modifier for the member enum Y; only public, protected, private & static are permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_032() {
 		this.runNegativeTest(
 			new String[] {
@@ -1049,6 +1095,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Sealed type X lacks a permits clause and no type from the same compilation unit declares X as its direct supertype\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_033() {
 		this.runNegativeTest(
 			new String[] {
@@ -1064,6 +1111,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_034() {
 		this.runNegativeTest(
 			new String[] {
@@ -1084,6 +1132,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on tokens, delete these tokens\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_035() {
 		this.runNegativeTest(
 			new String[] {
@@ -1099,6 +1148,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The non-sealed interface X must have a sealed direct superinterface\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_036() {
 		this.runNegativeTest(
 			new String[] {
@@ -1117,6 +1167,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_037() {
 		this.runNegativeTest(
 			new String[] {
@@ -1135,6 +1186,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_038() {
 		this.runNegativeTest(
 			new String[] {
@@ -1158,6 +1210,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug563806_039() {
 		this.runNegativeTest(
 			new String[] {
@@ -1182,6 +1235,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The local type Y may not have a sealed supertype A\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564191_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -1204,6 +1258,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted (top-level) types make it to the .class file
+	@Test
 	public void testBug564190_1() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1226,6 +1281,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted final (member) types make it to the .class file
+	@Test
 	public void testBug564190_2() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1248,6 +1304,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted non-sealed (member) types make it to the .class file
+	@Test
 	public void testBug564190_3() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1270,6 +1327,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that implicit permitted member type is reported without final, sealed or non-sealed
+	@Test
 	public void testBug564190_4() throws IOException, ClassFormatException {
 		runNegativeTest(
 				new String[] {
@@ -1289,6 +1347,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// Test that implicit permitted member type with implicit permitted types
 	// is reported when its permitted type doesn't extend the member type
+	@Test
 	public void testBug564190_5() throws IOException, ClassFormatException {
 		runNegativeTest(
 				new String[] {
@@ -1308,6 +1367,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// Test that implicit permitted member type with explicit permits clause
 	// is reported when its permitted type doesn't extend the member type
+	@Test
 	public void testBug564190_6() throws IOException, ClassFormatException {
 		runNegativeTest(
 				new String[] {
@@ -1327,6 +1387,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// Test that implicit permitted member type with explicit permits clause
 	// is reported when its permitted type doesn't extend the member type
+	@Test
 	public void testBug564190_7() throws IOException, ClassFormatException {
 		runNegativeTest(
 				new String[] {
@@ -1341,6 +1402,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"Sealed type SI lacks a permits clause and no type from the same compilation unit declares SI as its direct supertype\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug564450_001() throws IOException, ClassFormatException {
 		runNegativeTest(
 				new String[] {
@@ -1360,6 +1422,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"The class Y with a sealed direct supertype X should be declared either final, sealed, or non-sealed\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug564047_001() throws CoreException, IOException {
 		String outputDirectory = Util.getOutputDirectory();
 		String lib1Path = outputDirectory + File.separator + "lib1.jar";
@@ -1410,6 +1473,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		}
 
 	}
+	@Test
 	public void testBug564492_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -1430,6 +1494,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"An anonymous class cannot subclass a sealed type Y\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564492_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -1450,6 +1515,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"An anonymous class cannot subclass a sealed type IY\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564492_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -1472,6 +1538,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"An anonymous class cannot subclass a sealed type A.Y\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564492_004() {
 		this.runNegativeTest(
 			new String[] {
@@ -1495,6 +1562,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"An anonymous class cannot subclass a sealed type A.IY\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564498_1() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1522,6 +1590,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					"   #21 p1/A$Y\n";
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug564498_2() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1548,6 +1617,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					"   #21 p1/A$Y\n";
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug564498_3() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1572,6 +1642,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					"   #28 p1/A$Z\n";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug564498_4() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1593,6 +1664,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Reject references of membertype without qualifier of enclosing type in permits clause
+	@Test
 	public void testBug564498_5() throws IOException, ClassFormatException {
 		runNegativeTest(
 				new String[] {
@@ -1621,6 +1693,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// accept references of membertype without qualifier of enclosing type in permits clause
 	// provided it is imported
+	@Test
 	public void testBug564498_6() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -1636,6 +1709,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				},
 				"");
 	}
+	@Test
 	public void testBug564613_001() {
 		runConformTest(
 			new String[] {
@@ -1653,6 +1727,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"Hello");
 	}
+	@Test
 	public void testBug564613_002() {
 		runNegativeTest(
 			new String[] {
@@ -1668,6 +1743,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"permits\", delete this token\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -1692,6 +1768,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_002() {
 		runNegativeTest(
 			new String[] {
@@ -1714,6 +1791,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type permits\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -1749,6 +1827,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_004() {
 		runNegativeTest(
 			new String[] {
@@ -1781,6 +1860,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_005() {
 		this.runNegativeTest(
 			new String[] {
@@ -1805,6 +1885,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_006() {
 		runNegativeTest(
 			new String[] {
@@ -1827,6 +1908,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X<permits>\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_007() {
 		runNegativeTest(
 			new String[] {
@@ -1856,6 +1938,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_008() {
 		this.runNegativeTest(
 			new String[] {
@@ -1887,6 +1970,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_009() {
 		runNegativeTest(
 			new String[] {
@@ -1916,6 +2000,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_010() {
 		this.runNegativeTest(
 			new String[] {
@@ -1947,6 +2032,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_011() {
 		runNegativeTest(
 			new String[] {
@@ -1976,6 +2062,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_012() {
 		this.runNegativeTest(
 			new String[] {
@@ -2007,6 +2094,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_013() {
 		runNegativeTest(
 			new String[] {
@@ -2035,6 +2123,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_014() {
 		this.runNegativeTest(
 			new String[] {
@@ -2060,6 +2149,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_015() {
 		runNegativeTest(
 			new String[] {
@@ -2082,6 +2172,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_016() {
 		this.runNegativeTest(
 			new String[] {
@@ -2106,6 +2197,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_017() {
 		runNegativeTest(
 			new String[] {
@@ -2143,6 +2235,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"}\", delete this token\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_018() {
 		this.runNegativeTest(
 			new String[] {
@@ -2182,6 +2275,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_019() {
 		runNegativeTest(
 			new String[] {
@@ -2206,6 +2300,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_020() {
 		this.runNegativeTest(
 			new String[] {
@@ -2232,6 +2327,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_021() {
 		runNegativeTest(
 			new String[] {
@@ -2258,6 +2354,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_022() {
 		this.runNegativeTest(
 			new String[] {
@@ -2291,6 +2388,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_023() {
 		runNegativeTest(
 			new String[] {
@@ -2306,6 +2404,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_024() {
 		this.runNegativeTest(
 			new String[] {
@@ -2323,6 +2422,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_025() {
 		runNegativeTest(
 			new String[] {
@@ -2338,6 +2438,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_026() {
 		this.runNegativeTest(
 			new String[] {
@@ -2355,6 +2456,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_027() {
 		runNegativeTest(
 			new String[] {
@@ -2377,6 +2479,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_028() {
 		this.runNegativeTest(
 			new String[] {
@@ -2401,6 +2504,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_029() {
 		runNegativeTest(
 			new String[] {
@@ -2424,6 +2528,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_030() {
 		this.runNegativeTest(
 			new String[] {
@@ -2449,6 +2554,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_031() {
 		runNegativeTest(
 			new String[] {
@@ -2474,6 +2580,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_032() {
 		this.runNegativeTest(
 			new String[] {
@@ -2501,6 +2608,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_033() {
 		runNegativeTest(
 			new String[] {
@@ -2523,6 +2631,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_034() {
 		this.runNegativeTest(
 			new String[] {
@@ -2547,6 +2656,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_035() {
 		runNegativeTest(
 			new String[] {
@@ -2574,6 +2684,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_036() {
 		this.runNegativeTest(
 			new String[] {
@@ -2603,6 +2714,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_037() {
 		runNegativeTest(
 			new String[] {
@@ -2630,6 +2742,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_038() {
 		this.runNegativeTest(
 			new String[] {
@@ -2659,6 +2772,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_039() {
 		runNegativeTest(
 			new String[] {
@@ -2673,6 +2787,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_040() {
 		this.runNegativeTest(
 			new String[] {
@@ -2689,6 +2804,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_041() {
 		runNegativeTest(
 			new String[] {
@@ -2713,6 +2829,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The constructor X(permits) refers to the missing type permits\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_042() {
 		this.runNegativeTest(
 			new String[] {
@@ -2739,6 +2856,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_043() {
 		runNegativeTest(
 			new String[] {
@@ -2764,6 +2882,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_044() {
 		this.runNegativeTest(
 			new String[] {
@@ -2791,6 +2910,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_045() {
 		runNegativeTest(
 			new String[] {
@@ -2816,6 +2936,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method foo(permits) from the type X refers to the missing type permits\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_046() {
 		this.runNegativeTest(
 			new String[] {
@@ -2843,6 +2964,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_047() {
 		runNegativeTest(
 			new String[] {
@@ -2862,6 +2984,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_048() {
 		this.runNegativeTest(
 			new String[] {
@@ -2883,6 +3006,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_049() {
 		runNegativeTest(
 			new String[] {
@@ -2911,6 +3035,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_050() {
 		this.runNegativeTest(
 			new String[] {
@@ -2948,6 +3073,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_051() {
 		runNegativeTest(
 			new String[] {
@@ -2965,6 +3091,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_052() {
 		this.runNegativeTest(
 			new String[] {
@@ -2984,6 +3111,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_053() {
 		runNegativeTest(
 			new String[] {
@@ -3012,6 +3140,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_054() {
 		this.runNegativeTest(
 			new String[] {
@@ -3042,6 +3171,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_055() {
 		runNegativeTest(
 			new String[] {
@@ -3059,6 +3189,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_056() {
 		this.runNegativeTest(
 			new String[] {
@@ -3078,6 +3209,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638_057() {
 		runNegativeTest(
 			new String[] {
@@ -3106,6 +3238,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638_058() {
 		this.runNegativeTest(
 			new String[] {
@@ -3136,6 +3269,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -3160,6 +3294,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_002() {
 		runNegativeTest(
 			new String[] {
@@ -3183,6 +3318,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -3218,6 +3354,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_004() {
 		runNegativeTest(
 			new String[] {
@@ -3251,6 +3388,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_005() {
 		this.runNegativeTest(
 			new String[] {
@@ -3275,6 +3413,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_006() {
 		runNegativeTest(
 			new String[] {
@@ -3297,6 +3436,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X<sealed>\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638b_007() {
 		runNegativeTest(
 			new String[] {
@@ -3326,6 +3466,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638b_008() {
 		this.runNegativeTest(
 			new String[] {
@@ -3357,6 +3498,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_009() {
 		runNegativeTest(
 			new String[] {
@@ -3386,6 +3528,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564638b_010() {
 		this.runNegativeTest(
 			new String[] {
@@ -3417,6 +3560,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_011() {
 		runNegativeTest(
 			new String[] {
@@ -3447,6 +3591,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_012() {
 		this.runNegativeTest(
 			new String[] {
@@ -3478,6 +3623,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_013() {
 		runNegativeTest(
 			new String[] {
@@ -3507,6 +3653,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_014() {
 		this.runNegativeTest(
 			new String[] {
@@ -3532,6 +3679,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_015() {
 		runNegativeTest(
 			new String[] {
@@ -3555,6 +3703,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_016() {
 		this.runNegativeTest(
 			new String[] {
@@ -3579,6 +3728,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_017() {
 		runNegativeTest(
 			new String[] {
@@ -3617,6 +3767,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_018() {
 		this.runNegativeTest(
 			new String[] {
@@ -3656,6 +3807,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_019() {
 		runNegativeTest(
 			new String[] {
@@ -3681,6 +3833,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_020() {
 		this.runNegativeTest(
 			new String[] {
@@ -3707,6 +3860,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_021() {
 		runNegativeTest(
 			new String[] {
@@ -3734,6 +3888,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_022() {
 		this.runNegativeTest(
 			new String[] {
@@ -3767,6 +3922,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			null,
 			true);
 	}
+	@Test
 	public void testBug564638b_023() {
 		runNegativeTest(
 			new String[] {
@@ -3783,6 +3939,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_024() {
 		this.runNegativeTest(
 			new String[] {
@@ -3801,6 +3958,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_025() {
 		runNegativeTest(
 			new String[] {
@@ -3817,6 +3975,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_026() {
 		this.runNegativeTest(
 			new String[] {
@@ -3835,6 +3994,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_027() {
 		runNegativeTest(
 			new String[] {
@@ -3858,6 +4018,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_028() {
 		this.runNegativeTest(
 			new String[] {
@@ -3883,6 +4044,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_029() {
 		runNegativeTest(
 			new String[] {
@@ -3907,6 +4069,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_030() {
 		this.runNegativeTest(
 			new String[] {
@@ -3933,6 +4096,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_031() {
 		runNegativeTest(
 			new String[] {
@@ -3959,6 +4123,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_032() {
 		this.runNegativeTest(
 			new String[] {
@@ -3987,6 +4152,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_033() {
 		runNegativeTest(
 			new String[] {
@@ -4010,6 +4176,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_034() {
 		this.runNegativeTest(
 			new String[] {
@@ -4035,6 +4202,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_035() {
 		runNegativeTest(
 			new String[] {
@@ -4063,6 +4231,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_036() {
 		this.runNegativeTest(
 			new String[] {
@@ -4093,6 +4262,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_037() {
 		runNegativeTest(
 			new String[] {
@@ -4121,6 +4291,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_038() {
 		this.runNegativeTest(
 			new String[] {
@@ -4151,6 +4322,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_039() {
 		runNegativeTest(
 			new String[] {
@@ -4166,6 +4338,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_040() {
 		this.runNegativeTest(
 			new String[] {
@@ -4183,6 +4356,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_041() {
 		runNegativeTest(
 			new String[] {
@@ -4208,6 +4382,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_042() {
 		this.runNegativeTest(
 			new String[] {
@@ -4235,6 +4410,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_043() {
 		runNegativeTest(
 			new String[] {
@@ -4261,6 +4437,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_044() {
 		this.runNegativeTest(
 			new String[] {
@@ -4289,6 +4466,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_045() {
 		runNegativeTest(
 			new String[] {
@@ -4315,6 +4493,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_046() {
 		this.runNegativeTest(
 			new String[] {
@@ -4343,6 +4522,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_047() {
 		runNegativeTest(
 			new String[] {
@@ -4363,6 +4543,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_048() {
 		this.runNegativeTest(
 			new String[] {
@@ -4385,6 +4566,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_049() {
 		runNegativeTest(
 			new String[] {
@@ -4414,6 +4596,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_050() {
 		this.runNegativeTest(
 			new String[] {
@@ -4452,6 +4635,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_051() {
 		runNegativeTest(
 			new String[] {
@@ -4470,6 +4654,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_052() {
 		this.runNegativeTest(
 			new String[] {
@@ -4490,6 +4675,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_053() {
 		runNegativeTest(
 			new String[] {
@@ -4519,6 +4705,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_054() {
 		this.runNegativeTest(
 			new String[] {
@@ -4550,6 +4737,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_055() {
 		runNegativeTest(
 			new String[] {
@@ -4568,6 +4756,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_056() {
 		this.runNegativeTest(
 			new String[] {
@@ -4588,6 +4777,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug564638b_057() {
 		runNegativeTest(
 			new String[] {
@@ -4617,6 +4807,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug564638b_058() {
 		this.runNegativeTest(
 			new String[] {
@@ -4648,6 +4839,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug565561_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4672,6 +4864,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"}";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565116_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4685,6 +4878,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"");
 	}
+	@Test
 	public void testBug565638_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4701,6 +4895,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug565782_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4720,6 +4915,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"}";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565782_002() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4736,6 +4932,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		String expectedOutput =	"public final enum X implements I {\n";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565782_003() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4755,6 +4952,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"}";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565782_004() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4776,6 +4974,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"}";
 		verifyClassFile(expectedOutput, "X$E.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565782_005() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4799,6 +4998,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"}";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565847_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -4825,6 +5025,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug566979_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -4844,6 +5045,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		);
 	}
 
+	@Test
 	public void testBug566979_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -4862,6 +5064,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			true
 		);
 	}
+	@Test
 	public void testBug566980_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -4882,6 +5085,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	@SuppressWarnings({ "rawtypes" })
+	@Test
 	public void testBug566980_002() {
 		Map options = getCompilerOptions();
 		this.runNegativeTest(
@@ -4903,6 +5107,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
+	@Test
 	public void testBug566846_001() {
 		Map options = getCompilerOptions();
 		String error = 	this.complianceLevel >= ClassFileConstants.JDK25 ?
@@ -4945,6 +5150,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			options
 		);
 	}
+	@Test
 	public void testBug568428_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -4963,6 +5169,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug568428_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -4981,6 +5188,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug568514_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -4999,6 +5207,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug568514_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -5017,6 +5226,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug568758_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -5038,6 +5248,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type Y that implements the sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug569522_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -5052,6 +5263,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"");
 	}
+	@Test
 	public void testBug569522_002() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -5066,6 +5278,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"");
 	}
+	@Test
 	public void testBug570359_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -5104,6 +5317,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"  Enclosing Method: #3  #0 Y$E\n";
 		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug568854_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -5121,6 +5335,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type B that implements the sealed interface X.Foo should be a permitted subtype of X.Foo\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug568854_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -5138,6 +5353,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type B that implements the sealed interface Foo should be a permitted subtype of Foo\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug568854_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -5155,6 +5371,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type B that implements the sealed interface Foo should be a permitted subtype of Foo\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug568854_004() {
 		this.runNegativeTest(
 			new String[] {
@@ -5177,6 +5394,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type B that implements the sealed interface X.Foo should be a permitted subtype of X.Foo\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug568854_005() {
 		this.runNegativeTest(
 			new String[] {
@@ -5199,6 +5417,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type B that implements the sealed interface Foo should be a permitted subtype of Foo\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug568854_006() {
 		this.runNegativeTest(
 			new String[] {
@@ -5221,6 +5440,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type B that implements the sealed interface Foo should be a permitted subtype of Foo\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug568854_007() {
 		this.runNegativeTest(
 			new String[] {
@@ -5250,6 +5470,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The local type Z may not have a sealed supertype I\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug568854_008() {
 		this.runNegativeTest(
 			new String[] {
@@ -5279,6 +5500,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The local type Z may not have a sealed supertype I\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug571332_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -5300,6 +5522,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug570605_001() {
 		runNegativeTest(
 				new String[] {
@@ -5321,6 +5544,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"The local type L may not have a sealed supertype Y\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug570218_001() {
 		runConformTest(
 			new String[] {
@@ -5335,6 +5559,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug570218_002() {
 		runConformTest(
 			new String[] {
@@ -5349,6 +5574,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug572205_001() {
 		runNegativeTest(
 			new String[] {
@@ -5372,6 +5598,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Sealed type Shape lacks a permits clause and no type from the same compilation unit declares Shape as its direct supertype\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573450_001() {
 		runConformTest(
 				new String[] {
@@ -5389,6 +5616,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"0");
 	}
 
+	@Test
 	public void testBug573450_002() {
 		runConformTest(
 				new String[] {
@@ -5405,6 +5633,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				},
 				"0");
 	}
+	@Test
 	public void testBug573450_003() {
 		runNegativeTest(
 				new String[] {
@@ -5431,6 +5660,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"The hierarchy of the type Bar is inconsistent\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573450_004() {
 		runConformTest(
 				new String[] {
@@ -5444,6 +5674,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				},
 				"0");
 	}
+	@Test
 	public void testBug573450_005() {
 		runNegativeTest(
 				new String[] {
@@ -5464,6 +5695,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"The class Y cannot extend the class X as it is not a permitted subtype of X\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578619_1() {
 		runConformTest(
 				new String[] {
@@ -5479,6 +5711,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				},
 				"Hola");
 	}
+	@Test
 	public void testBug578619_2() {
 		runNegativeTest(
 				new String[] {
@@ -5506,6 +5739,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	@Test
 	public void testBug576378() {
 		runNegativeTest(
 				new String[] {
@@ -5532,6 +5766,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	@Test
 	public void testBug576378_2() {
 		runNegativeTest(
 				new String[] {
@@ -5548,6 +5783,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	@Test
 	public void testBug576378_3() {
 		runNegativeTest(
 				new String[] {
@@ -5571,6 +5807,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
 	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	@Test
 	public void testBug576378_4() {
 		runNegativeTest(
 				new String[] {
@@ -5589,6 +5826,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2093
 	// [sealed types] ECJ complains of cycles in hierarchy where none exists
+	@Test
 	public void testIssue2093() {
 		runConformTest(
 				new String[] {
@@ -5622,6 +5860,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576471
 	// Sealed type hierarchy doesn't compile if there are redundant type references
+	@Test
 	public void testBug576471() {
 		runConformTest(
 				new String[] {
@@ -5644,6 +5883,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
 	// [sealed-classes] Incorrect unused import warning
+	@Test
 	public void testIssue1808() {
 		runNegativeTest(
 				new String[] {
@@ -5666,6 +5906,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
 	// [sealed-classes] Incorrect unused import warning
+	@Test
 	public void testIssue1808_1() {
 		runNegativeTest(
 				new String[] {
@@ -5694,6 +5935,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
 	// [sealed-classes] Incorrect unused import warning
+	@Test
 	public void testIssue1808_2() {
 		runConformTest(
 				new String[] {
@@ -5712,6 +5954,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
 	// [sealed-classes] Incorrect unused import warning
+	@Test
 	public void testIssue1808_3() {
 		runWarningTest(
 				new String[] {
@@ -5733,6 +5976,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
 	// [sealed-classes] Incorrect unused import warning
+	@Test
 	public void testIssue1808_4() {
 		Runner runner = new Runner();
 		runner.testFiles =
@@ -5764,6 +6008,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
 	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	@Test
 	public void testIssue2595_0() {
 		runNegativeTest(
 				new String[] {
@@ -5802,6 +6047,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
 	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	@Test
 	public void testIssue2595_1() {
 		runNegativeTest(
 				new String[] {
@@ -5844,6 +6090,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
 	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	@Test
 	public void testIssue2595_2() {
 		runConformTest(
 				new String[] {
@@ -5878,6 +6125,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2595
 	// [sealed types] ECJ accepts a cast from a disjoint interface to a sealed interface
+	@Test
 	public void testIssue2595_3() {
 		runNegativeTest(
 				new String[] {
@@ -5903,6 +6151,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2667
 	// [Sealed Types] Failure to cast an Object to a generic sealed interface type
+	@Test
 	public void testIssue2667() {
 		runWarningTest(
 				new String[] {
@@ -5956,6 +6205,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2672
 	// [Sealed Types] Strange error from ECJ: Syntax error on token "permits", permits expected
+	@Test
 	public void testIssue2672() {
 		runNegativeTest(
 				new String[] {
@@ -5984,6 +6234,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2654
 	// [Sealed Types] Compiler does not handle non-sealed contextual keyword correctly
+	@Test
 	public void testIssue2654() {
 		runNegativeTest(
 				new String[] {
@@ -6006,6 +6257,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2654
 	// [Sealed Types] Compiler does not handle non-sealed contextual keyword correctly
+	@Test
 	public void testIssue2654_2() {
 		runConformTest(
 				new String[] {
@@ -6026,6 +6278,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2707
 	// [Sealed types] ECJ allows a class to be declared as both sealed and non-sealed
+	@Test
 	public void testIssue2707() {
 		runNegativeTest(
 				new String[] {
@@ -6049,6 +6302,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2707
 	// [Sealed types] ECJ allows a class to be declared as both sealed and non-sealed
+	@Test
 	public void testIssue2707_2() {
 		runNegativeTest(
 				new String[] {
@@ -6070,6 +6324,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2707
 	// [Sealed types] ECJ allows a class to be declared as both sealed and non-sealed
+	@Test
 	public void testIssue2707_3() {
 		runNegativeTest(
 				new String[] {
@@ -6096,6 +6351,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3100
 	// [Sealed types] Duplicate diagnostics for illegal modifier combination
+	@Test
 	public void testIssue3100() {
 		runNegativeTest(
 				new String[] {
@@ -6115,6 +6371,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3144
 	// [Sealed types] Diagnostic can be more direct when a @FunctionalInterface is declared sealed
+	@Test
 	public void testIssue3144() {
 		runNegativeTest(
 				new String[] {
@@ -6135,6 +6392,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3039
 	// [Sealed types] Broken program crashes the compiler
+	@Test
 	public void testIssue3039() {
 		runNegativeTest(
 				new String[] {
@@ -6165,6 +6423,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
 	// [Sealed types] Regression in instanceof check for sealed generic classes
+	@Test
 	public void testIssue3121() {
 		runNegativeTest(
 				new String[] {
@@ -6209,6 +6468,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
 	// [Sealed types] Regression in instanceof check for sealed generic classes
+	@Test
 	public void testIssue3121_2() {
 		runNegativeTest(
 				new String[] {
@@ -6246,6 +6506,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
 	// [Sealed types] Regression in instanceof check for sealed generic classes
+	@Test
 	public void testIssue3121_2_1() {
 		runNegativeTest(
 				new String[] {
@@ -6278,6 +6539,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
 	// [Sealed types] Regression in instanceof check for sealed generic classes
+	@Test
 	public void testIssue3121_3() {
 		runNegativeTest(
 				new String[] {
@@ -6310,6 +6572,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
 	// [Sealed types] Regression in instanceof check for sealed generic classes
+	@Test
 	public void testIssue3121_4() {
 		runNegativeTest(
 				new String[] {
@@ -6344,6 +6607,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3121
 	// [Sealed types] Regression in instanceof check for sealed generic classes
 	// NOTE: javac does not report error#1 but that looks like a defect
+	@Test
 	public void testIssue3121_5() {
 		runNegativeTest(
 				new String[] {
@@ -6382,6 +6646,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3007
 	// [Sealed types] Extra and spurious error messages with faulty type sealing
+	@Test
 	public void testIssue3007() {
 		runNegativeTest(
 				new String[] {
@@ -6420,6 +6685,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3007
 	// [Sealed types] Extra and spurious error messages with faulty type sealing
+	@Test
 	public void testIssue3007_2() {
 		runNegativeTest(
 				new String[] {
@@ -6461,6 +6727,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	/* A class named C is disjoint from an interface named I if (i) it is not the case that C <: I, and (ii) one of the following cases applies:
 	– C is freely extensible (§8.1.1.2), and I is sealed, and C is disjoint from all of the permitted direct subclasses and subinterfaces of I.
 	*/
+	@Test
 	public void testIssue2709() {
 		runNegativeTest(
 				new String[] {
@@ -6500,6 +6767,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 
+	@Test
 	public void testJDK8343306() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6531,6 +6799,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testNonSealedGenericLocalClassInRecord() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6555,6 +6824,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testNonSealedGenericMemberClassOfLocalInRecord() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6583,6 +6853,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 
 
 	// record + non-generic + direct-local
+	@Test
 	public void testNonSealedLocalClassInRecord() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6608,6 +6879,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// record + non-generic + member-of-local
+	@Test
 	public void testNonSealedMemberClassOfLocalInRecord() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6635,6 +6907,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// class + generic + direct-local
+	@Test
 	public void testNonSealedGenericLocalClassInClass() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6659,6 +6932,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// class + non-generic + direct-local
+	@Test
 	public void testNonSealedLocalClassInClass() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6683,6 +6957,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// class + generic + member-of-local
+	@Test
 	public void testNonSealedGenericMemberClassOfLocalInClass() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6709,6 +6984,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// class + non-generic + member-of-local
+	@Test
 	public void testNonSealedMemberClassOfLocalInClass() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6735,6 +7011,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// enum + generic + direct-local
+	@Test
 	public void testNonSealedGenericLocalClassInEnum() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6761,6 +7038,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// enum + non-generic + direct-local
+	@Test
 	public void testNonSealedLocalClassInEnum() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6787,6 +7065,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// enum + generic + member-of-local
+	@Test
 	public void testNonSealedGenericMemberClassOfLocalInEnum() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -6815,6 +7094,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 
 	// enum + non-generic + member-of-local
+	@Test
 	public void testNonSealedMemberClassOfLocalInEnum() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {

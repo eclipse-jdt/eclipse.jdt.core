@@ -24,9 +24,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JSR308SpecSnippetTests extends AbstractRegressionTest {
@@ -35,14 +36,8 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int [] { 19 };
 //		TESTS_NAMES = new String [] { "test033" };
 	}
-	public static Class testClass() {
-		return JSR308SpecSnippetTests.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-	public JSR308SpecSnippetTests(String testName){
-		super(testName);
+	public JSR308SpecSnippetTests(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -55,6 +50,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		return defaultOptions;
 	}
 
+	@Test
 	public void test001() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -92,6 +88,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// note, javac 8b100 emits offset incorrectly.
+	@Test
 	public void test002() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -123,6 +120,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test003() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -169,6 +167,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test004() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -200,6 +199,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test005() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -227,6 +227,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test006() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -275,6 +276,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test007() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -306,6 +308,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test008() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -354,6 +357,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test009() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -389,6 +393,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test010() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -447,6 +452,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test011() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -582,6 +588,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test012() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -667,6 +674,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test013() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -725,6 +733,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test014() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -789,6 +798,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"The declared type of the explicit \'this\' parameter is expected to be Y<T>\n" +
 		"----------\n");
 	}
+	@Test
 	public void test015() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -822,6 +832,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test016() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -859,6 +870,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer$Middle$Inner.class", "Inner", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test017() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -887,6 +899,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test018() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -917,6 +930,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 			"----------\n");
 	}
+	@Test
 	public void test019() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -937,6 +951,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test020() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1004,6 +1019,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"Type annotations are not allowed on type names used to access static members\n" +
 		"----------\n");
 	}
+	@Test
 	public void test021() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1090,6 +1106,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"Syntax error, type annotations are illegal here\n" +
 		"----------\n");
 	}
+	@Test
 	public void test022() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1116,6 +1133,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test023() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1142,6 +1160,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test024() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1174,6 +1193,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test025() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1204,6 +1224,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test026() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1234,6 +1255,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test027() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1262,6 +1284,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test028() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1366,6 +1389,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test029() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1428,6 +1452,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"The annotation @MAnno is disallowed for this location\n" +
 		"----------\n");
 	}
+	@Test
 	public void test030() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1487,6 +1512,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test030a() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1544,6 +1570,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test030b() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1565,6 +1592,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"The annotation @TypeAnnotation is disallowed for this location\n" +
 		"----------\n");
 	}
+	@Test
 	public void test030c() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1622,6 +1650,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that annotations in initializer code are not attached to the field.
+	@Test
 	public void test031() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1659,6 +1688,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test co-existence of parameter annotations and type annotations.
+	@Test
 	public void test032() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1696,6 +1726,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test type annotations in initializer code.
+	@Test
 	public void test033() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1821,6 +1852,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test034() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1886,6 +1918,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 	}
 
 	// Bug 415543 - Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
+	@Test
 	public void test034b() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2070,6 +2103,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test035() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2112,6 +2146,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// test that parameter index does not include explicit this parameter.
+	@Test
 	public void test036() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2143,6 +2178,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test037() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2187,6 +2223,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// test anonymous class, the class itself should have class_extends target ?
+	@Test
 	public void test038() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2227,6 +2264,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test039() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2263,6 +2301,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test040() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2296,6 +2335,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test041() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2335,6 +2375,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// type path tests.
+	@Test
 	public void test042() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2394,6 +2435,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 	}
 
 	// Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
+	@Test
 	public void test043() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2473,6 +2515,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "pkg" + File.separator + "Clazz.class", "pkg.Clazz", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
+	@Test
 	public void test044() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2523,6 +2566,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
+	@Test
 	public void test045() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2580,6 +2624,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
+	@Test
 	public void test046() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2664,6 +2709,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
+	@Test
 	public void test047() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2758,6 +2804,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 			"  \n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test048() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2831,6 +2878,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test049() throws Exception {
 		this.runConformTest(
 			new String[] {

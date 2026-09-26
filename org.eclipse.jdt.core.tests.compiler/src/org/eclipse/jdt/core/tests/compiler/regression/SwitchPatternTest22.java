@@ -13,22 +13,22 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_22)
 public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	static {
 		//	TESTS_NAMES = new String [] { "testNaming" };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(SwitchPatternTest22.class, F_22);
-	}
-
-	public SwitchPatternTest22(String name) {
-		super(name);
+	public SwitchPatternTest22(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -60,6 +60,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testListOfPatterns_000() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -86,6 +87,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"success");
 	}
 
+	@Test
 	public void testListOfPatterns_001() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -112,6 +114,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"success");
 	}
 
+	@Test
 	public void testListOfPatterns_002() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -138,6 +141,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"failure");
 	}
 
+	@Test
 	public void testListOfPatterns_003() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -164,6 +168,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"success");
 	}
 
+	@Test
 	public void testListOfPatterns_004() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -190,6 +195,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"success");
 	}
 
+	@Test
 	public void testListOfPatterns_005() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -218,6 +224,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// next three tests: beat the static analysis so that the `when` clause comparison isn't optimized away
 
+	@Test
 	public void testListOfPatterns_006() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -245,6 +252,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"success");
 	}
 
+	@Test
 	public void testListOfPatterns_007() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -272,6 +280,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"success");
 	}
 
+	@Test
 	public void testListOfPatterns_008() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -299,6 +308,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"failure");
 	}
 
+	@Test
 	public void testTwoCasesWithRecordPatternsShouldNotDominateRegression() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -326,6 +336,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"success 12");
 	}
 
+	@Test
 	public void testWhenAtWrongPlace() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -373,6 +384,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"x cannot be resolved to a variable\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIllegalFallThrough() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -405,6 +417,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"Named pattern variables are not allowed here\n" +
 			"----------\n");
 	}
+	@Test
 	public void testInternalDomination_this() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -436,6 +449,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testInternalDomination_2() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -469,6 +483,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"Switch case cannot have both unconditional pattern and default label\n" +
 			"----------\n");
 	}
+	@Test
 	public void testInternalDomination_3() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -505,6 +520,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"Switch case cannot have both unconditional pattern and default label\n" +
 			"----------\n");
 	}
+	@Test
 	public void testExternalDomination() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -531,6 +547,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testExternalDomination_2() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -557,6 +574,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testExternalDomination_3() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -583,6 +601,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testExternalDomination_3_1() throws Exception {
 		runConformTest(
 			new String[] {
@@ -605,6 +624,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"Multi\n"
 			+ "Object");
 	}
+	@Test
 	public void testExternalDomination_4() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -631,6 +651,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testExternalDomination_4_1() throws Exception {
 		runConformTest(
 			new String[] {
@@ -655,6 +676,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			+ "Object");
 	}
 	// javac jdk21 allows components to be named, but they can't be referenced.
+	@Test
 	public void testNaming() throws Exception {
 		Runner runner = new Runner();
 		runner.testFiles =
@@ -685,6 +707,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 		runner.javacTestOptions = JavacHasABug.JavacBug8348928;
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testGuard_0() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -710,6 +733,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 						""", },
 				"default");
 	}
+	@Test
 	public void testGuard_2() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -735,6 +759,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 						""", },
 				"default");
 	}
+	@Test
 	public void testGuard_3() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -760,6 +785,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 						""", },
 				"success");
 	}
+	@Test
 	public void testGuard_4() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -785,6 +811,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 						""", },
 				"success");
 	}
+	@Test
 	public void testFallThrough() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -816,6 +843,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				"true\n" +
 				"false");
 	}
+	@Test
 	public void testTypePattern() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -832,6 +860,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 						""", },
 				"success");
 	}
+	@Test
 	public void testTypePattern_2() {
 		this.runConformTest(
 				new String[] { "X.java",
@@ -851,6 +880,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2070
 	// [Switch] Compiler is unable to parse a particular multicase construct
+	@Test
 	public void testIssue2070() {
 		runConformTest(
 				new String[] {
@@ -874,6 +904,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2956
 	// Unnamed patterns inside of multi case patterns fail to parse
+	@Test
 	public void testIssue2956() {
 		runConformTest(
 				new String[] {
@@ -907,6 +938,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2956
 	// Unnamed patterns inside of multi case patterns fail to parse
+	@Test
 	public void testIssue2956_2() {
 		runConformTest(
 				new String[] {
@@ -941,6 +973,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2956
 	// Unnamed patterns inside of multi case patterns fail to parse
+	@Test
 	public void testIssue2956_3() {
 		runConformTest(
 				new String[] {
@@ -973,6 +1006,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3109
 	// [Patterns] Mixed multiple pattern and when is not fully supported in switch expression
+	@Test
 	public void testIssue3109() {
 		runConformTest(
 				new String[] {
@@ -1013,6 +1047,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3318
 	// [Enhanced Switch] ECJ tolerates fall through to default from a case with pattern label while javac rejects it.
+	@Test
 	public void testIssue3318() {
 		runNegativeTest(
 				new String[] {
@@ -1076,6 +1111,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3320
 	// [Enhanced Switch][Patterns] ECJ generated code hangs
+	@Test
 	public void testIssue3320() {
 		runConformTest(
 				new String[] {
@@ -1102,6 +1138,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
 	// [Record patterns] Verify error with record patterns
+	@Test
 	public void testIssue4038() {
 		runConformTest(new String[] {
 				"Problem.java",
@@ -1135,6 +1172,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
 	// [Record patterns] Verify error with record patterns
+	@Test
 	public void testIssue4038_2() {
 		runConformTest(new String[] {
 				"Problem.java",
@@ -1168,6 +1206,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
 	// [Record patterns] Verify error with record patterns
+	@Test
 	public void testIssue4038_3() {
 		runConformTest(new String[] {
 				"Problem.java",

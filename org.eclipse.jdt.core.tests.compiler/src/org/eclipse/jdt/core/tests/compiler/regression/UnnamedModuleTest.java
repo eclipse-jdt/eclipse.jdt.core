@@ -15,9 +15,13 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class UnnamedModuleTest extends AbstractRegressionTest9 {
 
 static {
@@ -25,17 +29,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public UnnamedModuleTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_9);
+public UnnamedModuleTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
-public static Class<UnnamedModuleTest> testClass() {
-	return UnnamedModuleTest.class;
-}
-
+@Test
 public void testBug522327() {
 	runConformTest(
 		new String[] {
@@ -54,6 +52,7 @@ public void testBug522327() {
 	);
 }
 
+@Test
 public void testBug522326() {
 	runConformTest(
 		new String[] {
@@ -73,6 +72,7 @@ public void testBug522326() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/415
 // Should compile successfully when the compilation unit contains a split package and
 // the option 'OPTION_IgnoreUnnamedModuleForSplitPackage' is turned on.
+@Test
 public void testIgnoreUnnamedModule1() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
@@ -100,6 +100,7 @@ public void testIgnoreUnnamedModule1() {
 			"",
 			JavacTestOptions.DEFAULT);
 }
+@Test
 public void testIgnoreUnnamedModule2() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
@@ -126,6 +127,7 @@ public void testIgnoreUnnamedModule2() {
 			"",
 			JavacTestOptions.DEFAULT);
 }
+@Test
 public void testIgnoreUnnamedModule3() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
@@ -153,6 +155,7 @@ public void testIgnoreUnnamedModule3() {
 			"",
 			JavacTestOptions.DEFAULT);
 }
+@Test
 public void testIgnoreUnnamedModule4() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
@@ -179,6 +182,7 @@ public void testIgnoreUnnamedModule4() {
 			"",
 			JavacTestOptions.DEFAULT);
 }
+@Test
 public void testConflictWithUnnamedModule() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
@@ -206,6 +210,7 @@ public void testConflictWithUnnamedModule() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH445_1() {
 	// ensure soundness of OPTION_JdtDebugCompileMode
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
@@ -234,6 +239,7 @@ public void testGH445_1() {
 			"",
 			JavacTestOptions.DEFAULT);
 }
+@Test
 public void testGH445_2() {
 	// ensure soundness of OPTION_JdtDebugCompileMode
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";

@@ -17,26 +17,23 @@ import static org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming.determ
 import static org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming.determineAutomaticModuleNameFromFileName;
 
 import java.io.File;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(value=AbstractCompilerTest.F_9, singleVersion=true)
 public class AutomaticModuleNamingTest extends AbstractRegressionTest {
 	static {
 		// TESTS_NAMES = new String[] { "testManifest" };
 	}
 
-	public AutomaticModuleNamingTest(String name) {
-		super(name);
+	public AutomaticModuleNamingTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-
-	public static Class<?> testClass() {
-		return AutomaticModuleNamingTest.class;
-	}
-
+	@Test
 	public void testManifest() throws Exception {
 		String dirName = OUTPUT_DIR + File.separator + "automatic";
 		try {
@@ -54,38 +51,46 @@ public class AutomaticModuleNamingTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void testSimple() throws Exception {
 		assertEquals("junit", new String(determineAutomaticModuleNameFromFileName("junit.jar", false, true)));
 	}
 
+	@Test
 	public void testWithVersion() throws Exception {
 		assertEquals("junit", new String(determineAutomaticModuleNameFromFileName("junit-4.8.2.jar", false, true)));
 	}
 
+	@Test
 	public void testMultiParts() throws Exception {
 		assertEquals("foo.bar", new String(determineAutomaticModuleNameFromFileName("foo-bar.jar", false, true)));
 	}
 
+	@Test
 	public void testMultiPartWithVersion() throws Exception {
 		assertEquals("foo.bar",
 				new String(determineAutomaticModuleNameFromFileName("foo-bar-1.2.3-SNAPSHOT.jar", false, true)));
 	}
 
+	@Test
 	public void testMultiPartWithNumberWithoutDot() throws Exception {
 		assertEquals("foo.bar.3d",
 				new String(determineAutomaticModuleNameFromFileName("foo-bar-3d-1.2.3-SNAPSHOT.jar", false, true)));
 	}
 
+	@Test
 	public void testSpecialCharacters() throws Exception {
 		assertEquals("foo.bar",
 				new String(determineAutomaticModuleNameFromFileName("?foo?bar?-1.2.3-SNAPSHOT.jar", false, true)));
 	}
 
+	@Test
 	public void testMultipleSpecialCharacters() throws Exception {
 		assertEquals("foo.bar", new String(
 				determineAutomaticModuleNameFromFileName("?@#foo?@#bar?@#-1.2.3-SNAPSHOT.jar", false, true)));
 	}
 
+	@Test
 	public void testMultipleSpecialCharactersWithDirectory() throws Exception {
 		assertEquals("foo.bar.bla",
 				new String(determineAutomaticModuleNameFromFileName(
@@ -93,28 +98,33 @@ public class AutomaticModuleNamingTest extends AbstractRegressionTest {
 						true)));
 	}
 
+	@Test
 	public void testFileEndsWithDotJar() throws Exception {
 		assertEquals("module.jar", new String(
 				determineAutomaticModuleNameFromFileName("somedir" + File.separator + "module.jar.jar", true, true)));
 	}
 
+	@Test
 	public void testProjectNameEndsWithDotJar() throws Exception {
 		// for hypothetical use case: project on module path treated as automatic module
 		assertEquals("module.jar", new String(
 				determineAutomaticModuleNameFromFileName("somedir" + File.separator + "module.jar", true, false)));
 	}
 
+	@Test
 	public void testUPPERCASE() throws Exception {
 		// upper case .JAR isn't mentioned in the spec, but currently handled like .jar
 		assertEquals("FOO.BAR", new String(determineAutomaticModuleNameFromFileName("FOO-BAR.JAR", true, true)));
 	}
 
+	@Test
 	public void testZip() throws Exception {
 		// .ZIP isn't mentioned in the spec.
 		assertEquals("CLASSES12.ZIP",
 				new String(determineAutomaticModuleNameFromFileName("CLASSES12.ZIP", true, true)));
 	}
 
+	@Test
 	public void testBug529680() throws Exception {
 		assertEquals("hibernate.jpa", new String(
 				determineAutomaticModuleNameFromFileName("hibernate-jpa-2.1-api-1.0.0.Final.jar", true, true)));

@@ -16,8 +16,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
-@SuppressWarnings({ "rawtypes" })
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 public class OverloadResolutionTest8 extends AbstractRegressionTest {
 
 static {
@@ -25,16 +25,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public OverloadResolutionTest8(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
-public static Class testClass() {
-	return OverloadResolutionTest8.class;
+public OverloadResolutionTest8(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runNegativeTest(
 			new String[] {
@@ -65,6 +60,7 @@ public void test001() {
 			"----------\n"
 			);
 }
+@Test
 public void test002() {
 	this.runConformTest(
 			new String[] {
@@ -94,6 +90,7 @@ public void test002() {
 			},
 			"goo(I)");
 }
+@Test
 public void test003() {
 	this.runConformTest(
 			new String[] {
@@ -126,6 +123,7 @@ public void test003() {
 			"goo(J)");
 }
 
+@Test
 public void test004() {
 	this.runNegativeTest(
 			new String[] {
@@ -170,6 +168,7 @@ public void test004() {
 			"The method goo(J) in the type X is not applicable for the arguments (() -> {})\n" +
 			"----------\n");
 }
+@Test
 public void test005() {
 	this.runNegativeTest(
 			new String[] {
@@ -209,6 +208,7 @@ public void test005() {
 			"Cannot make a static reference to the non-static field f\n" +
 			"----------\n");
 }
+@Test
 public void test006() {
 	this.runNegativeTest(
 			new String[] {
@@ -233,6 +233,7 @@ public void test006() {
 			},
 			"");
 }
+@Test
 public void test007() {
 	this.runNegativeTest(
 			new String[] {
@@ -261,6 +262,7 @@ public void test007() {
 			"Void methods cannot return a value\n" +
 			"----------\n");
 }
+@Test
 public void test008() {
 	this.runConformTest(
 			new String[] {
@@ -285,6 +287,7 @@ public void test008() {
 			},
 			"foo(J)");
 }
+@Test
 public void test009() {
 	this.runConformTest(
 			new String[] {
@@ -309,6 +312,7 @@ public void test009() {
 			},
 			"foo(J)");
 }
+@Test
 public void test010() {
 	this.runConformTest(
 			new String[] {
@@ -333,6 +337,7 @@ public void test010() {
 			},
 			"foo(I)");
 }
+@Test
 public void test011() {
 	this.runConformTest(
 			new String[] {
@@ -357,6 +362,7 @@ public void test011() {
 			},
 			"foo(J)");
 }
+@Test
 public void test012() {
 	this.runConformTest(
 			new String[] {
@@ -381,6 +387,7 @@ public void test012() {
 			},
 			"foo(I)");
 }
+@Test
 public void test013() {
 	this.runConformTest(
 			new String[] {
@@ -405,6 +412,7 @@ public void test013() {
 			},
 			"foo(I)");
 }
+@Test
 public void test014() {
 	this.runConformTest(
 			new String[] {
@@ -432,6 +440,7 @@ public void test014() {
 			},
 			"foo(I)");
 }
+@Test
 public void test015() {
 	this.runConformTest(
 			new String[] {
@@ -459,6 +468,7 @@ public void test015() {
 			},
 			"foo(I)");
 }
+@Test
 public void test016() {
 	this.runConformTest(
 			new String[] {
@@ -489,6 +499,7 @@ public void test016() {
 			},
 			"foo(J)");
 }
+@Test
 public void test017() {
 	this.runConformTest(
 			new String[] {
@@ -507,6 +518,7 @@ public void test017() {
 			},
 			"foo(J)");
 }
+@Test
 public void test018() {
 	this.runConformTest(
 			new String[] {
@@ -526,6 +538,7 @@ public void test018() {
 			},
 			"foo(I)");
 }
+@Test
 public void test019() {
 	this.runConformTest(
 			new String[] {
@@ -546,6 +559,7 @@ public void test019() {
 			"foo(I)");
 }
 
+@Test
 public void test020() {
 	this.runNegativeTest(
 			new String[] {
@@ -580,6 +594,7 @@ public void test020() {
 			"The method foo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test021() {
 	this.runConformTest(
 			new String[] {
@@ -611,6 +626,7 @@ public void test021() {
 			},
 			"foo(I)");
 }
+@Test
 public void test022() {
 	this.runConformTest(
 			new String[] {
@@ -644,6 +660,7 @@ public void test022() {
 			},
 			"Y(int)");
 }
+@Test
 public void test023() {
 	this.runNegativeTest(
 			new String[] {
@@ -676,6 +693,7 @@ public void test023() {
 			"The method foo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test024() {
 	this.runNegativeTest(
 			new String[] {
@@ -708,6 +726,7 @@ public void test024() {
 			"The method foo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test025() {
 	this.runConformTest(
 			new String[] {
@@ -736,6 +755,7 @@ public void test025() {
 			},
 			"foo(I)");
 }
+@Test
 public void test026() {
 	this.runNegativeTest(
 			new String[] {
@@ -769,6 +789,7 @@ public void test026() {
 			"The method foo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test027() { // javac bug: 8b115 complains of ambiguity here.
 	this.runConformTest(
 			false /* skipJavac */,
@@ -799,6 +820,7 @@ public void test027() { // javac bug: 8b115 complains of ambiguity here.
 			},
 			"foo(I)");
 }
+@Test
 public void test028() {
 	this.runConformTest(
 			new String[] {
@@ -825,6 +847,7 @@ public void test028() {
 			},
 			"foo(I)");
 }
+@Test
 public void test029() {
 	this.runNegativeTest(
 			new String[] {
@@ -861,6 +884,7 @@ public void test029() {
 			"Constructed array X[] cannot be assigned to Y[] as required in the interface descriptor  \n" +
 			"----------\n");
 }
+@Test
 public void test030() {
 	this.runConformTest(
 			new String[] {
@@ -888,6 +912,7 @@ public void test030() {
 			"foo(J)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850, [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+@Test
 public void test031() {
 	this.runConformTest(
 			new String[] {
@@ -935,6 +960,7 @@ public void _test032() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850, [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+@Test
 public void test033() {
 	this.runConformTest(
 			new String[] {
@@ -955,6 +981,7 @@ public void test033() {
 			"foo(X<String>)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422050, [1.8][compiler] Overloaded method call with poly-conditional expression rejected by the compiler
+@Test
 public void test422050() {
 	this.runConformTest(
 			new String[] {
@@ -980,6 +1007,7 @@ public void test422050() {
 			"0");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+@Test
 public void test400871() {
 	this.runConformTest(
 			new String[] {
@@ -1008,6 +1036,7 @@ public void test400871() {
 			"foo(J)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+@Test
 public void test400871a() {
 	this.runConformTest(
 			new String[] {
@@ -1041,6 +1070,7 @@ public void test400871a() {
 			"foo(J)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+@Test
 public void test400871b() {
 	this.runConformTest(
 			new String[] {
@@ -1074,6 +1104,7 @@ public void test400871b() {
 			"foo(J)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+@Test
 public void test400871c() {
 	this.runNegativeTest(
 			new String[] {
@@ -1112,6 +1143,7 @@ public void test400871c() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+@Test
 public void test400871d() {
 	this.runNegativeTest(
 			new String[] {
@@ -1150,6 +1182,7 @@ public void test400871d() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+@Test
 public void test4008712() {
 	this.runNegativeTest(
 			new String[] {
@@ -1187,6 +1220,7 @@ public void test4008712() {
 			"The method goo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test4008712e() {
 	this.runConformTest(
 			new String[] {
@@ -1216,6 +1250,7 @@ public void test4008712e() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712f() {
 	this.runNegativeTest(
 			new String[] {
@@ -1250,6 +1285,7 @@ public void test4008712f() {
 			"The method goo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test4008712g() {
 	this.runNegativeTest(
 			new String[] {
@@ -1294,6 +1330,7 @@ public void test4008712g() {
 			"The type X does not define foo(int) that is applicable here\n" +
 			"----------\n");
 }
+@Test
 public void test4008712h() {
 	this.runNegativeTest(
 			new String[] {
@@ -1328,6 +1365,7 @@ public void test4008712h() {
 			"The method goo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test4008712i() { // javac bug: 8b115 complains of ambiguity here.
 	this.runConformTest(
 			false /* skipJavac */,
@@ -1359,6 +1397,7 @@ public void test4008712i() { // javac bug: 8b115 complains of ambiguity here.
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712j() {
 	this.runConformTest(
 			new String[] {
@@ -1388,6 +1427,7 @@ public void test4008712j() {
 			},
 			"foo(I)");
 }
+@Test
 public void test4008712k() {
 	this.runConformTest(
 			new String[] {
@@ -1417,6 +1457,7 @@ public void test4008712k() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712l() {
 	this.runConformTest(
 			new String[] {
@@ -1446,6 +1487,7 @@ public void test4008712l() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712m() {
 	this.runNegativeTest(
 			new String[] {
@@ -1481,6 +1523,7 @@ public void test4008712m() {
 			"The method goo(I) is ambiguous for the type X<T>\n" +
 			"----------\n");
 }
+@Test
 public void test4008712n() {
 	this.runConformTest(
 			new String[] {
@@ -1511,6 +1554,7 @@ public void test4008712n() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712o() {
 	this.runConformTest(
 			new String[] {
@@ -1544,6 +1588,7 @@ public void test4008712o() {
 			},
 			"foo(I)");
 }
+@Test
 public void test4008712p() {
 	this.runNegativeTest(
 			new String[] {
@@ -1584,6 +1629,7 @@ public void test4008712p() {
 			"X is a raw type. References to generic type X<T> should be parameterized\n" +
 			"----------\n");
 }
+@Test
 public void test4008712q_raw() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1632,6 +1678,7 @@ public void test4008712q_raw() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.JavacCompilesIncorrectSource;
 	runner.runNegativeTest();
 }
+@Test
 public void test4008712q_diamond() {
 	this.runConformTest(
 			new String[] {
@@ -1661,6 +1708,7 @@ public void test4008712q_diamond() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712r() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1699,6 +1747,7 @@ public void test4008712r() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.JavacCompilesIncorrectSource;
 	runner.runNegativeTest();
 }
+@Test
 public void test4008712s() {
 	this.runConformTest(
 			new String[] {
@@ -1728,6 +1777,7 @@ public void test4008712s() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712t() {
 	this.runConformTest(
 			new String[] {
@@ -1757,6 +1807,7 @@ public void test4008712t() {
 			},
 			"foo(I)");
 }
+@Test
 public void test4008712u() {
 	this.runNegativeTest(
 			new String[] {
@@ -1796,6 +1847,7 @@ public void test4008712u() {
 			"The type I does not define clone() that is applicable here\n" +
 			"----------\n");
 }
+@Test
 public void test4008712v() {
 	this.runConformTest(
 			new String[] {
@@ -1826,6 +1878,7 @@ public void test4008712v() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712w() {
 	this.runNegativeTest(
 			new String[] {
@@ -1866,6 +1919,7 @@ public void test4008712w() {
 			"The type I does not define clone() that is applicable here\n" +
 			"----------\n");
 }
+@Test
 public void test4008712x() {
 	this.runConformTest(
 			new String[] {
@@ -1897,6 +1951,7 @@ public void test4008712x() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712y() {
 	this.runConformTest(
 			new String[] {
@@ -1922,6 +1977,7 @@ public void test4008712y() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712z() {
 	this.runConformTest(
 			new String[] {
@@ -1947,6 +2003,7 @@ public void test4008712z() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712za() {
 	this.runConformTest(
 			new String[] {
@@ -1972,6 +2029,7 @@ public void test4008712za() {
 			},
 			"foo(I)");
 }
+@Test
 public void test4008712zb() {
 	this.runNegativeTest(
 			new String[] {
@@ -2002,6 +2060,7 @@ public void test4008712zb() {
 			"The method goo(I) is ambiguous for the type X\n" +
 			"----------\n");
 }
+@Test
 public void test4008712zc() {
 	this.runNegativeTest(
 			new String[] {
@@ -2037,6 +2096,7 @@ public void test4008712zc() {
 			"The type of foo() from the type X is long, this is incompatible with the descriptor\'s return type: int\n" +
 			"----------\n");
 }
+@Test
 public void test4008712zd() {
 	this.runConformTest(
 			new String[] {
@@ -2062,6 +2122,7 @@ public void test4008712zd() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712ze() {
 	this.runConformTest(
 			new String[] {
@@ -2087,6 +2148,7 @@ public void test4008712ze() {
 			},
 			"foo(I)");
 }
+@Test
 public void test4008712zf() {
 	this.runConformTest(
 			new String[] {
@@ -2112,6 +2174,7 @@ public void test4008712zf() {
 			},
 			"foo(J)");
 }
+@Test
 public void test4008712zg() {
 	this.runConformTest(
 			new String[] {
@@ -2137,6 +2200,7 @@ public void test4008712zg() {
 			},
 			"foo(I)");
 }
+@Test
 public void test4008712zh() {
 	this.runConformTest(
 			new String[] {
@@ -2162,6 +2226,7 @@ public void test4008712zh() {
 			},
 			"foo(J)");
 }
+@Test
 public void testVarargs() {
 	this.runConformTest(
 			new String[] {
@@ -2181,6 +2246,7 @@ public void testVarargs() {
 			"Lambda");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850,  [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+@Test
 public void test401850() {
 	this.runConformTest(
 			new String[] {
@@ -2200,6 +2266,7 @@ public void test401850() {
 			"foo(X<String>)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X
+@Test
 public void test427072() {
 	this.runConformTest(
 			new String[] {
@@ -2226,6 +2293,7 @@ public void test427072() {
 			"1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X
+@Test
 public void test427072a() {
 	this.runConformTest(
 			new String[] {
@@ -2252,6 +2320,7 @@ public void test427072a() {
 			"1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X
+@Test
 public void test427072b() {
 	this.runConformTest(
 			new String[] {
@@ -2278,6 +2347,7 @@ public void test427072b() {
 			"1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X
+@Test
 public void test427072c() {
 	this.runConformTest(
 			new String[] {
@@ -2305,6 +2375,7 @@ public void test427072c() {
 			"1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427628,  regression : The method * is ambiguous for the type *
+@Test
 public void test427628() {
 	this.runConformTest(
 			new String[] {
@@ -2333,6 +2404,7 @@ public void test427628() {
 			"Jnull");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427628,  regression : The method * is ambiguous for the type *
+@Test
 public void test427628a() {
 	this.runNegativeTest(
 			new String[] {
@@ -2377,6 +2449,7 @@ public void test427628a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427628,  regression : The method * is ambiguous for the type *
+@Test
 public void test427628b() {
 	this.runNegativeTest(
 			new String[] {
@@ -2414,6 +2487,7 @@ public void _test421922() {
 			"int ... = [1]");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427748, [1.8][compiler] Cannot convert from Boolean to boolean on generic return type
+@Test
 public void test427748() {
 	this.runConformTest(
 			new String[] {
@@ -2434,6 +2508,7 @@ public void test427748() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427808, [1.8] Correct super() invocation is not inferred when argument is a conditional expression
+@Test
 public void test427808() {
 	this.runConformTest(
 			new String[] {
@@ -2455,6 +2530,7 @@ public void test427808() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429985,  [1.8][compiler] Resolution of right method signature
+@Test
 public void test429985() {
 	this.runConformTest(
 			new String[] {
@@ -2476,6 +2552,7 @@ public void test429985() {
 			"hi");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429985,  [1.8][compiler] Resolution of right method signature
+@Test
 public void test429985a() {
 	this.runConformTest(
 			new String[] {
@@ -2497,6 +2574,7 @@ public void test429985a() {
 			"hi");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448801, [1.8][compiler] Scope.mSMB & 15.12.3 Compile-Time Step 3
+@Test
 public void test448801() {
 	this.runNegativeTest(
 			new String[] {
@@ -2592,6 +2670,7 @@ public void test448801() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=450415, [1.8][compiler] Failure to resolve overloaded call.
+@Test
 public void test450415() {
 	this.runConformTest(
 			new String[] {
@@ -2621,6 +2700,7 @@ public void test450415() {
 			"goo(J)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=450415, [1.8][compiler] Failure to resolve overloaded call.
+@Test
 public void test450415a() {
 	this.runConformTest(
 			new String[] {
@@ -2647,6 +2727,7 @@ public void test450415a() {
 			},
 			"I");
 }
+@Test
 public void test482440a() {
 	runNegativeTest(
 		new String[] {
@@ -2690,6 +2771,7 @@ public void test482440a() {
 		"The method execute2(Test.ConsumerB) is ambiguous for the type Test\n" +
 		"----------\n");
 }
+@Test
 public void test482440b() {
 	runConformTest(
 		new String[] {
@@ -2722,6 +2804,7 @@ public void test482440b() {
 			"}\n"
 		});
 }
+@Test
 public void testGH2941_a() {
 	runConformTest(
 		new String[] {
@@ -2754,6 +2837,7 @@ public void testGH2941_a() {
 			"""
 		});
 }
+@Test
 public void testGH2941_b() {
 	runConformTest(
 		new String[] {

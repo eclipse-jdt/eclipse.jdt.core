@@ -74,8 +74,8 @@ public class DebugEvaluationTest extends EvaluationTest {
 		super(compliance, info);
 	}
 	@Override
-	protected EvaluationSetup newEvaluationSetup(long level) {
-		return new DebugEvaluationSetup(level);
+	protected EvaluationSetup newTestSetup(String testName, long level) {
+		return new DebugEvaluationSetup(testName, level);
 	}
 
 	public void compileAndDeploy(String source, String className) {

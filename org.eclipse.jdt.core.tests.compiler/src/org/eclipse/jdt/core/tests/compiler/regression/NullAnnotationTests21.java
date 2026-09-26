@@ -16,30 +16,26 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_21)
 public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
-	public NullAnnotationTests21(String name) {
-		super(name);
+	public NullAnnotationTests21(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
 //			TESTS_NAMES = new String[] { "test_totalTypePatternNonNullExpression" };
 //			TESTS_NUMBERS = new int[] { 001 };
 //			TESTS_RANGE = new int[] { 1, 12 };
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_21);
-	}
-
-	public static Class<?> testClass() {
-		return NullAnnotationTests21.class;
 	}
 
 	@Deprecated // super method is deprecated
@@ -69,6 +65,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// --------- tests start -----------
 
+	@Test
 	public void test_typePatternIsNN() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -94,6 +91,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_totalTypePatternDoesNotAdmitNull() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -128,6 +126,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_totalTypePatternNonNullExpression() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -154,6 +153,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_totalTypePatternNonNullExpression_swExpr() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -180,6 +180,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_totalTypePatternPlusNullPattern() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -206,6 +207,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_totalTypePatternNullableExpression() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -236,6 +238,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void test_switchOverNNValueWithNullCase() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -301,6 +304,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void test_switchOverNNValueWithNullCase_swExpr() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -334,6 +338,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_nullHostileSwitch() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -364,6 +369,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void test_defaultDoesNotApplyToNull() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -390,6 +396,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_defaultDoesNotApplyToNull_field() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
@@ -417,6 +424,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void test_defaultDoesNotApplyToNull_field2() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
@@ -444,6 +452,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testBug576329() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
@@ -467,6 +476,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testInstanceOfPatternIsNonNull() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -489,6 +499,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testInstanceOfPatternIsLaterAssignedNull() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -519,6 +530,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 	}
 
 	// since 11: uses 'var'
+	@Test
 	public void testNullableVar() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -610,6 +622,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				options,
 				"");
 	}
+	@Test
 	public void testBug572361() {
 		runConformTestWithLibs(
 			new String[] {
@@ -623,6 +636,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 			"");
 	}
 
+	@Test
 	public void testIssue233_ok() throws Exception {
 		Runner runner = getDefaultRunner();
 		runner.customOptions = getCompilerOptions();
@@ -673,6 +687,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.expectedOutputString = "hello A12 default B12 hello A22 default B22";
 		runner.runConformTest();
 	}
+	@Test
 	public void testIssue233_nok() throws Exception {
 		// like testIssue233_ok - but annotations on record components ca1 / cb1 swapped (twice)
 		Runner runner = getDefaultRunner();
@@ -776,6 +791,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.expectedOutputString = "hellodefault";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testIssue233_npeWitness() throws Exception {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -798,6 +814,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testGH1399() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -813,6 +830,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH1399_2() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -827,6 +845,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				"""};
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH1302() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -856,6 +875,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH1691_a() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -891,6 +911,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 	}
 
 
+	@Test
 	public void testGH1691_b() {
 		// @NonNull on secondary bound is sufficient
 		Runner runner = new Runner();
@@ -933,6 +954,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH1009() {
 		Runner runner = new Runner();
 		Map<String, String> options = getCompilerOptions();
@@ -965,6 +987,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH1760() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1029,6 +1052,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH1771() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1063,6 +1087,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 			""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testGH1771_corrected() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1089,6 +1114,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH1771_otherConflict1() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1145,6 +1171,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 				""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testGH1771_otherConflict2() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -1191,6 +1218,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2521
 	// NPE on exhaustive pattern matching switch expressions with sealed interface
+	@Test
 	public void testIssue2521() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1223,6 +1251,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2522
 	// Pattern matching on sealed classes cannot infer NonNull (JDK 21)
+	@Test
 	public void testIssue2522() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -1289,6 +1318,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2522
 	// Pattern matching on sealed classes cannot infer NonNull (JDK 21)
+	@Test
 	public void testIssue2522_2() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -1335,6 +1365,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3381
 	// [Enhanced Switch][Null] Missing Null pointer access warning with total/unconditional patterns
+	@Test
 	public void testIssue3381() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -1377,6 +1408,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3319
 	// [Enhanced Switch][Null] Inconsistent nullness propagation
+	@Test
 	public void testIssue3319() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -1458,6 +1490,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testGH701() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
@@ -1489,6 +1522,7 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5369
 	// [Null][Records] Nullness tracking broken inside compact constructors
+	@Test
 	public void testIssue5369() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);

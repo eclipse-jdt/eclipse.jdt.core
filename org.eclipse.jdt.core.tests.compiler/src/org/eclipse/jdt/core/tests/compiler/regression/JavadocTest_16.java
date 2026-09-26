@@ -14,12 +14,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class JavadocTest_16 extends JavadocTest {
 
 	String docCommentSupport = CompilerOptions.ENABLED;
@@ -33,22 +37,14 @@ public class JavadocTest_16 extends JavadocTest {
 	String reportJavadocDeprecation = null;
 	String processAnnotations = null;
 
-public JavadocTest_16(String name) {
-	super(name);
-}
-
-public static Class javadocTestClass() {
-	return JavadocTest_16.class;
+public JavadocTest_16(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
 static {
 
-}
-
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(javadocTestClass(), F_16);
 }
 
 @Override
@@ -106,6 +102,7 @@ protected void setUp() throws Exception {
 }
 
 
+@Test
 public void testInlineReturn1() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -124,6 +121,7 @@ public void testInlineReturn1() {
 		}
 	);
 }
+@Test
 public void testInlineReturn2() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -142,6 +140,7 @@ public void testInlineReturn2() {
 		}
 	);
 }
+@Test
 public void testInlineReturn3() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -162,6 +161,7 @@ public void testInlineReturn3() {
 		}
 	);
 }
+@Test
 public void testInlineReturn4() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -182,6 +182,7 @@ public void testInlineReturn4() {
 		}
 	);
 }
+@Test
 public void testInlineReturn_broken1() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -211,6 +212,7 @@ public void testInlineReturn_broken1() {
 	);
 }
 
+@Test
 public void testInlineReturn_broken2() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;

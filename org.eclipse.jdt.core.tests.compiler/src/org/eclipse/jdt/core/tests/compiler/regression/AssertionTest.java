@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 @RunJavac
 public class AssertionTest extends AbstractRegressionTest {
 //	 Static initializer to specify tests subset using TESTS_* static variables
@@ -25,18 +25,11 @@ public class AssertionTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 13, 14 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
-	public AssertionTest(String name) {
-		super(name);
+	public AssertionTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-
-	public static Class testClass() {
-		return AssertionTest.class;
-	}
-
+	@Test
 	public void test001() {
 		this.runNegativeTest(
 			new String[] {
@@ -51,6 +44,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test002() {
 		this.runConformTest(new String[] {
 			"A4.java",
@@ -71,6 +65,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		new String[] {"-ea"});
 	}
 
+	@Test
 	public void test003() {
 		this.runConformTest(new String[] {
 			"A4.java",
@@ -86,6 +81,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-da"});
 	}
+	@Test
 	public void test004() {
 		this.runConformTest(new String[] {
 			"A4.java",
@@ -108,6 +104,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	}
+	@Test
 	public void test005() {
 		this.runConformTest(new String[] {
 			"A4.java",
@@ -131,6 +128,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	}
+	@Test
 	public void test006() {
 		this.runNegativeTest(new String[] {
 			"A4.java",
@@ -150,6 +148,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		"unbound cannot be resolved to a variable\n" +
 		"----------\n");
 	}
+	@Test
 	public void test007() {
 		this.runConformTest(new String[] {
 			"A4.java",
@@ -178,6 +177,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	}
+	@Test
 	public void test008() {
 		this.runConformTest(new String[] {
 			"A4.java",
@@ -201,6 +201,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // do not flush previous output dir content
 		new String[] {"-ea"});
 	}
+	@Test
 	public void test009() {
 		this.runConformTest(new String[] {
 			"A4.java",
@@ -225,6 +226,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		new String[] {"-ea"});
 	}
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=22334
+	@Test
 	public void test010() {
 		this.runConformTest(new String[] {
 			"X.java",
@@ -255,6 +257,7 @@ public class AssertionTest extends AbstractRegressionTest {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=28750
 	 */
+	@Test
 	public void test011() {
 		this.runConformTest(
 			new String[] {
@@ -277,6 +280,7 @@ public class AssertionTest extends AbstractRegressionTest {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=57743
 	 */
+	@Test
 	public void test012() {
 		this.runConformTest(
 			new String[] {
@@ -299,6 +303,7 @@ public class AssertionTest extends AbstractRegressionTest {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157389
 	 */
+	@Test
 	public void test013() {
 		this.runConformTest(
 			new String[] {
@@ -324,6 +329,7 @@ public class AssertionTest extends AbstractRegressionTest {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=163600
 	 */
+	@Test
 	public void test014() {
 		this.runConformTest(
 			new String[] {
@@ -360,6 +366,7 @@ public class AssertionTest extends AbstractRegressionTest {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=163600
 	 */
+	@Test
 	public void test015() {
 		this.runConformTest(
 			new String[] {
@@ -404,6 +411,7 @@ public class AssertionTest extends AbstractRegressionTest {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=163600
 	 */
+	@Test
 	public void test016() {
 		this.runConformTest(
 			new String[] {
@@ -446,6 +454,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			new String[] {"-da"});
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=255008
+	@Test
 	public void test017() {
 		runNegativeTest(
 			new String[] { /* test files */
@@ -513,6 +522,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	@Test
 	public void test018() {
 		this.runNegativeTest(new String[] {
 			"X.java",
@@ -537,6 +547,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	@Test
 	public void test019() {
 		this.runConformTest(new String[] {
 			"X.java",
@@ -552,6 +563,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	@Test
 	public void test020() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -572,6 +584,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	@Test
 	public void test021() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -595,6 +608,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	@Test
 	public void test022() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -622,6 +636,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			"The local variable i may not have been initialized\n" +
 			"----------\n");
 	}
+	@Test
 	public void test023() {
 		this.runConformTest(new String[] {"X.java",
 				"interface Foo {\n" +
@@ -637,6 +652,7 @@ public class AssertionTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n"}, "Hello");
 	}
+	@Test
 	public void testVoidAssertion() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -667,6 +683,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			""");
 	}
 
+	@Test
 	public void testAssertionWithCustomException() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -694,6 +711,7 @@ public class AssertionTest extends AbstractRegressionTest {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testVoidSynchronized() {
 		runNegativeTest(new String[] {
 				"X.java",

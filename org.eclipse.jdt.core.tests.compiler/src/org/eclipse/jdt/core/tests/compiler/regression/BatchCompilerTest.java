@@ -62,6 +62,8 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class BatchCompilerTest extends AbstractBatchCompilerTest {
 
@@ -70,8 +72,8 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
-	public BatchCompilerTest(String name) {
-		super(name);
+	public BatchCompilerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 //	/**
 //	 * This test suite only needs to be run on one compliance.
@@ -302,6 +304,7 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 					1, 1)), OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
 
 
+@Test
 public void test001() {
 
 		String commandLine = "-classpath \"D:/a folder\";d:/jdk1.8/jre/lib/rt.jar -1.8 -preserveAllLocals -g -verbose d:/eclipse/workspaces/development2.0/plugins/Bar/src2/ -d d:/test";
@@ -318,6 +321,7 @@ public void test001() {
 			expected,
 			result);
 }
+@Test
 public void test002() {
 
 		String commandLine = "-classpath \"a folder\";\"b folder\"";
@@ -334,6 +338,7 @@ public void test002() {
 			expected,
 			result);
 }
+@Test
 public void test003() {
 
 		String commandLine = "-classpath \"a folder;b folder\"";
@@ -350,6 +355,7 @@ public void test003() {
 			expected,
 			result);
 }
+@Test
 public void test004() {
 
 		String commandLine = "\"d:/tmp A/\"A.java  -classpath \"d:/tmp A\";d:/jars/rt.jar -nowarn -time -g -d d:/tmp";
@@ -366,6 +372,7 @@ public void test004() {
 			expected,
 			result);
 }
+@Test
 public void test005() {
 
 		String commandLine = "\"d:/tmp A/\"A.java  -classpath d:/jars/rt.jar;\"d:/tmp A\";\"toto\" -nowarn -time -g -d d:/tmp";
@@ -382,6 +389,7 @@ public void test005() {
 			expected,
 			result);
 }
+@Test
 public void test006() {
 
 		String commandLine = "\"d:/tmp A/A.java\"  -classpath d:/jars/rt.jar;\"d:/tmp A\";d:/tmpB/ -nowarn -time -g -d d:/tmp";
@@ -399,6 +407,7 @@ public void test006() {
 			result);
 }
 // test the tester - runConformTest
+@Test
 public void test007(){
 	this.runConformTest(
 		new String[] {
@@ -437,6 +446,7 @@ public void test007(){
         true);
 }
 // test the tester - runNegativeTest
+@Test
 public void test008(){
 	this.runNegativeTest(
 		new String[] {
@@ -472,6 +482,7 @@ public void test008(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
 // revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
+@Test
 public void test009(){
 	this.runNegativeTest(
 		new String[] {
@@ -532,6 +543,7 @@ public void test009(){
         true);
 }
 // command line - no user classpath nor bootclasspath
+@Test
 public void test010(){
 	this.runConformTest(
 		new String[] {
@@ -568,6 +580,7 @@ public void test010(){
         true);
 }
 // command line - unusual classpath (ends with ';', still OK)
+@Test
 public void test011_classpath(){
 	this.runConformTest(
 		new String[] {
@@ -596,6 +609,7 @@ private String getVersionOptions() {
 // command line - help
 // amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
 // width)
+@Test
 public void test012(){
 	final String expectedOutput =
         "{0} {1}\n" +
@@ -807,6 +821,7 @@ public void test012(){
 // Progressive help text modifies the help options and messages.
 // amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
 // width)
+@Test
 public void test012b(){
 	final String expectedOutput =
         "{0} {1}\n" +
@@ -980,6 +995,7 @@ public void test012b(){
 }
 
 	// command line - xml log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
+	@Test
 	public void test013() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.xml";
 		this.runNegativeTest(new String[] {
@@ -1219,6 +1235,7 @@ public void test012b(){
 	}
 
 	// command line - txt log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
+	@Test
 	public void test014() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.txt";
 		this.runNegativeTest(new String[] {
@@ -1266,6 +1283,7 @@ public void test012b(){
 	}
 
 	// command line - no extension log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
+	@Test
 	public void test015() {
 		String logFileName = OUTPUT_DIR + File.separator + "log";
 		this.runNegativeTest(new String[] {
@@ -1312,6 +1330,7 @@ public void test012b(){
 		assertTrue("unexpected log contents", compareOK);
 	}
 // command line - several path separators within the classpath
+@Test
 public void test016(){
 	String setting = System.getProperty("jdt.compiler.useSingleThread");
 	try {
@@ -1351,6 +1370,7 @@ public void test016(){
 		System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
 	}
 }
+@Test
 public void test017(){
 		this.runConformTest(
 			new String[] {
@@ -1376,6 +1396,7 @@ public void test017(){
 	}
 // we tolerate inexisting jars on the classpath, and we don't even warn about
 // them (javac does the same as us)
+@Test
 public void test017b(){
 	this.runTest(
 		true,
@@ -1402,6 +1423,7 @@ public void test017b(){
 }
 // we tolerate empty classpath entries, and we don't even warn about
 // them (javac does the same as us)
+@Test
 public void test017c(){
 	this.runTest(
 		true,
@@ -1427,6 +1449,7 @@ public void test017c(){
         true);
 }
 // specific errors for unsuitable files on -bootclasspath, -endorseddirs etc.
+@Test
 public void test017d(){
 	this.runTest(
 		true,
@@ -1473,6 +1496,7 @@ public void test017d(){
 }
 // command line - unusual classpath (empty)
 // ok provided we explicit the sourcepath
+@Test
 public void test018a(){
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	if (currentWorkingDirectoryPath == null) {
@@ -1578,6 +1602,7 @@ public void _test018b(){
 		}
 	}
 }
+@Test
 public void test019(){
 		this.runNegativeTest(
 			new String[] {
@@ -1638,6 +1663,7 @@ public void test019(){
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - skip options -O -Jxxx and -Xxxx, multiple times if needed
+	@Test
 	public void test020(){
 		this.runConformTest(
 			new String[] {
@@ -1661,6 +1687,7 @@ public void test019(){
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -sourcepath finds additional source files
+	@Test
 	public void test021(){
 		String setting= System.getProperty("jdt.compiler.useSingleThread");
 		try {
@@ -1701,6 +1728,7 @@ public void test019(){
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -sourcepath fails - even if the error is more
 // explicit here than what javac does
+	@Test
 	public void test022_repeated_sourcepath(){
 		this.runNegativeTest(
 			new String[] {
@@ -1724,6 +1752,7 @@ public void test019(){
 	        true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -extdirs fails
+	@Test
 	public void test023(){
 		this.runNegativeTest(
 			new String[] {
@@ -1747,6 +1776,7 @@ public void test019(){
 	        true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
+	@Test
 	public void test024(){
 		if (!System.getProperty("java.vm.vendor").equals("Sun Microsystems Inc.")) return;
 		/* this tests is using Sun vm layout. The type sun.net.spi.nameservice.dns.DNSNameService
@@ -1776,6 +1806,7 @@ public void test019(){
 				true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
+	@Test
 	public void test025() throws Exception {
 		String path = LIB_DIR;
 		String libPath = null;
@@ -1834,6 +1865,7 @@ public void test019(){
 		}
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
+	@Test
 	public void test026(){
 		String setting= System.getProperty("jdt.compiler.useSingleThread");
 		try {
@@ -1880,6 +1912,7 @@ public void test019(){
 		}
 	}
 
+@Test
 public void test027(){
 	this.runNegativeTest(
 		new String[] {
@@ -1941,6 +1974,7 @@ public void test027(){
         "3 problems (1 error, 2 warnings)\n",
         true);
 }
+@Test
 public void test028(){
 			this.runConformTest(
 				new String[] {
@@ -1974,6 +2008,7 @@ public void test028(){
 		        false);
 		}
 //Extraneous auto-build error message - https://bugs.eclipse.org/bugs/show_bug.cgi?id=93377
+@Test
 public void test030(){
 	// first series shows that a clean build is OK
 	this.runConformTest(
@@ -2042,6 +2077,7 @@ public void test030(){
 }
 // Extraneous auto-build error message - https://bugs.eclipse.org/bugs/show_bug.cgi?id=93377
 // More complex test case than test30
+@Test
 public void test032(){
 	// first series shows that a clean build is OK (warning messages only)
 	this.runConformTest(
@@ -2394,6 +2430,7 @@ public void test032(){
         false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104664
+@Test
 public void test033(){
 	this.runConformTest(
 		new String[] {
@@ -2412,6 +2449,7 @@ public void test033(){
         "",
         true);
 }
+@Test
 public void test034(){
 	this.runConformTest(
 		new String[] {
@@ -2430,6 +2468,7 @@ public void test034(){
         true);
 }
 // check classpath value
+@Test
 public void test035(){
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
@@ -2480,6 +2519,7 @@ public void test035(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=119108
 // \ in call to AccessRulesSet.getViolatedRestriction
+@Test
 public void test036(){
 	this.runConformTest(
 		new String[] {
@@ -2521,6 +2561,7 @@ public void test036(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
 // complain on assignment to parameters
+@Test
 public void test037() {
 	this.runNegativeTest(
 		new String[] {
@@ -2556,6 +2597,7 @@ public void test037() {
 // Missing access restriction violation error on generic type.
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
 // Binary case.
+@Test
 public void test039(){
 	this.runConformTest(
 		new String[] {
@@ -2618,6 +2660,7 @@ public void test039(){
 }
 
 // check we get appropriate combination of access rules
+@Test
 public void test040(){
 	this.runConformTest(
 		new String[] {
@@ -2667,6 +2710,7 @@ public void test040(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
 // turn off discouraged references warnings
+@Test
 public void test041(){
 	this.runConformTest(
 		new String[] {
@@ -2716,6 +2760,7 @@ public void test041(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
 // turn off forbidden references warnings
+@Test
 public void test042(){
 	this.runConformTest(
 		new String[] {
@@ -2765,6 +2810,7 @@ public void test042(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=124533
 // turn off discouraged and forbidden references warnings
+@Test
 public void test043(){
 	this.runConformTest(
 		new String[] {
@@ -2807,6 +2853,7 @@ public void test043(){
 }
 
 // null ref option
+@Test
 public void test044(){
 	this.runConformTest(
 		new String[] {
@@ -2834,6 +2881,7 @@ public void test044(){
 }
 
 // null ref option
+@Test
 public void test045(){
 	this.runConformTest(
 		new String[] {
@@ -2855,6 +2903,7 @@ public void test045(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=114456
 // turn off discouraged and forbidden references warnings using SuppressWarnings all
+@Test
 public void test046(){
 	this.runConformTest(
 		new String[] {
@@ -2892,6 +2941,7 @@ public void test046(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=114456
 // turn off discouraged and forbidden references warnings using SuppressWarnings restriction
+@Test
 public void test047(){
 	this.runConformTest(
 		new String[] {
@@ -2929,6 +2979,7 @@ public void test047(){
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=114456
 // turn off discouraged and forbidden references warnings using SuppressWarnings
+@Test
 public void test048(){
 	this.runConformTest(
 		new String[] {
@@ -2978,6 +3029,7 @@ public void test048(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // disable warning on command line (implicit)
+@Test
 public void test049(){
 	this.runConformTest(
 		new String[] {
@@ -3006,6 +3058,7 @@ public void test049(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // disable warning on command line (explicit)
+@Test
 public void test050(){
 	this.runConformTest(
 		new String[] {
@@ -3034,6 +3087,7 @@ public void test050(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // enable warning on command line
+@Test
 public void test051(){
 	this.runConformTest(
 		new String[] {
@@ -3066,6 +3120,7 @@ public void test051(){
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123476
+@Test
 public void test052(){
 	try {
 		new File(OUTPUT_DIR).mkdirs();
@@ -3132,6 +3187,7 @@ public void test052(){
      false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137053
+@Test
 public void test053(){
 	this.runNegativeTest(
 		new String[] {
@@ -3149,6 +3205,7 @@ public void test053(){
 // only checking messages (the bug itself involves concurrent access to
 // the file system and a true test case would call for instrumented
 // code)
+@Test
 public void test054(){
 	this.runConformTest(
 		new String[] {
@@ -3171,6 +3228,7 @@ public void test054(){
 // the file system and a true test case would call for instrumented
 // code)
 // this test only works on appropriate file systems
+@Test
 public void test055(){
 	if (File.separatorChar == '/') {
 	  	String tentativeOutputDirNameTail =
@@ -3201,6 +3259,7 @@ public void test055(){
 // only checking messages (the bug itself involves concurrent access to
 // the file system and a true test case would call for instrumented
 // code)
+@Test
 public void test056(){
   	String tentativeOutputDirNameTail =
       	File.separator + "out";
@@ -3226,6 +3285,7 @@ public void test056(){
 // the compilation is successful because we do not check the classpath entries
 // given in the rules; accordingly OK<sep>-KO is seen as a directory that is
 // added to positive rules, and the compilation completes normally
+@Test
 public void test057_access_restrictions_separator(){
 	String oppositeSeparator = File.pathSeparatorChar == ':' ?
 			";" : ":";
@@ -3265,6 +3325,7 @@ public void test057_access_restrictions_separator(){
 
 // .java ending directory name
 // as a sibling of the compiled file
+@Test
 public void test058(){
   	File outputDirectory = new File(OUTPUT_DIR + File.separator + "foo.java");
   	outputDirectory.mkdirs();
@@ -3282,6 +3343,7 @@ public void test058(){
 }
 // .java ending directory name
 // subdirectory of a compiled directory, unreferenced
+@Test
 public void test060(){
 	File outputDirectory = new File(OUTPUT_DIR + File.separator + "foo.java");
 	outputDirectory.mkdirs();
@@ -3300,6 +3362,7 @@ public void test060(){
 
 // .java ending directory name
 // subdirectory of a compiled directory, referenced
+@Test
 public void test061(){
 	File outputDirectory = new File(OUTPUT_DIR + File.separator + "foo.java");
 	outputDirectory.mkdirs();
@@ -3393,6 +3456,7 @@ public void _test062(){
 
 // self-referential jar file
 // variant using an absolute path to the jar file in the -cp option
+@Test
 public void test063(){
 	String outputDirName = OUTPUT_DIR + File.separator + "d",
 	  metaInfDirName = outputDirName + File.separator + "META-INF",
@@ -3466,6 +3530,7 @@ public void _test064_per_sourcepath_directory_default_encoding(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // pre-existing case 1: using a single, definite output directory
+@Test
 public void test065_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3497,6 +3562,7 @@ public void test065_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // pre-existing case 2: using no definite output directory
+@Test
 public void test066_per_source_output_directory(){
 	String source1 = "src1";
 	this.runConformTest(
@@ -3525,6 +3591,7 @@ public void test066_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // pre-existing case 3: -d none absorbs output
+@Test
 public void test067_per_source_output_directory(){
 	this.runConformTest(
 		new String[] {
@@ -3546,6 +3613,7 @@ public void test067_per_source_output_directory(){
 // per source directory output directory
 // new case 1: overriding the default output directory for one of the sources
 // -sourcepath series
+@Test
 public void test068_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1", output2 = "bin2";
@@ -3585,6 +3653,7 @@ public void test068_per_source_output_directory(){
 // per source directory output directory
 // new case 2: specifying an output directory for a given source directory only
 // -sourcepath series
+@Test
 public void test069_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3619,6 +3688,7 @@ public void test069_per_source_output_directory(){
 // per source directory output directory
 // new case 3: [-d none] selectively absorbs output
 // -sourcepath series
+@Test
 public void test070_per_source_output_directory(){
 	String source1 = "src1";
 	this.runConformTest(
@@ -3649,6 +3719,7 @@ public void test070_per_source_output_directory(){
 // per source directory output directory
 // new case 4: overriding -d none for one of the sources
 // -sourcepath series
+@Test
 public void test071_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3684,6 +3755,7 @@ public void test071_per_source_output_directory(){
 // per source directory output directory
 // [-d dir][rule] is forbidden
 // -sourcepath series
+@Test
 public void test072_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -3703,6 +3775,7 @@ public void test072_per_source_output_directory(){
 // per source directory output directory
 // [rule][-d dir] is ok
 // -sourcepath series
+@Test
 public void test073_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3735,6 +3808,7 @@ public void test073_per_source_output_directory(){
 // per source directory output directory
 // new case 1: overriding the default output directory for one of the sources
 // -classpath series
+@Test
 public void test074_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1", output2 = "bin2";
@@ -3774,6 +3848,7 @@ public void test074_per_source_output_directory(){
 // per source directory output directory
 // new case 2: specifying an output directory for a given source directory only
 // -classpath series
+@Test
 public void test075_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3808,6 +3883,7 @@ public void test075_per_source_output_directory(){
 // per source directory output directory
 // new case 3: [-d none] selectively absorbs output
 // -classpath series
+@Test
 public void test076_per_source_output_directory(){
 	String source1 = "src1";
 	this.runConformTest(
@@ -3838,6 +3914,7 @@ public void test076_per_source_output_directory(){
 // per source directory output directory
 // new case 4: overriding -d none for one of the sources
 // -classpath series
+@Test
 public void test077_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3873,6 +3950,7 @@ public void test077_per_source_output_directory(){
 // per source directory output directory
 // [-d dir][rule] is forbidden
 // -classpath series
+@Test
 public void test078_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -3892,6 +3970,7 @@ public void test078_per_source_output_directory(){
 // per source directory output directory
 // [rule][-d dir] is ok
 // -classpath series
+@Test
 public void test079_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3924,6 +4003,7 @@ public void test079_per_source_output_directory(){
 // per source directory output directory
 // new case 1: overriding the default output directory for one of the sources
 // -bootclasspath series
+@Test
 public void test080_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1", output2 = "bin2";
@@ -3964,6 +4044,7 @@ public void test080_per_source_output_directory(){
 // per source directory output directory
 // new case 2: specifying an output directory for a given source directory only
 // -bootclasspath series
+@Test
 public void test081_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -3999,6 +4080,7 @@ public void test081_per_source_output_directory(){
 // per source directory output directory
 // new case 3: [-d none] selectively absorbs output
 // -bootclasspath series
+@Test
 public void test082_per_source_output_directory(){
 	String source1 = "src1";
 	this.runConformTest(
@@ -4030,6 +4112,7 @@ public void test082_per_source_output_directory(){
 // per source directory output directory
 // new case 4: overriding -d none for one of the sources
 // -bootclasspath series
+@Test
 public void test083_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -4066,6 +4149,7 @@ public void test083_per_source_output_directory(){
 // per source directory output directory
 // [-d dir][rule] is forbidden
 // -bootclasspath series
+@Test
 public void test084_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -4085,6 +4169,7 @@ public void test084_per_source_output_directory(){
 // per source directory output directory
 // [rule][-d dir] is ok
 // -bootclasspath series
+@Test
 public void test085_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -4117,6 +4202,7 @@ public void test085_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // jar / zip files in sourcepath
+@Test
 public void test086_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1", output2 = "bin2";
@@ -4169,6 +4255,7 @@ public void test086_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // jar / zip files in classpath are binaries only: no -d argument
+@Test
 public void test087_per_source_output_directory(){
 	String output1 = "bin1", output2 = "bin2";
 	this.runNegativeTest(
@@ -4192,6 +4279,7 @@ public void test087_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // jar / zip files in bootclasspath are binaries only: no -d argument
+@Test
 public void test088_per_source_output_directory(){
 	String output1 = "bin1", output2 = "bin2";
 	this.runNegativeTest(
@@ -4215,6 +4303,7 @@ public void test088_per_source_output_directory(){
 // per source directory output directory
 // new case 2: specifying an output directory for a given source directory only
 // jar / zip files in sourcepath
+@Test
 public void test089_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -4268,6 +4357,7 @@ public void test089_per_source_output_directory(){
 // per source directory output directory
 // new case 3: [-d none] selectively absorbs output
 // jar / zip files
+@Test
 public void test090_per_source_output_directory(){
 	String source1 = "src1";
 	File outputDir = new File(OUTPUT_DIR),
@@ -4319,6 +4409,7 @@ public void test090_per_source_output_directory(){
 // per source directory output directory
 // new case 4: overriding -d none for one of the sources
 // jar / zip files
+@Test
 public void test091_per_source_output_directory(){
 	String source1 = "src1", output1 = "bin1";
 	File outputDir = new File(OUTPUT_DIR),
@@ -4374,6 +4465,7 @@ public void test091_per_source_output_directory(){
 // per source directory output directory
 // new case 1: overriding the default output directory for one of the sources
 // source directories series
+@Test
 public void test092_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1", output2 = "bin2";
@@ -4413,6 +4505,7 @@ public void test092_per_source_output_directory(){
 // per source directory output directory
 // new case 2: specifying an output directory for a given source directory only
 // source directories series
+@Test
 public void test093_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -4447,6 +4540,7 @@ public void test093_per_source_output_directory(){
 // per source directory output directory
 // new case 3: [-d none] selectively absorbs output
 // source directories series
+@Test
 public void test094_per_source_output_directory(){
 	String source1 = "src1";
 	this.runConformTest(
@@ -4478,6 +4572,7 @@ public void test094_per_source_output_directory(){
 // new case 3: [-d none] selectively absorbs output
 // source directories series
 // variant: swap entries
+@Test
 public void test095_per_source_output_directory(){
 	String source1 = "src1";
 	this.runConformTest(
@@ -4508,6 +4603,7 @@ public void test095_per_source_output_directory(){
 // per source directory output directory
 // new case 4: overriding -d none for one of the sources
 // source directories series
+@Test
 public void test096_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -4544,6 +4640,7 @@ public void test096_per_source_output_directory(){
 // new case 4: overriding -d none for one of the sources
 // source directories series
 // variant: two source folders
+@Test
 public void test097_per_source_output_directory(){
 	String source1 = "src1", source2 = "src2",
 		output1 = "bin1", output2 = "bin2";
@@ -4581,6 +4678,7 @@ public void test097_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // [rule] is forbidden for source directories
+@Test
 public void test098_per_source_output_directory(){
 	String source1 = "src1";
 	this.runNegativeTest(
@@ -4600,6 +4698,7 @@ public void test098_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // changing the coding of -d none option
+@Test
 public void test099_per_source_output_directory() {
 	File none = new File(Main.NONE);
 	if (none.exists()) {
@@ -4629,6 +4728,7 @@ public void test099_per_source_output_directory() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // -extdirs cannot receive a -d option
+@Test
 public void test100_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -4647,6 +4747,7 @@ public void test100_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // -endorseddirs cannot receive a -d option
+@Test
 public void test101_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -4665,6 +4766,7 @@ public void test101_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // bad syntax
+@Test
 public void test102_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -4685,6 +4787,7 @@ public void test102_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // bad syntax
+@Test
 public void test103_per_source_output_directory(){
 	String source1 = "src1",
 		output1 = "bin1";
@@ -4704,6 +4807,7 @@ public void test103_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // bad syntax
+@Test
 public void test104_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -4722,6 +4826,7 @@ public void test104_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // bad syntax
+@Test
 public void test105_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -4740,6 +4845,7 @@ public void test105_per_source_output_directory(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
 // per source directory output directory
 // bad syntax
+@Test
 public void test106_per_source_output_directory(){
 	this.runNegativeTest(
 		new String[] {
@@ -4758,6 +4864,7 @@ public void test106_per_source_output_directory(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 // source 1.8 compliance 1.8
+@Test
 public void test107() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4776,6 +4883,7 @@ public void test107() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.8
+@Test
 public void test113() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4794,6 +4902,7 @@ public void test113() throws Exception {
 }
 
 // command line - unusual classpath (ends with ';;;', still OK)
+@Test
 public void test122_classpath(){
 	runClasspathTest(
 		OUTPUT_DIR + "[+**/OK2]" + File.pathSeparator + File.pathSeparator +
@@ -4805,6 +4914,7 @@ public void test122_classpath(){
 }
 // command line - unusual classpath (rules with multiple path separators KO, but
 // without any error message though)
+@Test
 public void test123_classpath(){
 	String cp = OUTPUT_DIR + "[+OK2" + File.pathSeparator + File.pathSeparator +
 			File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]";
@@ -4814,6 +4924,7 @@ public void test123_classpath(){
 		null);
 }
 // command line - unusual classpath (rules with embedded -d OK)
+@Test
 public void test124_classpath (){
 	runClasspathTest(
 		OUTPUT_DIR + "[+OK2" + File.pathSeparator +	"-d ~Warn" +
@@ -4826,6 +4937,7 @@ public void test124_classpath (){
 		null);
 }
 // command line - unusual classpath (rules starting with -d KO)
+@Test
 public void test125_classpath() {
 	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" +
 			File.pathSeparator + "-KO]";
@@ -4835,6 +4947,7 @@ public void test125_classpath() {
 		"incorrect destination path entry: " + cp);
 }
 // command line - unusual classpath (rules starting with -d KO)
+@Test
 public void test126_classpath() {
 	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" +
 			File.pathSeparator + "-KO][-d dummy]";
@@ -4844,6 +4957,7 @@ public void test126_classpath() {
 		"incorrect destination path entry: " + cp);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+@Test
 public void test127_classpath() {
 	String jarFile = OUTPUT_DIR + File.separator + "[squarebracket].jar";
 	runClasspathTest(
@@ -4854,6 +4968,7 @@ public void test127_classpath() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+@Test
 public void test128_classpath() {
 	String jarFile = OUTPUT_DIR + File.separator + "[square][bracket].jar";
 	runClasspathTest(
@@ -4864,6 +4979,7 @@ public void test128_classpath() {
 		null);
 }
 // command line - classpath order
+@Test
 public void test129_classpath() {
 	runClasspathTest(
 		"file.jar[+A]" + File.pathSeparator + OUTPUT_DIR,
@@ -4875,6 +4991,7 @@ public void test129_classpath() {
 }
 // command line - output directories
 // see also test072
+@Test
 public void test130_classpath() {
 	String cp = OUTPUT_DIR + "[-d dir][~**/internal/*]";
 	runClasspathTest(
@@ -4883,6 +5000,7 @@ public void test130_classpath() {
 		"access rules cannot follow destination path entries: " + cp);
 }
 // command line - output directories
+@Test
 public void test131_classpath() {
 	String cp = OUTPUT_DIR + "[~**/internal/*][-d dir]";
 	runClasspathTest(
@@ -4894,6 +5012,7 @@ public void test131_classpath() {
 }
 // command line - brackets in classpath
 // unbalanced brackets fail (without any message though)
+@Test
 public void test132_classpath() {
 	String cp = OUTPUT_DIR + "[~**/internal/*[-d dir]";
 	runClasspathTest(
@@ -4903,6 +5022,7 @@ public void test132_classpath() {
 }
 // command line - brackets in classpath
 // unbalanced brackets fail (without any message though)
+@Test
 public void test133_classpath() {
 	String cp = OUTPUT_DIR + "[~**/internal/*]-d dir]";
 	runClasspathTest(
@@ -4911,6 +5031,7 @@ public void test133_classpath() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+@Test
 public void test134_classpath() {
 	String jarFile = OUTPUT_DIR + File.separator + "[squarebracket].jar";
 	runClasspathTest(
@@ -4921,6 +5042,7 @@ public void test134_classpath() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+@Test
 public void test135_classpath() {
 	String jarFile = OUTPUT_DIR + File.separator + "[square][bracket].jar";
 	runClasspathTest(
@@ -4931,6 +5053,7 @@ public void test135_classpath() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+@Test
 public void test136_classpath() {
 	String target = OUTPUT_DIR + File.separator + "[a]";
 	(new File(target)).mkdirs();
@@ -4942,6 +5065,7 @@ public void test136_classpath() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+@Test
 public void test137_classpath() {
 	String target = OUTPUT_DIR + File.separator + "[a]";
 	(new File(target)).mkdirs();
@@ -4954,6 +5078,7 @@ public void test137_classpath() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
 // too many brackets series KO (no error though)
+@Test
 public void test138_classpath() {
 	runClasspathTest(
 		OUTPUT_DIR + File.separator + "[a][~**/internal/*][-d dir]",
@@ -4962,6 +5087,7 @@ public void test138_classpath() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=173416
 // start with a bracket
+@Test
 public void test139_classpath() {
     String cp = "[a].jar";
     runClasspathTest(
@@ -4973,6 +5099,7 @@ public void test139_classpath() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=173416
 // start with a bracket
+@Test
 public void test140_classpath() {
     String cp = "[a].jar";
     runClasspathTest(
@@ -4985,6 +5112,7 @@ public void test140_classpath() {
 // null ref option
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
+@Test
 public void test141_null_ref_option(){
 	this.runConformTest(
 		new String[] {
@@ -5013,6 +5141,7 @@ public void test141_null_ref_option(){
 // null ref option
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
+@Test
 public void test142_null_ref_option(){
 	this.runConformTest(
 		new String[] {
@@ -5041,6 +5170,7 @@ public void test142_null_ref_option(){
 // null ref option
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
+@Test
 public void test143_null_ref_option(){
 	this.runConformTest(
 		new String[] {
@@ -5063,6 +5193,7 @@ true);
 
 // reporting unnecessary declaration of thrown checked exceptions
 // default is off
+@Test
 public void test145_declared_thrown_checked_exceptions(){
 	this.runConformTest(
 		new String[] {
@@ -5081,6 +5212,7 @@ public void test145_declared_thrown_checked_exceptions(){
   true);
 }
 // reporting unnecessary declaration of thrown checked exceptions
+@Test
 public void test146_declared_thrown_checked_exceptions(){
 	this.runConformTest(
 		new String[] {
@@ -5108,6 +5240,7 @@ public void test146_declared_thrown_checked_exceptions(){
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122885
 //coverage test
+@Test
 public void test148_access_restrictions(){
 	this.runNegativeTest(
 		new String[] {
@@ -5170,6 +5303,7 @@ public void test148_access_restrictions(){
   true);
 }
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=168230
+@Test
 public void test149() {
 	this.runConformTest(
 		new String[] {
@@ -5189,6 +5323,7 @@ public void test149() {
 }
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=192875
 // default in now on for nullDereference
+@Test
 public void test150_null_ref_options() {
 	this.runConformTest(
 		new String[] {
@@ -5215,6 +5350,7 @@ public void test150_null_ref_options() {
 }
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=192875
 // default in now on for nullDereference
+@Test
 public void test151_null_ref_options() {
 	this.runConformTest(
 		new String[] {
@@ -5234,6 +5370,7 @@ public void test151_null_ref_options() {
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=138018
+@Test
 public void test152() {
 	this.runConformTest(
 		new String[] {
@@ -5260,6 +5397,7 @@ public void test152() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test153_warn_options() {
 	// check defaults
 	this.runConformTest(
@@ -5300,6 +5438,7 @@ public void test153_warn_options() {
 		false);
 }
 // -warn option - regression tests
+@Test
 public void test154_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5326,6 +5465,7 @@ public void test154_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test155_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5353,6 +5493,7 @@ public void test155_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
 // bad behavior for -warn:null -warn:unused
+@Test
 public void test156_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5380,6 +5521,7 @@ public void test156_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
 // variant
+@Test
 public void test157_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5412,6 +5554,7 @@ public void test157_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
 // variant
+@Test
 public void test158_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5438,6 +5581,7 @@ public void test158_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test159_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5464,6 +5608,7 @@ public void test159_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test160_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5496,6 +5641,7 @@ public void test160_warn_options() {
 }
 // -warn option - regression tests
 // this one is undocumented but makes some sense
+@Test
 public void test161_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5528,6 +5674,7 @@ public void test161_warn_options() {
 }
 // -warn option - regression tests
 // this one is undocumented but makes some sense
+@Test
 public void test162_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
@@ -5548,6 +5695,7 @@ public void test162_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test163_warn_options() {
 	// check defaults
 	this.runConformTest(
@@ -5584,6 +5732,7 @@ public void test163_warn_options() {
 		false);
 }
 // -warn option - regression tests
+@Test
 public void test164_warn_options() {
 	// same source as 163, skip check defaults
 	this.runConformTest(
@@ -5611,6 +5760,7 @@ public void test164_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test165_warn_options() {
 	// same source as 163, skip check defaults
 	this.runConformTest(
@@ -5632,6 +5782,7 @@ public void test165_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test166_warn_options() {
 	// same source as 163, skip check defaults
 	this.runConformTest(
@@ -5653,6 +5804,7 @@ public void test166_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test167_warn_options() {
 	// same source as 163, skip check defaults
 	this.runConformTest(
@@ -5680,6 +5832,7 @@ public void test167_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test168_warn_options() {
 	// check defaults
 	this.runConformTest(
@@ -5714,6 +5867,7 @@ public void test168_warn_options() {
 		false);
 }
 // -warn option - regression tests
+@Test
 public void test169_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
@@ -5745,6 +5899,7 @@ public void test169_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test170_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
@@ -5766,6 +5921,7 @@ public void test170_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210521
 // -warn option - regression tests
+@Test
 public void test171_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
@@ -5792,6 +5948,7 @@ public void test171_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test172_warn_options() {
 	// check defaults
 	this.runConformTest(
@@ -5873,6 +6030,7 @@ public void _test173_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test174_warn_options() {
 	// check defaults
 	this.runConformTest(
@@ -5936,6 +6094,7 @@ public void test174_warn_options() {
 		false);
 }
 // -warn option - regression tests
+@Test
 public void test175_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -5996,6 +6155,7 @@ public void test175_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test176_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6041,6 +6201,7 @@ public void test176_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test177_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6086,6 +6247,7 @@ public void test177_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test178_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6131,6 +6293,7 @@ public void test178_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test179_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6176,6 +6339,7 @@ public void test179_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test180_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6231,6 +6395,7 @@ public void test180_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test181_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6286,6 +6451,7 @@ public void test181_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test182_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6341,6 +6507,7 @@ public void test182_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test183_warn_options() {
 	// same source as 174, skip check defaults
 	this.runConformTest(
@@ -6396,6 +6563,7 @@ public void test183_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test184_warn_options() {
 	// check defaults
 	this.runConformTest(
@@ -6433,6 +6601,7 @@ public void test184_warn_options() {
 		false);
 }
 // -warn option - regression tests
+@Test
 public void test185_warn_options() {
 	// same source as 184, skip check defaults
 	this.runConformTest(
@@ -6462,6 +6631,7 @@ public void test185_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test186_warn_options() {
 	// same source as 184, skip check defaults
 	this.runConformTest(
@@ -6491,6 +6661,7 @@ public void test186_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test187_warn_options() {
 	// same source as 184, skip check defaults
 	this.runConformTest(
@@ -6525,6 +6696,7 @@ public void test187_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test188_warn_options() {
 	// same source as 184, skip check defaults
 	this.runConformTest(
@@ -6554,6 +6726,7 @@ public void test188_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test189_warn_options() {
 	// same source as 184, skip check defaults
 	this.runConformTest(
@@ -6583,6 +6756,7 @@ public void test189_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test190_warn_options() {
 	// check defaults
 	this.runConformTest(
@@ -6646,6 +6820,7 @@ public void test190_warn_options() {
 		false);
 }
 // -warn option - regression tests
+@Test
 public void test191_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6716,6 +6891,7 @@ public void test191_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test192_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6751,6 +6927,7 @@ public void test192_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test193_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6786,6 +6963,7 @@ public void test193_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test194_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6821,6 +6999,7 @@ public void test194_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test195_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6856,6 +7035,7 @@ public void test195_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test196_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6891,6 +7071,7 @@ public void test196_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test197_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6926,6 +7107,7 @@ public void test197_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test198_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -6961,6 +7143,7 @@ public void test198_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test199_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -7026,6 +7209,7 @@ public void test199_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test200_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -7091,6 +7275,7 @@ public void test200_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test201_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -7156,6 +7341,7 @@ public void test201_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test202_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -7221,6 +7407,7 @@ public void test202_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test203_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -7286,6 +7473,7 @@ public void test203_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test204_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -7351,6 +7539,7 @@ public void test204_warn_options() {
 		true);
 }
 // -warn option - regression tests
+@Test
 public void test205_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -7417,6 +7606,7 @@ public void test205_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // -warn option - regression tests
+@Test
 public void test206_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
@@ -7438,6 +7628,7 @@ public void test206_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // -warn option - regression tests
+@Test
 public void test207_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
@@ -7459,6 +7650,7 @@ public void test207_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant
+@Test
 public void test208_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -7485,6 +7677,7 @@ public void test208_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant
+@Test
 public void test209_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -7505,6 +7698,7 @@ public void test209_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant
+@Test
 public void test210_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -7525,6 +7719,7 @@ public void test210_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant
+@Test
 public void test211_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -7545,6 +7740,7 @@ public void test211_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - javadoc and allJavadoc mistakenly imply enableJavadoc
+@Test
 public void test212_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -7576,6 +7772,7 @@ public void test212_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - javadoc and allJavadoc mistakenly imply enableJavadoc
+@Test
 public void test213_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -7647,6 +7844,7 @@ public void _test216a_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - check impact of javadoc upon other warnings
+@Test
 public void test216b_warn_options() {
 	// check what if allJavadoc on
 	this.runConformTest(
@@ -7710,6 +7908,7 @@ public void test216b_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - check impact of javadoc upon other warnings
+@Test
 public void test217_warn_options() {
 	// check what if allJavadoc on
 	this.runConformTest(
@@ -7772,6 +7971,7 @@ public void test217_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=214731
 // white-box test for internal API
+@Test
 public void test218_batch_classpath_apis() {
 	assertFalse("path should be absolute",
 		new ClasspathJar(new File("relative.jar"), true, null, null).
@@ -7779,6 +7979,7 @@ public void test218_batch_classpath_apis() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=214731
 // white-box test for internal API
+@Test
 public void test219_batch_classpath_apis() {
 	assertFalse("path should be absolute",
 		CharOperation.indexOf('/',
@@ -7825,6 +8026,7 @@ public void _test220_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
 // variant
+@Test
 public void test221_warn_options() {
 	// same source as 172, skip check defaults
 	this.runConformTest(
@@ -7857,6 +8059,7 @@ public void test221_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
 // variant
+@Test
 public void test222_warn_options() {
 	// same source as 172, skip check defaults
 	this.runConformTest(
@@ -7895,6 +8098,7 @@ public void test222_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
 // variant
+@Test
 public void test223_warn_options() {
 	// same source as 172, skip check defaults
 	this.runConformTest(
@@ -7956,6 +8160,7 @@ public void _test224_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
 // variant
+@Test
 public void test225_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -8016,6 +8221,7 @@ public void _test226_warn_options() {
 // -warn option - regression tests
 // variant detected while exploring:
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+@Test
 public void test227_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -8043,6 +8249,7 @@ public void test227_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // -warn option - regression tests
 // variant
+@Test
 public void test228_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -8063,6 +8270,7 @@ public void test228_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // -warn option - regression tests
 // variant
+@Test
 public void test229_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -8087,6 +8295,7 @@ public void test229_warn_options() {
 		true);
 }
 //-warn option - regression tests
+@Test
 public void test230_warn_options() {
 	// same source as 190, skip check defaults
 	this.runConformTest(
@@ -8126,6 +8335,7 @@ public void test230_warn_options() {
 // javac selects the class file over the source file when the class file is
 // newer than the source file, unless option -Xprefer:source is used (available
 // since 1.6)
+@Test
 public void test230_sourcepath_vs_classpath() throws IOException, InterruptedException {
 	runTest(
 		true /* shouldCompileOK*/,
@@ -8260,6 +8470,7 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 // .java/.class files precedence depending on sourcepath
 // ecj always selects sourcepath over classpath
 // javac takes the source file if it is more recent than the class file
+@Test
 public void test231_sourcepath_vs_classpath() throws IOException, InterruptedException {
 	// compile into bin1
 	runConformTest(
@@ -8332,6 +8543,7 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // ecj different from javac: repeated -classpath concatenates entries, while javac
 // only keeps the last one (and swallows the others silently)
+@Test
 public void test232_repeated_classpath() throws IOException, InterruptedException {
 	String commonOptions = " -d \"" + OUTPUT_DIR + File.separator + "bin"
 		+ "\" -classpath \"" + OUTPUT_DIR + File.separator + "src1";
@@ -8394,6 +8606,7 @@ public void test232_repeated_classpath() throws IOException, InterruptedExceptio
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // ecj different from javac: repeated -sourcepath yields an error, while javac
 // only keeps the last one (and swallows the others silently)
+@Test
 public void test233_repeated_sourcepath() throws IOException, InterruptedException {
 	String commonOptions = " -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src1\""
@@ -8449,6 +8662,7 @@ public void test233_repeated_sourcepath() throws IOException, InterruptedExcepti
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // different from javac: javac sourcepath inhibits compile in classpath, while
 // ecj goes on finding source files there
+@Test
 public void test234_sourcepath_vs_classpath() throws IOException, InterruptedException {
 	String commonOptions = " -d \"" + OUTPUT_DIR + File.separator + "bin\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src1\""
@@ -8497,6 +8711,7 @@ public void test234_sourcepath_vs_classpath() throws IOException, InterruptedExc
 // different from javac: with javac, newer class file down the classpath wins
 // over source file upstream, while ecj selects the first source or binary found
 // in classpath order (no sourcepath involved here)
+@Test
 public void test235_classpath() throws IOException, InterruptedException {
 	runTest(
 		true /* shouldCompileOK*/,
@@ -8578,6 +8793,7 @@ public void test235_classpath() throws IOException, InterruptedException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // when class files are ready in all classpath entries, ecj and javac pick
 // the first available class file up, regardless of which is newer  (no sourcepath here)
+@Test
 public void test236_classpath() throws IOException, InterruptedException {
 	runTest(
 		true /* shouldCompileOK*/,
@@ -8653,6 +8869,7 @@ public void test236_classpath() throws IOException, InterruptedException {
 // when a source file is more recent than a class file in a former
 // classpath entry, ecj picks the class file up, while javac choses the
 // source file (no sourcepath here)
+@Test
 public void test237_classpath() throws IOException, InterruptedException {
 	runTest(
 		true /* shouldCompileOK*/,
@@ -8721,6 +8938,7 @@ public void test237_classpath() throws IOException, InterruptedException {
 // when a source file is more recent than another source file in a former
 // classpath entry, ecj and javac pick the latter file up (in other words, if
 // only source files are involved, the classpath entries order prevails - no sourcepath here)
+@Test
 public void test238_classpath() throws IOException, InterruptedException {
 	new File(OUTPUT_DIR + File.separator + "src1").mkdirs();
 	File sourceFile1 = new File(OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java");
@@ -8779,6 +8997,7 @@ public void test238_classpath() throws IOException, InterruptedException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // basic link: a jar only referenced in the manifest of the first one is found
+@Test
 public void test239_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -8803,6 +9022,7 @@ public void test239_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // links are followed recursively, eliminating dupes
+@Test
 public void test240_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -8829,6 +9049,7 @@ public void test240_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // at first level, this is depth first, masking tailing libs
+@Test
 public void test241_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -8860,6 +9081,7 @@ public void test241_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // using only links, we adopt a depth first algorithm
+@Test
 public void test242_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -8890,6 +9112,7 @@ public void test242_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // managing subdirectories and .. properly
+@Test
 public void test243_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -8916,6 +9139,7 @@ public void test243_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // variant: the second jar on a line is found as well
+@Test
 public void test244_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -8939,6 +9163,7 @@ public void test244_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // we eat up absolute links silently
+@Test
 public void test245_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -8962,6 +9187,7 @@ public void test245_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // absolute links do not mask following relative links
+@Test
 public void test246_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -8986,6 +9212,7 @@ public void test246_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // absolute links are not followed
+@Test
 public void test247_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -9016,6 +9243,7 @@ public void test247_jar_ref_in_jar() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // we accept duplicate classpath lines in manifest and we follow the jars of the
 // second and following lines as well as the first line (emit a warning as javac does)
+@Test
 public void test248_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9041,6 +9269,7 @@ public void test248_jar_ref_in_jar() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // we accept duplicate classpath lines in manifest and we follow the jars of the
 // second and following lines as well as the first line (emit a warning as javac does)
+@Test
 public void test249_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9065,6 +9294,7 @@ public void test249_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // bootclasspath does not get expanded with linked files
+@Test
 public void test250_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -9097,6 +9327,7 @@ public void test250_jar_ref_in_jar() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // jar files reached indirectly bear the access rules of the entry that
 // references them
+@Test
 public void test251_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9126,6 +9357,7 @@ public void test251_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
 // compiler progress test (1 unit)
+@Test
 public void test252_progress() {
 	runProgressTest(
 		new String[] {
@@ -9147,6 +9379,7 @@ public void test252_progress() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
 // compiler progress test (2 units)
+@Test
 public void test253_progress() {
 	runProgressTest(
 		new String[] {
@@ -9174,6 +9407,7 @@ public void test253_progress() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
 // compiler progress test (multiple iterations)
+@Test
 public void test254_progress() {
 	runProgressTest(
 		new String[] {
@@ -9215,6 +9449,7 @@ public void test254_progress() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
 // compiler progress test (cancellation)
+@Test
 public void test255_progress() {
 	TestCompilationProgress progress = new TestCompilationProgress() {
 		@Override
@@ -9258,6 +9493,7 @@ public void test255_progress() {
 // jar files reached indirectly bear the access rules of the entry that
 // references them - this hides the access rules of further instances of the
 // same jar on the classpath
+@Test
 public void test256_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9290,6 +9526,7 @@ public void test256_jar_ref_in_jar() throws Exception {
 // jar files reached indirectly bear the access rules of the entry that
 // references them - this hides the access rules of further instances of the
 // same jar on the classpath
+@Test
 public void test257_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9316,6 +9553,7 @@ public void test257_jar_ref_in_jar() throws Exception {
 // jar files reached indirectly bear the access rules of the entry that
 // references them - this hides the access rules of further instances of the
 // same jar on the classpath, to the point of absorbing it if none is specified
+@Test
 public void test258_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9340,6 +9578,7 @@ public void test258_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // -sourcepath is OK at first level
+@Test
 public void test259_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9363,6 +9602,7 @@ public void test259_jar_ref_in_jar() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // -sourcepath is KO at second level (that is, it does not leverage the links
 // at all)
+@Test
 public void test260_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -9391,6 +9631,7 @@ public void test260_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // error case: the MANIFEST.MF is a directory; should fail gracefully
+@Test
 public void test261_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -9421,6 +9662,7 @@ public void test261_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // using relative paths for libs
+@Test
 public void test262_jar_ref_in_jar() throws Exception {
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	if (currentWorkingDirectoryPath == null) {
@@ -9483,6 +9725,7 @@ public void test262_jar_ref_in_jar() throws Exception {
 // java accepts the same jar (which makes the compiler responsible for the
 // error detection)
 // design: will issue a warning
+@Test
 public void test263_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
@@ -9508,6 +9751,7 @@ public void test263_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // missing space after ClassPath:
+@Test
 public void test264_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
@@ -9542,6 +9786,7 @@ public void test264_jar_ref_in_jar() throws Exception {
 // javac reports an error (including an explicit manifest header error since
 // version 1.4); moreover, it stops interpreting the said header
 // design: we report a warning and eat up the remainding of the line
+@Test
 public void test265_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
@@ -9575,6 +9820,7 @@ public void test265_jar_ref_in_jar() throws Exception {
 // extra space before Class-Path header
 // the net result is that the line is part of the value of the previous header
 // we then simply don't see the remainding of the line as jars
+@Test
 public void test266_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
@@ -9607,6 +9853,7 @@ public void test266_jar_ref_in_jar() throws Exception {
 // missing newline at the end of the line
 // javac eats the line silently, which results into not finding A
 // design: we report a warning and eat up the remainding of the line
+@Test
 public void test267_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runTest(
@@ -9639,6 +9886,7 @@ public void test267_jar_ref_in_jar() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test for duplicate classpath lines variant (empty line between the
 // entries)
+@Test
 public void test268_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
@@ -9660,6 +9908,7 @@ public void test268_jar_ref_in_jar() throws Exception {
 // white-box test for duplicate classpath lines variant (other header between the
 // entries - note that since we are not doing a full-fledged manifest analysis,
 // a dummy header passes)
+@Test
 public void test269_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
@@ -9680,6 +9929,7 @@ public void test269_jar_ref_in_jar() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: tabs are not seen as URI separator, but as parts of URI instead
 // will trigger downstream errors if the jars are really needed
+@Test
 public void test270_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
@@ -9697,6 +9947,7 @@ public void test270_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // managing continuations properly
+@Test
 public void test271_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -9721,6 +9972,7 @@ public void test271_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
+@Test
 public void test272_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
@@ -9740,6 +9992,7 @@ public void test272_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
+@Test
 public void test273_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
@@ -9762,6 +10015,7 @@ public void test273_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
+@Test
 public void test274_jar_ref_in_jar() throws Exception {
 	try {
 		ManifestAnalyzer analyzer = new ManifestAnalyzer();
@@ -9778,6 +10032,7 @@ public void test274_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
+@Test
 public void test275_jar_ref_in_jar() throws Exception {
 	try {
 		assertFalse(analyzeManifestContents(
@@ -9800,6 +10055,7 @@ private boolean analyzeManifestContents(ManifestAnalyzer manifestAnalyzer,
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test: variants on continuations
+@Test
 public void test276_jar_ref_in_jar() throws Exception {
 	try {
 		assertFalse(analyzeManifestContents(
@@ -9815,6 +10071,7 @@ public void test276_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // extdirs jars do not follow links
+@Test
 public void test277_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -9846,6 +10103,7 @@ public void test277_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // endorseddirs does not get expanded with linked files
+@Test
 public void test278_jar_ref_in_jar() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -9877,6 +10135,7 @@ public void test278_jar_ref_in_jar() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // looking at access rules: ignore if better makes the class file selected if
 // it is newer, but see test#280 for what happens when it is not
+@Test
 public void test279_sourcepath_vs_classpath() throws IOException, InterruptedException {
 	runTest(
 		true /* shouldCompileOK*/,
@@ -9933,6 +10192,7 @@ public void test279_sourcepath_vs_classpath() throws IOException, InterruptedExc
 // looking at access rules: ignore if better makes the class file selected even
 // if it is older (in test#279 it was newer); access rules are thus no work
 // around since they ignore modification dates
+@Test
 public void test280_sourcepath_vs_classpath() throws IOException, InterruptedException {
 	runTest(
 		true /* shouldCompileOK*/,
@@ -9983,6 +10243,7 @@ public void test280_sourcepath_vs_classpath() throws IOException, InterruptedExc
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=182360
+@Test
 public void test281_classpath() {
 	runConformTest(
 		new String[] {
@@ -9997,6 +10258,7 @@ public void test281_classpath() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=182360
+@Test
 public void test282_classpath() {
 	runConformTest(
 		new String[] {
@@ -10011,6 +10273,7 @@ public void test282_classpath() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=182360
+@Test
 public void test283_classpath() {
 	runConformTest(
 		new String[] {
@@ -10025,6 +10288,7 @@ public void test283_classpath() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=182360
+@Test
 public void test284_classpath() {
 	runConformTest(
 		new String[] {
@@ -10039,6 +10303,7 @@ public void test284_classpath() {
 }
 
 // command-line expansion
+@Test
 public void test285_option_files() {
 	runConformTest(
 		new String[] {
@@ -10057,6 +10322,7 @@ public void test285_option_files() {
 
 // command-line expansion
 // shows that we don't recurse
+@Test
 public void test287_option_files() {
 	runNegativeTest(
 		new String[] {
@@ -10075,6 +10341,7 @@ public void test287_option_files() {
         true /*shouldFlushOutput*/);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066
+@Test
 public void test288_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -10098,6 +10365,7 @@ public void test288_warn_options() {
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066 - variation
+@Test
 public void test289_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -10121,6 +10389,7 @@ public void test289_warn_options() {
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=246066 - variation
+@Test
 public void test290_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -10138,6 +10407,7 @@ public void test290_warn_options() {
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079
+@Test
 public void test291_jar_ref_in_jar() throws Exception {
 	ManifestAnalyzer analyzer = new ManifestAnalyzer();
 	assertTrue(analyzeManifestContents(
@@ -10156,6 +10426,7 @@ public void test291_jar_ref_in_jar() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
 // -warn option - regression tests to check option allOver-ann
+@Test
 public void test292_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -10199,6 +10470,7 @@ public void test292_warn_options() {
 // -warn option - regression tests to check option includeAssertNull
 // Null problems arising from asserts should be reported here
 // since includeAssertNull is enabled
+@Test
 public void test293_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -10269,6 +10541,7 @@ public void test293_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // -warn option - regression test to check option static-method
 // Method can be static warning should be given
+@Test
 public void test294_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -10326,6 +10599,7 @@ public void test294_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // -warn option - regression test to check option all-static-method
 // Method can be static warning should be given
+@Test
 public void test295_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -10386,6 +10660,7 @@ public void test295_warn_options() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+@Test
 public void test293() throws Exception {
 	createCascadedJars();
 	this.runNegativeTest(
@@ -10414,6 +10689,7 @@ public void test293() throws Exception {
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+@Test
 public void test294(){
 	this.runConformTest(
 		new String[] {
@@ -10432,6 +10708,7 @@ public void test294(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+@Test
 public void test296(){
 	this.runNegativeTest(
 		new String[] {
@@ -10450,6 +10727,7 @@ public void test296(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
+@Test
 public void test297(){
 	this.runNegativeTest(
 		new String[] {
@@ -10468,6 +10746,7 @@ public void test297(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test298(){
 	this.runConformTest(
 		new String[] {
@@ -10485,6 +10764,7 @@ public void test298(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test299(){
 	this.runNegativeTest(
 		new String[] {
@@ -10513,6 +10793,7 @@ public void test299(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test300(){
 	this.runConformTest(
 		new String[] {
@@ -10530,6 +10811,7 @@ public void test300(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test301(){
 	this.runNegativeTest(
 		new String[] {
@@ -10553,6 +10835,7 @@ public void test301(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test302(){
 	this.runNegativeTest(
 		new String[] {
@@ -10576,6 +10859,7 @@ public void test302(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test303(){
 	this.runNegativeTest(
 		new String[] {
@@ -10604,6 +10888,7 @@ public void test303(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test304(){
 	this.runNegativeTest(
 		new String[] {
@@ -10627,6 +10912,7 @@ public void test304(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=310330
+@Test
 public void test305(){
 	this.runConformTest(
 		new String[] {
@@ -10641,6 +10927,7 @@ public void test305(){
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=310330
+@Test
 public void test306(){
 	this.runConformTest(
 		new String[] {
@@ -10656,6 +10943,7 @@ public void test306(){
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+@Test
 public void test0307(){
 	String os= System.getProperty("os.name");
     if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
@@ -10709,6 +10997,7 @@ public void test0307(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+@Test
 public void test0307a(){
 	String os= System.getProperty("os.name");
     if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
@@ -10774,6 +11063,7 @@ public void test0307a(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+@Test
 public void test0307b(){
 	String os= System.getProperty("os.name");
     if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
@@ -10839,6 +11129,7 @@ public void test0307b(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+@Test
 public void test0307c(){
 	String os= System.getProperty("os.name");
     if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
@@ -10904,6 +11195,7 @@ public void test0307c(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+@Test
 public void test0307d(){
 	String os= System.getProperty("os.name");
     if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
@@ -10969,6 +11261,7 @@ public void test0307d(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+@Test
 public void test0307e(){
 	String os= System.getProperty("os.name");
     if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
@@ -11034,6 +11327,7 @@ public void test0307e(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775 - Compiler fails to warn about invalid cast in 1.4 mode.
+@Test
 public void testInferenceIn15Project(){  // ensure 1.8 complains too
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	if (currentWorkingDirectoryPath == null) {
@@ -11086,6 +11380,7 @@ public void testInferenceIn15Project(){  // ensure 1.8 complains too
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330347 - Test retention of bridge methods.
+@Test
 public void testBridgeMethodRetention(){
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	if (currentWorkingDirectoryPath == null) {
@@ -11137,6 +11432,7 @@ public void testBridgeMethodRetention(){
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 -- with new option kicking in
+@Test
 public void testReportingUnavoidableGenericProblems() {
 	this.runNegativeTest(
 		new String[] {
@@ -11169,6 +11465,7 @@ public void testReportingUnavoidableGenericProblems() {
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817  -- without new option kicking in
+@Test
 public void testReportingUnavoidableGenericProblems2() {
 	this.runNegativeTest(
 		new String[] {
@@ -11206,6 +11503,7 @@ public void testReportingUnavoidableGenericProblems2() {
 		true);
 }
 //-warn option - regression tests
+@Test
 public void test0308_warn_options() {
 	// check the option introduced in bug 359721
 	this.runConformTest(
@@ -11227,6 +11525,7 @@ public void test0308_warn_options() {
 		true);
 }
 //-warn option - regression tests
+@Test
 public void test0309_warn_options() {
 	// check the option introduced in bug 359721
 	this.runConformTest(
@@ -11258,6 +11557,7 @@ public void test0309_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=366829
 // -warn option - regression test to check option syncOverride
 // Warning when when a class overrides a synchronized method without synchronizing it
+@Test
 public void test310_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11282,6 +11582,7 @@ public void test310_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=366829
 // -warn option - regression test to check option syncOverride
 // Warning when when a class overrides a synchronized method without synchronizing it
+@Test
 public void test310b_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11308,6 +11609,7 @@ public void test310b_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // -warn option - regression tests to check option nullAnnot (with args)
 // Null warnings because of annotations - custom annotation types used - challenging various kinds of diagnostics
+@Test
 public void test312_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11410,6 +11712,7 @@ public void test312_warn_options() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
 // -warn/-error option : enumSwitchPedantic
+@Test
 public void test317_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11442,6 +11745,7 @@ public void test317_warn_options() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
 // -warn/-error option : enumSwitchPedantic: increase severity to ERROR
+@Test
 public void test318_warn_options() {
 	this.runNegativeTest(
 			new String[] {
@@ -11474,6 +11778,7 @@ public void test318_warn_options() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
 // -warn/-error option : switchDefault
+@Test
 public void test319_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11508,6 +11813,7 @@ public void test319_warn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //default
+@Test
 public void test317_nowarn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11532,6 +11838,7 @@ public void test317_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //two different source folders ignore only from one
+@Test
 public void test318_nowarn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11571,6 +11878,7 @@ public void test318_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //two different source folders ignore from both
+@Test
 public void test319_nowarn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11605,6 +11913,7 @@ public void test319_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //two different source folders ignore from both using multiple -nowarn
+@Test
 public void test320_nowarn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11639,6 +11948,7 @@ public void test320_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //option syntax error -nowarn:
+@Test
 public void test321_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11661,6 +11971,7 @@ public void test321_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //option syntax error -nowarn:[
+@Test
 public void test322_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11683,6 +11994,7 @@ public void test322_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //option syntax error -nowarn:[src
+@Test
 public void test323_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11705,6 +12017,7 @@ public void test323_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //option syntax error -nowarn:src]
+@Test
 public void test324_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11727,6 +12040,7 @@ public void test324_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //option syntax error -nowarn[src]
+@Test
 public void test325_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11749,6 +12063,7 @@ public void test325_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //option syntax error -nowarn:[src1]src2
+@Test
 public void test326_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11771,6 +12086,7 @@ public void test326_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //option syntax error -nowarn:[]
+@Test
 public void test327_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11793,6 +12109,7 @@ public void test327_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //non-optional errors cannot be ignored
+@Test
 public void test328_nowarn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -11823,6 +12140,7 @@ public void test328_nowarn_options() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
 //-nowarn option - regression tests
 //task tags cannot be ignored
+@Test
 public void test329_nowarn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11852,6 +12170,7 @@ public void test329_nowarn_options() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
 // -warn option - regression tests to check option unlikelyCollectionMethodArgumentType
+@Test
 public void test330_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11873,6 +12192,7 @@ public void test330_warn_options() {
 		true);
 }//https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
 //-warn option - regression tests to check option unlikelyEqualsArgumentType
+@Test
 public void test331_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11894,6 +12214,7 @@ public void test331_warn_options() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
+@Test
 public void testBug375409a() {
 	this.runConformTest(
 		new String[] {
@@ -11931,6 +12252,7 @@ public void testBug375409a() {
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
+@Test
 public void testBug375409b() {
 	this.runConformTest(
 		new String[] {
@@ -11958,6 +12280,7 @@ public void testBug375409b() {
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
+@Test
 public void testBug375409c() {
 	this.runConformTest(
 		new String[] {
@@ -11985,6 +12308,7 @@ public void testBug375409c() {
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
+@Test
 public void testBug375409d() {
 	this.runConformTest(
 		new String[] {
@@ -12019,6 +12343,7 @@ public void testBug375409d() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
 // -warn option - regression tests to check option nullAnnotConflict
+@Test
 public void testBug375409e() {
 	this.runConformTest(
 		new String[] {
@@ -12061,6 +12386,7 @@ public void testBug375409e() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
 // -warn option - regression tests to check option nullAnnotRedundant
+@Test
 public void testBug375409f() {
 	this.runConformTest(
 		new String[] {
@@ -12105,6 +12431,7 @@ public void testBug375409f() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
 // -warn option - regression tests to check option nullUncheckedConversion
+@Test
 public void testBug375409g() {
 	this.runConformTest(
 		new String[] {
@@ -12148,6 +12475,7 @@ public void testBug375409g() {
 
 // Bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
 // when -properties is used process javadoc by default
+@Test
 public void testBug375366a() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
@@ -12179,6 +12507,7 @@ public void testBug375366a() throws IOException {
 
 // Bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
 // property file explicitly disables javadoc processing
+@Test
 public void testBug375366b() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
@@ -12221,6 +12550,7 @@ public void testBug375366b() throws IOException {
 // org.eclipse.jdt.core.tests.compiler.regression.NullAnnotationBatchCompilerTest.testBug375366d()
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
+@Test
 public void test385780_warn_option() {
 	this.runConformTest(
 		new String[] {
@@ -12270,6 +12600,7 @@ public void test385780_warn_option() {
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405225
+@Test
 public void test405225_extdirs() {
 	if (AbstractCompilerTest.isJRE9Plus)
 		return;
@@ -12292,6 +12623,7 @@ public void test405225_extdirs() {
 		true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038a() {
 	this.runConformTest(
 		new String[] {
@@ -12325,6 +12657,7 @@ public void test408038a() {
 			true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038b() {
 	this.runConformTest(
 		new String[] {
@@ -12358,6 +12691,7 @@ public void test408038b() {
 			true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038c() {
 	this.runConformTest(
 		new String[] {
@@ -12398,6 +12732,7 @@ public void test408038c() {
 			true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038d() {
 	this.runConformTest(
 		new String[] {
@@ -12446,6 +12781,7 @@ public void test408038d() {
 // Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
 // The test case is not directly related to the bug. It was discovered as a result
 // of the bug. Please see comment 16 bullet 4 in bugzilla.
+@Test
 public void test408038e() {
 	this.runConformTest(
 		new String[] {
@@ -12473,6 +12809,7 @@ public void test408038e() {
 	        "1 problem (1 warning)\n",
 			true);
 }
+@Test
 public void testBug574425() {
 	String path = LIB_DIR;
 	String libPath = null;
@@ -12534,6 +12871,7 @@ public void testBug574425() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=419351
+@Test
 public void testBug419351() {
 	String backup = System.getProperty("java.endorsed.dirs");
 	if (backup == null)
@@ -12578,6 +12916,7 @@ public void testBug419351() {
 	}
 }
 
+@Test
 public void test501457() throws IOException {
 	this.runConformTest(new String[] {
 			"FailingClass.java",
@@ -12599,6 +12938,7 @@ public void test501457() throws IOException {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439750
+@Test
 public void test439750() {
 	this.runConformTest(
 		new String[] {
@@ -12640,6 +12980,7 @@ public void test439750() {
  * This fast exit improves the performance, because the search for secondary types is very expensive regarding performance
  * (all classes of a package have to get loaded, parsed and analyzed).
  */
+@Test
 public void testFileSystem_findSecondaryInClass() {
 	final String testScratchArea = "fileSystemTestScratchArea";
 
@@ -12672,6 +13013,7 @@ public void testFileSystem_findSecondaryInClass() {
 	}
 }
 //same as test293, but for -info: instead of -err:
+@Test
 public void test496137a() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -12700,6 +13042,7 @@ public void test496137a() throws Exception {
 		true);
 }
 //same as test294, but for -info: instead of -err:
+@Test
 public void test496137b(){
 	this.runConformTest(
 		new String[] {
@@ -12718,6 +13061,7 @@ public void test496137b(){
 		true);
 }
 //same as test296, but for -info: instead of -err:
+@Test
 public void test496137c(){
 	this.runNegativeTest(
 		new String[] {
@@ -12736,6 +13080,7 @@ public void test496137c(){
 		true);
 }
 //same as test297, but for -info: instead of -err:
+@Test
 public void test496137d(){
 	this.runNegativeTest(
 		new String[] {
@@ -12754,6 +13099,7 @@ public void test496137d(){
 		true);
 }
 //same as testBug375366b, but for =info: instead of =warning:
+@Test
 public void test496137e() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
@@ -12792,6 +13138,7 @@ public void test496137e() throws IOException {
 		null /* progress */);
 }
 // variation of test496137a to test that -warn:none turns off all info, too
+@Test
 public void test496137f() throws Exception {
 	createCascadedJars();
 	this.runConformTest(
@@ -12813,6 +13160,7 @@ public void test496137f() throws Exception {
 		"",
 		true);
 }
+@Test
 public void testReleaseOption() throws Exception {
 	try {
 		SourceVersion valueOf = SourceVersion.valueOf("RELEASE_9");
@@ -12835,6 +13183,7 @@ public void testReleaseOption() throws Exception {
 	     true);
 }
 
+@Test
 public void testBug531579() throws Exception {
 	if (!isJRE9Plus) return;
 	// these types replace inaccessible types from JRE/javax.xml.bind:
@@ -12886,6 +13235,7 @@ public void testBug531579() throws Exception {
 		false);
 }
 
+@Test
 public void testFailOnWarnings_NoWarning() {
 	this.runConformTest(
 		new String[] {
@@ -12903,6 +13253,7 @@ public void testFailOnWarnings_NoWarning() {
 
 }
 
+@Test
 public void testFailOnWarnings_WithWarning() {
 	this.runNegativeTest(
 		new String[] {
@@ -12927,6 +13278,7 @@ public void testFailOnWarnings_WithWarning() {
 		"",
 		true);
 }
+@Test
 public void testUnusedObjectAllocation() {
 	runNegativeTest(
 		new String[] {
@@ -12951,6 +13303,7 @@ public void testUnusedObjectAllocation() {
 		true);
 
 }
+@Test
 public void testBug573153() {
 	String output = MAIN.bind("configure.source", "10");
 	String template = "source level should be in '1.8','9'...'23' (or '8.0'..'23.0'): 10";
@@ -12963,6 +13316,7 @@ public void testBug573153() {
 	assertEquals("configure.source is not updated", template, output);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=413873
+@Test
 public void test413873() {
 	this.runConformTest(
 		new String[] {
@@ -12987,6 +13341,7 @@ public void test413873() {
 			true);
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/89
+@Test
 public void testIssue89_1() {
 	this.runNegativeTest(
 			new String[] {
@@ -13020,6 +13375,7 @@ public void testIssue89_1() {
 				"error: warnings found and -failOnWarning specified\n",
 				true);
 }
+@Test
 public void testIssue89_2() {
 	this.runConformTest(
 			new String[] {
@@ -13043,6 +13399,7 @@ public void testIssue89_2() {
 				"",
 				true);
 }
+@Test
 public void testIssue89_3() {
 	this.runNegativeTest(
 			new String[] {
@@ -13072,6 +13429,7 @@ public void testIssue89_3() {
 				"error: warnings found and -failOnWarning specified\n",
 				true);
 }
+@Test
 public void testIssue89_4() {
 	this.runNegativeTest(
 			new String[] {
@@ -13101,6 +13459,7 @@ public void testIssue89_4() {
 				"error: warnings found and -failOnWarning specified\n",
 				true);
 }
+@Test
 public void testIssue89_5() {
 	this.runNegativeTest(
 			new String[] {
@@ -13128,6 +13487,7 @@ public void testIssue89_5() {
 				true);
 }
 
+@Test
 public void testGitHub316(){
 	this.runNegativeTest(
 		new String[] {
@@ -13148,6 +13508,7 @@ public void testGitHub316(){
 		+ "",
 		true);
 }
+@Test
 public void testGitHub1122(){
 	this.runNegativeTest(
 		new String[] {
@@ -13178,6 +13539,7 @@ public void testGitHub1122(){
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2434
 // Cannot read field "declaringClass" because "this.methodDeclaration.binding" is null
+@Test
 public void testGH2434(){
 	this.runConformTest(
 		new String[] {
@@ -13205,6 +13567,7 @@ public void testGH2434(){
         "",
         true);
 }
+@Test
 public void test3445() {
 	final String testScratchArea = "fileSystemTestScratchArea";
 
@@ -13250,6 +13613,7 @@ public void test3445() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
 // ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+@Test
 public void testIssue3827() {
 	this.runNegativeTest(
 			new String[] {
@@ -13296,6 +13660,7 @@ public void testIssue3827() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
 // ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+@Test
 public void testIssue3827_2() {
 	this.runNegativeTest(
 			new String[] {
@@ -13342,6 +13707,7 @@ public void testIssue3827_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
 // ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+@Test
 public void testIssue3827_3() {
 	this.runConformTest(
 			new String[] {
@@ -13370,6 +13736,7 @@ public void testIssue3827_3() {
 				"",
 				true);
 }
+@Test
 public void testBug550255() {
 	this.runConformTest(
 		new String[] {
@@ -13403,6 +13770,7 @@ public void testBug550255() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4750
 // Compilation error not raised with ECJ when warnings are raised
+@Test
 public void testIssue4750() {
 	this.runNegativeTest(
 		new String[] {
@@ -13449,6 +13817,7 @@ public void testIssue4750() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4750
 // Compilation error not raised with ECJ when warnings are raised
+@Test
 public void testIssue4750_nowarn() {
 	this.runNegativeTest(
 		new String[] {
@@ -13485,6 +13854,7 @@ public void testIssue4750_nowarn() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4768
 // Internal Compiler Error when a static field with custom annotation references a generic type parameter T
+@Test
 public void testIssue4768(){
 	this.runNegativeTest(
 		new String[] {

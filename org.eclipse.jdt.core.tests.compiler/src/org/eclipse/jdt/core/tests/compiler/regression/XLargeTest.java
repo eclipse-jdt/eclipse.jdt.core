@@ -18,11 +18,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
-import junit.framework.Test;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class XLargeTest extends AbstractRegressionTest {
@@ -31,14 +32,12 @@ public class XLargeTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testBug519070" };
 	}
 
-public XLargeTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public XLargeTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=368435
+@Test
 public void test368435() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -70,6 +69,7 @@ public void test368435() {
 			null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=368435
+@Test
 public void test368435b() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -101,6 +101,7 @@ public void test368435b() {
 			null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=368435
+@Test
 public void test368435c() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -132,6 +133,7 @@ public void test368435c() {
 			null);
 }
 
+@Test
 public void test001() {
 	StringBuilder fileContents = new StringBuilder();
 	fileContents.append("""
@@ -169,6 +171,7 @@ public void test001() {
 		"SUCCESS");
 }
 
+@Test
 public void test002() {
 	StringBuilder fileContents = new StringBuilder();
 	fileContents.append("""
@@ -204,6 +207,7 @@ public void test002() {
 		"SUCCESS");
 }
 
+@Test
 public void test003() {
 	StringBuilder fileContents = new StringBuilder();
 	fileContents.append("""
@@ -243,6 +247,7 @@ public void test003() {
 		"SUCCESS");
 }
 
+@Test
 public void test004() {
 	StringBuilder fileContents = new StringBuilder();
 	fileContents.append("""
@@ -279,6 +284,7 @@ public void test004() {
 		"SUCCESS");
 }
 
+@Test
 public void test005() {
 	StringBuilder fileContents = new StringBuilder();
 	fileContents.append("""
@@ -310,6 +316,7 @@ public void test005() {
 /*
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=26129
  */
+@Test
 public void test006() {
 
 	StringBuilder fileContents = new StringBuilder();
@@ -351,6 +358,7 @@ public void test006() {
 /*
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=31811
  */
+@Test
 public void test007() {
 	StringBuilder fileContents = new StringBuilder();
 	fileContents.append("""
@@ -388,6 +396,7 @@ public void test007() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115408
+@Test
 public void test008() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -1070,6 +1079,7 @@ public void test008() {
 	null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126744
+@Test
 public void test009() {
 
 	StringBuilder fileContents = new StringBuilder();
@@ -1105,6 +1115,7 @@ public void test009() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Failed before using a non recursive implementation of deep binary
 // expressions.
+@Test
 public void test010() {
 	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
@@ -1139,6 +1150,7 @@ public void test010() {
 // filling the stack
 // need to use a computed string (else this source file will get blown away
 // as well)
+@Test
 public void test011() {
 	if (this.complianceLevel >= ClassFileConstants.JDK9)
 		return;
@@ -1174,6 +1186,7 @@ public void test011() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // variant: right member of the topmost expression is left-deep
+@Test
 public void test012() {
 	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
@@ -1204,6 +1217,7 @@ public void test012() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 //variant: right member of the topmost expression is left-deep
+@Test
 public void test013() {
 	this.runConformTest(
 		new String[] {
@@ -1265,6 +1279,7 @@ public void test013() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=124099
 // Undue partial reset of receiver in
 // UnconditionalFlowInfo#addInitializationsFrom.
+@Test
 public void test014() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -1371,6 +1386,7 @@ public void _test015() {
 		JavacTestOptions.EclipseJustification.EclipseBug169017);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=350095
+@Test
 public void test0016() {
 	// only run in 1.5 or above
 	StringBuilder buffer = new StringBuilder();
@@ -1453,6 +1469,7 @@ public void test0016() {
 			"----------\n");
 	}
 }
+@Test
 public void test0017() {
 	// only run in 1.5 or above
 	StringBuilder buffer = new StringBuilder();
@@ -1522,6 +1539,7 @@ public void test0017() {
 		},
 		buffer.toString());
 }
+@Test
 public void test0018() {
 	// only run in 1.5 or above
 	StringBuilder buffer = new StringBuilder();
@@ -1589,6 +1607,7 @@ public void test0018() {
 		buffer.toString());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=393749
+@Test
 public void test0019() {
 	// only run in 1.5 or above
 
@@ -1631,6 +1650,7 @@ public void test0019() {
 		},
 		"C0");
 }
+@Test
 public void testBug519070() {
 	int N = 1000;
 	StringBuilder sourceCode = new StringBuilder(
@@ -1653,6 +1673,7 @@ public void testBug519070() {
 			},
 			"SUCCESS");
 }
+@Test
 public void testIssue1164a() throws ClassFormatException, IOException {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return;
@@ -1883,6 +1904,7 @@ public void testIssue1164a() throws ClassFormatException, IOException {
 			"}";
 	checkClassFile("X", sourceCode.toString(), expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 }
+@Test
 public void testIssue1164b() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return;
@@ -1958,6 +1980,7 @@ public void testIssue1164b() {
 		null,
 		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */); // transient, platform-dependent
 }
+@Test
 public void testIssue1359() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return;
@@ -2043,6 +2066,7 @@ public void testIssue1359() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5020
 // VerifyError: Instruction type does not match stack map - Regression in String-switch dispatch for methods exceeding 32 KB
+@Test
 public void testIssue5020() {
 	StringBuilder sourceCode = new StringBuilder(
 			"""
@@ -2083,8 +2107,5 @@ public void testIssue5020() {
 			},
 			"413914");
 
-}
-public static Class testClass() {
-	return XLargeTest.class;
 }
 }

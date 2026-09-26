@@ -13,9 +13,13 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_17)
 public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 17");
@@ -25,14 +29,8 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "test001" };
 	}
 
-	public static Class<?> testClass() {
-		return InstanceofPrimaryPatternTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_17);
-	}
-	public InstanceofPrimaryPatternTest(String testName){
-		super(testName);
+	public InstanceofPrimaryPatternTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	protected void runNegativeTest(
@@ -50,6 +48,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 		runner.expectedJavacOutputString = javacLog;
 		runner.runNegativeTest();
 	}
+	@Test
 	public void test001() {
 		runConformTest(
 			new String[] {
@@ -67,6 +66,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			},
 			"Hello World!");
 	}
+	@Test
 	public void test002() {
 		String expectedDiagnostics = this.complianceLevel < ClassFileConstants.JDK20 ?
 				"----------\n" +
@@ -102,6 +102,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			},
 			expectedDiagnostics);
 	}
+	@Test
 	public void test003() {
 
 		String expectedDiagnostics = this.complianceLevel < ClassFileConstants.JDK20 ?
@@ -159,6 +160,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			},
 			expectedDiagnostics);
 	}
+	@Test
 	public void test007() {
 		runNegativeTest(
 			new String[] {
@@ -187,6 +189,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void test009() {
 		runNegativeTest(
 			new String[] {
@@ -225,6 +228,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1076
 	// ECJ accepts invalid Java code instanceof final Type
+	@Test
 	public void testGH1076() {
 		runNegativeTest(
 			new String[] {
@@ -245,6 +249,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testGH1621() {
 		runConformTest(
 			new String[] {
@@ -276,6 +281,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415() {
 		runNegativeTest(
 			new String[] {
@@ -311,6 +317,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_1() {
 		runNegativeTest(
 			new String[] {
@@ -343,6 +350,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_2() {
 		runNegativeTest(
 			new String[] {
@@ -380,6 +388,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_3() {
 		runNegativeTest(
 			new String[] {
@@ -414,6 +423,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_4() {
 		runNegativeTest(
 			new String[] {
@@ -484,6 +494,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_5() {
 		runNegativeTest(
 			new String[] {
@@ -518,6 +529,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_6() {
 		runConformTest(
 			new String[] {
@@ -556,6 +568,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_7() {
 		runConformTest(
 			new String[] {
@@ -597,6 +610,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
 	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	@Test
 	public void test577415_8() {
 		runNegativeTest(
 			new String[] {
@@ -639,6 +653,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			+ "----------\n");
 	}
 
+	@Test
 	public void testGH3074() {
 		runNegativeTest(
 			new String[] {
@@ -665,6 +680,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
+	@Test
 	public void testIssue3222() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -694,6 +710,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
+	@Test
 	public void testIssue3222_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -723,6 +740,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
+	@Test
 	public void testIssue3222_3() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -756,6 +774,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
 	// Compilation error on ECJ but not with JavaC
+	@Test
 	public void testIssue3897() {
 		runConformTest(
 			new String[] {
@@ -784,6 +803,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
 	// Compilation error on ECJ but not with JavaC
+	@Test
 	public void testIssue3897_2() {
 		runNegativeTest(
 			new String[] {
@@ -841,6 +861,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
 	// Compilation error on ECJ but not with JavaC
+	@Test
 	public void testIssue3897_3() {
 		runNegativeTest(
 			new String[] {
@@ -898,6 +919,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
 	// Compilation error on ECJ but not with JavaC
+	@Test
 	public void testIssue3897_4() {
 		runNegativeTest(
 			new String[] {
@@ -948,6 +970,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
 	// Compilation error on ECJ but not with JavaC
+	@Test
 	public void testIssue3897_5() {
 		runNegativeTest(
 			new String[] {

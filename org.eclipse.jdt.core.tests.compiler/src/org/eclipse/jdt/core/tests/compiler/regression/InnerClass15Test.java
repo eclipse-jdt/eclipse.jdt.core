@@ -14,20 +14,18 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class InnerClass15Test extends AbstractRegressionTest {
-public InnerClass15Test(String name) {
-	super(name);
+public InnerClass15Test(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 static {
 //	TESTS_NUMBERS = new int[] { 2 };
 	//TESTS_NAMES = new String[] {"testBug520874"};
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 @Override
 protected Map<String, String> getCompilerOptions() {
@@ -36,6 +34,7 @@ protected Map<String, String> getCompilerOptions() {
 	return options;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=312989
+@Test
 public void test001() {
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -63,6 +62,7 @@ public void test001() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=312989
+@Test
 public void test002() {
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -93,6 +93,7 @@ public void test002() {
 // note javac reports an error for this test, but that is
 // incorrect, compare and contrast javac behavior with
 // test004.
+@Test
 public void test003() {
 	this.runNegativeTest(new String[] {
 		"Y.java",
@@ -121,6 +122,7 @@ public void test003() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=312989
+@Test
 public void test004() {
 	this.runNegativeTest(new String[] {
 		"Y.java",
@@ -144,6 +146,7 @@ public void test004() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test005() {
 	this.runNegativeTest(new String[] {
 		"p1/GreenBox.java",
@@ -167,6 +170,7 @@ public void test005() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test006() {
 	this.runNegativeTest(new String[] {
 		"p1/BrownBox.java",
@@ -190,6 +194,7 @@ public void test006() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test007() {
 	this.runNegativeTest(new String[] {
 		"p1/BrownBox.java",
@@ -213,6 +218,7 @@ public void test007() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test008() {
 	this.runNegativeTest(new String[] {
 		"p1/BrownBox.java",
@@ -242,6 +248,7 @@ public void test008() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test009() {
 	this.runNegativeTest(new String[] {
 		"p1/GreenBox.java",
@@ -271,6 +278,7 @@ public void test009() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test0010() {
 	this.runNegativeTest(new String[] {
 		"p1/GreenBox.java",
@@ -302,6 +310,7 @@ public void test0010() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test0011() {
 	this.runNegativeTest(new String[] {
 		"p1/GreenBox.java",
@@ -333,6 +342,7 @@ public void test0011() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test0012() {
 	this.runNegativeTest(new String[] {
 		"p1/GreenBox.java",
@@ -364,6 +374,7 @@ public void test0012() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test0013() {
 	this.runNegativeTest(new String[] {
 		"cycle/X.java",
@@ -384,6 +395,7 @@ public void test0013() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+@Test
 public void test0014() {
 	this.runNegativeTest(new String[] {
 		"cycle/X.java",
@@ -427,6 +439,7 @@ public void test0014() {
 	"Cycle detected: a cycle exists in the type hierarchy between C and X\n" +
 	"----------\n");
 }
+@Test
 public void testBug520874a() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return; // Limit the new tests to newer levels
@@ -459,6 +472,7 @@ public void testBug520874a() {
 			"Cycle detected: a cycle exists in the type hierarchy between C and A\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874b() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return; // Limit the new tests to newer levels
@@ -491,6 +505,7 @@ public void testBug520874b() {
 			"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874c() {
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
@@ -521,6 +536,7 @@ public void testBug520874c() {
 			"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874d() {
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
@@ -551,6 +567,7 @@ public void testBug520874d() {
 			"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874e() {
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
@@ -580,6 +597,7 @@ public void testBug520874e() {
 			"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874f() {
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
@@ -609,6 +627,7 @@ public void testBug520874f() {
 			"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874g() {
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
@@ -638,6 +657,7 @@ public void testBug520874g() {
 			"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874h() {
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
@@ -667,6 +687,7 @@ public void testBug520874h() {
 			"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 			"----------\n");
 }
+@Test
 public void testBug520874i() {
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
@@ -696,6 +717,7 @@ public void testBug520874i() {
 		"Cycle detected: a cycle exists in the type hierarchy between A and C\n" +
 		"----------\n");
 }
+@Test
 public void testBug526681() {
 	runNegativeTest(
 		new String[] {
@@ -723,6 +745,7 @@ public void testBug526681() {
 		"Cycle detected: a cycle exists in the type hierarchy between B and A\n" +
 		"----------\n");
 }
+@Test
 public void testBug527731() {
 	runConformTest(
 		new String[] {
@@ -745,6 +768,7 @@ public void testBug527731() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3842
 // ECJ allows (unreachable) inner classes to access non effectively final outer locals
+@Test
 public void testIssue3842() {
 	runNegativeTest(
 		new String[] {
@@ -789,6 +813,7 @@ public void testIssue3842() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3842
 // ECJ allows (unreachable) inner classes to access non effectively final outer locals
+@Test
 public void testIssue3842_2() {
 	runNegativeTest(
 		new String[] {
@@ -827,6 +852,7 @@ public void testIssue3842_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1069
 // Extending an inner interface can cause a bounds mismatch error
+@Test
 public void testIssue1069() {
 	runConformTest(
 		new String[] {
@@ -850,6 +876,7 @@ public void testIssue1069() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1069
 // Extending an inner interface can cause a bounds mismatch error
+@Test
 public void testIssue1069_reported() {
 	runConformTest(
 		new String[] {
@@ -886,6 +913,7 @@ public void testIssue1069_reported() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5197
 // Compilation error with JDT but ok with JavaC
+@Test
 public void testIssue5197() {
 	runConformTest(
 		new String[] {
@@ -951,6 +979,7 @@ public void testIssue5197() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4733
 // compile error when self-import references a nested class that is used as a type argument
+@Test
 public void testIssue4733() {
 	runConformTest(
 		new String[] {
@@ -981,6 +1010,7 @@ public void testIssue4733() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4889
 // Eclipse 4.39.0 RC1: Unable to resolve inner abstract class
+@Test
 public void testIssue4889() {
 	runConformTest(
 		new String[] {

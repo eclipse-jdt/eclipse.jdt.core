@@ -16,20 +16,21 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JSR335ClassFileTest extends AbstractComparableTest {
 
 	String versionString = null;
 
-public JSR335ClassFileTest(String name) {
-	super(name);
+public JSR335ClassFileTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // No need for a tearDown()
 @Override
@@ -48,9 +49,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 50, 51, 52, 53 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
+@Test
 public void test001() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -152,6 +151,7 @@ public void test001() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -260,6 +260,7 @@ public void test002() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test003() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -368,6 +369,7 @@ public void test003() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test004() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -495,6 +497,7 @@ public void test004() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test005() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -603,6 +606,7 @@ public void test005() throws Exception {
 			"		#39 ()LMain;\n" +
 			"}", "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test006() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -724,6 +728,7 @@ public void test006() throws Exception {
 			"}";
 	verifyClassFile(expected, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test007() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -849,6 +854,7 @@ public void test007() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test007a() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -971,6 +977,7 @@ public void test007a() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test008() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1085,6 +1092,7 @@ public void test008() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test009() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1343,6 +1351,7 @@ public void test009() throws Exception {
 				"}";
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test010() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1640,6 +1649,7 @@ public void test010() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test011() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1938,6 +1948,7 @@ public void test011() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406627,  [1.8][compiler][codegen] Annotations on lambda parameters go the way of /dev/null
+@Test
 public void test012() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2102,6 +2113,7 @@ public void test012() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406627,  [1.8][compiler][codegen] Annotations on lambda parameters go the way of /dev/null
+@Test
 public void test013() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2237,6 +2249,7 @@ public void test013() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void test014() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2444,6 +2457,7 @@ public void test014() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
+@Test
 public void test015() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2672,6 +2686,7 @@ public void test015() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406392, [1.8][compiler][codegen] Improve identification of lambdas that must capture enclosing instance
+@Test
 public void test016() throws Exception {
 	// This test proves that when a lambda body references a type variable of an enclosing method, it can still be emitted as a static method.
 	this.runConformTest(
@@ -2859,6 +2874,7 @@ public void test016() throws Exception {
 	verifyClassFile(expectedOutput, "X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406392, [1.8][compiler][codegen] Improve identification of lambdas that must capture enclosing instance
+@Test
 public void test017() throws Exception {
 	// This test proves that when a lambda body references a type variable of an enclosing class, it can still be emitted as a static method.
 	this.runConformTest(
@@ -3046,6 +3062,7 @@ public void test017() throws Exception {
 	verifyClassFile(expectedOutput, "X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+@Test
 public void test424444() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -3080,6 +3097,7 @@ public void test424444() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+@Test
 public void test424444a() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -3114,6 +3132,7 @@ public void test424444a() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+@Test
 public void test424444b() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -3148,6 +3167,7 @@ public void test424444b() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+@Test
 public void test424444c() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -3182,6 +3202,7 @@ public void test424444c() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+@Test
 public void test424444d() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -3216,6 +3237,7 @@ public void test424444d() throws Exception {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters
+@Test
 public void test430015() throws IOException, ClassFormatException {
 	this.runConformTest(
 			new String[] {
@@ -3255,6 +3277,7 @@ public void test430015() throws IOException, ClassFormatException {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters
+@Test
 public void test430015a() throws IOException, ClassFormatException {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
@@ -3290,6 +3313,7 @@ public void test430015a() throws IOException, ClassFormatException {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035() throws IOException, ClassFormatException {
 	this.runConformTest(
 			new String[] {
@@ -3723,6 +3747,7 @@ public void test430035() throws IOException, ClassFormatException {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430571,  [1.8][compiler] Lambda parameter names and annotations don't make it to class files.
+@Test
 public void test430571() throws IOException, ClassFormatException {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
@@ -3765,6 +3790,7 @@ public void test430571() throws IOException, ClassFormatException {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435869, [1.8][compiler]AIOOB with annotated intersection cast
+@Test
 public void test435869() throws IOException, ClassFormatException {
 	this.runConformTest(
 			new String[] {

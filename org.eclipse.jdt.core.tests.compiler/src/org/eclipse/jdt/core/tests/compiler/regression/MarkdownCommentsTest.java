@@ -14,10 +14,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_23)
 public class MarkdownCommentsTest extends JavadocTest {
 
 	private static final JavacTestOptions JAVAC_TEST_OPTIONS = new JavacTestOptions(" -source 23 -Xdoclint");
@@ -34,18 +38,14 @@ public class MarkdownCommentsTest extends JavadocTest {
 	String processAnnotations = null;
 	String reportJavadocDeprecation = null;
 
-	public MarkdownCommentsTest(String name) {
-		super(name);
+	public MarkdownCommentsTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] {"test018"};
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(MarkdownCommentsTest.class, F_23);
 	}
 
 	@Override
@@ -130,6 +130,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 		runner.runWarningTest();
 	}
 
+	@Test
 	public void test001() {
 		this.runNegativeTest(new String[] { "X.java", """
 				public class X {
@@ -149,6 +150,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"Javadoc: Parameter parameters is not declared\n" +
 				"----------\n");
 	}
+	@Test
 	public void test002() {
 		this.runWarningTest(new String[] { "X.java", """
 				public class X {
@@ -169,6 +171,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"Javadoc: Description expected after this reference\n" +
 				"----------\n");
 	}
+	@Test
 	public void test003() {
 		this.runConformTest(new String[] { "X.java", """
 				public class X {
@@ -183,6 +186,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				""", },
 				"");
 	}
+	@Test
 	public void test004() {
 		this.runNegativeTest(new String[] { "X.java", """
 				public class X {
@@ -202,6 +206,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"Javadoc: The method method() is undefined for the type X\n" +
 				"----------\n");
 	}
+	@Test
 	public void test005() {
 		this.runConformTest(new String[] { "X.java", """
 				public class X {
@@ -217,6 +222,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				""", },
 				"");
 	}
+	@Test
 	public void test006() {
 		this.runConformTest(new String[] { "X.java",
 				"""
@@ -230,6 +236,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				""", },
 				"Hello");
 	}
+	@Test
 	public void test007() {
 		this.runNegativeTest(new String[] { "X.java",
 				"""
@@ -248,6 +255,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"Javadoc: The method method() is undefined for the type X\n" +
 				"----------\n");
 	}
+	@Test
 	public void test008() {
 		this.runNegativeTest(new String[] { "X.java",
 				"""
@@ -266,6 +274,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"Javadoc: The method method() is undefined for the type X\n" +
 				"----------\n");
 	}
+	@Test
 	public void test009() {
 		this.runNegativeTest(new String[] { "X.java",
 				"""
@@ -284,6 +293,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 				"Javadoc: The method method() is undefined for the type X\n" +
 				"----------\n");
 	}
+	@Test
 	public void test010() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -312,6 +322,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test011() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -340,6 +351,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test012() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -366,6 +378,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test013() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -395,6 +408,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test014() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -427,6 +441,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 		}
 	}
 	// Test mark down links inside []
+	@Test
 	public void test015() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -452,6 +467,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test016() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -477,6 +493,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test017() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -507,6 +524,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test018() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -532,6 +550,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test019() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -557,6 +576,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test020() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -582,6 +602,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test021() {
 		// arrays in method reference lack escaping.
 		// TODO specific error message?
@@ -610,6 +631,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test022() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -632,6 +654,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test023() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -659,6 +682,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test024() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -680,6 +704,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 			this.reportMissingJavadocTags = bkup;
 		}
 	}
+	@Test
 	public void test025() {
 		String bkup = this.reportMissingJavadocTags;
 		try {
@@ -707,6 +732,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 		}
 	}
 
+	@Test
 	public void testMarkdownSupportForInlineTags_5010() {
 		this.runConformTest(new String[] { "X.java", """
 	            public class X {

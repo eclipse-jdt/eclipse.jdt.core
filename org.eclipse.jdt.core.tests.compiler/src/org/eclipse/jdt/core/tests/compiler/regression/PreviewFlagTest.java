@@ -14,16 +14,20 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @PreviewTest
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_27)
 public class PreviewFlagTest extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 27");
@@ -35,14 +39,8 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testIssue3614_001" };
 	}
 	private String extraLibPath;
-	public static Class<?> testClass() {
-		return PreviewFlagTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_27);
-	}
-	public PreviewFlagTest(String testName) {
-		super(testName);
+	public PreviewFlagTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -111,6 +109,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			this.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		}
 	}
+	@Test
 	public void testIssue3614_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -156,6 +155,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			true,
 			options);
 	}
+	@Test
 	public void testIssue3614_003() throws Exception {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions(false);
@@ -174,6 +174,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	@Test
 	public void testIssue3614_003_enabled() throws Exception {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions(true);
@@ -229,6 +230,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 		options.put(CompilerOptions.OPTION_TargetPlatform, str);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	}
+	@Test
 	public void testIssue3943_002() throws IOException, ClassFormatException {
 		Map<String, String> options = getCompilerOptions();
 		String str = options.get(CompilerOptions.OPTION_Compliance);

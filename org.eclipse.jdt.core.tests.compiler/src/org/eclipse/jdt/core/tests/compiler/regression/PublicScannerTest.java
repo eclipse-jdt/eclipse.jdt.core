@@ -26,18 +26,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Test that validates {@link Scanner} and {@link PublicScanner} use of tokens.
  */
-@SuppressWarnings({ "rawtypes" })
 public class PublicScannerTest extends AbstractRegressionTest {
 
 	private Map<Integer, String> ttValueToName;
@@ -95,16 +95,8 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		MODULE_TOKENS = Collections.unmodifiableList(list);
 	}
 
-	public PublicScannerTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return PublicScannerTest.class;
+	public PublicScannerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -115,13 +107,13 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		this.ttFields = TerminalToken.values();
 		for (TerminalToken field : this.ttFields) {
 			// we are stuck with the clunkier names for API - map
-			String fName = field.name();
-			if (fName.equals("TokenNamesealed"))
-				fName = "TokenNameRestrictedIdentifiersealed";
-			else if (fName.equals("TokenNamepermits"))
-				fName = "TokenNameRestrictedIdentifierpermits";
-			this.ttValueToName.put(field.tokenNumber(), fName);
-			this.ttNameToValue.put(fName, field);
+			String fieldName = field.name();
+			if (fieldName.equals("TokenNamesealed"))
+				fieldName = "TokenNameRestrictedIdentifiersealed";
+			else if (fieldName.equals("TokenNamepermits"))
+				fieldName = "TokenNameRestrictedIdentifierpermits";
+			this.ttValueToName.put(field.tokenNumber(), fieldName);
+			this.ttNameToValue.put(fieldName, field);
 		}
 		if(this.ttValueToName.size() != this.ttNameToValue.size()) {
 			this.ttNameToValue.keySet().removeAll(this.ttValueToName.values());
@@ -144,6 +136,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 	/**
 	 * Tests that all constants defined in @link {@link TerminalToken} are properly handled by {@link PublicScanner#getNextToken()}
 	 */
+	@Test
 	public void testGetNextToken() throws Exception {
 		Set<Entry<String, TerminalToken>> entrySet = this.ttNameToValue.entrySet();
 		for (Entry<String, TerminalToken> entry : entrySet) {
@@ -192,6 +185,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 	 * or defined in {@link #SYNTHETIC_REPLACE_TOKENS}, or {@link #SYNTHETIC_SKIP_TOKENS}, or {@link #MODULE_TOKENS}
 	 * and no constants defined in {@link ITerminalSymbols} are missing in {@link TerminalToken}
 	 */
+	@Test
 	public void testTokensAndSymbolsSync() throws Exception {
 		Set<Entry<String, Integer>> entrySet = this.tsNameToValue.entrySet();
 		for (Entry<String, Integer> entry : entrySet) {

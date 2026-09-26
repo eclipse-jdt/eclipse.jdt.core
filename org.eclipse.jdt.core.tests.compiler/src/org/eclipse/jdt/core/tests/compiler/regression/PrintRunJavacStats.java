@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * This test class exists for the sole purpose of printing statistics about tests run as comparison of ecj vs javac.
@@ -21,13 +22,11 @@ import junit.framework.Test;
  */
 @RunJavac
 public class PrintRunJavacStats extends AbstractRegressionTest {
-	public PrintRunJavacStats(String name) {
-		super(name);
+	public PrintRunJavacStats(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(PrintRunJavacStats.class, FIRST_SUPPORTED_JAVA_VERSION);
-	}
+	@Test
 	public void testPrint() {
-		printRunJavacStats();
+		Runtime.getRuntime().addShutdownHook(new Thread(AbstractRegressionTest::printRunJavacStats));
 	}
 }

@@ -13,8 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
-@SuppressWarnings({ "rawtypes" })
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class TryStatement9Test extends AbstractRegressionTest {
 
 static {
@@ -22,13 +25,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public TryStatement9Test(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_9);
+public TryStatement9Test(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void testBug488569_001() { // vanilla test case
 	this.runConformTest(
 			new String[] {
@@ -59,6 +60,7 @@ public void testBug488569_001() { // vanilla test case
 }
 
 // vanilla with a delimiter
+@Test
 public void testBug488569_002() {
 	this.runConformTest(
 			new String[] {
@@ -88,6 +90,7 @@ public void testBug488569_002() {
 			"Done");
 }
 
+@Test
 public void testBug488569_003() {
 	this.runConformTest(
 			new String[] {
@@ -117,6 +120,7 @@ public void testBug488569_003() {
 			},
 			"Done");
 }
+@Test
 public void testBug488569_004() {
 	this.runConformTest(
 			new String[] {
@@ -146,6 +150,7 @@ public void testBug488569_004() {
 		"Done");
 }
 
+@Test
 public void testBug488569_005() {
 	this.runConformTest(
 			new String[] {
@@ -174,6 +179,7 @@ public void testBug488569_005() {
 			},
 		"Done");
 }
+@Test
 public void testBug488569_006() {
 	this.runConformTest(
 		new String[] {
@@ -202,6 +208,7 @@ public void testBug488569_006() {
 }
 
 // check for the error for non-effectively final variable.
+@Test
 public void testBug488569_007() {
 	this.runNegativeTest(
 		new String[] {
@@ -247,6 +254,7 @@ public void testBug488569_007() {
 		"----------\n");
 }
 //check for the error for combination of NameRef and LocalVarDecl.
+@Test
 public void testBug488569_008() {
 	this.runNegativeTest(
 		new String[] {
@@ -281,6 +289,7 @@ public void testBug488569_008() {
 }
 
 //check for the warning for combination of LocalVarDecl and NameRef.
+@Test
 public void testBug488569_009() {
 	this.runNegativeTest(
 		new String[] {
@@ -314,6 +323,7 @@ public void testBug488569_009() {
 		"----------\n");
 }
 //check for the warning for combination of NameRef and NameRef.
+@Test
 public void testBug488569_010() {
 	this.runNegativeTest(
 		new String[] {
@@ -347,6 +357,7 @@ public void testBug488569_010() {
 		"Duplicate resource reference y1\n" +
 		"----------\n");
 }
+@Test
 public void testBug488569_011() {
 	this.runConformTest(
 			new String[] {
@@ -375,6 +386,7 @@ public void testBug488569_011() {
 			"Done");
 }
 
+@Test
 public void testBug488569_012() {
 	this.runConformTest(
 			new String[] {
@@ -406,6 +418,7 @@ public void testBug488569_012() {
 
 // Confirm the behavior as described in https://bugs.eclipse.org/bugs/show_bug.cgi?id=338402#c16 even with the
 // presence of a duplicate variable in-line with javac9.
+@Test
 public void testBug488569_013() {
 	this.runConformTest(
 			new String[] {
@@ -436,6 +449,7 @@ public void testBug488569_013() {
 }
 
 // check for unhandled-exception error
+@Test
 public void testBug488569_014() {
 	this.runNegativeTest(
 		new String[] {
@@ -467,6 +481,7 @@ public void testBug488569_014() {
 }
 
 // field to be legal
+@Test
 public void testBug488569_015(){
 	this.runConformTest(
 			new String[] {
@@ -501,6 +516,7 @@ public void testBug488569_015(){
 			);
 }
 //field to be legal - but null field not to be called for close
+@Test
 public void testBug488569_016(){
 	this.runConformTest(
 			new String[] {
@@ -534,6 +550,7 @@ public void testBug488569_016(){
 }
 
 // field in various avatars
+@Test
 public void testBug488569_017(){
 	this.runConformTest(
 			new String[] {
@@ -572,6 +589,7 @@ public void testBug488569_017(){
 }
 
 // negative tests: non-final fields
+@Test
 public void testBug488569_018() {
 	this.runNegativeTest(
 		new String[] {
@@ -619,6 +637,7 @@ public void testBug488569_018() {
 		"----------\n");
 }
 //negative tests: duplicate fields
+@Test
 public void testBug488569_019() {
 	this.runNegativeTest(
 		new String[] {
@@ -665,6 +684,7 @@ public void testBug488569_019() {
 		"----------\n");
 }
 
+@Test
 public void testBug488569_020() { // vanilla test case
 	this.runConformTest(
 			new String[] {
@@ -691,6 +711,7 @@ public void testBug488569_020() { // vanilla test case
 }
 
 //negative tests: duplicate fields
+@Test
 public void testBug488569_021() {
 	this.runNegativeTest(
 		new String[] {
@@ -720,6 +741,7 @@ public void testBug488569_021() {
 		"Unhandled exception type IOException thrown by automatic close() invocation on z\n" +
 		"----------\n");
 }
+@Test
 public void testBug577128_1() {
 	this.runConformTest(
 		new String[] {
@@ -745,6 +767,7 @@ public void testBug577128_1() {
 		"close() call\n" +
 		"close() call");
 }
+@Test
 public void testGH1825() {
 	runNegativeTest(
 		new String[] {
@@ -774,6 +797,7 @@ public void testGH1825() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3841
 // [Try with Resources] Missing error about non-final field used as a resource when TWR is unreachble.
+@Test
 public void testIssue3841() {
 	runNegativeTest(
 			new String[] {
@@ -821,8 +845,4 @@ public void testIssue3841() {
 			"Field y2 used as a resource in a try with resources statement must be declared final\n" +
 			"----------\n");
 	}
-
-public static Class testClass() {
-	return TryStatement9Test.class;
-}
 }

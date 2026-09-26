@@ -13,12 +13,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_21)
 public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	static {
@@ -29,14 +33,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	private static String previewLevel = "23";
 
-	public static Class<?> testClass() {
-		return SwitchPatternTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_21);
-	}
-	public SwitchPatternTest(String testName){
-		super(testName);
+	public SwitchPatternTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -99,6 +97,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 
+	@Test
 	public void testIssue57_001() {
 		runConformTest(
 			new String[] {
@@ -118,6 +117,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"String: Hello World!");
 	}
+	@Test
 	public void testIssue57_002() {
 		runConformTest(
 			new String[] {
@@ -137,6 +137,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"Integer: greater than 10");
 	}
+	@Test
 	public void testBug573516_002() {
 		runNegativeTest(
 			new String[] {
@@ -161,6 +162,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_003() {
 		runNegativeTest(
 			new String[] {
@@ -186,6 +188,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_004() {
 		runNegativeTest(
 			new String[] {
@@ -210,6 +213,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_005() {
 		runNegativeTest(
 			new String[] {
@@ -250,6 +254,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_006() {
 		runNegativeTest(
 			new String[] {
@@ -300,6 +305,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_007() {
 		runNegativeTest(
 			new String[] {
@@ -335,6 +341,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_008() {
 		runNegativeTest(
 			new String[] {
@@ -375,6 +382,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_009() {
 		runNegativeTest(
 			new String[] {
@@ -410,6 +418,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_010() {
 		runNegativeTest(
 			new String[] {
@@ -455,6 +464,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug573516_011() {
 		runNegativeTest(
 			new String[] {
@@ -485,6 +495,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574228_001() {
 		runNegativeTest(
 			new String[] {
@@ -515,6 +526,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug573936_01() {
 		this.runNegativeTest(
 				new String[] {
@@ -551,6 +563,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573939_01() {
 		runNegativeTest(
 				new String[] {
@@ -582,6 +595,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"The method Zork() is undefined for the type X\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573939_02() {
 		this.runConformTest(
 				new String[] {
@@ -608,6 +622,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"String\n" +
 				"Object");
 	}
+	@Test
 	public void testBug573939_03() {
 		this.runConformTest(
 				new String[] {
@@ -648,6 +663,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"H\n" +
 				"Object");
 	}
+	@Test
 	public void testBug573939_03b() {
 		this.runConformTest(
 				new String[] {
@@ -688,6 +704,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"H\n" +
 				"Object");
 	}
+	@Test
 	public void test045() {
 		this.runNegativeTest(
 			new String[] {
@@ -712,6 +729,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The local variable j may not have been initialized\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574525_01() {
 		this.runConformTest(
 				new String[] {
@@ -736,6 +754,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"NULL");
 	}
+	@Test
 	public void testBug574525_02() {
 		this.runConformTest(
 				new String[] {
@@ -778,6 +797,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"NULL\n" +
 				"Object");
 	}
+	@Test
 	public void testBug574525_03() {
 		this.runConformTest(
 				new String[] {
@@ -802,6 +822,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"0");
 	}
+	@Test
 	public void testBug574525_04() {
 		this.runNegativeTest(
 				new String[] {
@@ -831,6 +852,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Case constant of type null is incompatible with switch selector type int\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug574538_01() {
 		this.runConformTest(
 				new String[] {
@@ -858,6 +880,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Greater than 10:11\n" +
 				"Greater than 0:9");
 	}
+	@Test
 	public void testBug574538_02() {
 		this.runConformTest(
 				new String[] {
@@ -883,6 +906,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Object:Hello World!");
 	}
 
+	@Test
 	public void testBug574549_01() {
 		this.runConformTest(
 				new String[] {
@@ -902,6 +926,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Object: Hello World!");
 	}
+	@Test
 	public void testBug574549_02() {
 		this.runConformTest(
 				new String[] {
@@ -931,6 +956,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Greater than 0:9\n" +
 				"Give Me Some SunShine:Hello World!");
 	}
+	@Test
 	public void testBug574549_03() {
 		this.runNegativeTest(
 				new String[] {
@@ -970,6 +996,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"The default case is already defined\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug574549_04() {
 		this.runNegativeTest(
 				new String[] {
@@ -1006,6 +1033,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that when a pattern variable is unused and when the OPTION_PreserveUnusedLocal
 	// option is used, no issue is reported at runtime.
+	@Test
 	public void testBug573937_1() {
 		Map<String,String> options = getCompilerOptions();
 		String opt = options.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -1036,6 +1064,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// A simple pattern variable in a case is not visible in the
 	// following case statement
+	@Test
 	public void testBug573937_2() {
 		this.runNegativeTest(
 				new String[] {
@@ -1062,6 +1091,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Same as above, but without break statement
+	@Test
 	public void testBug573937_3() {
 		this.runNegativeTest(
 				new String[] {
@@ -1094,6 +1124,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that compiler rejects attempts to redeclare local variable
 	// with same name as a pattern variable
+	@Test
 	public void testBug573937_4() {
 		this.runNegativeTest(
 				new String[] {
@@ -1120,6 +1151,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that compiler allows local variable with same name as a
 	// pattern variable in a different case statement
+	@Test
 	public void testBug573937_5() {
 		this.runConformTest(
 				new String[] {
@@ -1144,6 +1176,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that a pattern variable can't use name of an already existing local
 	// variable
+	@Test
 	public void testBug573937_6() {
 		this.runNegativeTest(
 				new String[] {
@@ -1170,6 +1203,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// Test that compiler rejects attempts to redeclare another pattern
 	// variable (instanceof) with same name as that a pattern variable in
 	// that case statement
+	@Test
 	public void testBug573937_7() {
 		this.runNegativeTest(
 				new String[] {
@@ -1197,6 +1231,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that when multiple case statements declare pattern variables
 	// with same name, correct ones are used in their respective scopes.
+	@Test
 	public void testBug573937_8() {
 		this.runNegativeTest(
 				new String[] {
@@ -1225,6 +1260,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that a pattern variable declared in the preceding case statement
 	// can't be used in the case statement itself
+	@Test
 	public void testBug573937_9() {
 		this.runNegativeTest(
 				new String[] {
@@ -1252,6 +1288,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that redefining pattern variables with null is allowed
 	// and produce expected result (NPE) when run.
+	@Test
 	public void testBug573937_10() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1288,6 +1325,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that a pattern variable is allowed in a switch label throw
 	// statement and when run, produces expected result
+	@Test
 	public void testBug573937_11() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1323,6 +1361,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// A non effectively final referenced from the RHS of the guarding expression
 	// is reported by the compiler.
+	@Test
 	public void testBug574612_1() {
 		this.runNegativeTest(
 				new String[] {
@@ -1349,6 +1388,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// A non effectively final referenced from the LHS of the guarding expression
 	// is reported by the compiler.
+	@Test
 	public void testBug574612_2() {
 		this.runNegativeTest(
 				new String[] {
@@ -1375,6 +1415,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// An explicitly final local variable, also referenced in a guarding expression of a pattern
 	// and later on re-assigned is only reported for the explicit final being modified
+	@Test
 	public void testBug574612_3() {
 		this.runNegativeTest(
 				new String[] {
@@ -1399,6 +1440,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"The final local variable len cannot be assigned. It must be blank and not using a compound assignment\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug574612_4() {
 		this.runConformTest(
 				new String[] {
@@ -1421,6 +1463,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
+	@Test
 	public void testBug574719_001() {
 		runNegativeTest(
 			new String[] {
@@ -1445,6 +1488,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574719_006() {
 		runNegativeTest(
 			new String[] {
@@ -1481,6 +1525,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574561_001() {
 		runNegativeTest(
 			new String[] {
@@ -1506,6 +1551,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Syntax error on token \",\", : expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574561_002() {
 		runNegativeTest(
 			new String[] {
@@ -1541,6 +1587,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574561_003() {
 		runNegativeTest(
 			new String[] {
@@ -1576,6 +1623,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574793_001() {
 		runNegativeTest(
 			new String[] {
@@ -1622,6 +1670,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Case constant of type int is incompatible with switch selector type Object\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574559_001() {
 		runNegativeTest(
 			new String[] {
@@ -1642,6 +1691,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Cannot mix pattern with other case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574559_002() {
 		runNegativeTest(
 			new String[] {
@@ -1668,6 +1718,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has one statement)
+	@Test
 	public void testBug573940_1() {
 		runNegativeTest(
 				new String[] {
@@ -1697,6 +1748,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
+	@Test
 	public void testBug573940_2() {
 		runNegativeTest(
 				new String[] {
@@ -1726,6 +1778,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
+	@Test
 	public void testBug573940_2a() {
 		runNegativeTest(
 				new String[] {
@@ -1749,6 +1802,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that falling through from a pattern to a default is allowed
+	@Test
 	public void testBug573940_3() {
 		runConformTest(
 				new String[] {
@@ -1772,6 +1826,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that a case statement with pattern is allowed when statement group ends
 	// with an Throw statement instead of a break statement
+	@Test
 	public void testBug573940_4() {
 		runConformTest(
 				new String[] {
@@ -1800,6 +1855,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that switch expression with pattern variables is reported when a case statement
 	// doesn't return any value.
+	@Test
 	public void testBug573940_5() {
 		runNegativeTest(
 				new String[] {
@@ -1824,6 +1880,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug574564_001() {
 		runNegativeTest(
 			new String[] {
@@ -1847,6 +1904,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"'var' is not allowed here\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_002() {
 		runNegativeTest(
 			new String[] {
@@ -1895,6 +1953,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Named pattern variables are not allowed here\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_003() {
 		runNegativeTest(
 			new String[] {
@@ -1923,6 +1982,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Cannot mix pattern with other case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_004() {
 		runNegativeTest(
 			new String[] {
@@ -1961,6 +2021,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"'var' is not allowed here\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_005() {
 		runNegativeTest(
 			new String[] {
@@ -1994,6 +2055,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"'var' is not allowed here\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_006() {
 		runNegativeTest(
 			new String[] {
@@ -2032,6 +2094,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The default case is already defined\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_007() {
 		runNegativeTest(
 			new String[] {
@@ -2080,6 +2143,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The default case is already defined\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_008() {
 		runNegativeTest(
 			new String[] {
@@ -2118,6 +2182,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The default case is already defined\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_009() {
 		runNegativeTest(
 			new String[] {
@@ -2152,6 +2217,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574564_010() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_20);
@@ -2191,6 +2257,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			true,
 			options);
 	}
+	@Test
 	public void testBug574564_013() {
 		runNegativeTest(
 			new String[] {
@@ -2220,6 +2287,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574563_001() {
 		runNegativeTest(
 			new String[] {
@@ -2241,6 +2309,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Duplicate case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574563_002() {
 		runNegativeTest(
 			new String[] {
@@ -2269,6 +2338,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574563_003() {
 		runNegativeTest(
 			new String[] {
@@ -2300,6 +2370,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574563_004() {
 		runNegativeTest(
 			new String[] {
@@ -2326,6 +2397,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug574563_005() {
 		runNegativeTest(
 			new String[] {
@@ -2357,6 +2429,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug575030_01() {
 		this.runConformTest(
 				new String[] {
@@ -2375,6 +2448,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Hello World!");
 	}
+	@Test
 	public void testBug574614_001() {
 		runConformTest(
 			new String[] {
@@ -2400,6 +2474,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"Hello World!");
 	}
+	@Test
 	public void testBug574614_002() {
 		runConformTest(
 			new String[] {
@@ -2428,6 +2503,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"Hello World!");
 	}
+	@Test
 	public void testBug573921_1() {
 		runNegativeTest(
 				new String[] {
@@ -2453,6 +2529,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573921_2() {
 		runNegativeTest(
 				new String[] {
@@ -2479,6 +2556,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573921_3() {
 		runConformTest(
 				new String[] {
@@ -2503,6 +2581,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"String:Hello!");
 	}
+	@Test
 	public void testBug573921_4() {
 		runConformTest(
 				new String[] {
@@ -2527,6 +2606,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"A CS:Hello!");
 	}
+	@Test
 	public void testBug573921_5() {
 		runConformTest(
 				new String[] {
@@ -2550,6 +2630,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"2:Hello");
 	}
+	@Test
 	public void testBug573921_6() {
 		runConformTest(
 				new String[] {
@@ -2573,6 +2654,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1:");
 	}
+	@Test
 	public void testBug573921_7() {
 		runNegativeTest(
 				new String[] {
@@ -2599,6 +2681,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Type Object cannot be safely cast to List<String>\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573921_8() {
 		runNegativeTest(
 				new String[] {
@@ -2623,6 +2706,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Type mismatch: cannot convert from int to String\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573921_9() {
 		runNegativeTest(
 				new String[] {
@@ -2647,6 +2731,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573921_10() {
 		runNegativeTest(
 				new String[] {
@@ -2671,6 +2756,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug573921_11() {
 		runNegativeTest(
 				new String[] {
@@ -2695,6 +2781,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575049_001() {
 		runConformTest(
 			new String[] {
@@ -2720,6 +2807,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575049_002() {
 		runConformTest(
 			new String[] {
@@ -2744,6 +2832,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575049_003() {
 		runConformTest(
 			new String[] {
@@ -2768,6 +2857,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575049_004() {
 		runNegativeTest(
 			new String[] {
@@ -2796,6 +2886,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug575048_01() {
 		runNegativeTest(
 			new String[] {
@@ -2819,6 +2910,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug575053_001() {
 		runConformTest(
 			new String[] {
@@ -2841,6 +2933,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"Null Pointer Exception Thrown");
 	}
+	@Test
 	public void testBug575053_002() {
 		runConformTest(
 			new String[] {
@@ -2864,6 +2957,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"",
 			"Null Pointer Exception Thrown");
 	}
+	@Test
 	public void testBug575249_01() {
 		runNegativeTest(
 			new String[] {
@@ -2892,6 +2986,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug575249_02() {
 		runConformTest(
 			new String[] {
@@ -2910,6 +3005,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575249_03() {
 		runNegativeTest(
 			new String[] {
@@ -2941,6 +3037,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"""
 				);
 	}
+	@Test
 	public void testBug575249_04() {
 		runConformTest(
 			new String[] {
@@ -2959,6 +3056,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575241_01() {
 		runConformTest(
 			new String[] {
@@ -2976,6 +3074,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575241_02() {
 		runConformTest(
 			new String[] {
@@ -2993,6 +3092,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575241_03() {
 		runConformTest(
 			new String[] {
@@ -3014,6 +3114,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"0");
 	}
+	@Test
 	public void testBug575241_04() {
 		runConformTest(
 			new String[] {
@@ -3038,6 +3139,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"NPE");
 	}
+	@Test
 	public void testBug575241_05() {
 		runConformTest(
 			new String[] {
@@ -3062,6 +3164,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"0\n" +
 			"100");
 	}
+	@Test
 	public void testBug575241_06() {
 		runConformTest(
 			new String[] {
@@ -3085,6 +3188,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"0\n" +
 			"NPE");
 	}
+	@Test
 	public void testBug575241_07() {
 		runConformTest(
 			new String[] {
@@ -3105,6 +3209,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Hello\n" +
 			"100");
 	}
+	@Test
 	public void testBug575241_08() {
 		runConformTest(
 			new String[] {
@@ -3128,6 +3233,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Hello\n" +
 			"NPE");
 	}
+	@Test
 	public void testBug575356_01() {
 		this.runNegativeTest(
 				new String[] {
@@ -3151,6 +3257,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575356_02() {
 		this.runConformTest(
 				new String[] {
@@ -3169,6 +3276,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
+	@Test
 	public void testBug575356_03() {
 		this.runNegativeTest(
 				new String[] {
@@ -3202,6 +3310,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575356_04() {
 		this.runConformTest(
 				new String[] {
@@ -3224,6 +3333,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Integer:10\n" +
 				"Hello");
 	}
+	@Test
 	public void testBug575052_001() {
 		runConformTest(
 			new String[] {
@@ -3242,6 +3352,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"Hello");
 	}
+	@Test
 	public void testBug575052_002() {
 		runNegativeTest(
 			new String[] {
@@ -3264,6 +3375,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug575052_003() {
 		runNegativeTest(
 			new String[] {
@@ -3286,6 +3398,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug575052_004() {
 		runConformTest(
 			new String[] {
@@ -3305,6 +3418,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testBug575050_001() {
 		runNegativeTest(
 			new String[] {
@@ -3327,6 +3441,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug575050_002() {
 		runNegativeTest(
 			new String[] {
@@ -3350,6 +3465,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	// From 14.11.1.2 - null to be handled separately - no dominance here
+	@Test
 	public void testBug575047_01() {
 		runNegativeTest(
 				new String[] {
@@ -3376,6 +3492,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// following is true:
 	//   * the type of c is a primitive type and its wrapper class (5.1.7) is a subtype of the erasure of the type of p.
     //   * the type of c is a reference type and is a subtype of the erasure of the type of p.
+	@Test
 	public void testBug575047_02() {
 		runNegativeTest(
 				new String[] {
@@ -3396,6 +3513,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575047_03() {
 		runNegativeTest(
 				new String[] {
@@ -3419,6 +3537,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575047_04() {
 		runConformTest(
 				new String[] {
@@ -3439,6 +3558,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2\n" +
 				"0");
 	}
+	@Test
 	public void testBug575047_05() {
 		runNegativeTest(
 				new String[] {
@@ -3460,6 +3580,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "Cannot switch on a value of type float. Only convertible int values, strings or enum variables are permitted\n"
 				+ "----------\n");
 	}
+	@Test
 	public void testBug575047_06() {
 		runNegativeTest(
 				new String[] {
@@ -3484,6 +3605,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// Test that when a literal is used as case constant
 	// we report type mismatch error against the literal's type and
 	// not on other types the case statement may have resolved too
+	@Test
 	public void testBug575047_07() {
 		runNegativeTest(
 				new String[] {
@@ -3510,6 +3632,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Case constant of type String is incompatible with switch selector type Number\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575047_08() {
 		runConformTest(
 				new String[] {
@@ -3530,6 +3653,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"3\n"+
 				"0");
 	}
+	@Test
 	public void testBug575047_09() {
 		runConformTest(
 				new String[] {
@@ -3550,6 +3674,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"0\n" +
 				"-1");
 	}
+	@Test
 	public void testBug575047_10() {
 		runConformTest(
 				new String[] {
@@ -3580,6 +3705,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"unknown");
 	}
 	// Positive - Mix enum constants as well as suitable pattern var
+	@Test
 	public void testBug575047_11() {
 		runConformTest(
 				new String[] {
@@ -3603,6 +3729,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Const:Red\n" +
 				"Blue");
 	}
+	@Test
 	public void testBug575047_12() {
 		runConformTest(
 				new String[] {
@@ -3627,6 +3754,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Red\n" +
 				"Blue");
 	}
+	@Test
 	public void testBug575047_13() {
 		runNegativeTest(
 				new String[] {
@@ -3651,6 +3779,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A Switch expression should cover all possible values\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575047_14() {
 		runNegativeTest(
 				new String[] {
@@ -3674,6 +3803,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A Switch expression should cover all possible values\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575047_15() {
 		runConformTest(
 				new String[] {
@@ -3695,6 +3825,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"null/default");
 	}
+	@Test
 	public void testBug575360_001() {
 		runConformTest(
 				new String[] {
@@ -3712,6 +3843,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
+	@Test
 	public void testBug575055_001() {
 		runNegativeTest(
 				new String[] {
@@ -3734,6 +3866,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Fails with Javac as it prints Javac instead of throwing NPE
 	// https://bugs.openjdk.java.net/browse/JDK-8272776
+	@Test
 	public void testBug575051_1() {
 		runNegativeTest(
 				new String[] {
@@ -3764,6 +3897,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test we don't report any illegal fall-through to null case
+	@Test
 	public void testBug575051_2() {
 		runConformTest(
 				new String[] {
@@ -3787,6 +3921,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"");
 	}
+	@Test
 	public void testBug575571_1() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -3814,6 +3949,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
 		runner.runWarningTest();
 	}
+	@Test
 	public void testBug575571_2() {
 		runNegativeTest(
 				new String[] {
@@ -3837,6 +3973,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575714_01() {
 		runNegativeTest(
 				new String[] {
@@ -3859,6 +3996,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"The method Zork() is undefined for the type X\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575714_02() {
 		runNegativeTest(
 				new String[] {
@@ -3881,6 +4019,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This method must return a result of type Object\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575714_03() {
 		runConformTest(
 				new String[] {
@@ -3899,6 +4038,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Hello");
 	}
+	@Test
 	public void testBug575714_04() {
 		runConformTest(
 				new String[] {
@@ -3920,6 +4060,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Hello");
 	}
+	@Test
 	public void testBug575687_1() {
 		runNegativeTest(
 				new String[] {
@@ -3953,6 +4094,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Case constant of type double is incompatible with switch selector type Number\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575686_1() {
 		runNegativeTest(
 				new String[] {
@@ -4035,6 +4177,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575738_001() {
 		runNegativeTest(
 				new String[] {
@@ -4058,6 +4201,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Unexpected type int, expected class or array type\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug575738_002() {
 		runNegativeTest(
 				new String[] {
@@ -4082,6 +4226,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 
+	@Test
 	public void testBug576075_001() throws Exception {
 		runConformTest(
 			new String[] {
@@ -4120,6 +4265,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"		#104 REF_getField c:Lp/Rec$MyInterface;";
 		verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug576785_001() {
 		runConformTest(
 			new String[] {
@@ -4142,6 +4288,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"42");
 	}
+	@Test
 	public void testBug576785_002() {
 		runNegativeTest(
 				new String[] {
@@ -4177,6 +4324,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"The method Zork() is undefined for the type X\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug576830_001() {
 		runNegativeTest(
 			new String[] {
@@ -4198,6 +4346,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug578107_001() {
 		runNegativeTest(
 			new String[] {
@@ -4228,6 +4377,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug578107_002() {
 		runNegativeTest(
 			new String[] {
@@ -4253,6 +4403,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug578107_003() {
 		runNegativeTest(
 			new String[] {
@@ -4278,6 +4429,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug578108_001() {
 		runNegativeTest(
 			new String[] {
@@ -4303,6 +4455,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug578108_002() {
 		runNegativeTest(
 			new String[] {
@@ -4328,6 +4481,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug578143_001() {
 		runConformTest(
 			new String[] {
@@ -4348,6 +4502,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"0\n" +
 			"1");
 	}
+	@Test
 	public void testBug578143_002() {
 		runConformTest(
 			new String[] {
@@ -4364,6 +4519,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void testBug578402() {
 		runConformTest(
 				new String[] {
@@ -4392,6 +4548,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"RED\n" +
 				"BLUE");
 	}
+	@Test
 	public void testBug578402_2() {
 		runConformTest(
 				new String[] {
@@ -4424,6 +4581,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2");
 	}
 	// to be enabled after bug 578417 is fixed.
+	@Test
 	public void testBug578402_3() {
 		runConformTest(
 				new String[] {
@@ -4452,6 +4610,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"2");
 	}
+	@Test
 	public void testBug578241_1() {
 		runConformTest(
 				new String[] {
@@ -4499,6 +4658,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "    }\n"
 				+ "}";
 	}
+	@Test
 	public void testBug578504_1() {
 		runConformTest(
 				new String[] {
@@ -4508,6 +4668,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testBug578504_2() {
 		runConformTest(
 				new String[] {
@@ -4516,6 +4677,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"false");
 	}
+	@Test
 	public void testBug578504_3() {
 		runConformTest(
 				new String[] {
@@ -4524,6 +4686,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testBug578504_6() {
 		runConformTest(
 				new String[] {
@@ -4532,6 +4695,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testBug578504_7() {
 		runConformTest(
 				new String[] {
@@ -4540,6 +4704,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"false");
 	}
+	@Test
 	public void testBug578553_1() {
 		runNegativeTest(
 				new String[] {
@@ -4582,6 +4747,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				----------
 				""");
 	}
+	@Test
 	public void testBug578553_2() {
 		runNegativeTest(
 				new String[] {
@@ -4642,6 +4808,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Syntax error, insert \";\" to complete SwitchRule\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578553_3() {
 		runNegativeTest(
 				new String[] {
@@ -4699,6 +4866,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Syntax error, insert \";\" to complete SwitchRule\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578553_4() {
 		runNegativeTest(
 				new String[] {
@@ -4725,6 +4893,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578553_5() {
 		runNegativeTest(
 				new String[] {
@@ -4751,6 +4920,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578553_6() {
 		runNegativeTest(
 				new String[] {
@@ -4777,6 +4947,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578553_7() {
 		runNegativeTest(
 				new String[] {
@@ -4804,6 +4975,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578568_1() {
 		runConformTest(
 				new String[] {
@@ -4830,6 +5002,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1");
 	}
+	@Test
 	public void testBug578568_2() {
 		runConformTest(
 				new String[] {
@@ -4853,6 +5026,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1");
 	}
+	@Test
 	public void testBug578568_3() {
 		runNegativeTest(
 				new String[] {
@@ -4880,6 +5054,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch labeled block in a switch expression must yield a value or throw an an exception\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578416() {
 		runConformTest(new String[] {
 				"X.java",
@@ -4916,6 +5091,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"10\n" +
 				"0");
 	}
+	@Test
 	public void testBug578416_1() {
 		runConformTest(new String[] {
 				"X.java",
@@ -4952,6 +5128,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"10\n" +
 				"0");
 	}
+	@Test
 	public void testBug578416_2() {
 		runConformTest(new String[] {
 				"X.java",
@@ -4981,6 +5158,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"5\n" +
 				"0");
 	}
+	@Test
 	public void testBug578416_3() {
 		runConformTest(new String[] {
 				"X.java",
@@ -5010,6 +5188,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"5\n" +
 				"0");
 	}
+	@Test
 	public void testBug578635_1() {
 		runConformTest(new String[] {
 				"X.java",
@@ -5032,6 +5211,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"false\n" +
 				"true");
 	}
+	@Test
 	public void testBug578635_2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -5062,6 +5242,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578635_3() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -5092,6 +5273,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug578417_1() {
 		runConformTest(new String[] {
 				"X.java",
@@ -5118,6 +5300,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "}"},
 				"1" );
 	}
+	@Test
 	public void testBug578132_001() {
 		runConformTest(
 				new String[] {
@@ -5138,6 +5321,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"0\n"+
 				"1");
 	}
+	@Test
 	public void test576788_1() {
 		runConformTest(
 				new String[] {
@@ -5164,6 +5348,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"true\n"+
 				"false");
 	}
+	@Test
 	public void testBug577374_001() {
 		runConformTest(
 				new String[] {
@@ -5190,6 +5375,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1");
 	}
+	@Test
 	public void testBug579355_001() {
 		runConformTest(
 				new String[] {
@@ -5218,6 +5404,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"special case:1\n" +
 				"positive integer: 10");
 	}
+	@Test
 	public void testBug579355_002() {
 		runConformTest(
 				new String[] {
@@ -5249,6 +5436,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"positive integer: 10\n"+
 				"null");
 	}
+	@Test
 	public void testBug579355_004() {
 		runConformTest(
 				new String[] {
@@ -5274,6 +5462,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Pass");
 	}
+	@Test
 	public void testBug579355_005() {
 		runConformTest(
 				new String[] {
@@ -5299,6 +5488,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Pass");
 	}
+	@Test
 	public void testIssue449_001() {
 		runConformTest(
 				new String[] {
@@ -5316,6 +5506,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1");
 	}
+	@Test
 	public void testIssue554_001() {
 		runConformTest(
 				new String[] {
@@ -5333,6 +5524,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1");
 	}
+	@Test
 	public void testIssue_556_001() {
 		runNegativeTest(
 				new String[] {
@@ -5360,6 +5552,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue_556_002() {
 		runNegativeTest(
 				new String[] {
@@ -5384,6 +5577,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue_556_003() {
 		runNegativeTest(
 				new String[] {
@@ -5416,6 +5610,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue_556_004() {
 		this.runNegativeTest(
 				new String[] {
@@ -5455,6 +5650,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue_556_005() {
 		runNegativeTest(
 			new String[] {
@@ -5490,6 +5686,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue_556_006() {
 		runNegativeTest(
 			new String[] {
@@ -5514,6 +5711,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue_556_007() {
 		runNegativeTest(
 			new String[] {
@@ -5538,6 +5736,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue_556_008() {
 		runNegativeTest(
 				new String[] {
@@ -5575,6 +5774,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue_556_009() {
 		runNegativeTest(
 				new String[] {
@@ -5604,6 +5804,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue658() {
 		runConformTest(
 				new String[] {
@@ -5631,6 +5832,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1\n0");
 	}
+	@Test
 	public void testIssue711_1() {
 		runNegativeTest(
 				new String[] {
@@ -5656,6 +5858,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue711_2() {
 		runNegativeTest(
 				new String[] {
@@ -5681,6 +5884,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue742_1() {
 		runNegativeTest(
 				new String[] {
@@ -5704,6 +5908,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue742_2() {
 		runNegativeTest(
 				new String[] {
@@ -5727,6 +5932,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue712_001() {
 		runConformTest(
 				new String[] {
@@ -5756,6 +5962,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Hello World\n" +
 				"It\'s either an R or a string");
 	}
+	@Test
 	public void testIssue712_002() {
 		runConformTest(
 				new String[] {
@@ -5783,6 +5990,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Either R or an S");
 	}
+	@Test
 	public void testIssue712_003() {
 		runConformTest(
 				new String[] {
@@ -5809,6 +6017,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Either null or an R");
 	}
+	@Test
 	public void testIssue712_004() {
 		runNegativeTest(
 				new String[] {
@@ -5834,6 +6043,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Illegal fall-through from a case label pattern\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssueDefaultDominance_001() {
 		runNegativeTest(
 				new String[] {
@@ -5856,6 +6066,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssueDefaultDominance_002() {
 		runNegativeTest(
 				new String[] {
@@ -5877,6 +6088,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssueDefaultDominance_003() {
 		runNegativeTest(
 				new String[] {
@@ -5898,6 +6110,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssueDefaultDominance_004() {
 		runNegativeTest(
 				new String[] {
@@ -5920,6 +6133,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue919() {
 		runNegativeTest(
 			new String[] {
@@ -5973,6 +6187,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1126a() {
 		runConformTest(
 				new String[] {
@@ -5994,6 +6209,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"0");
 	}
+	@Test
 	public void testIssue1126b() {
 		runConformTest(
 				new String[] {
@@ -6015,6 +6231,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"0");
 	}
+	@Test
 	public void testIssue587_001() {
 		runConformTest(
 				new String[] {
@@ -6037,6 +6254,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"42");
 	}
+	@Test
 	public void testIssueExhaustiveness_001() {
 		runConformTest(
 				new String[] {
@@ -6063,6 +6281,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"42");
 	}
+	@Test
 	public void testIssueExhaustiveness_002() {
 		runConformTest(
 				new String[] {
@@ -6082,6 +6301,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"42");
 	}
+	@Test
 	public void testIssueExhaustiveness_003() {
 		runConformTest(
 				new String[] {
@@ -6101,6 +6321,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"42");
 	}
+	@Test
 	public void testIssueExhaustiveness_004() {
 		runNegativeTest(
 				new String[] {
@@ -6137,6 +6358,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"
 );
 	}
+	@Test
 	public void testIssueExhaustiveness_005() {
 		runConformTest(
 				new String[] {
@@ -6161,6 +6383,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"0");
 	}
+	@Test
 	public void testIssue1250_1() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6189,6 +6412,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"A1");
 	}
+	@Test
 	public void testIssue1250_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6218,6 +6442,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"B1");
 	}
+	@Test
 	public void testIssue1250_3() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6252,6 +6477,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Case constant of type E is incompatible with switch selector type E.InnerE\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1250_4() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6311,6 +6537,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"const A1\n" +
 				"default");
 	}
+	@Test
 	public void testIssue1250_5() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6372,6 +6599,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "B1\n"
 				+ "default");
 	}
+	@Test
 	public void testIssue1250_6() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6413,6 +6641,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"A1");
 	}
+	@Test
 	public void testIssue1250_7() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6449,6 +6678,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"A1");
 	}
+	@Test
 	public void testIssue1250_8() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
@@ -6511,6 +6741,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "B1\n"
 				+ "default");
 	}
+	@Test
 	public void testIssue1351_1() {
 		this.runNegativeTest(
 				new String[] {
@@ -6542,6 +6773,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable o1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_2() {
 		this.runNegativeTest(
 				new String[] {
@@ -6573,6 +6805,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable o1 is required to be final or effectively final based on its usage\n" +
 				"----------\n" );
 	}
+	@Test
 	public void testIssue1351_3() {
 		this.runNegativeTest(
 				new String[] {
@@ -6600,6 +6833,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable c1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_3a() {
 		this.runNegativeTest(
 				new String[] {
@@ -6627,6 +6861,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable c1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_3b() {
 		this.runNegativeTest(
 				new String[] {
@@ -6661,6 +6896,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_3c() {
 		this.runNegativeTest(
 				new String[] {
@@ -6690,6 +6926,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_4() {
 		this.runNegativeTest(
 				new String[] {
@@ -6716,6 +6953,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"An enhanced switch statement should be exhaustive; a default label expected\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_5() {
 		this.runNegativeTest(
 				new String[] {
@@ -6739,6 +6977,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_6() {
 		runNegativeTest(
 				new String[] {
@@ -6763,6 +7002,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1351_7() {
 		runNegativeTest(
 			new String[] {
@@ -6788,6 +7028,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Cannot mix pattern with other case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1351_8() {
 		runNegativeTest(
 			new String[] {
@@ -6813,6 +7054,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Cannot mix pattern with other case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1351_9() {
 		runNegativeTest(
 			new String[] {
@@ -6838,6 +7080,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Cannot mix pattern with other case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1351_10() {
 		runNegativeTest(
 			new String[] {
@@ -6868,6 +7111,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1351_11() {
 		runNegativeTest(
 			new String[] {
@@ -6898,6 +7142,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testDisambiguatedRestrictedIdentifierWhenAsFirstMethodInvokation() {
 		runConformTest(
 				new String[] {
@@ -6914,6 +7159,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Pass");
 	}
 
+	@Test
 	public void testDisambiguatedRestrictedIdentifierWhenAsFirstVariableDeclaration() {
 		runConformTest(
 				new String[] {
@@ -6931,6 +7177,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Pass");
 	}
 
+	@Test
 	public void testDisambiguatedRestrictedIdentifierWhenAsTypeInACase() {
 		runConformTest(
 				new String[] {
@@ -6950,6 +7197,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Pass");
 	}
 
+	@Test
 	public void testDisambiguatedRestrictedIdentifierWhenAfterAParenthesis() {
 		runConformTest(
 				new String[] {
@@ -6966,6 +7214,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"true");
 	}
 
+	@Test
 	public void testValidCodeWithVeryAmbiguousUsageOfWhen() {
 		runConformTest(
 				new String[] {
@@ -6986,6 +7235,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testIssue1466_01() {
 		this.runConformTest(
 				new String[] {
@@ -7010,6 +7260,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"0");
 	}
+	@Test
 	public void testIssue1466_02() {
 		this.runConformTest(
 				new String[] {
@@ -7047,6 +7298,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
 	// NPE in switch with case null
+	@Test
 	public void testIssue1767() {
 		this.runConformTest(
 				new String[] {
@@ -7069,6 +7321,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/277
 	// [19] statement switch with a case null does not compile
+	@Test
 	public void testIssue277() {
 		this.runConformTest(
 				new String[] {
@@ -7092,6 +7345,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/277
 	// [19] statement switch with a case null does not compile
+	@Test
 	public void testIssue277_original() {
 		this.runConformTest(
 				new String[] {
@@ -7115,6 +7369,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/554
 	// [19] statement switch with a case null does not compile
+	@Test
 	public void testIssue554() {
 		this.runNegativeTest(
 				new String[] {
@@ -7144,6 +7399,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/113
 	// [switch] The Class file generated by ECJ for guarded patterns behaves incorrectly
+	@Test
 	public void testGHI113() {
 		this.runConformTest(
 				new String[] {
@@ -7202,6 +7458,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1853
 	// [switch][pattern] Scope of pattern binding extends illegally resulting in wrong diagnostic
+	@Test
 	public void testGH1853() {
 		runConformTest(
 			new String[] {
@@ -7228,6 +7485,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1856
 	// [switch][record patterns] NPE: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.MethodBinding.isStatic()"
+	@Test
 	public void testGHI1856() {
 		this.runNegativeTest(
 				new String[] {
@@ -7265,6 +7523,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1856
 	// [switch][record patterns] NPE: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.MethodBinding.isStatic()"
+	@Test
 	public void testGHI1856_2() {
 		this.runNegativeTest(
 				new String[] {
@@ -7302,6 +7561,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1955
 	// [Patterns] Redesign resolution of patterns to follow natural visitation
+	@Test
 	public void testGH1955() {
 		this.runNegativeTest(
 				new String[] {
@@ -7332,6 +7592,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
+	@Test
 	public void testIssue773() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7391,6 +7652,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
+	@Test
 	public void testIssue773_2() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7427,6 +7689,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
+	@Test
 	public void testIssue773_3() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7463,6 +7726,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
+	@Test
 	public void testIssue773_4() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7499,6 +7763,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
+	@Test
 	public void testIssue773_5() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7535,6 +7800,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
+	@Test
 	public void testIssue773_6() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7570,6 +7836,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2053
 	// ECJ rejects guarded pattern in switch as being dominated by prior cases
+	@Test
 	public void testIssue2053() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7606,6 +7873,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2053
 	// ECJ rejects guarded pattern in switch as being dominated by prior cases
+	@Test
 	public void testIssue2053_2() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7642,6 +7910,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2077
 	// [Patterns] Incorrect complaint about non-final variable reference from guard expression
+	@Test
 	public void testIssue2077() throws Exception {
 		runConformTest(
 			new String[] {
@@ -7676,6 +7945,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2077
 	// [Patterns] Incorrect complaint about non-final variable reference from guard expression
+	@Test
 	public void testIssue2077_2() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -7725,6 +7995,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2077
 	// [Patterns] Incorrect complaint about non-final variable reference from guard expression
+	@Test
 	public void testIssue2077_3() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -7779,6 +8050,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2318
 	// [Switch Expression] Assertion Error compiling switch + try + string concat at target platforms levels < 9
+	@Test
 	public void testIssue2318() {
 		Map<String,String> options = getCompilerOptions();
 		String tpf = options.get(CompilerOptions.OPTION_TargetPlatform);
@@ -7809,6 +8081,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2319
 	// [Switch Expression] Verify error when using non-indy string concat
+	@Test
 	public void testIssue2319() {
 		Map<String,String> options = getCompilerOptions();
 		String uscf = options.get(CompilerOptions.OPTION_UseStringConcatFactory);
@@ -7839,6 +8112,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2503
 	// [Switch Expression] Switching on sealed interface instance compiles even when the switch expression does not cover all possible input values
+	@Test
 	public void testIssue2503() {
 		runNegativeTest(
 				new String[] {
@@ -7868,6 +8142,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2503
 	// [Switch Expression] Switching on sealed interface instance compiles even when the switch expression does not cover all possible input values
+	@Test
 	public void testIssue2503_2() {
 		runNegativeTest(
 				new String[] {
@@ -7897,6 +8172,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2503
 	// [Switch Expression] Switching on sealed interface instance compiles even when the switch expression does not cover all possible input values
+	@Test
 	public void testIssue2503_3() {
 		runNegativeTest(
 				new String[] {
@@ -7934,6 +8210,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2508
 	// [Switch expression] Compiler erroneously treats guarded case patterns as covering switch selector type
+	@Test
 	public void testIssue2508() {
 		runNegativeTest(
 				new String[] {
@@ -7963,6 +8240,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2508
 	// [Switch expression] Compiler erroneously treats guarded case patterns as covering switch selector type
+	@Test
 	public void testIssue2508_2() {
 		runConformTest(
 				new String[] {
@@ -7989,6 +8267,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2508
 	// [Switch expression] Compiler erroneously treats guarded case patterns as covering switch selector type
+	@Test
 	public void testIssue2508_3() {
 		runConformTest(
 				new String[] {
@@ -8015,6 +8294,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2513
 	// [Enhanced switch] Unexpected MatchException thrown at runtime
+	@Test
 	public void testIssue2513() {
 		runConformTest(
 				new String[] {
@@ -8047,6 +8327,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2582
 	// Switch exhaustiveness error with enum and 'case null'
+	@Test
 	public void testIssue2582() {
 		runConformTest(
 				new String[] {
@@ -8093,6 +8374,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2582
 	// Switch exhaustiveness error with enum and 'case null'
 	// optional warning enabled
+	@Test
 	public void testIssue2582b() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -8139,6 +8421,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2582
 	// Switch exhaustiveness error with enum and 'case null'
 	// optional warning enabled
+	@Test
 	public void testIssue2582c() {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -8234,6 +8517,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2714
 	// [Sealed types + switch expression] Internal inconsistency warning at compile time and verify error at runtime
+	@Test
 	public void testIssue2714() {
 		runConformTest(
 				new String[] {
@@ -8264,6 +8548,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2870
 	// eclipse can't build when error in switch
+	@Test
 	public void testIssue2870() {
 		runNegativeTest(
 				new String[] {
@@ -8316,6 +8601,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3009
 	// A sealed interface with generic causes IllegalStateException and nothing can be done then
+	@Test
 	public void testIssue3009() {
 		runConformTest(
 				new String[] {
@@ -8344,6 +8630,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3009
 	// A sealed interface with generic causes IllegalStateException and nothing can be done then
+	@Test
 	public void testIssue3009_2() {
 		runConformTest(
 				new String[] {
@@ -8487,6 +8774,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3009
 	// A sealed interface with generic causes IllegalStateException and nothing can be done then
+	@Test
 	public void testIssue3009_3() {
 		runConformTest(
 				new String[] {
@@ -8521,6 +8809,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"42\n420\n4200");
 	}
 
+	@Test
 	public void testIssue3009_4() {
 		runNegativeTest(
 				new String[] {
@@ -8560,6 +8849,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 
+	@Test
 	public void testIssue3009_5() {
 		runConformTest(
 				new String[] {
@@ -8596,6 +8886,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"42");
 	}
 
+	@Test
 	public void testIssue3009_6() {
 		runConformTest(
 				new String[] {
@@ -8622,6 +8913,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"420");
 	}
 
+	@Test
 	public void testIssue3009_7() {
 		runConformTest(
 				new String[] {
@@ -8669,6 +8961,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3031
 	// [Switch][Sealed types] Incorrect exhaustiveness check leads to MatchException at runtime
+	@Test
 	public void testIssue3031() {
 		runNegativeTest(
 				new String[] {
@@ -8704,6 +8997,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3031
 	// [Switch][Sealed types] Incorrect exhaustiveness check leads to MatchException at runtime
+	@Test
 	public void testIssue3031_2() {
 		runConformTest(
 				new String[] {
@@ -8735,6 +9029,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2719
 	// [Switch expression + Sealed Types] Suspect diagnostic about switch expression being inexhaustive
+	@Test
 	public void testIssue2719() {
 		runConformTest(
 				new String[] {
@@ -8767,6 +9062,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2719
 	// [Switch expression + Sealed Types] Suspect diagnostic about switch expression being inexhaustive
+	@Test
 	public void testIssue2719_2() {
 		runConformTest(
 				new String[] {
@@ -8805,6 +9101,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1735
 	// [Sealed types][Switch] Pattern switch - ECJ accepts code rejected by javac
+	@Test
 	public void testIssue1735() {
 		runNegativeTest(
 				new String[] {
@@ -8847,6 +9144,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3035
 	// [switch][sealed types] ECJ fails to signal a completely dominated case arm
+	@Test
 	public void testIssue3035() {
 		runNegativeTest(
 				new String[] {
@@ -8891,6 +9189,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2720
 	// [Sealed Types + Enhanced Switch] Incorrect diagnostic about switch not being exhaustive
+	@Test
 	public void testIssue2720() {
 		runConformTest(
 				new String[] {
@@ -8928,6 +9227,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2720
 	// [Sealed Types + Enhanced Switch] Incorrect diagnostic about switch not being exhaustive
+	@Test
 	public void testIssue2720_2() {
 		runNegativeTest(
 				new String[] {
@@ -9005,6 +9305,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2720
 	// [Sealed Types + Enhanced Switch] Incorrect diagnostic about switch not being exhaustive
+	@Test
 	public void testIssue2720_3() {
 		runConformTest(
 				new String[] {
@@ -9055,6 +9356,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
 	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	@Test
 	public void testIssue3096() {
 		runConformTest(
 				new String[] {
@@ -9083,6 +9385,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
 	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	@Test
 	public void testIssue3096_2() {
 		runConformTest(
 				new String[] {
@@ -9112,6 +9415,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
 	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	@Test
 	public void testIssue3096_3() {
 		runConformTest(
 				new String[] {
@@ -9141,6 +9445,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
 	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	@Test
 	public void testIssue3096_4() {
 		runConformTest(
 				new String[] {
@@ -9172,6 +9477,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096
 	// [Switch][Sealed types] Bad static analysis with the old switch syntax + an exhautive pattern matching on a sealed type throws a MatchException
+	@Test
 	public void testIssue3096_full() {
 		runConformTest(
 				new String[] {
@@ -9210,6 +9516,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3135
 	// [Switch] default->null caused a building problem.
+	@Test
 	public void testIssue3135() {
 		runConformTest(
 				new String[] {
@@ -9232,6 +9539,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3039
 	// [Sealed types] Broken program crashes the compiler
+	@Test
 	public void testIssue3039_2() {
 		runNegativeTest(
 				new String[] {
@@ -9268,6 +9576,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 
+	@Test
 	public void testNoFallThrough() {
 		runConformTest(
 				new String[] {
@@ -9295,6 +9604,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3169
 	// [21][Enhanced Switch] Bogus error: "Cannot mix pattern with other case labels
+	@Test
 	public void testIssue3169() {
 		runNegativeTest(
 				new String[] {
@@ -9325,6 +9635,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 
+	@Test
 	public void testEnumLocalCase() {
 		this.runNegativeTest(
 			new String[] {
@@ -9350,6 +9661,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testEnumLocalCase_2() {
 		this.runNegativeTest(
 			new String[] {
@@ -9378,6 +9690,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testEnumLocalCase_3() {
 		this.runNegativeTest(
 			new String[] {
@@ -9408,6 +9721,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3334
 	// [Enhanced Switch] Bogus duplicate case error from ECJ
+	@Test
 	public void testIssue3334() {
 		runConformTest(
 				new String[] {
@@ -9451,6 +9765,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3335
 	// [Enhanced Switch][Record Patterns] ECJ compiles non-exhaustive switch resulting in MatchException being thrown at runtime
+	@Test
 	public void testIssue3335() {
 		runNegativeTest(
 				new String[] {
@@ -9485,6 +9800,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3339
 	// [Enhanced Switch][Regression] Incorrect duplicate case error since https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3264
+	@Test
 	public void testIssue3339() {
 		runConformTest(
 				new String[] {
@@ -9509,6 +9825,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3344
 	// [Enhanced Switch] Problem with switch and enums - incorrect duplicate case error
+	@Test
 	public void testIssue3344() {
 		runConformTest(
 				new String[] {
@@ -9589,6 +9906,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3395
 	// [Enhanced Switch] ECG generated code hangs
+	@Test
 	public void testIssue3395() {
 		runConformTest(
 				new String[] {
@@ -9630,6 +9948,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3447
 	// [Enhanced Switch] Wasteful generation of switch ordinal mapping table for enum switches that are dispatched via enumSwitch indy
+	@Test
 	public void testIssue3447() throws Exception {
 		runConformTest(
 			new String[] {
@@ -9663,6 +9982,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3559
 	// Boolean switch inconsistency between ECJ and javac
+	@Test
 	public void testIssue3559() throws Exception {
 		if (this.complianceLevel > ClassFileConstants.JDK23) // 21-23 testing is good enough
 			return;
@@ -9705,6 +10025,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3812
 	// [Enhanced Switch] ECJ allows non-final variables in guard expressions of a case label if the containing switch is unreachable
+	@Test
 	public void testIssue3812() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -9744,6 +10065,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3840
 	// [Enhanced switch] ECJ allows assignments to locals declared outside of guard inside the guard
+	@Test
 	public void testIssue3840() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -9770,6 +10092,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3840
 	// [Enhanced switch] ECJ allows assignments to locals declared outside of guard inside the guard
+	@Test
 	public void testIssue3840_2() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -9796,6 +10119,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3465
 	// [Enhanced Switch] Bug 575652 - [17][codegen][switch pattern] Unnecessary casts in switch
+	@Test
 	public void testIssue3465() throws Exception {
 		runConformTest(
 			new String[] {
@@ -9836,6 +10160,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4256
 	// [Enhanced switch] ECJ allows case null to be followed by a constant where only default is legal
+	@Test
 	public void testIssue4256() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -9868,6 +10193,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5000
 	// Switch guards are not respected when record has no components
+	@Test
 	public void testIssue5000() throws Exception {
 		runConformTest(
 			new String[] {
@@ -9907,6 +10233,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5000
 	// Switch guards are not respected when record has no components
+	@Test
 	public void testIssue5000_2() throws Exception {
 		runConformTest(
 			new String[] {
@@ -9946,6 +10273,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5081
 	// NPE in IGenerateTypeCheck.generateTypeCheck with record patterns in switch expression inside lambda
+	@Test
 	public void testIssue5081() {
 		if (this.complianceLevel < ClassFileConstants.JDK22)
 			return;
@@ -9991,6 +10319,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5081
 	// NPE in IGenerateTypeCheck.generateTypeCheck with record patterns in switch expression inside lambda
+	@Test
 	public void testIssue5081_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK22)
 			return;
@@ -10036,6 +10365,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5182
 	// ECJ accepts a non-exhaustive switch over nested sealed record patterns that javac rejects
+	@Test
 	public void testIssue5182() {
 		runNegativeTest(
 				new String[] {
@@ -10071,6 +10401,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5182
 	// Nested sealed components are exhaustive when every permitted subtype is covered
+	@Test
 	public void testIssue5182_exhaustive() {
 		runConformTest(
 				new String[] {
@@ -10107,6 +10438,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5182
 	// Type pattern (no nested narrowing) still covers the permitted record
+	@Test
 	public void testIssue5182_typePatternCoversRecord() {
 		runConformTest(
 				new String[] {
@@ -10140,6 +10472,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
 	// Test 001: rewriting two narrower patterns over a sealed hierarchy establishes exhaustiveness
+	@Test
 	public void testIssue5080_001() {
 		runConformTest(
 				new String[] {
@@ -10170,6 +10503,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
 	// Test 002: switch is NOT exhaustive even after rewriting — must produce an error
+	@Test
 	public void testIssue5080_002() {
 		runNegativeTest(
 				new String[] {
@@ -10201,6 +10535,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
 	// Test 003: multi-level sealed hierarchy — rewriting across subtypes covers the root interface
+	@Test
 	public void testIssue5080_003() {
 		runConformTest(
 				new String[] {
@@ -10235,6 +10570,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// JLS 26 §14.11.1.1 — "P covers T if P rewrites to Q and Q covers T"
 	// Test 004: exhaustive switch over record patterns where the record component is a sealed interface
 	// Box(A), Box(B), Box(C) together rewrite to cover Box because A, B, C cover I
+	@Test
 	public void testIssue5080_004() {
 		runConformTest(
 				new String[] {
@@ -10271,6 +10607,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	//   RP covers some type U → rp is a type pattern of type U.
 	// Here {Box(A), Box(B), Box(C)} covers Box (all permits of I covered),
 	// so they reduce to the type pattern `Box b`, making the switch exhaustive over Wrapper.
+	@Test
 	public void testIssue5080_005() {
 		runConformTest(
 				new String[] {
@@ -10310,6 +10647,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	//   Record patterns with the same erasure R; one component cr reduces while all others are equivalent.
 	// Pair(A, Object) and Pair(B, Object) — cr = first component {A,B} reduces to I (covers I),
 	// second component {Object, Object} is equivalent to Object — reduces to Pair(I, Object).
+	@Test
 	public void testIssue5080_006() {
 		runConformTest(
 				new String[] {
@@ -10345,6 +10683,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	//   EP consists of type patterns with the same erasure T → ep is a type pattern of type T.
 	// {Integer i, Integer j} both have erasure Integer → equivalent to Integer k.
 	// Pair(Integer, Integer) and Pair(Integer, Integer) merge both components → covers Pair(int,int).
+	@Test
 	public void testIssue5080_007() {
 		runConformTest(
 				new String[] {
@@ -10374,6 +10713,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	//   EP consists of record patterns with the same erasure R; every component-set is equivalent to qj.
 	// Two Box(Object) patterns → component sets {Object, Object} each equivalent to Object
 	// → EP equivalent to Box(Object) → single case covers Box.
+	@Test
 	public void testIssue5080_008() {
 		runConformTest(
 				new String[] {
@@ -10400,6 +10740,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"hello"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_009() {
 		runNegativeTest(
 				new String[] {
@@ -10431,6 +10772,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_010() {
 		// deeply-nested record pattern: Box(Pair(A,B)) is not covered -> a default is required
 		runNegativeTest(
@@ -10465,6 +10807,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_011() {
 		// deeply-nested record pattern that IS exhaustive -> compiles without a default
 		runConformTest(
@@ -10499,6 +10842,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"AB"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_012() {
 		// deeply-nested generic record pattern that IS exhaustive (same-erasure rule) -> no default needed
 		runConformTest(
@@ -10532,6 +10876,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_013() {
 		// A case pattern with an unsafe-cast error must not also trigger a redundant missing-default error.
 		runNegativeTest(
@@ -10570,6 +10915,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_014() {
 		// JLS 14.11.1.1: P covers T if P contains a pattern that is unconditional for T.
 		// An exact-type type pattern (I x) is unconditional for the sealed selector I -> exhaustive.
@@ -10599,6 +10945,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"0"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_015() {
 		// A guarded pattern is NOT unconditional (JLS 14.30.3), so it does not make the switch exhaustive.
 		runNegativeTest(
@@ -10628,6 +10975,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_016() {
 		// JLS 14.11.1.1: P covers T if T is a type variable with upper bound B and P covers B.
 		// Selector is a type variable T bounded by sealed I; A and B cover I -> exhaustive.
@@ -10658,6 +11006,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_017() {
 		// Type variable bounded by sealed I, but the bound is not fully covered (B missing) -> not exhaustive.
 		runNegativeTest(
@@ -10687,6 +11036,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_018() {
 		// JLS 14.11.1.1: P covers T if T is an intersection T1&...&Tn and P covers Ti for some i.
 		// Selector is a type variable with bound I & Marker; covering the first member I (via A,B) suffices.
@@ -10714,6 +11064,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"0"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_019() {
 		// Intersection Marker & J: covering the SECOND member J (via C,D) is enough for exhaustiveness.
 		runConformTest(
@@ -10740,6 +11091,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_020() {
 		// Intersection I & Marker but no member fully covered (B missing) -> not exhaustive.
 		runNegativeTest(
@@ -10770,6 +11122,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_021() {
 		// JLS 14.11.1.1: P covers an enum type E if P contains all the names of E's enum constants.
 		// A switch expression naming every constant is exhaustive without a default.
@@ -10795,6 +11148,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_022() {
 		// Enum switch expression missing a constant (WED) is not exhaustive.
 		runNegativeTest(
@@ -10821,6 +11175,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_023() {
 		// JLS 14.11.1.1 (sealed rule): a permitted subtype D need not be covered if no type both
 		// names D and is a subtype of T. Here A (I<String>) and C (Sub<String>) are excluded for an
@@ -10850,6 +11205,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_024() {
 		// Same shape but A now names I<T>, so A<Integer> IS a subtype of I<Integer> and must be
 		// covered; omitting it makes the switch non-exhaustive.
@@ -10879,6 +11235,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_025() {
 		// JLS 14.11.1.1 (record rule): a single record pattern p covers R when, for every component
 		// of type U, the corresponding component pattern covers U. Here each component pattern is a
@@ -10906,6 +11263,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"0"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_026() {
 		// Record with no components ("... of type U, if any ..."): a bare record pattern covers it.
 		runConformTest(
@@ -10927,6 +11285,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"7"); //$NON-NLS-1$
 	}
+	@Test
 	public void testIssue5080_027() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -10980,6 +11339,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"5\n" +
 				"6");
 	}
+	@Test
 	public void testIssue5080_028() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11027,6 +11387,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"6");
 	}
 
+	@Test
 	public void testIssue5080_029() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11082,6 +11443,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch expression should have a default case\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue5080_030() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11138,6 +11500,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"5\n" +
 				"6");
 	}
+	@Test
 	public void testIssue5080_031() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11193,6 +11556,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"5\n" +
 				"6");
 	}
+	@Test
 	public void testIssue5080_032() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11229,6 +11593,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		"2\n" +
 		"3");
 }
+	@Test
 	public void testIssue5080_033() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11260,6 +11625,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		"0\n" +
 		"0");
 }
+	@Test
 	public void testIssue5080_034() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11303,6 +11669,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch expression should have a default case\n" +
 				"----------\n"); //$NON-NLS-1$
 	}
+	@Test
 	public void testIssue5080_035() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11338,6 +11705,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch expression should have a default case\n" +
 				"----------\n"); //$NON-NLS-1$
 	}
+	@Test
 	public void testIssue5080_036() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11373,6 +11741,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch expression should have a default case\n" +
 				"----------\n"); //$NON-NLS-1$
 	}
+	@Test
 	public void testIssue5080_037() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11408,6 +11777,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"A switch expression should have a default case\n" +
 				"----------\n"); //$NON-NLS-1$
 	}
+	@Test
 	public void testIssue5080_038() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return; // "_" patterns are only supported in JDK 22 and later
@@ -11439,6 +11809,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"0"); //$NON-NLS-1$
 	}
 
+	@Test
 	public void testIssue5080_039() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return;
@@ -11472,6 +11843,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"0"); //$NON-NLS-1$
 	}
+	@Test
 	public void testIssue5080_040() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) {
 			return;

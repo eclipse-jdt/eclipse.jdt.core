@@ -14,14 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AssignmentTest_1_7 extends AbstractRegressionTest {
 
-public AssignmentTest_1_7(String name) {
-	super(name);
+public AssignmentTest_1_7(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 @Override
 protected Map getCompilerOptions() {
@@ -39,13 +40,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 61 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-}
 /*
  * no effect assignment bug
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=27235
  */
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {

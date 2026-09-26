@@ -21,11 +21,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -33,7 +34,10 @@ import org.eclipse.jdt.core.util.IModuleAttribute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 
 	static {
@@ -42,18 +46,11 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public ModuleCompilationTests(String name) {
-		super(name);
+	public ModuleCompilationTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
-	}
-
-	public static Class<?> testClass() {
-		return ModuleCompilationTests.class;
-	}
-
+	@Test
 	public void test001() {
 		runNegativeModuleTest(
 			new String[] {
@@ -82,6 +79,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	        true,
 	        "package java.sql" /* match for javac error */);
 	}
+	@Test
 	public void test002() {
 		runConformModuleTest(
 			new String[] {
@@ -105,6 +103,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	        "",
 	        true);
 	}
+	@Test
 	public void test003() {
 		runConformModuleTest(
 			new String[] {
@@ -122,6 +121,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	        "",
 	        true);
 	}
+	@Test
 	public void test004() {
 		Set<String> classFiles = runConformModuleTest(
 			new String[] {
@@ -138,6 +138,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		String fileName = getEcjOutputDir() + File.separator + "module-info.class";
 		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
+	@Test
 	public void test005() {
 		Set<String> classFiles = runConformModuleTest(
 			new String[] {
@@ -167,6 +168,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		String fileName = getEcjOutputDir()  + File.separator + "module-info.class";
 		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
+	@Test
 	public void test006() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -200,6 +202,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			.append(" --module-source-path " + "\"" + directory + "\"");
 		runConformModuleTest(files, buffer, "", "");
 	}
+	@Test
 	public void test007() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -250,6 +253,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"1 problem (1 error)\n",
 				"p.X");
 	}
+	@Test
 	public void test008() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -297,6 +301,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 	}
+	@Test
 	public void test008a() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -347,6 +352,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"invalid location for system libraries: ---OUTPUT_DIR_PLACEHOLDER---/system\n",
 				"system");
 	}
+	@Test
 	public void test009() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -485,6 +491,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		Util.flushDirectoryContent(new File(outDir));
 		Util.flushDirectoryContent(new File(srcDir));
 	}
+	@Test
 	public void test010() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -520,6 +527,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=487421
+	@Test
 	public void test011() {
 		runConformModuleTest(
 			new String[] {
@@ -541,6 +549,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 	// Modules used as regular -classpath (as opposed to --module-path) and module-info referencing
 	// those modules are reported as missing.
+	@Test
 	public void test012() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -589,6 +598,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	// Modules used as regular -classpath as opposed to --module-path. The files being compiled
 	// aren't part of any modules (i.e. module-info is missing). The files should be able to
 	// reference the types from referenced classpath.
+	@Test
 	public void test013() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -619,6 +629,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=495500
 	//-source 9
+	@Test
 	public void testBug495500a() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -636,6 +647,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	//-source 8 -target 9
+	@Test
 	public void testBug495500b() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -653,6 +665,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// compliance 9 -source 9 -target 9
+	@Test
 	public void testBug495500c() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -672,6 +685,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	/*
 	 * Test add-exports grants visibility to another module
 	 */
+	@Test
 	public void test014() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -717,6 +731,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 	}
+	@Test
 	public void test015() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -769,6 +784,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"does not read it",
 				JavacTestOptions.JavacHasABug.JavacBug8207032);
 	}
+	@Test
 	public void test016() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -814,6 +830,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 	}
+	@Test
 	public void test017() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -866,6 +883,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"1 problem (1 error)\n",
 				"visible");
 	}
+	@Test
 	public void test018() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -926,6 +944,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	/*
 	 * Unnamed module tries to access a type from an unexported package successfully due to --add-exports
 	 */
+	@Test
 	public void test019() {
 		Runner runner = new Runner();
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -956,6 +975,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	/*
 	 * Named module tries to access a type from an unnamed module successfully due to --add-reads
 	 */
+	@Test
 	public void test019b() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -997,6 +1017,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	/*
 	 * Can only import from a package that contains compilation units (from the unnamed module)
 	 */
+	@Test
 	public void test019c() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1046,6 +1067,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	/*
 	 * Unnamed module tries to access a type from an unexported package, fail
 	 */
+	@Test
 	public void test019fail() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1105,6 +1127,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				 *                                                                ^
 				 */
 	}
+	@Test
 	public void test020() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1140,6 +1163,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"incorrectly formatted option: --add-exports mod.one=mod.two,mod.three\n",
 				"option");
 	}
+	@Test
 	public void test021() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1175,6 +1199,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"incorrectly formatted option: --add-reads mod.one/mod.two\n",
 				"option");
 	}
+	@Test
 	public void test022() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1211,6 +1236,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"can specify a package in a module only once with --add-export\n",
 				"export");
 	}
+	@Test
 	public void test023() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1239,6 +1265,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"option -extdirs not supported at compliance level 9 and above\n",
 				"extdirs");
 	}
+	@Test
 	public void test024() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1267,6 +1294,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"option -bootclasspath not supported at compliance level 9 and above\n",
 				"option --boot-class-path cannot be used together with --release"); // error message has changed between versions, name of option plus reason for illegality can be questioned
 	}
+	@Test
 	public void test025() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1295,6 +1323,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"option -endorseddirs not supported at compliance level 9 and above\n",
 				"endorseddirs");
 	}
+	@Test
 	public void test026() {
 		Runner runner = new Runner();
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1319,6 +1348,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	/**
 	 * Mixed case of exported and non exported packages being referred to in another module
 	 */
+	@Test
 	public void test028() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -1360,6 +1390,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"1 problem (1 error)\n",
 				"visible");
 	}
+	@Test
 	public void test029() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1418,6 +1449,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"2 problems (1 error, 1 warning)\n",
 			"visible");
 	}
+	@Test
 	public void test030() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1477,6 +1509,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"2 problems (2 errors)\n",
 			"visible");
 	}
+	@Test
 	public void test031() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1535,6 +1568,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"2 problems (2 errors)\n",
 			"visible");
 	}
+	@Test
 	public void test032() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1569,6 +1603,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	/**
 	 * Test that a module can't access types/packages in a plain Jar put in classpath
 	 */
+	@Test
 	public void test033() {
 		File libDir = new File(LIB_DIR);
 		Util.delete(libDir); // make sure we recycle the libs
@@ -1625,6 +1660,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	 * Test that a module can't access types/packages in a plain Jar put in modulepath
 	 * but not explicitly added to the "requires" clause
 	 */
+	@Test
 	public void test034() {
 		File libDir = new File(LIB_DIR);
 		Util.delete(libDir); // make sure we recycle the libs
@@ -1682,6 +1718,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	 * Test that a module can access types/packages in a plain Jar put in modulepath
 	 * and explicitly added to the "requires" clause
 	 */
+	@Test
 	public void test035() {
 		File libDir = new File(LIB_DIR);
 		Util.delete(libDir); // make sure we recycle the libs
@@ -1730,6 +1767,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 	}
+	@Test
 	public void testBug515985() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1781,6 +1819,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"");
 	}
 
+	@Test
 	public void testApiLeak1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1846,6 +1885,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	 * Same-named classes should not conflict, since one is not accessible.
 	 * Still a sub class of the inaccessible class can be accessed and used for a method argument.
 	 */
+	@Test
 	public void testApiLeak2() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1926,6 +1966,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 
 	// conflict even without any reference to the conflicting package
 	// - three-way conflict between two direct and one indirect dependency
+	@Test
 	public void testPackageConflict0() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2018,6 +2059,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"reads package pm");
 	}
 
+	@Test
 	public void testPackageConflict1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2115,6 +2157,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"reads package pm");
 	}
 	// conflict foreign<->local package
+	@Test
 	public void testPackageConflict3() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2162,6 +2205,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"1 problem (1 error)\n",
 				"");
 	}
+	@Test
 	public void testPackageConflict4() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2284,6 +2328,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"1 problem (1 error)\n",
 				"package conflict");
 	}
+	@Test
 	public void testPackageConflict5() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2356,6 +2401,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"invalid module name: mod.z\n",
 				"module not found");
 	}
+	@Test
 	public void testPackageConflict6() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2421,6 +2467,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"1 problem (1 error)\n",
 				"package conflict");
 	}
+	@Test
 	public void testPackageConflict7() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2480,6 +2527,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package pm is accessible from more than one module: mod.y, mod.x\n",
 				"reads package pm from both");
 	}
+	@Test
 	public void testPackageTypeConflict1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2532,6 +2580,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"");
 	}
 
+	@Test
 	public void testBug519922() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2564,6 +2613,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"1 problem (1 error)\n",
 				"does not exist");
 	}
+	@Test
 	public void testMixedSourcepath() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2596,6 +2646,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 
 	// causes: non-public type (C0), non-exported package (p.priv)
 	// locations: field, method parameter, method return
+	@Test
 	public void testAPILeakDetection1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2665,6 +2716,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 
 	// details: in array, parameterized type
+	@Test
 	public void testAPILeakDetection2() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2715,6 +2767,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 
 	// suppress
+	@Test
 	public void testAPILeakDetection3() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2756,6 +2809,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 
 	// details: nested types
+	@Test
 	public void testAPILeakDetection4() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2805,6 +2859,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 
 	// type from non-transitive required module
+	@Test
 	public void testAPILeakDetection5() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2868,6 +2923,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 
 	// annotated types in API
+	@Test
 	public void testAPILeakDetection6() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2919,6 +2975,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	}
 
 	// enum API
+	@Test
 	public void testAPILeakDetection7() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2951,6 +3008,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"");
 	}
 
+	@Test
 	public void testBug486013_comment27() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -2978,6 +3036,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 	}
+	@Test
 	public void testBug518295a() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -3009,6 +3068,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"invalid class name: mod.one/p.XYZ\n",
 				false);
 	}
+	@Test
 	public void testBug518295b() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -3040,6 +3100,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"invalid module name: mod.xyz\n",
 				false);
 	}
+	@Test
 	public void testBug518295c() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -3069,6 +3130,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 	}
+	@Test
 	public void testUnnamedPackage_Bug520839() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3104,6 +3166,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"1 problem (1 error)\n",
 			"unnamed package is not allowed in named modules");
 	}
+	@Test
 	public void testAutoModule1() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3150,6 +3213,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"----------\n" +
 			"1 problem (1 info)\n");
 	}
+	@Test
 	public void testBug521458a() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -3213,6 +3277,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"module name mod.3 does not match expected name mod.three\r\n",
 				outDir);
 	}
+@Test
 public void testBug521362_emptyFile() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3247,6 +3312,7 @@ public void testBug521362_emptyFile() {
 			"1 problem (1 error)\n",
 			"empty");
 	}
+	@Test
 	public void testBug521362_mismatchingdeclaration() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3281,6 +3347,7 @@ public void testBug521362_emptyFile() {
 			"1 problem (1 error)\n",
 			"package is empty");
 	}
+	@Test
 	public void testBug521362_multiplePackages() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3325,6 +3392,7 @@ public void testBug521362_emptyFile() {
 			"2 problems (2 errors)\n",
 			"package is empty");
 	}
+	@Test
 	public void testBug521362_multiplePackages2() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3373,6 +3441,7 @@ public void testBug521362_emptyFile() {
 	 * Test that when module-info is the only file being compiled, the class is still
 	 * generated inside the module's sub folder.
 	 */
+	@Test
 	public void testBug500170a() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3404,6 +3473,7 @@ public void testBug521362_emptyFile() {
 	/*
 	 * Test that no NPE is thrown when the module-info is compiled at a level below 9
 	 */
+	@Test
 	public void testBug500170b() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3451,6 +3521,7 @@ public void testBug521362_emptyFile() {
 				""",
 				"modules are not supported");
 	}
+	@Test
 	public void testBug522472c() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -3538,6 +3609,7 @@ public void testBug521362_emptyFile() {
 				"2 problems (2 errors)\n",
 				"module mod.two reads package x.y.z from both mod.one and mod.one.a");
 	}
+	@Test
 	public void testReleaseOption1() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3554,6 +3626,7 @@ public void testBug521362_emptyFile() {
 		String expectedOutput = "// Compiled from X.java (version 1.8 : 52.0, super bit)";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
+	@Test
 	public void testReleaseOption2() throws Exception {
 		if (!isJRE17Plus) return;
 		this.runConformTest(
@@ -3571,6 +3644,7 @@ public void testBug521362_emptyFile() {
 		String expectedOutput = "// Compiled from X.java (version 10 : 54.0, super bit)";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
+	@Test
 	public void testReleaseOption3() throws Exception {
 		if (!isJRE17Plus) return;
 		this.runConformTest(
@@ -3588,6 +3662,7 @@ public void testBug521362_emptyFile() {
 		String expectedOutput = "// Compiled from X.java (version 10 : 54.0, super bit)";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
+	@Test
 	public void testReleaseOption4() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -3602,6 +3677,7 @@ public void testBug521362_emptyFile() {
 		     "option -source is not supported when --release is used\n",
 		     true);
 	}
+	@Test
 	public void testReleaseOption5() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -3616,6 +3692,7 @@ public void testBug521362_emptyFile() {
 		     "option -target is not supported when --release is used\n",
 		     true);
 	}
+	@Test
 	public void testReleaseOption6() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -3630,6 +3707,7 @@ public void testBug521362_emptyFile() {
 		     "release 5 is not found in the system\n",
 		     true);
 	}
+	@Test
 	public void testReleaseOption7() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3649,6 +3727,7 @@ public void testBug521362_emptyFile() {
 		     "",
 		     true);
 	}
+	@Test
 	public void testReleaseOption8() throws Exception {
 		if (isJRE20Plus) return;
 		String output =
@@ -3676,6 +3755,7 @@ public void testBug521362_emptyFile() {
     		 "1 problem (1 error)\n",
 		     true);
 	}
+	@Test
 	public void testReleaseOption9() throws Exception {
 		if (isJRE20Plus) return;
 		this.runNegativeTest(
@@ -3706,6 +3786,7 @@ public void testBug521362_emptyFile() {
     		 "1 problem (1 error)\n",
 		     true);
 	}
+	@Test
 	public void testReleaseOption10() throws Exception {
 		if (isJRE12Plus) return;
 		this.runNegativeTest(
@@ -3742,6 +3823,7 @@ public void testBug521362_emptyFile() {
     		 "2 problems (2 errors)\n",
 		     true);
 	}
+	@Test
 	public void testReleaseOption11() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -3776,6 +3858,7 @@ public void testBug521362_emptyFile() {
     		 "option --system not supported below compliance level 9",
 		     true);
 	}
+	@Test
 	public void testReleaseOption13() {
 		runConformModuleTest(
 			new String[] {
@@ -3796,6 +3879,7 @@ public void testBug521362_emptyFile() {
 	        "",
 	        true);
 	}
+	@Test
 	public void testReleaseOption13a() {
 		Runner runner = new Runner();
 		runner.createFile(
@@ -3814,6 +3898,7 @@ public void testBug521362_emptyFile() {
 		runner.javacTestOptions = new JavacTestOptions(ClassFileConstants.JDK10);
 		runner.runConformModuleTest();
 	}
+	@Test
 	public void testReleaseOption14() {
 		runNegativeModuleTest(
 			new String[] {
@@ -3846,6 +3931,7 @@ public void testBug521362_emptyFile() {
 			/*not tested with javac*/"");
 	}
 	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
+	@Test
 	public void testReleaseOption15() {
 		Runner runner = new Runner();
 		String fooDir = OUTPUT_DIR + File.separator + "foo";
@@ -3870,6 +3956,7 @@ public void testBug521362_emptyFile() {
 	    runner.runConformModuleTest();
 	}
 	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
+	@Test
 	public void testReleaseOption16() {
 		runNegativeModuleTest(
 			new String[] {
@@ -3898,6 +3985,7 @@ public void testBug521362_emptyFile() {
 	        true,
 	        /*not tested with javac*/"");
 	}
+	@Test
 	public void testReleaseOption17() {
 		runNegativeModuleTest(
 			new String[] {
@@ -3919,6 +4007,7 @@ public void testBug521362_emptyFile() {
 	        true,
 	        /*not tested with javac*/"");
 	}
+	@Test
 	public void testReleaseOption18() {
 		runNegativeModuleTest(
 			new String[] {
@@ -3934,6 +4023,7 @@ public void testBug521362_emptyFile() {
 	        true,
 	        /*not tested with javac*/"");
 	}
+	@Test
 	public void testReleaseOption19() {
 		runNegativeModuleTest(
 			new String[] {
@@ -3949,6 +4039,7 @@ public void testBug521362_emptyFile() {
 	        true,
 	        /*not tested with javac*/"");
 	}
+	@Test
 	public void testReleaseOption20() throws Exception {
 		if (!isJRE12Plus || isJRE20Plus) return;
 		this.runNegativeTest(
@@ -3976,6 +4067,7 @@ public void testBug521362_emptyFile() {
     		 "1 problem (1 error)\n",
 		     true);
 	}
+	@Test
 	public void testReleaseOption21() throws Exception {
 		if (!isJRE12Plus) return;
 		this.runConformTest(
@@ -3993,6 +4085,7 @@ public void testBug521362_emptyFile() {
     		 "",
 		     true);
 	}
+	@Test
 	public void testReleaseOption22() {
 		if (isJRE11Plus || isJRE12Plus) return;
 		runConformTest(
@@ -4022,6 +4115,7 @@ public void testBug521362_emptyFile() {
     		"1 problem (1 warning)\n",
 	        true);
 	}
+	@Test
 	public void testReleaseOption23() {
 		if (!isJRE11Plus) return;
 		runNegativeTest(
@@ -4044,6 +4138,7 @@ public void testBug521362_emptyFile() {
 	        "invalid module name: java.xml.ws.annotation\n",
 	        true);
 	}
+	@Test
 	public void testReleaseOption24() {
 		if (!isJRE11Plus) return;
 		runNegativeTest(
@@ -4066,6 +4161,7 @@ public void testBug521362_emptyFile() {
 	        "invalid module name: java.xml.ws.annotation\n",
 	        true);
 	}
+	@Test
 	public void testLimitModules1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4104,6 +4200,7 @@ public void testBug521362_emptyFile() {
 				"1 problem (1 error)\n",
 				"module not found");
 	}
+	@Test
 	public void testLimitModules2() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4142,6 +4239,7 @@ public void testBug521362_emptyFile() {
 				"1 problem (1 error)\n",
 				"is not visible");
 	}
+	@Test
 	public void testLimitModules3() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4172,6 +4270,7 @@ public void testBug521362_emptyFile() {
 				"",
 				"");
 	}
+	@Test
 	public void testLimitModules4() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4200,6 +4299,7 @@ public void testBug521362_emptyFile() {
 				"",
 				"");
 	}
+	@Test
 	public void testLimitModules5() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4235,6 +4335,7 @@ public void testBug521362_emptyFile() {
 				"1 problem (1 error)\n",
 				"");
 	}
+	@Test
 	public void testBug519600() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4261,6 +4362,7 @@ public void testBug521362_emptyFile() {
 		runner.javacVersionOptions = "-Xlint:-options"; // -source 9 already provided
 		runner.runConformModuleTest();
 	}
+	@Test
 	public void testBug508889_001() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4282,6 +4384,7 @@ public void testBug521362_emptyFile() {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
+	@Test
 	public void testBug508889_002() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4319,6 +4422,7 @@ public void testBug521362_emptyFile() {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
+	@Test
 	public void testBug508889_003() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4392,6 +4496,7 @@ public void testBug521362_emptyFile() {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
+	@Test
 	public void testBug520858() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4426,6 +4531,7 @@ public void testBug521362_emptyFile() {
 		runner.javacVersionOptions = " -Xlint:-options";
 		runner.runConformModuleTest();
 	}
+	@Test
 	public void testBug520858a() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4462,6 +4568,7 @@ public void testBug521362_emptyFile() {
 		runner.javacVersionOptions = " -Xlint:-options";
 		runner.runConformModuleTest();
 	}
+	@Test
 	public void testBug520858b() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4497,6 +4604,7 @@ public void testBug521362_emptyFile() {
 		runner.javacVersionOptions = " -Xlint:-options";
 		runner.runConformModuleTest();
 	}
+	@Test
 	public void testBug520858c() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4531,6 +4639,7 @@ public void testBug521362_emptyFile() {
 				"\'---OUTPUT_DIR_PLACEHOLDER---/src/test/p/Test.java\' does not belong to a module on the module source path\n",
 				"not in a module on the module source path");
 	}
+	@Test
 	public void testBug520858d() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4567,6 +4676,7 @@ public void testBug521362_emptyFile() {
 			"\'---OUTPUT_DIR_PLACEHOLDER---/src/test/p/Test.java\' does not belong to a module on the module source path\n",
 			"not in a module on the module source path");
 	}
+	@Test
 	public void testBug520858e() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -4604,6 +4714,7 @@ public void testBug521362_emptyFile() {
 			"\'---OUTPUT_DIR_PLACEHOLDER---/src/test/p/Test.java\' does not belong to a module on the module source path\n",
 			"not in a module on the module source path");
 	}
+	@Test
 	public void testBug530575() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4674,6 +4785,7 @@ public void testBug521362_emptyFile() {
 	 * Test that when module-info is not included in the command line, the class is still
 	 * generated inside the module's sub folder.
 	 */
+	@Test
 	public void testBug533411() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4709,6 +4821,7 @@ public void testBug521362_emptyFile() {
 		String fileName = OUTPUT_DIR + File.separator + out + File.separator + "mod.one" + File.separator + "module-info.class";
 		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
+	@Test
 	public void test_npe_bug535107() {
 		runConformModuleTest(
 				new String[] {
@@ -4731,6 +4844,7 @@ public void testBug521362_emptyFile() {
 		        "",
 		        true);
 	}
+	@Test
 	public void testBug540067a() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4767,6 +4881,7 @@ public void testBug521362_emptyFile() {
 				"",
 				false);
 	}
+	@Test
 	public void testBug540067b() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4803,6 +4918,7 @@ public void testBug521362_emptyFile() {
 				"",
 				false);
 	}
+	@Test
 	public void testBug540067c() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4840,6 +4956,7 @@ public void testBug521362_emptyFile() {
 				"",
 				false);
 	}
+	@Test
 	public void testBug540067d() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4883,6 +5000,7 @@ public void testBug521362_emptyFile() {
 				false,
 				"unnamed package is not allowed in named modules");
 	}
+	@Test
 	public void testBug540067e() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4927,6 +5045,7 @@ public void testBug521362_emptyFile() {
 				false,
 				"unnamed package is not allowed in named modules");
 	}
+	@Test
 	public void testBug548195() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -4970,6 +5089,7 @@ public void testBug521362_emptyFile() {
 		}
 		fail("module attribute not found");
 	}
+	@Test
 	public void testBug548195fail() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5002,6 +5122,7 @@ public void testBug521362_emptyFile() {
 			runConformModuleTest(files, buffer, "Could not invoke method java.lang.module.ModuleDescriptor.Version.parse(), cannot validate module version.\n", "");
 		}
 	}
+	@Test
 	public void testPackageTypeConflict2() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5051,6 +5172,7 @@ public void testBug521362_emptyFile() {
 				"1 problem (1 error)\n",
 				"package p1.p2.t3 clashes with class of same name");
 	}
+	@Test
 	public void testBug550178() throws Exception {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -5084,6 +5206,7 @@ public void testBug521362_emptyFile() {
 				"1 problem (1 error)\n",
 				"");
 	}
+	@Test
 	public void testRelease565930_1() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -5098,6 +5221,7 @@ public void testBug521362_emptyFile() {
 		     "",
 		     true);
 	}
+	@Test
 	public void testRelease565930_2() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -5120,6 +5244,7 @@ public void testBug521362_emptyFile() {
     		 "1 problem (1 warning)\n",
 		     true);
 	}
+	@Test
 	public void testBug571363() throws Exception {
 		if (!isJRE12Plus) return;
 		this.runConformTest(
@@ -5136,6 +5261,7 @@ public void testBug521362_emptyFile() {
 	     "",
 	     true);
 	}
+	@Test
 	public void testBug574097() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
@@ -5235,6 +5361,7 @@ public void testBug521362_emptyFile() {
 	 * Test that reference to a binary package that is exported in a module
 	 * but doesn't have a corresponding resource or .class files is reported.
 	 */
+	@Test
 	public void testBug522472a() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5311,6 +5438,7 @@ public void testBug521362_emptyFile() {
 	/*
 	 * Same as above test case, but two binary modules export the package, without any .class files
 	 */
+	@Test
 	public void testBug522472b() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5402,6 +5530,7 @@ public void testBug521362_emptyFile() {
 				"3 problems (3 errors)\n",
 				"reads package x.y.z from both");
 	}
+	@Test
 	public void testBug522472d() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5478,6 +5607,7 @@ public void testBug521362_emptyFile() {
 				"3 problems (3 errors)\n",
 				"reads package x.y.z from both");
 	}
+	@Test
 	public void testIssue2357_001() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5552,6 +5682,7 @@ public void testBug521362_emptyFile() {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
 
+	@Test
 	public void testPatchModuleSingle() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5606,6 +5737,7 @@ public void testBug521362_emptyFile() {
 				"");
 	}
 
+	@Test
 	public void testPatchModuleSingle_duplicateModule() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5630,6 +5762,7 @@ public void testBug521362_emptyFile() {
 				"--patch-module specified more than once");
 	}
 
+	@Test
 	public void testPatchModuleSingle_duplicateLocation1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5654,6 +5787,7 @@ public void testBug521362_emptyFile() {
 				JavacTestOptions.SKIP);
 	}
 
+	@Test
 	public void testPatchModuleSingle_duplicateLocation2() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5678,6 +5812,7 @@ public void testBug521362_emptyFile() {
 				JavacTestOptions.SKIP);
 	}
 
+	@Test
 	public void testPatchModuleSingle_syntaxErr() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5700,6 +5835,7 @@ public void testBug521362_emptyFile() {
 				"bad value for --patch-module option");
 	}
 
+	@Test
 	public void testPatchModuleSingle_noSuchModule() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5730,6 +5866,7 @@ public void testBug521362_emptyFile() {
 				"module not found");
 	}
 
+	@Test
 	public void testPatchModuleMulti() {
 		// separately compile two modules, then patch them both in one go:
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -5824,6 +5961,7 @@ public void testBug521362_emptyFile() {
 				"");
 	}
 
+	@Test
 	public void testPatchModuleMulti2() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -5884,6 +6022,7 @@ public void testBug521362_emptyFile() {
 				"",
 				"");
 	}
+	@Test
 	public void testGH2646() {
 		try {
 			class Counter implements Consumer<SplitPackageBinding> {
@@ -5925,6 +6064,7 @@ public void testBug521362_emptyFile() {
 		}
 	}
 
+	@Test
 	public void testGH2748() throws IOException {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);

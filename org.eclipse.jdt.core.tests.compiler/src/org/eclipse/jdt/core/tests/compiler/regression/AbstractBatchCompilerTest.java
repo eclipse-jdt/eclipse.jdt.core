@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.TestInfo;
 
 public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 
@@ -145,6 +146,11 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 		}
 	}
 
+	public AbstractBatchCompilerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
+	}
+
+	@Deprecated
 	public AbstractBatchCompilerTest(String name) {
 		super(name);
 	}

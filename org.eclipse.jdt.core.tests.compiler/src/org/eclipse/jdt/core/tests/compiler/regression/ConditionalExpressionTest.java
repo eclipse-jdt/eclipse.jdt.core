@@ -14,15 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class ConditionalExpressionTest extends AbstractRegressionTest {
 
-	public ConditionalExpressionTest(String name) {
-		super(name);
+	public ConditionalExpressionTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -32,15 +32,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 65 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return ConditionalExpressionTest.class;
-	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100162
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -58,6 +52,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=107193
+	@Test
 	public void test002() {
 		this.runConformTest(
 			new String[] {
@@ -78,6 +73,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426078, Bug 426078 - [1.8] VerifyError when conditional expression passed as an argument
+	@Test
 	public void test003() {
 		this.runConformTest(
 			new String[] {
@@ -99,6 +95,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423685, - [1.8] poly conditional expression must not use lub
+	@Test
 	public void test004() {
 		this.runConformTest(
 				new String[] {
@@ -121,6 +118,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425181, - Cast expression in ternary operation reported as incompatible
+	@Test
 	public void test005() {
 		this.runConformTest(
 				new String[] {
@@ -138,6 +136,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426315, - [1.8][compiler] UnsupportedOperationException with conditional expression
+	@Test
 	public void test006() {
 		this.runConformTest(
 				new String[] {
@@ -159,6 +158,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426680, - [1.8][compiler] Incorrect handling of poly conditional leads to CCE
+	@Test
 	public void test007() {
 		this.runNegativeTest(
 				new String[] {
@@ -187,6 +187,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426680, - [1.8][compiler] Incorrect handling of poly conditional leads to CCE
+	@Test
 	public void test008() {
 		this.runNegativeTest(
 				new String[] {
@@ -216,6 +217,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
 	// Reference poly conditional in assignment context
+	@Test
 	public void test009() {
 		this.runConformTest(
 				new String[] {
@@ -244,6 +246,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
 	// Reference poly conditional in poly invocation context
+	@Test
 	public void test010() {
 		this.runConformTest(
 				new String[] {
@@ -275,6 +278,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
 	// Reference poly conditional in assignment context, order reversed.
+	@Test
 	public void test011() {
 		this.runConformTest(
 				new String[] {
@@ -307,6 +311,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
 	// Reference poly conditional in poly invocation context, order reversed.
+	@Test
 	public void test012() {
 		this.runConformTest(
 				new String[] {
@@ -342,6 +347,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
 	// Reference poly conditional in poly invocation context, interface types
+	@Test
 	public void test013() {
 		this.runConformTest(
 				new String[] {
@@ -372,6 +378,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				"SomeInt instance");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
+	@Test
 	public void test014() {
 		this.runNegativeTest(
 				new String[] {
@@ -398,6 +405,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
+	@Test
 	public void test015() {
 		this.runNegativeTest(
 				new String[] {
@@ -424,6 +432,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427625, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
+	@Test
 	public void test427625() {
 		Map<String,String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
@@ -449,6 +458,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				null, true, options);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432487,  NullPointerException during compilation using jdk1.8.0
+	@Test
 	public void testBug432487() {
 		this.runNegativeTest(
 			new String[] {
@@ -473,6 +483,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c113, - Error building JRE8
+	@Test
 	public void test437444_c113() {
 		this.runNegativeTest(
 			new String[] {
@@ -490,6 +501,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	@Test
 	public void test437444_2() {
 		this.runNegativeTest(
 			new String[] {
@@ -508,6 +520,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=484425: [bytecode] Bad type on operand stack - compiler omitted instructions for unboxing null Boolean
+	@Test
 	public void test484425() {
 		this.runConformTest(
 				new String[] {
@@ -527,6 +540,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2677
 	// JDT Core throws ClassCastException: NullTypeBinding cannot be cast to class ArrayBinding
+	@Test
 	public void testIssue2677() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -547,6 +561,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2677
 	// JDT Core throws ClassCastException: NullTypeBinding cannot be cast to class ArrayBinding
+	@Test
 	public void testIssue2677_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -567,6 +582,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3042
 	// java.util.EmptyStackException: null when invoking a static method on a null string literal in a ternary operator
+	@Test
 	public void testIssue3042() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -594,6 +610,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				"Bar!\nBar!");
 	}
 
+	@Test
 	public void testIssue3042_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -625,6 +642,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				"Bar!\nNPE!");
 	}
 
+	@Test
 	public void testIssue3042_3() {
 		if (this.complianceLevel < ClassFileConstants.JDK14)
 			return;
@@ -655,6 +673,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3775
 	// [Ternary operator] Inference failure involving standalone conditional expression argument
+	@Test
 	public void testIssue3775() {
 		this.runConformTest(
 				new String[] {

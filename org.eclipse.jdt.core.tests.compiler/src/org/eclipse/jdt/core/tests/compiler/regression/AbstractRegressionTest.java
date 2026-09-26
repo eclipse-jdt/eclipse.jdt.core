@@ -1462,7 +1462,7 @@ protected static class JavacTestOptions {
 			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+complianceString+"!");
 			return new TestSuite();
 		}
-		TestSuite complianceSuite = new RegressionTestSetup(uniqueCompliance);
+		TestSuite complianceSuite =null; // new RegressionTestSetup(uniqueCompliance);
 		List<Test> tests = buildTestsList(evaluationTestClass, inheritedDepth);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			complianceSuite.addTest(tests.get(index));
@@ -1939,6 +1939,11 @@ protected static class JavacTestOptions {
 	// overridden in AbstractRegressionTests9
 	protected CompilationUnit[] getCompilationUnits(String[] testFiles) {
 		return Util.compilationUnits(testFiles);
+	}
+
+	@Override
+	protected RegressionTestSetup newTestSetup(String testName, long level) {
+		return new RegressionTestSetup(testName, level);
 	}
 
 	@Override

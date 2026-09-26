@@ -18,13 +18,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DeprecatedTest extends AbstractRegressionTest {
@@ -35,11 +36,8 @@ static {
 
 protected char[][] invisibleType;
 
-public DeprecatedTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public DeprecatedTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -74,6 +72,7 @@ protected INameEnvironment getNameEnvironment(final String[] testFiles, String[]
 	};
 }
 
+@Test
 public void test001() {
 	this.runNegativeTest(new String[] {
 		"p/B.java",
@@ -102,6 +101,7 @@ public void test001() {
 	"----------\n"
 	);
 }
+@Test
 public void test002() {
 	this.runNegativeTest(new String[] {
 		"p/C.java",
@@ -126,6 +126,7 @@ public void test002() {
 		"----------\n"
 	);
 }
+@Test
 public void test003() {
 	this.runNegativeTest(new String[] {
 		"p/Top.java",
@@ -192,6 +193,7 @@ public void test003() {
 /**
  * Regression test for PR #1G9ES9B
  */
+@Test
 public void test004() {
 	this.runNegativeTest(new String[] {
 		"p/Warning.java",
@@ -217,6 +219,7 @@ public void test004() {
 		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" +
 		"----------\n");
 }
+@Test
 public void test005() {
 	this.runConformTest(
 		new String[] {
@@ -254,6 +257,7 @@ public void test005() {
 		null);  // custom options
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
+@Test
 public void test006() {
 	this.runConformTest(
 		new String[] {
@@ -295,6 +299,7 @@ public void test006() {
 			JavacTestOptions.DEFAULT /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124
+@Test
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -330,6 +335,7 @@ public void test007() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124 - variation
+@Test
 public void test008() {
 	this.runConformTest(
 		new String[] {
@@ -366,6 +372,7 @@ public void test008() {
 }
 // variation of test008 on behalf of Bug 526335 - [9][hovering] Deprecation warning should show the new 'since' deprecation value
 // verify that we don't attempt to access java.lang.Deprecated in a 1.4 based compilation.
+@Test
 public void test008a() throws IOException {
 	String jarPath = LIB_DIR+File.separator+"p008a"+File.separator+"x.jar";
 	Util.createJar(new String[] {
@@ -402,6 +409,7 @@ public void test008a() throws IOException {
 	runner.runWarningTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124 - variation
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -431,6 +439,7 @@ public void test009() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88187
+@Test
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -475,6 +484,7 @@ public void test010() {
 		customOptions);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123522
+@Test
 public void test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -501,6 +511,7 @@ public void test011() {
 
 // @deprecated upon locals do not influence the deprecation diagnostic
 // JLS3 9.6
+@Test
 public void test012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation,
@@ -544,6 +555,7 @@ public void test012() {
 // @deprecated upon locals do not influence the deprecation diagnostic
 // JLS3 9.6
 // @Deprecated variant
+@Test
 public void test013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation,
@@ -585,6 +597,7 @@ public void test013() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159243
+@Test
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -645,6 +658,7 @@ public void test014() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // the order of the CUs must not modify the behavior, see also test016
+@Test
 public void test015() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -687,6 +701,7 @@ public void test015() {
 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
+@Test
 public void test016() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -730,6 +745,7 @@ public void test016() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // variant: self-contained case, hence no report
+@Test
 public void test017() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -762,6 +778,7 @@ public void test017() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // variant: using a binary class
 // **
+@Test
 public void test018() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -814,6 +831,7 @@ public void test018() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191909 (1.4 variant)
+@Test
 public void test019() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -855,6 +873,7 @@ public void test019() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
+@Test
 public void test020() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -929,6 +948,7 @@ public void test020() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void testJEP211_1() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {

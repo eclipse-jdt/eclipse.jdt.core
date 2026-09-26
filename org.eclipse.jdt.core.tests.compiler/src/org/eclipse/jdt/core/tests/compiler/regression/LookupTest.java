@@ -19,7 +19,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Hashtable;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -27,6 +26,8 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 /**
  * Name Lookup within Inner Classes
  * Creation date: (8/2/00 12:04:53 PM)
@@ -34,11 +35,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class LookupTest extends AbstractRegressionTest {
-public LookupTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public LookupTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 static {
@@ -47,6 +45,7 @@ static {
 /**
  * Non-static member class
  */
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -77,6 +76,7 @@ public void test001() {
 /**
  * Attempt to access non-static field from static inner class (illegal)
  */
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -110,6 +110,7 @@ public void test002() {
 /**
  * Access static field from static inner class
  */
+@Test
 public void test003() {
 	this.runConformTest(
 		new String[] {
@@ -132,6 +133,7 @@ public void test003() {
 		"SUCCESS"
 	);
 }
+@Test
 public void test004() {
 	this.runConformTest(
 		new String[] {
@@ -169,6 +171,7 @@ public void test004() {
 		"SUCCESS"
 	);
 }
+@Test
 public void test005() {
 	this.runConformTest(
 		new String[] {
@@ -200,6 +203,7 @@ public void test005() {
  * jdk1.2.2 reports: No variable sucess defined in nested class p1.A. B.C.
  * jdk1.3 reports: success has private access in p1.A
  */
+@Test
 public void test006() {
 	this.runNegativeTest(
 		new String[] {
@@ -233,6 +237,7 @@ public void test006() {
 /**
  * No errors in jdk1.2.2, jdk1.3
  */
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -257,6 +262,7 @@ public void test007() {
  * jdk1.2.2 reports: Undefined variable: A.this
  * jdk1.3 reports: non-static variable this cannot be referenced from a static context
  */
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -292,6 +298,7 @@ public void test008() {
  * jdk1.2.2 reports: No variable success defined in nested class p1.A. B.C
  * jdk1.3 reports: success has private access in p1.A
  */
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -321,6 +328,7 @@ public void test009() {
  * jdk1.2.2 reports: Can't make a static reference to nonstatic variable success in class p1.A
  * jdk1.3 reports: non-static variable success cannot be referenced from a static context
  */
+@Test
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -351,6 +359,7 @@ public void test010() {
 		"Cannot make a static reference to the non-static field A.success\n" +
 		"----------\n");
 }
+@Test
 public void test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -388,6 +397,7 @@ public void test011() {
 		"----------\n"
 	);
 }
+@Test
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -414,6 +424,7 @@ public void test012() {
 		"SUCCESS"
 	);
 }
+@Test
 public void test013() {
 	this.runNegativeTest(
 		new String[] {
@@ -468,6 +479,7 @@ public void test013() {
 		"----------\n"
 	);
 }
+@Test
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -492,6 +504,7 @@ public void test014() {
 		"----------\n"
 	);
 }
+@Test
 public void test015() {
 	this.runConformTest(
 		new String[] {
@@ -512,6 +525,7 @@ public void test015() {
 		"SUCCESS"
 	);
 }
+@Test
 public void test016() {
 	this.runConformTest(
 		new String[] {
@@ -557,6 +571,7 @@ public void test016() {
 		}
 	);
 }
+@Test
 public void test017() {
 	this.runConformTest(
 		new String[] {
@@ -589,6 +604,7 @@ public void test017() {
 /**
  * member class
  */
+@Test
 public void test018() {
 	this.runConformTest(
 		new String[] {
@@ -618,6 +634,7 @@ public void test018() {
 /**
  * member class
  */
+@Test
 public void test019() {
 	this.runNegativeTest(
 		new String[] {
@@ -654,6 +671,7 @@ public void test019() {
 /**
  * member class
  */
+@Test
 public void test020() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -699,6 +717,7 @@ public void test020() {
 /**
  * member class
  */
+@Test
 public void test021() {
 	this.runConformTest(
 		new String[] {
@@ -722,6 +741,7 @@ public void test021() {
 		}
 	);
 }
+@Test
 public void test022() {
 	this.runConformTest(
 		new String[] {
@@ -759,6 +779,7 @@ public void test022() {
 		}
 	);
 }
+@Test
 public void test023() {
 	this.runConformTest(
 		new String[] {
@@ -785,6 +806,7 @@ public void test023() {
 		}
 	);
 }
+@Test
 public void test024() {
 	this.runConformTest(
 		new String[] {
@@ -809,6 +831,7 @@ public void test024() {
 		}
 	);
 }
+@Test
 public void test025() {
 	this.runConformTest(
 		new String[] {
@@ -846,6 +869,7 @@ public void test025() {
 		"SUCCESS"
 	);
 }
+@Test
 public void test026() {
 	this.runNegativeTest(
 		new String[] {
@@ -886,6 +910,7 @@ public void test026() {
 		"The field A.B.B is not visible\n" +
 		"----------\n");
 }
+@Test
 public void test027() {
 	this.runNegativeTest(
 		new String[] {
@@ -927,6 +952,7 @@ public void test027() {
 		"----------\n"
 	);
 }
+@Test
 public void test028() {
 	this.runConformTest(
 		new String[] {
@@ -955,6 +981,7 @@ public void test028() {
 /*
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=10634
  */
+@Test
 public void test029() {
 	this.runNegativeTest(
 		new String[] {
@@ -983,6 +1010,7 @@ public void test029() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11435
  * 1.3 compiler must accept classfiles without abstract method (target >=1.2)
  */
+@Test
 public void test030() {
 
 	Hashtable target1_2 = new Hashtable();
@@ -1033,6 +1061,7 @@ public void test030() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - must filter abstract methods when searching concrete methods
  */
+@Test
 public void test031() {
 
 	this.runConformTest(
@@ -1068,6 +1097,7 @@ public void test031() {
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=29211
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=29213
  */
+@Test
 public void test032() {
 	this.runNegativeTest(
 		new String[] {
@@ -1109,6 +1139,7 @@ public void test032() {
 }
 
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+@Test
 public void test033() {
 	this.runNegativeTest(
 		new String[] {
@@ -1137,6 +1168,7 @@ public void test033() {
 }
 
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+@Test
 public void test034() {
 	this.runNegativeTest(
 		new String[] {
@@ -1168,6 +1200,7 @@ public void test034() {
 }
 
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+@Test
 public void test035() {
 	this.runNegativeTest(
 		new String[] {
@@ -1195,6 +1228,7 @@ public void test035() {
 		"----------\n");
 }
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+@Test
 public void test036() {
 	this.runNegativeTest(
 		new String[] {
@@ -1232,6 +1266,7 @@ public void test036() {
 		"----------\n");
 }
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+@Test
 public void test037() {
 	this.runNegativeTest(
 		new String[] {
@@ -1269,6 +1304,7 @@ public void test037() {
 		"----------\n");
 }
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+@Test
 public void test038() {
 	this.runNegativeTest(
 		new String[] {
@@ -1300,6 +1336,7 @@ public void test038() {
 }
 
 // 31198 - regression after 30805 - Abstract non-visible method diagnosis fooled by intermediate declarations
+@Test
 public void test039() {
 	this.runNegativeTest(
 		new String[] {
@@ -1330,6 +1367,7 @@ public void test039() {
 /*
  * 31398 - non-visible abstract method fooling method verification - should not complain about foo() or bar()
  */
+@Test
 public void test040() {
 	this.runNegativeTest(
 		new String[] {
@@ -1366,6 +1404,7 @@ public void test040() {
 /*
  * 31450 - non-visible abstract method fooling method verification - should not complain about foo()
  */
+@Test
 public void test041() {
 	this.runNegativeTest(
 		new String[] {
@@ -1401,6 +1440,7 @@ public void test041() {
 /*
  * 31450 - non-visible abstract method fooling method verification - should not complain about foo()
  */
+@Test
 public void test042() {
 	this.runNegativeTest(
 		new String[] {
@@ -1438,6 +1478,7 @@ public void test042() {
 		"----------\n");
 }
 
+@Test
 public void test043() {
 	this.runConformTest(
 		new String[] {
@@ -1479,6 +1520,7 @@ public void test043() {
 /*
  * 62639 - check that missing member type is not noticed if no direct connection with compiled type
  */
+@Test
 public void test044() {
 	this.runConformTest(
 		new String[] {
@@ -1514,6 +1556,7 @@ public void test044() {
 /*
  * ensure that can still found binary member types at depth >=2 (enclosing name Dumbo$Clyde $ Fred)
  */
+@Test
 public void test045() {
 	this.runConformTest(
 		new String[] {
@@ -1547,6 +1590,7 @@ public void test045() {
 		false,
 		null);
 }
+@Test
 public void test046() {
 	this.runNegativeTest(
 		new String[] {
@@ -1577,6 +1621,7 @@ public void test046() {
 			"Cannot make a static reference to the non-static method foo(XY) from the type X\n" +
 			"----------\n");
 }
+@Test
 public void test047() {
 	this.runConformTest(
 		new String[] {
@@ -1609,6 +1654,7 @@ public void test047() {
 		"String: Hello world");
 }
 // 73740 - missing serialVersionUID diagnosis shouldn't trigger load of Serializable
+@Test
 public void test048() {
 	this.runConformTest(
 		new String[] {
@@ -1637,6 +1683,7 @@ public void test048() {
 		});
 }
 // 76682 - ClassCastException in qualified name computeConversion
+@Test
 public void test049() {
 	this.runNegativeTest(
 		new String[] {
@@ -1655,6 +1702,7 @@ public void test049() {
 		"Cannot make a static reference to the non-static method format(Date) from the type DateFormat\n" +
 		"----------\n");
 }
+@Test
 public void test050() {
 	this.runConformTest(
 		new String[] {
@@ -1676,6 +1724,7 @@ public void test050() {
 		"SUCCESS");
 }
 
+@Test
 public void test051() {
 	this.runNegativeTest(
 		new String[] {
@@ -1695,6 +1744,7 @@ public void test051() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=87463
+@Test
 public void test052() {
 	this.runConformTest(
 		new String[] {
@@ -1721,6 +1771,7 @@ public void test052() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=87463 - variation
+@Test
 public void test053() {
 	this.runConformTest(
 		new String[] {
@@ -1751,6 +1802,7 @@ public void test053() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93486
+@Test
 public void test054() {
     this.runConformTest(
         new String[] {
@@ -1777,6 +1829,7 @@ public void test054() {
         "");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106140
+@Test
 public void test055() {
     this.runNegativeTest(
         new String[] {
@@ -1818,6 +1871,7 @@ public void test055() {
 		"----------\n");
 }
 // final method in static inner class still found in extending classes
+@Test
 public void test056() {
     this.runConformTest(
         new String[] {
@@ -1844,6 +1898,7 @@ public void test056() {
         "SUCCESS");
 }
 // unresolved type does not fool methods signature comparison
+@Test
 public void test057() {
     this.runNegativeTest(
         new String[] {
@@ -1865,6 +1920,7 @@ public void test057() {
 		"----------\n"
 		);
 }
+@Test
 public void test058() {
     this.runConformTest(
         new String[] {
@@ -1892,6 +1948,7 @@ public void test058() {
 		"0");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=132813
+@Test
 public void test059() {
     this.runNegativeTest(
         new String[] {
@@ -1925,6 +1982,7 @@ public void test059() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=132813 - variation
+@Test
 public void test060() {
     this.runNegativeTest(
         new String[] {
@@ -1963,6 +2021,7 @@ public void test060() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134839
+@Test
 public void test061() {
 	Map options = getCompilerOptions();
     this.runConformTest(
@@ -1991,6 +2050,7 @@ public void test061() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134839
+@Test
 public void test062() {
 	Map options = getCompilerOptions();
     this.runConformTest(
@@ -2019,6 +2079,7 @@ public void test062() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=135292
+@Test
 public void test063() {
     this.runNegativeTest(
         new String[] {
@@ -2070,6 +2131,7 @@ public void test063() {
 	"----------\n");
 }
 //	https://bugs.eclipse.org/bugs/show_bug.cgi?id=137744
+@Test
 public void test064() {
 	Map options = getCompilerOptions();
 	this.runConformTest(
@@ -2134,6 +2196,7 @@ public void test064() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=135323
+@Test
 public void test065() {
 	this.runConformTest(
 			new String[] {
@@ -2165,6 +2228,7 @@ public void test065() {
 			"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=135323 - variation
+@Test
 public void test066() {
 	this.runConformTest(
 			new String[] {
@@ -2196,6 +2260,7 @@ public void test066() {
 			"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=135323 - variation
+@Test
 public void test067() {
 	this.runConformTest(
 			new String[] {
@@ -2227,6 +2292,7 @@ public void test067() {
 			"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
+@Test
 public void test068() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -2251,6 +2317,7 @@ public void test068() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
+@Test
 public void test068a() {
 	Map options = getCompilerOptions();
 	this.runConformTest(
@@ -2301,6 +2368,7 @@ public void test068a() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099 - variation
+@Test
 public void test069() {
 	this.runConformTest(
 			new String[] {
@@ -2318,6 +2386,7 @@ public void test069() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
+@Test
 public void test070() {
 	this.runConformTest(
 			new String[] {
@@ -2341,6 +2410,7 @@ public void test070() {
 			"");
 }
 // using $ in the name of a class defined within another package
+@Test
 public void test071() {
 	this.runConformTest(
 		new String[] {
@@ -2370,6 +2440,7 @@ public void test071() {
 		null /* no custom requestor*/,
 	  	false /* do not skip javac for this peculiar test */);
 }
+@Test
 public void test072() {
 	this.runNegativeTest(
 			new String[] {
@@ -2397,6 +2468,7 @@ public void test072() {
 			"The method foo(String) is ambiguous for the type AX\n" +
 			"----------\n");
 }
+@Test
 public void test073() {
 	this.runNegativeTest(
 		new String[] {
@@ -2417,6 +2489,7 @@ public void test073() {
 }
 
 // was Compliance_1_x#test008
+@Test
 public void test074() {
 	String[] sources = new String[] {
 		"p1/Test.java",
@@ -2449,6 +2522,7 @@ public void test074() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150758
+@Test
 public void test075() {
 	this.runConformTest(
 			new String[] {
@@ -2480,6 +2554,7 @@ public void test075() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159543
+@Test
 public void test076() {
 	this.runNegativeTest(
 		new String[] {
@@ -2509,6 +2584,7 @@ public void test076() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159893
+@Test
 public void test077() {
 	this.runConformTest(
 		new String[] {
@@ -2540,6 +2616,7 @@ public void test077() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159893 - variation
+@Test
 public void test078() {
 	this.runNegativeTest(
 		new String[] {
@@ -2582,6 +2659,7 @@ public void test078() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166354
 // **
+@Test
 public void test079() {
 	this.runConformTest(
 		new String[] {
@@ -2614,6 +2692,7 @@ public void test079() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166354
 // variant
+@Test
 public void test080() {
 	this.runConformTest(
 		new String[] {
@@ -2644,6 +2723,7 @@ public void test080() {
 		"X\nX");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
+@Test
 public void test081() {
 	this.runConformTest(
 		new String[] {
@@ -2674,6 +2754,7 @@ public void test081() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
 // variant
+@Test
 public void test082() {
 	this.runConformTest(
 		new String[] {
@@ -2705,6 +2786,7 @@ public void test082() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
 // variant
+@Test
 public void test083() {
 	String src[] =
 		new String[] {
@@ -2739,6 +2821,7 @@ public void test083() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
 // variant
+@Test
 public void test084() {
 	this.runConformTest(
 		new String[] {
@@ -2767,6 +2850,7 @@ public void test084() {
 		"set(1)");
 }
 
+@Test
 public void test086() {
 	this.runNegativeTest(
 		new String[] {
@@ -2812,6 +2896,7 @@ public void _test087() {
 			},
 			"done");
 }
+@Test
 public void test088() {
 	this.runNegativeTest(
 		new String[] {
@@ -2831,6 +2916,7 @@ public void test088() {
 		"----------\n");
 }
 
+@Test
 public void test089() {
 	this.runNegativeTest(
 		new String[] {
@@ -2852,6 +2938,7 @@ public void test089() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239833
+@Test
 public void test090() {
 	this.runNegativeTest(
 		new String[] {
@@ -2881,6 +2968,7 @@ public void test090() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+@Test
 public void test091() {
 	this.runNegativeTest(
 		new String[] {
@@ -2906,6 +2994,7 @@ public void test091() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+@Test
 public void test092() {
 	this.runNegativeTest(
 		new String[] {
@@ -2931,6 +3020,7 @@ public void test092() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+@Test
 public void test093() {
 	this.runNegativeTest(
 		new String[] {
@@ -2956,6 +3046,7 @@ public void test093() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+@Test
 public void test094() {
 	this.runConformTest(
 		new String[] {
@@ -2975,6 +3066,7 @@ public void test094() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277965
+@Test
 public void test095() {
 	this.runNegativeTest(
 		new String[] {
@@ -2998,6 +3090,7 @@ public void test095() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id= 317212
+@Test
 public void test096() {
 	this.runNegativeTest(
 		new String[] {
@@ -3030,6 +3123,7 @@ public void test096() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id= 317212
+@Test
 public void test097() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -3092,6 +3186,7 @@ public void test097() {
 		errMessage);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+@Test
 public void test098() {
 	this.runConformTest(
 		new String[] {
@@ -3111,6 +3206,7 @@ public void test098() {
 		"very long");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+@Test
 public void test099() {
 	this.runNegativeTest(
 		new String[] {
@@ -3135,6 +3231,7 @@ public void test099() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+@Test
 public void test100() {
 	this.runConformTest(
 		new String[] {
@@ -3154,6 +3251,7 @@ public void test100() {
 		"5");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+@Test
 public void test101() {
 	this.runNegativeTest(
 		new String[] {
@@ -3193,6 +3291,7 @@ public void test101() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+@Test
 public void test102() {
 	this.runNegativeTest(
 		new String[] {
@@ -3227,6 +3326,7 @@ public void test102() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
+@Test
 public void test103() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -3308,6 +3408,7 @@ public void test103() {
 		errMessage);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
+@Test
 public void test104() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -3354,6 +3455,7 @@ public void test104() {
 	runner.runWarningTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
+@Test
 public void test105() {
 	String errMessage =	isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -3423,6 +3525,7 @@ public void test105() {
 		errMessage);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350738
+@Test
 public void test106() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -3455,6 +3558,7 @@ public void test106() {
 	runner.runWarningTest();
 }
 
+@Test
 public void testBug537828() {
 	this.runConformTest(
 		new String[] {
@@ -3484,6 +3588,7 @@ public void testBug537828() {
 		},
 		"A.obj");
 }
+@Test
 public void testBug577350_001() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
@@ -3518,6 +3623,7 @@ public void testBug577350_001() {
 		},
 		"");
 }
+@Test
 public void testBug577350_002() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
@@ -3552,7 +3658,5 @@ public void testBug577350_002() {
 			"}",
 		},
 		"");
-}
-public static Class testClass() {	return LookupTest.class;
 }
 }

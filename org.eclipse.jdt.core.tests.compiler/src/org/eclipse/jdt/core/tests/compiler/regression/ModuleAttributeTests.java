@@ -17,22 +17,22 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Stream;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IModuleAttribute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class ModuleAttributeTests extends AbstractRegressionTest9 {
 
-	public ModuleAttributeTests(String name) {
-		super(name);
-	}
-
-	public static Class<?> testClass() {
-		return ModuleAttributeTests.class;
+	public ModuleAttributeTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	private static String[] allowedAttributes = {
@@ -51,9 +51,6 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
-	}
 
 	private IModuleAttribute getModuleAttribute(String[] contents) {
 		this.runConformTest(contents);
@@ -69,6 +66,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 	}
 
 	// basic test to check for presence of module attribute in module-info.class
+	@Test
 	public void test001() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -88,6 +86,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		assertNotNull("Module attribute not found", moduleAttribute);
 	}
 	// Test that there is at most one Module attribute in the attributes table of a ClassFile structure- JVMS Sec 4.7.25
+	@Test
 	public void testBug508889_002() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -122,6 +121,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		assertTrue("Unexpected attribute length", module.getAttributeLength() > 0);
 		//int flags = module.getModuleFlags();
 	}
+	@Test
 	public void testBug521521() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -134,6 +134,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		int flags = cfr.getAccessFlags();
 		assertTrue("Invalid access flags", (flags & ~ClassFileConstants.AccModule) == 0);
 	}
+	@Test
 	public void testBug521521a() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -147,6 +148,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		assertTrue("Invalid access flags", (flags & ~ClassFileConstants.AccModule) == 0);
 	}
 
+	@Test
 	public void testModuleCompile() throws Exception {
 		String pack1_x11java = "pack1/X11.java";
 		String pack2_x21java = "pack2/X21.java";
@@ -166,6 +168,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		};
 		this.runConformTest(contents);
 	}
+	@Test
 	public void testBug495967() throws Exception {
 		String pack1_x11java = "pack1/pack2/pack3/pack4/X11.java";
 		String pack2_x21java = "pack21/pack22/pack23/pack24/X21.java";
@@ -220,6 +223,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		};
 		this.runConformTest(contents);
 	}
+	@Test
 	public void testBug519330() throws Exception {
 		String[] contents =  {
 			"module-info.java",
@@ -229,6 +233,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		IModuleAttribute moduleAttribute = getModuleAttribute(contents);
 		assertTrue("module java.base should not require any other modules", moduleAttribute.getRequiresCount() == 0);
 	}
+	@Test
 	public void testBug533134() throws Exception {
 		String[] contents =  {
 			"module-info.java",

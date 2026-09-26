@@ -14,17 +14,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Deprecated18Test extends AbstractRegressionTest {
-public Deprecated18Test(String name) {
-	super(name);
+public Deprecated18Test(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
+@Test
 public void test412555() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -58,6 +57,7 @@ public void test412555() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1370
 // Deprecation warnings are not suppressed in lambdas of deprecated methods
+@Test
 public void testGH1370() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);

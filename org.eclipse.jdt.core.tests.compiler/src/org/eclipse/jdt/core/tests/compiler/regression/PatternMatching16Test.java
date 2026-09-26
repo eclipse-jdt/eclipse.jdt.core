@@ -14,12 +14,16 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class PatternMatching16Test extends AbstractRegressionTest {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 16");
@@ -29,14 +33,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "test027" };
 	}
 
-	public static Class<?> testClass() {
-		return PatternMatching16Test.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
-	}
-	public PatternMatching16Test(String testName){
-		super(testName);
+	public PatternMatching16Test(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
@@ -69,6 +67,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runner.expectedJavacOutputString = javacLog;
 		runner.runNegativeTest();
 	}
+	@Test
 	public void test000a() {
 		Map<String, String> options = getCompilerOptions(false);
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -97,6 +96,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 	}
+	@Test
 	public void test000b() {
 		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
 			return;
@@ -128,6 +128,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 	}
 	// No longer negative since pattern matching is a standard feature now.
+	@Test
 	public void test001() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -145,6 +146,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"",
 				options);
 	}
+	@Test
 	public void test002() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -169,6 +171,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test003() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -194,6 +197,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test003a() {
 		Map<String, String> options = getCompilerOptions(false);
 		String[] testFiles =
@@ -224,6 +228,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test004() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -250,6 +255,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test005() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -273,6 +279,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"100",
 				options);
 	}
+	@Test
 	public void test006() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -295,6 +302,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"abcd",
 				options);
 	}
+	@Test
 	public void test006a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -333,6 +341,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test006b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -371,6 +380,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test006c() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -401,6 +411,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test006d() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -431,6 +442,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test007() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -473,6 +485,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test008() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -499,6 +512,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"s:abcd",
 				options);
 	}
+	@Test
 	public void test009() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -525,6 +539,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"s:abcd",
 				options);
 	}
+	@Test
 	public void test010() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -551,6 +566,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"s:abcd",
 				options);
 	}
+	@Test
 	public void test011() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -582,6 +598,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test012() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -617,6 +634,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test013() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -651,6 +669,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test014() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -681,6 +700,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test014a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -711,6 +731,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test014b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -741,6 +762,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test014c() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -771,6 +793,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test014d() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -793,6 +816,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"else:abcd",
 				options);
 	}
+	@Test
 	public void test014e() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -818,6 +842,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * Test that when pattern tests for false and if doesn't complete
 	 * normally, then the variable is available beyond the if statement
 	 */
+	@Test
 	public void test015() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -845,6 +870,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * Test that when pattern tests for false and if doesn't complete
 	 * normally, then the variable is available beyond the if statement
 	 */
+	@Test
 	public void test015a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -870,6 +896,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * Test that when pattern tests for false and if completes
 	 * normally, then the variable is not available beyond the if statement
 	 */
+	@Test
 	public void test015b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -901,6 +928,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test016() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -920,6 +948,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				options);
 	}
+	@Test
 	public void test017() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -950,6 +979,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	/* Test that the scopes of pattern variable in a block doesn't affect
 	 * another outside but declared after the block
 	 */
+	@Test
 	public void test018() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -977,6 +1007,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	/* Test that the scopes of pattern variable in a block doesn't affect
 	 * another outside but declared before the block
 	 */
+	@Test
 	public void test019() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1003,6 +1034,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	/* Test that we still detect duplicate pattern variable declarations
 	 */
+	@Test
 	public void test019b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1036,6 +1068,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	/* Test that we report subtypes of pattern variables used in the same stmt
 	 * As of Java 21, we no longer report error for the above
 	 */
+	@Test
 	public void test020() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1076,6 +1109,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	/* Test that we allow consequent pattern expressions in the same statement
 	 */
+	@Test
 	public void test020a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1097,6 +1131,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	/* Test that we allow consequent pattern expressions in the same statement
 	 */
+	@Test
 	public void test021() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1132,6 +1167,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	/* Test that we allow pattern expressions in a while statement
 	 */
+	@Test
 	public void test022() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1153,6 +1189,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"one\non\no",
 				options);
 	}
+	@Test
 	public void test022a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1191,6 +1228,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test022b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1219,6 +1257,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test022c() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1242,6 +1281,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	/* Test pattern expressions in a while statement with break
 	 */
+	@Test
 	public void test023() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1276,6 +1316,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test023a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1312,6 +1353,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	/* Test pattern expressions in a while statement with no break
 	 */
+	@Test
 	public void test023b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1347,6 +1389,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 	}
 	// Same as above but with do while
+	@Test
 	public void test023c() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1381,6 +1424,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test024a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1402,6 +1446,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"one",
 				options);
 	}
+	@Test
 	public void test024b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1427,6 +1472,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * It's not a problem to define the same var in two operands of a binary expression,
 	 * but then it is not in scope below.
 	 */
+	@Test
 	public void test025() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1455,6 +1501,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test025a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1483,6 +1530,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test025b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1505,6 +1553,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"none",
 				options);
 	}
+	@Test
 	public void test025c() {
 		Map<String, String> options = getCompilerOptions(true);
 		runConformTest(
@@ -1531,6 +1580,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * It's not allowed to have two pattern variables with same name in the
 	 * same scope
 	 */
+	@Test
 	public void test026() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1563,6 +1613,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * It's not allowed to have two pattern variables with same name in the
 	 * same scope
 	 */
+	@Test
 	public void test026a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1595,6 +1646,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * It's not a problem to define the same var in two operands of a binary expression,
 	 * but then it is not in scope below.
 	 */
+	@Test
 	public void test026b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1623,6 +1675,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	@Test
 	public void test027() {
 		runConformTest(
 				new String[] {
@@ -1642,6 +1695,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"",
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test028() {
 		runConformTest(
 				new String[] {
@@ -1661,6 +1715,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"one\ntwo",
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test029() {
 		runConformTest(
 				new String[] {
@@ -1684,6 +1739,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * Test that pattern variables are accepted in initialization of a for statement,
 	 * but unavailable in the body if uncertain which if instanceof check was true
 	 */
+	@Test
 	public void test030() {
 		runNegativeTest(
 				new String[] {
@@ -1711,6 +1767,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test031() {
 		runNegativeTest(
 				new String[] {
@@ -1748,6 +1805,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test032() {
 		runConformTest(
 				new String[] {
@@ -1773,6 +1831,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"null",
 				getCompilerOptions(false));
 	}
+	@Test
 	public void test032a() {
 		runConformTest(
 				new String[] {
@@ -1798,6 +1857,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"one",
 				getCompilerOptions(false));
 	}
+	@Test
 	public void test033() {
 		runNegativeTest(
 				new String[] {
@@ -1832,6 +1892,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test034() {
 		runNegativeTest(
 				new String[] {
@@ -1867,6 +1928,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test035() {
 		runNegativeTest(
 				new String[] {
@@ -1907,6 +1969,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(false));
 	}
+	@Test
 	public void test036() {
 		runConformTest(
 				new String[] {
@@ -1931,6 +1994,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"one",
 				getCompilerOptions(false));
 	}
+	@Test
 	public void test037() {
 		runNegativeTest(
 				new String[] {
@@ -1958,6 +2022,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test038() {
 		runNegativeTest(
 				new String[] {
@@ -1986,6 +2051,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test039() {
 		runConformTest(
 				new String[] {
@@ -2005,6 +2071,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"one",
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test040() {
 		runConformTest(
 				new String[] {
@@ -2031,6 +2098,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"then_x",
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test041() {
 		runConformTest(
 				new String[] {
@@ -2057,6 +2125,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"else_x",
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test042() {
 		runConformTest(
 				new String[] {
@@ -2083,6 +2152,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"else_x",
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test043() {
 		runConformTest(
 				new String[] {
@@ -2111,6 +2181,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions(true));
 	}
+	@Test
 	public void test044() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2138,6 +2209,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test045() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2158,6 +2230,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test046() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2178,6 +2251,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test047() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2200,6 +2274,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test048() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2222,6 +2297,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test049() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2244,6 +2320,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test050() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2275,6 +2352,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test051() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2299,6 +2377,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void test052() {
 		Map<String, String> compilerOptions = getCompilerOptions(false);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
@@ -2333,6 +2412,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	@Test
 	public void testBug562392a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2355,6 +2435,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				compilerOptions);
 		}
+	@Test
 	public void testBug562392b() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2388,6 +2469,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 		}
+	@Test
 	public void testBug562392c() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2421,6 +2503,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 		}
+	@Test
 	public void testBug562392d() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2462,6 +2545,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void testBug562392e() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2488,6 +2572,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void testBug562392f() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2518,6 +2603,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void testBug562392g() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2544,6 +2630,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				compilerOptions);
 	}
+	@Test
 	public void testBug562392h() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2576,6 +2663,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void testBug562392i() {
 		Map<String, String> options = getCompilerOptions(false);
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -2612,6 +2700,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 	}
+	@Test
 	public void testBug562392j() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2637,6 +2726,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"",
 				compilerOptions);
 	}
+	@Test
 	public void test053() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2658,6 +2748,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"y",
 				compilerOptions);
 	}
+	@Test
 	public void test054() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2678,6 +2769,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"x",
 				compilerOptions);
 	}
+	@Test
 	public void test055() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2704,6 +2796,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Positive - Test conflicting pattern variable and lambda argument in for loop
+	@Test
 	public void test056() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2734,6 +2827,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Positive - Test conflicting pattern variable and lambda argument in for loop (block)
+	@Test
 	public void test056a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2767,6 +2861,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Positive - Test conflicting pattern variable and lambda argument in if
+	@Test
 	public void test056b() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2797,6 +2892,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Positive - Test conflicting pattern variable and lambda argument in if
+	@Test
 	public void test056d() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2838,6 +2934,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	 * Test we report only one duplicate variable, i.e., in THEN stmt
 	 * where pattern variable is in scope.
 	 */
+	@Test
 	public void test057() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2867,6 +2964,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 		}
+	@Test
 	public void test058() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2893,6 +2991,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void test059() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2916,6 +3015,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"count:1 i:10",
 				compilerOptions);
 	}
+	@Test
 	public void test060() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2939,6 +3039,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"count:1 i:11",
 				compilerOptions);
 	}
+	@Test
 	public void test061() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2960,6 +3061,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"PASS",
 				compilerOptions);
 	}
+	@Test
 	public void test062() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -2990,6 +3092,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Same as above, but pattern variable in scope in false of conditional expression
+	@Test
 	public void test063() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3020,6 +3123,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Test that pattern variables are seen by body of lamda expressions
+	@Test
 	public void test063a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3050,6 +3154,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Test that pattern variables are seen by body of anonymous class creation
+	@Test
 	public void test063b() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3091,6 +3196,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// Test that pattern variables are shadowed by parameters in an anonymous class
 	// creation
+	@Test
 	public void test063c() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3127,6 +3233,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 					"2",
 					compilerOptions);
 	}
+	@Test
 	public void test064() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3157,6 +3264,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"false",
 				compilerOptions);
 	}
+	@Test
 	public void test065() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3181,6 +3289,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"after:foo",
 				compilerOptions);
 	}
+	@Test
 	public void test066() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3202,6 +3311,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"field x",
 				compilerOptions);
 	}
+	@Test
 	public void test067() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3223,6 +3333,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"field x",
 				compilerOptions);
 	}
+	@Test
 	public void test068() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3243,6 +3354,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"X",
 				compilerOptions);
 	}
+	@Test
 	public void test069() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3272,6 +3384,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 
+	@Test
 	public void test070() {
 		runNegativeTest(
 				new String[] {
@@ -3296,6 +3409,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n");
 	}
 
+	@Test
 	public void test071() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3329,6 +3443,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 
+	@Test
 	public void test072() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3362,6 +3477,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void test073() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3389,6 +3505,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"	at X.main(X.java:14)",
 				compilerOptions);
 	}
+	@Test
 	public void test074() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3416,6 +3533,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void test075() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3435,6 +3553,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"hello",
 				compilerOptions);
 	}
+	@Test
 	public void test076() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3463,6 +3582,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Test that a non final pattern variable can be assigned again
+	@Test
 	public void test077() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3484,6 +3604,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Test that a final pattern variable cannot be assigned again
+	@Test
 	public void test078() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3510,6 +3631,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void test079() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3537,6 +3659,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// test that we allow final for a pattern instanceof variable
+	@Test
 	public void test080() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -3556,6 +3679,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"X",
 				compilerOptions);
 	}
+	@Test
 	public void test081() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3639,6 +3763,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void testBug570831a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3670,6 +3795,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void testBug570831b() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
@@ -3702,6 +3828,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	@Test
 	public void testBug572380_1() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3730,6 +3857,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				options);
 	}
+	@Test
 	public void testBug572380_2() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3753,6 +3881,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				options);
 	}
+    @Test
     public void testBug574892() {
         Map<String, String> options = getCompilerOptions(false);
         runConformTest(
@@ -3773,6 +3902,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 "true",
                 options);
     }
+	@Test
 	public void testBug572431_1() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3794,6 +3924,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 
 	}
+	@Test
 	public void testBug572431_2() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3817,6 +3948,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 
 	}
+	@Test
 	public void testBug572431_3() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3837,6 +3969,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 
 	}
+	@Test
 	public void testBug572431_4() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3857,6 +3990,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 
 	}
+	@Test
 	public void testBug572431_5() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3878,6 +4012,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 
 	}
+	@Test
 	public void testBug572431_6() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(
@@ -3904,6 +4039,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 
 	}
+	@Test
 	public void testBug573880() {
 		if (this.complianceLevel < ClassFileConstants.JDK17)
 			return;
@@ -3929,6 +4065,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+    @Test
     public void testBug574906() {
         Map<String, String> options = getCompilerOptions(false);
         runConformTest(
@@ -3947,6 +4084,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 "true",
                 options);
     }
+    @Test
     public void testBug575035() throws ClassFormatException, IOException {
         Map<String, String> options = getCompilerOptions(false);
     	String source =
@@ -4032,6 +4170,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 options);
 
     }
+	@Test
 	public void testBug578628_1() {
 		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
@@ -4065,6 +4204,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n",
 				false);
 	}
+	@Test
 	public void testBug578628_1a() {
 		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
@@ -4089,6 +4229,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"false",
 				compilerOptions);
 	}
+	@Test
 	public void testBug578628_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
@@ -4113,6 +4254,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				compilerOptions);
 	}
+	@Test
 	public void testBug578628_3() {
 		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
@@ -4136,6 +4278,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"false",
 				compilerOptions);
 	}
+	@Test
 	public void testBug578628_4() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -4162,6 +4305,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				compilerOptions);
 	}
+	@Test
 	public void testGH1726() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -4189,6 +4333,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1725
 	// [21] Wrongly needing a default case for a switch expression
+	@Test
 	public void testGH1725() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -4227,6 +4372,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1725
 	// [21] Wrongly needing a default case for a switch expression
+	@Test
 	public void testGH1725_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -4273,6 +4419,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
 	// Pattern variable is not recognized in AND_AND_Expression
+	@Test
 	public void testGHI1759() {
 
 		runConformTest(
@@ -4297,6 +4444,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
 	// Pattern variable is not recognized in AND_AND_Expression
+	@Test
 	public void testGHI1759_2() {
 
 		runConformTest(
@@ -4321,6 +4469,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
 	// Pattern variable is not recognized in AND_AND_Expression
+	@Test
 	public void testGHI1759_3() {
 
 		runConformTest(
@@ -4346,6 +4495,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1485
 	// ECJ hangs when pattern matching code is used in a nested conditional expression.
+	@Test
 	public void testGHI1485() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -4387,6 +4537,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1887
 	// [Patterns] ECJ tolerates erroneous redeclaration of pattern bindings in some cases
+	@Test
 	public void testGHI1887() {
 
 		runNegativeTest(
@@ -4503,6 +4654,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1406
 	// [Patterns] Bizarre code generation for type test patterns
+    @Test
     public void testGH1406() throws ClassFormatException, IOException {
         Map<String, String> options = getCompilerOptions(false);
     	String source =
@@ -4538,6 +4690,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     }
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1406
 	// [Patterns] Bizarre code generation for type test patterns
+    @Test
     public void testGH1406_2() throws ClassFormatException, IOException {
         Map<String, String> options = getCompilerOptions(false);
     	String source =
@@ -4578,6 +4731,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 
     }
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889() {
 		runConformTest(
 				new String[] {
@@ -4607,6 +4761,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"OK!");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_2() {
 		runConformTest(
 				new String[] {
@@ -4628,6 +4783,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "true");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_3() {
 		runConformTest(
 				new String[] {
@@ -4649,6 +4805,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "false");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_4() {
 		runConformTest(
 				new String[] {
@@ -4670,6 +4827,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "false");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_5() {
 		runConformTest(
 				new String[] {
@@ -4691,6 +4849,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "false");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_6() {
 		runConformTest(
 				new String[] {
@@ -4712,6 +4871,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "false");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_7() {
 		runConformTest(
 				new String[] {
@@ -4733,6 +4893,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "false");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_8() {
 		runConformTest(
 				new String[] {
@@ -4754,6 +4915,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "false");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_9() {
 		runConformTest(
 				new String[] {
@@ -4775,6 +4937,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				+ "false");
 	}
 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	@Test
 	public void testIssue1889_10() {
 		runConformTest(
 				new String[] {
@@ -4795,6 +4958,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true\n"
 				+ "true");
 	}
+	@Test
 	public void testWhileLoop() {
 		runConformTest(
 				new String[] {
@@ -4818,6 +4982,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"while\n"
 				+ "!while");
 	}
+	@Test
 	public void testForLoop() {
 		runConformTest(
 				new String[] {
@@ -4843,6 +5008,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2104
 	// [Patterns] Missing boxing conversion after instanceof leads to verify error
+	@Test
 	public void testBoxing() {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
@@ -4875,6 +5041,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// loop when the only exit from the loop body is a 'break' to an *enclosing* label
 	// (here 'break X' leaves the block X, not the while), so normal loop completion is
 	// the only way to reach 'a2 = s;' and 's' is definitely matched there.
+	@Test
 	public void testLabeledBreakOutOfEnclosingBlock() {
 		runConformTest(
 				new String[] {
@@ -4903,6 +5070,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// A pattern variable from a labeled while-condition must be in scope after the loop
 	// when the body cannot break out at all (it always throws), so the loop can only be
 	// left by normal completion where the pattern is matched.
+	@Test
 	public void testLabeledWhileNoBreak() {
 		runConformTest(
 				new String[] {
@@ -4929,6 +5097,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// When 'break X' targets the while loop's own label, the loop may be left with the
 	// pattern *unmatched*, so the pattern variable must NOT be in scope afterwards and a
 	// subsequent 'String s' is a legal fresh declaration (must not clash).
+	@Test
 	public void testLabeledWhileBreakThenRedeclare() {
 		runConformTest(
 				new String[] {
@@ -4953,6 +5122,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	// When 'break X' targets the while loop's own label, the loop can complete with the
 	// pattern unmatched, so the pattern variable must not be resolvable after the loop.
+	@Test
 	public void testLabeledWhileBreakExitsLoop() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -4989,6 +5159,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// An inner 'break' that targets the while loop (not the enclosing label X) can leave
 	// the loop with the pattern unmatched, so the pattern variable must not be resolvable
 	// after the loop even though control also reaches there via 'break X'.
+	@Test
 	public void testInnerBreakExitsWhile() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(

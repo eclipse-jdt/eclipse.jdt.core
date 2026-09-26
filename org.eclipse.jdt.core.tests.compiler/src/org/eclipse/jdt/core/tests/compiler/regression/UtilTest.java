@@ -16,27 +16,24 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-//import junit.framework.AssertionFailedError;
-import junit.framework.Test;
 //import org.apache.tools.ant.types.selectors.SelectorUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.util.Util;
+//import junit.framework.AssertionFailedError;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class UtilTest extends AbstractRegressionTest {
 
 StringBuilder camelCaseErrors;
 
-public UtilTest(String name) {
-	super(name);
+public UtilTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 static {
 //	TESTS_RANGE = new int[] { 62, -1 };
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
 }
 /**
  * Assert that a pattern and a name matches or not.
@@ -94,126 +91,153 @@ public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensiti
 	return result;
 }
 
+@Test
 public void test01() {
 
 	assertTrue("Pattern matching failure",
 		!CharOperation.match("X".toCharArray(), "Xyz".toCharArray(), true));
 }
+@Test
 public void test02() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("X*".toCharArray(), "Xyz".toCharArray(), true));
 }
+@Test
 public void test03() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("X".toCharArray(), "X".toCharArray(), true));
 }
+@Test
 public void test04() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("X*X".toCharArray(), "XYX".toCharArray(), true));
 }
+@Test
 public void test05() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("XY*".toCharArray(), "XYZ".toCharArray(), true));
 }
+@Test
 public void test06() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*XY*".toCharArray(), "XYZ".toCharArray(), true));
 }
+@Test
 public void test07() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*".toCharArray(), "XYZ".toCharArray(), true));
 }
+@Test
 public void test08() {
 
 	assertTrue("Pattern matching failure",
 		!CharOperation.match("a*".toCharArray(), "XYZ".toCharArray(), true));
 }
+@Test
 public void test09() {
 
 	assertTrue("Pattern matching failure",
 		!CharOperation.match("abc".toCharArray(), "XYZ".toCharArray(), true));
 }
+@Test
 public void test10() {
 
 	assertTrue("Pattern matching failure",
 		!CharOperation.match("ab*c".toCharArray(), "abX".toCharArray(), true));
 }
+@Test
 public void test11() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("a*b*c".toCharArray(), "aXXbYYc".toCharArray(), true));
 }
+@Test
 public void test12() {
 
 	assertTrue("Pattern matching failure",
 		!CharOperation.match("*a*bc".toCharArray(), "aXXbYYc".toCharArray(), true));
 }
+@Test
 public void test13() {
 
 	assertTrue("Pattern matching failure",
 		!CharOperation.match("*foo*bar".toCharArray(), "".toCharArray(), true));
 }
+@Test
 public void test14() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*foo*bar".toCharArray(), "ffoobabar".toCharArray(), true));
 }
+@Test
 public void test15() {
 
 	assertTrue("Pattern matching failure",
 		!CharOperation.match("*fol*bar".toCharArray(), "ffoobabar".toCharArray(), true));
 }
+@Test
 public void test16() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*X*Y*".toCharArray(), "XY".toCharArray(), true));
 }
+@Test
 public void test17() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*X*Y*".toCharArray(), "XYZ".toCharArray(), true));
 }
+@Test
 public void test18() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("main(*)".toCharArray(), "main(java.lang.String[] argv)".toCharArray(), true));
 }
+@Test
 public void test19() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*rr*".toCharArray(), "ARRAY".toCharArray(), false));
 }
 
+@Test
 public void test20() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("hello*World".toCharArray(), "helloWorld".toCharArray(), true));
 }
 
+@Test
 public void test21() {
 	assertEquals("Trim failure", "hello", new String(CharOperation.trim("hello".toCharArray())));
 }
+@Test
 public void test22() {
 	assertEquals("Trim failure", "hello", new String(CharOperation.trim("   hello".toCharArray())));
 }
+@Test
 public void test23() {
 	assertEquals("Trim failure", "hello", new String(CharOperation.trim("   hello   ".toCharArray())));
 }
+@Test
 public void test24() {
 	assertEquals("Trim failure", "hello", new String(CharOperation.trim("hello   ".toCharArray())));
 }
+@Test
 public void test25() {
 	assertEquals("Trim failure", "", new String(CharOperation.trim("   ".toCharArray())));
 }
+@Test
 public void test26() {
 	assertEquals("Trim failure", "hello world", new String(CharOperation.trim(" hello world  ".toCharArray())));
 }
+@Test
 public void test27() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello,world".toCharArray());
 	StringBuilder buffer = new StringBuilder();
@@ -222,6 +246,7 @@ public void test27() {
 	}
 	assertEquals("SplitTrim failure", "[hello][world]", buffer.toString());
 }
+@Test
 public void test28() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello , world".toCharArray());
 	StringBuilder buffer = new StringBuilder();
@@ -230,6 +255,7 @@ public void test28() {
 	}
 	assertEquals("SplitTrim failure", "[hello][world]", buffer.toString());
 }
+@Test
 public void test29() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello, world   ".toCharArray());
 	StringBuilder buffer = new StringBuilder();
@@ -238,6 +264,7 @@ public void test29() {
 	}
 	assertEquals("SplitTrim failure", "[hello][world]", buffer.toString());
 }
+@Test
 public void test30() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello, world   ,zork/, aaa bbb".toCharArray());
 	StringBuilder buffer = new StringBuilder();
@@ -246,6 +273,7 @@ public void test30() {
 	}
 	assertEquals("SplitTrim failure", "[hello][world][zork/][aaa bbb]", buffer.toString());
 }
+@Test
 public void test31() {
 	char [][] tokens = CharOperation.splitAndTrimOn(',',"  ,  ".toCharArray());
 	StringBuilder buffer = new StringBuilder();
@@ -254,6 +282,7 @@ public void test31() {
 	}
 	assertEquals("SplitTrim failure", "[][]", buffer.toString());
 }
+@Test
 public void test32() {
 	char [][] tokens = CharOperation.splitAndTrimOn(',',"   ".toCharArray());
 	StringBuilder buffer = new StringBuilder();
@@ -262,6 +291,7 @@ public void test32() {
 	}
 	assertEquals("SplitTrim failure", "[]", buffer.toString());
 }
+@Test
 public void test33() {
 	char [][] tokens = CharOperation.splitAndTrimOn(',',"  , hello  ".toCharArray());
 	StringBuilder buffer = new StringBuilder();
@@ -271,30 +301,35 @@ public void test33() {
 	assertEquals("SplitTrim failure", "[][hello]", buffer.toString());
 }
 
+@Test
 public void test34() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("hello/*/World".toCharArray(), "hello/zzz/World".toCharArray(), true));
 }
 
+@Test
 public void test35() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("hello/**/World".toCharArray(), "hello/x/y/z/World".toCharArray(), true));
 }
 
+@Test
 public void test36() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("hello/**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true));
 }
 
+@Test
 public void test37() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true));
 }
 
+@Test
 public void test38() {
 
 	assertTrue("Path pattern matching failure",
@@ -304,6 +339,7 @@ public void test38() {
 /*
  * From Ant pattern set examples
  */
+@Test
 public void test39() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -319,6 +355,7 @@ public void test39() {
 /*
  * From Ant pattern set examples
  */
+@Test
 public void test40() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -332,6 +369,7 @@ public void test40() {
 /*
  * From Ant pattern set examples
  */
+@Test
 public void test41() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -345,6 +383,7 @@ public void test41() {
 /*
  * From Ant pattern set examples
  */
+@Test
 public void test42() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -361,6 +400,7 @@ public void test42() {
 /*
  * Corner cases
  */
+@Test
 public void test43() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -371,6 +411,7 @@ public void test43() {
 /*
  * Corner cases
  */
+@Test
 public void test44() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -381,6 +422,7 @@ public void test44() {
 /*
  * Corner cases
  */
+@Test
 public void test45() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -388,6 +430,7 @@ public void test45() {
 	assertTrue("Path pattern matching failure-2",
 		!checkPathMatch("/test/test1".toCharArray(), "/test/test1/test/test1".toCharArray(), true));
 }
+@Test
 public void test46() {
 
 	assertTrue("Path pattern matching failure",
@@ -396,41 +439,49 @@ public void test46() {
 /*
  * Regression test for 28316 Missing references to constructor
  */
+@Test
 public void test47() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*x".toCharArray(), "x.X".toCharArray(), false));
 }
+@Test
 public void test48() {
 
 	assertTrue("Pattern matching failure",
 		CharOperation.match("*a*".toCharArray(), "abcd".toCharArray(), false));
 }
+@Test
 public void test49() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("**/hello".toCharArray(), "hello/hello".toCharArray(), true));
 }
+@Test
 public void test50() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("**/hello/**".toCharArray(), "hello/hello".toCharArray(), true));
 }
+@Test
 public void test51() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("**/hello/".toCharArray(), "hello/hello".toCharArray(), true));
 }
+@Test
 public void test52() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("hello/".toCharArray(), "hello/hello".toCharArray(), true));
 }
+@Test
 public void test53() {
 
 	assertTrue("Path pattern matching failure",
 		!checkPathMatch("/".toCharArray(), "hello/hello".toCharArray(), true));
 }
+@Test
 public void test54() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -442,26 +493,31 @@ public void test54() {
 	assertTrue("Path pattern matching failure-3",
 		!checkPathMatch("/x/".toCharArray(), "hello/x".toCharArray(), true));
 }
+@Test
 public void test56() {
 
 	assertTrue("Path pattern matching failure",
 		!checkPathMatch("/**".toCharArray(), "hello/hello".toCharArray(), true));
 }
+@Test
 public void test57() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("/".toCharArray(), "/hello/hello".toCharArray(), true));
 }
+@Test
 public void test58() {
 
 	assertTrue("Path pattern matching failure",
 		checkPathMatch("/**".toCharArray(), "/hello/hello".toCharArray(), true));
 }
+@Test
 public void test59() {
 
 	assertTrue("Path pattern matching failure",
 		!checkPathMatch("**".toCharArray(), "/hello/hello".toCharArray(), true));
 }
+@Test
 public void test60() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -473,6 +529,7 @@ public void test60() {
 	assertTrue("Path pattern matching failure-4",
 		!checkPathMatch("A.java".toCharArray(), "/P/src/A.java".toCharArray(), true));
 }
+@Test
 public void test61() {
 
 	assertTrue("Path pattern matching failure-1",
@@ -480,6 +537,7 @@ public void test61() {
 	assertTrue("Path pattern matching failure-2",
 		checkPathMatch("/P/src/**/CVS/".toCharArray(), "/P/src/CVS".toCharArray(), true));
 }
+@Test
 public void test62() {
 	assertCamelCase("NPE", "NullPointerException", true/* should match */);
 	assertCamelCase("NPExc", "NullPointerException", true/* should match */);
@@ -488,6 +546,7 @@ public void test62() {
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
+@Test
 public void test63() {
 	assertCamelCase("NPEX", "NullPointerException", false/* should not match */);
 	assertCamelCase("NPex", "NullPointerException", false/* should not match */);
@@ -497,6 +556,7 @@ public void test63() {
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
+@Test
 public void test64() {
 	assertCamelCase("IAE", "IgnoreAllErrorHandler", true/* should match */);
 	assertCamelCase("IAE", "IAnchorElement", true/* should match */);
@@ -508,6 +568,7 @@ public void test64() {
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
+@Test
 public void test65() {
 	assertCamelCase("iSCDCo", "invokeStringConcatenationDefaultConstructor", true/* should match */);
 	assertCamelCase("inVOke", "invokeStringConcatenationDefaultConstructor", false/* should not match */);
@@ -530,6 +591,7 @@ public void test65() {
  * Bug 130390: CamelCase algorithm cleanup and improvement
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130390"
  */
+@Test
 public void test66() {
     String[][] MATCHES = {
             {"TZ","TimeZone"},  //$NON-NLS-1$//$NON-NLS-2$
@@ -582,6 +644,7 @@ public void test66() {
  * Bug 137087: Open Type - missing matches when using mixed case pattern
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=137087"
  */
+@Test
 public void test67() {
 	assertCamelCase("runtimeEx", "RuntimeException", false/* should not match */);
 	assertCamelCase("Runtimeex", "RuntimeException", false/* should not match */);
@@ -602,6 +665,7 @@ public void test67() {
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 // lower CamelCase
+@Test
 public void test68() {
 	assertCamelCase("aMe", "aMethod", true/* should match */);
 	assertCamelCase("ame", "aMethod", false/* should not match */);
@@ -613,6 +677,7 @@ public void test68() {
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 // search tests
+@Test
 public void test69() {
 	assertCamelCase("aa", "AxxAyy", false /* should not match */);
 	assertCamelCase("Aa", "AxxAyy", false /* should not match */);
@@ -625,6 +690,7 @@ public void test69() {
 }
 
 // bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=109695
+@Test
 public void test70() throws CoreException {
 	assertCamelCase("IDE3", "IDocumentExtension", true /*same part count*/, false /* should not match */);
 	assertCamelCase("IDE3", "IDocumentExtension2", true /*same part count*/, false /* should not match */);
@@ -665,6 +731,7 @@ public void test70() throws CoreException {
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 // bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=124624
+@Test
 public void test71() {
 	assertCamelCase("HM", "HashMap", true /*same count of parts expected*/, true /*should match*/);
 	assertCamelCase("HM", "HtmlMapper", true /*same count of parts expected*/, true /*should match*/);
@@ -678,6 +745,7 @@ public void test71() {
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
+@Test
 public void test71b() { // previous test cases but with 3.3 behavior
 	assertCamelCase("HM", "HashMap", true /*should match*/);
 	assertCamelCase("HM", "HtmlMapper", true /*should match*/);
@@ -692,6 +760,7 @@ public void test71b() { // previous test cases but with 3.3 behavior
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 // bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=124624
+@Test
 public void test72() {
 	assertCamelCase("HMa", "HashMap", true /*same count of parts expected*/, true /* should match */);
 	assertCamelCase("HMa", "HtmlMapper", true /*same count of parts expected*/, true /* should match */);
@@ -705,6 +774,7 @@ public void test72() {
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
+@Test
 public void test72b() { // previous test cases but with 3.3 behavior
 	assertCamelCase("HMa", "HashMap", true /*should match*/);
 	assertCamelCase("HMa", "HtmlMapper", true /*should match*/);
@@ -719,6 +789,7 @@ public void test72b() { // previous test cases but with 3.3 behavior
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
 // bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=124624
+@Test
 public void test73() {
 	assertCamelCase("HMap", "HashMap", true /*same count of parts expected*/, true /*should match*/);
 	assertCamelCase("HMap", "HtmlMapper", true /*same count of parts expected*/, true /* should not match */);
@@ -732,6 +803,7 @@ public void test73() {
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
+@Test
 public void test73b() { // previous test cases but with 3.3 behavior
 	assertCamelCase("HMap", "HashMap", true /*should match*/);
 	assertCamelCase("HMap", "HtmlMapper", true /*should match*/);
@@ -745,13 +817,11 @@ public void test73b() { // previous test cases but with 3.3 behavior
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }
-public static Class testClass() {
-	return UtilTest.class;
-}
 
 // --- Path-traversal safety of external annotation resolution (Util.isSafeRelativePath / getFileWithinBaseDir) ---
 
 // A benign, slash-separated relative annotation file name (as produced from a real type name) is safe.
+@Test
 public void testSafeRelativePath_benign() {
 	assertTrue("benign name should be safe",
 		Util.isSafeRelativePath("org/example/Foo" + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX));
@@ -762,6 +832,7 @@ public void testSafeRelativePath_benign() {
 }
 
 // A relative name containing ".." segments must be rejected (path traversal).
+@Test
 public void testSafeRelativePath_traversalRejected() {
 	assertFalse("leading traversal must be rejected",
 		Util.isSafeRelativePath("../../etc/passwd"));
@@ -772,6 +843,7 @@ public void testSafeRelativePath_traversalRejected() {
 }
 
 // Absolute paths and empty/null must be rejected.
+@Test
 public void testSafeRelativePath_absoluteAndEmptyRejected() {
 	assertFalse("null must be rejected", Util.isSafeRelativePath(null));
 	assertFalse("empty must be rejected", Util.isSafeRelativePath("")); //$NON-NLS-1$
@@ -780,6 +852,7 @@ public void testSafeRelativePath_absoluteAndEmptyRejected() {
 }
 
 // getFileWithinBaseDir returns a file contained in the base for benign names.
+@Test
 public void testGetFileWithinBaseDir_benign() throws Exception {
 	Path base = Files.createTempDirectory("eea-base"); //$NON-NLS-1$
 	try {
@@ -794,6 +867,7 @@ public void testGetFileWithinBaseDir_benign() throws Exception {
 }
 
 // getFileWithinBaseDir returns null for names that would escape the base directory.
+@Test
 public void testGetFileWithinBaseDir_traversalReturnsNull() throws Exception {
 	Path base = Files.createTempDirectory("eea-base"); //$NON-NLS-1$
 	try {

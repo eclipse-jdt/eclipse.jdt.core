@@ -15,14 +15,18 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_21)
 public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 21");
@@ -32,14 +36,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testRecordTypeInfer_4643" };
 	}
 	private String extraLibPath;
-	public static Class<?> testClass() {
-		return RecordPatternTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_21);
-	}
-	public RecordPatternTest(String testName){
-		super(testName);
+	public RecordPatternTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
@@ -127,6 +125,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	/*
 	 * Basic tests that accept a valid record pattern and make the pattern variable available
 	 */
+	@Test
 	public void test001() {
 		Map<String, String> options = getCompilerOptions(false);
 		runConformTest(new String[] {
@@ -152,6 +151,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				options);
 	}
 	// Test that pattern variables are allowed for the nested patterns (not just the outermost record pattern)
+	@Test
 	public void test002() {
 		runConformTest(new String[] {
 				"X.java",
@@ -179,6 +179,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"1");
 	}
+	@Test
 	public void test003() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -206,6 +207,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"r1 cannot be resolved to a variable\n" +
 				"----------\n");
 	}
+	@Test
 	public void test004() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -233,6 +235,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that non record types are reported in a record pattern
+	@Test
 	public void test005() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -257,6 +260,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that record patterns that don't have same no of patterns as record components are reported
+	@Test
 	public void test006() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -280,6 +284,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Record pattern should match the signature of the record declaration\n" +
 				"----------\n");
 	}
+	@Test
 	public void test007() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -309,6 +314,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that pattern types that don't match record component's types are reported
+	@Test
 	public void test008() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -339,6 +345,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	//			ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {
 	//		yield r1.lowerRight().p().y();
 	//	}
+	@Test
 	public void test009() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -370,6 +377,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that nested pattern variables from record patterns are in scope in the case block
+	@Test
 	public void test10() {
 		runConformTest(new String[] {
 				"X.java",
@@ -414,6 +422,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Returns: 15");
 	}
 	// Test that nested pattern variables from record patterns are in not scope outside the case block
+	@Test
 	public void test11() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -442,6 +451,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that nested pattern variables from record patterns are in not scope outside the case block
+	@Test
 	public void test12() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -470,6 +480,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that when expressions are supported and pattern variables are available inside when expressions
+	@Test
 	public void test13() {
 		runConformTest(new String[] {
 				"X.java",
@@ -504,6 +515,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Returns: 1");
 	}
 	// Test that record patterns with 1 record components are accepted
+	@Test
 	public void test14() {
 		runConformTest(new String[] {
 				"X.java",
@@ -525,6 +537,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Returns: 3");
 	}
 	// Test that record patterns with 0 record components are accepted
+	@Test
 	public void test15() {
 		runConformTest(new String[] {
 				"X.java",
@@ -553,6 +566,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Should not reach IF or throw CCE.
 	// Should reach ELSE
+	@Test
 	public void test16() {
 		runConformTest(new String[] {
 				"X.java",
@@ -579,6 +593,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						},
 				"ELSE");
 	}
+	@Test
 	public void test17() {
 		runConformTest(new String[] {
 				"X.java",
@@ -606,6 +621,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"java.lang.String:abc,10");
 	}
 	// Same as 17(), but base type instead of wrapper
+	@Test
 	public void test18() {
 		runConformTest(new String[] {
 				"X.java",
@@ -632,6 +648,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						},
 				"java.lang.String:abc,10");
 	}
+	@Test
 	public void test19() {
 		runConformTest(new String[] {
 				"X.java",
@@ -662,6 +679,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "-1");
 	}
 	// Test that Object being pattern-checked works in switch-case
+	@Test
 	public void test20() {
 		runConformTest(new String[] {
 				"X.java",
@@ -692,6 +710,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "-1");
 	}
 	// // Test that Object being pattern-checked works in 'instanceof'
+	@Test
 	public void test21() {
 		runConformTest(new String[] {
 				"X.java",
@@ -718,6 +737,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"15");
 	}
 	// Nested record pattern with a simple (constant) 'when' clause
+	@Test
 	public void test22() {
 		runConformTest(new String[] {
 				"X.java",
@@ -759,6 +779,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				JavacTestOptions.SKIP); // Javac crashes. Let's skip for no
 	}
 	// Nested record pattern with a method invocation in a 'when' clause
+	@Test
 	public void test23 () {
 		runConformTest(new String[] {
 				"X.java",
@@ -796,6 +817,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Nested record pattern with another switch expression + record pattern in a 'when' clause
 	// Failing now.
+	@Test
 	public void test24() {
 		runConformTest(new String[] {
 				"X.java",
@@ -829,6 +851,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Returns: 0\n" +
 				"Returns: 5");
 	}
+	@Test
 	public void test24a() {
 		runConformTest(new String[] {
 				"X.java",
@@ -859,6 +882,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"IF");
 	}
 	//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/157
+	@Test
 	public void test25() {
 		String currentWorkingDirectoryPath = System.getProperty("user.dir");
 		this.extraLibPath = currentWorkingDirectoryPath + File.separator + "libtest25.jar";
@@ -913,6 +937,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		}
 	}
 	// Test that pattern variables declared in instanceof can't be used in a switch/case
+	@Test
 	public void test26() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -958,6 +983,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that pattern variables declared in switch/case can't be used in an instanceof expression part of the 'when' clause
 	// not relevant anymore since named record patterns are not there - 20
+	@Test
 	public void test27() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -999,6 +1025,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test nested record patterns in 'instanceof' within a swith-case with similar record pattern
+	@Test
 	public void test28() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1025,6 +1052,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"5");
 	}
 	// Test that a simple type pattern dominates a following record pattern of the same type
+	@Test
 	public void test29() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1048,6 +1076,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that an identical record pattern dominates another record pattern
+	@Test
 	public void test30() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1071,6 +1100,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that a type pattern with 'when' does not dominate a record pattern of the same type
+	@Test
 	public void test31() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1093,6 +1123,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1");
 	}
 	// Test that a type pattern with 'when' does not dominate a record pattern of the same type
+	@Test
 	public void test31a() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1115,6 +1146,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"0");
 	}
 	// Test that a record pattern with 'when' does not dominate an identical record pattern
+	@Test
 	public void test32() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1137,6 +1169,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1");
 	}
 	// Test that a record pattern with 'when' does not dominate an identical record pattern
+	@Test
 	public void test32a() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1159,6 +1192,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"0");
 	}
 	// Test that a parenthesized type pattern dominates a record pattern of the same type
+	@Test
 	public void test33() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1182,6 +1216,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that a parenthesized record pattern dominates an identical record pattern
+	@Test
 	public void test34() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1205,6 +1240,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that pattern dominance is reported on identical nested record pattern
+	@Test
 	public void test35() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1238,6 +1274,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that pattern dominance is reported on identical nested record pattern
+	@Test
 	public void test36() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1271,6 +1308,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that pattern dominance is reported on identical nested record pattern
+	@Test
 	public void test37() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1299,6 +1337,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"0");
 	}
 	// Test that null is not matched to any pattern
+	@Test
 	public void test38() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1324,6 +1363,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 		"0");
 	}
+	@Test
 	public void test39() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1349,6 +1389,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 		"0");
 	}
+	@Test
 	public void test40() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1378,6 +1419,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 		"NPE with java.lang.NullPointerException");
 	}
+	@Test
 	public void test41() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1407,6 +1449,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 		"Returns: 0");
 	}
+	@Test
 	public void test42() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1436,6 +1479,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 		"Returns: 20");
 	}
+	@Test
 	public void test43() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1470,6 +1514,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"Record component with type int is not compatible with type long\n" +
 			"----------\n");
 	}
+	@Test
 	public void test44() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1504,6 +1549,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"Record component with type long is not compatible with type int\n" +
 			"----------\n");
 	}
+	@Test
 	public void test45() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1526,6 +1572,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void test46() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1552,6 +1599,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 				"Hello");
 	}
+	@Test
 	public void test47() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1573,6 +1621,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Incompatible conditional operand types Box<Object> and Box<String>\n" +
 				"----------\n");
 	}
+	@Test
 	public void test48() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1599,6 +1648,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"I\'m a box of java.lang.String\n" +
 				"I\'m a box of java.lang.String");
 	}
+	@Test
 	public void testIssue690_1() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1631,6 +1681,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue690_2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1655,6 +1706,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 
+	@Test
 	public void testIssue691_1() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1687,6 +1739,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Type mismatch: cannot convert from Number to R\n" +
 				"----------\n");
 	}
+	@Test
 	public void testRemoveNamedRecordPatterns_001() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1714,6 +1767,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2004
 	// [Patterns] ECJ generates suspect code for switching over patterns
+	@Test
 	public void testIssue2004() {
 		runConformTest(
 				new String[] {
@@ -1736,6 +1790,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_001() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1766,6 +1821,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796
 	// [Patterns] Record Patterns can cause VerifyError
+	@Test
 	public void testGH1796() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1789,6 +1845,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"42");
 	}
+	@Test
 	public void testRecordPatternTypeInference_002() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1812,6 +1869,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_003() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1831,6 +1889,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 				"I\'m a box of java.lang.String");
 	}
+	@Test
 	public void testRecordPatternTypeInference_004() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1854,6 +1913,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_005() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1875,6 +1935,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_006() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1896,6 +1957,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_007() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1917,6 +1979,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_008() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1936,6 +1999,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_009() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1962,6 +2026,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Record component with type capture#2-of ? extends I is not compatible with type String\n" +
 				"----------\n");
 	}
+	@Test
 	public void testRecordPatternTypeInference_010() {
 		runConformTest(new String[] {
 				"X.java",
@@ -1983,6 +2048,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_011() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2013,6 +2079,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Incorrect number of arguments for type R<T>; it cannot be parameterized with arguments <>\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue900_1() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2070,6 +2137,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"");
 	}
+	@Test
 	public void testIssue900_3() {
 		Map<String,String> options = getCompilerOptions(false);
 		String old1 = options.get(CompilerOptions.OPTION_ReportRawTypeReference);
@@ -2117,6 +2185,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, old2);
 		}
 	}
+	@Test
 	public void testRecordPatternMatchException_001() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2147,6 +2216,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"99");
 	}
+	@Test
 	public void testRecordPatternMatchException_001_1() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2178,6 +2248,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"99");
 	}
+	@Test
 	public void testRecordPatternMatchException_002() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2204,6 +2275,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"0");
 	}
+	@Test
 	public void testRecordPatternMatchException_003() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2232,6 +2304,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"100");
 	}
+	@Test
 	public void testRecordPatternMatchException_004() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2260,6 +2333,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"100");
 	}
+	@Test
 	public void testRecordPatternMatchException_005() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2291,6 +2365,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"hello    \n" +
 				"done");
 	}
+	@Test
 	public void testRecordPatternMatchException_006() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2324,6 +2399,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"false100");
 	}
+	@Test
 	public void testRecordPatternMatchException_007() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2353,6 +2429,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"100");
 	}
+	@Test
 	public void testRecordPatternMatchException_008() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2387,6 +2464,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"5");
 	}
+	@Test
 	public void testRecordPatternMatchException_009() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2416,6 +2494,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testIssue1224_1() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -2438,6 +2517,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1224_2() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2458,6 +2538,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"");
 	}
+	@Test
 	public void testIssue1224_3() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -2484,6 +2565,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"Record component with type long is not compatible with type int\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1224_4() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -2509,6 +2591,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"Record component with type String is not compatible with type StringBuilder\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1224_5() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2530,6 +2613,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"PASS");
 	}
+	@Test
 	public void testIssue1224_6() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2552,6 +2636,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 				"PASS");
 	}
+	@Test
 	public void testIssue1224_7() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2583,6 +2668,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Fails with VerifyError since we allow the switch now but don't
 	// generate a label/action for implicit default.
+	@Test
 	public void testIssue1224_8() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2609,6 +2695,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"SUCCESS");
 	}
+	@Test
 	public void testRecPatExhaust001() {
 		runConformTest(
 			new String[] {
@@ -2639,6 +2726,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testRecPatExhaust002() {
 		runNegativeTest(
 			new String[] {
@@ -2673,6 +2761,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecPatExhaust003() {
 		runConformTest(
 			new String[] {
@@ -2713,6 +2802,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testRecPatExhaust004() {
 		runNegativeTest(
 			new String[] {
@@ -2757,6 +2847,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecPatExhaust005() {
 		runConformTest(
 			new String[] {
@@ -2787,6 +2878,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testRecPatExhaust006() {
 		runNegativeTest(
 			new String[] {
@@ -2820,6 +2912,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecPatExhaust007() {
 		runNegativeTest(
 			new String[] {
@@ -2853,6 +2946,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecPatExhaust008() {
 		runNegativeTest(
 			new String[] {
@@ -2887,6 +2981,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecPatExhaust009() {
 		runConformTest(
 			new String[] {
@@ -2908,6 +3003,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
+	@Test
 	public void testRecPatExhaust010() {
 		runConformTest(
 			new String[] {
@@ -2933,6 +3029,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"42");
 	}
 	// implicit permitted - interface
+	@Test
 	public void testRecPatExhaust011() {
 		runNegativeTest(
 			new String[] {
@@ -2966,6 +3063,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	// implicit permitted - class
+	@Test
 	public void testRecPatExhaust012() {
 		runNegativeTest(
 			new String[] {
@@ -2999,6 +3097,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	// implicit permitted - class - the class C missing
+	@Test
 	public void testRecPatExhaust013() {
 		runNegativeTest(
 			new String[] {
@@ -3032,6 +3131,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecPatExhaust014() {
 		runNegativeTest(
 			new String[] {
@@ -3065,6 +3165,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecPatExhaust015() {
 		runConformTest(
 			new String[] {
@@ -3095,6 +3196,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"42");
 	}
+	@Test
 	public void testRecPatExhaust016() {
 		runConformTest(
 			new String[] {
@@ -3119,6 +3221,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"42");
 	}
+	@Test
 	public void testRecPatExhaust017() {
 		runConformTest(
 			new String[] {
@@ -3148,6 +3251,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"42");
 	}
+	@Test
 	public void testRecPatExhaust018() {
 		runNegativeTest(
 			new String[] {
@@ -3181,6 +3285,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecordPatternTypeInference_012() {
 		runConformTest(
 			new String[] {
@@ -3204,6 +3309,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_013() {
 		runConformTest(
 			new String[] {
@@ -3229,6 +3335,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 
 	// a subclass of X could implement I - positive test case
+	@Test
 	public void testRecordPatternTypeInference_014() {
 		runConformTest(
 			new String[] {
@@ -3252,6 +3359,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void testRecordPatternTypeInference_015() {
 		runNegativeTest(
 			new String[] {
@@ -3286,6 +3394,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testRecordPatternTypeInference_016() {
 		runNegativeTest(
 			new String[] {
@@ -3320,6 +3429,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testIssue1328_1() {
 		runNegativeTest(
 				new String[] {
@@ -3368,6 +3478,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"A case label guard cannot have a constant expression with value as \'false\'\n" +
 				"----------\n");
 	}
+	@Test
 	public void testIssue1328_2() {
 		runNegativeTest(
 				new String[] {
@@ -3393,6 +3504,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1792
 	// [Patterns][records] Error in JDT Core during AST creation: info cannot be null
+	@Test
 	public void testGH1792() {
 		runConformTest(
 				new String[] {
@@ -3418,6 +3530,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"so\n" +
 				"good!");
 	}
+	@Test
 	public void testIssue1336_1() {
 		runConformTest(
 				new String[] {
@@ -3440,6 +3553,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					"""
 			});
 	}
+	@Test
 	public void testIssue1336_2() {
 		runConformTest(
 				new String[] {
@@ -3466,6 +3580,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					"""
 				});
 	}
+	@Test
 	public void testIssue1732_01() {
 		runNegativeTest(
 				new String[] {
@@ -3495,6 +3610,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "Record pattern should match the signature of the record declaration\n"
 				+ "----------\n");
 	}
+	@Test
 	public void testIssue1732_02() {
 		runNegativeTest(
 				new String[] {
@@ -3524,6 +3640,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "Record pattern should match the signature of the record declaration\n"
 				+ "----------\n");
 	}
+	@Test
 	public void testIssue1732_03() {
 		runNegativeTest(
 				new String[] {
@@ -3555,6 +3672,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1788
 	// Inference issue between the diamond syntax and pattern matching (switch on objects)
+	@Test
 	public void testGHI1788() {
 		runConformTest(
 				new String[] {
@@ -3610,6 +3728,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1835
 	// AssertionError at org.eclipse.jdt.internal.compiler.ast.YieldStatement.addSecretYieldResultValue(YieldStatement.java:120)
+	@Test
 	public void testGH1835_minimal() {
 		runConformTest(
 				new String[] {
@@ -3645,6 +3764,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1835
 	// AssertionError at org.eclipse.jdt.internal.compiler.ast.YieldStatement.addSecretYieldResultValue(YieldStatement.java:120)
+	@Test
 	public void testGH1835() {
 		runConformTest(
 				new String[] {
@@ -3704,6 +3824,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796
 	// [Patterns] Record Patterns can cause VerifyError
+	@Test
 	public void testGH1796_full() {
 		runConformTest(
 				new String[] {
@@ -3803,6 +3924,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796
 	// [Patterns] Record Patterns can cause VerifyError
+	@Test
 	public void testGH1796_reporter_reduced() {
 		runConformTest(
 				new String[] {
@@ -3850,6 +3972,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	@Test
 	public void testGH1977_method() {
 		runConformTest(
 				new String[] {
@@ -3881,6 +4004,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	@Test
 	public void testGH1977_instance_initializer() {
 		runConformTest(
 				new String[] {
@@ -3915,6 +4039,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
 	// javac reports ArithmeticException but that looks wrong
+	@Test
 	public void testGH1977_instance_field() {
 		runConformTest(
 				new String[] {
@@ -3944,6 +4069,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	@Test
 	public void testGH1977_constructor() {
 		runConformTest(
 				new String[] {
@@ -3977,6 +4103,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	@Test
 	public void testGH1977_static_initializer() {
 		runConformTest(
 				new String[] {
@@ -4013,6 +4140,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
 	// javac reports ExceptionInInitializerError caused by java.lang.ArithmeticException but that looks wrong
+	@Test
 	public void testGH1977_static_field() {
 		runConformTest(
 				new String[] {
@@ -4044,6 +4172,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/300
 	// Revisit code generation for record patterns
+	@Test
 	public void testIssue300() {
 		runConformTest(
 				new String[] {
@@ -4081,6 +4210,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1804
 	// Revisit code generation for record patterns
+	@Test
 	public void testIssue1804() {
 		runConformTest(
 				new String[] {
@@ -4112,6 +4242,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	@Test
 	public void testIssue1804_0() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4129,6 +4260,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "res is false");
 	}
+	@Test
 	public void testIssue1804_1() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4146,6 +4278,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "res is true");
 	}
+	@Test
 	public void testIssue1804_2() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4163,6 +4296,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "res is false");
 	}
+	@Test
 	public void testIssue1804_3() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4176,6 +4310,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "false\ntrue");
 	}
+	@Test
 	public void testIssue1804_4() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4202,6 +4337,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "true");
 	}
+	@Test
 	public void testIssue1804_5() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4228,6 +4364,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "false");
 	}
+	@Test
 	public void testIssue1804_6() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4256,6 +4393,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "0\n1\ntrue");
 	}
+	@Test
 	public void testIssue1804_7() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4273,6 +4411,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "res is true");
 	}
+	@Test
 	public void testIssue1804_8() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4290,6 +4429,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "res is false");
 	}
+	@Test
 	public void testIssue1804_9() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4306,6 +4446,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "res is true");
 	}
+	@Test
 	public void testIssue1804_10() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4324,6 +4465,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
 	// [Patterns][records] ECJ fails to generate code to deconstruct record in pattern
+	@Test
 	public void testIssue1985() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4347,6 +4489,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
 	// [Patterns][records] ECJ fails to generate code to deconstruct record in pattern
+	@Test
 	public void testIssue1985_2() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
@@ -4371,6 +4514,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2001
 	// [Patterns][records] ECJ fails to reject incompatible pattern types.
+	@Test
 	public void testIssue2001() {
 		runNegativeTest(new String[] { "X.java",
 				"""
@@ -4412,6 +4556,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1999
 	// [Patterns][records] Instanceof with record deconstruction patterns should never be flagged as unnecessary
+	@Test
 	public void testIssue1999() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -4460,6 +4605,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	@Test
 	public void testIssue2007() {
 		runConformTest(new String[] { "X.java", """
 				record R<T>(T t) {}
@@ -4475,6 +4621,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"true");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	@Test
 	public void testIssue2007_2() {
 		runConformTest(new String[] { "X.java", """
 				record R<T>(T t) {}
@@ -4490,6 +4637,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"true");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	@Test
 	public void testIssue2007_3() {
 		runConformTest(new String[] { "X.java", """
 				record R<T>(T t) {}
@@ -4508,6 +4656,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"true");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	@Test
 	public void testIssue2007_4() {
 		runConformTest(new String[] { "X.java", """
 				record R<T>(T t) {}
@@ -4526,6 +4675,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"true");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	@Test
 	public void testIssue2007_5() {
 		runConformTest(new String[] { "X.java", """
 				record R<T>(T t) {}
@@ -4544,6 +4694,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"false");
 	}
 
+	@Test
 	public void testIllegalFallThrough() {
 		runNegativeTest(new String[] { "X.java", """
 				public class X {
@@ -4567,6 +4718,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2118
 	// [Patterns] ECJ allows illegal modifiers with RecordPattern
+	@Test
 	public void testIllegalModifiers() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -4645,6 +4797,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2119
 	// [Patterns] ECJ allows record pattern to have dimensions
+	@Test
 	public void testIssue2119() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -4667,6 +4820,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2119
 	// [Patterns] ECJ allows record pattern to have dimensions
+	@Test
 	public void testIssue2119_2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -4688,6 +4842,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 
+	@Test
 	public void testIssue3066() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -4713,6 +4868,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			""");
 	}
 
+	@Test
 	public void testIssue3066_notApplicable() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -4740,6 +4896,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3173
 	// [21][Enhanced Switch] False error about allegedly non-exhaustive switch
+	@Test
 	public void testIssue3173() {
 		runConformTest(new String[] {
 				"RecordPatternDemo.java",
@@ -4763,6 +4920,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3173
 	// [21][Enhanced Switch] False error about allegedly non-exhaustive switch
+	@Test
 	public void testIssue3173_2() {
 		runConformTest(new String[] {
 				"RecordPatternDemo.java",
@@ -4784,6 +4942,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"Contents");
 	}
+	@Test
 	public void testJEP440Example() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -4850,6 +5009,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testRecordCoverage() {
 		runConformTest(new String[] {
 				"X.java",
@@ -4920,6 +5080,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4065
 	// [Null][Record] Invalid "dead code" warning for record pattern with null-guard on component
+	@Test
 	public void testIssue4065() {
 		runConformTest(new String[] {
 				"InvalidDeadCodeWarning.java",
@@ -4970,6 +5131,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4163
 	// [LVTI/var] ECJ accepts illegal array dimensions on type pattern declarations with var type
+	@Test
 	public void testIssue4163() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -4996,6 +5158,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testGH4002() {
 		runConformTest(new String[] {
 				"Example.java",
@@ -5042,6 +5205,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"""
 		});
 	}
+	@Test
 	public void testRecordTypeInfer_4643_001() {
 		runConformTest(new String[] { "X.java", """
 			public class X {
@@ -5061,6 +5225,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			}
 			""" }, "3");
 	}
+	@Test
 	public void testRecordTypeInfer_4643_002() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -5085,6 +5250,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"Record component with type Integer is not compatible with type String\n" +
 			"----------\n");
 	}
+	@Test
 	public void testJDK8383563() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] { "PairBox.java",

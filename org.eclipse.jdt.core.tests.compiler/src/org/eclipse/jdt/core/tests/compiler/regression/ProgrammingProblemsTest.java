@@ -20,21 +20,22 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /* Collects potential programming problems tests that are not segregated in a
  * dedicated test class (aka NullReferenceTest). */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ProgrammingProblemsTest extends AbstractRegressionTest {
 
-public ProgrammingProblemsTest(String name) {
-    super(name);
+public ProgrammingProblemsTest(Compliance compliance, TestInfo info) {
+    super(compliance, info);
 }
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -47,13 +48,6 @@ public ProgrammingProblemsTest(String name) {
 //  	TESTS_RANGE = new int[] { 1, -1 };
   	}
 
-public static Test suite() {
-    return buildAllCompliancesTestSuite(testClass());
-}
-
-public static Class testClass() {
-    return ProgrammingProblemsTest.class;
-}
 @Override
 protected Map getCompilerOptions() {
 	Map compilerOptions = super.getCompilerOptions();
@@ -112,6 +106,7 @@ void runTest(
 }
 
 // default behavior upon unread parameters
+@Test
 public void test0001_unread_parameters() {
 	runTest(
 		new String[] {
@@ -137,6 +132,7 @@ public void test0001_unread_parameters() {
 }
 
 // reporting unread paramaters as warning
+@Test
 public void test0002_unread_parameters() {
 	runTest(
 		new String[] {
@@ -170,6 +166,7 @@ public void test0002_unread_parameters() {
 
 // disabling the reporting of unread parameters using the Javadoc
 // @param disables by default
+@Test
 public void test0003_unread_parameters() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -202,6 +199,7 @@ public void test0003_unread_parameters() {
 
 // disabling the reporting of unread parameters using the Javadoc
 // @param disabling can be disabled
+@Test
 public void test0004_unread_parameters() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -240,6 +238,7 @@ public void test0004_unread_parameters() {
 }
 
 // disabling the reporting of unread parameters using SuppressWarnings
+@Test
 public void test0005_unread_parameters() {
 	runTest(
 		new String[] {
@@ -271,6 +270,7 @@ public void test0005_unread_parameters() {
 }
 
 // reporting unread paramaters as error
+@Test
 public void test0006_unread_parameters() {
 	runTest(
 		new String[] {
@@ -303,6 +303,7 @@ public void test0006_unread_parameters() {
 }
 
 // default behavior upon unnecessary declaration of thrown checked exceptions
+@Test
 public void test0007_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
@@ -329,6 +330,7 @@ public void test0007_declared_thrown_checked_exceptions() {
 }
 
 // reporting unnecessary declaration of thrown checked exceptions as warning
+@Test
 public void test0008_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
@@ -365,6 +367,7 @@ public void test0008_declared_thrown_checked_exceptions() {
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disables by default
+@Test
 public void test0009_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -400,6 +403,7 @@ public void test0009_declared_thrown_checked_exceptions() {
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disabling can be disabled
+@Test
 public void test0010_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -440,6 +444,7 @@ public void test0010_declared_thrown_checked_exceptions() {
 
 // disabling the reporting of unnecessary declaration of thrown checked
 // exceptions using SuppressWarnings
+@Test
 public void test0011_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
@@ -469,6 +474,7 @@ public void test0011_declared_thrown_checked_exceptions() {
 }
 
 // reporting unnecessary declaration of thrown checked exceptions as error
+@Test
 public void test0012_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
@@ -505,6 +511,7 @@ public void test0012_declared_thrown_checked_exceptions() {
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disables by default, but only exact matches work
+@Test
 public void test0013_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -543,6 +550,7 @@ public void test0013_declared_thrown_checked_exceptions() {
 }
 // interaction between errors and warnings
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=203721
+@Test
 public void test0014_declared_thrown_checked_exceptions_unread_parameters() {
 	runTest(
 		new String[] {
@@ -583,6 +591,7 @@ public void test0014_declared_thrown_checked_exceptions_unread_parameters() {
 // interaction between errors and warnings
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=203721
 // variant: both warnings show up
+@Test
 public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 	runTest(
 		new String[] {
@@ -621,6 +630,7 @@ public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 }
 
 // reporting unread paramaters as error on a constructor
+@Test
 public void test0016_unread_parameters_constructor() {
 	runTest(
 		new String[] {
@@ -653,6 +663,7 @@ public void test0016_unread_parameters_constructor() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=208001
+@Test
 public void test0017_shadowing_package_visible_methods() {
 	runTest(
 		new String[] {
@@ -698,6 +709,7 @@ public void test0017_shadowing_package_visible_methods() {
 		true /* skipJavac */);
 }
 // default behavior upon unnecessary declaration of thrown unchecked exceptions
+@Test
 public void test0018_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
@@ -722,6 +734,7 @@ public void test0018_declared_thrown_unchecked_exceptions() {
 		true /* skipJavac */);
 }
 // default behavior upon unnecessary declaration of thrown unchecked exceptions
+@Test
 public void test0019_declared_thrown_unchecked_exceptions() {
 	runTest(
 		new String[] {
@@ -746,6 +759,7 @@ public void test0019_declared_thrown_unchecked_exceptions() {
 		true /* skipJavac */);
 }
 // default behavior upon unnecessary declaration of Exception
+@Test
 public void test0020_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
@@ -770,6 +784,7 @@ public void test0020_declared_thrown_checked_exceptions() {
 		true /* skipJavac */);
 }
 // default behavior upon unnecessary declaration of Throwable
+@Test
 public void test0021_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
@@ -798,6 +813,7 @@ public void test0021_declared_thrown_checked_exceptions() {
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning
+@Test
 public void test0022_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -831,6 +847,7 @@ public void test0022_declared_thrown_unchecked_exceptions() {
 // the external API uses another string literal - had it wrong in first attempt
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
+@Test
 public void test0023_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE,
@@ -868,6 +885,7 @@ public void test0023_declared_thrown_unchecked_exceptions() {
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning
+@Test
 public void test0024_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -901,6 +919,7 @@ public void test0024_declared_thrown_unchecked_exceptions() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // focused on Exception and Throwable, which are not unchecked but can catch
 // unchecked exceptions
+@Test
 public void test0025_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -939,6 +958,7 @@ public void test0025_declared_thrown_checked_exceptions() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // focused on Exception and Throwable, which are not unchecked but can catch
 // unchecked exceptions
+@Test
 public void test0026_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -978,6 +998,7 @@ public void test0026_declared_thrown_checked_exceptions() {
 // @throws disables by default
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
+@Test
 public void test0027_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -1015,6 +1036,7 @@ public void test0027_declared_thrown_unchecked_exceptions() {
 // @throws disabling can be disabled
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
+@Test
 public void test0028_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -1058,6 +1080,7 @@ public void test0028_declared_thrown_checked_exceptions() {
 // exceptions using SuppressWarnings
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
+@Test
 public void test0029_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -1091,6 +1114,7 @@ public void test0029_declared_thrown_checked_exceptions() {
 // reporting unnecessary declaration of thrown unchecked exceptions as error
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the error for unchecked exceptions, using Exception instead
+@Test
 public void test0030_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -1130,6 +1154,7 @@ public void test0030_declared_thrown_checked_exceptions() {
 // @throws disables by default, but only exact matches work
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
+@Test
 public void test0031_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport,
@@ -1170,6 +1195,7 @@ public void test0031_declared_thrown_checked_exceptions() {
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions
+@Test
 public void test0032_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -1202,6 +1228,7 @@ public void test0032_declared_thrown_checked_exceptions() {
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
 // suppressed the warning for unchecked exceptions, using Exception instead
+@Test
 public void test0033_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -1239,6 +1266,7 @@ public void test0033_declared_thrown_checked_exceptions() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216897
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+@Test
 public void test0034_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -1281,6 +1309,7 @@ public void test0034_declared_thrown_checked_exceptions() {
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+@Test
 public void test0035_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
@@ -1314,6 +1343,7 @@ public void test0035_declared_thrown_checked_exceptions() {
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+@Test
 public void test0036_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
@@ -1347,6 +1377,7 @@ public void test0036_declared_thrown_checked_exceptions() {
 		true /* skipJavac */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115814
+@Test
 public void test0037() {
 	this.runNegativeTest(
 		new String[] {
@@ -1410,6 +1441,7 @@ public void test0037() {
 /**
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=276740"
  */
+@Test
 public void test0038() {
 	this.runNegativeTest(
 		new String[] {
@@ -1505,6 +1537,7 @@ public void test0038() {
 /**
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=276741"
  */
+@Test
 public void test0039() {
 	this.runNegativeTest(
 		new String[] {
@@ -1541,6 +1574,7 @@ public void test0039() {
  * We now tolerate comparison of float and double entities against
  * themselves as a legitimate idiom for NaN checking.
  */
+@Test
 public void test0040() {
 	this.runNegativeTest(
 		new String[] {
@@ -1567,6 +1601,7 @@ public void test0040() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=251227
+@Test
 public void test0041() {
 	this.runNegativeTest(
 		new String[] {
@@ -1591,6 +1626,7 @@ public void test0041() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=248897
+@Test
 public void test0042() {
 	runTest(
 			new String[] {
@@ -1625,6 +1661,7 @@ public void test0042() {
 			true /* skipJavac */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=313825
+@Test
 public void test0043() {
 	this.runNegativeTest(
 		new String[] {
@@ -1643,6 +1680,7 @@ public void test0043() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310264
+@Test
 public void test0044() {
 	this.runNegativeTest(
 		new String[] {
@@ -1664,6 +1702,7 @@ public void test0044() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310264
+@Test
 public void test0045() {
 	this.runNegativeTest(
 		new String[] {
@@ -1688,6 +1727,7 @@ public void test0045() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+@Test
 public void test0046() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -1726,6 +1766,7 @@ public void test0046() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // variant with private fields instead of locals
+@Test
 public void test0046_field() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -1763,6 +1804,7 @@ public void test0046_field() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // variant with private fields instead of locals - this-qualified access
+@Test
 public void test0046_field_this_qualified() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -1801,6 +1843,7 @@ public void test0046_field_this_qualified() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // variant with private fields instead of locals - regular qualified access
+@Test
 public void test0046_field_qualified() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -1839,6 +1882,7 @@ public void test0046_field_qualified() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // variant with fields inside a private type
+@Test
 public void test0046_field_in_private_type() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -1879,6 +1923,7 @@ public void test0046_field_in_private_type() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+@Test
 public void test0047() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
@@ -1922,6 +1967,7 @@ public void test0047() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // To verify that unused parameter warning is not shown for an implementing method's parameter when
 // CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract is disabled
+@Test
 public void test0048() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
@@ -1985,6 +2031,7 @@ public void test0048() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // To verify that unused parameter warning is not shown for an overriding method's parameter when
 // CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete is disabled
+@Test
 public void test0049() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
@@ -2041,6 +2088,7 @@ public void test0049() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // To verify that unused local warning is not shown for locals declared in unreachable code
+@Test
 public void test0050() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -2083,6 +2131,7 @@ public void test0050() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 // To verify that a constructor argument is handled correctly
+@Test
 public void test0051() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
@@ -2106,6 +2155,7 @@ public void test0051() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
+@Test
 public void test0052() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -2132,6 +2182,7 @@ public void test0052() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
 // multi-level inheritance
+@Test
 public void test0052a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -2156,6 +2207,7 @@ public void test0052a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
 // member type of private
+@Test
 public void test0052b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -2179,6 +2231,7 @@ public void test0052b() {
 			null/*requestor*/);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+@Test
 public void test0053() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -2212,6 +2265,7 @@ public void test0053() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+@Test
 public void test0054() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
@@ -2251,6 +2305,7 @@ public void test0054() throws Exception {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=329613
 // regression caused by https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+@Test
 public void test0055() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -2283,6 +2338,7 @@ public void test0055() {
 			customOptions);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+@Test
 public void test0056() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
@@ -2308,6 +2364,7 @@ public void test0056() throws Exception {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+@Test
 public void test0057() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
@@ -2364,6 +2421,7 @@ public void _test0058() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339139
 // Issue local variable not used warning inside deadcode
+@Test
 public void test0059() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -2401,6 +2459,7 @@ public void test0059() throws Exception {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+@Test
 public void test0060() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
@@ -2483,6 +2542,7 @@ public void test0060() throws Exception {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+@Test
 public void test0061() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
@@ -2540,6 +2600,7 @@ public void test0061() throws Exception {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+@Test
 public void test0062() throws Exception {
 	Map customOptions = getCompilerOptions();
 	this.runNegativeTest(
@@ -2596,6 +2657,7 @@ public void test0062() throws Exception {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+@Test
 public void test0063() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
@@ -2680,6 +2742,7 @@ public void test0063() throws Exception {
 		customOptions);
 }
 // Collection: contains & remove & get
+@Test
 public void testBug410218a() {
 	runNegativeTest(
 		new String[] {
@@ -2728,6 +2791,7 @@ public void testBug410218a() {
 		"----------\n");
 }
 // HashSet vs. TreeSet
+@Test
 public void testBug410218b() {
 	runNegativeTest(
 		new String[] {
@@ -2757,6 +2821,7 @@ public void testBug410218b() {
 		"----------\n");
 }
 // HashSet vs. TreeSet or: strict
+@Test
 public void testBug410218b2() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE_STRICT, JavaCore.ENABLED);
@@ -2801,6 +2866,7 @@ public void testBug410218b2() {
 		customOptions);
 }
 // Map: contains* & remove & get
+@Test
 public void testBug410218c() {
 	runNegativeTest(
 		new String[] {
@@ -2851,6 +2917,7 @@ public void testBug410218c() {
 		"----------\n");
 }
 // Collection: {contains,remove,retain}All, non-generic sub type of Collection, configured to be ERROR
+@Test
 public void testBug410218d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.ERROR);
@@ -2881,6 +2948,7 @@ public void testBug410218d() {
 		customOptions);
 }
 // List.indexOf: w/ and w/o @SuppressWarnings
+@Test
 public void testBug410218e() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
@@ -2912,6 +2980,7 @@ public void testBug410218e() {
 }
 
 // Method references, equals, wildcards
+@Test
 public void testBug410218f() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
@@ -3182,6 +3251,7 @@ public void testBug410218f() {
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
 }
+@Test
 public void testBug514956a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
@@ -3201,6 +3271,7 @@ public void testBug514956a() {
 		},
 		customOptions);
 }
+@Test
 public void testBug514956b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
@@ -3217,6 +3288,7 @@ public void testBug514956b() {
 		},
 		customOptions);
 }
+@Test
 public void testBug514956c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
@@ -3257,6 +3329,7 @@ public void testBug514956c() {
 		customOptions);
 }
 // mixture of raw type an parametrized type
+@Test
 public void testBug513310() {
 	runConformTest(
 		new String[] {
@@ -3277,6 +3350,7 @@ public void testBug513310() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/567
 // Report unused variable for variables declared in instanceof pattern
+@Test
 public void testGH567() {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -3345,6 +3419,7 @@ public void testGH567() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3051
 // [Enhancement] Add warnings for unused patterns
+@Test
 public void testIssue3051() {
 	if (this.complianceLevel < ClassFileConstants.JDK22)
 		return;
@@ -3393,6 +3468,7 @@ public void testIssue3051() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3051
 // [Enhancement] Add warnings for unused patterns
+@Test
 public void testIssue3051_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -3456,6 +3532,7 @@ public void testIssue3051_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
 // Add warnings for structurally required but otherwise unused local variables
+@Test
 public void testIssue3054() {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -3597,6 +3674,7 @@ public void testIssue3054() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
 // Add warnings for structurally required but otherwise unused local variables
+@Test
 public void testIssue3054_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -3721,6 +3799,7 @@ public void testIssue3054_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
 // Add warnings for structurally required but otherwise unused local variables
+@Test
 public void testIssue3054_3() {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -3845,6 +3924,7 @@ public void testIssue3054_3() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
 // Add warnings for structurally required but otherwise unused local variables
 // Check that suppress warning works
+@Test
 public void testIssue3054_4() {
 	if (this.complianceLevel < ClassFileConstants.JDK22)
 		return;
@@ -3942,6 +4022,7 @@ public void testIssue3054_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3054
 // Add warnings for structurally required but otherwise unused local variables
+@Test
 public void testIssue3054_5() {
 	if (this.complianceLevel < ClassFileConstants.JDK22)
 		return;
@@ -4018,6 +4099,7 @@ public void testIssue3054_5() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+@Test
 public void testGH3660() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -4040,6 +4122,7 @@ public void testGH3660() {
 	runner.expectedOutputString = "truetrue";
 	runner.runConformTest();
 }
+@Test
 public void testGH3870a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -4168,6 +4251,7 @@ public void testGH3870a() {
 				s.equals(args)""";
 	runner.runConformTest();
 }
+@Test
 public void testGH3870b() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -4211,6 +4295,7 @@ public void testGH3870b() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4065
 // [Null][Record] Invalid "dead code" warning for record pattern with null-guard on component
+@Test
 public void testIssue4065() {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -4272,6 +4357,7 @@ public void testIssue4065() {
 			customOptions);
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4328
+@Test
 public void testIssue4328() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;

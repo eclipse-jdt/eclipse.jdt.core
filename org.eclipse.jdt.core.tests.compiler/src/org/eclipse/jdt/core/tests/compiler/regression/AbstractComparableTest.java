@@ -20,7 +20,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.junit.jupiter.api.TestInfo;
 
@@ -94,17 +93,6 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	    "	String[] value() default \"\";\n" +
 	    "\n" +
 	    "}";
-
-	public static Test buildComparableTestSuite(Class evaluationTestClass) {
-		Test suite = buildMinimalComplianceTestSuite(evaluationTestClass, FIRST_SUPPORTED_JAVA_VERSION);
-		TESTS_COUNTERS.put(evaluationTestClass.getName(), Integer.valueOf(suite.countTestCases()));
-		return suite;
-	}
-
-	@Deprecated
-	public AbstractComparableTest(String name) {
-		super(name);
-	}
 
 	public AbstractComparableTest(Compliance compliance, TestInfo info) {
 		super(compliance, info);

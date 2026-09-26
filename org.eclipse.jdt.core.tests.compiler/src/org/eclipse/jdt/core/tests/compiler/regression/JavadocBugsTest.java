@@ -15,10 +15,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocBugsTest extends JavadocTest {
@@ -34,12 +35,8 @@ public class JavadocBugsTest extends JavadocTest {
 	String reportJavadocDeprecation = null;
 	String processAnnotations = null;
 
-public JavadocBugsTest(String name) {
-	super(name);
-}
-
-public static Class javadocTestClass() {
-	return JavadocBugsTest.class;
+public JavadocBugsTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // Use this static initializer to specify subset for tests
@@ -49,10 +46,6 @@ static {
 //		TESTS_NAMES = new String[] { "testBug382606" };
 //		TESTS_NUMBERS = new int[] { 129241 };
 //		TESTS_RANGE = new int[] { 21, 50 };
-}
-
-public static Test suite() {
-	return buildAllCompliancesTestSuite(javadocTestClass());
 }
 
 @Override
@@ -116,6 +109,7 @@ protected void setUp() throws Exception {
  * entries for method declaration in anonymous class.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45596">45596</a>
  */
+@Test
 public void testBug45596() {
 	runConformTest(
 		new String[] {
@@ -140,6 +134,7 @@ public void testBug45596() {
  * Since bug 47132, @param, @return and @throws tags are not resolved in javadoc of anonymous
  * class...
  */
+@Test
 public void testBug45596a() {
 	runConformTest(
 		new String[] {
@@ -183,6 +178,7 @@ public void testBug45596a() {
  * Additional test for bug 45596.
  * Verify no complain about missing parameter javadoc entries.
  */
+@Test
 public void testBug45596b() {
 	runConformTest(
 		new String[] {
@@ -245,6 +241,7 @@ public void testBug45596b() {
  * When this bug happened, a NullPointerException occured during the compilation.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
  */
+@Test
 public void testBug45592() {
 	runConformTest(
 		new String[] {
@@ -294,6 +291,7 @@ public void testBug45592() {
  * When this bug happened, compiler complains on return type and argument of method bar.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45737">45737</a>
  */
+@Test
 public void testBug45737() {
 	runConformTest(
 		new String[] {
@@ -325,6 +323,7 @@ public void testBug45737() {
  * Bug 45669.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45669">45669</a>
  */
+@Test
 public void testBug45669() {
 	runConformTest(
 		new String[] {
@@ -353,6 +352,7 @@ public void testBug45669() {
  * Additional test for bug 45669.
  * Verify that compiler complains when @throws tag is between @param tags.
  */
+@Test
 public void testBug45669a() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -395,6 +395,7 @@ public void testBug45669a() {
  * Bug 45958.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45958">45958</a>
  */
+@Test
 public void testBug45958() {
 	runConformTest(
 		new String[] {
@@ -413,6 +414,7 @@ public void testBug45958() {
 		}
 	);
 }
+@Test
 public void testBug45958a() {
 	runNegativeTest(
 		new String[] {
@@ -438,6 +440,7 @@ public void testBug45958a() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug45958b() {
 	runNegativeTest(
 		new String[] {
@@ -474,6 +477,7 @@ public void testBug45958b() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug45958c() {
 	runConformTest(
 		new String[] {
@@ -498,6 +502,7 @@ public void testBug45958c() {
  * Bug 46901.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46901">46901</a>
  */
+@Test
 public void testBug46901() {
 	runConformTest(
 		new String[] {
@@ -520,6 +525,7 @@ public void testBug46901() {
  * Bug 47215.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47215">47215</a>
  */
+@Test
 public void testBug47215() {
 	runNegativeTest(
 		new String[] {
@@ -573,6 +579,7 @@ public void testBug47215() {
  * Bug 47341.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47341">47341</a>
  */
+@Test
 public void testBug47341() {
 	runConformTest(
 		new String[] {
@@ -612,6 +619,7 @@ public void testBug47341() {
  * Bug 47132.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47132">47132</a>
  */
+@Test
 public void testBug47132() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	runConformTest(
@@ -635,6 +643,7 @@ public void testBug47132() {
  * Bug 47339.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47339">47339</a>
  */
+@Test
 public void testBug47339() {
 	runConformTest(
 		new String[] {
@@ -655,6 +664,7 @@ public void testBug47339() {
 		}
 	);
 }
+@Test
 public void testBug47339a() {
 	runConformTest(
 		new String[] {
@@ -672,6 +682,7 @@ public void testBug47339a() {
 		}
 	);
 }
+@Test
 public void testBug47339b() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -708,6 +719,7 @@ public void testBug47339b() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug47339c() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -736,6 +748,7 @@ public void testBug47339c() {
  * Bug 48064.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48064">48064</a>
  */
+@Test
 public void testBug48064() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -766,6 +779,7 @@ public void testBug48064() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug48064a() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -801,6 +815,7 @@ public void testBug48064a() {
  * Bug 48523.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48523">48523</a>
  */
+@Test
 public void testBug48523() {
 	runConformTest(
 		new String[] {
@@ -826,6 +841,7 @@ public void testBug48523() {
  * Bug 48711.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48711">48711</a>
  */
+@Test
 public void testBug48711() {
 	runConformTest(
 		new String[] {
@@ -849,6 +865,7 @@ public void testBug48711() {
  * When this bug happened, compiler wrongly complained on missing parameters declaration
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45782">45782</a>
  */
+@Test
 public void testBug45782() {
 	runConformTest(
 		new String[] {
@@ -879,6 +896,7 @@ public void testBug45782() {
 				"}\n"
 		});
 }
+@Test
 public void testBug45782a() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -922,6 +940,7 @@ public void testBug45782a() {
  * When this bug happened, compiler wrongly complained on Invalid parameters declaration
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49260">49260</a>
  */
+@Test
 public void testBug49260() {
 	runConformTest(
 		new String[] {
@@ -945,6 +964,7 @@ public void testBug49260() {
  * When this bug happened, compiler does not complain on CharOperation references in @link tags
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>
  */
+@Test
 public void testBug48385() {
 	runNegativeTest(
 		new String[] {
@@ -992,6 +1012,7 @@ public void testBug48385() {
 	);
 }
 
+@Test
 public void testBug48385And49620() {
 	runNegativeTest(
 		new String[] {
@@ -1055,6 +1076,7 @@ public void testBug48385And49620() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug48385a() {
 	runNegativeTest(
 		new String[] {
@@ -1108,6 +1130,7 @@ public void testBug48385a() {
  * When this bug happened, compiler complained on duplicated throws tag
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49491">49491</a>
  */
+@Test
 public void testBug49491() {
 	runConformTest(
 		new String[] {
@@ -1122,6 +1145,7 @@ public void testBug49491() {
 				"	void foo() throws IllegalArgumentException {}\n" +
 				"}\n" });
 }
+@Test
 public void testBug49491a() {
 	runNegativeTest(
 		new String[] {
@@ -1156,6 +1180,7 @@ public void testBug49491a() {
  * When this bug happened, compiler complained on duplicated throws tag
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48376">48376</a>
  */
+@Test
 public void testBug48376() {
 	runConformTest(
 		new String[] {
@@ -1181,6 +1206,7 @@ public void testBug48376() {
 				"}\n"
 	 });
 }
+@Test
 public void testBug48376a() {
 	runNegativeTest(
 		new String[] {
@@ -1245,6 +1271,7 @@ public void testBug48376a() {
  * When this bug happened, compiler complained on duplicated throws tag
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50644">50644</a>
  */
+@Test
 public void testBug50644() {
 	this.reportInvalidJavadoc = CompilerOptions.IGNORE;
 	runConformTest(
@@ -1273,6 +1300,7 @@ public void testBug50644() {
  * Bug 50695.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50695">50695</a>
  */
+@Test
 public void testBug50695() {
 	runConformTest(
 		new String[] {
@@ -1286,6 +1314,7 @@ public void testBug50695() {
 			"}\n"
 		 });
 }
+@Test
 public void testBug50695b() {
 	runNegativeTest(
 		new String[] {
@@ -1311,6 +1340,7 @@ public void testBug50695b() {
  * Bug 51626.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51626">51626</a>
  */
+@Test
 public void testBug51626() {
 	runConformTest(
 		new String[] {
@@ -1339,6 +1369,7 @@ public void testBug51626() {
  * Bug 52216.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52216">52216</a>
  */
+@Test
 public void testBug52216() {
 	runConformTest(
 		new String[] {
@@ -1351,6 +1382,7 @@ public void testBug52216() {
 				"}\n"
 	 });
 }
+@Test
 public void testBug52216a() {
 	runConformTest(
 		new String[] {
@@ -1362,6 +1394,7 @@ public void testBug52216a() {
 				"}\n"
 	 });
 }
+@Test
 public void testBug52216b() {
 	runNegativeTest(
 		new String[] {
@@ -1396,6 +1429,7 @@ public void testBug52216b() {
  * Bug 51529.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51529">51529</a>
  */
+@Test
 public void testBug51529() {
 	runConformTest(
 		new String[] {
@@ -1409,6 +1443,7 @@ public void testBug51529() {
 			"}\n"
 	 });
 }
+@Test
 public void testBug51529a() {
 	this.reportInvalidJavadoc = CompilerOptions.IGNORE;
 	this.reportMissingJavadocComments = CompilerOptions.IGNORE;
@@ -1425,6 +1460,7 @@ public void testBug51529a() {
 		}
 	);
 }
+@Test
 public void testBug51529b() {
 	this.docCommentSupport = CompilerOptions.DISABLED;
 	runNegativeTest(
@@ -1453,6 +1489,7 @@ public void testBug51529b() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911"
  */
 // Conform since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322 has been fixed
+@Test
 public void testBug51911() {
 	// Warn an ambiguous method reference
 	runConformTest(
@@ -1468,6 +1505,7 @@ public void testBug51911() {
 	 	}
 	);
 }
+@Test
 public void testBug51911a() {
 	// Accept unambiguous method reference
 	runConformTest(
@@ -1482,6 +1520,7 @@ public void testBug51911a() {
 	 	}
 	);
 }
+@Test
 public void testBug51911b() {
 	// Accept field reference with method name
 	runConformTest(
@@ -1497,6 +1536,7 @@ public void testBug51911b() {
 	 	}
 	);
 }
+@Test
 public void testBug51911c() {
 	// Accept field reference with ambiguous method name
 	runConformTest(
@@ -1518,6 +1558,7 @@ public void testBug51911c() {
  * Bug 53279: [Javadoc] Compiler should complain when inline tag is not terminated
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53279">53279</a>
  */
+@Test
 public void testBug53279() {
 	runNegativeTest(
 		new String[] {
@@ -1539,6 +1580,7 @@ public void testBug53279() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug53279a() {
 	runNegativeTest(
 		new String[] {
@@ -1561,6 +1603,7 @@ public void testBug53279a() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug53279b() {
 	runNegativeTest(
 		new String[] {
@@ -1587,6 +1630,7 @@ public void testBug53279b() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug53279c() {
 	runNegativeTest(
 		new String[] {
@@ -1619,6 +1663,7 @@ public void testBug53279c() {
  * Bug 53290: [Javadoc] Compiler should complain when tag name is not correct
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53290">53290</a>
  */
+@Test
 public void testBug53290() {
 	runNegativeTest(
 		new String[] {
@@ -1653,6 +1698,7 @@ public void testBug53290() {
  * Bug 62812: Some malformed javadoc tags are not reported as malformed
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62812">62812</a>
  */
+@Test
 public void testBug62812() {
 	runNegativeTest(
 		new String[] {
@@ -1690,6 +1736,7 @@ public void testBug62812() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug62812a() {
 	runNegativeTest(
 		new String[] {
@@ -1730,6 +1777,7 @@ public void testBug62812a() {
 // Cleaned up this test as part of fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037
 // We should not complain about the missing @param tag for Y.foo at all, since the comments are
 // automatically inherited.
+@Test
 public void testBug51606() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runConformTest(
@@ -1755,6 +1803,7 @@ public void testBug51606() {
 		""
 	);
 }
+@Test
 public void testBug51606a() {
 	runConformTest(
 		new String[] {
@@ -1780,6 +1829,7 @@ public void testBug51606a() {
 		""
 	);
 }
+@Test
 public void testBug51606b() {
 	runConformTest(
 		new String[] {
@@ -1805,6 +1855,7 @@ public void testBug51606b() {
 		}
 	);
 }
+@Test
 public void testBug51606c() {
 	runConformTest(
 		new String[] {
@@ -1834,6 +1885,7 @@ public void testBug51606c() {
  * Bug 65174: Spurious "Javadoc: Missing reference" error
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174">65174</a>
  */
+@Test
 public void testBug65174() {
 	runConformTest(
 		new String[] {
@@ -1851,6 +1903,7 @@ public void testBug65174() {
 		}
 	);
 }
+@Test
 public void testBug65174a() {
 	runConformTest(
 		new String[] {
@@ -1868,6 +1921,7 @@ public void testBug65174a() {
 		}
 	);
 }
+@Test
 public void testBug65174b() {
 	runNegativeTest(
 		new String[] {
@@ -1897,6 +1951,7 @@ public void testBug65174b() {
 
 	);
 }
+@Test
 public void testBug65174c() {
 	runConformTest(
 		new String[] {
@@ -1914,6 +1969,7 @@ public void testBug65174c() {
 		}
 	);
 }
+@Test
 public void testBug65174d() {
 	runConformTest(
 		new String[] {
@@ -1947,6 +2003,7 @@ public void testBug65174d() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65180"
  */
  // Conform since bug "http://bugs.eclipse.org/bugs/show_bug.cgi?id=191322" has been fixed
+@Test
 public void testBug65180() {
 	runConformTest(
 		new String[] {
@@ -1969,6 +2026,7 @@ public void testBug65180() {
 		}
 	);
 }
+@Test
 public void testBug65180a() {
 	runConformTest(
 		new String[] {
@@ -1990,6 +2048,7 @@ public void testBug65180a() {
 		}
 	);
 }
+@Test
 public void testBug65180b() {
 	runConformTest(
 		new String[] {
@@ -2013,6 +2072,7 @@ public void testBug65180b() {
 	);
 }
  // Conform since bug "http://bugs.eclipse.org/bugs/show_bug.cgi?id=191322" has been fixed
+@Test
 public void testBug65180c() {
 	runConformTest(
 		new String[] {
@@ -2035,6 +2095,7 @@ public void testBug65180c() {
 		}
 	);
 }
+@Test
 public void testBug65180d() {
 	runConformTest(
 		new String[] {
@@ -2060,6 +2121,7 @@ public void testBug65180d() {
 		}
 	);
 }
+@Test
 public void testBug65180e() {
 	runConformTest(
 		new String[] {
@@ -2077,6 +2139,7 @@ public void testBug65180e() {
 		}
 	);
 }
+@Test
 public void testBug65180f() {
 	runConformTest(
 		new String[] {
@@ -2112,6 +2175,7 @@ public void testBug65180f() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253"
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237742"
  */
+@Test
 public void testBug65253() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -2146,6 +2210,7 @@ public void testBug65253() {
  * Bug 66551: Error in org.eclipse.swt project on class PrinterData
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66551">66551</a>
  */
+@Test
 public void testBug66551() {
 	runConformTest(
 		new String[] {
@@ -2162,6 +2227,7 @@ public void testBug66551() {
 		}
 	);
 }
+@Test
 public void testBug66551a() {
 	runConformTest(
 		new String[] {
@@ -2178,6 +2244,7 @@ public void testBug66551a() {
 		}
 	);
 }
+@Test
 public void testBug66551b() {
 	runConformTest(
 		new String[] {
@@ -2194,6 +2261,7 @@ public void testBug66551b() {
 		}
 	);
 }
+@Test
 public void testBug66551c() {
 	runConformTest(
 		new String[] {
@@ -2215,6 +2283,7 @@ public void testBug66551c() {
  * Bug 66573: Shouldn't bind to local constructs
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66573">66573</a>
  */
+@Test
 public void testBug66573() {
 	runNegativeTest(
 		new String[] {
@@ -2244,6 +2313,7 @@ public void testBug66573() {
  * Bug 68017: Javadoc processing does not detect missing argument to @return
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017">68017</a>
  */
+@Test
 public void testBug68017conform() {
 	runConformTest(
 		new String[] {
@@ -2259,6 +2329,7 @@ public void testBug68017conform() {
 		}
 	);
 }
+@Test
 public void testBug68017negative() {
 	runNegativeTest(
 		new String[] {
@@ -2301,6 +2372,7 @@ public void testBug68017negative() {
 	);
 }
 // Javadoc issue a warning on following tests
+@Test
 public void testBug68017javadocWarning1() {
 	runNegativeTest(
 		new String[] {
@@ -2327,6 +2399,7 @@ public void testBug68017javadocWarning1() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug68017javadocWarning2() {
 	runConformTest(
 		new String[] {
@@ -2344,6 +2417,7 @@ public void testBug68017javadocWarning2() {
 		}
 	);
 }
+@Test
 public void testBug68017javadocWarning3() {
 	runNegativeTest(
 		new String[] {
@@ -2375,6 +2449,7 @@ public void testBug68017javadocWarning3() {
  * Bug 68025: Javadoc processing does not detect some wrong links
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025">68025</a>
  */
+@Test
 public void testBug68025conform() {
 	runConformTest(
 		new String[] {
@@ -2401,6 +2476,7 @@ public void testBug68025conform() {
 		}
 	);
 }
+@Test
 public void testBug68025negative() {
 	runNegativeTest(
 		new String[] {
@@ -2456,6 +2532,7 @@ public void testBug68025negative() {
  * Bug 68726: [Javadoc] Target attribute in @see link triggers warning
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
  */
+@Test
 public void testBug68726conform1() {
 	runConformTest(
 		new String[] {
@@ -2471,6 +2548,7 @@ public void testBug68726conform1() {
 		}
 	);
 }
+@Test
 public void testBug68726conform2() {
 	runConformTest(
 		new String[] {
@@ -2497,6 +2575,7 @@ public void testBug68726conform2() {
 		}
 	);
 }
+@Test
 public void testBug68726negative1() {
 	runNegativeTest(
 		new String[] {
@@ -2585,6 +2664,7 @@ public void testBug68726negative1() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug68726negative2() {
 	runNegativeTest(
 		new String[] {
@@ -2648,6 +2728,7 @@ public void testBug68726negative2() {
  * Bug 69272: [Javadoc] Invalid malformed reference (missing separator)
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272">69272</a>
  */
+@Test
 public void testBug69272classValid() {
 	runConformTest(
 		new String[] {
@@ -2668,6 +2749,7 @@ public void testBug69272classValid() {
 		}
 	);
 }
+@Test
 public void testBug69272classInvalid() {
 	runNegativeTest(
 		new String[] {
@@ -2701,6 +2783,7 @@ public void testBug69272classInvalid() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug69272fieldValid() {
 	runConformTest(
 		new String[] {
@@ -2722,6 +2805,7 @@ public void testBug69272fieldValid() {
 		}
 	);
 }
+@Test
 public void testBug69272fieldInvalid() {
 	runNegativeTest(
 		new String[] {
@@ -2756,6 +2840,7 @@ public void testBug69272fieldInvalid() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug69272methodValid() {
 	runConformTest(
 		new String[] {
@@ -2776,6 +2861,7 @@ public void testBug69272methodValid() {
 		}
 	);
 }
+@Test
 public void testBug69272methodInvalid() {
 	runNegativeTest(
 		new String[] {
@@ -2814,6 +2900,7 @@ public void testBug69272methodInvalid() {
  * Bug 69275: [Javadoc] Invalid warning on @see link
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275">69275</a>
  */
+@Test
 public void testBug69275conform() {
 	runConformTest(
 		new String[] {
@@ -2834,6 +2921,7 @@ public void testBug69275conform() {
 		}
 	);
 }
+@Test
 public void testBug69275negative() {
 	runNegativeTest(
 		new String[] {
@@ -2867,6 +2955,7 @@ public void testBug69275negative() {
  * Bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302"
  */
+@Test
 public void testBug69302conform1() {
 	runConformTest(
 		new String[] {
@@ -2884,6 +2973,7 @@ public void testBug69302conform1() {
 		}
 	);
 }
+@Test
 public void testBug69302negative1() {
 	runNegativeTest(
 		new String[] {
@@ -2913,6 +3003,7 @@ public void testBug69302negative1() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug69302negative2() {
 	runNegativeTest(
 		new String[] {
@@ -2944,6 +3035,7 @@ public void testBug69302negative2() {
  * test Ensure that reference in tag 'value' is only verified when source level >= 1.5
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
  */
+@Test
 public void testBug70892a() {
 	runConformTest(
 		new String[] {
@@ -2965,6 +3057,7 @@ public void testBug70892a() {
 		}
 	);
 }
+@Test
 public void testBug70892b() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -3027,6 +3120,7 @@ public void testBug70892b() {
  * Bug 73348: [Javadoc] Missing description for return tag is not always warned
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348">73348</a>
  */
+@Test
 public void testBug73348conform() {
 	runConformTest(
 		new String[] {
@@ -3047,6 +3141,7 @@ public void testBug73348conform() {
 		}
 	);
 }
+@Test
 public void testBug73348negative() {
 	runNegativeTest(
 		new String[] {
@@ -3083,6 +3178,7 @@ public void testBug73348negative() {
  * bug 73352: [Javadoc] Missing description should be warned for all tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=73352"
  */
+@Test
 public void testBug73352a() {
 	String[] units = new String[] {
 		"X.java",
@@ -3185,6 +3281,7 @@ public void testBug73352a() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 }
+@Test
 public void testBug73352b() {
 	String[] units = new String[] {
 		"X.java",
@@ -3215,6 +3312,7 @@ public void testBug73352b() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(units);
 }
+@Test
 public void testBug73352c() {
 	String[] units = new String[] {
 		"X.java",
@@ -3263,6 +3361,7 @@ public void testBug73352c() {
 		);
 }
 
+@Test
 public void testBug73352d() {
 	String[] units = new String[] {
 		"X.java",
@@ -3298,6 +3397,7 @@ public void testBug73352d() {
  * Bug 73479: [Javadoc] Improve error message for invalid link in @see tags
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73479">73479</a>
  */
+@Test
 public void testBug73479() {
 	runNegativeTest(
 		new String[] {
@@ -3323,6 +3423,7 @@ public void testBug73479() {
  * Bug 73995: [Javadoc] Wrong warning for missing return type description for &#064;return {&#064;inheritdoc}
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
  */
+@Test
 public void testBug73995() {
 	runConformTest(
 		new String[] {
@@ -3351,6 +3452,7 @@ public void testBug73995() {
  * Bug 74369: [Javadoc] incorrect javadoc in local class
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=74369">74369</a>
  */
+@Test
 public void testBug74369() {
 	runConformTest(
 		new String[] {
@@ -3367,6 +3469,7 @@ public void testBug74369() {
 		}
 	);
 }
+@Test
 public void testBug74369deprecated() {
 	runNegativeTest(
 		new String[] {
@@ -3414,6 +3517,7 @@ public void testBug74369deprecated() {
  * Bug 76324: [Javadoc] Wrongly reports invalid link format in @see and @link
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76324">76324</a>
  */
+@Test
 public void testBug76324() {
 	runConformTest(
 		new String[] {
@@ -3445,6 +3549,7 @@ public void testBug76324() {
 	);
 }
 // URL Link references
+@Test
 public void testBug76324url() {
 	runNegativeTest(
 		new String[] {
@@ -3547,6 +3652,7 @@ public void testBug76324url() {
 	);
 }
 // String references
+@Test
 public void testBug76324string() {
 	runNegativeTest(
 		new String[] {
@@ -3593,6 +3699,7 @@ public void testBug76324string() {
  * Bug 77510: [javadoc] compiler wrongly report deprecation when option "process javadoc comments" is not set
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77510">77510</a>
  */
+@Test
 public void testBug77510enabled() {
 	runNegativeTest(
 		new String[] {
@@ -3651,6 +3758,7 @@ public void testBug77510enabled() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug77510disabled() {
 	this.docCommentSupport = CompilerOptions.IGNORE;
 	runNegativeTest(
@@ -3714,6 +3822,7 @@ public void testBug77510disabled() {
 /**
  * Test bug 77260: [Javadoc] deprecation warning should not be reported when @deprecated tag is set
  */
+@Test
 public void testBug77260() {
 	runConformTest(
 		new String[] {
@@ -3749,6 +3858,7 @@ public void testBug77260() {
 				"}\n" }
 	);
 }
+@Test
 public void testBug77260nested() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
@@ -3817,6 +3927,7 @@ public void testBug77260nested() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug77260nested_disabled() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
@@ -3866,6 +3977,7 @@ public void testBug77260nested_disabled() {
 /**
  * Bug 77602: [javadoc] "Only consider members as visible as" is does not work for syntax error
  */
+@Test
 public void testBug77602() {
 	runNegativeTest(
 		new String[] {
@@ -3893,6 +4005,7 @@ public void testBug77602() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug77602_Public() {
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 	runConformTest(
@@ -3914,6 +4027,7 @@ public void testBug77602_Public() {
  * Bug 78091: [1.5][javadoc] Compiler should accept new 1.5 syntax for @param
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78091">78091</a>
  */
+@Test
 public void testBug78091() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -3957,6 +4071,7 @@ public void testBug78091() {
  * Bug 80910: [javadoc] Invalid missing reference warning on @see or @link tags
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80910"
  */
+@Test
 public void testBug80910() {
 	runNegativeTest(
 		new String[] {
@@ -3986,6 +4101,7 @@ public void testBug80910() {
  * Bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
  */
+@Test
 public void testBug82088() {
 	runNegativeTest(
 		new String[] {
@@ -4015,6 +4131,7 @@ public void testBug82088() {
  * Bug 83285: [javadoc] Javadoc reference to constructor of secondary type has no binding / not found by search
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83285"
  */
+@Test
 public void testBug83285a() {
 	runConformTest(
 		new String[] {
@@ -4033,6 +4150,7 @@ public void testBug83285a() {
 		}
 	);
 }
+@Test
 public void testBug83285b() {
 	runConformTest(
 		new String[] {
@@ -4058,6 +4176,7 @@ public void testBug83285b() {
 		}
 	);
 }
+@Test
 public void testBug83285c() {
 	runNegativeTest(
 		new String[] {
@@ -4116,6 +4235,7 @@ public void testBug83285c() {
  * Bug 86769: [javadoc] Warn/Error for 'Missing javadoc comments' doesn't recognize private inner classes
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=86769"
  */
+@Test
 public void testBug86769_Classes1() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
@@ -4186,6 +4306,7 @@ public void testBug86769_Classes1() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug86769_Classes2() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
@@ -4289,6 +4410,7 @@ public void testBug86769_Classes2() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug86769_Field1() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
@@ -4339,6 +4461,7 @@ public void testBug86769_Field1() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug86769_Fields2() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
@@ -4486,6 +4609,7 @@ public void testBug86769_Fields2() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug86769_Metthods1() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
@@ -4536,6 +4660,7 @@ public void testBug86769_Metthods1() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug86769_Methods2() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
@@ -4581,6 +4706,7 @@ public void testBug86769_Methods2() {
  * Bug 87404: [javadoc] Unexpected not defined warning on constructor
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=87404"
  */
+@Test
 public void testBug87404() {
 	runConformTest(
 		new String[] {
@@ -4609,6 +4735,7 @@ public void testBug87404() {
  * Bug 90302: [javadoc] {&#064;inheritDoc} should be inactive for non-overridden method
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=90302"
  */
+@Test
 public void testBug90302() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -4666,6 +4793,7 @@ public void testBug90302() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug90302b() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -4717,6 +4845,7 @@ public void testBug90302b() {
  * Bug 103304: [Javadoc] Wrong reference proposal for inner classes.
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
  */
+@Test
 public void testBug103304a_public() {
 	String[] units = new String[] {
 			"boden/IAFAState.java",
@@ -4760,6 +4889,7 @@ public void testBug103304a_public() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug103304a_private() {
 	String[] units = new String[] {
 			"boden/IAFAState.java",
@@ -4804,6 +4934,7 @@ public void testBug103304a_private() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug103304b() {
 	this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 	String[] units = new String[] {
@@ -4886,6 +5017,7 @@ public void testBug103304b() {
 	runNegativeTest(units, errors_50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 
 }
+@Test
 public void testBug103304c() {
 	runConformTest(
 		new String[] {
@@ -4917,6 +5049,7 @@ public void testBug103304c() {
 		//test\C.java:10: warning - Tag @see: can't find Level0() in test.Test.Level0 => bug ID: 4288720
 	);
 }
+@Test
 public void testBug103304d() {
 	runNegativeTest(
 		new String[] {
@@ -4960,6 +5093,7 @@ public void testBug103304d() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug103304e() {
 	runConformTest(
 		new String[] {
@@ -4992,6 +5126,7 @@ public void testBug103304e() {
 		}
 	);
 }
+@Test
 public void testBug103304f() {
 	runNegativeTest(
 		new String[] {
@@ -5063,6 +5198,7 @@ public void testBug103304f() {
  * Bug 116464: [javadoc] Unicode tag name are not correctly parsed
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=116464"
  */
+@Test
 public void testBug116464() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runConformTest(
@@ -5082,6 +5218,7 @@ public void testBug116464() {
  * bug 125518: [javadoc] Embedding html in a link placed in a @see JavaDoc tag causes a warning
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125518"
  */
+@Test
 public void testBug125518a() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -5108,6 +5245,7 @@ public void testBug125518a() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug125518b() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -5134,6 +5272,7 @@ public void testBug125518b() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug125518c() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -5160,6 +5299,7 @@ public void testBug125518c() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug125518d() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -5186,6 +5326,7 @@ public void testBug125518d() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug125518e() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -5208,6 +5349,7 @@ public void testBug125518e() {
  * Bug 125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=125903"
  */
+@Test
 public void testBug125903() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -5239,6 +5381,7 @@ public void testBug125903() {
  * Bug 128954: Javadoc problems with category CAT_INTERNAL
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=128954"
  */
+@Test
 public void testBug128954() {
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
 	this.reportDeprecation = CompilerOptions.WARNING;
@@ -5284,6 +5427,7 @@ public void testBug128954() {
  * Bug 128954: Javadoc problems with category CAT_INTERNAL - variation
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=128954"
  */
+@Test
 public void testBug128954a() {
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
 	this.reportDeprecation = CompilerOptions.WARNING;
@@ -5323,6 +5467,7 @@ public void testBug128954a() {
  * Bug 129241: [Javadoc] deprecation warning wrongly reported when ignoring Malformed Javadoc comments
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=129241"
  */
+@Test
 public void testBug129241a() {
 	runNegativeTest(
 		new String[] {
@@ -5349,6 +5494,7 @@ public void testBug129241a() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug129241b() {
 	this.reportDeprecation = CompilerOptions.IGNORE;
 	runNegativeTest(
@@ -5376,6 +5522,7 @@ public void testBug129241b() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug129241c() {
 	this.reportJavadocDeprecation = CompilerOptions.DISABLED;
 	runConformTest(
@@ -5396,6 +5543,7 @@ public void testBug129241c() {
 		}
 	);
 }
+@Test
 public void testBug129241d() {
 	this.reportInvalidJavadoc = CompilerOptions.IGNORE;
 	runConformTest(
@@ -5421,6 +5569,7 @@ public void testBug129241d() {
  * Bug 132813: NPE in Javadoc.resolve(Javadoc.java:196) + log swamped
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=132813"
  */
+@Test
 public void testBug132813() {
 	runNegativeTest(
 		new String[] {
@@ -5454,6 +5603,7 @@ public void testBug132813() {
  * Bug 149013: [javadoc] In latest 3.3 build, there is a javadoc error in org.eclipse.core.resources
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=149013"
  */
+@Test
 public void testBug149013_Private01() {
 	this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 	runConformTest(
@@ -5478,6 +5628,7 @@ public void testBug149013_Private01() {
 		}
 	);
 }
+@Test
 public void testBug149013_Public01() {
 	this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -5524,6 +5675,7 @@ public void testBug149013_Public01() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug149013_Private02() {
 	this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 	runNegativeTest(
@@ -5569,6 +5721,7 @@ public void testBug149013_Private02() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug149013_Public02() {
 	this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -5615,6 +5768,7 @@ public void testBug149013_Public02() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug149013_Private03() {
 	this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 	runNegativeTest(
@@ -5657,6 +5811,7 @@ public void testBug149013_Private03() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug149013_Public03() {
 	this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -5706,6 +5861,7 @@ public void testBug149013_Public03() {
  * test Ensure that 'value' tag is well warned when not used correctly
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153399"
  */
+@Test
 public void testBug153399a() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -5726,6 +5882,7 @@ public void testBug153399a() {
 	};
 	runConformTest(testFiles);
 }
+@Test
 public void testBug153399b() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -5747,6 +5904,7 @@ public void testBug153399b() {
 
 	runConformTest(testFiles);
 }
+@Test
 public void testBug153399c() {
 	String[] testFiles = new String[] {
 		"p1/X.java",
@@ -5762,6 +5920,7 @@ public void testBug153399c() {
 	};
 	runConformTest(testFiles);
 }
+@Test
 public void testBug153399d() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -5784,6 +5943,7 @@ public void testBug153399d() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug153399e() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -5810,6 +5970,7 @@ public void testBug153399e() {
  * bug 160015: [1.5][javadoc] Missing warning on autoboxing compatible methods
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=160015"
  */
+@Test
 public void testBug160015() {
 	runNegativeTest(new String[] {
 			"Test.java",
@@ -5844,6 +6005,7 @@ public void testBug160015() {
  * test Ensure that a warning is raised when method parameter types are not identical
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=163659"
  */
+@Test
 public void testBug163659() {
 	runNegativeTest(
 		new String[] {
@@ -5874,6 +6036,7 @@ public void testBug163659() {
  * test Ensure that no warning is raised when visibility is lower than the javadoc option one
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=166365"
  */
+@Test
 public void testBug166365() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -5921,6 +6084,7 @@ public void testBug166365() {
  * test Ensure that no duplicate warning is raised for value tag
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=166436"
  */
+@Test
 public void testBug166436() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -5968,6 +6132,7 @@ public void testBug166436() {
  * bug 168849: [javadoc] Javadoc warning on @see reference in class level docs.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=168849"
  */
+@Test
 public void testBug168849a() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -5994,6 +6159,7 @@ public void testBug168849a() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug168849b() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6020,6 +6186,7 @@ public void testBug168849b() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug168849c() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6047,6 +6214,7 @@ public void testBug168849c() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug168849d() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6073,6 +6241,7 @@ public void testBug168849d() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug168849e() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6091,6 +6260,7 @@ public void testBug168849e() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug168849f() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6109,6 +6279,7 @@ public void testBug168849f() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug168849g() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6135,6 +6306,7 @@ public void testBug168849g() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug168849h() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6161,6 +6333,7 @@ public void testBug168849h() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug168849i() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6187,6 +6360,7 @@ public void testBug168849i() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug168849j() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6218,6 +6392,7 @@ public void testBug168849j() {
  * test Verify that javadoc parser is not blown-up when there's a lot of inline tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170637"
  */
+@Test
 public void testBug170637() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runConformTest(
@@ -6320,6 +6495,7 @@ public void testBug170637() {
 		}
 	);
 }
+@Test
 public void testBug170637a() {
 	// conform test: verify we can handle a large number of tags
 	String[] units = new String[] {
@@ -6400,6 +6576,7 @@ public void testBug170637a() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runConformTest(units);
 }
+@Test
 public void testBug170637b() {
 	// conform test: verify we are able to raise warnings when dealing with a large number of tags
 	String[] units = new String[] {
@@ -6491,6 +6668,7 @@ public void testBug170637b() {
  * Bug 176027: [javadoc] @link to member type handled incorrectly
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=176027"
  */
+@Test
 public void testBug176027a() {
 	// case1 class X static class Inner
 	String[] units = new String[] {
@@ -6513,6 +6691,7 @@ public void testBug176027a() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug176027b() {
 	// case3 class X class Inner
 	String[] units = new String[] {
@@ -6535,6 +6714,7 @@ public void testBug176027b() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug176027c() {
 	// case3 class X interface Inner
 	String[] units = new String[] {
@@ -6557,6 +6737,7 @@ public void testBug176027c() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug176027d() {
 	// case4 interface X static class Inner
 	String[] units = new String[] {
@@ -6579,6 +6760,7 @@ public void testBug176027d() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug176027f() {
 	// case5 interface X class Inner
 	String[] units = new String[] {
@@ -6601,6 +6783,7 @@ public void testBug176027f() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug176027g() {
 	// case6 interface X interface Inner
 	String[] units = new String[] {
@@ -6623,6 +6806,7 @@ public void testBug176027g() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug176027h_public() {
 	// test embedded inner classes
 	String[] units = new String[] {
@@ -6698,6 +6882,7 @@ public void testBug176027h_public() {
 	runNegativeTest(units,error50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void testBug176027h_private() {
 	// test embedded inner classes
 	String[] units = new String[] {
@@ -6777,6 +6962,7 @@ public void testBug176027h_private() {
  * bug 177009: [javadoc] Missing Javadoc tag not reported
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=177009"
  */
+@Test
 public void testBug177009a() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6813,6 +6999,7 @@ public void testBug177009a() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
+@Test
 public void testBug177009b() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -6852,6 +7039,7 @@ public void testBug177009b() {
  * bug 190970: [javadoc] "field never read locally" analysis should not consider javadoc
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=190970"
  */
+@Test
 public void testBug190970a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
@@ -6886,6 +7074,7 @@ public void testBug190970a() {
 	);
 }
 // test unused methods
+@Test
 public void testBug190970b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
@@ -6921,6 +7110,7 @@ public void testBug190970b() {
 	);
 }
 // test unused types
+@Test
 public void testBug190970c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
@@ -6961,6 +7151,7 @@ public void testBug190970c() {
  * bug 191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322"
  */
+@Test
 public void testBug191322() {
 	runConformTest(
 		new String[] {
@@ -6984,6 +7175,7 @@ public void testBug191322() {
 		}
 	);
 }
+@Test
 public void testBug191322b() {
 	runConformTest(
 		new String[] {
@@ -7004,6 +7196,7 @@ public void testBug191322b() {
 		}
 	);
 }
+@Test
 public void testBug191322c() {
 	runConformTest(
 		new String[] {
@@ -7022,6 +7215,7 @@ public void testBug191322c() {
 		}
 	);
 }
+@Test
 public void testBug191322d() {
 	runConformTest(
 		new String[] {
@@ -7042,6 +7236,7 @@ public void testBug191322d() {
 		}
 	);
 }
+@Test
 public void testBug191322e() {
 	runConformTest(
 		new String[] {
@@ -7060,6 +7255,7 @@ public void testBug191322e() {
 		}
 	);
 }
+@Test
 public void testBug191322f() {
 	runConformTest(
 		new String[] {
@@ -7079,6 +7275,7 @@ public void testBug191322f() {
 		}
 	);
 }
+@Test
 public void testBug191322g() {
 	runConformTest(
 		new String[] {
@@ -7098,6 +7295,7 @@ public void testBug191322g() {
 		}
 	);
 }
+@Test
 public void testBug191322h() {
 	runConformTest(
 		new String[] {
@@ -7116,6 +7314,7 @@ public void testBug191322h() {
 		}
 	);
 }
+@Test
 public void testBug191322i() {
 	runConformTest(
 		new String[] {
@@ -7142,6 +7341,7 @@ public void testBug191322i() {
  * bug 195374: [javadoc] Missing Javadoc warning for required qualification for inner types at 1.4 level
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195374"
  */
+@Test
 public void testBug195374() {
 	String[] units = new String[] {
 		"X.java",
@@ -7169,6 +7369,7 @@ public void testBug195374() {
  * test Ensure we have different message depending on tag value
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207765"
  */
+@Test
 public void testBug207765() {
 	runNegativeTest(
 		new String[] {
@@ -7203,6 +7404,7 @@ public void testBug207765() {
  * bug 222900: [Javadoc] Missing description is warned if valid description is on a new line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
  */
+@Test
 public void testBug222900a() {
 	String[] units = new String[] {
 		"X.java",
@@ -7243,6 +7445,7 @@ public void testBug222900a() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(units);
 }
+@Test
 public void testBug222900b() {
 	String[] units = new String[] {
 		"X.java",
@@ -7258,6 +7461,7 @@ public void testBug222900b() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(units);
 }
+@Test
 public void testBug222900c() {
 	String[] units = new String[] {
 		"X.java",
@@ -7292,6 +7496,7 @@ public void testBug222900c() {
  * bug 222902: [Javadoc] Missing description should not be warned in some cases
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222902"
  */
+@Test
 public void testBug222902() {
 	String[] units = new String[] {
 		"X.java",
@@ -7402,6 +7607,7 @@ public void testBug222902() {
  * bug 227730: [Javadoc] Missing description should not be warned for @inheritDoc
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730"
  */
+@Test
 public void testBug227730a() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -7421,6 +7627,7 @@ public void testBug227730a() {
 	runConformTest(units);
 }
 
+@Test
 public void testBug227730b() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -7445,6 +7652,7 @@ public void testBug227730b() {
  * test verify that partial inner class qualification are warned as javadoc tools does
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233187"
  */
+@Test
 public void testBug233187a() {
 	String[] units = new String[] {
 		"test/a/X.java",
@@ -7500,6 +7708,7 @@ public void testBug233187a() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug233187b() {
 	runNegativeTest(
 		new String[] {
@@ -7555,6 +7764,7 @@ public void testBug233187b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug233187c() {
 	runConformTest(
 		new String[] {
@@ -7579,6 +7789,7 @@ public void testBug233187c() {
  * test Ensure that no NPE is raised when a 1.5 param tag syntax is incorrectly used on a fiel with an initializer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233887"
  */
+@Test
 public void testBug233887() {
 	String expectedError =
 		"----------\n" +
@@ -7610,6 +7821,7 @@ public void testBug233887() {
  * test Ensure that no warning is raised when href label contains '//'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237937"
  */
+@Test
 public void testBug237937() {
 	runConformTest(
 		new String[] {
@@ -7628,6 +7840,7 @@ public void testBug237937() {
  * test Ensure inline tag are considered as description
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=246712"
  */
+@Test
 public void testBug246712() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(
@@ -7663,6 +7876,7 @@ public void testBug246712() {
 		}
 	);
 }
+@Test
 public void testBug246712b() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(
@@ -7693,6 +7907,7 @@ public void testBug246712b() {
 	);
 }
 // duplicate
+@Test
 public void testBug246715() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(
@@ -7721,6 +7936,7 @@ public void testBug246715() {
  * test Ensure that local variable reference does not imply missing compiler implementation error
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254825"
  */
+@Test
 public void testBug254825() {
 	runNegativeTest(
 		new String[] {
@@ -7742,6 +7958,7 @@ public void testBug254825() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug254825b() {
 	runNegativeTest(
 		new String[] {
@@ -7775,6 +7992,7 @@ public void testBug254825b() {
  * </ol>
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798"
  */
+@Test
 public void testBug258798_1() {
 	this.reportMissingJavadocTags = CompilerOptions.WARNING;
 	runNegativeTest(
@@ -7796,6 +8014,7 @@ public void testBug258798_1() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug258798_2a() {
 	this.reportMissingJavadocTags = CompilerOptions.WARNING;
 	runNegativeTest(
@@ -7817,6 +8036,7 @@ public void testBug258798_2a() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug258798_2b() {
 	this.reportMissingJavadocTags = CompilerOptions.WARNING;
 	runNegativeTest(
@@ -7839,6 +8059,7 @@ public void testBug258798_2b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug258798_2c() {
 	this.reportMissingJavadocTags = CompilerOptions.WARNING;
 	runNegativeTest(
@@ -7861,6 +8082,7 @@ public void testBug258798_2c() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug258798_3() {
 	this.reportMissingJavadocTags = CompilerOptions.WARNING;
 	runConformTest(
@@ -7881,6 +8103,7 @@ public void testBug258798_3() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
 // is used where it is outlawed by the specs. This test verifies that we complain when @inheritDoc
 // is used with classes and interfaces.
+@Test
 public void testBug247037() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -7916,6 +8139,7 @@ public void testBug247037() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
 //is used where it is outlawed by the specs. Here we test that when @inheritDoc is applied to a
 // field or constructor, we complain.
+@Test
 public void testBug247037b() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -7951,6 +8175,7 @@ public void testBug247037b() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
 //is used where it is outlawed by the specs. In this test we test the use of @inheritedDoc in some
 // block tags.
+@Test
 public void testBug247037c() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -8010,6 +8235,7 @@ public void testBug247037c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, make sure that we complain when @inheritdoc
 // is used where it is outlawed by the specs. Test to verify that every bad use of @inheritDoc triggers
 // a message from the compiler
+@Test
 public void testBug247037d() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(
@@ -8052,6 +8278,7 @@ public void testBug247037d() {
  * test Ensure that a warning is raised when customs tags are used as inline tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833"
  */
+@Test
 public void testBug267833() {
 	runConformTest(
 		new String[] {
@@ -8069,6 +8296,7 @@ public void testBug267833() {
  * test Ensure that the JavadocTagConstants.JAVADOC_TAG_TYPE array is up to date with the other arrays, such as
  *  JavadocTagConstants.TAG_NAMES, JavadocTagConstants.INLINE_TAGS and JavadocTagConstants.BLOCK_TAGS
  */
+@Test
 public void testBug267833_2() {
 
 	assertEquals(JavadocTagConstants.TAG_NAMES.length,JavadocTagConstants.JAVADOC_TAG_TYPE.length);
@@ -8114,6 +8342,7 @@ public void testBug267833_2() {
  * Additional test for bug 267833
  * test Ensure that a warning is raised when block tags are used as inline tags.
  */
+@Test
 public void testBug267833_3() {
 	if(this.complianceLevel >= ClassFileConstants.JDK16) {
 		return;
@@ -8213,6 +8442,7 @@ public void testBug267833_3() {
  * 2) Ensure there is no error reported for return tag used inline
  * 3) TODO: ensure  there is no error reported for duplicated return tag if it is used inline and as block
  */
+@Test
 public void testBug267833_3a() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -8310,6 +8540,7 @@ public void testBug267833_3a() {
  * bug 281609: [javadoc] "Javadoc: Invalid reference" warning for @link to Java package
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281609"
  */
+@Test
 public void testBug281609a() {
 	runNegativeTest(
 		new String[] {
@@ -8337,6 +8568,7 @@ public void testBug281609a() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug281609b() {
 	runConformTest(
 		new String[] {
@@ -8360,6 +8592,7 @@ public void testBug281609b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292510
 // Test to verify that partial types are demarcated correctly while
 // annotating a deprecated type error in javadoc.
+@Test
 public void testBug292510() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
@@ -8393,6 +8626,7 @@ public void testBug292510() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316782
 // Test to verify that turning on process annotations doesn't turn on javadoc check
+@Test
 public void testBug316782() {
 	this.processAnnotations = CompilerOptions.ENABLED;
 	this.docCommentSupport = CompilerOptions.DISABLED;
@@ -8410,6 +8644,7 @@ public void testBug316782() {
  * bug 222188: [javadoc] Incorrect usage of inner type not reported
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222188"
  */
+@Test
 public void testBug222188a() {
 	// case 1: partially qualified reference in another package
 	String[] units = new String[] {
@@ -8440,6 +8675,7 @@ public void testBug222188a() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug222188b() {
 	// case 2: fully but invalid qualified reference in another package
 	String[] units = new String[] {
@@ -8474,6 +8710,7 @@ public void testBug222188b() {
  * bug 221539: [javadoc] doesn't detect non visible inner class
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221539"
  */
+@Test
 public void testBug221539a() {
 	// partially qualified reference in the same package
 	String[] units = new String[] {
@@ -8503,6 +8740,7 @@ public void testBug221539a() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
+@Test
 public void testBug221539b() {
 	// partially qualified reference in different package
 	String[] units = new String[] {
@@ -8541,6 +8779,7 @@ public void testBug221539b() {
 	);
 }
 
+@Test
 public void testBug221539c() {
 	// case 3: partially qualified references are valid within the same CU
 	this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
@@ -8570,6 +8809,7 @@ public void testBug221539c() {
 	);
 }
 
+@Test
 public void testBug382606() {
 	runConformTest(
 			new String[] {
@@ -8598,6 +8838,7 @@ public void testBug382606() {
  * bug 206345: [javadoc] compiler should not interpret contents of {@literal}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
  */
+@Test
 public void testBug206345a() {
 	// @litteral tags display text without interpreting the text as HTML markup or nested javadoc tags
 	String[] units = new String[] {
@@ -8627,6 +8868,7 @@ public void testBug206345a() {
 		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345b() {
 	// same for @code tags
 	String[] units = new String[] {
@@ -8656,6 +8898,7 @@ public void testBug206345b() {
 		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345c() {
 	// verify we still validate other syntax
 	String[] units = new String[] {
@@ -8702,6 +8945,7 @@ public void testBug206345c() {
 		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345d() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8730,6 +8974,7 @@ public void testBug206345d() {
 		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345e() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8758,6 +9003,7 @@ public void testBug206345e() {
 		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345f() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8786,6 +9032,7 @@ public void testBug206345f() {
 		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 	}
+@Test
 public void testBug206345g() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8812,6 +9059,7 @@ public void testBug206345g() {
 		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345h() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8837,6 +9085,7 @@ public void testBug206345h() {
 		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345i() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8861,6 +9110,7 @@ public void testBug206345i() {
 		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345j() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8880,6 +9130,7 @@ public void testBug206345j() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformReferenceTest(units);
 }
+@Test
 public void testBug206345k() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8900,6 +9151,7 @@ public void testBug206345k() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformReferenceTest(units);
 }
+@Test
 public void testBug206345l() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -8927,6 +9179,7 @@ public void testBug206345l() {
 		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
+@Test
 public void testBug206345m() {
 	String[] units = new String[] {
 		"pkg/X.java",

@@ -20,11 +20,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TryStatementTest extends AbstractRegressionTest {
@@ -34,13 +35,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 74, 75 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public TryStatementTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public TryStatementTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -61,6 +60,7 @@ public void test001() {
 	});
 }
 
+@Test
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -80,6 +80,7 @@ public void test002() {
 	});
 }
 
+@Test
 public void test003() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -100,6 +101,7 @@ public void test003() {
 	});
 }
 
+@Test
 public void test004() {
 	this.runConformTest(new String[] {
 		"p/ATC.java",
@@ -122,6 +124,7 @@ public void test004() {
 	});
 }
 
+@Test
 public void test005() {
 	this.runConformTest(new String[] {
 		"p/A.java",
@@ -147,6 +150,7 @@ public void test005() {
 	});
 }
 
+@Test
 public void test006() {
 	this.runConformTest(new String[] {
 		"p/T.java",
@@ -170,6 +174,7 @@ public void test006() {
 		"}\n",
 	});
 }
+@Test
 public void test007() {
 	this.runConformTest(new String[] {
 		"TryFinally.java",
@@ -197,6 +202,7 @@ public void test007() {
 /*
  * 1FZR1TO: IVJCOM:WIN - Class does not compile in VAJava 3.02-Java2
  */
+@Test
 public void test008() {
 	this.runConformTest(
 		new String[] {
@@ -233,6 +239,7 @@ public void test008() {
 		"Caught.\n" +
 		"SUCCESS");
 }
+@Test
 public void test009() {
 	this.runConformTest(
 		new String[] {
@@ -267,6 +274,7 @@ public void test009() {
 		"null\n" +
 		"#save -> 43");
 }
+@Test
 public void test010() {
 	this.runConformTest(
 		new String[] {
@@ -308,6 +316,7 @@ public void test010() {
 		"#save -> 43");
 }
 
+@Test
 public void test011() {
 	this.runConformTest(
 		new String[] {
@@ -351,6 +360,7 @@ public void test011() {
 /*
  * 4943  Verification error
  */
+@Test
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -389,6 +399,7 @@ public void test012() {
 /*
  * 4943  Verification error
  */
+@Test
 public void test013() {
 	this.runConformTest(
 		new String[] {
@@ -424,6 +435,7 @@ public void test013() {
 		},
 		"success");
 }
+@Test
 public void test014() {
 	this.runConformTest(
 		new String[] {
@@ -466,6 +478,7 @@ public void test014() {
 		"#save -> 43");
 }
 
+@Test
 public void test015() {
 	this.runConformTest(
 		new String[] {
@@ -490,6 +503,7 @@ public void test015() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test016() {
 	this.runConformTest(
 		new String[] {
@@ -518,6 +532,7 @@ public void test016() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test017() {
 	this.runConformTest(
 		new String[] {
@@ -547,6 +562,7 @@ public void test017() {
 }
 
 // 8773 verification error
+@Test
 public void test018() {
 	this.runConformTest(
 		new String[] {
@@ -578,6 +594,7 @@ public void test018() {
 /*
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=16279
  */
+@Test
 public void test019() {
 	this.runConformTest(
 		new String[] {
@@ -615,6 +632,7 @@ public void test019() {
  * shifting of finaly scopes against try/catch ones makes the custom ret address shifting
  * unnecessary.
  */
+@Test
 public void test020() {
 	this.runConformTest(
 		new String[] {
@@ -674,6 +692,7 @@ public void test020() {
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=21116
  * protected type visibility check
  */
+@Test
 public void test021() {
 	this.runConformTest(
 		new String[] {
@@ -707,6 +726,7 @@ public void test021() {
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=19916
  * nested try/synchronized statements (local var index alloc)
  */
+@Test
 public void test022() {
 	this.runConformTest(
 		new String[] {
@@ -738,6 +758,7 @@ public void test022() {
 		"SUCCESS");
 }
 
+@Test
 public void test023() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.ERROR);
@@ -786,6 +807,7 @@ public void test023() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21203
  * NPE in ExceptionFlowContext
  */
+@Test
 public void test024() {
 
 	this.runNegativeTest(
@@ -830,6 +852,7 @@ public void test024() {
 		"----------\n");
 }
 // 60081
+@Test
 public void test025() {
 
 	this.runConformTest(
@@ -876,6 +899,7 @@ public void test025() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89710
+@Test
 public void test026() throws Exception {
 
 	Map customOptions = getCompilerOptions();
@@ -928,6 +952,7 @@ public void test026() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89710 - variation
+@Test
 public void test027() throws Exception {
 
 	Map customOptions = getCompilerOptions();
@@ -979,6 +1004,7 @@ public void test027() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98892
+@Test
 public void test028() {
 
 	this.runConformTest(
@@ -1010,6 +1036,7 @@ public void test028() {
 		"ONCE:SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98892 - variation
+@Test
 public void test029() {
 
 	this.runConformTest(
@@ -1042,6 +1069,7 @@ public void test029() {
 		"ONCE:SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98892 - variation
+@Test
 public void test030() {
 
 	this.runConformTest(
@@ -1080,6 +1108,7 @@ public void test030() {
 /*
  * Try block is never reached
  */
+@Test
 public void test031() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -1124,6 +1153,7 @@ public void test031() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=114855
  */
+@Test
 public void test032() {
 	this.runConformTest(
 		new String[] {
@@ -1341,6 +1371,7 @@ public void test032() {
 		},
 		"true");
 }
+@Test
 public void test033() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -1483,6 +1514,7 @@ public void test033() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853
+@Test
 public void test034() throws Exception {
 	String builder = "StringBuilder";
 	this.runConformTest(
@@ -1633,6 +1665,7 @@ public void test034() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+@Test
 public void test035() {
 	this.runConformTest(
 			new String[] {
@@ -1665,6 +1698,7 @@ public void test035() {
 			"[try][finally][end]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+@Test
 public void test036() {
 	this.runConformTest(
 			new String[] {
@@ -1697,6 +1731,7 @@ public void test036() {
 			"[try][catch][finally][end]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853 - variation
+@Test
 public void test037() {
 	this.runConformTest(
 			new String[] {
@@ -1739,6 +1774,7 @@ public void test037() {
 			"[try1][try2][finally2][catch1][finally1][end]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=87423
+@Test
 public void test038() {
 	this.runConformTest(
 			new String[] {
@@ -1780,6 +1816,7 @@ public void test038() {
 			"Loaded fine");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127603
+@Test
 public void test039() {
 	this.runConformTest(
 			new String[] {
@@ -1820,6 +1857,7 @@ public void test039() {
 			"[Try:1;-1][Finally1;0][Outering[Return:1;0]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705
+@Test
 public void test040() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -1905,6 +1943,7 @@ public void test040() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705 - variation
+@Test
 public void test041() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -1985,6 +2024,7 @@ public void test041() throws Exception {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=404146 - variation without sharing of inlined escaping finally-blocks
+@Test
 public void test042_not_shared() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.DISABLED);
@@ -2105,6 +2145,7 @@ public void test042_not_shared() throws Exception {
 
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705 - variation
+@Test
 public void test043() throws Exception {
 	String builder = "StringBuilder";
 	this.runConformTest(
@@ -2303,6 +2344,7 @@ public void test043() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129305
+@Test
 public void test044() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -2349,6 +2391,7 @@ public void test044() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129306
+@Test
 public void test045() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -2529,6 +2572,7 @@ public void test045() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108180
+@Test
 public void test046() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -2595,6 +2639,7 @@ public void test046() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test047() {
 	this.runNegativeTest(
 		new String[] {
@@ -2622,6 +2667,7 @@ public void test047() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894
+@Test
 public void test048() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -2854,6 +2900,7 @@ public void test048() throws Exception {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+@Test
 public void test049() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3095,6 +3142,7 @@ public void test049() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+@Test
 public void test050() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3306,6 +3354,7 @@ public void test050() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+@Test
 public void test051() throws Exception {
 	String builder = "StringBuilder";
 	this.runConformTest(
@@ -3378,6 +3427,7 @@ public void test051() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+@Test
 public void test052() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3433,6 +3483,7 @@ public void test052() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+@Test
 public void test053() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3492,6 +3543,7 @@ public void test053() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+@Test
 public void test054() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3583,6 +3635,7 @@ public void test054() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
+@Test
 public void test055() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3806,6 +3859,7 @@ public void _test056() {
 }
 
 // was Compliance_1_x#test007
+@Test
 public void test057() {
 	String[] sources = new String[] {
 		"p1/Test.java",
@@ -3825,6 +3879,7 @@ public void test057() {
 		"SUCCESS");
 }
 //https://bugs.eclpse.org/bugs/show_bug.cgi?id=3184
+@Test
 public void test058() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3904,6 +3959,7 @@ public void test058() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=183395
+@Test
 public void test059() {
 	this.runNegativeTest(
 		new String[] {
@@ -3926,6 +3982,7 @@ public void test059() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=183395
+@Test
 public void test060() {
 	this.runNegativeTest(
 		new String[] {
@@ -3948,6 +4005,7 @@ public void test060() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
+@Test
 public void test062() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -4028,6 +4086,7 @@ public void test062() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
+@Test
 public void test063() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -4090,6 +4149,7 @@ public void test063() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
+@Test
 public void test064() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -4154,6 +4214,7 @@ public void test064() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191865
+@Test
 public void test065() {
 	this.runNegativeTest(
 		new String[] {
@@ -4194,6 +4255,7 @@ public void test065() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196653
+@Test
 public void test066() {
 	this.runNegativeTest(
 		new String[] {
@@ -4222,6 +4284,7 @@ public void test066() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=248319
+@Test
 public void test067() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -4253,6 +4316,7 @@ public void test067() throws Exception {
 			"null");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340485
+@Test
 public void test068() {
 	this.runConformTest(
 		new String[] {
@@ -4287,6 +4351,7 @@ public void test068() {
 		"caught a daughter of foo");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340484
+@Test
 public void test069() {
 	this.runNegativeTest(
 		new String[] {
@@ -4333,6 +4398,7 @@ public void test069() {
 				"----------\n");
 }
 // precise throw computation should also take care of throws clause in 1.7. 1.6- should continue to behave as it always has.
+@Test
 public void test070() {
 	this.runNegativeTest(
 		new String[] {
@@ -4379,6 +4445,7 @@ public void test070() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+@Test
 public void test071() {
 	this.runNegativeTest(
 		new String[] {
@@ -4399,6 +4466,7 @@ public void test071() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+@Test
 public void test072() {
 	this.runNegativeTest(
 		new String[] {
@@ -4419,6 +4487,7 @@ public void test072() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+@Test
 public void test073() {
 	this.runNegativeTest(
 		new String[] {
@@ -4440,6 +4509,7 @@ public void test073() {
 }
 // test for regression during work on bug 345305
 // saw "The local variable name may not have been initialized" against last code line
+@Test
 public void test074() {
 	runConformTest(
 		new String[] {
@@ -4467,6 +4537,7 @@ public void test074() {
 
 // Bug 387612 - Unreachable catch block...exception is never thrown from the try
 // redundant exception in throws must not confuse downstream analysis
+@Test
 public void testBug387612() {
 	String serialUID = "private static final long serialVersionUID=1L;";
 	runNegativeTest(
@@ -4511,6 +4582,7 @@ public void testBug387612() {
 
 // Bug 387612 - Unreachable catch block...exception is never thrown from the try
 // - changed order in redundant 'throws' clause.
+@Test
 public void testBug387612b() {
 	String serialUID = "private static final long serialVersionUID=1L;";
 	runNegativeTest(
@@ -4555,6 +4627,7 @@ public void testBug387612b() {
 
 // Bug 387612 - Unreachable catch block...exception is never thrown from the try
 // interface with redundant exceptions in throws is read from class file.
+@Test
 public void testBug387612c() {
 	String serialUID = "private static final long serialVersionUID=1L;";
 	runConformTest(
@@ -4600,6 +4673,7 @@ public void testBug387612c() {
 		false/*shouldFlush*/);
 }
 
+@Test
 public void testGH2726() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -4628,6 +4702,7 @@ public void testGH2726() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGH2726b() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -4657,9 +4732,5 @@ public void testGH2726b() {
 			"""
 		};
 	runner.runConformTest();
-}
-
-public static Class testClass() {
-	return TryStatementTest.class;
 }
 }

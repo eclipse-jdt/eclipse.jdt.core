@@ -14,20 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocTestForClass extends JavadocTest {
 
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(javadocTestClass());
-	}
-	public JavadocTestForClass(String name) {
-		super(name);
-	}
-	public static Class javadocTestClass() {
-		return JavadocTestForClass.class;
+	public JavadocTestForClass(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -44,6 +39,7 @@ public class JavadocTestForClass extends JavadocTest {
 	/* (non-Javadoc)
 	 * Test unexpected tags
 	 */
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -58,6 +54,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test002() {
 		this.runNegativeTest(
 			new String[] {
@@ -79,6 +76,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -100,6 +98,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test004() {
 		this.runNegativeTest(
 			new String[] {
@@ -121,6 +120,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test005() {
 		this.runNegativeTest(
 			new String[] {
@@ -142,6 +142,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -181,6 +182,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test007() {
 		this.runConformTest(
 			new String[] {
@@ -198,6 +200,7 @@ public class JavadocTestForClass extends JavadocTest {
 			);
 	}
 
+	@Test
 	public void test008() {
 		this.runConformTest(
 			new String[] {
@@ -211,6 +214,7 @@ public class JavadocTestForClass extends JavadocTest {
 			);
 	}
 
+	@Test
 	public void test009() {
 		this.runConformTest(
 			new String[] {
@@ -227,6 +231,7 @@ public class JavadocTestForClass extends JavadocTest {
 	 * (non-Javadoc) Test @see tag
 	 */
 	// String references
+	@Test
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
@@ -267,6 +272,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test011() {
 		this.runConformTest(
 			new String[] {
@@ -284,6 +290,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	// URL Link references
+	@Test
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
@@ -312,6 +319,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test013() {
 		this.runConformTest(
 			new String[] {
@@ -328,6 +336,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	// @see Classes references
+	@Test
 	public void test020() {
 		runConformReferenceTest(
 			new String[] {
@@ -349,6 +358,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test021() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -395,6 +405,7 @@ public class JavadocTestForClass extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test022() {
 		runConformReferenceTest(
 			new String[] {
@@ -416,6 +427,7 @@ public class JavadocTestForClass extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test023() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -445,6 +457,7 @@ public class JavadocTestForClass extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test024() {
 		runConformReferenceTest(
 			new String[] {
@@ -466,6 +479,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	// @see Field references
+	@Test
 	public void test030() {
 		runConformReferenceTest(
 			new String[] {
@@ -485,6 +499,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test031() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -537,6 +552,7 @@ public class JavadocTestForClass extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test032() {
 		runConformReferenceTest(
 			new String[] {
@@ -557,6 +573,7 @@ public class JavadocTestForClass extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test033() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -611,6 +628,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	// @see method references
+	@Test
 	public void test040() {
 		this.runConformTest(
 			new String[] {
@@ -629,6 +647,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test041() {
 		this.runNegativeTest(
 			new String[] {
@@ -652,6 +671,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test042() {
 		this.runConformTest(
 			new String[] {
@@ -681,6 +701,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test043() {
 		this.runNegativeTest(
 			new String[] {
@@ -701,6 +722,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test044() {
 		this.runNegativeTest(
 			new String[] {
@@ -751,6 +773,7 @@ public class JavadocTestForClass extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test045() {
 		this.runConformTest(
 			new String[] {
@@ -776,6 +799,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test046() {
 		this.runConformTest(
 			new String[] {
@@ -802,6 +826,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test047() {
 		runConformReferenceTest(
 			new String[] {
@@ -821,6 +846,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test048() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -861,6 +887,7 @@ public class JavadocTestForClass extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test049() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -895,6 +922,7 @@ public class JavadocTestForClass extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test050() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -935,6 +963,7 @@ public class JavadocTestForClass extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test051() {
 		this.runNegativeReferenceTest(
 			new String[] {
@@ -969,6 +998,7 @@ public class JavadocTestForClass extends JavadocTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test052() {
 		runConformReferenceTest(
 			new String[] {
@@ -989,6 +1019,7 @@ public class JavadocTestForClass extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test053() {
 		runConformReferenceTest(
 			new String[] {
@@ -1007,6 +1038,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750
+	@Test
 	public void test054() {
 		runNegativeTest(
 			new String[] {
@@ -1031,6 +1063,7 @@ public class JavadocTestForClass extends JavadocTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750 - variation
+	@Test
 	public void test055() {
 		runNegativeTest(
 			new String[] {
@@ -1055,6 +1088,7 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750
+	@Test
 	public void test056() {
 		runNegativeTest(
 			new String[] {

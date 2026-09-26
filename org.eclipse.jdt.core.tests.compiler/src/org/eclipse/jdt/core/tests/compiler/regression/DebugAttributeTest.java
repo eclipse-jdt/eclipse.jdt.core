@@ -13,29 +13,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class DebugAttributeTest extends AbstractRegressionTest {
 
-	public DebugAttributeTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return DebugAttributeTest.class;
+	public DebugAttributeTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=124212
  */
+@Test
 public void test001() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -77,6 +70,7 @@ public void test001() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=205046
+@Test
 public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -136,6 +130,7 @@ public void test002() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258950
+@Test
 public void test003() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -236,6 +231,7 @@ public void test003() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262717
+@Test
 public void test004() throws Exception {
 	this.runConformTest(
 		new String[] {

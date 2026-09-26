@@ -14,14 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AssignmentTest_1_5 extends AbstractRegressionTest {
 
-public AssignmentTest_1_5(String name) {
-	super(name);
+public AssignmentTest_1_5(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 @Override
 protected Map getCompilerOptions() {
@@ -39,10 +40,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 15 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test1() {
 	this.runNegativeTest(
 		new String[] {
@@ -63,6 +62,7 @@ public void test1() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test2() {
 	this.runNegativeTest(
 		new String[] {
@@ -83,6 +83,7 @@ public void test2() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test3() {
 	this.runConformTest(
 		new String[] {
@@ -99,6 +100,7 @@ public void test3() {
 		"4758");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test4() {
 	this.runConformTest(
 		new String[] {
@@ -115,6 +117,7 @@ public void test4() {
 		"4808");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test5() {
 	this.runNegativeTest(
 		new String[] {
@@ -136,6 +139,7 @@ public void test5() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test6() {
 	this.runNegativeTest(
 		new String[] {
@@ -157,6 +161,7 @@ public void test6() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test7() {
 	this.runConformTest(
 		new String[] {
@@ -173,6 +178,7 @@ public void test7() {
 		"37478");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test8() {
 	this.runConformTest(
 		new String[] {
@@ -187,6 +193,7 @@ public void test8() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test9() {
 	this.runConformTest(
 		new String[] {
@@ -210,6 +217,7 @@ public void test9() {
 		},
 		"[11");
 }
+@Test
 public void test10() {
 	this.runConformTest(
 		new String[] {
@@ -226,6 +234,7 @@ public void test10() {
 		"12"
 	);
 }
+@Test
 public void test11() {
 	this.runConformTest(
 		new String[] {
@@ -251,6 +260,7 @@ public void test11() {
 		"5046272"
 	);
 }
+@Test
 public void test12() {
 	this.runConformTest(
 		new String[] {
@@ -268,6 +278,7 @@ public void test12() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test13() {
 	this.runNegativeTest(
 		new String[] {
@@ -288,6 +299,7 @@ public void test13() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test14() {
 	this.runNegativeTest(
 		new String[] {
@@ -308,6 +320,7 @@ public void test14() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
+@Test
 public void test15() {
 	this.runConformTest(
 		new String[] {

@@ -19,21 +19,18 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class StackMapAttributeTest extends AbstractRegressionTest {
-	public StackMapAttributeTest(String name) {
-		super(name);
-	}
-
-	public static Class testClass() {
-		return StackMapAttributeTest.class;
+	public StackMapAttributeTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -44,9 +41,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
+	@Test
 	public void test001() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -183,6 +178,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
+	@Test
 	public void test002() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -337,6 +333,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
+	@Test
 	public void test003() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -446,6 +443,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test004() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -524,6 +522,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
+	@Test
 	public void test005() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -655,6 +654,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test006() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -736,6 +736,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test007() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -795,6 +796,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141252
+	@Test
 	public void test008() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -889,6 +891,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test009() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -1009,6 +1012,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test010() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -1082,6 +1086,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test011() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -1217,6 +1222,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test012() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -1358,6 +1364,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test013() throws Exception {
 		this.runConformTest(
             new String[] {
@@ -1438,6 +1445,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test014() throws Exception {
 		this.runConformTest(
             new String[] {
@@ -1507,6 +1515,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test015() throws Exception {
 		this.runConformTest(
             new String[] {
@@ -1620,6 +1629,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test016() throws Exception {
 		this.runConformTest(
             new String[] {
@@ -1726,6 +1736,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test017() throws Exception {
 		this.runConformTest(
             new String[] {
@@ -1791,6 +1802,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test018() {
 		this.runConformTest(
             new String[] {
@@ -1874,6 +1886,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test019() {
 		this.runConformTest(
             new String[] {
@@ -1917,6 +1930,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	@Test
 	public void test020() {
 		this.runConformTest(
             new String[] {
@@ -1935,6 +1949,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// 155423
+	@Test
 	public void test021() throws Exception {
 		this.runConformTest(
             new String[] {
@@ -1984,6 +1999,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// 157247
+	@Test
 	public void test022() {
 		this.runConformTest(
             new String[] {
@@ -2011,6 +2027,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965
+	@Test
 	public void test023() {
 		this.runConformTest(
 			new String[] {
@@ -2027,6 +2044,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test024() {
 		this.runConformTest(
             new String[] {
@@ -2069,6 +2087,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169596
+	@Test
 	public void test025() {
 		this.runConformTest(
 	        new String[] {
@@ -2088,6 +2107,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
+	@Test
 	public void test026() {
 		this.runConformTest(
 			new String[] {
@@ -2181,6 +2201,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
+	@Test
 	public void test027() {
 		this.runConformTest(
 			new String[] {
@@ -2328,6 +2349,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
+	@Test
 	public void test028() {
 		this.runConformTest(
 			new String[] {
@@ -2373,6 +2395,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171472
+	@Test
 	public void test029() {
 		this.runConformTest(
 			new String[] {
@@ -2404,6 +2427,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171472
+	@Test
 	public void test030() {
 		this.runConformTest(
 			new String[] {
@@ -2522,6 +2546,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=168665
+	@Test
 	public void test031() {
 		this.runConformTest(
 			new String[] {
@@ -2561,6 +2586,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	@Test
 	public void test032() {
 		this.runConformTest(
 			new String[] {
@@ -2577,6 +2603,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184102
+	@Test
 	public void test033() {
 		this.runConformTest(
 			new String[] {
@@ -2598,6 +2625,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184102
+	@Test
 	public void test034() {
 		this.runConformTest(
 			new String[] {
@@ -2619,6 +2647,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// add more bytecode coverage: fneg, lneg, dneg, dstore_0, f2l, fstore_0, fstore_2, lstore_0 and saload
+	@Test
 	public void test035() {
 		this.runConformTest(
 			new String[] {
@@ -2663,6 +2692,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// fix verify error
+	@Test
 	public void test036() {
 		this.runConformTest(
 			new String[] {
@@ -2692,6 +2722,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=236336
+	@Test
 	public void test037() {
 
 		StringBuilder fileContent = new StringBuilder();
@@ -2749,6 +2780,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=238923
+	@Test
 	public void test038() {
 		this.runConformTest(
 			new String[] {
@@ -2768,6 +2800,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=237931
+	@Test
 	public void test039() {
 		this.runConformTest(
 			new String[] {
@@ -2789,6 +2822,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251539
+	@Test
 	public void test040() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2853,6 +2887,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251539
+	@Test
 	public void test041() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2921,6 +2956,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=260031
+	@Test
 	public void test042() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2957,6 +2993,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
+	@Test
 	public void test043() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3034,6 +3071,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
+	@Test
 	public void test044() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3104,6 +3142,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
+	@Test
 	public void test045() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3160,6 +3199,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// 298250
+	@Test
 	public void test046() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
@@ -3197,6 +3237,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324848
+	@Test
 	public void test047() {
 		this.runNegativeTest(
 			new String[] {
@@ -3224,6 +3265,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
+	@Test
 	public void test048() {
 		this.runConformTest(
 			new String[] {
@@ -3244,6 +3286,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
+	@Test
 	public void test049() {
 		this.runConformTest(
 			new String[] {
@@ -3319,6 +3362,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"true");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352145
+	@Test
 	public void test050() {
 		this.runConformTest(
 			new String[] {
@@ -3372,6 +3416,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352145
+	@Test
 	public void test051() {
 		this.runConformTest(
 			new String[] {
@@ -3405,6 +3450,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	@Test
 	public void test052() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3421,6 +3467,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// 352665
+	@Test
 	public void test053() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
@@ -3453,6 +3500,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354052
+	@Test
 	public void test054() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3478,6 +3526,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=359495
+	@Test
 	public void testBug359495a() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3581,6 +3630,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=359495
+	@Test
 	public void testBug359495b() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3681,6 +3731,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=362591
+	@Test
 	public void test055() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3751,6 +3802,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test055a() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3764,6 +3816,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=366999
+	@Test
 	public void test056() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3806,6 +3859,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test057() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3829,6 +3883,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test058() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3851,6 +3906,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test059() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -3892,6 +3948,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 						"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test060() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -3914,6 +3971,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test061() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -3947,6 +4005,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test062() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3970,6 +4029,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test063() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -4012,6 +4072,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test064() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4035,6 +4096,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test065() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -4076,6 +4138,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test066() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4098,6 +4161,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test067() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -4131,6 +4195,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test068() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4154,6 +4219,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test069() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -4196,6 +4262,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	@Test
 	public void test070() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4291,6 +4358,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
 	// Verify the generated code does not have same branch target for the 2 return statements
+	@Test
 	public void testBug380313() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4411,6 +4479,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
 	// Verify the generated code does not have same branch target for the 2 return statements
+	@Test
 	public void testBug380313b() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4588,6 +4657,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 	// Verify the reduced range of locals.
+	@Test
 	public void testBug380927() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4662,6 +4732,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// from https://bugs.eclipse.org/bugs/show_bug.cgi?id=385593#c1
+	@Test
 	public void test385593_1() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4759,6 +4830,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// from https://bugs.eclipse.org/bugs/show_bug.cgi?id=385593#c11
+	@Test
 	public void test385593_2() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4831,6 +4903,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 	// from https://bugs.eclipse.org/bugs/show_bug.cgi?id=394718
+	@Test
 	public void test394718() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4870,6 +4943,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/412203
+	@Test
 	public void testBug412203_a() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -5027,6 +5101,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 
 	// https://bugs.eclipse.org/412203
 	// yet simplified version - using FieldReference
+	@Test
 	public void testBug412203_b() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -5144,6 +5219,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 
 	// https://bugs.eclipse.org/412203
 	// yet simplified version - using SingleNameReference
+	@Test
 	public void testBug412203_c() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -5258,6 +5334,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
+	@Test
 	public void testBug5409021() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -5376,6 +5453,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@Test
 	public void test551368() {
 		this.runConformTest(
             new String[] {
@@ -5422,6 +5500,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	@Test
 	public void test551368_2() {
 		this.runConformTest(
             new String[] {
@@ -5450,6 +5529,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	@Test
 	public void test551368_3() {
 		this.runConformTest(
             new String[] {
@@ -5483,6 +5563,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	@Test
 	public void test558844() {
 		this.runConformTest(
             new String[] {
@@ -5514,6 +5595,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"1-1");
 	}
+	@Test
 	public void test562854() {
 		this.runConformTest(
 			new String[] {
@@ -5546,6 +5628,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			},
 			"pkg.Derived2");
 	}
+	@Test
 	public void test562854_2() {
 		this.runConformTest(
 			new String[] {

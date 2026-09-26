@@ -12,22 +12,15 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 
-	public SuppressWarningsTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-
-	public static Class testClass() {
-		return SuppressWarningsTest.class;
+	public SuppressWarningsTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -40,6 +33,7 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 		return options;
 	}
 
+	@Test
 	public void testSimpleSuppressWarnings() {
 		String firstSupportedVersion = CompilerOptions.getFirstSupportedJavaVersion();
 		this.runTest(true,
@@ -60,6 +54,7 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 			"", "", true, null);
 	}
 
+	@Test
 	public void testNestedSuppressWarnings() {
 		String firstSupportedVersion = CompilerOptions.getFirstSupportedJavaVersion();
 		this.runTest(true,
@@ -82,6 +77,7 @@ public class SuppressWarningsTest extends AbstractBatchCompilerTest {
 			"", "", true, null);
 	}
 
+	@Test
 	public void testUnrelatedSuppressWarnings() {
 		String firstSupportedVersion = CompilerOptions.getFirstSupportedJavaVersion();
 		this.runTest(true,

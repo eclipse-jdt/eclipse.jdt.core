@@ -15,25 +15,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class GrammarCoverageTests308 extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 35 };
 //		TESTS_NAMES = new String [] { "testnew" };
 	}
-	public static Class testClass() {
-		return GrammarCoverageTests308.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-	public GrammarCoverageTests308(String testName){
-		super(testName);
+	public GrammarCoverageTests308(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 	// Lone test to verify that multiple annotations of all three kinds are accepted. All other tests will use only marker annotations
+	@Test
 	public void test000() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -59,6 +54,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// FieldDeclaration ::= Modifiersopt Type VariableDeclarators ';'
+	@Test
 	public void test001() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -98,6 +94,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// TYPE:   MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
+	@Test
 	public void test002() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -142,6 +139,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// TYPE:   MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+	@Test
 	public void test003() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -181,6 +179,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// FormalParameter ::= Modifiersopt Type VariableDeclaratorIdOrThis
+	@Test
 	public void test004() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -220,6 +219,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// FormalParameter ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorIdOrThis
+	@Test
 	public void test005() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -259,6 +259,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// FormalParameter ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorIdOrThis
+	@Test
 	public void test006() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -287,6 +288,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// UnionType ::= Type
 	// UnionType ::= UnionType '|' Type
+	@Test
 	public void test007() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -320,6 +322,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// LocalVariableDeclaration ::= Type PushModifiers VariableDeclarators
     // LocalVariableDeclaration ::= Modifiers Type PushRealModifiers VariableDeclarators
+	@Test
 	public void test008() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -375,6 +378,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// Resource ::= Type PushModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
 	// Resource ::= Modifiers Type PushRealModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
+	@Test
 	public void test009() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -444,6 +448,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// EnhancedForStatementHeaderInit ::= 'for' '(' Type PushModifiers Identifier Dimsopt
 	// EnhancedForStatementHeaderInit ::= 'for' '(' Modifiers Type PushRealModifiers Identifier Dimsopt
+	@Test
 	public void test010() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -499,6 +504,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// AnnotationMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 	// AnnotationMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+	@Test
 	public void test011() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -594,6 +600,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// PrimaryNoNewArray ::= PrimitiveType Dims '.' 'class'
 	// PrimaryNoNewArray ::= PrimitiveType '.' 'class'
+	@Test
 	public void test012() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -628,6 +635,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
+	@Test
 	public void test013() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -666,6 +674,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
 	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+	@Test
 	public void test014() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -706,6 +715,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
+	@Test
 	public void test015() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -741,6 +751,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// InstanceofExpression ::= InstanceofExpression 'instanceof' ReferenceType
+	@Test
 	public void test016() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -765,6 +776,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// TypeArgument ::= ReferenceType
+	@Test
 	public void test017() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -787,6 +799,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceType1 ::= ReferenceType '>'
+	@Test
 	public void test018() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -810,6 +823,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 
 	// ReferenceType2 ::= ReferenceType '>>'
+	@Test
 	public void test019() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -832,6 +846,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceType3 ::= ReferenceType '>>>'
+	@Test
 	public void test020() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -870,6 +885,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// WildcardBounds ::= 'extends' ReferenceType
 	// WildcardBounds ::= 'super' ReferenceType
+	@Test
 	public void test021() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -932,6 +948,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// TypeParameter ::= TypeParameterHeader 'extends' ReferenceType
+	@Test
 	public void test022() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -975,6 +992,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	// TypeParameter ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList
 	// AdditionalBound ::= '&' ReferenceType
 	// TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList1
+	@Test
 	public void test023() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1020,6 +1038,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// InstanceofExpression_NotName ::= Name 'instanceof' ReferenceType
+	@Test
 	public void test024() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1042,6 +1061,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// InstanceofExpression_NotName ::= InstanceofExpression_NotName 'instanceof' ReferenceType
+	@Test
 	public void test025() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1060,6 +1080,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt
+	@Test
 	public void test026() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1096,6 +1117,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
+	@Test
 	public void test027() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1135,6 +1157,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
+	@Test
 	public void test028() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1162,6 +1185,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
+	@Test
 	public void test029() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1180,6 +1204,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
+	@Test
 	public void test030() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1214,6 +1239,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ClassHeaderExtends ::= 'extends' ClassType
+	@Test
 	public void test031() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1230,6 +1256,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// ClassInstanceCreationExpression ::= 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' UnqualifiedClassBodyopt
 	// ClassInstanceCreationExpression ::= 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' UnqualifiedClassBodyopt
+	@Test
 	public void test032() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1258,6 +1285,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+	@Test
 	public void test033() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1298,6 +1326,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	}
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+	@Test
 	public void test034() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1341,6 +1370,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	// ClassTypeList -> ClassTypeElt
 	// ClassTypeList ::= ClassTypeList ',' ClassTypeElt
 	// ClassTypeElt ::= ClassType
+	@Test
 	public void test035() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1366,6 +1396,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	// InterfaceTypeList -> InterfaceType
 	// InterfaceTypeList ::= InterfaceTypeList ',' InterfaceType
 	// InterfaceType ::= ClassOrInterfaceType
+	@Test
 	public void test036() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1400,6 +1431,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
+	@Test
 	public void test037() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1460,6 +1492,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
+	@Test
 	public void test038() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1523,6 +1556,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 	// CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 	// CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
+	@Test
 	public void test039() throws Exception {
 		this.runNegativeTest(
 				new String[] {

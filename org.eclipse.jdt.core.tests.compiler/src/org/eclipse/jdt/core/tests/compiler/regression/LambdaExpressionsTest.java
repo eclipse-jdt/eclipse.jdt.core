@@ -20,7 +20,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.EclipseHasABug;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.EclipseJustification;
@@ -34,6 +33,8 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.BootstrapMethodsAttribute;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class LambdaExpressionsTest extends AbstractRegressionTest {
@@ -43,11 +44,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public LambdaExpressionsTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
+public LambdaExpressionsTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -57,6 +55,7 @@ protected Map getCompilerOptions() {
 	return defaultOptions;
 }
 
+@Test
 public void test001() {
 	this.runConformTest(
 			new String[] {
@@ -76,6 +75,7 @@ public void test001() {
 			"6912"
 			);
 }
+@Test
 public void test002() {
 	this.runConformTest(
 			new String[] {
@@ -96,6 +96,7 @@ public void test002() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406178,  [1.8][compiler] Some functional interfaces are wrongly rejected
+@Test
 public void test003() {
 	this.runConformTest(
 			new String[] {
@@ -123,6 +124,7 @@ public void test003() {
 			"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406178,  [1.8][compiler] Some functional interfaces are wrongly rejected
+@Test
 public void test004() {
 	this.runNegativeTest(
 			new String[] {
@@ -160,6 +162,7 @@ public void test004() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test005() {
 	this.runConformTest(
 			new String[] {
@@ -177,6 +180,7 @@ public void test005() {
 			"Hello");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test006() {
 	this.runConformTest(
 			new String[] {
@@ -194,6 +198,7 @@ public void test006() {
 			"HelloHello");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test007() {
 	this.runConformTest(
 			new String[] {
@@ -211,6 +216,7 @@ public void test007() {
 			"Hello");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test008() {
 	this.runConformTest(
 			new String[] {
@@ -228,6 +234,7 @@ public void test008() {
 			"HELLO");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test009() {
 	this.runConformTest(
 			new String[] {
@@ -245,6 +252,7 @@ public void test009() {
 			"Hello");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test010() {
 	this.runConformTest(
 			new String[] {
@@ -262,6 +270,7 @@ public void test010() {
 			"1234");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test011() {
 	this.runConformTest(
 			new String[] {
@@ -279,6 +288,7 @@ public void test011() {
 			"1234");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test012() {
 	this.runConformTest(
 			new String[] {
@@ -301,6 +311,7 @@ public void test012() {
 			"Some Y");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+@Test
 public void test013() {
 	this.runConformTest(
 			new String[] {
@@ -323,6 +334,7 @@ public void test013() {
 			},
 			"The Number=12345678");
 }
+@Test
 public void test014() {
 	this.runConformTest(
 			new String[] {
@@ -351,6 +363,7 @@ public void test014() {
 				"Argv[0] = Hello! \n" +
 				"Argv[1] = World!");
 }
+@Test
 public void test015() {
 	this.runConformTest(
 			new String[] {
@@ -373,6 +386,7 @@ public void test015() {
 				},
 				"null");
 }
+@Test
 public void test016() {
 	this.runConformTest(
 			new String[] {
@@ -397,6 +411,7 @@ public void test016() {
 				"SomeString");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406181, [1.8][compiler][codegen] IncompatibleClassChangeError when running code with lambda method
+@Test
 public void test017() {
 	this.runConformTest(
 			new String[] {
@@ -421,6 +436,7 @@ public void test017() {
 				"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+@Test
 public void test018() {
 	this.runConformTest(
 			new String[] {
@@ -443,6 +459,7 @@ public void test018() {
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+@Test
 public void test019() {
 	this.runConformTest(
 			new String[] {
@@ -465,6 +482,7 @@ public void test019() {
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+@Test
 public void test020() {
 	this.runConformTest(
 			new String[] {
@@ -487,6 +505,7 @@ public void test020() {
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+@Test
 public void test021() {
 	this.runConformTest(
 			new String[] {
@@ -509,6 +528,7 @@ public void test021() {
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+@Test
 public void test022() {
 	this.runConformTest(
 			new String[] {
@@ -544,6 +564,7 @@ public void test022() {
 				"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+@Test
 public void test023() {
 this.runConformTest(
 			new String[] {
@@ -563,6 +584,7 @@ this.runConformTest(
 				"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+@Test
 public void test024() {
 	this.runConformTest(
 			new String[] {
@@ -588,6 +610,7 @@ public void test024() {
 				"class Y");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+@Test
 public void test025() {
 	this.runConformTest(
 			new String[] {
@@ -605,6 +628,7 @@ public void test025() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched
+@Test
 public void test026() {
 	this.runConformTest(
 			new String[] {
@@ -637,6 +661,7 @@ public void test026() {
 				"5555");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched
+@Test
 public void test027() {
 	this.runConformTest(
 			new String[] {
@@ -677,6 +702,7 @@ public void test027() {
 				"Exception");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406584, Bug 406584 - [1.8][compiler][codegen] ClassFormatError: Invalid method signature
+@Test
 public void test028() {
 	this.runConformTest(
 			new String[] {
@@ -697,6 +723,7 @@ public void test028() {
 				"feedface");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
+@Test
 public void test029() {
 	this.runConformTest(
 			new String[] {
@@ -734,6 +761,7 @@ public void test029() {
 				"deadbeef");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
+@Test
 public void test030() {
 	this.runConformTest(
 			new String[] {
@@ -759,6 +787,7 @@ public void test030() {
 				"class Y");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
+@Test
 public void test031() {
 	this.runConformTest(
 			new String[] {
@@ -793,6 +822,7 @@ public void test031() {
 				"deadbeef");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
+@Test
 public void test032() {
 	this.runConformTest(
 			new String[] {
@@ -827,6 +857,7 @@ public void test032() {
 				"deadbeef");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
+@Test
 public void test033() {
 	this.runConformTest(
 			new String[] {
@@ -864,6 +895,7 @@ public void test033() {
 				"beefface");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
+@Test
 public void test034() {
 	this.runConformTest(
 			new String[] {
@@ -886,6 +918,7 @@ public void test034() {
 				"5555");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
+@Test
 public void test035() {
 	this.runConformTest(
 			new String[] {
@@ -913,6 +946,7 @@ public void test035() {
 				"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
+@Test
 public void test036() {
 	this.runConformTest(
 			new String[] {
@@ -962,6 +996,7 @@ public void test036() {
 				"Lambda code generation with instance and local capture works fine in the eclipse compiler");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
+@Test
 public void test037() {
 	this.runConformTest(
 			new String[] {
@@ -1012,6 +1047,7 @@ public void test037() {
 				"Lambda code generation with instance and local capture works fine in the eclipse compiler !");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
+@Test
 public void test038() {
 	this.runConformTest(
 			new String[] {
@@ -1033,6 +1069,7 @@ public void test038() {
 				"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
+@Test
 public void test039() {
 	String errMsg = isJRE11Plus
 		? "class X cannot be cast to class I (X and I are in unnamed module of loader"
@@ -1063,6 +1100,7 @@ public void test039() {
 				errMsg);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test041() {
 	this.runConformTest(
 			new String[] {
@@ -1090,6 +1128,7 @@ public void test041() {
 				"123456");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test042() {
 	this.runConformTest(
 			new String[] {
@@ -1130,6 +1169,7 @@ public void test042() {
 				"Y(987654)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test043() {
 	this.runConformTest(
 			new String[] {
@@ -1178,6 +1218,7 @@ public void test043() {
 				"Z(456789)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test044() {
 	this.runConformTest(
 			false,
@@ -1228,6 +1269,7 @@ public void test044() {
 				"Y(987654)\n" +
 				"Z(456789)");
 }
+@Test
 public void test045() {
 	this.runNegativeTest(
 			new String[] {
@@ -1295,6 +1337,7 @@ public void test045() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406760, [1.8][compiler][codegen] "VerifyError: Bad type on operand stack" with qualified super method references
+@Test
 public void test046() {
 	this.runConformTest(
 			new String[] {
@@ -1332,6 +1375,7 @@ public void test046() {
 				"B\'s toString\n" +
 				"X\'s toString");
 }
+@Test
 public void test047() {
 	this.runConformTest(
 			new String[] {
@@ -1360,6 +1404,7 @@ public void test047() {
 				"x = 9876\n" +
 				"y = 4321");
 }
+@Test
 public void test048() {
 	this.runConformTest(
 			new String[] {
@@ -1396,6 +1441,7 @@ public void test048() {
 				"Hello !\n" +
 				"World");
 }
+@Test
 public void test049() {
 	this.runConformTest(
 			new String[] {
@@ -1418,6 +1464,7 @@ public void test049() {
 				"World!");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test050() {
 	this.runConformTest(
 			new String[] {
@@ -1475,6 +1522,7 @@ public void test050() {
 				"11");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test051() {
 	this.runConformTest(
 			false /* skipJavac*/,
@@ -1518,6 +1566,7 @@ public void test051() {
 				"A\'s instance goo");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test052() {
 	this.runConformTest(
 			new String[] {
@@ -1547,6 +1596,7 @@ public void test052() {
 				"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406847, [1.8] lambda code compiles but then produces IncompatibleClassChangeError when run
+@Test
 public void test053() {
 	  this.runConformTest(
 	    new String[] {
@@ -1576,6 +1626,7 @@ public void test053() {
 	    "2 -> C");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406847, [1.8] lambda code compiles but then produces IncompatibleClassChangeError when run
+@Test
 public void test054() {
 	  this.runConformTest(
 	    new String[] {
@@ -1595,6 +1646,7 @@ public void test054() {
 	    },
 	    "");
 }
+@Test
 public void test055() {
 	  this.runConformTest(
 	    new String[] {
@@ -1614,6 +1666,7 @@ public void test055() {
 	    },
 	    "");
 }
+@Test
 public void test056() {
 	  String expected = isJRE15Plus ? "Cannot invoke \"Object.getClass()\" because \"x\" is null" : "null";
 	  this.runConformTest(
@@ -1640,6 +1693,7 @@ public void test056() {
 	    expected);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=410114, [1.8] CCE when trying to parse method reference expression with inappropriate type arguments
+@Test
 public void test057() {
 	String source = "interface I {\n" +
 			"    void foo(Y<String> y);\n" +
@@ -1677,6 +1731,7 @@ this.runConformTest(
 }
 // Bug 411273 - [1.8][compiler] Bogus error about unhandled exceptions for unchecked exceptions thrown by method reference.
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=411273
+@Test
 public void test058() {
 	this.runConformTest(
 			new String[] {
@@ -1694,6 +1749,7 @@ public void test058() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420582,  [1.8][compiler] Compiler should allow creation of generic array creation with unbounded wildcard type arguments
+@Test
 public void testGenericArrayCreation() {
 		this.runConformTest(
 			new String[] {
@@ -1714,6 +1770,7 @@ public void testGenericArrayCreation() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off.
+@Test
 public void test421536() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -1737,6 +1794,7 @@ public void test421536() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off.
+@Test
 public void test421536a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -1761,6 +1819,7 @@ public void test421536a() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421607, [1.8][compiler] Verify Error with intersection casts
+@Test
 public void test421607() {
 	runConformTest(
 		new String[] {
@@ -1783,6 +1842,7 @@ public void test421607() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421712, [1.8][compiler] java.lang.NoSuchMethodError with lambda expression in interface default method.
+@Test
 public void test421712() {
 	runConformTest(
 		new String[] {
@@ -1809,6 +1869,7 @@ public void test421712() {
 
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=422515, [1.8][compiler] "Missing code implementation in the compiler" when lambda body accesses array variable
+@Test
 public void test422515() {
 	this.runConformTest(
 			new String[] {
@@ -1828,6 +1889,7 @@ public void test422515() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422515, [1.8][compiler] "Missing code implementation in the compiler" when lambda body accesses array variable
+@Test
 public void test422515a() {
 	this.runConformTest(
 			new String[] {
@@ -1850,6 +1912,7 @@ public void test422515a() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422800, [1.8][compiler] "Missing code implementation in the compiler" 2
+@Test
 public void test422800() {
 	this.runConformTest(
 			new String[] {
@@ -1871,6 +1934,7 @@ public void test422800() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
+@Test
 public void test421927() {
 	this.runConformTest(
 			new String[] {
@@ -1888,6 +1952,7 @@ public void test421927() {
 			"42");
 }
 
+@Test
 public void testReferenceExpressionInference1() {
 	runConformTest(
 		new String[] {
@@ -1905,6 +1970,7 @@ public void testReferenceExpressionInference1() {
 		});
 }
 
+@Test
 public void testReferenceExpressionInference2() {
 	runConformTest(
 		new String[] {
@@ -1923,6 +1989,7 @@ public void testReferenceExpressionInference2() {
 		});
 }
 
+@Test
 public void testReferenceExpressionInference3a() {
 	runConformTest(
 		false /* skipJavac*/,
@@ -1944,6 +2011,7 @@ public void testReferenceExpressionInference3a() {
 }
 
 // previous test demonstrates that a solution exists, just inference doesn't find it.
+@Test
 public void testReferenceExpressionInference3b() {
 	runNegativeTest(
 		new String[] {
@@ -1967,6 +2035,7 @@ public void testReferenceExpressionInference3b() {
 		"The type X does not define i2s(Object) that is applicable here\n" +
 		"----------\n");
 }
+@Test
 public void testLambdaInference1() {
 	  this.runConformTest(
 	    new String[] {
@@ -1987,6 +2056,7 @@ public void testLambdaInference1() {
 	    "");
 }
 
+@Test
 public void testLambdaInference2() {
 	  this.runConformTest(
 	    new String[] {
@@ -2010,6 +2080,7 @@ public void testLambdaInference2() {
 	    "");
 }
 
+@Test
 public void testBug419048_1() {
 	runConformTest(
 		new String[] {
@@ -2036,6 +2107,7 @@ public void testBug419048_1() {
 		});
 }
 
+@Test
 public void testBug419048_2() {
 	runConformTest(
 		new String[] {
@@ -2063,6 +2135,7 @@ public void testBug419048_2() {
 		});
 }
 
+@Test
 public void testBug419048_3() {
 	runConformTest(
 		new String[] {
@@ -2094,6 +2167,7 @@ public void testBug419048_3() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424226,  [1.8] Cannot use static method from an interface in static method reference
+@Test
 public void test424226() {
 	runConformTest(
 		new String[] {
@@ -2118,6 +2192,7 @@ public void test424226() {
 		}, "OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423684, [1.8][compiler] IllegalAccessError using functional consumer calling inherited method
+@Test
 public void test423684() {
 	runConformTest(
 		new String[] {
@@ -2160,6 +2235,7 @@ public void test423684() {
 		"second\n" +
 		"third");
 }
+@Test
 public void testBug424742() {
 	runNegativeTest(
 		new String[] {
@@ -2188,6 +2264,7 @@ public void testBug424742() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424589, [1.8][compiler] NPE in TypeSystem.getUnannotatedType
+@Test
 public void test424589() {
 	runNegativeTest(
 		new String[] {
@@ -2219,6 +2296,7 @@ public void test424589() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425152, [1.8] [compiler] NPE in LambdaExpression.analyzeCode
+@Test
 public void test425152() {
 	runConformTest(
 		new String[] {
@@ -2238,6 +2316,7 @@ public void test425152() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+@Test
 public void test425512() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -2258,6 +2337,7 @@ public void test425512() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424628, [1.8][compiler] Multiple method references to inherited method throws LambdaConversionException
+@Test
 public void test424628() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2284,6 +2364,7 @@ public void test424628() throws Exception {
 		"123\n123");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425712, [1.8][compiler] Valid program rejected by the compiler.
+@Test
 public void test425712() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2304,6 +2385,7 @@ public void test425712() throws Exception {
 		"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426074, [1.8][compiler] 18.5.2 Functional interface parameterization inference problem with intersection types.
+@Test
 public void test426074() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2324,6 +2406,7 @@ public void test426074() throws Exception {
 		"main");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
+@Test
 public void test426411() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2338,6 +2421,7 @@ public void test426411() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
+@Test
 public void test426411b() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2353,6 +2437,7 @@ public void test426411b() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
+@Test
 public void test426411c() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2367,6 +2452,7 @@ public void test426411c() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
+@Test
 public void test426411d() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2382,6 +2468,7 @@ public void test426411d() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
+@Test
 public void test426411e() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2401,6 +2488,7 @@ public void test426411e() throws Exception {
 		"99");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
+@Test
 public void test426411f() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2420,6 +2508,7 @@ public void test426411f() throws Exception {
 		"99");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class
+@Test
 public void test426086() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2447,6 +2536,7 @@ public void test426086() throws Exception {
 		"9");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class
+@Test
 public void test426086a() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2475,6 +2565,7 @@ public void test426086a() throws Exception {
 }
 // Bug 406744 - [1.8][compiler][codegen] LambdaConversionException seen when method reference targets a varargs method.
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406744
+@Test
 public void test406744a() {
 	this.runConformTest(
 			new String[] {
@@ -2504,6 +2595,7 @@ public void test406744a() {
 			"10, 20"
 			);
 }
+@Test
 public void test406744b() {
 	this.runConformTest(
 			new String[] {
@@ -2534,6 +2626,7 @@ public void test406744b() {
 			"10, 20"
 			);
 }
+@Test
 public void test406744c() {
 	this.runConformTest(
 			new String[] {
@@ -2567,6 +2660,7 @@ public void test406744c() {
 			"10, 20"
 			);
 }
+@Test
 public void test406744d() {
 	this.runConformTest(
 			new String[] {
@@ -2596,6 +2690,7 @@ public void test406744d() {
 			"10, 20"
 			);
 }
+@Test
 public void test406744e() {
 	this.runConformTest(
 			new String[] {
@@ -2628,6 +2723,7 @@ public void test406744e() {
 			"bar"
 			);
 }
+@Test
 public void test406744f() {
 	this.runConformTest(
 			new String[] {
@@ -2664,6 +2760,7 @@ public void test406744f() {
 			"10, 20"
 			);
 }
+@Test
 public void test406744g() {
 	this.runConformTest(
 			new String[] {
@@ -2700,6 +2797,7 @@ public void test406744g() {
 			"10, 20"
 			);
 }
+@Test
 public void test406744h() {
 	this.runConformTest(
 			new String[] {
@@ -2729,6 +2827,7 @@ public void test406744h() {
 			"Hello 1"
 			);
 }
+@Test
 public void test406744i() {
 	this.runConformTest(
 			new String[] {
@@ -2764,6 +2863,7 @@ public void test406744i() {
 			"Hello 1"
 			);
 }
+@Test
 public void test406744j() {
 	this.runConformTest(
 			new String[] {
@@ -2797,6 +2897,7 @@ public void test406744j() {
 			"Hello 1"
 			);
 }
+@Test
 public void test406744k() {
 	this.runConformTest(
 			new String[] {
@@ -2830,6 +2931,7 @@ public void test406744k() {
 			"Hello 1"
 			);
 }
+@Test
 public void test406744l() {
 	this.runConformTest(
 			new String[] {
@@ -2850,6 +2952,7 @@ public void test406744l() {
 			"Hello"
 			);
 }
+@Test
 public void test406744m() {
 	this.runConformTest(
 			new String[] {
@@ -2870,6 +2973,7 @@ public void test406744m() {
 			"Hello"
 			);
 }
+@Test
 public void test406744n() {
 	this.runConformTest(
 			new String[] {
@@ -2898,6 +3002,7 @@ public void test406744n() {
 			"Ok"
 			);
 }
+@Test
 public void test406744o() {
 	this.runConformTest(
 			new String[] {
@@ -2920,6 +3025,7 @@ public void test406744o() {
 			"foo"
 			);
 }
+@Test
 public void test406744p() {
 	this.runConformTest(
 			new String[] {
@@ -2945,6 +3051,7 @@ public void test406744p() {
 			"foo"
 			);
 }
+@Test
 public void test406744q() {
 	this.runConformTest(
 			new String[] {
@@ -2973,6 +3080,7 @@ public void test406744q() {
 			"Y.foo"
 			);
 }
+@Test
 public void test406744r() {
 	this.runConformTest(
 			new String[] {
@@ -2993,6 +3101,7 @@ public void test406744r() {
 			"Y.foo"
 			);
 }
+@Test
 public void test406744s() {
 	this.runConformTest(
 			new String[] {
@@ -3018,6 +3127,7 @@ public void test406744s() {
 			"Y::Y"
 			);
 }
+@Test
 public void test406744t() {
 	this.runConformTest(
 			new String[] {
@@ -3045,6 +3155,7 @@ public void test406744t() {
 			"Y::Y"
 			);
 }
+@Test
 public void test406744u() {
 	this.runConformTest(
 			new String[] {
@@ -3072,6 +3183,7 @@ public void test406744u() {
 			"Y::Y"
 			);
 }
+@Test
 public void test406744v() {
 	this.runConformTest(
 			new String[] {
@@ -3099,6 +3211,7 @@ public void test406744v() {
 			"X::X"
 			);
 }
+@Test
 public void test406744w() {
 	this.runConformTest(
 			new String[] {
@@ -3140,6 +3253,7 @@ public void test406744w() {
 			"A\'s instance goo"
 			);
 }
+@Test
 public void test406744x() {
 	this.runConformTest(
 			new String[] {
@@ -3166,6 +3280,7 @@ public void test406744x() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427483, [Java 8] Variables in lambdas sometimes can't be resolved
+@Test
 public void test427483() {
 	this.runConformTest(
 			new String[] {
@@ -3187,6 +3302,7 @@ public void test427483() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427627, [1.8] List.toArray not compiled correctly (NoSuchMethodError) within Lambda
+@Test
 public void test427627() {
 	this.runConformTest(
 			new String[] {
@@ -3216,6 +3332,7 @@ public void test427627() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427744, [1.8][compiler][regression] Issue with boxing compatibility in poly conditional
+@Test
 public void test427744() {
 	this.runConformTest(
 			new String[] {
@@ -3237,6 +3354,7 @@ public void test427744() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427962, [1.8][compiler] Stream#toArray(String[]::new) not inferred without help
+@Test
 public void test427962() {
 	this.runConformTest(
 			new String[] {
@@ -3264,6 +3382,7 @@ public void test427962() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428112, [1.8][compiler] ClassCastException in ReferenceExpression.generateCode
+@Test
 public void test428112() {
 	this.runConformTest(
 			new String[] {
@@ -3283,6 +3402,7 @@ public void test428112() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428003, [1.8][compiler] Incorrect error on lambda expression when preceded by another explicit lambda expression
+@Test
 public void test428003() { // extracted small test
 	this.runConformTest(
 			new String[] {
@@ -3299,6 +3419,7 @@ public void test428003() { // extracted small test
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428003, [1.8][compiler] Incorrect error on lambda expression when preceded by another explicit lambda expression
+@Test
 public void test428003a() { // full test case
 	this.runConformTest(
 			new String[] {
@@ -3343,6 +3464,7 @@ public void test428003a() { // full test case
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428261, [1.8][compiler] Incorrect error: No enclosing instance of the type X is accessible in scope
+@Test
 public void test428261() {
 	this.runConformTest(
 			new String[] {
@@ -3369,6 +3491,7 @@ public void test428261() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428261, [1.8][compiler] Incorrect error: No enclosing instance of the type X is accessible in scope
+@Test
 public void test428261a() {
 	this.runConformTest(
 			false,
@@ -3396,6 +3519,7 @@ public void test428261a() {
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428552,  [1.8][compiler][codegen] Serialization does not work for method references
+@Test
 public void test428552() {
 	this.runConformTest(
 			new String[] {
@@ -3420,6 +3544,7 @@ public void test428552() {
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428642, [1.8][compiler] java.lang.IllegalArgumentException: Invalid lambda deserialization exception
+@Test
 public void test428642() {
 	this.runConformTest(
 			new String[] {
@@ -3454,6 +3579,7 @@ public void test428642() {
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+@Test
 public void test429112() {
 	this.runConformTest(
 			new String[] {
@@ -3475,6 +3601,7 @@ public void test429112() {
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+@Test
 public void test429112a() {
 	this.runConformTest(
 			new String[] {
@@ -3496,6 +3623,7 @@ public void test429112a() {
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+@Test
 public void test429112b() {
 	this.runConformTest(
 			new String[] {
@@ -3517,6 +3645,7 @@ public void test429112b() {
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+@Test
 public void test429112c() {
 	this.runConformTest(
 			new String[] {
@@ -3538,6 +3667,7 @@ public void test429112c() {
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -3558,6 +3688,7 @@ public void test428857() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -3582,6 +3713,7 @@ public void test428857a() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -3606,6 +3738,7 @@ public void test428857b() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -3627,6 +3760,7 @@ public void test428857c() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter
+@Test
 public void test429763() {
 	this.runConformTest(
 			new String[] {
@@ -3650,6 +3784,7 @@ public void test429763() {
 			"NPE");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter
+@Test
 public void test429763a() {
 	this.runConformTest(
 			new String[] {
@@ -3669,6 +3804,7 @@ public void test429763a() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429759, [1.8][compiler] Lambda expression's signature matching error
+@Test
 public void test429759() {
 	this.runConformTest(
 			new String[] {
@@ -3692,6 +3828,7 @@ public void test429759() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429948, Unhandled event loop exception is thrown when a lambda expression is nested
+@Test
 public void test429948() {
 	this.runConformTest(
 			new String[] {
@@ -3716,6 +3853,7 @@ public void test429948() {
 			"done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429969, [1.8][compiler] Possible RuntimeException in Lambda tangles ECJ
+@Test
 public void test429969() {
 	this.runConformTest(
 			new String[] {
@@ -3742,6 +3880,7 @@ public void test429969() {
 			"done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters
+@Test
 public void test430015() {
 	this.runConformTest(
 			new String[] {
@@ -3768,6 +3907,7 @@ public void test430015() {
 			"[int arg0]");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430040, [1.8] [compiler] Type Type mismatch: cannot convert from Junk13.ExpressionHelper<Object> to Junk13.ExpressionHelper<Object>
+@Test
 public void test430040() {
 	this.runConformTest(
 			new String[] {
@@ -3801,6 +3941,7 @@ public void test430040() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430043, [1.8][compiler] Cannot infer type arguments for Junk14<>
+@Test
 public void test430043() {
 	this.runConformTest(
 			new String[] {
@@ -3837,6 +3978,7 @@ public void test430043() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035() {
 	this.runConformTest(
 			new String[] {
@@ -3858,6 +4000,7 @@ public void test430035() {
 			"m(bridge method)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035a() { // test reference expressions requiring bridges.
 	this.runConformTest(
 			new String[] {
@@ -3880,6 +4023,7 @@ public void test430035a() { // test reference expressions requiring bridges.
 			"m(bridge method)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035b() {
 	this.runConformTest(
 			new String[] {
@@ -3908,6 +4052,7 @@ public void test430035b() {
 			"m(bridge method)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035c() {
 	this.runConformTest(
 			new String[] {
@@ -3937,6 +4082,7 @@ public void test430035c() {
 			"m(bridge method(i))");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035d() { // 8b131 complains of ambiguity.
 	this.runConformTest(
 			false,
@@ -3967,6 +4113,7 @@ public void test430035d() { // 8b131 complains of ambiguity.
 			"m(bridge method(i))");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035e() { // 8b131 complains of ambiguity in call.
 	this.runConformTest(
 			false,
@@ -3997,6 +4144,7 @@ public void test430035e() { // 8b131 complains of ambiguity in call.
 			"bridge method(i)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@Test
 public void test430035f() { // ensure co-variant return emits a bridge request.
 	this.runConformTest(
 			new String[] {
@@ -4025,6 +4173,7 @@ public void test430035f() { // ensure co-variant return emits a bridge request.
 			"bridge method(i)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430241,  [1.8][compiler] Raw return type results in incorrect covariant return bridge request to LambdaMetaFactory
+@Test
 public void test430241() { // ensure raw return type variant does not emit a bridge request.
 	this.runConformTest(
 			new String[] {
@@ -4047,6 +4196,7 @@ public void test430241() { // ensure raw return type variant does not emit a bri
 			"null");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+@Test
 public void test430310() {
 	this.runConformTest(
 			new String[] {
@@ -4066,6 +4216,7 @@ public void test430310() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+@Test
 public void test430310a() {
 	this.runConformTest(
 			new String[] {
@@ -4082,6 +4233,7 @@ public void test430310a() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+@Test
 public void test430310b() {
 	this.runConformTest(
 			new String[] {
@@ -4106,6 +4258,7 @@ public void test430310b() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+@Test
 public void test430310c() {
 	this.runConformTest(
 			new String[] {
@@ -4130,6 +4283,7 @@ public void test430310c() {
 			"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432619, [1.8] Bogus error from method reference: "should be accessed in a static way"
+@Test
 public void test432619() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4150,6 +4304,7 @@ public void test432619() throws Exception {
 		"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432619, [1.8] Bogus error from method reference: "should be accessed in a static way"
+@Test
 public void test432619a() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4189,6 +4344,7 @@ public void test432619a() throws Exception {
 		"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432682, [1.8][compiler] Type mismatch error with lambda expression
+@Test
 public void test432682() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4210,6 +4366,7 @@ public void test432682() throws Exception {
 		"true");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432520, compiler "duplicate method" bug with lamdas and generic interfaces
+@Test
 public void test432520() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4231,6 +4388,7 @@ public void test432520() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432625, [1.8] VerifyError with lambdas and wildcards
+@Test
 public void test432625() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4246,6 +4404,7 @@ public void test432625() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430766, [1.8] Internal compiler error.
+@Test
 public void test430766() {
 	this.runNegativeTest(
 			new String[] {
@@ -4284,6 +4443,7 @@ public void test430766() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430766, [1.8] Internal compiler error.
+@Test
 public void test430766a() {
 	this.runNegativeTest(
 			new String[] {
@@ -4326,6 +4486,7 @@ public void test430766a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431190, [1.8] VerifyError when using a method reference
+@Test
 public void test431190() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4349,6 +4510,7 @@ public void test431190() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431514 [1.8] Incorrect compilation error in lambda expression
+@Test
 public void test431514() {
 	this.runConformTest(
 			new String[] {
@@ -4371,6 +4533,7 @@ public void test431514() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431514 [1.8] Incorrect compilation error in lambda expression
+@Test
 public void test431514a() {
 	this.runConformTest(
 		new String[] {
@@ -4394,6 +4557,7 @@ public void test431514a() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
+@Test
 public void test432531() {
 	this.runConformTest(
 		new String[] {
@@ -4414,6 +4578,7 @@ public void test432531() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=434297 [1.8] NPE in LamdaExpression.analyseCode with lamda expression nested in a conditional expression
+@Test
 public void test434297() {
 	this.runConformTest(
 		new String[] {
@@ -4442,6 +4607,7 @@ public void test434297() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436542 : Eclipse 4.4 compiler generates "bad class file" according to javac
+@Test
 public void test436542() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4498,6 +4664,7 @@ public void test436542() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515 [1.8] ECJ reports error at method reference to overloaded instance method
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
+@Test
 public void test439515() {
 	this.runConformTest(
 		new String[] {
@@ -4525,6 +4692,7 @@ public void test439515() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515 [1.8] ECJ reports error at method reference to overloaded instance method
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
+@Test
 public void test439515a() {
 	this.runConformTest(
 		new String[] {
@@ -4551,6 +4719,7 @@ public void test439515a() {
 	    "1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438534 Java8 java.lang.Method.getGeneric* methods fail with java.lang.reflect.GenericSignatureFormatError: Signature Parse error: Expected Field Type Signature
+@Test
 public void test438534() {
 	this.runConformTest(
 		new String[] {
@@ -4579,6 +4748,7 @@ public void test438534() {
 	    "SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440152 [codegen]"Missing code implementation in the compiler" on cascaded inner class references
+@Test
 public void test440152() {
 	this.runConformTest(
 		new String[] {
@@ -4597,6 +4767,7 @@ public void test440152() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440152 [codegen]"Missing code implementation in the compiler" on cascaded inner class references
+@Test
 public void test440152a() {
 	this.runConformTest(
 		new String[] {
@@ -4624,6 +4795,7 @@ public void test440152a() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432110,  [1.8][compiler] nested lambda type incorrectly inferred vs javac
+@Test
 public void test432110() {
 	this.runConformTest(
 		new String[] {
@@ -4649,6 +4821,7 @@ public void test432110() {
 		"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=441929, [1.8][compiler] @SuppressWarnings("unchecked") not accepted on local variable
+@Test
 public void test441929() {
 	this.runNegativeTest(
 		new String[] {
@@ -4676,6 +4849,7 @@ public void test441929() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=437781, [1.8][compiler] Eclipse accepts code rejected by javac because of ambiguous method reference
+@Test
 public void test437781() {
 	this.runNegativeTest(
 		new String[] {
@@ -4708,6 +4882,7 @@ public void test437781() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443889, [1.8][compiler] Lambdas get compiled to duplicate methods
+@Test
 public void test443889() {
 	this.runConformTest(
 		new String[] {
@@ -4747,6 +4922,7 @@ public void test443889() {
 		"AFTER");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=441907, [1.8][compiler] Eclipse 4.4.x compiler generics bugs with streams and lambdas
+@Test
 public void test441907() {
 	this.runConformTest(
 		new String[] {
@@ -4777,6 +4953,7 @@ public void test441907() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444773, [1.8][compiler] NullPointerException in LambdaExpression.analyseCode
+@Test
 public void test444773() {
 	this.runConformTest(
 		new String[] {
@@ -4805,6 +4982,7 @@ public void test444773() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444772, [1.8][compiler] NullPointerException in ReferenceExpression.shouldGenerateImplicitLambda
+@Test
 public void test444772() {
 	this.runConformTest(
 		new String[] {
@@ -4833,6 +5011,7 @@ public void test444772() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444803, [1.8][compiler] Exception in thread "main" java.lang.VerifyError: Bad local variable type
+@Test
 public void test444803() {
 	this.runConformTest(
 		new String[] {
@@ -4867,6 +5046,7 @@ public void test444803() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444785, [1.8] Error in JDT Core during reconcile
+@Test
 public void test444785() {
 	this.runConformTest(
 		new String[] {
@@ -4910,6 +5090,7 @@ public void test444785() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
+@Test
 public void test447119() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4940,6 +5121,7 @@ public void test447119() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
+@Test
 public void test447119a() {
 	this.runConformTest(
 			new String[] {
@@ -4965,6 +5147,7 @@ public void test447119a() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
+@Test
 public void test447119b() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4997,6 +5180,7 @@ public void test447119b() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
+@Test
 public void test447119c() {
 	this.runConformTest(
 			new String[] {
@@ -5024,6 +5208,7 @@ public void test447119c() {
 			"- java.util.List<java.lang.String> foo([java.util.List<java.lang.String>])");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
+@Test
 public void test447119d() {
 	this.runConformTest(
 			new String[] {
@@ -5073,6 +5258,7 @@ public void test447119d() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
+@Test
 public void test447119e() {
 	this.runConformTest(
 			new String[] {
@@ -5098,6 +5284,7 @@ public void test447119e() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432605, [1.8] Incorrect error "The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here"
+@Test
 public void test432605() {
 	this.runConformTest(
 		new String[] {
@@ -5155,6 +5342,7 @@ public void test432605() {
 	"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432605, [1.8] Incorrect error "The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here"
+@Test
 public void testreduced432605() {
 	this.runConformTest(
 		new String[] {
@@ -5178,6 +5366,7 @@ public void testreduced432605() {
 	"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448802, [1.8][compiler] Poly invocations interleaved by a impertinent lambda may need some more changes,
+@Test
 public void test448802() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -5199,6 +5388,7 @@ public void test448802() throws Exception {
 		"true");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
+@Test
 public void test449063() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
@@ -5244,6 +5434,7 @@ public void test449063() {
 		EclipseJustification.EclipseBug449063);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
+@Test
 public void test449063a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
@@ -5320,6 +5511,7 @@ public void test449063a() {
 		EclipseJustification.EclipseBug449063);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
+@Test
 public void test449063b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
@@ -5357,6 +5549,7 @@ public void test449063b() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
+@Test
 public void test449063c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
@@ -5425,6 +5618,7 @@ public void test449063c() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
+@Test
 public void test449063d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
@@ -5462,6 +5656,7 @@ public void test449063d() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
+@Test
 public void test449063e() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
@@ -5534,6 +5729,7 @@ public void test449063e() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
+@Test
 public void test449063f() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
@@ -5570,6 +5766,7 @@ public void test449063f() {
 			customOptions);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=445949, Lambda parameter not shadowing in nested scope producing non-existent compilation error
+@Test
 public void test445949() {
 	this.runConformTest(
 		new String[] {
@@ -5627,6 +5824,7 @@ public void test445949() {
 	"z = 10\ny = 5\nt = 5\ny = 20\nt = 5\ny = 30\ny = 40");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=445949, Lambda parameter not shadowing in nested scope producing non-existent compilation error
+@Test
 public void test445949a() {
 	this.runNegativeTest(
 		new String[] {
@@ -5655,6 +5853,7 @@ public void test445949a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=456395, can't compile the Java8 code
+@Test
 public void test456395() {
 	this.runConformTest(
 			new String[] {
@@ -5675,6 +5874,7 @@ public void test456395() {
 			"}\n"});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=459305
+@Test
 public void test459305() {
 	this.runConformTest(
 			new String[] {
@@ -5694,6 +5894,7 @@ public void test459305() {
 			"one::two");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467825 Missing code implementation in the compiler
+@Test
 public void test467825() {
 	this.runConformTest(
 		new String[] {
@@ -5715,6 +5916,7 @@ public void test467825() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467825 Missing code implementation in the compiler
+@Test
 public void test467825a() {
 	this.runConformTest(
 		new String[] {
@@ -5744,6 +5946,7 @@ public void test467825a() {
 	});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=461004 Multiple spurious errors compiling FunctionalJava project
+@Test
 public void test461004() {
 	this.runConformTest(
 		false /* skipJavac */,
@@ -5773,6 +5976,7 @@ public void test461004() {
 	}, null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=478533 [compiler][1.8][lambda] check visibility of target context is broken
+@Test
 public void test478533() {
 	this.runConformTest(
 		new String[] {
@@ -5807,6 +6011,7 @@ public void test478533() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=478533 [compiler][1.8][lambda] check visibility of target context is broken
+@Test
 public void test478533a() {
 	this.runNegativeTest(
 		new String[] {
@@ -5845,6 +6050,7 @@ public void test478533a() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=477263 [1.8][compiler] No enclosing instance of the type Outer is accessible in scope for method reference
+@Test
 public void test477263() {
 	this.runConformTest(
 		new String[] {
@@ -5873,6 +6079,7 @@ public void test477263() {
 	"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=477263 [1.8][compiler] No enclosing instance of the type Outer is accessible in scope for method reference
+@Test
 public void test477263a() {
 	this.runConformTest(
 		false,
@@ -5912,6 +6119,7 @@ public void test477263a() {
 	"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=477263 [1.8][compiler] No enclosing instance of the type Outer is accessible in scope for method reference
+@Test
 public void test477263b() {
 	this.runConformTest(
 		new String[] {
@@ -5953,6 +6161,7 @@ public void test477263b() {
 	},
 	"10");
 }
+@Test
 public void testBug487586() {
 	runNegativeTest(
 		new String[] {
@@ -6002,6 +6211,7 @@ public void testBug487586() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=452587 Java 8: Method references to the same method do not share BootstrapMethod
+@Test
 public void testBug452587() {
 	this.runConformTest(
 		new String[] {
@@ -6031,6 +6241,7 @@ public void testBug452587() {
 	assertEquals("Incorrect number of bootstrap methods found", 1, bmaLength);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=485529 [1.8][compiler] Verify error with constructor reference to nested class constructor
+@Test
 public void testBug485529() {
 	this.runConformTest(
 		new String[] {
@@ -6065,6 +6276,7 @@ public void testBug485529() {
 	"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=479284 [1.8][inference] fail to resolve matching types for lambda and method reference + NPE at build
+@Test
 public void testBug479284() {
 	runNegativeTest(
 		new String[] {
@@ -6116,6 +6328,7 @@ public void testBug479284() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=491139 Lambda that redefines a default method with generics
+@Test
 public void testBug491139() {
 	this.runConformTest(
 		new String[] {
@@ -6142,6 +6355,7 @@ public void testBug491139() {
 	"lambda : String");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=489631 [1.8] "java.lang.VerifyError: Bad type on operand stack" with lamba and type defined in method
+@Test
 public void test489631() {
 	this.runConformTest(
 		new String[] {
@@ -6169,6 +6383,7 @@ public void test489631() {
 	"0");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=489631 [1.8] "java.lang.VerifyError: Bad type on operand stack" with lamba and type defined in method
+@Test
 public void test489631a() {
 	this.runConformTest(
 		new String[] {
@@ -6203,6 +6418,7 @@ public void test489631a() {
 	"0");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=476859 enclosing method not found error when EJC compiled, works fine with oracle jdk compiler
+@Test
 public void test476859() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -6227,6 +6443,7 @@ public void test476859() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=476859 enclosing method not found error when EJC compiled, works fine with oracle jdk compiler
+@Test
 public void test476859a() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -6263,6 +6480,7 @@ public void test476859a() {
 		"void AnotherClass.foo()";
 	runner.runConformTest();
 }
+@Test
 public void testBug499258() {
 	runConformTest(
 		new String[] {
@@ -6290,6 +6508,7 @@ public void testBug499258() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=500374 Using a method reference to a generic method in a Base class gives me NoSuchMethodError
+@Test
 public void test500374() {
 	this.runConformTest(
 		new String[] {
@@ -6329,6 +6548,7 @@ public void test500374() {
 	"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=500374 Using a method reference to a generic method in a Base class gives me NoSuchMethodError
+@Test
 public void test500374a() {
 	this.runConformTest(
 		new String[] {
@@ -6368,6 +6588,7 @@ public void test500374a() {
 	},
 	"Done");
 }
+@Test
 public void testBug502871() {
 	runNegativeTest(
 		new String[] {
@@ -6421,6 +6642,7 @@ public void testBug502871() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=490469 Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.LambdaExpression.analyseCode(LambdaExpression.java:512)
+@Test
 public void testBUg490469() {
 	this.runConformTest(
 		new String[] {
@@ -6453,6 +6675,7 @@ public void testBUg490469() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=509804 Incorrect Enclosing Method Attribute generated for anonymous class in lambda after method reference
+@Test
 public void test509804() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -6479,6 +6702,7 @@ public void test509804() {
 			"null";
 	runner.runConformTest();
 }
+@Test
 public void testBug514105() {
 	runConformTest(
 		new String[] {
@@ -6502,6 +6726,7 @@ public void testBug514105() {
 			"public class FunctionalInterfaceBug {}\n"
 		});
 }
+@Test
 public void testBug515473() {
 	runConformTest(
 		new String[] {
@@ -6532,6 +6757,7 @@ public void testBug515473() {
 		}
 	);
 }
+@Test
 public void testBug517299() {
 	runConformTest(
 		new String[] {
@@ -6567,6 +6793,7 @@ public void testBug517299() {
 		"Baz.print called - methodReference"
 	);
 }
+@Test
 public void testBug521808() {
 	runConformTest(
 		new String[] {
@@ -6592,6 +6819,7 @@ public void testBug521808() {
 		}
 	);
 }
+@Test
 public void testBug522469() {
 	runConformTest(
 		new String[] {
@@ -6608,6 +6836,7 @@ public void testBug522469() {
 		}
 	);
 }
+@Test
 public void testBug517951() {
 	runConformTest(
 		new String[] {
@@ -6631,6 +6860,7 @@ public void testBug517951() {
 		"Body can't be empty"
 	);
 }
+@Test
 public void testBug517951a() {
 	runConformTest(
 		new String[] {
@@ -6655,6 +6885,7 @@ public void testBug517951a() {
 		}
 	);
 }
+@Test
 public void testBug517951b() {
 	runConformTest(
 		new String[] {
@@ -6685,6 +6916,7 @@ public void testBug517951b() {
 		}
 	);
 }
+@Test
 public void testBug517951c() {
 	runConformTest(
 		new String[] {
@@ -6717,6 +6949,7 @@ public void testBug517951c() {
 		}
 	);
 }
+@Test
 public void testBug521818() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -6764,6 +6997,7 @@ public void testBug521818() {
 		JavacTestOptions.Excuse.JavacGeneratesIncorrectCode; // similar to fixed https://bugs.openjdk.java.net/browse/JDK-8058112
 	runner.runConformTest();
 }
+@Test
 public void testBug522469a() {
 	runNegativeTest(
 		new String[] {
@@ -6806,6 +7040,7 @@ public void testBug522469a() {
 		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" +
 		"----------\n");
 }
+@Test
 public void testBug522469b() {
 	runNegativeTest(
 		new String[] {
@@ -6827,6 +7062,7 @@ public void testBug522469b() {
 		"Lambda expression's parameter l is expected to be of type C<? super Long>\n" +
 		"----------\n");
 }
+@Test
 public void testBug529199() {
 	runConformTest(
 		new String[] {
@@ -6852,6 +7088,7 @@ public void testBug529199() {
 		"A.m"
 	);
 }
+@Test
 public void testBug553885a() {
 	runConformTest(
 			new String[] {
@@ -6885,6 +7122,7 @@ public void testBug553885a() {
 			"Optional[0]"
 			);
 }
+@Test
 public void testBug553885b() {
 	runConformTest(
 			new String[] {
@@ -6919,6 +7157,7 @@ public void testBug553885b() {
 			"Optional[0]"
 			);
 }
+@Test
 public void testBug553885c() {
 	// classes instead of interface with default method
 	runConformTest(
@@ -6955,6 +7194,7 @@ public void testBug553885c() {
 			);
 }
 
+@Test
 public void testBug521182() {
 	runConformTest(
 		new String[] {
@@ -6976,6 +7216,7 @@ public void testBug521182() {
 		},
 		"Success");
 }
+@Test
 public void testBug521182a() {
 	runConformTest(
 		new String[] {
@@ -6998,6 +7239,7 @@ public void testBug521182a() {
 		},
 		"Success");
 }
+@Test
 public void testBug521182b() {
 	runConformTest(
 		new String[] {
@@ -7021,6 +7263,7 @@ public void testBug521182b() {
 		},
 		"Success");
 }
+@Test
 public void testBug516833() {
 	Map options = new HashMap<>(2);
 	options.put(CompilerOptions.OPTION_MethodParametersAttribute, "generate");
@@ -7048,6 +7291,7 @@ public void testBug516833() {
 		},
 		"[java.lang.String arg0, java.lang.String arg1]", options);
 }
+@Test
 public void testBug531093comment1() {
 	runConformTest(
 		new String[] {
@@ -7080,6 +7324,7 @@ public void testBug531093comment1() {
 		""
 	);
 }
+@Test
 public void testBug531093() {
 	runConformTest(
 		new String[] {
@@ -7112,6 +7357,7 @@ public void testBug531093() {
 		""
 	);
 }
+@Test
 public void testBug540520() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -7181,6 +7427,7 @@ public void testBug540520() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testBug540631() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -7210,6 +7457,7 @@ public void testBug540631() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testBug562324() {
 	if (this.complianceLevel < ClassFileConstants.JDK11)
 		return; // uses 'var'
@@ -7248,6 +7496,7 @@ public void testBug562324() {
 		},
 		"it runs");
 }
+@Test
 public void testBug562324b() {
 	runConformTest(
 		new String[] {
@@ -7285,6 +7534,7 @@ public void testBug562324b() {
 		},
 		"it runs");
 }
+@Test
 public void testBug576152() {
 	runConformTest(
 			new String[] {
@@ -7321,6 +7571,7 @@ public void testBug576152() {
 			}
 			);
 }
+@Test
 public void testBug529197_001() {
 	this.runConformTest(
 			new String[] {
@@ -7348,6 +7599,7 @@ public void testBug529197_001() {
 			"SUCCESS"
 			);
 }
+@Test
 public void testBug529197_002() {
 	this.runConformTest(
 			new String[] {
@@ -7375,6 +7627,7 @@ public void testBug529197_002() {
 			"SUCCESS"
 			);
 }
+@Test
 public void testBug529197_003() {
 	this.runConformTest(
 			new String[] {
@@ -7406,6 +7659,7 @@ public void testBug529197_003() {
 			);
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/756
+@Test
 public void testIssue756() {
 	this.runConformTest(
 			new String[] {
@@ -7443,6 +7697,7 @@ public void testIssue756() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=577466
+@Test
 public void test577466() {
 	this.runConformTest(
 			new String[] {
@@ -7494,6 +7749,7 @@ public void test577466() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=570511#c2
+@Test
 public void test570511_comment2() {
 	this.runConformTest(
 			new String[] {
@@ -7528,6 +7784,7 @@ public void test570511_comment2() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+@Test
 public void test483219_comment_0() {
 	this.runConformTest(
 			new String[] {
@@ -7554,6 +7811,7 @@ public void test483219_comment_0() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+@Test
 public void test483219_comment_1() {
 	this.runConformTest(
 			new String[] {
@@ -7620,6 +7878,7 @@ public void test483219_comment_1() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+@Test
 public void test483219_comment_2a() {
 	this.runConformTest(
 			new String[] {
@@ -7663,6 +7922,7 @@ public void test483219_comment_2a() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+@Test
 public void test483219_comment_2b() {
 	this.runConformTest(
 			new String[] {
@@ -7701,6 +7961,7 @@ public void test483219_comment_2b() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+@Test
 public void test483219_comment_3() {
 	this.runConformTest(
 			new String[] {
@@ -7732,6 +7993,7 @@ public void test483219_comment_3() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1048
 // Reflection APIs fail with NPE processing class file produced by JDT compiler
+@Test
 public void testGHIssue1048() {
 	this.runConformTest(
 			new String[] {
@@ -7767,6 +8029,7 @@ public void testGHIssue1048() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1054
 // AIOOBE when checking implicit lambda generation requirement
+@Test
 public void testGHIssue1054() {
 	this.runConformTest(
 			new String[] {
@@ -7798,6 +8061,7 @@ public void testGHIssue1054() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1054
 // AIOOBE when checking implicit lambda generation requirement
+@Test
 public void testGHIssue1054_2() {
 	this.runConformTest(
 			new String[] {
@@ -7829,6 +8093,7 @@ public void testGHIssue1054_2() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/975
 // [Compiler] Reflection returns null for lambda capturing local method type variable
+@Test
 public void testGHIssue975() {
 	this.runConformTest(
 			new String[] {
@@ -7868,6 +8133,7 @@ public void testGHIssue975() {
 }
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/625
+@Test
 public void testGHIssue625() {
 	this.runConformTest(
 			new String[] {
@@ -7890,6 +8156,7 @@ public void testGHIssue625() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=551882
 // Invalid receiver type class X; not a subtype of implementation type interface Y
+@Test
 public void testBug551882() {
 	this.runConformTest(
 			new String[] {
@@ -7926,6 +8193,7 @@ public void testBug551882() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=511958
 // [1.8][compiler] Discrepancy with javac behavior when handling inner classes and lambdas
+@Test
 public void testBug511958() {
 	this.runConformTest(
 			new String[] {
@@ -7959,6 +8227,7 @@ public void testBug511958() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1060
 // NPE when inspecting scrapbook expression that uses Java 8 features
+@Test
 public void testGH1060() {
 	this.runConformTest(
 			new String[] {
@@ -7980,6 +8249,7 @@ public void testGH1060() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
 // LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+@Test
 public void testBug546161() {
 	this.runConformTest(
 			new String[] {
@@ -8002,6 +8272,7 @@ public void testBug546161() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=547231
 // Logging inside lambda fails with error
+@Test
 public void testBug547231() {
 	this.runConformTest(
 			new String[] {
@@ -8071,6 +8342,7 @@ public void testBug547231() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
 // LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+@Test
 public void testBug546161_2() {
 	this.runConformTest(
 			new String[] {
@@ -8092,6 +8364,7 @@ public void testBug546161_2() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
 // java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+@Test
 public void testBug574269() {
 	this.runConformTest(
 			new String[] {
@@ -8163,6 +8436,7 @@ public void testBug574269() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
 // java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+@Test
 public void testBug574269_2() {
 	this.runConformTest(
 			new String[] {
@@ -8210,6 +8484,7 @@ public void testBug574269_2() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=570511
 // java.lang.BootstrapMethodError in Eclipse compiled code that doesn't happen with javac
+@Test
 public void testBug570511() {
 	this.runConformTest(
 			new String[] {
@@ -8250,6 +8525,7 @@ public void testBug570511() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=577719
 // BootstrapMethodError: call site initialization exception
+@Test
 public void testBug577719() {
 	this.runConformTest(
 			new String[] {
@@ -8288,6 +8564,7 @@ public void testBug577719() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=577719
 // BootstrapMethodError: call site initialization exception
+@Test
 public void testBug577719_2() {
 	this.runConformTest(
 			new String[] {
@@ -8326,6 +8603,7 @@ public void testBug577719_2() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1162
 // Eclipse incorrectly requires catch for nested sneaky throws; OpenJDK compiles with no problem
+@Test
 public void testGH1162() {
 	this.runNegativeTest(
 			new String[] {
@@ -8391,6 +8669,7 @@ public void testGH1162() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1162
 // Eclipse incorrectly requires catch for nested sneaky throws; OpenJDK compiles with no problem
+@Test
 public void testGH1162_2() {
 	this.runNegativeTest(
 			new String[] {
@@ -8445,6 +8724,7 @@ public void testGH1162_2() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576252
 // Open declaration / Javadoc popup is confused by overloaded method with method reference
+@Test
 public void testBug576252() {
 	this.runConformTest(
 			new String[] {
@@ -8467,6 +8747,7 @@ public void testBug576252() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2065
 // Eclipse compiler incorrectly reports unhandled exceptions on lamba code
+@Test
 public void testIssue2065() {
 
 	if (this.complianceLevel < ClassFileConstants.JDK10)
@@ -8539,6 +8820,7 @@ public void testIssue2065() {
 			"");
 }
 
+@Test
 public void testGHIssue2302() {
     this.runConformTest(
             new String[] {
@@ -8566,6 +8848,7 @@ public void testGHIssue2302() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2096
 // Textual problem indicator goes wild with lamda
+@Test
 public void testGHIssue2096() {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
 		return; // just to standardize messages, we skip below 17.
@@ -8606,6 +8889,7 @@ public void testGHIssue2096() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3798
 // BootstrapMethodError / LambdaConversionException using ECJ
+@Test
 public void testIssue3798() {
 	this.runConformTest(
          new String[] {
@@ -8661,6 +8945,7 @@ public void testIssue3798() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@Test
 public void testIssue3869() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -8696,6 +8981,7 @@ public void testIssue3869() {
 
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 //Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@Test
 public void testIssue3869_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -8731,6 +9017,7 @@ public void testIssue3869_2() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@Test
 public void testIssue3869_3() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -8765,6 +9052,7 @@ public void testIssue3869_3() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@Test
 public void testIssue3869_3_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -8800,6 +9088,7 @@ public void testIssue3869_3_1() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@Test
 public void testIssue3869_4() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -8835,6 +9124,7 @@ public void testIssue3869_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@Test
 public void testIssue3869_5() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -8867,6 +9157,7 @@ public void testIssue3869_5() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
 // Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+@Test
 public void testIssue3869_6() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -8901,6 +9192,7 @@ public void testIssue3869_6() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4204
 // negative testing that the synthetic method - access - not present in the class declaring the private method accessed by a nestmate
+@Test
 public void testIssue4204() throws Exception {
 
 	this.runConformTest(
@@ -8949,6 +9241,7 @@ public void testIssue4204() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4433
 // Java 25: java.lang.TypeNotPresentException: Type I not present
+@Test
 public void testIssue4433() throws Exception {
 
 	this.runConformTest(
@@ -8989,6 +9282,7 @@ public void testIssue4433() throws Exception {
 			},
 			"class X$A");
 }
+@Test
 public void testLambdaAsAssignmentRHS() {
 	this.runConformTest(
 			new String[] {
@@ -9014,6 +9308,7 @@ public void testLambdaAsAssignmentRHS() {
 			);
 }
 // Test that a lambda featuring in the production `ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' LambdaExpression` is handled properly.
+@Test
 public void testLambdaInTernary_01() {
 	this.runConformTest(
 			new String[] {
@@ -9038,6 +9333,7 @@ public void testLambdaInTernary_01() {
 			);
 }
 // Test that a lambda featuring in the production `ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' CastedLambdaExpression` is handled properly.
+@Test
 public void testLambdaInTernary_02() {
 	this.runConformTest(
 			new String[] {
@@ -9062,6 +9358,7 @@ public void testLambdaInTernary_02() {
 			);
 }
 // Test that a lambda featuring in the production `ConditionalExpression_NotName ::= ConditionalOrExpression_NotName '?' Expression ':' LambdaExpression` is handled properly.
+@Test
 public void testLambdaInTernary_03() {
 	this.runConformTest(
 			new String[] {
@@ -9086,6 +9383,7 @@ public void testLambdaInTernary_03() {
 			);
 }
 // Test that a lambda featuring in the production `ConditionalExpression_NotName ::= ConditionalOrExpression_NotName '?' Expression ':' CastedLambdaExpression` is handled properly.
+@Test
 public void testLambdaInTernary_04() {
 	this.runConformTest(
 			new String[] {
@@ -9110,6 +9408,7 @@ public void testLambdaInTernary_04() {
 			);
 }
 // Test that a lambda featuring in the production `ConditionalExpression_NotName ::= Name '?' Expression ':' LambdaExpression` is handled properly.
+@Test
 public void testLambdaInTernary_05() {
 	this.runConformTest(
 			new String[] {
@@ -9134,6 +9433,7 @@ public void testLambdaInTernary_05() {
 			);
 }
 // Test that a lambda featuring in the production `ConditionalExpression_NotName ::= Name '?' Expression ':' CastedLambdaExpression` is handled properly.
+@Test
 public void testLambdaInTernary_06() {
 	this.runConformTest(
 			new String[] {

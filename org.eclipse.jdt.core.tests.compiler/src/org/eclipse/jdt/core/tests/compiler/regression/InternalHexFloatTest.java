@@ -16,8 +16,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.util.FloatUtil;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class InternalHexFloatTest extends AbstractRegressionTest {
@@ -39,17 +40,11 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		}
 	}
 
-	public InternalHexFloatTest(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+	public InternalHexFloatTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Class testClass() {
-		return InternalHexFloatTest.class;
-	}
-
+	@Test
 	public void test001() {
 		List x = new ArrayList();
 
@@ -183,6 +178,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test002() {
 		List x = new ArrayList();
 		// various forms of zero
@@ -318,6 +314,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
+	@Test
 	public void test003() {
 		this.runConformTest(
 			new String[] {
@@ -334,6 +331,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
+	@Test
 	public void test004() {
 		this.runConformTest(
 			new String[] {
@@ -350,6 +348,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
+	@Test
 	public void test005() {
 		this.runConformTest(
 			new String[] {
@@ -366,6 +365,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -387,6 +387,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74126
 	 */
+	@Test
 	public void test007() {
 		this.runNegativeTest(
 			new String[] {

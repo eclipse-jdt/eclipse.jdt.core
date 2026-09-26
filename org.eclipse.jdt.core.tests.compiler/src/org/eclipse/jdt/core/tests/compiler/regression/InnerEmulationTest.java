@@ -18,7 +18,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -27,6 +26,8 @@ import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @RunJavac
@@ -36,8 +37,8 @@ static {
 //		TESTS_NUMBERS = new int[] { 173, 174 };
 //		TESTS_RANGE = new int[] { 144, -1 };
 }
-public InnerEmulationTest(String name) {
-	super(name);
+public InnerEmulationTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -56,12 +57,10 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	return options;
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
 /**
  * Protected access emulation : should be performed onto implicit field and method accesses
  */
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -114,6 +113,7 @@ public void test001() {
 /**
  * 1FN4S4Z: The compiler doesn't detect a illegal constructor invocation which leads to a VerifyError
  */
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -153,6 +153,7 @@ public void test002() {
 /**
  * 1FZ2G7R: use of non static inner class in constuctor
  */
+@Test
 public void test003() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -195,6 +196,7 @@ public void test003() {
 /**
  * 1F995V9: Walkback in innerclass emulation when mixing source and binaries
  */
+@Test
 public void test004() {
 
 
@@ -230,6 +232,7 @@ public void test004() {
 /**
  * 1FK9ALJ: Cannot invoke private super constructor ...
  */
+@Test
 public void test005() {
 	this.runConformTest(
 		new String[] {
@@ -251,6 +254,7 @@ public void test005() {
 /**
  * 1FKLXDL: Verification error due to incorrect private access emulation
  */
+@Test
 public void test006() {
 	this.runConformTest(
 		new String[] {
@@ -278,6 +282,7 @@ public void test006() {
 /**
  * 1PQCT5T: Missing emulation for access to sibling local types
  */
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -319,6 +324,7 @@ public void test007() {
 /**
  * 1PQCT5T: Missing emulation for access to sibling local types
  */
+@Test
 public void test008() {
 	this.runConformTest(
 		new String[] {
@@ -350,6 +356,7 @@ public void test008() {
 /**
  * 1PQCT5T: Missing emulation for access to sibling local types
  */
+@Test
 public void test009() {
 	this.runConformTest(
 		new String[] {
@@ -392,6 +399,7 @@ public void test009() {
 /**
  * 1PQCT5T: Missing emulation for access to sibling local types
  */
+@Test
 public void test010() {
 	this.runConformTest(
 		new String[] {
@@ -432,6 +440,7 @@ public void test010() {
 /**
  * 1PQCT5T: Missing emulation for access to sibling local types
  */
+@Test
 public void test011() {
 	this.runConformTest(
 		new String[] {
@@ -464,6 +473,7 @@ public void test011() {
 /**
  * 1F3AH7N: GPF on innerclass emulation for double anonymous type
  */
+@Test
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -498,6 +508,7 @@ public void test012() {
 /**
  * 1F26XE2: Bug in inner class emulation
  */
+@Test
 public void test013() {
 	this.runConformTest(
 		new String[] {
@@ -526,6 +537,7 @@ public void test013() {
 /**
  * 1EX5I8Z: Inner class emulation bug
  */
+@Test
 public void test014() {
 	this.runConformTest(
 		new String[] {
@@ -556,6 +568,7 @@ public void test014() {
 /**
  * 1EUC39Y: Incorrect Synthetic Emulation
  */
+@Test
 public void test015() {
 	this.runConformTest(
 		new String[] {
@@ -596,6 +609,7 @@ public void test015() {
 /**
  * 1EUC39Y: Incorrect Synthetic Emulation
  */
+@Test
 public void test016() {
 	this.runConformTest(
 		new String[] {
@@ -637,6 +651,7 @@ public void test016() {
 /**
  * Complex multi-threaded test involving inner classes
  */
+@Test
 public void test017() {
 	this.runConformTest(
 		new String[] {
@@ -717,6 +732,7 @@ public void test017() {
 /**
  * Complex multi-threaded test involving inner classes
  */
+@Test
 public void test018() {
 	this.runConformTest(
 		new String[] {
@@ -771,6 +787,7 @@ public void test018() {
 /**
  * Complex multi-threaded test involving inner classes
  */
+@Test
 public void test019() {
 	this.runConformTest(
 		new String[] {
@@ -848,6 +865,7 @@ public void test019() {
 /**
  * Complex multi-threaded test involving inner classes
  */
+@Test
 public void test020() {
 	this.runConformTest(
 		new String[] {
@@ -911,6 +929,7 @@ public void test020() {
 /**
  * Complex multi-threaded test involving inner classes
  */
+@Test
 public void test021() {
 	this.runConformTest(
 		new String[] {
@@ -974,6 +993,7 @@ public void test021() {
 /**
  * Complex multi-threaded test involving inner classes
  */
+@Test
 public void test022() {
 	this.runConformTest(
 		new String[] {
@@ -1036,6 +1056,7 @@ public void test022() {
 /**
  * No need for protected access emulation
  */
+@Test
 public void test023() {
 	this.runConformTest(
 		new String[] {
@@ -1062,6 +1083,7 @@ public void test023() {
 /**
  * No need for protected access emulation
  */
+@Test
 public void test024() {
 	this.runConformTest(
 		new String[] {
@@ -1086,6 +1108,7 @@ public void test024() {
 	);
 }
 
+@Test
 public void test025() {
 	this.runConformTest(
 		new String[] {
@@ -1124,6 +1147,7 @@ public void test025() {
 /**
  * Compatability - Compiler does not comply with 1.1 standard.
  */
+@Test
 public void test026() {
 	this.runConformTest(
 		new String[] {
@@ -1163,6 +1187,7 @@ public void test026() {
 /**
  * Compatability - Compiler does not comply with 1.1 standard.
  */
+@Test
 public void test027() {
 	this.runNegativeTest(
 		new String[] {
@@ -1218,6 +1243,7 @@ public void test027() {
 /**
  * Compatability - Compiler does not comply with 1.1 standard.
  */
+@Test
 public void test028() {
 	this.runNegativeTest(
 		new String[] {
@@ -1278,6 +1304,7 @@ public void test028() {
 /**
  * Compatability - Compiler does not comply with 1.1 standard.
  */
+@Test
 public void test029() {
 	this.runConformTest(
 		new String[] {
@@ -1316,6 +1343,7 @@ public void test029() {
 /**
  * Compatability - Compiler does not comply with 1.1 standard.
  */
+@Test
 public void test030() {
 	this.runNegativeTest(
 		new String[] {
@@ -1379,6 +1407,7 @@ public void test030() {
 /**
  * Compatibility - Compiler does not comply with 1.1 standard.
  */
+@Test
 public void test031() {
 	this.runNegativeTest(
 		new String[] {
@@ -1437,6 +1466,7 @@ public void test031() {
 /**
  * VerifyError using .class literal inside inner classes
  */
+@Test
 public void test032() {
 	this.runConformTest(
 		new String[] {
@@ -1465,6 +1495,7 @@ public void test032() {
 /**
  * Missing implementation in the compiler compiling invalid code
  */
+@Test
 public void test033() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -1518,6 +1549,7 @@ public void test033() {
 /**
  * Missing implementation in the compiler compiling invalid code
  */
+@Test
 public void test034() {
 	this.runConformTest(
 		new String[] {
@@ -1557,6 +1589,7 @@ public void test034() {
 /**
  * Missing implementation in the compiler compiling invalid code
  */
+@Test
 public void test035() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -1608,6 +1641,7 @@ public void test035() {
 /**
  * ClassCastException during inner class emulation
  */
+@Test
 public void test036() {
 	this.runConformTest(
 		new String[] {
@@ -1639,6 +1673,7 @@ public void test036() {
 /**
  * ClassCastException during inner class emulation
  */
+@Test
 public void test037() {
 	this.runConformTest(
 		new String[] {
@@ -1671,6 +1706,7 @@ public void test037() {
 /**
  * Enclosing instance comparison
  */
+@Test
 public void test038() {
 	this.runConformTest(
 		new String[] {
@@ -1703,6 +1739,7 @@ public void test038() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test039() {
 	this.runConformTest(
 		new String[] {
@@ -1738,6 +1775,7 @@ public void test039() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test040() {
 	this.runConformTest(
 		new String[] {
@@ -1773,6 +1811,7 @@ public void test040() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test041() {
 	this.runConformTest(
 		new String[] {
@@ -1808,6 +1847,7 @@ public void test041() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test042() {
 	this.runConformTest(
 		new String[] {
@@ -1841,6 +1881,7 @@ public void test042() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test043() {
 	this.runConformTest(
 		new String[] {
@@ -1874,6 +1915,7 @@ public void test043() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test044() {
 	this.runConformTest(
 		new String[] {
@@ -1907,6 +1949,7 @@ public void test044() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test045() {
 	this.runConformTest(
 		new String[] {
@@ -1940,6 +1983,7 @@ public void test045() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test046() {
 	this.runConformTest(
 		new String[] {
@@ -1974,6 +2018,7 @@ public void test046() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test047() {
 	this.runConformTest(
 		new String[] {
@@ -2007,6 +2052,7 @@ public void test047() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test048() {
 	this.runConformTest(
 		new String[] {
@@ -2040,6 +2086,7 @@ public void test048() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test049() {
 	this.runConformTest(
 		new String[] {
@@ -2073,6 +2120,7 @@ public void test049() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test050() {
 	this.runConformTest(
 		new String[] {
@@ -2106,6 +2154,7 @@ public void test050() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=6456
  * Invalid error when compiling access to protected member inside innerclass
  */
+@Test
 public void test051() {
 	this.runConformTest(
 		new String[] {
@@ -2138,6 +2187,7 @@ public void test051() {
 }
 
 
+@Test
 public void test052() {
 	this.runConformTest(
 		new String[] {
@@ -2181,6 +2231,7 @@ public void test052() {
 	);
 }
 
+@Test
 public void test053() {
 	this.runConformTest(
 		new String[] {
@@ -2224,6 +2275,7 @@ public void test053() {
 		"SUCCESS"
 	);
 }
+@Test
 public void test055() {
 	this.runNegativeTest(
 		new String[] {
@@ -2255,6 +2307,7 @@ public void test055() {
 	);
 }
 
+@Test
 public void test056() {
 	this.runNegativeTest(
 		new String[] {
@@ -2288,6 +2341,7 @@ public void test056() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=9813
  * VerifyError with Inner Class having private constructor
  */
+@Test
 public void test057() {
 	this.runConformTest(
 		new String[] {
@@ -2315,6 +2369,7 @@ public void test057() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=11845
  * NPE during emulation
  */
+@Test
 public void test058() {
 	this.runConformTest(
 		new String[] {
@@ -2356,6 +2411,7 @@ public void test058() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=11845
  * variant for single name ref
  */
+@Test
 public void test059() {
 	this.runConformTest(
 		new String[] {
@@ -2392,6 +2448,7 @@ public void test059() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=11845
  * variant for qualified name ref
  */
+@Test
 public void test060() {
 	this.runConformTest(
 		new String[] {
@@ -2429,6 +2486,7 @@ public void test060() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=11845
  * variant for field name ref
  */
+@Test
 public void test061() {
 	this.runConformTest(
 		new String[] {
@@ -2462,6 +2520,7 @@ public void test061() {
 	);
 }
 
+@Test
 public void test062() {
 	this.runConformTest(
 		new String[] {
@@ -2493,6 +2552,7 @@ public void test062() {
 	);
 }
 
+@Test
 public void test062a() {
 	this.runConformTest(
 		new String[] {
@@ -2524,6 +2584,7 @@ public void test062a() {
 	);
 }
 
+@Test
 public void test063() {
 	this.runConformTest(
 		new String[] {
@@ -2551,6 +2612,7 @@ public void test063() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=21447
  * should invoke Y.foo() at runtime
  */
+@Test
 public void test064(){
 	this.runConformTest(
 		new String[] {
@@ -2591,6 +2653,7 @@ public void test064(){
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=21447
  * variation - if T.foo() is defined
  */
+@Test
 public void test065(){
 	this.runConformTest(
 		new String[] {
@@ -2633,6 +2696,7 @@ public void test065(){
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=21447
  * should invoke Y.foo() and X.foo() at runtime (through 2 separate access methods)
  */
+@Test
 public void test066(){
 	this.runConformTest(
 		new String[] {
@@ -2674,6 +2738,7 @@ public void test066(){
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22093
  * test collision check for synthetic accessors to constructors
  */
+@Test
 public void test067(){
 	this.runConformTest(
 		new String[] {
@@ -2698,6 +2763,7 @@ public void test067(){
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=25229
+@Test
 public void test068(){
 	this.runConformTest(
 		new String[] {
@@ -2735,6 +2801,7 @@ public void test068(){
 
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=26122
 // synthetic outer local variables must be appended after user arguments
+@Test
 public void test069() {
 	this.runConformTest(
 		new String[] {
@@ -2754,6 +2821,7 @@ public void test069() {
 		"SUCCESS:1");
 }
 // variation on test069
+@Test
 public void test070() {
 	this.runConformTest(
 		new String[] {
@@ -2777,6 +2845,7 @@ public void test070() {
 }
 
 // test too many synthetic arguments
+@Test
 public void test071() {
 	this.runNegativeTest(
 		new String[] {
@@ -2840,6 +2909,7 @@ public void test071() {
 }
 
 // test too many synthetic arguments
+@Test
 public void test072() {
 	this.runConformTest(
 		new String[] {
@@ -2900,6 +2970,7 @@ public void test072() {
  * verify error in synthetic access to constructor
  * (ordering of parameters after moving outerlocals after user args)
  */
+@Test
 public void test073() {
 	this.runConformTest(
 		new String[] {
@@ -2923,6 +2994,7 @@ public void test073() {
  * verify error in synthetic access to constructor - test collisions
  * (ordering of parameters after moving outerlocals after user args)
  */
+@Test
 public void test074() {
 	this.runConformTest(
 		new String[] {
@@ -2949,6 +3021,7 @@ public void test074() {
 /**
  * should not consider synthetic methods on binary types
  */
+@Test
 public void test075() {
 	this.runConformTest(
 		new String[] {
@@ -3002,6 +3075,7 @@ public void test075() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=27413
  * implicit enclosing instances
  */
+@Test
 public void test076() {
 	this.runConformTest(
 		new String[] {
@@ -3028,6 +3102,7 @@ public void test076() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=27413
  * implicit enclosing instances
  */
+@Test
 public void test077() {
 	this.runConformTest(
 		new String[] {
@@ -3059,6 +3134,7 @@ public void test077() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=27413
  * implicit enclosing instances
  */
+@Test
 public void test078() {
 	this.runConformTest(
 		new String[] {
@@ -3085,6 +3161,7 @@ public void test078() {
 /*
  * Check that X.this is actually bound to an X, and not innermost compatible type (Z)
  */
+@Test
 public void test079() {
 	this.runConformTest(
 		new String[] {
@@ -3111,6 +3188,7 @@ public void test079() {
 		"X-foo");
 }
 
+@Test
 public void test080() { // verified as conform
 	this.runConformTest(
 		new String[] {
@@ -3136,6 +3214,7 @@ public void test080() { // verified as conform
 		"SUCCESS");
 }
 
+@Test
 public void test081() {
 	this.runConformTest(
 		new String[] {
@@ -3167,6 +3246,7 @@ public void test081() {
 /*
  * Default constructor for Z, will use enclosing 'this' as default-value for enclosing instance for super().
  */
+@Test
 public void test083() {
 	this.runConformTest(
 		new String[] {
@@ -3193,6 +3273,7 @@ public void test083() {
 		"X-foo");
 }
 
+@Test
 public void test084() {
 	this.runConformTest(
 		new String[] {
@@ -3224,6 +3305,7 @@ public void test084() {
 		"Foo");
 }
 
+@Test
 public void test085() {
 	this.runConformTest(
 		new String[] {
@@ -3251,6 +3333,7 @@ public void test085() {
 		"");
 }
 
+@Test
 public void test086() {
 	this.runConformTest(
 		new String[] {
@@ -3281,6 +3364,7 @@ public void test086() {
 		"SUCCESS");
 }
 
+@Test
 public void test087() {
 	this.runConformTest(
 		true,
@@ -3309,6 +3393,7 @@ public void test087() {
 		JavacTestOptions.EclipseHasABug.EclipseBug235809);
 }
 
+@Test
 public void test088() {
 	this.runNegativeTest(
 		new String[] {
@@ -3330,6 +3415,7 @@ public void test088() {
 		"----------\n");
 }
 
+@Test
 public void test089() {
 	this.runConformTest(
 		new String[] {
@@ -3350,6 +3436,7 @@ public void test089() {
 		"SUCCESS");
 }
 
+@Test
 public void test090() {
 	this.runConformTest(
 		new String[] {
@@ -3376,6 +3463,7 @@ public void test090() {
 }
 
 // ensure that local member empty constructor gets implicit constructor call
+@Test
 public void test091() {
 	this.runConformTest(
 		new String[] {
@@ -3399,6 +3487,7 @@ public void test091() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=29636
  * ensure first anonymous is X$1(extends X), last is X$2(extends A)
  */
+@Test
 public void test092() {
 	this.runConformTest(
 		new String[] {
@@ -3414,6 +3503,7 @@ public void test092() {
 		"[X$2]");
 }
 
+@Test
 public void test093() {
 	this.runNegativeTest(
 		new String[] {
@@ -3432,6 +3522,7 @@ public void test093() {
 		"----------\n");
 }
 
+@Test
 public void test094() {
 	this.runNegativeTest(
 		new String[] {
@@ -3452,6 +3543,7 @@ public void test094() {
 		"----------\n");
 }
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=30280
+@Test
 public void test095() {
 	this.runNegativeTest(
 		new String[] {
@@ -3471,6 +3563,7 @@ public void test095() {
 		"Cannot use an expression of the type int as a valid enclosing instance\n" +
 		"----------\n");
 }
+@Test
 public void test096() {
 	this.runNegativeTest(
 		new String[] {
@@ -3492,6 +3585,7 @@ public void test096() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=35456
  */
+@Test
 public void test097() {
 	this.runConformTest(
 		new String[] {
@@ -3526,6 +3620,7 @@ public void test097() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33751
  */
+@Test
 public void test098() {
 	this.runConformTest(
 		true,
@@ -3561,6 +3656,7 @@ public void test098() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40240
  */
+@Test
 public void test099() {
 	this.runConformTest(
 		new String[] {
@@ -3600,6 +3696,7 @@ public void test099() {
 /*
  * Check that member type allocation is granted access to compatible enclosing instance available as constructor argument
  */
+@Test
 public void test101() {
 	this.runConformTest(
 		new String[] {
@@ -3631,6 +3728,7 @@ public void test101() {
 /*
  * Check that direct member type allocation is denied access to compatible enclosing instance available as constructor argument
  */
+@Test
 public void test102() {
 	this.runNegativeTest(
 		new String[] {
@@ -3660,6 +3758,7 @@ public void test102() {
 /*
  * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
  */
+@Test
 public void test104() {
 	this.runNegativeTest(
 		new String[] {
@@ -3702,6 +3801,7 @@ public void test104() {
 		"----------\n");
 }
 
+@Test
 public void test107() {
 	this.runNegativeTest(
 		new String[] {
@@ -3732,6 +3832,7 @@ public void test107() {
 }
 
  // javac 1.4.2 incorrectly accepts it, jikes rejects it as we do
+@Test
 public void test108() {
 	this.runConformTest(
 		new String[] {
@@ -3749,6 +3850,7 @@ public void test108() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44538
+@Test
 public void test109() {
 	this.runConformTest(
 		new String[] {
@@ -3775,6 +3877,7 @@ public void test109() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44715 - NPE when generating fake reachable local type
+@Test
 public void test110() {
 	this.runConformTest(
 		new String[] {
@@ -3793,6 +3896,7 @@ public void test110() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44715 - variation with anonymous type
+@Test
 public void test111() {
 	this.runConformTest(
 		new String[] {
@@ -3809,6 +3913,7 @@ public void test111() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test112() {
 	this.runConformTest(
 		new String[] {
@@ -3836,6 +3941,7 @@ public void test112() {
 		},
 		"OUTER");
 }
+@Test
 public void test113() {
 	this.runConformTest(
 		new String[] {
@@ -3867,6 +3973,7 @@ public void test113() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test114() {
 	this.runNegativeTest(
 		new String[] {
@@ -3900,6 +4007,7 @@ public void test114() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=58606
+@Test
 public void test115() {
 	this.runConformTest(
 		new String[] {
@@ -3934,6 +4042,7 @@ public void test115() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=68698
+@Test
 public void test116() {
 	this.runNegativeTest(
 		new String[] {
@@ -3964,6 +4073,7 @@ public void test116() {
 		"----------\n");
 }
 
+@Test
 public void test117() {
 	this.runConformTest(
 		new String[] {
@@ -3990,6 +4100,7 @@ public void test117() {
 		"SUCCESS");
 }
 
+@Test
 public void test118() {
 	this.runNegativeTest(
 		new String[] {
@@ -4031,6 +4142,7 @@ public void test118() {
 		"Cannot refer to an instance method while explicitly invoking a constructor\n" +
 		"----------\n");
 }
+@Test
 public void test119() {
 	this.runConformTest(
 		new String[] {
@@ -4080,6 +4192,7 @@ public void test119() {
 		},
 		"<foo:0><foo:3><bar:3>");
 }
+@Test
 public void test120() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4133,6 +4246,7 @@ public void test120() {
 		runner.runNegativeTest();
 	}
 }
+@Test
 public void test121() {
 	this.runConformTest(
 		new String[] {
@@ -4185,6 +4299,7 @@ public void _test122() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
+@Test
 public void test123() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4276,6 +4391,7 @@ public void test123() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77473
+@Test
 public void test124() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4326,6 +4442,7 @@ public void test124() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77473 - variation
+@Test
 public void test125() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4410,6 +4527,7 @@ public void test125() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130117
+@Test
 public void test126() {
 	this.runNegativeTest(
 		new String[] {
@@ -4444,6 +4562,7 @@ public void test126() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89347
+@Test
 public void test127() {
 	this.runConformTest(
 		new String[] {
@@ -4477,6 +4596,7 @@ public void test127() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89347 - variation
+@Test
 public void test128() {
 	this.runConformTest(
 		new String[] {
@@ -4503,6 +4623,7 @@ public void test128() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
+@Test
 public void test129() {
 	this.runConformTest(
 		new String[] {
@@ -4538,6 +4659,7 @@ public void test129() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164497
+@Test
 public void test130() {
 	this.runConformTest(
     		new String[] {
@@ -4599,6 +4721,7 @@ public void test130() {
     		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+@Test
 public void test131() {
 	this.runNegativeTest(
 		new String[] {
@@ -4638,6 +4761,7 @@ public void test131() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+@Test
 public void test132() {
 	this.runConformTest(
 		true,
@@ -4665,6 +4789,7 @@ public void test132() {
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
+@Test
 public void test133() {
 	this.runConformTest(
 		new String[] {
@@ -4698,6 +4823,7 @@ public void test133() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
+@Test
 public void test134() {
 	this.runConformTest(
 		new String[] {
@@ -4735,6 +4861,7 @@ public void test134() {
 		"XI\nXI");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961
+@Test
 public void test135() {
 	this.runNegativeTest(
 		new String[] {
@@ -4804,6 +4931,7 @@ public void test135() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+@Test
 public void test136() {
 	this.runNegativeTest(
 		new String[] {
@@ -4830,6 +4958,7 @@ public void test136() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+@Test
 public void test137() {
 	this.runNegativeTest(
 		new String[] {
@@ -4857,6 +4986,7 @@ public void test137() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+@Test
 public void test138() {
 	this.runNegativeTest(
 		new String[] {
@@ -4884,6 +5014,7 @@ public void test138() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+@Test
 public void test139() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -4920,6 +5051,7 @@ public void test139() {
 		errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test140() throws Exception {
 	this.runConformTest(new String[] {
 		"p/A.java",
@@ -4943,6 +5075,7 @@ public void test140() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test141() throws Exception {
 	this.runConformTest(new String[] {
 		"p/A.java",
@@ -4965,6 +5098,7 @@ public void test141() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test142() throws Exception {
 	this.runConformTest(new String[] {
 		"p/A.java",
@@ -4990,6 +5124,7 @@ public void test142() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test143() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5011,6 +5146,7 @@ public void test143() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test144() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5032,6 +5168,7 @@ public void test144() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test145() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5050,6 +5187,7 @@ public void test145() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test146() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5070,6 +5208,7 @@ public void test146() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test147() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5090,6 +5229,7 @@ public void test147() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+@Test
 public void test148() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5109,6 +5249,7 @@ public void test148() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171749
+@Test
 public void test149() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5159,6 +5300,7 @@ public void test149() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210422
+@Test
 public void test150() {
 	this.runNegativeTest(
 			new String[] {
@@ -5292,6 +5434,7 @@ public void test150() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216683
+@Test
 public void test151() {
 	this.runConformTest(
 			new String[] {
@@ -5324,6 +5467,7 @@ public void test151() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216683 - variation
+@Test
 public void test152() {
 	this.runConformTest(
 			new String[] {
@@ -5386,6 +5530,7 @@ public void _test153() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=201487 - variation
+@Test
 public void test154() {
 	this.runConformTest(
 			new String[] {
@@ -5417,6 +5562,7 @@ public void test154() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=
+@Test
 public void test155() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -5431,6 +5577,7 @@ public void test155() throws Exception {
 	assertFalse("Should not be final", Flags.isFinal(reader.getAccessFlags()));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563
+@Test
 public void test156() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5467,6 +5614,7 @@ public void test156() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107
+@Test
 public void test157() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5505,6 +5653,7 @@ public void test157() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test158() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5545,6 +5694,7 @@ public void test158() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test159() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5583,6 +5733,7 @@ public void test159() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test160() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5622,6 +5773,7 @@ public void test160() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test161() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5659,6 +5811,7 @@ public void test161() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test162() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5698,6 +5851,7 @@ public void test162() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test163() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5735,6 +5889,7 @@ public void test163() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test164() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5773,6 +5928,7 @@ public void test164() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
+@Test
 public void test165() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
@@ -5810,6 +5966,7 @@ public void test165() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test166() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
@@ -5834,6 +5991,7 @@ public void test166() throws Exception {
 	"X.this.field=[X#field]X.super.field=[XSuper#field]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test167() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
@@ -5858,6 +6016,7 @@ public void test167() throws Exception {
 	"X.this.method()=[X#method()]X.super.method()=[XSuper#method()]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test168() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
@@ -5884,6 +6043,7 @@ public void test168() throws Exception {
 	"X.this.field=[X#field]X.super.field=[XSuper#field]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test169() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
@@ -5913,6 +6073,7 @@ public void test169() throws Exception {
 	"X.this.method()=[X#method()]X.super.method()=[XInternal#method()]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test170() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
@@ -5933,6 +6094,7 @@ public void test170() throws Exception {
 	"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
+@Test
 public void test171() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
@@ -5953,6 +6115,7 @@ public void test171() throws Exception {
 	"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=197271
+@Test
 public void test172() throws Exception {
 	String[] files = new String[] {
 			"X.java",
@@ -6007,6 +6170,7 @@ public void test172() throws Exception {
 				"----------\n");
 	}
 }
+@Test
 public void test172b() throws Exception {
 	runNegativeTest(new String[] {
 			"X.java",
@@ -6052,6 +6216,7 @@ public void test172b() throws Exception {
 		----------
 		""");
 }
+@Test
 public void test172c() throws Exception {
 	runNegativeTest(new String[] {
 			"Test.java",
@@ -6094,6 +6259,7 @@ public void test172c() throws Exception {
 		""");
 }
 // regression from https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4081
+@Test
 public void testGH4149() {
 	runConformTest(new String[] {
 			"ReproducerDiamondMethod.java",
@@ -6115,6 +6281,7 @@ public void testGH4149() {
 	});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
+@Test
 public void test173() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -6139,6 +6306,7 @@ public void test173() throws Exception {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
+@Test
 public void test174() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -6169,6 +6337,7 @@ public void test174() throws Exception {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=388903
+@Test
 public void test175() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -6215,6 +6384,7 @@ public void test175() throws Exception {
 			"Enclosing,Context,Context");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435419 Instantiating needs outer constructor
+@Test
 public void test176() {
 	this.runConformTest(
 		new String[] {
@@ -6260,6 +6430,7 @@ public void test176() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=484546 "IncompatibleClassChangeError: Expected static method[...]" with inner classes
+@Test
 public void testbug484546() {
 	this.runConformTest(
 		new String[] {
@@ -6297,6 +6468,7 @@ public void testbug484546() {
 		"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=373371 [compiler] JDT Compiler reports an error whereas javac compiles without problem
+@Test
 public void testbug373371() {
 	String[] sources = new String[] {
 		"Outer.java",
@@ -6312,6 +6484,7 @@ public void testbug373371() {
 	this.runConformTest(sources);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=522061 EJC 4.8M1 does not compile a class that javac 1.8.0_112 compiles
+@Test
 public void testbug522061() {
 	String[] sources = new String[] {
 		"ztest/Foo.java",
@@ -6341,6 +6514,7 @@ public void testbug522061() {
 	this.runConformTest(sources);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=481793 Compilation error when trying to compile nested inner classes
+@Test
 public void testbug481793() {
 	String[] sources = new String[] {
 		"A.java",
@@ -6353,6 +6527,7 @@ public void testbug481793() {
 	this.runConformTest(sources);
 }
 // Test for Guards the hardened next-index computation in SyntheticMethodBinding
+@Test
 public void testSyntheticAccessorIndexAssignment() {
 	String[] sources = new String[] {
 		"Outer.java",
@@ -6382,6 +6557,7 @@ public void testSyntheticAccessorIndexAssignment() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5360
 // ECJ generated code may write to final fields in inner classes with flexible constructors more than once
+@Test
 public void testIssue5360() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK25) {
 		return;

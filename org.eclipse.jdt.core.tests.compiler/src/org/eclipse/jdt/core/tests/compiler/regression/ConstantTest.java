@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.regex.Pattern;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -24,12 +23,14 @@ import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class ConstantTest extends AbstractRegressionTest {
 
-public ConstantTest(String name) {
-	super(name);
+public ConstantTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
@@ -39,9 +40,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 21 };
 //	TESTS_RANGE = new int[] { 23, -1 };
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -64,6 +63,7 @@ public void test001() {
 	});
 }
 
+@Test
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -86,6 +86,7 @@ public void test002() {
 	});
 }
 
+@Test
 public void test003() {
 	this.runConformTest(new String[] {
 		"p/Z.java",
@@ -102,6 +103,7 @@ public void test003() {
 	});
 }
 
+@Test
 public void test004() {
 	this.runConformTest(
 		new String[] {
@@ -239,6 +241,7 @@ public void test004() {
 		"Success");
 }
 
+@Test
 public void test005() {
 	this.runConformTest(
 		new String[] {
@@ -257,6 +260,7 @@ public void test005() {
 		"83");
 }
 
+@Test
 public void test006() {
 	this.runConformTest(
 		new String[] {
@@ -281,6 +285,7 @@ public void test006() {
  * null is not a constant
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26585
  */
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -303,6 +308,7 @@ public void test007() {
  * null is not a constant
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26138
  */
+@Test
 public void test008() {
 	this.runConformTest(
 		new String[] {
@@ -328,6 +334,7 @@ public void test008() {
  * null is not a constant
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26138
  */
+@Test
 public void test009() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -497,6 +504,7 @@ public void test009() throws Exception {
  * null is not a constant
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26138
  */
+@Test
 public void test010() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -550,6 +558,7 @@ public void test010() throws Exception {
 }
 
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=30704
+@Test
 public void test011() {
 	this.runConformTest(
 		new String[] {
@@ -564,6 +573,7 @@ public void test011() {
 }
 
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=79545
+@Test
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -581,6 +591,7 @@ public void test012() {
 		"3232");
 }
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=97190
+@Test
 public void test013() {
 	this.runNegativeTest(
 		new String[] {
@@ -621,6 +632,7 @@ public void test013() {
 }
 
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=117495
+@Test
 public void test017() {
 	this.runConformTest(
 		new String[] {
@@ -635,6 +647,7 @@ public void test017() {
 		"n: 2.0");
 }
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=117495
+@Test
 public void test018() {
 	this.runConformTest(
 		new String[] {
@@ -650,6 +663,7 @@ public void test018() {
 
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=154822
 // null is not a constant - again
+@Test
 public void test019() {
 	this.runConformTest(
 		new String[] {
@@ -669,6 +683,7 @@ public void test019() {
 
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=154822
 // null is not a constant - again
+@Test
 public void test020() {
 	if (this.complianceLevel >= ClassFileConstants.JDK16) {
 		return;
@@ -690,6 +705,7 @@ public void test020() {
 		"The field notAConstant cannot be declared static in a non-static inner type, unless initialized with a constant expression\n" +
 		"----------\n");
 }
+@Test
 public void testAllConstants() {
 	Constant byteConstant = ByteConstant.fromValue((byte) 1);
 	Constant byteConstant2 = ByteConstant.fromValue((byte) 2);
@@ -983,6 +999,7 @@ private void verifyConstantEqualsAndHashcode(
 	}
 }
 //test corner values (max, min, -1) for longs
+@Test
 public void test021() {
 	this.runConformTest(
 		new String[] {
@@ -1042,6 +1059,7 @@ public void test021() {
 		"0");
 }
 //test corner values (max, min, -1) for ints
+@Test
 public void test022() {
 	this.runConformTest(
 		new String[] {
@@ -1078,6 +1096,7 @@ public void test022() {
 		"-623195394\n" +
 		"0");
 }
+@Test
 public void testBug566332_01() {
 	this.runConformTest(
 			new String[] {
@@ -1094,6 +1113,7 @@ public void testBug566332_01() {
 			},
 			"Pass");
 }
+@Test
 public void testBug566332_02() {
 	this.runConformTest(
 			new String[] {
@@ -1110,6 +1130,7 @@ public void testBug566332_02() {
 			},
 			"");
 }
+@Test
 public void testBug566332_03() {
 	this.runNegativeTest(
 			new String[] {
@@ -1133,6 +1154,7 @@ public void testBug566332_03() {
 			"----------\n");
 }
 // Same as testBug566332_01(), but without the variable being final
+@Test
 public void testBug566332_04() {
 	this.runNegativeTest(
 			new String[] {
@@ -1154,6 +1176,7 @@ public void testBug566332_04() {
 			"case expressions must be constant expressions\n" +
 			"----------\n");
 }
+@Test
 public void testBug569498() {
 	if (this.complianceLevel < ClassFileConstants.JDK11) {
 		return;
@@ -1174,6 +1197,7 @@ public void testBug569498() {
 			"");
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1256
+@Test
 public void testGH1256() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1188,6 +1212,7 @@ public void testGH1256() throws Exception {
 		 },
 	"2345");
 }
+@Test
 public void testGH1382_singleName() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1235,6 +1260,7 @@ public void testGH1382_singleName() throws Exception {
 	assertContainsClassConstant(result, "api/Constants$C3");
 }
 
+@Test
 public void testGH1382_qualifiedName() throws Exception {
 	this.runConformTest(
 		new String[] {

@@ -13,18 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class NumericTest extends AbstractRegressionTest {
 
-public NumericTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public NumericTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/B.java",
@@ -45,6 +44,7 @@ public void test001() {
 	});
 }
 
+@Test
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/Y.java",
@@ -62,6 +62,7 @@ public void test002() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133738
+@Test
 public void test003() {
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -78,6 +79,7 @@ public void test003() {
 	"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133738
+@Test
 public void test004() {
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -94,6 +96,7 @@ public void test004() {
 	"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232814
+@Test
 public void test005() {
 	this.runConformTest(new String[] {
 		"X.java",

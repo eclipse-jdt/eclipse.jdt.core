@@ -13,30 +13,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class XLargeTest2 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "testBug550063" };
 	}
 
-	public XLargeTest2(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-
-	public static Class<?> testClass() {
-		return XLargeTest2.class;
+	public XLargeTest2(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	/**
 	 * Check if we hit the 64Kb limit on generated table switch method code in
 	 * class files. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=542084
 	 */
+	@Test
 	public void testBug542084_error() {
 
 		int enumsCount = getEnumsCountForError();
@@ -105,6 +99,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	 * Check if we don't hit the 64Kb limit on generated table switch method code in
 	 * class files. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=542084
 	 */
+	@Test
 	public void testBug542084_no_error() {
 		int enumsCount = getEnumsCountForSuccess();
 		StringBuilder lotOfEnums = new StringBuilder(enumsCount * 7);
@@ -158,6 +153,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 		return 4300;
 	}
 
+	@Test
 	public void testBug550063() {
 		runConformTest(
 			new String[] {
@@ -178,6 +174,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 			});
 	}
 
+	@Test
 	public void testBug550063_b() {
 		runNegativeTest(
 			new String[] {
@@ -403,6 +400,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 				"interface gwz {}\n" +
 				"interface gxc {}\n";
 	}
+	@Test
 	public void testBug550480() {
 		StringBuilder source = new StringBuilder();
 		source.append("package p;\n");
@@ -425,6 +423,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	 * Test that using many generic type arguments doesn't result in a compiler hang.
 	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/177
 	 */
+	@Test
 	public void testManyGenericsHangGh177() {
 		this.runConformTest(
 			new String[] {

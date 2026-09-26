@@ -17,7 +17,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.builder.Bug549646Test;
-import org.eclipse.jdt.core.tests.compiler.regression.ModuleCompilationTests;
 import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
 
 /**
@@ -34,7 +33,7 @@ public class RunBug563501Tests extends TestCase {
 				};
 		TestSuite suite = new TestSuite(RunBug563501Tests.class.getName());
 		suite.addTest(Bug549646Test.suite());
-		suite.addTest(ModuleCompilationTests.suite());
+//		suite.addTest(ModuleCompilationTests.suite());
 		suite.addTest(ModuleBuilderTests.suite());
 		return suite;
 	}

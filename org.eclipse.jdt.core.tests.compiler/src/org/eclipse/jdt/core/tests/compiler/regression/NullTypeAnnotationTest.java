@@ -24,18 +24,19 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
-	public NullTypeAnnotationTest(String name) {
-		super(name);
+	public NullTypeAnnotationTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -46,14 +47,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-
-	public static Class testClass() {
-		return NullTypeAnnotationTest.class;
-	}
-
 	@Override
 	protected Map getCompilerOptions() {
 		Map defaultOptions = super.getCompilerOptions();
@@ -62,6 +55,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// a list with nullable elements is used
+	@Test
 	public void test_nonnull_list_elements_01() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -92,6 +86,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// a list with nullable elements is used, custom annotations
+	@Test
 	public void test_nonnull_list_elements_01a() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
@@ -134,6 +129,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// a list with nullable elements is used, @Nullable is second annotation
+	@Test
 	public void test_nonnull_list_elements_02() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -180,6 +176,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// a list with non-null elements is used, list itself is nullable
+	@Test
 	public void test_nonnull_list_elements_03() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -249,6 +246,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// an outer and inner class both have a type parameter,
 	// client instantiates with nullable/nonnull actual type arguments
+	@Test
 	public void test_nestedType_01() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -285,6 +283,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// a subclass instantiates with nullable/nonnull actual type arguments
 	// and correctly implements an abstract inherited method
 	// compile errors only inside that method
+	@Test
 	public void test_nestedType_02() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -323,6 +322,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// an outer and inner class both have a type parameter,
 	// a subclass instantiates with nullable/nonnull actual type arguments
 	// and incorrectly implements an abstract inherited method
+	@Test
 	public void test_nestedType_03() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -356,6 +356,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// a reference to a nested type has annotations for both types
+	@Test
 	public void test_nestedType_04() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -386,6 +387,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// a reference to a nested type has annotations for both types, mismatch in detail of outer
+	@Test
 	public void test_nestedType_05() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -410,6 +412,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testMissingAnnotationTypes_01() {
 		runNegativeTest(
 			new String[] {
@@ -436,6 +439,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on leaf type in 1-dim array
+	@Test
 	public void testArrayType_01() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -471,6 +475,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on leaf type in 2-dim array
+	@Test
 	public void testArrayType_02() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -506,6 +511,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on array type (1-dim array)
+	@Test
 	public void testArrayType_03() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -565,6 +571,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on intermediate type in 2-dim array
+	@Test
 	public void testArrayType_04() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -638,6 +645,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// mismatches against outer array type, test display of type annotation in error messages
+	@Test
 	public void testArrayType_05() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -696,6 +704,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// more compiler messages
+	@Test
 	public void testArrayType_10() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -753,6 +762,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// combine flow info on outer type with annotation analysis for inners
+	@Test
 	public void testArrayType_11() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -811,6 +821,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// https://bugs.eclipse.org/403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
+	@Test
 	public void testBug403216_1() {
 		runConformTestWithLibs(
 			new String[] {
@@ -835,6 +846,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// issue from https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c7
+	@Test
 	public void testBug403216_2() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.IGNORE);
@@ -855,6 +867,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c9
+	@Test
 	public void testBug403216_3a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -883,6 +896,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c9
+	@Test
 	public void testBug403216_3b() {
 		runConformTestWithLibs(
 			new String[] {
@@ -905,6 +919,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
+	@Test
 	public void testBug403457_1() {
 		runNegativeTest(
 			new String[] {
@@ -940,6 +955,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
 	// variant with null annotations
+	@Test
 	public void testBug403457_2() {
 		runNegativeTest(
 			new String[] {
@@ -968,6 +984,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: RETURN_TYPE
+	@Test
 	public void testBinary01() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1006,6 +1023,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// storing and decoding null-type-annotations to/from classfile: METHOD_FORMAL_PARAMETER & METHOD_RECEIVER
 	// Note: receiver annotation is not evaluated by the compiler, this part of the test only serves debugging purposes.
+	@Test
 	public void testBinary02() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1049,6 +1067,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: FIELD
+	@Test
 	public void testBinary03() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1092,6 +1111,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: SUPER_TYPE
+	@Test
 	public void testBinary04() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1149,6 +1169,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: CLASS_TYPE_PARAMETER & METHOD_TYPE_PARAMETER
+	@Test
 	public void testBinary05() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1192,6 +1213,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: CLASS_TYPE_PARAMETER_BOUND & METHOD_TYPE_PARAMETER_BOUND
+	@Test
 	public void testBinary06() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1266,6 +1288,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// storing and decoding null-type-annotations to/from classfile: CLASS_TYPE_PARAMETER_BOUND & METHOD_TYPE_PARAMETER_BOUND
 	// variant: qualified type references
+	@Test
 	public void testBinary06b() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1337,6 +1360,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: method with all kinds of type annotations
+	@Test
 	public void testBinary07() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1386,6 +1410,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: details
+	@Test
 	public void testBinary08() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1467,6 +1492,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// storing and decoding null-type-annotations to/from classfile: details
 	// variant: qualified references
+	@Test
 	public void testBinary08b() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1546,6 +1572,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: EXTENDED DIMENSIONS.
+	@Test
 	public void testBinary09() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1629,6 +1656,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 }
 
 	// storing and decoding null-type-annotations to/from classfile: array annotations.
+	@Test
 	public void testBinary10() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1685,6 +1713,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testConditional1() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -1718,6 +1747,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testConditional2() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -1752,6 +1782,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// conditional in argument position
+	@Test
 	public void testConditional3() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -1783,6 +1814,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types with null annotations on details (type parameter) are compatible to equal types
+	@Test
 	public void testCompatibility1() {
 		runConformTestWithLibs(
 			new String[] {
@@ -1811,6 +1843,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types with null annotations on details (array content) are compatible to equal types
+	@Test
 	public void testCompatibility1a() {
 		runConformTestWithLibs(
 			new String[] {
@@ -1838,6 +1871,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types with null annotations on details (type parameter) are compatible to types lacking the annotation
+	@Test
 	public void testCompatibility2() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.IGNORE);
@@ -1874,6 +1908,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types with null annotations on details (array content) are compatible to types lacking the annotation
+	@Test
 	public void testCompatibility2a() {
 		runConformTestWithLibs(
 			new String[] {
@@ -1907,6 +1942,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types without null annotations are converted (unsafe) to types with detail annotations (type parameter)
+	@Test
 	public void testCompatibility3() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -1968,6 +2004,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types without null annotations are converted (unsafe) to types with detail annotations (array content)
+	@Test
 	public void testCompatibility3a() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -2028,6 +2065,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types with null annotations on details (type parameter) are incompatible to opposite types
+	@Test
 	public void testCompatibility4() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2084,6 +2122,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types with null annotations on details (array content) are incompatible to opposite types
+	@Test
 	public void testCompatibility4a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2139,6 +2178,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// challenge parameterized type with partial substitution of super's type parameters
+	@Test
 	public void testCompatibility5() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2164,6 +2204,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// challenge parameterized type with partial substitution of super's type parameters
+	@Test
 	public void testCompatibility6() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2189,6 +2230,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// illegal for type declaration
+	@Test
 	public void testUnsupportedLocation01() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2205,6 +2247,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// illegal for enclosing class (locations: field, argument, return type, local
+	@Test
 	public void testUnsupportedLocation02() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2243,6 +2286,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// illegal / unchecked for cast & instanceof with scalar type
+	@Test
 	public void testUnsupportedLocation03() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2275,6 +2319,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// illegal / unchecked for cast & instanceof with complex type
+	@Test
 	public void testUnsupportedLocation04() {
 		runNegativeTest(
 			new String[] {
@@ -2364,6 +2409,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// illegal instanceof check with annotated type argument
+	@Test
 	public void testUnsupportedLocation04a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2385,6 +2431,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// illegal for allocation expression
+	@Test
 	public void testUnsupportedLocation05() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2411,6 +2458,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// method receiver
+	@Test
 	public void testUnsupportedLocation06() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2429,6 +2477,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// receiver type in method/constructor reference
+	@Test
 	public void testUnsupportedLocation07() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2458,6 +2507,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// exceptions (throws & catch)
+	@Test
 	public void testUnsupportedLocation08() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2486,6 +2536,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testForeach() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2514,6 +2565,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// poly-null method
+	@Test
 	public void testNullTypeInference1() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
@@ -2548,6 +2600,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// functional interface with explicit nullness
+	@Test
 	public void testNullTypeInference2a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2577,6 +2630,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// functional interface with nullness inferred from target type with explicit nullness
+	@Test
 	public void testNullTypeInference2b() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2606,6 +2660,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// functional interface with unspecified nullness matched against lambda parameter with explicit type & nullness
+	@Test
 	public void testNullTypeInference2c() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2635,6 +2690,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// the only null annotation is on the target type, which propagates into the implicitly typed lambda argument
+	@Test
 	public void testNullTypeInference2d() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2664,6 +2720,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// demonstrate that null annotations from the functional interface win, resulting in successful inference but null-safety issues
+	@Test
 	public void testNullTypeInference2e() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -2691,6 +2748,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// demonstrate that null annotations from the functional interface win, resulting in successful inference but null-safety issues
+	@Test
 	public void testNullTypeInference2f() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2725,6 +2783,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// seemingly conflicting annotations from type variable application and type variable substitution
 	// -> ignore @Nullable which overrides the type variable's nullness for this one location
+	@Test
 	public void testNullTypeInference3() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -2754,6 +2813,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// conflicting annotations from type variable application and type variable substitution -> exclude null annotations from inference
+	@Test
 	public void testNullTypeInference3b() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2787,6 +2847,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// conflicting annotations from type variable application and type variable substitution
+	@Test
 	public void testNullTypeInference3c() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2828,6 +2889,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// missing return type should not cause NPE
+	@Test
 	public void testBug415850_01() {
 		runNegativeTest(
 			new String[] {
@@ -2848,6 +2910,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// enum constant inside raw type: initialization must be recognized as conform to the implicitly @NonNull declaration
+	@Test
 	public void testBug415850_02(){
 		runConformTestWithLibs(
 			new String[] {
@@ -2864,6 +2927,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// when mapping 1st parameter to method receiver, avoid AIOOBE in ReferenceExpression#resolveType(..)
+	@Test
 	public void testBug415850_03() throws Exception {
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -2891,6 +2955,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// ensure annotation type has super types connected, to avoid NPE in ImplicitNullAnnotationVerifier.collectOverriddenMethods(..)
+	@Test
 	public void testBug415850_04() throws Exception {
 		runConformTestWithLibs(
 			new String[] {
@@ -2924,6 +2989,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// don't let type annotations on array dimensions spoil type compatibility
+	@Test
 	public void testBug415850_05() {
 		runNegativeTest(
 			new String[]{
@@ -2953,6 +3019,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// don't let type annotations on array dimensions spoil type compatibility
 	// case without any error
+	@Test
 	public void testBug415850_06() {
 		runConformTestWithLibs(
 			new String[]{
@@ -2973,6 +3040,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"");
 	}
 
+	@Test
 	public void testBug416172() {
         runNegativeTestWithLibs(
             new String[] {
@@ -3008,6 +3076,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
     }
 
 	// incompatible null constraints on parameters
+	@Test
 	public void testBug416174() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED, JavaCore.IGNORE);
@@ -3052,6 +3121,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// incompatibility at return type, which should be shown here in the error message
+	@Test
 	public void testBug416174b() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3112,6 +3182,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// overriding an unconstrained return with nullable
+	@Test
 	public void testNullableReturn() {
 		runConformTestWithLibs(
 			new String[] {
@@ -3136,6 +3207,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"");
 	}
 
+	@Test
 	public void testBug416175() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3173,6 +3245,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// original test (was throwing stack overflow)
+	@Test
 	public void testBug416176() {
 		runConformTestWithLibs(
 			new String[] {
@@ -3190,6 +3263,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// variant to challenge merging of annotation on type variable and its use
+	@Test
 	public void testBug416176a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3234,6 +3308,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// variant to challenge duplicate methods, though with different parameter annotations
+	@Test
 	public void testBug416176b() {
 		runNegativeTest(
 			new String[] {
@@ -3265,6 +3340,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			true/*flush*/);
 	}
 
+	@Test
 	public void testBug416180() {
 		runWarningTestWithLibs(
 			true,
@@ -3298,6 +3374,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug416181() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3328,6 +3405,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug416182() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3372,6 +3450,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// introduce unrelated method lookup before the bogus one
+	@Test
 	public void testBug416182a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3418,6 +3497,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// avoid extra warning by use of diamond.
+	@Test
 	public void testBug416182b() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3456,6 +3536,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug416183() {
 		runConformTestWithLibs(
 			new String[] {
@@ -3477,6 +3558,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"");
 	}
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	@Test
 	public void testSubstitution() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3515,6 +3597,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	@Test
 	public void testSubstitution2() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3566,6 +3649,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	@Test
 	public void testSubstitution3() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3591,6 +3675,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	@Test
 	public void testSubstitution4() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3620,6 +3705,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	@Test
 	public void testSubstitution5() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -3648,6 +3734,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// https://bugs.eclipse.org/417758 - [1.8][null] Null safety compromise during array creation.
 	// original test case
+	@Test
 	public void testArray1() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3686,6 +3773,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// https://bugs.eclipse.org/417758 - [1.8][null] Null safety compromise during array creation.
 	// two-dim array with annotations on dimensions
+	@Test
 	public void testArray2() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3726,6 +3814,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// https://bugs.eclipse.org/417758 - [1.8][null] Null safety compromise during array creation.
 	// three-dim array with annotations on dimensions, also assignment has a problem
+	@Test
 	public void testArray3() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.WARNING);
@@ -3760,6 +3849,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testArray4() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.WARNING);
@@ -3809,6 +3899,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug417759() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3841,6 +3932,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type mismatch (type annotations): required \'@NonNull X<@NonNull ?>\' but this expression has type \'@NonNull X<@Nullable String>\'\n" +
 			"----------\n");
 	}
+	@Test
 	public void testTypeVariable1() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3870,6 +3962,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// free type variable does not ensure @NonNull, but cannot accept null either, unbounded type variable
+	@Test
 	public void testTypeVariable2() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3928,6 +4021,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// free type variable does not ensure @NonNull, but cannot accept null either, type variable with upper bound
+	@Test
 	public void testTypeVariable3() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -3986,6 +4080,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// free type variable is compatible to itself even with different not null-related type annotations
+	@Test
 	public void testTypeVariable4() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -4014,6 +4109,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/433906
+	@Test
 	public void testTypeVariable5() {
 		runConformTestWithLibs(
 			new String[] {
@@ -4033,6 +4129,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			getCompilerOptions(),
 			"");
 	}
+	@Test
 	public void testSE7AnnotationCopy() { // we were dropping annotations here, but null analysis worked already since the tagbits were not "dropped", just the same capturing in a test
 		runNegativeTestWithLibs(
 			new String[] {
@@ -4058,6 +4155,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type mismatch: required \'X.@NonNull Y\' but the provided value is null\n" +
 			"----------\n");
 	}
+	@Test
 	public void testWildcardCapture() {
 		runWarningTestWithLibs(
 			true/*flush*/,
@@ -4098,6 +4196,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
+	@Test
 	public void testWildcardCapture2() {
 		runWarningTestWithLibs(
 			true, // flush
@@ -4133,6 +4232,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
+	@Test
 	public void testWildcardCapture3() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -4173,6 +4273,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
+	@Test
 	public void testNonNullBoundedWildcard() {
 		runNegativeTestWithLibs(new String[] {
 				"X.java",
@@ -4200,6 +4301,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			----------
 			""");
 	}
+	@Test
 	public void testLocalArrays() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -4259,6 +4361,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"",
 				"Done");
 	}
+	@Test
 	public void testRawType() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -4296,6 +4399,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420456, [1.8][null] AIOOB in null analysis code.
+	@Test
 	public void test420456() {
 		final Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.IGNORE);
@@ -4316,6 +4420,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"78912345678");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422134, [1.8] NPE in NullAnnotationMatching with inlined lambda expression used with a raw type
+	@Test
 	public void test422134() {
 		runNegativeTest(
 			new String[] {
@@ -4359,6 +4464,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// should not try to analyze arguments of a polymorphic method call
+	@Test
 	public void testBug424725() {
 		runConformTestWithLibs(
 			new String[] {
@@ -4384,6 +4490,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"");
 	}
 
+	@Test
 	public void testBug424727() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -4402,6 +4509,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 		// note: to be updated with https://bugs.eclipse.org/415918
 	}
 
+@Test
 public void testBug424637() {
 	runNegativeTest(
 		new String[] {
@@ -4428,6 +4536,7 @@ public void testBug424637() {
 		true/*flush*/);
 }
 
+@Test
 public void testBug424637a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4472,6 +4581,7 @@ public void testBug424637a() {
 		"----------\n");
 }
 
+@Test
 public void testBug424637_comment3() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4487,6 +4597,7 @@ public void testBug424637_comment3() {
 		null,
 		"");
 }
+@Test
 public void testBug427163() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4501,6 +4612,7 @@ public void testBug427163() {
 		""
 	);
 }
+@Test
 public void testBug427163b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4531,6 +4643,7 @@ public void testBug427163b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug427163c() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4580,6 +4693,7 @@ public void testBug427163c() {
 	);
 }
 // assorted tests with upper-bounded wildcards with null annotations
+@Test
 public void testTypeBounds1() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4652,6 +4766,7 @@ public void testTypeBounds1() {
 	);
 }
 // assorted tests with lower-bounded wildcards with null annotations
+@Test
 public void testTypeBounds2() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4729,6 +4844,7 @@ public void testTypeBounds2() {
 	);
 }
 // assigning values upper bounded wildcard types carrying null annotations
+@Test
 public void testTypeBounds3() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4760,6 +4876,7 @@ public void testTypeBounds3() {
 	);
 }
 // assigning values lower bounded wildcard types carrying null annotations
+@Test
 public void testTypeBounds4() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4791,6 +4908,7 @@ public void testTypeBounds4() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429387, [1.8][compiler] AIOOBE in AbstractMethodDeclaration.createArgumentBindings
+@Test
 public void test429387() {
 	runNegativeTest(
 		new String[] {
@@ -4839,6 +4957,7 @@ public void test429387() {
 		this.LIBS,
 		true/*flush*/);
 }
+@Test
 public void testBug429403() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4857,6 +4976,7 @@ public void testBug429403() {
 		"Null type mismatch (type annotations): required \'List<@NonNull Person>\' but this expression has type \'@NonNull ArrayList<@Nullable Person>\', corresponding supertype is \'List<@Nullable Person>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug430219() {
     runNegativeTest(
         new String[] {
@@ -4876,6 +4996,7 @@ public void testBug430219() {
 	   this.LIBS,
 	   true/*flush*/);
 }
+@Test
 public void testBug430219a() {
     runConformTestWithLibs(
         new String[] {
@@ -4893,6 +5014,7 @@ public void testBug430219a() {
 }
 
 // apply null default to type arguments:
+@Test
 public void testDefault01() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4936,6 +5058,7 @@ public void testDefault01() {
 }
 
 // apply null default to type arguments - no effect on type variable or wildcard, but apply strict checking assuming nothing
+@Test
 public void testDefault01b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4972,6 +5095,7 @@ public void testDefault01b() {
 }
 
 // apply null default to parameters:
+@Test
 public void testDefault02() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5006,6 +5130,7 @@ public void testDefault02() {
 }
 
 // apply null default to return type - annotation at method:
+@Test
 public void testDefault03() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5030,6 +5155,7 @@ public void testDefault03() {
 }
 
 // apply null default to field
+@Test
 public void testDefault04() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5050,6 +5176,7 @@ public void testDefault04() {
 }
 
 // default default
+@Test
 public void testDefault05() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5076,6 +5203,7 @@ public void testDefault05() {
 }
 
 //default default
+@Test
 public void testDefault05_custom() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -5117,6 +5245,7 @@ public void testDefault05_custom() {
 }
 
 //default default
+@Test
 public void testDefault05_custom2() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -5163,6 +5292,7 @@ public void testDefault05_custom2() {
 }
 
 // apply default to type parameter - inner class
+@Test
 public void testDefault06() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5201,6 +5331,7 @@ public void testDefault06() {
 }
 
 //apply default to type parameter - class above
+@Test
 public void testDefault06_b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5235,6 +5366,7 @@ public void testDefault06_b() {
 }
 
 // apply default to type bound - method in inner class
+@Test
 public void testDefault07() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5280,6 +5412,7 @@ public void testDefault07() {
 }
 
 //apply null default to type arguments:
+@Test
 public void testDefault01_bin() {
 	runConformTestWithLibs(
 			new String[] {
@@ -5332,6 +5465,7 @@ public void testDefault01_bin() {
 }
 
 //apply null default to parameters:
+@Test
 public void testDefault02_bin() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5371,6 +5505,7 @@ public void testDefault02_bin() {
 }
 
 //apply null default to return type - annotation at method:
+@Test
 public void testDefault03_bin() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -5405,6 +5540,7 @@ public void testDefault03_bin() {
 }
 
 // apply null default to field - also test mixing of explicit annotation with default @NonNull (other annot is not rendered in error)
+@Test
 public void testDefault04_bin() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -5446,6 +5582,7 @@ public void testDefault04_bin() {
 }
 
 // default default
+@Test
 public void testDefault05_bin() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -5485,6 +5622,7 @@ public void testDefault05_bin() {
 		"----------\n");}
 
 // apply default to type parameter - inner class
+@Test
 public void testDefault06_bin() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5525,6 +5663,7 @@ public void testDefault06_bin() {
 		"----------\n");}
 
 // apply default to type bound - method in inner class
+@Test
 public void testDefault07_bin() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5566,6 +5705,7 @@ public void testDefault07_bin() {
 		"Null type mismatch (type annotations): required \'List<? extends @NonNull Number>\' but this expression has type \'@NonNull ArrayList<@Nullable Integer>\', corresponding supertype is \'List<@Nullable Integer>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug431269() {
 	runNegativeTest(
 		new String[] {
@@ -5629,6 +5769,7 @@ public void testBug431269() {
 		true/*flush*/);
 }
 // was inferring null type annotations too aggressively
+@Test
 public void testBug432223() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5655,6 +5796,7 @@ public void testBug432223() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug432977() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5686,6 +5828,7 @@ public void testBug432977() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug433586() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5711,6 +5854,7 @@ public void testBug433586() {
 		"");
 }
 // NPE without the fix.
+@Test
 public void testBug433478() {
 	runNegativeTestWithLibs(
             new String[] {
@@ -5740,6 +5884,7 @@ public void testBug433478() {
     		"----------\n");
 }
 // https://bugs.eclipse.org/434899
+@Test
 public void testTypeVariable6() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5764,6 +5909,7 @@ public void testTypeVariable6() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/434899 - variant which has always worked
+@Test
 public void testTypeVariable6a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5786,6 +5932,7 @@ public void testTypeVariable6a() {
 }
 // Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
 // - type parameter with explicit nullness, cannot infer otherwise
+@Test
 public void testTypeVariable7() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5809,6 +5956,7 @@ public void testTypeVariable7() {
 }
 // Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
 // - type parameter with explicit nullness, nullness must not spoil inference
+@Test
 public void testTypeVariable7a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING); // allow ignoring bad substitution
@@ -5845,6 +5993,7 @@ public void testTypeVariable7a() {
 }
 // Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
 // - type parameter with explicit nullness, nullness must not spoil inference
+@Test
 public void testTypeVariable7err() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5877,6 +6026,7 @@ public void testTypeVariable7err() {
 		"----------\n");
 }
 //Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
+@Test
 public void testTypeVariable8() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5890,6 +6040,7 @@ public void testTypeVariable8() {
 		"");
 }
 // Bug 438012 - Bogus Warning: The nullness annotation is redundant with a default that applies to this location
+@Test
 public void testTypeVariable9() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5907,6 +6058,7 @@ public void testTypeVariable9() {
 		"");
 }
 // Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
+@Test
 public void testTypeVariable10() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5933,6 +6085,7 @@ public void testTypeVariable10() {
 }
 // Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
 // Problem 1 from: Bug 438971 - [1.8][null] @NonNullByDefault/@Nullable on parameter of generic interface
+@Test
 public void testTypeVariable10a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5961,6 +6114,7 @@ public void testTypeVariable10a() {
 }
 // Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
 // warning for explicit "<T extends Object>"
+@Test
 public void testTypeVariable11() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -5987,6 +6141,7 @@ public void testTypeVariable11() {
 		"----------\n");
 }
 // Bug 438179 - [1.8][null] 'Contradictory null annotations' error on type variable with explicit null-annotation.
+@Test
 public void testTypeVariable12() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6009,6 +6164,7 @@ public void testTypeVariable12() {
 		"");
 }
 // Bug 438250 - [1.8][null] NPE trying to report bogus null annotation conflict
+@Test
 public void testTypeVariable13() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6022,6 +6178,7 @@ public void testTypeVariable13() {
 		"");
 }
 // Bug 438469 - [null] How-to use null type annotations with generic methods from interfaces in some library you only have as binary JAR?
+@Test
 public void testTypeVariable14() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6050,6 +6207,7 @@ public void testTypeVariable14() {
 		"");
 }
 // Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
+@Test
 public void testTypeVariable15() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6087,6 +6245,7 @@ public void testTypeVariable15() {
 		"----------\n");
 }
 // Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
+@Test
 public void testTypeVariable15a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6119,6 +6278,7 @@ public void testTypeVariable15a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=434602
 // Possible error with inferred null annotations leading to contradictory null annotations
+@Test
 public void testTypeVariable16() {
 	runNegativeTestWithLibs(
 			new String[] {
@@ -6151,6 +6311,7 @@ public void testTypeVariable16() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=434602
 // Possible error with inferred null annotations leading to contradictory null annotations
 // Method part of parameterized class.
+@Test
 public void testTypeVariable16a() {
 	runConformTestWithLibs(
 			new String[] {
@@ -6174,6 +6335,7 @@ public void testTypeVariable16a() {
 			getCompilerOptions(),
 			"");
 }
+@Test
 public void testTypeVariable16b() {
 	runNegativeTestWithLibs(
 			new String[] {
@@ -6203,6 +6365,7 @@ public void testTypeVariable16b() {
 			"----------\n");
 }
 // Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
+@Test
 public void testTypeVariable17() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6235,6 +6398,7 @@ public void testTypeVariable17() {
 }
 // Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
 // use local variable to avoid the null type mismatch
+@Test
 public void testTypeVariable17a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6262,6 +6426,7 @@ public void testTypeVariable17a() {
 		"");
 }
 // NPE reported in https://bugs.eclipse.org/bugs/show_bug.cgi?id=438458#c5
+@Test
 public void testTypeVariable18() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6292,6 +6457,7 @@ public void testTypeVariable18() {
 		"Null type mismatch (type annotations): required \'@NonNull Collection<String>\' but this expression has type \'@Nullable Collection<String>\'\n" +
 		"----------\n");
 }
+@Test
 public void testTypeVariable18raw() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6324,6 +6490,7 @@ public void testTypeVariable18raw() {
 		"----------\n");
 }
 // top-level annotation is overridden at use-site, details remain - parameterized type
+@Test
 public void testTypeVariable19() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
@@ -6389,6 +6556,7 @@ public void testTypeVariable19() {
 		"----------\n");
 }
 // top-level annotation is overridden at use-site, array with anotations on dimensions
+@Test
 public void testTypeVariable19a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6452,6 +6620,7 @@ public void testTypeVariable19a() {
 		"Potential null pointer access: The method get2() may return null\n" +
 		"----------\n");
 }
+@Test
 public void testTypeVariable20() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6468,6 +6637,7 @@ public void testTypeVariable20() {
 		"Null constraint mismatch: The type \'String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6504,6 +6674,7 @@ public void testBug434600() {
 		"",
 		"Hello World");
 }
+@Test
 public void testBug434600a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6520,6 +6691,7 @@ public void testBug434600a() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug434600a_qualified() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6536,6 +6708,7 @@ public void testBug434600a_qualified() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug434600b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6571,6 +6744,7 @@ public void testBug434600b() {
 		"Null constraint mismatch: The type \'@NonNull ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @NonNull List<@NonNull List<S>>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug434600b_qualified() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6602,6 +6776,7 @@ public void testBug434600b_qualified() {
 		"Null constraint mismatch: The type \'@Nullable ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug435399() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6621,6 +6796,7 @@ public void testBug435399() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug435962() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
@@ -6690,6 +6866,7 @@ public void testBug435962() {
 		options,
 		"");
 }
+@Test
 public void testBug440462() {
 	runConformTestWithLibs(
 		new String[]{
@@ -6707,6 +6884,7 @@ public void testBug440462() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug440773() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6738,6 +6916,7 @@ public void testBug440773() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug439298_comment2() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6758,6 +6937,7 @@ public void testBug439298_comment2() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug439298_comment3() {
 	runWarningTestWithLibs(
 		true,
@@ -6783,6 +6963,7 @@ public void testBug439298_comment3() {
 		"Unsafe null type conversion (type annotations): The value of type '@NonNull R<@NonNull A>' is made accessible using the less-annotated type 'R<A>'\n" +
 		"----------\n");
 }
+@Test
 public void testBug439298_comment4() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6804,6 +6985,7 @@ public void testBug439298_comment4() {
 }
 // this code raised: java.lang.IllegalArgumentException: Type doesn't have its own method?
 // at org.eclipse.jdt.internal.compiler.lookup.SyntheticFactoryMethodBinding.applyTypeArgumentsOnConstructor(SyntheticFactoryMethodBinding.java:40)
+@Test
 public void testBug440764() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6840,6 +7022,7 @@ public void testBug440764() {
 		"Null type mismatch: required \'@NonNull Integer\' but the provided value is null\n" +
 		"----------\n");
 }
+@Test
 public void testBug440759a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6867,6 +7050,7 @@ public void testBug440759a() {
 		"----------\n");
 }
 // involves overriding, work done in ImplicitNullAnnotationVerifier.checkNullSpecInheritance()
+@Test
 public void testBug440759b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6896,6 +7080,7 @@ public void testBug440759b() {
 		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug438383() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6915,6 +7100,7 @@ public void testBug438383() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug437270() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6931,6 +7117,7 @@ public void testBug437270() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug437270_comment3() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6953,6 +7140,7 @@ public void testBug437270_comment3() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug435841() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6979,6 +7167,7 @@ public void testBug435841() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug441693() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7002,6 +7191,7 @@ public void testBug441693() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug441693other() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7048,6 +7238,7 @@ public void testBug441693other() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439158, [1.8][compiler][null] Adding null annotation to return type causes IllegalStateException and sometimes InvocationTargetException
+@Test
 public void testBug439158() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7077,6 +7268,7 @@ public void testBug439158() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=434579, [1.8][compiler][null] Annotation-based null analysis causes incorrect type errors
+@Test
 public void testBug434579() {
 	Map options = getCompilerOptions();
 	runConformTestWithLibs(
@@ -7136,6 +7328,7 @@ public void testBug434579() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=434582,
 //[1.8][compiler][null] @Nullable annotation in type parameter causes NullPointerException in JDT core
+@Test
 public void testBug434582() {
 	runNegativeTestWithLibs(
 			new String[] {
@@ -7169,6 +7362,7 @@ public void testBug434582() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=434582,
 //[1.8][compiler][null] @Nullable annotation in type parameter causes NullPointerException in JDT core
+@Test
 public void testBug434582a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7199,6 +7393,7 @@ public void testBug434582a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443467, [1.8][null]InternalError: Unexpected binding type
+@Test
 public void test443467() throws Exception {
 	runNegativeTest(
 		new String[] {
@@ -7224,6 +7419,7 @@ public void test443467() throws Exception {
 		this.LIBS,
 		true/*flush*/);
 }
+@Test
 public void testBug445227() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7252,6 +7448,7 @@ public void testBug445227() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446715, [compiler] org.eclipse.jdt.internal.compiler.lookup.TypeSystem.cacheDerivedType
+@Test
 public void test446715() {
 	Map options = getCompilerOptions();
 	runConformTestWithLibs(
@@ -7288,6 +7485,7 @@ public void test446715() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=445669, java.lang.IllegalStateException at org.eclipse.jdt.internal.compiler.lookup.UnresolvedReferenceBinding.clone
+@Test
 public void test445669() {
 	Map options = getCompilerOptions();
 	runConformTestWithLibs(
@@ -7331,6 +7529,7 @@ public void test445669() {
 		"Null type mismatch: required \'@NonNull Z\' but the provided value is null\n" +
 		"----------\n");
 }
+@Test
 public void testArrayOfArrays() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -7354,6 +7553,7 @@ public void testArrayOfArrays() {
 		"Null type safety (type annotations): The expression of type \'String[][][]\' needs unchecked conversion to conform to \'String [] @Nullable[] @NonNull[]\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug447088() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7370,6 +7570,7 @@ public void testBug447088() {
 		null,
 		"");
 }
+@Test
 public void testBug448777() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7421,6 +7622,7 @@ public void testBug448777() {
 		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull String a(@Nullable @NonNull String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" +
 		"----------\n");
 }
+@Test
 public void testBug446442_comment2a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7452,6 +7654,7 @@ public void testBug446442_comment2a() {
 		"----------\n");
 }
 // swapped order of method declarations
+@Test
 public void testBug446442_comment2b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7483,6 +7686,7 @@ public void testBug446442_comment2b() {
 		"----------\n");
 }
 // inherit from two different supers
+@Test
 public void testBug446442_comment2c() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7516,6 +7720,7 @@ public void testBug446442_comment2c() {
 		"----------\n");
 }
 // merging @NonNull & unannotated in arg-position must answer unannotated
+@Test
 public void testBug446442_2a() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -7545,6 +7750,7 @@ public void testBug446442_2a() {
 		"----------\n");
 }
 // merging @NonNull & unannotated in arg-position must answer unannotated - swapped order
+@Test
 public void testBug446442_2b() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -7574,6 +7780,7 @@ public void testBug446442_2b() {
 		"----------\n");
 }
 // using inherited implementation to fulfill both contracts
+@Test
 public void testBug446442_3() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7601,6 +7808,7 @@ public void testBug446442_3() {
 		"");
 }
 // unsuccessful attempt to trigger use of MostSpecificExceptionMethodBinding
+@Test
 public void testBug446442_4() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7628,6 +7836,7 @@ public void testBug446442_4() {
 		"");
 }
 // annotated return types
+@Test
 public void testBug446442_5() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7662,6 +7871,7 @@ public void testBug446442_5() {
 		"----------\n");
 }
 // conflicting annotations on type arguments
+@Test
 public void testBug446442_6a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7706,6 +7916,7 @@ public void testBug446442_6a() {
 		"----------\n");
 }
 // swapped order of method declarations + added return type
+@Test
 public void testBug446442_6b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7768,6 +7979,7 @@ public void testBug446442_6b() {
 		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull Integer get(int)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" +
 		"----------\n");
 }
+@Test
 public void testBug453475() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7798,6 +8010,7 @@ public void testBug453475() {
 		}, null, "");
 }
 // also: don't apply default to use of type variable
+@Test
 public void testBug453475a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7834,6 +8047,7 @@ public void testBug453475a() {
 		null, "");
 }
 // also: don't apply default to wildcard
+@Test
 public void testBug453475b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7861,6 +8075,7 @@ public void testBug453475b() {
 		},
 		null, "");
 }
+@Test
 public void testBug456236() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7881,6 +8096,7 @@ public void testBug456236() {
 		"");
 }
 
+@Test
 public void testBug456497() throws Exception {
 	runConformTestWithLibs(
 		new String[] {
@@ -7917,6 +8133,7 @@ public void testBug456497() throws Exception {
 		"");
 }
 // original case
+@Test
 public void testBug456487a() {
 	runConformTestWithLibs(
 		new String[]{
@@ -7938,6 +8155,7 @@ public void testBug456487a() {
 		"");
 }
 // witness for NPE in NullAnnotationMatching.providedNullTagBits:
+@Test
 public void testBug456487b() {
 	runNegativeTestWithLibs(
 		new String[]{
@@ -8017,6 +8235,7 @@ public void testBug456487b() {
 		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull String orElse(@Nullable @NonNull String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" +
 		"----------\n");
 }
+@Test
 public void testBug454182() {
 
 	Map options = getCompilerOptions();
@@ -8035,6 +8254,7 @@ public void testBug454182() {
 		options,
 		null);
 }
+@Test
 public void testBug443870() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8058,6 +8278,7 @@ public void testBug443870() {
 		null,
 		"");
 }
+@Test
 public void testBug437072() {
 	runNegativeTest(
 		new String[] {
@@ -8108,6 +8329,7 @@ public void testBug437072() {
 		this.LIBS,
 		true/*flush*/);
 }
+@Test
 public void testBug448709() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING); // ensure program is runnable
@@ -8194,6 +8416,7 @@ public void testBug448709() {
 		"1->2\n" +
 		"1->2");
 }
+@Test
 public void testBug448709b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8216,6 +8439,7 @@ public void testBug448709b() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug459967_Array_constructor() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8234,6 +8458,7 @@ public void testBug459967_Array_constructor() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug459967_Array_constructor_b() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -8258,6 +8483,7 @@ public void testBug459967_Array_constructor_b() {
 		"Null type safety at method return type: Method descriptor FI<String>.getArray(int) promises \'@NonNull String @NonNull[]\' but referenced method provides \'String @NonNull[]\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug459967_Array_clone() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -8283,6 +8509,7 @@ public void testBug459967_Array_clone() {
 		----------
 		""");
 }
+@Test
 public void testBug459967_Array_clone_fixed() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8301,6 +8528,7 @@ public void testBug459967_Array_clone_fixed() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug459967_Array_clone_b() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -8325,6 +8553,7 @@ public void testBug459967_Array_clone_b() {
 		"Null type safety at method return type: Method descriptor FI<String>.getArray(String[]) promises \'@NonNull String @NonNull[]\' but referenced method provides \'String @NonNull[]\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug448709_allocationExpression1() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -8348,6 +8577,7 @@ public void testBug448709_allocationExpression1() {
 		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug448709_allocationExpression2() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -8368,6 +8598,7 @@ public void testBug448709_allocationExpression2() {
 		"Null constraint mismatch: The type \'@NonNull Integer\' is not a valid substitute for the type parameter \'@Nullable U\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug448709_allocationExpression3() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -8388,6 +8619,7 @@ public void testBug448709_allocationExpression3() {
 		"Null constraint mismatch: The type \'@NonNull Integer\' is not a valid substitute for the type parameter \'@Nullable U\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug465513() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8410,6 +8642,7 @@ public void testBug465513() {
 		"----------\n");
 }
 
+@Test
 public void testBug455180() {
     runConformTestWithLibs( // same warning from ecj & javac
     		true/*flush*/,
@@ -8462,6 +8695,7 @@ public void testBug455180() {
     		"----------\n");
 }
 
+@Test
 public void testBug455180WithOtherAnnotation() {
 	runConformTestWithLibs(
 			new String[] {
@@ -8517,6 +8751,7 @@ public void testBug455180WithOtherAnnotation() {
 			"----------\n");
 }
 // original test, witnessing NPE
+@Test
 public void testBug466713() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8529,6 +8764,7 @@ public void testBug466713() {
 		"");
 }
 // variant to ensure we are still reporting the error at the other location
+@Test
 public void testBug466713b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -8547,6 +8783,7 @@ public void testBug466713b() {
 		"----------\n");
 }
 // variant to ensure we are not complaining against an unrelated annotation
+@Test
 public void testBug466713c() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8564,6 +8801,7 @@ public void testBug466713c() {
 		"");
 }
 // variant for https://bugs.eclipse.org/bugs/show_bug.cgi?id=466713#c5
+@Test
 public void testBug466713d() {
 	runNegativeTest(
 		new String[] {
@@ -8598,6 +8836,7 @@ public void testBug466713d() {
 		this.LIBS,
 		true/*flush*/);
 }
+@Test
 public void testBug466969() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8618,6 +8857,7 @@ public void testBug466969() {
 			"}"
 			}, getCompilerOptions(), "");
 }
+@Test
 public void testBug467032() {
 	runConformTestWithLibs(
 			new String[] {
@@ -8636,6 +8876,7 @@ public void testBug467032() {
 				"}\n"
 			}, getCompilerOptions(), "");
 }
+@Test
 public void testBug467430() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8653,6 +8894,7 @@ public void testBug467430() {
 			getCompilerOptions(),
 			"");
 }
+@Test
 public void testBug467430mismatch() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8670,6 +8912,7 @@ public void testBug467430mismatch() {
 			getCompilerOptions(),
 			"");
 }
+@Test
 public void testBug467430array() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8688,6 +8931,7 @@ public void testBug467430array() {
 			getCompilerOptions(),
 			"");
 }
+@Test
 public void testBug467430arrayMismatch() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8707,6 +8951,7 @@ public void testBug467430arrayMismatch() {
 			"");
 }
 
+@Test
 public void testBug446217() {
 	Runner runner = new Runner();
 	runner.classLibraries = this.LIBS;
@@ -8747,6 +8992,7 @@ public void testBug446217() {
 	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("auxiliaryclass");
 	runner.runConformTest();
 }
+@Test
 public void testBug456584orig() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES, JavaCore.WARNING);
@@ -8779,6 +9025,7 @@ public void testBug456584orig() {
 		"Null type safety: required \'@NonNull\' but this expression has type \'capture#2-of ? extends R\', a free type variable that may represent a \'@Nullable\' type\n" +
 		"----------\n");
 }
+@Test
 public void testBug456584() {
 	// the compiler now has special information regarding Objects.requireNonNull
 	Map compilerOptions = getCompilerOptions();
@@ -8803,6 +9050,7 @@ public void testBug456584() {
 		compilerOptions,
 		"");
 }
+@Test
 public void testBug447661() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8834,6 +9082,7 @@ public void testBug447661() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug436091() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8917,6 +9166,7 @@ public void testBug436091() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug474239() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -8946,6 +9196,7 @@ public void testBug474239() {
 		"");
 }
 
+@Test
 public void testBug467482() {
 	runConformTestWithLibs(
 		new String[]{
@@ -8970,6 +9221,7 @@ public void testBug467482() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug467482simple() {
 	// reduced example without generics that still exhibits the bug
 	runConformTestWithLibs(
@@ -8991,6 +9243,7 @@ public void testBug467482simple() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug467482while() {
 	// even simpler with while loop
 	runConformTestWithLibs(
@@ -9013,6 +9266,7 @@ public void testBug467482while() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug467482switch() {
 	// bug behaviour visible via switch
 	runConformTestWithLibs(
@@ -9035,6 +9289,7 @@ public void testBug467482switch() {
 		"");
 }
 
+@Test
 public void testBug467482regression() {
 	// simple regression test that verifies that possibly be the patch affected messages stay unchanged
 	runNegativeTestWithLibs(
@@ -9065,6 +9320,7 @@ public void testBug467482regression() {
 		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug484735() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9120,6 +9376,7 @@ public void testBug484735() {
 		"",
 		"key");
 }
+@Test
 public void testBug474239b() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -9147,6 +9404,7 @@ public void testBug474239b() {
 		options,
 		"");
 }
+@Test
 public void testBug472663() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9207,6 +9465,7 @@ public void testBug472663() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug467094() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9218,6 +9477,7 @@ public void testBug467094() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug467094_local() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9239,6 +9499,7 @@ public void testBug467094_local() {
 		"Redundant null check: The variable o cannot be null at this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug467094_method() {
 	runConformTestWithLibs(
 			new String[] {
@@ -9254,6 +9515,7 @@ public void testBug467094_method() {
 				"}\n"
 			}, getCompilerOptions(), "");
 }
+@Test
 public void testBug440398() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9274,6 +9536,7 @@ public void testBug440398() {
 		"",
 		"NULL");
 }
+@Test
 public void testBug440398_comment2() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9293,6 +9556,7 @@ public void testBug440398_comment2() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug440398_comment2a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9315,6 +9579,7 @@ public void testBug440398_comment2a() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug481332() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9377,6 +9642,7 @@ public void testBug481332() {
 		"Null type mismatch (type annotations): required \'@Nullable Object @Nullable[]\' but this expression has type \'@NonNull Object @Nullable[]\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug481322a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9417,6 +9683,7 @@ public void testBug481322a() {
 		"Null constraint mismatch: The type \'List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<S>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug477719() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -9440,6 +9707,7 @@ public void testBug477719() {
 	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("deprecation");
 	runner.runConformTest();
 }
+@Test
 public void testBug482247() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -9474,6 +9742,7 @@ public void testBug482247() {
 		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug482247_length0() {
 	runConformTestWithLibs(
 		true/*flush*/,
@@ -9496,6 +9765,7 @@ public void testBug482247_length0() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug482247_comment5() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9513,6 +9783,7 @@ public void testBug482247_comment5() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug483146() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9546,6 +9817,7 @@ public void testBug483146() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug483146b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9579,6 +9851,7 @@ public void testBug483146b() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug473713() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9612,6 +9885,7 @@ public void testBug473713() {
 			"}\n",
 		}, getCompilerOptions(), "");
 }
+@Test
 public void testBug482228() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9657,6 +9931,7 @@ public void testBug482228() {
 		"Null constraint mismatch: The type \'T extends List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<@NonNull String>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug483527() {
 	final Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -9675,6 +9950,7 @@ public void testBug483527() {
 		compilerOptions,
 		"");
 }
+@Test
 public void testMultipleAnnotations1() {
 	Map options1 = new HashMap<>(getCompilerOptions());
 	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
@@ -9733,6 +10009,7 @@ public void testMultipleAnnotations1() {
 		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" +
  		"----------\n");
 }
+@Test
 public void test483952 () {
 	runConformTestWithLibs(
 		new String[] {
@@ -9769,6 +10046,7 @@ public void test483952 () {
 		"Type safety: The expression of type Function needs unchecked conversion to conform to Function<String,String>\n" +
 		"----------\n");
 }
+@Test
 public void test484055() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9790,6 +10068,7 @@ public void test484055() {
 		null,
 		"");
 }
+@Test
 public void testBug484108() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9838,6 +10117,7 @@ public void testBug484108() {
 		"",
 		"2");
 }
+@Test
 public void testBug484954() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
@@ -9866,6 +10146,7 @@ public void testBug484954() {
 		customOptions,
 		"");
 }
+@Test
 public void testBug484981() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9996,6 +10277,7 @@ public void testBug484981() {
 	);
 }
 // same testBinary06 but via SourceTypeBindings
+@Test
 public void testBug484981b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -10041,6 +10323,7 @@ public void testBug484981b() {
 }
 
 // same testBinary06b but via SourceTypeBindings
+@Test
 public void testBug484981c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -10085,6 +10368,7 @@ public void testBug484981c() {
 }
 
 // same testBinary07 but via SourceTypeBindings
+@Test
 public void testBug484981d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -10126,6 +10410,7 @@ public void testBug484981d() {
 			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 			"----------\n");
 }
+@Test
 public void testBug466562() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -10193,6 +10478,7 @@ public void testBug466562() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug485056() {
 	runConformTestWithLibs(
 		new String[] {
@@ -10216,6 +10502,7 @@ public void testBug485056() {
 		""
 	);
 }
+@Test
 public void testBug484741() {
 	runConformTestWithLibs(
 		new String[] {
@@ -10237,6 +10524,7 @@ public void testBug484741() {
 			"}"
 	}, getCompilerOptions(), "");
 }
+@Test
 public void testBug484741b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -10249,6 +10537,7 @@ public void testBug484741b() {
 			"}"
 	}, getCompilerOptions(), "");
 }
+@Test
 public void testBug484741c() {
 	runConformTestWithLibs(
 		new String[] {
@@ -10273,6 +10562,7 @@ public void testBug484741c() {
 			"}"
 	}, getCompilerOptions(), "");
 }
+@Test
 public void testBug484741d() {
 	runConformTestWithLibs(
 		new String[] {
@@ -10288,6 +10578,7 @@ public void testBug484741d() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug484741e() {
 	runConformTestWithLibs(
 		new String[] {
@@ -10309,6 +10600,7 @@ public void testBug484741e() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug484741Invoke() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -10454,6 +10746,7 @@ public void testBug484741Invoke() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484741Invoke2() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -10576,6 +10869,7 @@ public void testBug484741Invoke2() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484741Invoke3() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -10657,6 +10951,7 @@ public void testBug484741Invoke3() {
 }
 
 
+@Test
 public void testBug484471SubclassNullable() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -10779,6 +11074,7 @@ public void testBug484471SubclassNullable() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484471SubclassNonNull() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -10901,6 +11197,7 @@ public void testBug484471SubclassNonNull() {
 				"----------\n"
 	);
 }
+@Test
 public void testBug485058() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -10958,6 +11255,7 @@ public void testBug485058() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug485030() {
 	runConformTestWithLibs(new String[] {
 			"SomeAnnotation.java",
@@ -10982,6 +11280,7 @@ public void testBug485030() {
 			"}\n"
 	}, getCompilerOptions(), "");
 }
+@Test
 public void testBug485302() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11036,6 +11335,7 @@ public void testBug485302() {
 	);
 }
 
+@Test
 public void testBug485027() {
 	runConformTestWithLibs(new String[] {
 			"SomeAnnotation.java",
@@ -11079,6 +11379,7 @@ public void testBug485027() {
 			"}"
 	}, getCompilerOptions(), "");
 }
+@Test
 public void testBug485565() {
 	runConformTestWithLibs(
 			new String[] {
@@ -11139,6 +11440,7 @@ public void testBug485565() {
 			""
 	);
 }
+@Test
 public void testBug485814() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11187,6 +11489,7 @@ public void testBug485814() {
 		""
 	);
 }
+@Test
 public void testBug485581() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11234,6 +11537,7 @@ public void testBug485581() {
 		""
 	);
 }
+@Test
 public void testBug482752_lambda() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11276,6 +11580,7 @@ public void testBug482752_lambda() {
 		);
 }
 
+@Test
 public void testBug482752_methodref() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11318,6 +11623,7 @@ public void testBug482752_methodref() {
 		);
 }
 
+@Test
 public void testBug485374() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11357,6 +11663,7 @@ public void testBug485374() {
 		);
 }
 
+@Test
 public void testBug466556a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11385,6 +11692,7 @@ public void testBug466556a() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug466556nonfree() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11408,6 +11716,7 @@ public void testBug466556nonfree() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug466556b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11439,6 +11748,7 @@ public void testBug466556b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug466556c() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11473,6 +11783,7 @@ public void testBug466556c() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug466556field() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11590,6 +11901,7 @@ public void testBug466556field() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug466556withRaw() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11609,6 +11921,7 @@ public void testBug466556withRaw() {
 		""
 	);
 }
+@Test
 public void testBug466556withPGMB() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11635,6 +11948,7 @@ public void testBug466556withPGMB() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug466556captures() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11724,6 +12038,7 @@ public void testBug466556captures() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug466556Loops() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11838,6 +12153,7 @@ public void testBug466556Loops() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug461268() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.ERROR);
@@ -11861,6 +12177,7 @@ public void testBug461268() {
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull String>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 		"----------\n");
 }
+@Test
 public void testBug461268invoke() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.ERROR);
@@ -11883,6 +12200,7 @@ public void testBug461268invoke() {
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'Map<Object,@NonNull String>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 		"----------\n");
 }
+@Test
 public void testBug461268nnbd() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.ERROR);
@@ -11935,6 +12253,7 @@ public void testBug461268nnbd() {
 		""
 	);
 }
+@Test
 public void testBug485988WildcardOverride() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11982,6 +12301,7 @@ public void testBug485988WildcardOverride() {
 		""
 	);
 }
+@Test
 public void testBug485988neutral() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12081,6 +12401,7 @@ public void testBug485988neutral() {
 		""
 	);
 }
+@Test
 public void testBug485988nonnull() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -12260,6 +12581,7 @@ public void testBug485988nonnull() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug485988nullable() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -12439,6 +12761,7 @@ public void testBug485988nullable() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug485988WildCardForTVWithNonNullBound() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12467,6 +12790,7 @@ public void testBug485988WildCardForTVWithNonNullBound() {
 		""
 	);
 }
+@Test
 public void testBug485988WildcardWithGenericBound() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -12496,6 +12820,7 @@ public void testBug485988WildcardWithGenericBound() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug485988Contradictory() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -12545,6 +12870,7 @@ public void testBug485988Contradictory() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug485988bound() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12566,6 +12892,7 @@ public void testBug485988bound() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug466585_comment_0() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12578,6 +12905,7 @@ public void testBug466585_comment_0() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug466585_comment_4() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -12615,6 +12943,7 @@ public void testBug466585_comment_4() {
 		"Null constraint mismatch: The type \'@Nullable ? super Integer\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug489978() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12660,6 +12989,7 @@ public void testBug489978() {
 		""
 	);
 }
+@Test
 public void testBug489245_info() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.INFO);
@@ -12703,6 +13033,7 @@ public void testBug489245_info() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug489245_improvedNullInference() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.INFO);
@@ -12740,6 +13071,7 @@ public void testBug489245_improvedNullInference() {
 		""
 	);
 }
+@Test
 public void testBug489674() {
 	Map options = new HashMap<>(getCompilerOptions());
 	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo.NonNull");
@@ -12837,6 +13169,7 @@ public void testBug489674() {
 			false
 		);
 }
+@Test
 public void testBug492327() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12866,6 +13199,7 @@ public void testBug492327() {
 		""
 	);
 }
+@Test
 public void testBug488495collector() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12902,6 +13236,7 @@ public void testBug488495collector() {
 	);
 }
 
+@Test
 public void testBug496591() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12959,6 +13294,7 @@ public void testBug496591() {
 		""
 	);
 }
+@Test
 public void testBug497698() {
 	runNegativeTest(
 		new String[] {
@@ -12997,6 +13333,7 @@ public void testBug497698() {
 		true/*flush*/
 	);
 }
+@Test
 public void testBug497698raw() {
 	runNegativeTest(
 		new String[] {
@@ -13041,6 +13378,7 @@ public void testBug497698raw() {
 		false/*shouldFlush*/
 	);
 }
+@Test
 public void testBug497698nestedinraw() {
 	runNegativeTest(
 		new String[] {
@@ -13087,6 +13425,7 @@ public void testBug497698nestedinraw() {
 		true/*flush*/
 	);
 }
+@Test
 public void testBug492322() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13130,6 +13469,7 @@ public void testBug492322() {
 		""
 	);
 }
+@Test
 public void testBug492322field() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13170,6 +13510,7 @@ public void testBug492322field() {
 			""
 		);
 }
+@Test
 public void testBug492322deep() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13221,6 +13562,7 @@ public void testBug492322deep() {
 		""
 	);
 }
+@Test
 public void testBug492322withGenericBase() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13272,6 +13614,7 @@ public void testBug492322withGenericBase() {
 		""
 	);
 }
+@Test
 public void testBug499862a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13291,6 +13634,7 @@ public void testBug499862a() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug499862b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -13312,6 +13656,7 @@ public void testBug499862b() {
 		"Potential null pointer access: The variable s may be null at this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug499862c() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -13332,6 +13677,7 @@ public void testBug499862c() {
 		"Potential null pointer access: this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" +
 		"----------\n");
 }
+@Test
 public void testBug499597simplified() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13365,6 +13711,7 @@ public void testBug499597simplified() {
 		""
 	);
 }
+@Test
 public void testBug499597original() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -13421,6 +13768,7 @@ public void testBug499597original() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug501031() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13442,6 +13790,7 @@ public void testBug501031() {
 	);
 }
 
+@Test
 public void testBug501031return() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -13466,6 +13815,7 @@ public void testBug501031return() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug501031btb() {
 	// this already worked without the patch for bug 501031.
 	runConformTestWithLibs(
@@ -13507,6 +13857,7 @@ public void testBug501031btb() {
 			"----------\n"
 		);
 }
+@Test
 public void testBug501449() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -13537,6 +13888,7 @@ public void testBug501449() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug502112() {
 	runConformTest(
 		new String[] {
@@ -13607,6 +13959,7 @@ public void testBug502112() {
 	"----------\n"
 );
 }
+@Test
 public void testBug502112b() {
 	runConformTest(
 		new String[] {
@@ -13684,6 +14037,7 @@ public void testBug502112b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484926locals() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.IGNORE);
@@ -13748,6 +14102,7 @@ public void testBug484926locals() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484926fields() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.IGNORE);
@@ -13812,6 +14167,7 @@ public void testBug484926fields() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484926() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13862,6 +14218,7 @@ public void testBug484926() {
 		""
 	);
 }
+@Test
 public void testBug484926nesting() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -13911,6 +14268,7 @@ public void testBug484926nesting() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484926localDeclarationInForLoop() {
 	runConformTestWithLibs(
 		new String[] {
@@ -13948,6 +14306,7 @@ public void testBug484926localDeclarationInForLoop() {
 		""
 	);
 }
+@Test
 public void testBug484926redundantNNBD() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -14172,6 +14531,7 @@ public void testBug484926redundantNNBD() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug484926BTB() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14236,6 +14596,7 @@ public void testBug484926BTB() {
 		""
 	);
 }
+@Test
 public void testBug500885() {
 	runConformTest(
 		new String[] {
@@ -14280,6 +14641,7 @@ public void testBug500885() {
 		options,
 		"");
 }
+@Test
 public void testBug505671() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14329,6 +14691,7 @@ public void testBug505671() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug501564() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -14374,6 +14737,7 @@ public void testBug501564() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug501564interface() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -14419,6 +14783,7 @@ public void testBug501564interface() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug501464() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -14467,6 +14832,7 @@ public void testBug501464() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug507840() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14502,6 +14868,7 @@ public void testBug507840() {
 		""
 	);
 }
+@Test
 public void testBug508497() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14551,6 +14918,7 @@ public void testBug508497() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug509025_a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14603,6 +14971,7 @@ public void testBug509025_a() {
 		""
 	);
 }
+@Test
 public void testBug509025_b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14655,6 +15024,7 @@ public void testBug509025_b() {
 		""
 	);
 }
+@Test
 public void testBug509025_c() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14697,6 +15067,7 @@ public void testBug509025_c() {
 		""
 	);
 }
+@Test
 public void testBug501598() {
 	runWarningTestWithLibs(
 		true/*flush*/,
@@ -14724,6 +15095,7 @@ public void testBug501598() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug509328() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14768,6 +15140,7 @@ public void testBug509328() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug510799() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14788,6 +15161,7 @@ public void testBug510799() {
 		""
 	);
 }
+@Test
 public void testBug490403() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14811,6 +15185,7 @@ public void testBug490403() {
 		""
 	);
 }
+@Test
 public void testBug490403while() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14835,6 +15210,7 @@ public void testBug490403while() {
 	);
 }
 
+@Test
 public void testBug490403negative() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -14884,6 +15260,7 @@ public void testBug490403negative() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug490403typeArgAnnotationMismatch() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -14928,6 +15305,7 @@ public void testBug490403typeArgAnnotationMismatch() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug499589() {
 	runConformTestWithLibs(
 		new String[] {
@@ -14962,6 +15340,7 @@ public void testBug499589() {
 		""
 	);
 }
+@Test
 public void testBug499589multidim() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -14995,6 +15374,7 @@ public void testBug499589multidim() {
 	);
 }
 
+@Test
 public void testBug499589leafTypeNullable() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15028,6 +15408,7 @@ public void testBug499589leafTypeNullable() {
 	);
 }
 
+@Test
 public void testBug499589qualified() {
 	runConformTestWithLibs(
 		new String[] {
@@ -15055,6 +15436,7 @@ public void testBug499589qualified() {
 	);
 }
 
+@Test
 public void testBug499589qualified_leafTypeNullable() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15087,6 +15469,7 @@ public void testBug499589qualified_leafTypeNullable() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug499589qualified_multidim() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15119,6 +15502,7 @@ public void testBug499589qualified_multidim() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug499589STB() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15226,6 +15610,7 @@ public void testBug499589STB() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug499589BTB() {
 	Runner runner = new Runner();
 	runner.classLibraries = this.LIBS;
@@ -15351,6 +15736,7 @@ public void testBug499589BTB() {
 	);
 }
 
+@Test
 public void testBug499589STBqualified() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15465,6 +15851,7 @@ public void testBug499589STBqualified() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug499589BTBqualified() {
 	Runner runner = new Runner();
 	runner.classLibraries = this.LIBS;
@@ -15592,6 +15979,7 @@ public void testBug499589BTBqualified() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug499589arrayAllocation() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15630,6 +16018,7 @@ public void testBug499589arrayAllocation() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug499589generics() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15697,6 +16086,7 @@ public void testBug499589generics() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug511723() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15737,6 +16127,7 @@ public void testBug511723() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug498084() {
 	runConformTestWithLibs(
 		new String[] {
@@ -15774,6 +16165,7 @@ public void testBug498084() {
 		""
 	);
 }
+@Test
 public void testBug498084b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15811,6 +16203,7 @@ public void testBug498084b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug513495() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -15853,6 +16246,7 @@ public void testBug513495() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug513855() {
 	runConformTestWithLibs(
 		new String[] {
@@ -15886,6 +16280,7 @@ public void testBug513855() {
 		""
 	);
 }
+@Test
 public void testBug513855lambda() {
 	runConformTestWithLibs(
 		new String[] {
@@ -15916,6 +16311,7 @@ public void testBug513855lambda() {
 		""
 	);
 }
+@Test
 public void testBug514091() {
 	runConformTestWithLibs(
 		new String[] {
@@ -15951,6 +16347,7 @@ public void testBug514091() {
 		""
 	);
 }
+@Test
 public void testBug514570() {
 	final Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
@@ -15976,6 +16373,7 @@ public void testBug514570() {
 		""
 	);
 }
+@Test
 public void testBug514977() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -16053,6 +16451,7 @@ public void testBug514977() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug515292() {
 	runConformTestWithLibs(
 		new String[] {
@@ -16079,6 +16478,7 @@ public void testBug515292() {
 		""
 	);
 }
+@Test
 public void testBug526555() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING);
@@ -16120,6 +16520,7 @@ public void testBug526555() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug530913() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -16397,6 +16798,7 @@ public void testBug530913() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug530913b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -16489,6 +16891,7 @@ public void testBug530913b() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testBug530971() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -16894,6 +17297,7 @@ public void testBug530971() {
 }
 
 // same as testBug530971, but X is read via class file
+@Test
 public void testBug530971_BTB() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -17339,6 +17743,7 @@ public void testBug530971_BTB() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug530971_redundant() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -17513,6 +17918,7 @@ public void testBug530971_redundant() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void testBug530971_locally_redundant() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -17664,6 +18070,7 @@ public void testBug530971_locally_redundant() {
 		""
 	);
 }
+@Test
 public void testBug518839() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -17811,6 +18218,7 @@ public void testBug518839() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug518839_BTB() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -17991,6 +18399,7 @@ public void testBug518839_BTB() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug531040() {
 	if (this.complianceLevel < ClassFileConstants.JDK10)
 		return;
@@ -18033,6 +18442,7 @@ public void testBug531040() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug533339() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18085,6 +18495,7 @@ public void testBug533339() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void testBug534516() {
 	runConformTestWithLibs(
 			new String[] {
@@ -18140,6 +18551,7 @@ public void testBug534516() {
 			""
 		);
 }
+@Test
 public void testBug536459() {
 	runConformTestWithLibs(
 			new String[] {
@@ -18156,6 +18568,7 @@ public void testBug536459() {
 			getCompilerOptions(),
 			"");
 }
+@Test
 public void testBug536555() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -18184,6 +18597,7 @@ public void testBug536555() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void testBug540264() {
 	runNegativeTest(
 		true,
@@ -18220,6 +18634,7 @@ public void testBug540264() {
 		JavacTestOptions.DEFAULT
 	);
 }
+@Test
 public void testBug542707_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -18267,6 +18682,7 @@ public void testBug542707_1() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testBug499714() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -18288,6 +18704,7 @@ public void testBug499714() {
 		"Potential null pointer access: The method get() may return null\n" +
 		"----------\n");
 }
+@Test
 public void testBug482242_simple() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.ERROR);
@@ -18316,6 +18733,7 @@ public void testBug482242_simple() {
 		"Unsafe null type conversion (type annotations): The value of type \'List<@NonNull String>\' is made accessible using the less-annotated type \'List<String>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug482242_intermediate() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.ERROR);
@@ -18354,6 +18772,7 @@ public void testBug482242_intermediate() {
 		"Unsafe null type conversion (type annotations): The value of type \'List<@NonNull String>\' is made accessible using the less-annotated type \'List<? super String>\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug482242_annotatedTypeVariable() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.ERROR);
@@ -18390,6 +18809,7 @@ public void testBug482242_annotatedTypeVariable() {
 		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'capture#of ? super String\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug482242_boundedWildcard() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.ERROR);
@@ -18431,6 +18851,7 @@ public void testBug482242_boundedWildcard() {
 		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'capture#of ? super @Nullable String\'\n" +
 		"----------\n");
 }
+@Test
 public void testBug560213source() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -18462,6 +18883,7 @@ public void testBug560213source() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testBug560213binary() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -18498,6 +18920,7 @@ public void testBug560213binary() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testBug560310() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -18534,6 +18957,7 @@ public void testBug560310() {
 		"----------\n";
 	runner.runWarningTest();
 }
+@Test
 public void testBug560310try_finally() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -18577,6 +19001,7 @@ public void testBug560310try_finally() {
 		"----------\n";
 	runner.runWarningTest();
 }
+@Test
 public void testBug562347_561280c9() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -18630,6 +19055,7 @@ public void testBug562347_561280c9() {
 		"Dead code\n" +
 		"----------\n");
 }
+@Test
 public void testBug562347() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18686,6 +19112,7 @@ public void testBug562347() {
 	runner.classLibraries = this.LIBS;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug578300() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18728,6 +19155,7 @@ public void testBug578300() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testRequireNonNull() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -18756,6 +19184,7 @@ public void testRequireNonNull() {
 	runner.runConformTest();
 }
 
+@Test
 public void testBug522142_redundant1() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18781,6 +19210,7 @@ public void testBug522142_redundant1() {
 	runner.runWarningTest();
 }
 
+@Test
 public void testBug522142_redundant2() {
 	// challenge ArrayQualifiedTypeReference:
 	Runner runner = new Runner();
@@ -18812,6 +19242,7 @@ public void testBug522142_redundant2() {
 	runner.runWarningTest();
 }
 
+@Test
 public void testBug522142_redundant3() {
 	// challenge ArrayQualifiedTypeReference:
 	Runner runner = new Runner();
@@ -18836,6 +19267,7 @@ public void testBug522142_redundant3() {
 	runner.classLibraries = this.LIBS;
 	runner.runWarningTest();
 }
+@Test
 public void testBug522142_bogusError() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18855,6 +19287,7 @@ public void testBug522142_bogusError() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testBug499596() throws Exception {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18931,6 +19364,7 @@ public void testBug499596() throws Exception {
 	runner.classLibraries = this.LIBS;
 	runner.runWarningTest();
 }
+@Test
 public void testRedundantNonNull_field() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18953,6 +19387,7 @@ public void testRedundantNonNull_field() {
 	runner.classLibraries = this.LIBS;
 	runner.runWarningTest();
 }
+@Test
 public void testGH1007_srikanth() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18978,6 +19413,7 @@ public void testGH1007_srikanth() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGH854() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -19003,6 +19439,7 @@ public void testGH854() {
 	runner.runConformTest();
 }
 // duplicate of #1077
+@Test
 public void testGH476() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -19032,6 +19469,7 @@ public void testGH476() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testVSCodeIssue3076() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -19078,6 +19516,7 @@ public void testVSCodeIssue3076() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGH986() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -19098,6 +19537,7 @@ public void testGH986() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGHjdtls2386() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -19138,6 +19578,7 @@ public void testGHjdtls2386() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGH1311() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19167,6 +19608,7 @@ public void testGH1311() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testGH1311_expiry() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19226,6 +19668,7 @@ public void testGH1311_expiry() {
 	runner.classLibraries = this.LIBS;
 	runner.runNegativeTest();
 }
+@Test
 public void testBreakInNested_GH1659() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -19255,6 +19698,7 @@ public void testBreakInNested_GH1659() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testBreakInNested_GH1659_defNull() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -19293,6 +19737,7 @@ public void testBreakInNested_GH1659_defNull() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testBreakInNested_GH1661() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -19337,6 +19782,7 @@ public void testBreakInNested_GH1661() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testGH1693_a() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -19374,6 +19820,7 @@ public void testGH1693_a() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH1693_b() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -19411,6 +19858,7 @@ public void testGH1693_b() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH1693_c() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -19448,6 +19896,7 @@ public void testGH1693_c() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testGH2158() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -19520,6 +19969,7 @@ public void testGH2158() {
 		TypeDeclaration.TESTING_GH_2158 = false;
 	}
 }
+@Test
 public void testGH2325() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19555,6 +20005,7 @@ public void testGH2325() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testGH2325_a() {
 	// argument nullness variance
 	Runner runner = new Runner();
@@ -19589,6 +20040,7 @@ public void testGH2325_a() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testGH2325_b() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19613,6 +20065,7 @@ public void testGH2325_b() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testGH3192() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19655,6 +20108,7 @@ public void testGH3192() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testErrorPosition() {
 	StringBuilder padding = new StringBuilder();
 	// push the relevant source to a position beyond 0xFFFF to trigger bug in position computation
@@ -19682,6 +20136,7 @@ public void testErrorPosition() {
 		----------
 		""");
 }
+@Test
 public void testGH3461() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19721,6 +20176,7 @@ public void testGH3461() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+@Test
 public void testGH4011() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19786,6 +20242,7 @@ public void testGH4011() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH4668a() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19848,6 +20305,7 @@ public void testGH4668a() throws Exception {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH4717_OR() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19896,6 +20354,7 @@ public void testGH4717_OR() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH4717_nullExit() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -19971,6 +20430,7 @@ public void testGH4717_nullExit() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4494
 // Trouble annotating explicit receiver with ECJ (works fine with javac)
+@Test
 public void testGH4494() throws Exception {
 	runConformTest(new String[] {
 			"AnnotatedExplicitReceiverError.java",
@@ -19994,6 +20454,7 @@ public void testGH4494() throws Exception {
 	});
 }
 
+@Test
 public void testGH5042() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
@@ -20018,6 +20479,7 @@ public void testGH5042() throws Exception {
 		"");
 }
 
+@Test
 public void testGH5042b() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -20079,6 +20541,7 @@ public void testGH5042b() throws Exception {
 		----------
 		""");
 }
+@Test
 public void testGH4297_1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -20120,6 +20583,7 @@ public void testGH4297_1() {
 		----------
 		""");
 }
+@Test
 public void testGH4297_2() {
 	runNegativeTestWithLibs(new String[] {
 			"GenericsOrder.java",
@@ -20157,6 +20621,7 @@ public void testGH4297_2() {
 		----------
 		""");
 }
+@Test
 public void testGH4297_3() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -20200,6 +20665,7 @@ public void testGH4297_3() {
 		----------
 		""");
 }
+@Test
 public void testGH5070() {
 	runConformTestWithLibs(new String[] {
 			"GenericsOrder.java",
@@ -20224,6 +20690,7 @@ public void testGH5070() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testGH5070_returnType() {
 	runNegativeTestWithLibs(new String[] {
 			"GenericsOrder.java",
@@ -20263,6 +20730,7 @@ public void testGH5070_returnType() {
 		----------
 		""");
 }
+@Test
 public void testGH5249() {
 	runConformTestWithLibs(true, new String[] {
 			"Test.java",
@@ -20291,6 +20759,7 @@ public void testGH5249() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testGH5249_inheritedBuilders() {
 	String client = """
 		public class Test {
@@ -20325,6 +20794,7 @@ public void testGH5249_inheritedBuilders() {
 		"");
 	runConformTestWithLibs(false, new String[] { "Test.java", client }, getCompilerOptions(), "");
 }
+@Test
 public void testGH5249_inheritedBuilders_variation1() {
 	String client = """
 		import org.eclipse.jdt.annotation.*;
@@ -20371,6 +20841,7 @@ public void testGH5249_inheritedBuilders_variation1() {
 			----------
 			""");
 }
+@Test
 public void testGH5249_inheritedBuilders_variation2() {
 	String client = """
 		import org.eclipse.jdt.annotation.*;
@@ -20407,6 +20878,7 @@ public void testGH5249_inheritedBuilders_variation2() {
 		"");
 	runConformTestWithLibs(false, new String[] { "Test.java", client }, getCompilerOptions(), "");
 }
+@Test
 public void testGH5249_inheritedNullAnnotations() {
 	runConformTestWithLibs(new String[] {
 			"Test.java",
@@ -20438,6 +20910,7 @@ public void testGH5249_inheritedNullAnnotations() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testGH5316() throws Exception {
 	runConformTestWithLibs(new String[] {
 			"MyInnocentClass.java",
@@ -20458,6 +20931,7 @@ public void testGH5316() throws Exception {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testGH5340() throws Exception {
 	runConformTestWithLibs(new String[] {
 		"X.java",

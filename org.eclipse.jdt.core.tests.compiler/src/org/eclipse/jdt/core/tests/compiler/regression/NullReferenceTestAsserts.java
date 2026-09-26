@@ -19,11 +19,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /* See also NullReferenceTests for general null reference tests */
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -31,8 +32,8 @@ public class NullReferenceTestAsserts extends AbstractRegressionTest {
 
 // class libraries including org.eclipse.equinox.common
 String[] assertLib = null;
-public NullReferenceTestAsserts(String name) {
-	super(name);
+public NullReferenceTestAsserts(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // Static initializer to specify tests subset using TESTS_* static variables
@@ -132,14 +133,6 @@ static final String GOOGLE_PRECONDITIONS_CONTENT = "package com.google.common.ba
 		"    static public void checkState(boolean expression, String msgTmpl, Object... messageArgs) {}\n" +
 		"}\n";
 
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-
-public static Class testClass() {
-	return NullReferenceTestAsserts.class;
-}
-
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
@@ -172,6 +165,7 @@ protected Map getCompilerOptions() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575a() throws IOException {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -192,6 +186,7 @@ public void testBug127575a() throws IOException {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575b() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -219,6 +214,7 @@ public void testBug127575b() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575c() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -246,6 +242,7 @@ public void testBug127575c() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575d() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -284,6 +281,7 @@ public void testBug127575d() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575e() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -310,6 +308,7 @@ public void testBug127575e() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575e_1() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -343,6 +342,7 @@ public void testBug127575e_1() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575e_2() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -369,6 +369,7 @@ public void testBug127575e_2() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
+@Test
 public void testBug127575f() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -402,6 +403,7 @@ public void testBug127575f() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // do warn always false comparisons even inside org.eclipse.core.runtime.Assert.isLegal
+@Test
 public void testBug127575g() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -442,6 +444,7 @@ public void testBug127575g() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
+@Test
 public void testBug127575h() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -516,6 +519,7 @@ public void testBug127575h() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
+@Test
 public void testBug127575i() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -557,6 +561,7 @@ public void testBug127575i() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings in a looping context,
 // but this doesn't affect the downstream info.
+@Test
 public void testBug127575j() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -633,6 +638,7 @@ public void testBug127575j() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings in a finally context,
 // but this doesn't affect the downstream info.
+@Test
 public void testBug127575k() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -712,6 +718,7 @@ public void testBug127575k() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // The condition of org.eclipse.core.runtime.Assert.isLegal is considered always true
 // and alters the following analysis suitably.
+@Test
 public void testBug127575l() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -795,6 +802,7 @@ public void testBug127575l() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // NPE warnings should be given inside org.eclipse.core.runtime.Assert.isLegal too
+@Test
 public void testBug127575m() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -835,6 +843,7 @@ public void testBug127575m() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // always false comparison in Assert.isLegal in loop should be warned against
+@Test
 public void testBug127575n() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -874,6 +883,7 @@ public void testBug127575n() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // "redundant null check" in Assert.isLegal in loop should not be warned against
+@Test
 public void testBug127575o() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -907,6 +917,7 @@ public void testBug127575o() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=373953
+@Test
 public void testBug373953() throws IOException {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -954,6 +965,7 @@ public void testBug373953() throws IOException {
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // junit's assertNotNull
+@Test
 public void testBug382069a() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -975,6 +987,7 @@ public void testBug382069a() throws IOException {
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // org.eclipse.core.runtime.Assert.isNotNull
+@Test
 public void testBug382069b() {
 	if (RUN_JAVAC && this.complianceLevel < ClassFileConstants.JDK11)
 		return; // Assert has class file format JDK 11
@@ -1000,6 +1013,7 @@ public void testBug382069b() {
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // junit's assertNull and dead code analysis
+@Test
 public void testBug382069c() throws IOException {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1044,6 +1058,7 @@ public void testBug382069c() throws IOException {
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // various asserts from org.apache.commons.lang.Validate
+@Test
 public void testBug382069d() throws IOException {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1076,6 +1091,7 @@ public void testBug382069d() throws IOException {
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // various asserts from org.apache.commons.lang3Validate
+@Test
 public void testBug382069e() throws IOException {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1108,6 +1124,7 @@ public void testBug382069e() throws IOException {
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // various asserts from com.google.common.base.Preconditions
+@Test
 public void testBug382069f() throws IOException {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1140,6 +1157,7 @@ public void testBug382069f() throws IOException {
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // java.util.Objects#requireNonNull
+@Test
 public void testBug382069g() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1160,6 +1178,7 @@ public void testBug382069g() throws IOException {
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // junit's assertTrue / assertFalse
+@Test
 public void testBug382069h() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1180,6 +1199,7 @@ public void testBug382069h() throws IOException {
 }
 // Bug 401159 - [null] Respect org.junit.Assert for control flow
 // various asserts from org.junit.Assert
+@Test
 public void testBug401159() throws IOException {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1212,6 +1232,7 @@ public void testBug401159() throws IOException {
 
 // https://bugs.eclipse.org/472618 - [compiler][null] assertNotNull vs. Assert.assertNotNull
 // junit's assertNotNull
+@Test
 public void testBug472618() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1240,6 +1261,7 @@ public void testBug472618() throws IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=568542
 // junit 5's assertNotNull
+@Test
 public void testBug568542a() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1261,6 +1283,7 @@ public void testBug568542a() throws IOException {
 		"");
 }
 // junit 5's assertNull
+@Test
 public void testBug568542b() throws IOException {
 	runNegativeTest(
 		new String[] {
@@ -1298,6 +1321,7 @@ public void testBug568542b() throws IOException {
 	);
 }
 // junit 5's assertTrue
+@Test
 public void testBug568542c() throws IOException {
 	this.runConformTest(
 		new String[] {
@@ -1319,6 +1343,7 @@ public void testBug568542c() throws IOException {
 		"");
 }
 // junit 5's assertFalse
+@Test
 public void testBug568542d() throws IOException {
 	runNegativeTest(
 		new String[] {

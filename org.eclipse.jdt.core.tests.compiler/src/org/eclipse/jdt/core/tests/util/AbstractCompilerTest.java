@@ -22,21 +22,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
 import org.eclipse.jdt.core.tests.junit5.extension.TestCase;
+import org.eclipse.jdt.core.tests.junit5.extension.TestClassFilter;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ParameterizedClass(name = "[{0}]")
 @MethodSource("compliances")
+@ExtendWith(TestClassFilter.class)
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AbstractCompilerTest extends TestCase {
 
@@ -67,13 +70,28 @@ public class AbstractCompilerTest extends TestCase {
 	// specifying "-Drun.javac=enabled" unconditionally enables comparison with javac for all tests:
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	// specifying "-Drun.javac=optin" (case insensitive) enables comparison with javac for tests that set runJavacOptIn to true
-	public static final boolean RUN_JAVAC_OPT_IN = "optin".equalsIgnoreCase(System.getProperty("run.javac"));
+	public static final boolean RUN_JAVAC_OPT_IN = propertyMatches("run.javac", "optin");
+	public static final boolean ONLY_RUN_JAVA_OPT_IN = propertyMatches("run.javac", "optinonly");
+	private static boolean propertyMatches(String name, String prefix) {
+		String prop = System.getProperty(name);
+		return prop != null && prop.toLowerCase().startsWith(prefix);
+	}
 	protected boolean runJavacOptIn = false;
 
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
 	private static final int UNINITIALIZED = -1;
 	private static final int NONE = 0;
 	private static int possibleComplianceLevels = UNINITIALIZED;
+	public static List<Compliance >selectedComplianceLevels = null;
+
+	/**
+	 * Setup shared by all tests of one class and of the same compliance level.
+	 * Instantiated on demand in the constructor.
+	 * Taken down either in the first constructor for a new compliance level or in
+	 * {@link #tearDownClass()}.
+	 */
+	protected static CompilerTestSetup testSetup;
+
 
 	protected long complianceLevel;
 	protected boolean enableAPT = false;
@@ -98,8 +116,6 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE26Plus = false;
 	protected static boolean isJRE27Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
-
-	public static Predicate<Class<?>> testClassFilter;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
 		new int[] {F_1_8, ClassFileConstants.MAJOR_VERSION_1_8},
@@ -131,93 +147,48 @@ public class AbstractCompilerTest extends TestCase {
 		}
 	}
 
+	/** Computes the JUnit test parameters per test. */
 	static List<Compliance> compliances(TestInfo info) {
-		int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		List<Compliance> compliances = new ArrayList<>();
-		int min = getMinCompliance(info);
-		for (int v=0; v < AbstractCompilerTest.NUM_VERSIONS; v++) {
-			int level = AbstractCompilerTest.F_1_8 << v;
-			if ((possibleComplianceLevels & level) != 0 && level >= min) {
-				long complianceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_1_8+v);
-				compliances.add(new Compliance(CompilerOptions.versionFromJdkLevel(complianceLevel)));
+		if (selectedComplianceLevels == null) {
+			int allPossibleLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+			selectedComplianceLevels = new ArrayList<>();
+			MinimalCompliance minimalCompliance = info.getTestClass().get().getAnnotation(MinimalCompliance.class);
+			boolean selectedSome = false;
+			for (int v=0; v < AbstractCompilerTest.NUM_VERSIONS; v++) {
+				int level = AbstractCompilerTest.F_1_8 << v;
+				if ((allPossibleLevels & level) != 0) {
+					if (isApplicable(level, minimalCompliance, selectedSome)) {
+						long complianceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_1_8+v);
+						selectedComplianceLevels.add(new Compliance(CompilerOptions.versionFromJdkLevel(complianceLevel)));
+						selectedSome = true;
+					}
+				}
 			}
 		}
-		return compliances;
+		return selectedComplianceLevels;
 	}
 
-	protected static int getMinCompliance(TestInfo info) {
+	private static boolean isApplicable(int level, MinimalCompliance minCompliance, boolean selectedSome) {
 		try {
-			MinimalCompliance minCompliance = info.getTestClass().get().getAnnotation(MinimalCompliance.class);
-			if (minCompliance != null)
-				return minCompliance.value();
+			if (minCompliance != null) {
+				if (minCompliance.singleVersion() && selectedSome)
+					return false;
+				return level >= minCompliance.value();
+			}
 		} catch (SecurityException e) {
 			// ignore, use default below
 		}
-		return F_1_8;
+		return true;
 	}
 
-	/**
-	 * Build a test suite made of test suites for all possible running VM compliances .
-	 *
-	 * @see #buildUniqueComplianceTestSuite(Class, long) for test suite children content.
-	 *
-	 * @param evaluationTestClass The main test suite to build.
-	 * @return built test suite (see {@link TestSuite}
-	 */
-	public static Test buildAllCompliancesTestSuite(Class evaluationTestClass) {
-		TestSuite suite = new TestSuite(evaluationTestClass.getName());
-		buildAllCompliancesTestSuite(suite, evaluationTestClass);
-		return suite;
-	}
-	public static void buildAllCompliancesTestSuite(TestSuite suite, Class evaluationTestClass) {
-		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		for (int[] map : complianceTestLevelMapping) {
-			if ((complianceLevels & map[0]) != 0) {
-				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(map[1])));
-			}
-		}
-	}
-
-	/**
-	 * Build a test suite made of test suites for all possible running VM compliances .
-	 *
-	 * @see #buildComplianceTestSuite(List, Class, long) for test suite children content.
-	 *
-	 * @param testSuiteClass The main test suite to build.
-	 * @param setupClass The compiler setup to class to use to bundle given tets suites tests.
-	 * @param testClasses The list of test suites to include in main test suite.
-	 * @return built test suite (see {@link TestSuite}
-	 */
-	public static Test buildAllCompliancesTestSuite(Class testSuiteClass, Class setupClass, List testClasses) {
-		TestSuite suite = new TestSuite(testSuiteClass.getName());
-		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-
-		for (int[] map : complianceTestLevelMapping) {
-			if ((complianceLevels & map[0]) != 0) {
-				suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.getComplianceLevelForJavaVersion(map[1])));
-			}
-		}
-		return suite;
+	@AfterAll
+	public static void resetComplianceLevels() {
+		selectedComplianceLevels = null;
 	}
 
 	 public static void setpossibleComplianceLevels(int complianceLevel) {
          possibleComplianceLevels = complianceLevel;
 	 }
-
-	/**
-	 * Build a test suite for a compliance and a list of test suites.
-	 * Returned test suite has only one child: {@link RegressionTestSetup} test suite.
-	 * Name of returned suite is the given compliance level.
-	 *
-	 * @see #buildComplianceTestSuite(List, Class, long) for child test suite content.
-	 *
-	 * @param complianceLevel The compliance level used for this test suite.
-	 * @param testClasses The list of test suites to include in main test suite.
-	 * @return built test suite (see {@link TestSuite}
-	 */
-	public static Test buildComplianceTestSuite(long complianceLevel, List testClasses) {
-		return buildComplianceTestSuite(testClasses, RegressionTestSetup.class, complianceLevel);
-	}
 
 	/**
 	 * Build a test suite for a compliance and a list of test suites.
@@ -229,9 +200,6 @@ public class AbstractCompilerTest extends TestCase {
 	 * @return built test suite (see {@link TestSuite}
 	 */
 	private static Test buildComplianceTestSuite(List testClasses, Class setupClass, long complianceLevel) {
-		if (testClassFilter != null) {
-			testClasses = testClasses.stream().filter(testClassFilter).toList();
-		}
 		// call the setup constructor with the compliance level
 		TestSuite complianceSuite = null;
 		try {
@@ -254,6 +222,7 @@ public class AbstractCompilerTest extends TestCase {
 		// add tests
 		for (int i=0, m=testClasses.size(); i<m ; i++) {
 			Class testClass = (Class)testClasses.get(i);
+			// FIXME: re-implement @PreviewTest logic
 			if (futureJREUsed) {
 				Annotation annotation = testClass.getAnnotation(PreviewTest.class);
 				if (annotation != null) {
@@ -261,6 +230,7 @@ public class AbstractCompilerTest extends TestCase {
 				}
 			}
 			TestSuite suite = new TestSuite(testClass.getName());
+			// FIXME: test inheritance for JUnit5?
 			int inheritedDepth = 0;
 			try {
 				Field depthField = testClass.getDeclaredField("INHERITED_DEPTH");
@@ -343,7 +313,7 @@ public class AbstractCompilerTest extends TestCase {
 			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+complianceString+"!");
 			return new TestSuite();
 		}
-		TestSuite complianceSuite = new RegressionTestSetup(uniqueCompliance);
+		TestSuite complianceSuite = null; // new RegressionTestSetup(uniqueCompliance);
 		List tests = buildTestsList(evaluationTestClass);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			complianceSuite.addTest((Test)tests.get(index));
@@ -566,7 +536,7 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass, long complianceLevel) {
-		TestSuite suite = new RegressionTestSetup(complianceLevel);
+		TestSuite suite =  null; // new RegressionTestSetup(complianceLevel);
 		List tests = buildTestsList(evaluationTestClass);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
@@ -600,8 +570,21 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	public AbstractCompilerTest(Compliance compliance, TestInfo testInfo) {
-		super(testInfo.getDisplayName());
+		super(stripDisplayName(testInfo.getDisplayName()));
 		this.complianceLevel = CompilerOptions.versionToJdkLevel(compliance.displayName());
+		if (testSetup == null || testSetup.complianceLevel!= this.complianceLevel) {
+			if (testSetup != null)
+				testSetup.tearDown();
+			testSetup = newTestSetup(testInfo.getTestClass().get().getName() + '[' + compliance.displayName() + ']', this.complianceLevel);
+		}
+	}
+	static String stripDisplayName(String name) {
+		int open = name.indexOf("()");
+		return open == -1 ? name : name.substring(0, open);
+	}
+
+	protected CompilerTestSetup newTestSetup(String testName, long level) {
+		return new CompilerTestSetup(testName, level);
 	}
 
 	protected Map getCompilerOptions() {
@@ -653,9 +636,24 @@ public class AbstractCompilerTest extends TestCase {
 		return version;
 	}
 
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		initialize(testSetup);
+	}
+
 	public void initialize(CompilerTestSetup setUp) {
+		testSetup.setUp();
 		this.complianceLevel = setUp.complianceLevel;
 		this.enableAPT = System.getProperty("enableAPT") != null;
+	}
+
+	@AfterAll
+	static void tearDownClass() {
+		if (testSetup != null) {
+			testSetup.tearDown();
+			testSetup = null;
+		}
 	}
 
 	protected String testName() {
@@ -703,5 +701,6 @@ public class AbstractCompilerTest extends TestCase {
 
 	// Summary display
 	// Used by AbstractRegressionTest for javac comparison tests
+	// FIXME: re-design for JUnit5
 	protected static Map TESTS_COUNTERS = new HashMap();
 }

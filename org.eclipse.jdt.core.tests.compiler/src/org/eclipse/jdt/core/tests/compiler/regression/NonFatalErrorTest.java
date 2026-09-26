@@ -14,14 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NonFatalErrorTest extends AbstractRegressionTest {
-	public NonFatalErrorTest(String name) {
-		super(name);
+	public NonFatalErrorTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
@@ -31,14 +32,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return NonFatalErrorTest.class;
-	}
-
+	@Test
 	public void test001() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
@@ -73,6 +67,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 
+	@Test
 	public void test002() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.ENABLED);
@@ -108,6 +103,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 
+	@Test
 	public void test003() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
@@ -140,6 +136,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 
+	@Test
 	public void test004() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
@@ -174,6 +171,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 
+	@Test
 	public void test005() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.ENABLED);
@@ -210,6 +208,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
+	@Test
 	public void test006() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
@@ -261,6 +260,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			// javac options
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
+	@Test
 	public void test007() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError,
@@ -295,6 +295,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 				// compiler results
 				null /* do not check error string */);
 	}
+	@Test
 	public void testImportUnresolved() {
 		Map<String,String> options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
@@ -324,6 +325,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			"",
 			JavacTestOptions.SKIP);
 	}
+	@Test
 	public void testImportUnresolved_fatal() {
 		Map<String,String> options = getCompilerOptions();
 		try {
@@ -371,6 +373,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 		}
 	}
+	@Test
 	public void testPackageConflict() {
 		Map<String,String> options = getCompilerOptions();
 		try {
@@ -413,6 +416,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 		}
 	}
+	@Test
 	public void testImportVariousProblems() {
 		Map<String,String> options = getCompilerOptions();
 		try {
@@ -475,6 +479,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 		}
 	}
+	@Test
 	public void testImportStaticProblems() {
 		Map<String,String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
@@ -524,6 +529,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			"",
 			JavacTestOptions.SKIP);
 	}
+	@Test
 	public void testDuplicateImports1() {
 		runConformTest(
 			new String[] {
@@ -536,6 +542,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 				"}\n"
 			});
 	}
+	@Test
 	public void testDuplicateImports2() {
 		runConformTest(
 			new String[] {
@@ -548,6 +555,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 				"}\n"
 			});
 	}
+	@Test
 	public void testDuplicateImports3() {
 		runNegativeTest(
 			new String[] {

@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -24,11 +23,12 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class EnclosingMethodAttributeTest extends AbstractComparableTest {
-	public EnclosingMethodAttributeTest(String name) {
-		super(name);
+	public EnclosingMethodAttributeTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -39,14 +39,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
-	public static Test suite() {
-		return buildComparableTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return EnclosingMethodAttributeTest.class;
-	}
-
+	@Test
 	public void test001() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -92,6 +85,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		}
 	}
 
+	@Test
 	public void test002() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -138,6 +132,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162356
+	@Test
 	public void test003() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -204,6 +199,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=288920
+	@Test
 	public void test004() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -259,6 +255,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1905
 	// ECJ writes incorrect enclosing method for doubly-nested anonymous class
+	@Test
 	public void testGH1905() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK10)
 			return;

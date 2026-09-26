@@ -14,15 +14,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class BootstrapMethodAttributeTest extends AbstractRegressionTest {
-	public BootstrapMethodAttributeTest(String name) {
-		super(name);
+	public BootstrapMethodAttributeTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	public static Class testClass() {
@@ -37,9 +38,7 @@ public class BootstrapMethodAttributeTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
+	@Test
 	public void test001() throws Exception {
 
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();

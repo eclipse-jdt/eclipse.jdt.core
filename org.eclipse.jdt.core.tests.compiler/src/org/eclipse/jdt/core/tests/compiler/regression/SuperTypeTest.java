@@ -14,14 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SuperTypeTest extends AbstractRegressionTest {
 
-	public SuperTypeTest(String name) {
-		super(name);
+	public SuperTypeTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
@@ -31,17 +32,10 @@ public class SuperTypeTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return SuperTypeTest.class;
-	}
-
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=136106
 	 */
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -72,6 +66,7 @@ public class SuperTypeTest extends AbstractRegressionTest {
 		);
 	}
 // was Compliance_1_x#test001
+@Test
 public void test002() {
 	String[] sources = new String[] {
 		"p1/Test.java",
@@ -99,6 +94,7 @@ public void test002() {
 }
 
 // was Compliance_1_x#test002
+@Test
 public void test003() {
 	String[] sources = new String[] {
 		"p1/Test.java",
@@ -127,6 +123,7 @@ public void test003() {
 }
 
 // was Compliance_1_x#test003
+@Test
 public void test004() {
 	String[] sources = new String[] {
 		"p1/Test.java",
@@ -153,6 +150,7 @@ public void test004() {
 }
 
 // was Compliance_1_x#test004
+@Test
 public void test005() {
 	this.runConformTest(
 		new String[] {
@@ -180,6 +178,7 @@ public void test005() {
 }
 
 // was Compliance_1_x#test005
+@Test
 public void test006() {
 	this.runConformTest(
 		new String[] {
@@ -205,6 +204,7 @@ public void test006() {
 }
 
 // was Compliance_1_x#test006
+@Test
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -238,6 +238,7 @@ public void test007() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
 // default is silent
+@Test
 public void test008() {
 	this.runConformTest(
 		new String[] {
@@ -252,6 +253,7 @@ public void test008() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
 // raising an error
+@Test
 public void test009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -280,6 +282,7 @@ public void test009() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
 // raising an error - deeper hierarchy
+@Test
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.ERROR);
@@ -309,6 +312,7 @@ public void test010() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
 // no error - deeper hierarchy
+@Test
 public void test011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -330,6 +334,7 @@ public void test011() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
 // error - extending interfaces
+@Test
 public void test012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -357,6 +362,7 @@ public void test012() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=288749
+@Test
 public void test013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -415,6 +421,7 @@ public void test013() {
 		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=288749
+@Test
 public void test014() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -442,6 +449,7 @@ public void test014() {
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (as is)
+@Test
 public void test015() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -480,6 +488,7 @@ public void test015() {
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
+@Test
 public void test016() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -520,6 +529,7 @@ public void test016() {
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
+@Test
 public void test017() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
@@ -563,6 +573,7 @@ public void test017() {
 		JavacTestOptions.SKIP);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
+@Test
 public void test018() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);

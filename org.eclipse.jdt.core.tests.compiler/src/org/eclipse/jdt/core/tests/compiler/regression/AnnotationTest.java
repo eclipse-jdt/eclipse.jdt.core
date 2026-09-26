@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -63,6 +62,8 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @RunJavac
 public class AnnotationTest extends AbstractComparableTest {
@@ -79,12 +80,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	private String repeatableIntroText;
 	private String repeatableTrailerText;
 
-	public AnnotationTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildComparableTestSuite(AnnotationTest.class);
+	public AnnotationTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -122,6 +119,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		this.javaClassLib = null; // use only in selected tests
 	}
 
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -134,6 +132,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check invalid annotation
+	@Test
 	public void test002() {
 		this.runNegativeTest(
 			new String[] {
@@ -154,6 +153,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation method cannot indirectly return annotation type (circular ref)
+	@Test
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -203,6 +203,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation method cannot directly return annotation type
+	@Test
 	public void test004() {
 		this.runNegativeTest(
 			new String[] {
@@ -220,6 +221,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation type cannot have superclass
+	@Test
 	public void test005() {
 		this.runNegativeTest(
 			new String[] {
@@ -236,6 +238,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation type cannot have superinterfaces
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -253,6 +256,7 @@ public class AnnotationTest extends AbstractComparableTest {
 
 	// check annotation method cannot be specified parameters
 	// TODO (olivier) unoptimal syntax error -> no parameter for annotation method?
+	@Test
 	public void test007() {
 		this.runNegativeTest(
 			new String[] {
@@ -270,6 +274,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// annotation method cannot be generic?
+	@Test
 	public void test008() {
 		this.runNegativeTest(
 			new String[] {
@@ -292,6 +297,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation method return type
+	@Test
 	public void test009() {
 		this.runNegativeTest(
 			new String[] {
@@ -311,6 +317,7 @@ public class AnnotationTest extends AbstractComparableTest {
 
 	// check annotation method missing return type
 	// TODO (olivier) we should get rid of syntax error here (tolerate invalid constructor scenario)
+	@Test
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
@@ -329,6 +336,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation denotes annotation type
+	@Test
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
@@ -346,6 +354,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check for duplicate annotations
+	@Test
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
@@ -369,6 +378,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check single member annotation - no need to specify value if member has default value
+	@Test
 	public void test013() {
 		this.runConformTest(
 			new String[] {
@@ -385,6 +395,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check single member annotation -  need to speficy value if member has no default value
+	@Test
 	public void test014() {
 		this.runNegativeTest(
 			new String[] {
@@ -407,6 +418,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check normal annotation -  need to speficy value if member has no default value
+	@Test
 	public void test015() {
 		this.runNegativeTest(
 			new String[] {
@@ -430,6 +442,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check normal annotation - if single member, no need to be named 'value'
+	@Test
 	public void test016() {
 		this.runConformTest(
 			new String[] {
@@ -452,6 +465,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check single member annotation can only refer to 'value' member
+	@Test
 	public void test017() {
 		this.runNegativeTest(
 			new String[] {
@@ -485,6 +499,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check for duplicate member value pairs
+	@Test
 	public void test018() {
 		this.runNegativeTest(
 			new String[] {
@@ -518,6 +533,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check for duplicate member value pairs - simplified to check javac
+	@Test
 	public void test018b() {
 		this.runNegativeTest(
 			new String[] {
@@ -545,6 +561,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// check class annotation member value must be a class literal
+	@Test
 	public void test019() {
 		this.runNegativeTest(
 			new String[] {
@@ -583,6 +600,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check primitive annotation member value must be a constant
+	@Test
 	public void test020() {
 		this.runNegativeTest(
 			new String[] {
@@ -611,6 +629,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check String annotation member value must be a constant
+	@Test
 	public void test021() {
 		this.runNegativeTest(
 			new String[] {
@@ -638,6 +657,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// check String annotation member value must be a constant
+	@Test
 	public void test022() {
 		this.runNegativeTest(
 			new String[] {
@@ -665,6 +685,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of array initializer
+	@Test
 	public void test023() {
 		this.runConformTest(
 			new String[] {
@@ -682,6 +703,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check referencing binary annotation
+	@Test
 	public void test024() {
 		this.runConformTest(
 			new String[] {
@@ -706,6 +728,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test025() {
 		this.runConformTest(
 			new String[] {
@@ -730,6 +753,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test026() {
 		this.runConformTest(
 			new String[] {
@@ -754,6 +778,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test027() {
 		this.runConformTest(
 			new String[] {
@@ -778,6 +803,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test028() {
 		this.runConformTest(
 			new String[] {
@@ -802,6 +828,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test029() {
 		this.runConformTest(
 			new String[] {
@@ -826,6 +853,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test030() {
 		this.runConformTest(
 			new String[] {
@@ -850,6 +878,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test031() {
 		this.runConformTest(
 			new String[] {
@@ -874,6 +903,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test032() {
 		this.runConformTest(
 			new String[] {
@@ -898,6 +928,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test033() {
 		this.runConformTest(
 			new String[] {
@@ -922,6 +953,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test034() {
 		this.runConformTest(
 			new String[] {
@@ -946,6 +978,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test035() {
 		this.runConformTest(
 			new String[] {
@@ -973,6 +1006,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test036() {
 		this.runConformTest(
 			new String[] {
@@ -997,6 +1031,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test037() {
 		this.runConformTest(
 			new String[] {
@@ -1025,6 +1060,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check use of binary annotation - check default value presence
+	@Test
 	public void test038() {
 		this.runConformTest(
 			new String[] {
@@ -1048,6 +1084,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation member modifiers
+	@Test
 	public void test039() {
 		this.runNegativeTest(
 			new String[] {
@@ -1066,6 +1103,7 @@ public class AnnotationTest extends AbstractComparableTest {
 
 	// check annotation member modifiers (validity unchanged despite grammar change from JSR 335 - default methods)
 	// and https://bugs.eclipse.org/bugs/show_bug.cgi?id=3383968
+	@Test
 	public void test039a() {
 		String extra = this.complianceLevel < ClassFileConstants.JDK17 ? "" :
 				"----------\n" +
@@ -1097,6 +1135,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation array field initializer
+	@Test
 	public void test040() {
 		this.runNegativeTest(
 			new String[] {
@@ -1115,6 +1154,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation array field initializer
+	@Test
 	public void test041() {
 		this.runNegativeTest(
 			new String[] {
@@ -1133,6 +1173,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation array field initializer
+	@Test
 	public void test042() {
 		this.runConformTest(
 			new String[] {
@@ -1145,6 +1186,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation field initializer
+	@Test
 	public void test043() {
 		this.runNegativeTest(
 			new String[] {
@@ -1162,6 +1204,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation field initializer
+	@Test
 	public void test044() {
 		this.runNegativeTest(
 			new String[] {
@@ -1179,6 +1222,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check incompatible default values
+	@Test
 	public void test045() {
 		this.runNegativeTest(
 			new String[] {
@@ -1213,6 +1257,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check need for constant pair value
+	@Test
 	public void test046() {
 		this.runNegativeTest(
 			new String[] {
@@ -1239,6 +1284,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check array handling of singleton
+	@Test
 	public void test047() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1278,6 +1324,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check invalid constant in array initializer
+	@Test
 	public void test048() {
 		this.runNegativeTest(
 			new String[] {
@@ -1300,6 +1347,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79349
+	@Test
 	public void test049() {
 		this.runNegativeTest(
 			new String[] {
@@ -1327,6 +1375,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check array handling of singleton
+	@Test
 	public void test050() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1362,6 +1411,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 
+	@Test
 	public void test051() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1397,6 +1447,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 
+	@Test
 	public void test052() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1431,6 +1482,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test053() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1465,6 +1517,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test054() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1499,6 +1552,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test055() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1533,6 +1587,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test056() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1567,6 +1622,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test057() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1601,6 +1657,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test058() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1636,6 +1693,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 
+	@Test
 	public void test059() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1675,6 +1733,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 
+	@Test
 	public void test060() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1712,6 +1771,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test061() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1749,6 +1809,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	@Test
 	public void test062() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1818,6 +1879,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 		}
 	}
+	@Test
 	public void test063() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1888,6 +1950,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 	}
 
+	@Test
 	public void test064() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1924,6 +1987,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79848
+	@Test
 	public void test065() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1959,6 +2023,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79844
+	@Test
 	public void test066() {
 		this.runConformTest(
 			new String[] {
@@ -1976,6 +2041,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79844 - variation
+	@Test
 	public void test067() {
 		this.runNegativeTest(
 			new String[] {
@@ -1998,6 +2064,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 79844 - variation
+	@Test
 	public void test068() {
 		this.runConformTest(
 			new String[] {
@@ -2015,6 +2082,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79844 - variation
+	@Test
 	public void test069() {
 		this.runConformTest(
 			new String[] {
@@ -2032,6 +2100,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79847
+	@Test
 	public void test070() {
 		this.runNegativeTest(
 			new String[] {
@@ -2075,6 +2144,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test071() {
 		this.runNegativeTest(
 			new String[] {
@@ -2113,6 +2183,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check annotation cannot refer to inherited methods as attributes
+	@Test
 	public void test072() {
 		this.runNegativeTest(
 			new String[] {
@@ -2134,6 +2205,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check code generation of annotation default attribute (autowrapping)
+	@Test
 	public void test073() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2228,6 +2300,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 	}
 	// check code generation of annotation default attribute non array types
+	@Test
 	public void test074() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2321,6 +2394,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 	}
 	// check detection of duplicate target element specification
+	@Test
 	public void test075() {
 		this.runNegativeTest(
 			new String[] {
@@ -2354,6 +2428,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77463
+	@Test
 	public void test076() {
 		this.runNegativeTest(
 			new String[] {
@@ -2369,6 +2444,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// check @Override annotation - strictly for superclasses (overrides) and not interfaces (implements)
+	@Test
 	public void test077() {
 		String expectedOutput =
 				"----------\n" +
@@ -2403,6 +2479,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80114
+	@Test
 	public void test078() {
 		this.runNegativeTest(
 			new String[] {
@@ -2420,6 +2497,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	@Test
 	public void test079() {
 		this.runConformTest(
 			new String[] {
@@ -2446,6 +2524,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"@Attr(tst=-1)");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	@Test
 	public void test080() {
 		this.runConformTest(
 			new String[] {
@@ -2472,6 +2551,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"null");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	@Test
 	public void test081() {
 		this.runConformTest(
 			new String[] {
@@ -2498,6 +2578,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"null");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	@Test
 	public void test082() {
 		this.runConformTest(
 			new String[] {
@@ -2531,6 +2612,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	@Test
 	public void test083() {
 		this.runConformTest(
 			new String[] {
@@ -2564,6 +2646,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	@Test
 	public void test084() {
 		this.runConformTest(
 			new String[] {
@@ -2597,6 +2680,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76751
+	@Test
 	public void test085() {
 		this.runConformTest(
 			new String[] {
@@ -2626,6 +2710,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"true");
 	}
 	// check handling of empty array initializer
+	@Test
 	public void test086() {
 		this.runNegativeTest(
 			new String[] {
@@ -2644,6 +2729,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check type targeting annotation also allowed for annotation type
+	@Test
 	public void test087() {
 		this.runConformTest(
 			new String[] {
@@ -2663,6 +2749,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check parameter/local target for annotation
+	@Test
 	public void test088() {
 		this.runNegativeTest(
 			new String[] {
@@ -2689,6 +2776,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// Add check for parameter
+	@Test
 	public void test089() {
 		this.runConformTest(
 			new String[] {
@@ -2707,6 +2795,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"");
 	}
 	// Add check that type includes annotation type
+	@Test
 	public void test090() {
 		this.runConformTest(
 			new String[] {
@@ -2724,6 +2813,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"");
 	}
 	// Add check that a field cannot have an annotation targetting TYPE
+	@Test
 	public void test091() {
 		this.runNegativeTest(
 			new String[] {
@@ -2746,6 +2836,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Add check that a field cannot have an annotation targetting FIELD
+	@Test
 	public void test092() {
 		this.runConformTest(
 			new String[] {
@@ -2763,6 +2854,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"");
 	}
 	// @Inherited can only be used on annotation types
+	@Test
 	public void test093() {
 		this.runNegativeTest(
 			new String[] {
@@ -2797,6 +2889,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		"----------\n");
 	}
 	// check handling of empty array initializer (binary check)
+	@Test
 	public void test094() {
 		this.runConformTest(
 			new String[] {
@@ -2823,6 +2916,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check no interaction between Retention and Target (switch fall-thru)
+	@Test
 	public void test095() {
 		this.runConformTest(
 			new String[] {
@@ -2841,6 +2935,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check attributes for parameters
+	@Test
 	public void test096() {
 		this.runConformTest(
 			new String[] {
@@ -2882,6 +2977,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"13100");
 	}
 
+	@Test
 	public void test097() {
 		this.runNegativeTest(
 			new String[] {
@@ -2905,6 +3001,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80328
+	@Test
 	public void test098() {
 		this.runNegativeTest(
 			new String[] {
@@ -2927,6 +3024,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80780
+	@Test
 	public void test099() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2957,6 +3055,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"class X");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80544
+	@Test
 	public void test100() {
 		this.runConformTest(
 			new String[] {
@@ -2974,6 +3073,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81148
+	@Test
 	public void test101() {
 		this.runNegativeTest(
 			new String[] {
@@ -2997,6 +3097,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80964
+	@Test
 	public void test102() {
 		this.runConformTest(
 			new String[] {
@@ -3022,6 +3123,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80964
+	@Test
 	public void test103() {
 		this.runConformTest(
 			new String[] {
@@ -3054,6 +3156,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81825
+	@Test
 	public void test104() {
 		this.runConformTest(
 			new String[] {
@@ -3151,6 +3254,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82136
+	@Test
 	public void test105() {
 		this.runConformTest(
 			new String[] {
@@ -3198,6 +3302,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939
+    @Test
     public void test106() {
         this.runNegativeTest(
             new String[] {
@@ -3215,6 +3320,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939
+    @Test
     public void test107() {
         this.runNegativeTest(
             new String[] {
@@ -3233,6 +3339,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939 - variation
+    @Test
     public void test108() {
         this.runNegativeTest(
             new String[] {
@@ -3261,6 +3368,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939 - variation
+    @Test
     public void test109() {
         this.runNegativeTest(
             new String[] {
@@ -3289,6 +3397,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84791
+    @Test
     public void test110() {
         this.runConformTest(
             new String[] {
@@ -3334,6 +3443,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84791 - variation
+    @Test
     public void test111() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(
@@ -3448,6 +3558,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
+    @Test
     public void test112() {
         this.runNegativeTest(
             new String[] {
@@ -3467,6 +3578,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"zzz cannot be resolved to a variable\n" +
 			"----------\n");
     }
+    @Test
     public void test113() {
         this.runNegativeTest(
             new String[] {
@@ -3488,6 +3600,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n");
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291 - variation
+    @Test
     public void test114() {
         this.runNegativeTest(
             new String[] {
@@ -3514,6 +3627,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n");
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291 - variation
+    @Test
     public void test115() {
         this.runNegativeTest(
             new String[] {
@@ -3567,6 +3681,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n");
     }
     // check @Deprecated support
+    @Test
     public void test116() {
         this.runNegativeTest(
             new String[] {
@@ -3594,6 +3709,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @Deprecated support
+    @Test
     public void test117() {
         this.runNegativeTest(
             new String[] {
@@ -3620,6 +3736,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @Deprecated support
+    @Test
     public void test118() {
         this.runNegativeTest(
             new String[] {
@@ -3643,6 +3760,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @Deprecated support
+    @Test
     public void test119() {
         this.runNegativeTest(
             new String[] {
@@ -3681,6 +3799,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @Deprecated support
+    @Test
     public void test120() {
         this.runNegativeTest(
             new String[] {
@@ -3719,6 +3838,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check missing @Deprecated detection
+    @Test
     public void test121() {
         this.runNegativeTest(
             new String[] {
@@ -3764,6 +3884,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88446
+    @Test
     public void test122() {
         this.runConformTest(
             new String[] {
@@ -3800,6 +3921,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90110
+    @Test
     public void test123() {
         this.runNegativeTest(
             new String[] {
@@ -3827,6 +3949,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90110 - variation
+    @Test
     public void test124() {
         this.runNegativeTest(
             new String[] {
@@ -3858,6 +3981,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" +
 			"----------\n");
     }
+    @Test
     public void test125() {
         this.runConformTest(
             new String[] {
@@ -3878,6 +4002,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90484 - check no missing @Override warning
+    @Test
     public void test126() {
         this.runNegativeTest(
             new String[] {
@@ -3895,6 +4020,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @SuppressWarning support
+    @Test
     public void test127() {
         this.runNegativeTest(
             new String[] {
@@ -3923,6 +4049,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @SuppressWarning support
+    @Test
     public void test128() {
         this.runNegativeTest(
             new String[] {
@@ -3958,6 +4085,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n");
     }
     // check @SuppressWarning support
+    @Test
     public void test129() {
         this.runNegativeTest(
             new String[] {
@@ -3979,6 +4107,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @SuppressWarning support
+    @Test
     public void test130() {
     	Map<String, String> customOptions = new HashMap<>();
 		String[] warnings = CompilerOptions.warningOptionNames();
@@ -4017,6 +4146,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // check @SuppressWarning support
+    @Test
     public void test131() {
         this.runNegativeTest(
             new String[] {
@@ -4036,6 +4166,7 @@ public class AnnotationTest extends AbstractComparableTest {
             "----------\n");
     }
     // check @SuppressWarning support
+    @Test
     public void test132() {
         this.runNegativeTest(
             new String[] {
@@ -4105,6 +4236,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // check @SuppressWarning support
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89436
+    @Test
     public void test133() {
         this.runNegativeTest(
             new String[] {
@@ -4152,6 +4284,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n");
     }
     // check @SuppressWarning support
+    @Test
     public void test134() {
         this.runNegativeTest(
             new String[] {
@@ -4206,6 +4339,7 @@ public class AnnotationTest extends AbstractComparableTest {
     // check @SuppressWarning support
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=69505 -- NOT READY YET: "all" only so far, no file support --
     //                                                        hence no import support
+    @Test
     public void test135() {
         this.runNegativeTest(
             new String[] {
@@ -4237,6 +4371,7 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // check @SuppressWarning support
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=71968
+    @Test
     public void test136() {
         this.runNegativeTest(
             new String[] {
@@ -4259,6 +4394,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // check @SuppressWarning support
+    @Test
     public void test137() {
     	Map<String, String> customOptions = new HashMap<>();
 		String[] warnings = CompilerOptions.warningOptionNames();
@@ -4345,6 +4481,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			null, true, customOptions);
     }
     // check @SuppressWarning support
+    @Test
     public void test138() {
     	Map<String, String> customOptions = new HashMap<>();
     	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
@@ -4371,6 +4508,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			null, true, customOptions);
     }
     // check @SuppressWarning support
+    @Test
     public void test139() {
     	Map<String, String> customOptions = new HashMap<>();
     	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
@@ -4402,6 +4540,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			null, true, customOptions);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90111 - variation
+    @Test
     public void test140() {
     	String expectedOutput =
     		"----------\n" +
@@ -4426,6 +4565,7 @@ public class AnnotationTest extends AbstractComparableTest {
             JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=94867
+    @Test
     public void test141() {
         this.runNegativeTest(
             new String[] {
@@ -4461,6 +4601,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=94308
+    @Test
     public void test142() {
         this.runNegativeTest(
             new String[] {
@@ -4494,6 +4635,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			true,
 			null);
     }
+    @Test
     public void test142b() {
 		Map<String, String> raiseInvalidJavadocSeverity = new HashMap<>(2);
 		raiseInvalidJavadocSeverity.put(
@@ -4535,6 +4677,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 // check that @SuppressWarning is reported as unused when corresponding warning is moved from
 // warning to error
+@Test
 public void test142c() {
 	Map<String, String> raiseDeprecationReduceInvalidJavadocSeverity = new HashMap<>(2);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
@@ -4584,6 +4727,7 @@ public void test142c() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+@Test
 public void test143() {
     this.runNegativeTest(
         new String[] {
@@ -4616,6 +4760,7 @@ public void test143() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
+    @Test
     public void test144() {
         this.runNegativeTest(
             new String[] {
@@ -4701,6 +4846,7 @@ public void test143() {
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89937
+    @Test
     public void test145() {
         this.runNegativeTest(
             new String[] {
@@ -4725,6 +4871,7 @@ public void test143() {
 			"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96631
+    @Test
     public void test146() {
         this.runConformTest(
             new String[] {
@@ -4736,6 +4883,7 @@ public void test143() {
 			"");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96974
+    @Test
     public void test147() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -4755,6 +4903,7 @@ public void test143() {
     }
 
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97466
+    @Test
     public void test148() {
         this.runNegativeTest(
             new String[] {
@@ -4776,6 +4925,7 @@ public void test143() {
     }
 
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96991
+    @Test
     public void test149() {
         this.runNegativeTest(
             new String[] {
@@ -4815,6 +4965,7 @@ public void test143() {
     }
 
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98091
+    @Test
     public void test150() {
         this.runConformTest(
         	true,
@@ -4833,6 +4984,7 @@ public void test143() {
     		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test151() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
@@ -4854,6 +5006,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test152() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
@@ -4875,6 +5028,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test153() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
@@ -4899,6 +5053,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test154() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
@@ -4922,6 +5077,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test155() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
@@ -4947,6 +5103,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test156() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.WARNING);
@@ -4965,6 +5122,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test157() {
     	Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -4990,6 +5148,7 @@ public void test143() {
         runner.javacTestOptions = JavacTestOptions.SKIP; // javac doesn't support @SW("hiding") here, see test157b
         runner.runConformTest();
     }
+    @Test
     public void test157b() {
     	Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -5021,6 +5180,7 @@ public void test143() {
         runner.runWarningTest();
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test158() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.WARNING);
@@ -5047,6 +5207,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test159() {
     	Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -5080,6 +5241,7 @@ public void test143() {
         runner.runConformTest();
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test160() {
     	Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -5101,6 +5263,7 @@ public void test143() {
         runner.runConformTest();
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test161() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.WARNING);
@@ -5122,6 +5285,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test162() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
@@ -5158,6 +5322,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test163() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
@@ -5195,6 +5360,7 @@ public void test143() {
 		);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test164() {
     	String[] testFiles = new String[] {
                 "X.java",
@@ -5230,6 +5396,7 @@ public void test143() {
     }
 
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    @Test
     public void test165() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation, CompilerOptions.IGNORE);
@@ -5281,6 +5448,7 @@ public void test143() {
     }
 
     // check array handling of singleton
+	@Test
 	public void test166() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -5538,6 +5706,7 @@ public void test143() {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99469
+	@Test
 	public void test167() {
 		this.runNegativeTest(
 			new String[] {
@@ -5555,6 +5724,7 @@ public void test143() {
 		"----------\n");
     }
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94759
+    @Test
     public void test168() {
     	String expectedOutput =
     			"----------\n" +
@@ -5578,6 +5748,7 @@ public void test143() {
            expectedOutput);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    @Test
     public void test169() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5602,6 +5773,7 @@ public void test143() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
+    @Test
     public void test170() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5618,6 +5790,7 @@ public void test143() {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
+    @Test
     public void test171() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5652,6 +5825,7 @@ public void test143() {
     		null, null, JavacTestOptions.SKIP); // nls-warnings are specific to Eclipse - special-casing this special case is irrelevant for javac
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
+    @Test
     public void test172() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5682,6 +5856,7 @@ public void test143() {
 			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
+    @Test
     public void test173() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5721,6 +5896,7 @@ public void test143() {
 			null, null, JavacTestOptions.SKIP); // nls-warnings are specific to Eclipse - special-casing this special case is irrelevant for javac
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
+    @Test
     public void test174() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5758,6 +5934,7 @@ public void test143() {
 			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
+    @Test
     public void test175() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5799,6 +5976,7 @@ public void test143() {
 			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
+    @Test
     public void test176() {
     	Map<String, String> customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5836,6 +6014,7 @@ public void test143() {
 			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108263
+    @Test
     public void test177() {
         this.runConformTest(
             new String[] {
@@ -5852,6 +6031,7 @@ public void test143() {
 		"");
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=111076
+    @Test
     public void test178() {
         runConformTest(
         	true,
@@ -5874,6 +6054,7 @@ public void test143() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
+    @Test
     public void test179() {
     	this.runConformTest(
     		true,
@@ -5895,6 +6076,7 @@ public void test143() {
     		JavacTestOptions.JavacHasABug.JavacBug6337964);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=116028
+    @Test
     public void test180() {
     	this.runConformTest(
     		new String[] {
@@ -5917,6 +6099,7 @@ public void test143() {
     		"3");
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=116028
+    @Test
     public void test181() {
     	this.runConformTest(
     		new String[] {
@@ -5939,6 +6122,7 @@ public void test143() {
     		"0");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593
+    @Test
     public void test182() {
     	this.runNegativeTest(
     		new String[] {
@@ -5999,6 +6183,7 @@ public void test143() {
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593 - variation
+    @Test
     public void test183() {
     	this.runNegativeTest(
     		new String[] {
@@ -6043,6 +6228,7 @@ public void test143() {
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593 - variation
+    @Test
     public void test184() {
     	this.runNegativeTest(
     		new String[] {
@@ -6085,6 +6271,7 @@ public void test143() {
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123522
+    @Test
     public void test185() {
     	this.runNegativeTest(
     		new String[] {
@@ -6119,6 +6306,7 @@ public void test143() {
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124346
+    @Test
     public void test186() {
     	this.runNegativeTest(
     		new String[] {
@@ -6144,6 +6332,7 @@ public void test143() {
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124346 - variation
+    @Test
     public void test187() {
     	this.runNegativeTest(
     		new String[] {
@@ -6168,6 +6357,7 @@ public void test143() {
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126332
+    @Test
     public void test188() {
     	this.runNegativeTest(
     		new String[] {
@@ -6189,6 +6379,7 @@ public void test143() {
     		"----------\n");
     }
     // partial recompile - keep a binary
+	@Test
 	public void test189() {
 		this.runConformTest(
 			true,
@@ -6226,6 +6417,7 @@ public void test143() {
 			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 	}
 // transitive closure on binary types does not need to include annotations
+@Test
 public void test190() {
 	this.runConformTest(
 		new String[] {
@@ -6287,6 +6479,7 @@ public void test190() {
 }
 
 // transitive closure on binary types does not need to include annotations - variant
+@Test
 public void test191() {
 	this.runConformTest(
 		new String[] {
@@ -6348,6 +6541,7 @@ public void test191() {
 		null);
 }
 
+@Test
 public void test192() {
 	this.runConformTest(
 		new String[] {
@@ -6367,6 +6561,7 @@ public void test192() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=102160
+@Test
 public void test193() {
 	this.runNegativeTest(
 		new String[] {
@@ -6443,6 +6638,7 @@ public void test193() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130017
+@Test
 public void test194() {
 	String expectedOutput =
 		"----------\n" +
@@ -6473,6 +6669,7 @@ public void test194() {
 		expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130516
+@Test
 public void test195() {
 	this.runNegativeTest(
 		new String[] {
@@ -6501,6 +6698,7 @@ public void test195() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133440
+@Test
 public void test196() {
 	this.runNegativeTest(
 		new String[] {
@@ -6520,6 +6718,7 @@ public void test196() {
 		"----------\n");
 }
 // no override between package private methods
+@Test
 public void test197() {
 	String expectedOutput =
 		"----------\n" +
@@ -6552,6 +6751,7 @@ public void test197() {
         expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134129
+@Test
 public void test198() {
     this.runNegativeTest(
         new String[] {
@@ -6579,6 +6779,7 @@ public void test198() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=138443
+@Test
 public void test199() {
 	this.runConformTest(
 		true,
@@ -6606,6 +6807,7 @@ public void test199() {
 		JavacTestOptions.JavacHasABug.JavacBug6337964);
 }
 // JLS 3 - 9.6: cannot override Object's methods
+@Test
 public void test200() {
     this.runNegativeTest(
         new String[] {
@@ -6652,6 +6854,7 @@ public void test200() {
 		"----------\n");
 }
 //JLS 3 - 9.6: cannot override Annotation's methods
+@Test
 public void test201() {
     this.runNegativeTest(
         new String[] {
@@ -6685,6 +6888,7 @@ public void test201() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259
+@Test
 public void test202() {
 	this.runNegativeTest(
 		new String[] {
@@ -6711,6 +6915,7 @@ public void test202() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+@Test
 public void test203() {
 	this.runNegativeTest(
 		new String[] {
@@ -6737,6 +6942,7 @@ public void test203() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+@Test
 public void test204() {
 	this.runNegativeTest(
 		new String[] {
@@ -6768,6 +6974,7 @@ public void test204() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+@Test
 public void test205() {
 	this.runNegativeTest(
 		new String[] {
@@ -6799,6 +7006,7 @@ public void test205() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+@Test
 public void test206() {
 	this.runNegativeTest(
 		new String[] {
@@ -6825,6 +7033,7 @@ public void test206() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=143259 - variation
+@Test
 public void test207() {
 	this.runNegativeTest(
 		new String[] {
@@ -6861,6 +7070,7 @@ public void test207() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+@Test
 public void test208() {
     this.runNegativeTest(
         new String[] {
@@ -6892,6 +7102,7 @@ public void test208() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+@Test
 public void test209() {
     this.runNegativeTest(
         new String[] {
@@ -6923,6 +7134,7 @@ public void test209() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+@Test
 public void test210() {
     this.runNegativeTest(
         new String[] {
@@ -6954,6 +7166,7 @@ public void test210() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+@Test
 public void test211() {
     this.runNegativeTest(
         new String[] {
@@ -6985,6 +7198,7 @@ public void test211() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156891
+@Test
 public void test212() {
     this.runNegativeTest(
         new String[] {
@@ -7017,6 +7231,7 @@ public void test212() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156891
+@Test
 public void test213() {
     this.runNegativeTest(
         new String[] {
@@ -7046,6 +7261,7 @@ public void test213() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
+@Test
 public void test214() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
@@ -7088,6 +7304,7 @@ public void test214() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
 // variant
+@Test
 public void test215() {
 	String sources[] = new String[] {
 		"I.java",
@@ -7105,6 +7322,7 @@ public void test215() {
 	this.runConformTest(sources, "");
 }
 // extending java.lang.annotation.Annotation
+@Test
 public void test216() {
     this.runNegativeTest(
         new String[] {
@@ -7140,6 +7358,7 @@ public void test216() {
 		"----------\n");
 }
 // extending java.lang.annotation.Annotation
+@Test
 public void test217() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
@@ -7194,6 +7413,7 @@ public void test217() {
         JavacTestOptions.SKIP);
 }
 // extending java.lang.annotation.Annotation
+@Test
 public void test218() {
     this.runNegativeTest(
         new String[] {
@@ -7228,6 +7448,7 @@ public void test218() {
 		JavacTestOptions.JavacHasABug.JavacBug6400189);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+@Test
 public void test219() {
 	this.runNegativeTest(
 		new String[] {
@@ -7274,6 +7495,7 @@ public void test219() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+@Test
 public void test220() {
 	this.runNegativeTest(
 		new String[] {
@@ -7320,6 +7542,7 @@ public void test220() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+@Test
 public void test221() {
 	this.runNegativeTest(
 		new String[] {
@@ -7366,6 +7589,7 @@ public void test221() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+@Test
 public void test222() {
 	this.runNegativeTest(
 		new String[] {
@@ -7412,6 +7636,7 @@ public void test222() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+@Test
 public void test223() {
 	this.runConformTest(
 		new String[] {
@@ -7453,6 +7678,7 @@ public void test223() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+@Test
 public void test224() {
 	this.runConformTest(
 		new String[] {
@@ -7494,6 +7720,7 @@ public void test224() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=XXXXX
+@Test
 public void test225() {
 	runNegativeTest(
 		new String[] {
@@ -7527,6 +7754,7 @@ public void test225() {
 		true  /* do not perform statements recovery */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179477 - variation
+@Test
 public void test226() {
 	runNegativeTest(
 		new String[] {
@@ -7569,6 +7797,7 @@ public void test226() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=186822
+@Test
 public void test227() {
 	this.runNegativeTest(
 		new String[] {
@@ -7583,6 +7812,7 @@ public void test227() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533
+@Test
 public void test228() {
 	this.runNegativeTest(
 		new String[] {
@@ -7611,6 +7841,7 @@ public void test228() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533
+@Test
 public void test229() {
 	this.runNegativeTest(
 		new String[] {
@@ -7631,6 +7862,7 @@ public void test229() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+@Test
 public void test230() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -7670,6 +7902,7 @@ public void test230() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+@Test
 public void test231() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -7706,6 +7939,7 @@ public void test231() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+@Test
 public void test232() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -7736,6 +7970,7 @@ public void test232() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+@Test
 public void test233() {
 	this.runNegativeTest(
 		new String[] {
@@ -7765,6 +8000,7 @@ public void test233() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+@Test
 public void test234() {
 	this.runNegativeTest(
 		new String[] {
@@ -7785,6 +8021,7 @@ public void test234() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207758
+@Test
 public void test235() {
 	this.runNegativeTest(
 		new String[] {
@@ -7806,6 +8043,7 @@ public void test235() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207758 - variation
+@Test
 public void test236() {
 	this.runNegativeTest(
 		new String[] {
@@ -7834,6 +8072,7 @@ public void test236() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207758 - variation
+@Test
 public void test237() {
 	this.runNegativeTest(
 		new String[] {
@@ -7859,6 +8098,7 @@ public void test237() {
 		"The method get() from the type X<B> refers to the missing type ArrayList\n" +
 		"----------\n");
 }
+@Test
 public void test238() {
 	// check that if promoted to ERROR, unhandled warning token shouldn't be suppressed by @SuppressWarnings("all")
 	Map<String, String> options = getCompilerOptions();
@@ -7882,6 +8122,7 @@ public void test238() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+@Test
 public void test239() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.WARNING);
@@ -7912,6 +8153,7 @@ public void test239() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207411
+@Test
 public void test240() {
 	this.runNegativeTest(
 		new String[] {
@@ -7928,6 +8170,7 @@ public void test240() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213
+@Test
 public void test241() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -7958,6 +8201,7 @@ public void test241() {
 		null);
 }
 ///https://bugs.eclipse.org/bugs/show_bug.cgi?id=210422 - variation
+@Test
 public void test242() {
 	this.runNegativeTest(
 		new String[] {
@@ -8009,6 +8253,7 @@ public void test242() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+@Test
 public void test243() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -8033,6 +8278,7 @@ public void test243() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+@Test
 public void test244() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -8060,6 +8306,7 @@ public void test244() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+@Test
 public void test245() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -8094,6 +8341,7 @@ public void test245() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+@Test
 public void test245_ignored() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -8124,6 +8372,7 @@ public void test245_ignored() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+@Test
 public void test245_error() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -8159,6 +8408,7 @@ public void test245_error() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+@Test
 public void test246() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -8183,6 +8433,7 @@ public void test246() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=211609
+@Test
 public void test247() {
 	// only enable in 1.6 mode
 	Map<String, String> options = getCompilerOptions();
@@ -8211,6 +8462,7 @@ public void test247() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=211609
+@Test
 public void test248() {
 	this.runNegativeTest(
 			new String[] {
@@ -8227,6 +8479,7 @@ public void test248() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test249() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8250,6 +8503,7 @@ public void test249() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test250() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8285,6 +8539,7 @@ public void test250() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test251() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8320,6 +8575,7 @@ public void test251() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test252() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8362,6 +8618,7 @@ public void test252() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test253() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8404,6 +8661,7 @@ public void test253() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test254() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8448,6 +8706,7 @@ public void test254() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test255() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8486,6 +8745,7 @@ public void test255() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+@Test
 public void test256() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8524,6 +8784,7 @@ public void test256() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216570
+@Test
 public void test257() {
 	this.runConformTest(
 			new String[] {
@@ -8543,6 +8804,7 @@ public void test257() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=167262
+@Test
 public void test258() {
 	String expectedOutput =
 		"----------\n" +
@@ -8572,6 +8834,7 @@ public void test258() {
 		expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273
+@Test
 public void test259() {
 	this.runConformTest(
 		new String[] {
@@ -8606,6 +8869,7 @@ public void test259() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=245435
+@Test
 public void test260() {
 	this.runConformTest(
 		new String[] {
@@ -8622,6 +8886,7 @@ public void test260() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273
+@Test
 public void test261() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
@@ -8668,6 +8933,7 @@ public void test261() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
+@Test
 public void test262() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
@@ -8714,6 +8980,7 @@ public void test262() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
+@Test
 public void test263() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
@@ -8760,6 +9027,7 @@ public void test263() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=256035
+@Test
 public void test264() {
 	this.runConformTest(
 		new String[] {
@@ -8777,6 +9045,7 @@ public void test264() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=258906
+@Test
 public void test265() {
 
 	INameEnvironment nameEnvironment = new FileSystem(Util.getJavaClassLibs(), new String[] {}, null);
@@ -8827,6 +9096,7 @@ public void test265() {
 	compiler = null;
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220311
+@Test
 public void test266() {
 	this.runNegativeTest(
 		new String[] {
@@ -8851,6 +9121,7 @@ public void test266() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=261323.
 // Test to make sure that the use of a static import as an annotation value counts as a use
 // (and consequently that there is no unused static import warning)
+@Test
 public void test267() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
@@ -8878,6 +9149,7 @@ public void test267() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262304
+@Test
 public void test268() {
 	this.runNegativeTest(
 		new String[] {
@@ -8910,6 +9182,7 @@ public void test268() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=274917
+@Test
 public void test269() {
 	Map<String, String> customOptions = new HashMap<>();
 	String[] warnings = CompilerOptions.warningOptionNames();
@@ -8935,6 +9208,7 @@ public void test269() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=287009
+@Test
 public void test270() {
 	this.runNegativeTest(
 		new String[] {
@@ -8953,6 +9227,7 @@ public void test270() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=289576
+@Test
 public void test271() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -8974,6 +9249,7 @@ public void test271() throws Exception {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=289576
+@Test
 public void test273() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -8996,6 +9272,7 @@ public void test273() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
 // To check Missing override annotation error when a method implements
 // and also overrides a method in a superclass
+@Test
 public void test274a() {
 	String testString [] = new String[] {
 			"T.java",
@@ -9033,6 +9310,7 @@ public void test274a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
 // To check Missing override annotation error when a method implements but
 // doesn't overrides
+@Test
 public void test274b() {
 	String testString [] = new String[] {
 			"Over.java",
@@ -9067,6 +9345,7 @@ public void test274b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
 // To check Missing override annotation error when a method simply overrides
+@Test
 public void test274c() {
 	String testString [] = new String[] {
 			"B.java",
@@ -9102,6 +9381,7 @@ public void test274c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
 // To check missing override annotation if the method has a signature
 // that is override-equivalent to that of any public method declared in Object.
+@Test
 public void test274d() {
 	String testString [] = new String[] {
 			"A.java",
@@ -9131,6 +9411,7 @@ public void test274d() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
+@Test
 public void test275() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
@@ -9164,6 +9445,7 @@ public void test275() {
 		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
+@Test
 public void test276() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
@@ -9192,6 +9474,7 @@ public void test276() {
 		JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282770.
+@Test
 public void test277() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.DISABLED);
@@ -9222,6 +9505,7 @@ public void test277() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=293777
 // To verify that a misleading warning against @Override annotation is not
 // issued in case the method signature has not been resolved properly.
+@Test
 public void test278() {
 	String testString [] = new String[] {
 			"A.java",
@@ -9249,6 +9533,7 @@ public void test278() {
 			expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=301683
+@Test
 public void test279() {
 	String testString [] = new String[] {
 			"A.java",
@@ -9273,6 +9558,7 @@ public void test279() {
 			expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test280() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -9294,6 +9580,7 @@ public void test280() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test281() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -9322,6 +9609,7 @@ public void test281() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test282() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -9344,6 +9632,7 @@ public void test282() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+@Test
 public void test283() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -9371,6 +9660,7 @@ public void test283() {
 			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=304031
+@Test
 public void test284() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
@@ -9404,6 +9694,7 @@ public void test284() {
 			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=304031
+@Test
 public void test285() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -9437,6 +9728,7 @@ public void test285() {
 			JavacTestOptions.SKIP);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=304031
+@Test
 public void test286() {
 	Map<String, String> raiseDeprecationReduceInvalidJavadocSeverity = new HashMap<>(2);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
@@ -9474,6 +9766,7 @@ public void test286() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=311849
+@Test
 public void test287() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
@@ -9504,6 +9797,7 @@ public void test287() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=311849
+@Test
 public void test288() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
@@ -9528,6 +9822,7 @@ public void test288() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=311849
+@Test
 public void test289() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
@@ -9562,6 +9857,7 @@ public void test289() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109
+@Test
 public void test290() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
@@ -9590,6 +9886,7 @@ public void test290() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109
+@Test
 public void test291() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
@@ -9618,6 +9915,7 @@ public void test291() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109
+@Test
 public void test292() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
@@ -9644,6 +9942,7 @@ public void test292() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316456
+@Test
 public void test293() {
 	this.runNegativeTest(
 		new String[] {
@@ -9666,6 +9965,7 @@ public void test293() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
+@Test
 public void test294() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
@@ -9690,6 +9990,7 @@ public void test294() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
+@Test
 public void test295() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
@@ -9717,6 +10018,7 @@ public void test295() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
+@Test
 public void test296() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
@@ -9744,6 +10046,7 @@ public void test296() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=343621
+@Test
 public void test297() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -9799,6 +10102,7 @@ public void test297() {
 }
 // Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
 // many syntax errors fixed, does not trigger CCE
+@Test
 public void testBug366003() {
 	runNegativeTest(
 		new String[] {
@@ -9892,6 +10196,7 @@ public void testBug366003() {
 }
 // Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
 // code is garbage, triggers CCE
+@Test
 public void testBug366003b() {
 	runNegativeTest(
 		new String[] {
@@ -9978,6 +10283,7 @@ public void testBug366003b() {
 }
 // Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
 // minimal syntax error to trigger CCE
+@Test
 public void testBug366003c() {
 	runNegativeTest(
 		new String[] {
@@ -10026,6 +10332,7 @@ public void testBug366003c() {
 		"----------\n");
 }
 // unfinished attempt to trigger the same CCE via catch formal parameters
+@Test
 public void testBug366003d() {
 	runNegativeTest(
 		new String[] {
@@ -10063,6 +10370,7 @@ public void testBug366003d() {
 		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n");
 }
+@Test
 public void testBug366003e() {
 	runNegativeTest(
 		new String[] {
@@ -10096,6 +10404,7 @@ public void testBug366003e() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
+@Test
 public void testBug365437a() {
 	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
@@ -10145,6 +10454,7 @@ public void testBug365437a() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
+@Test
 public void testBug365437b() {
 	if (isJRE11Plus)
 		return;
@@ -10205,6 +10515,7 @@ public void testBug365437b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // @SafeVarargs
+@Test
 public void testBug365437c() {
 	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
@@ -10255,6 +10566,7 @@ public void testBug365437c() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // unused constructor
+@Test
 public void testBug365437d() {
 	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
@@ -10335,6 +10647,7 @@ public void testBug365437d() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // unused field
+@Test
 public void testBug365437e() {
 	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
@@ -10408,6 +10721,7 @@ public void testBug365437e() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 // unused type
+@Test
 public void testBug365437f() {
 	Map<String, String> customOptions = getCompilerOptions();
 	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
@@ -10482,6 +10796,7 @@ public void testBug365437f() {
 
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using com.google.inject.Inject
+@Test
 public void testBug376590a() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -10511,6 +10826,7 @@ public void testBug376590a() {
 }
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using jakarta.inject.Inject - slight variation
+@Test
 public void testBug376590b() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -10544,6 +10860,7 @@ public void testBug376590b() {
 }
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using jakarta.inject.Inject, combined with standard as well as custom annotations
+@Test
 public void testBug376590c() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -10592,6 +10909,7 @@ public void testBug376590c() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void testBug376429a() {
 	this.runNegativeTest(
 			new String[] {
@@ -10629,6 +10947,7 @@ public void testBug376429a() {
 			"Return type for the method is missing\n" +
 			"----------\n");
 }
+@Test
 public void testBug376429b() {
 	this.runNegativeTest(
 			new String[] {
@@ -10653,6 +10972,7 @@ public void testBug376429b() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=371832
 //Unused imports should be reported even if other errors are suppressed.
+@Test
 public void testBug371832() throws Exception {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
@@ -10685,6 +11005,7 @@ public void testBug371832() throws Exception {
 }
 // https://bugs.eclipse.org/384663
 // Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2)
+@Test
 public void testBug384663() {
 	String[] testFiles = {
 		"annotations/test/IExtendsInterface.java",
@@ -10734,6 +11055,7 @@ public void _testBug386356_1() {
 
 // Bug 386356 - Type mismatch error with annotations and generics
 // test case from comment 6
+@Test
 public void testBug386356_2() {
 	if (isJRE11Plus)
 		return;
@@ -10784,6 +11106,7 @@ public void testBug386356_2() {
 }
 
 // check invalid and annotations on package
+@Test
 public void test384567() {
 	this.runNegativeTest(
 		new String[] {
@@ -10808,6 +11131,7 @@ public void test384567() {
 		"----------\n");
 }
 //check invalid modifiers on package
+@Test
 public void test384567_2() {
 	this.runNegativeTest(
 		new String[] {
@@ -10826,6 +11150,7 @@ public void test384567_2() {
 }
 // Bug 416107 - Incomplete error message for member interface and annotation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=416107
+@Test
 public void test416107a() {
 	if (this.complianceLevel < ClassFileConstants.JDK16) {
 	    this.runNegativeTest(
@@ -10861,6 +11186,7 @@ public void test416107a() {
 
 	}
 }
+@Test
 public void test416107b() {
 	if (this.complianceLevel < ClassFileConstants.JDK16) {
 		runNegativeTest(
@@ -10897,6 +11223,7 @@ public void test416107b() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427367
+@Test
 public void test427367() throws Exception {
 
 	Map<String, String> options = getCompilerOptions();
@@ -10959,6 +11286,7 @@ public void test427367() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=376977
+@Test
 public void test376977() throws Exception {
 
 	this.runNegativeTest(
@@ -10994,6 +11322,7 @@ public void test376977() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438437 - [1.8][compiler] Annotations
 // on enum constants interpreted only as type annotations if the annotation type
 // specifies ElementType.TYPE_USE in @Target along with others.
+@Test
 public void test438437() {
 	runNegativeTest(
 		new String[] {
@@ -11057,6 +11386,7 @@ public void test438437() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=434556,  Broken class file generated for incorrect annotation usage
+@Test
 public void test434556() throws Exception {
 
 	this.runNegativeTest(
@@ -11108,6 +11438,7 @@ public void test434556() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433747, [compiler] TYPE Annotation allowed in package-info instead of only PACKAGE
+@Test
 public void test433747() throws Exception {
 	String[] src = new String[] {
 			"p/package-info.java",
@@ -11136,6 +11467,7 @@ public void test433747() throws Exception {
 			false);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=456960 - Broken classfile generated for incorrect annotation usage - case 2
+@Test
 public void test456960() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11192,6 +11524,7 @@ public void test456960() throws Exception {
 
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
+@Test
 public void test449330() throws Exception {
 	String[] testFiles = new String[] {
 		"p/X.java",
@@ -11212,6 +11545,7 @@ public void test449330() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
 //Retention Policy set to RUNTIME
+@Test
 public void test449330a() throws Exception {
 	String[] testFiles = new String[] {
 		"p/X.java",
@@ -11233,6 +11567,7 @@ public void test449330a() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
 //Annotation target not set
+@Test
 public void test449330b() throws Exception {
 	String[] testFiles = new String[] {
 		"p/X.java",
@@ -11246,6 +11581,7 @@ public void test449330b() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
 }
 //https://bugs.eclipse.org/386692
+@Test
 public void testBug386692() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -11278,6 +11614,7 @@ public void testBug386692() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=464977
+@Test
 public void testBug464977() throws Exception {
 	if (this.complianceLevel > ClassFileConstants.JDK1_8) {
 		return; // Enough to run in 3 levels rather!
@@ -11313,6 +11650,7 @@ public void testBug464977() throws Exception {
 		this.enableAPT = apt;
 	}
 }
+@Test
 public void testBug469584() {
 	runNegativeTest(
 		new String[] {
@@ -11332,6 +11670,7 @@ public void testBug469584() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=472178
+@Test
 public void test472178() throws Exception {
 	String source =
 			"import java.lang.annotation.ElementType;\n" +
@@ -11445,6 +11784,7 @@ public void test472178() throws Exception {
 	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=470665
+@Test
 public void testBug470665() throws Exception {
 	boolean apt = this.enableAPT;
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
@@ -11504,6 +11844,7 @@ public void testBug470665() throws Exception {
 		this.enableAPT = apt;
 	}
 }
+@Test
 public void testBug506888a() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -11530,6 +11871,7 @@ public void testBug506888a() throws Exception {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void testBug506888b() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -11550,6 +11892,7 @@ public void testBug506888b() throws Exception {
 		},
 		options);
 }
+@Test
 public void testBug506888c() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -11580,6 +11923,7 @@ public void testBug506888c() throws Exception {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void testBug506888d() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
@@ -11597,6 +11941,7 @@ public void testBug506888d() throws Exception {
 		"",
 		null, true, options);
 }
+@Test
 public void testBug506888e() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
@@ -11613,6 +11958,7 @@ public void testBug506888e() throws Exception {
 		"",
 		null, true, options);
 }
+@Test
 public void testBug506888f() throws Exception {
 
 	class MyCompilerRequestor implements ICompilerRequestor {
@@ -11664,6 +12010,7 @@ public void testBug506888f() throws Exception {
 	assertEquals(1, requestor.problemArguments.length);
 	assertEquals(JavaCore.COMPILER_PB_UNUSED_PARAMETER, requestor.problemArguments[0]);
 }
+@Test
 public void testBug537593_001() {
 	class MyCompilerRequestor implements ICompilerRequestor {
 		String[] problemArguments = null;
@@ -11752,6 +12099,7 @@ public void testBug537593_001() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - common case
+@Test
 public void testBug542520a() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -11778,6 +12126,7 @@ public void testBug542520a() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - variation with fully qualified annotation
+@Test
 public void testBug542520b() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -11803,6 +12152,7 @@ public void testBug542520b() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - marker annotation
+@Test
 public void testBug542520c() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -11829,6 +12179,7 @@ public void testBug542520c() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - missing no-args method source
+@Test
 public void testBug542520d() throws Exception {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -11862,6 +12213,7 @@ public void testBug542520d() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=546084 - Using Junit 5s MethodSource leads to
 // ClassCastException - string concatenation, i.e. BinaryExpression in @MethodSource annotation
+@Test
 public void testBug546084a() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -11889,6 +12241,7 @@ public void testBug546084a() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=546084 - Using Junit 5s MethodSource leads to
 // ClassCastException - non string value, e.g. ClassLiteralAccess in @MethodSource annotation
+@Test
 public void testBug546084b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -11922,6 +12275,7 @@ public void testBug546084b() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=546084 - Using Junit 5s MethodSource leads to
 //ClassCastException - array of string values, e.g. ArrayInitializer in @MethodSource annotation
+@Test
 public void testBug546084c() throws Exception {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -11946,6 +12300,7 @@ public void testBug546084c() throws Exception {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testBug490698_comment16() {
 	runConformTest(
 		new String[]  {
@@ -11986,6 +12341,7 @@ public void testBug490698_comment16() {
 		});
 }
 
+@Test
 public void testBugVisibility() {
 
 	runConformTest(
@@ -12001,6 +12357,7 @@ public void testBugVisibility() {
 		},
 		"");
 }
+@Test
 public void testIssue2400() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) {
 		return;
@@ -12042,6 +12399,7 @@ public void testIssue2400() {
 		customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, bkup);
 	}
 }
+@Test
 public void testIssue4107() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) {
 		return;
@@ -12071,6 +12429,7 @@ public void testIssue4107() {
 			null,
 			true);
 }
+@Test
 public void testGH4243() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK16) return; // uses records
 	Runner runner = new Runner();
@@ -12132,6 +12491,7 @@ public void testGH4243() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1216
 // Class compiles in Eclipse but not in javac (1.8) (access to a private field from the annotation)
+@Test
 public void testIssue1216() {
 	runNegativeTest(
 			new String[] {
@@ -12161,6 +12521,7 @@ public void testIssue1216() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3046
 // [Records] private static class in record used in an annotation is allowed by ECJ but not javac
+@Test
 public void testIssue3046() {
 	if (this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
@@ -12199,6 +12560,7 @@ public void testIssue3046() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5085
 // Regression related to member visibility constraints
+@Test
 public void testIssue5085a() {
 	runConformTest(
 			new String[] {
@@ -12227,6 +12589,7 @@ public void testIssue5085a() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5085
 // Regression related to member visibility constraints
+@Test
 public void testIssue5085b() {
 	runConformTest(
 			new String[] {

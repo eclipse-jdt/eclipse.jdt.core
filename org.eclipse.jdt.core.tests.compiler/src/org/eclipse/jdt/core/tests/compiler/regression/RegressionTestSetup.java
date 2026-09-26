@@ -24,12 +24,12 @@ public class RegressionTestSetup extends CompilerTestSetup {
 	TestVerifier verifier = new TestVerifier(true);
 	INameEnvironment javaClassLib;
 
-	public RegressionTestSetup(long complianceLevel) {
-		super(complianceLevel);
+	public RegressionTestSetup(String testName, long complianceLevel) {
+		super(testName, complianceLevel);
 	}
 
 	@Override
-	protected void setUp() {
+	public void setUp() {
 		if (this.javaClassLib == null) {
 			// Create name environment
 			this.javaClassLib = new FileSystem(Util.getJavaClassLibs(), new String[0], null);
@@ -37,7 +37,7 @@ public class RegressionTestSetup extends CompilerTestSetup {
 		super.setUp();
 	}
 	@Override
-	protected void tearDown() {
+	public void tearDown() {
 		this.verifier.shutDown();
 	}
 }

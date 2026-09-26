@@ -14,12 +14,9 @@
 
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import org.eclipse.jdt.core.tests.junit5.extension.ExecutionFilter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(ExecutionFilter.class)
 public class CompletionParserTest18 extends AbstractCompletionTest {
 
 static {

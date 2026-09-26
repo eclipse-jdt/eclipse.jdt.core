@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import junit.framework.Test;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ToolFactory;
@@ -36,8 +35,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	static class Logger extends Thread {
 		StringBuilder buffer;
@@ -75,18 +75,11 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int[] { 0 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-
-	public static Class testClass() {
-		return GenericTypeSignatureTest.class;
-	}
 
 	IPath dirPath = new Path(OUTPUT_DIR); // WORK check whether needed or not
 
-	public GenericTypeSignatureTest(String name) {
-		super(name);
+	public GenericTypeSignatureTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	protected void cleanUp() {
@@ -183,6 +176,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test001() {
 		final String[] testsSource = new String[] {
 				"X.java",
@@ -410,6 +404,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertEquals("Wrong signature", "TT;", new String(signature));
 	}
 
+	@Test
 	public void test002() {
 		final String[] testsSource = new String[] {
 				"X.java",
@@ -544,6 +539,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertEquals("Wrong signature", "TP;", new String(signature));
 	}
 
+	@Test
 	public void test003() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -590,6 +586,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B<-TT;>;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
 	}
 
+	@Test
 	public void test004() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -636,6 +633,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
 	}
 
+	@Test
 	public void test005() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -690,6 +688,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signature));
 	}
 
+	@Test
 	public void test006() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -737,6 +736,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test007() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -784,6 +784,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test008() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -816,6 +817,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test009() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -851,6 +853,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test010() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -885,6 +888,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test011() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -951,6 +955,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test012() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -984,6 +989,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test013() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1021,6 +1027,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	// 59983 - incorrect signature for List<X>
+	@Test
 	public void test014() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1053,6 +1060,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	// 65953 - incorrect signature for generic interface
+	@Test
 	public void test015() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1075,6 +1083,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	// 70975 - invalid signature for method with array of type variables
+	@Test
 	public void test016() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1108,6 +1117,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
+	@Test
 	public void test017() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1143,6 +1153,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98322
+	@Test
 	public void test018() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1187,6 +1198,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100293
+	@Test
 	public void test019() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1248,6 +1260,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
+	@Test
 	public void test020() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1278,6 +1291,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void testBug460491() {
 		final String[] testsSource = new String[] {
 				"C.java",
@@ -1322,6 +1336,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void testGenericVarargsMethodReferenceLambdasHaveNoSignature() {
 		final String[] testsSource = new String[] {
 				"X.java",

@@ -12,9 +12,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-@SuppressWarnings({ "rawtypes" })
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+
+@MinimalCompliance(value=AbstractCompilerTest.F_16, singleVersion=true)
 public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
         static {
 //              TESTS_NAMES = new String[] { "testBug571454_001" };
@@ -23,19 +27,11 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
         }
         /**
          * This test suite only needs to be run on one compliance.
-         * As it includes some specific 1.5 tests, it must be used with a least a 1.5 VM
-         * and not be duplicated in general test suite.
-         * @see TestAll
          */
-        public static Test suite() {
-                return buildMinimalComplianceTestSuite(testClass(), F_16);
+        public BatchCompilerTest_16(Compliance compliance, TestInfo info) {
+                super(compliance, info);
         }
-        public static Class testClass() {
-                return BatchCompilerTest_16.class;
-        }
-        public BatchCompilerTest_16(String name) {
-                super(name);
-        }
+        @Test
         public void testBug571454_001(){
         		if (!AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
         			return;
@@ -83,6 +79,7 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                         }
                 }
         }
+        @Test
         public void testBug570399(){
         	this.runConformTest(
         		new String[] {

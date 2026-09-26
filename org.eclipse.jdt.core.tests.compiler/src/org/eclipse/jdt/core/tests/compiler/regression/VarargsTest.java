@@ -17,7 +17,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -26,12 +25,14 @@ import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class VarargsTest extends AbstractComparableTest {
 
-	public VarargsTest(String name) {
-		super(name);
+	public VarargsTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -40,13 +41,6 @@ public class VarargsTest extends AbstractComparableTest {
 //		TESTS_NAMES = new String[] { "test068" };
 //		TESTS_NUMBERS = new int[] { 61 };
 //		TESTS_RANGE = new int[] { 11, -1 };
-	}
-	public static Test suite() {
-		return buildComparableTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return VarargsTest.class;
 	}
 
 	@Override
@@ -60,6 +54,7 @@ public class VarargsTest extends AbstractComparableTest {
 	protected String intersection(String... types) {
 		return String.join(" & ", types);
 	}
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -127,6 +122,7 @@ public class VarargsTest extends AbstractComparableTest {
 			null);
 	}
 
+	@Test
 	public void test002() {
 		this.runConformTest(
 			new String[] {
@@ -178,6 +174,7 @@ public class VarargsTest extends AbstractComparableTest {
 			null);
 	}
 
+	@Test
 	public void test003() {
 		this.runConformTest(
 			new String[] {
@@ -236,6 +233,7 @@ public class VarargsTest extends AbstractComparableTest {
 			null);
 	}
 
+	@Test
 	public void test004() {
 		this.runConformTest(
 			new String[] {
@@ -301,6 +299,7 @@ public class VarargsTest extends AbstractComparableTest {
 			null);
 	}
 
+	@Test
 	public void test005() {
 		this.runConformTest(
 			new String[] {
@@ -347,6 +346,7 @@ public class VarargsTest extends AbstractComparableTest {
 			null);
 	}
 
+	@Test
 	public void test006() { // 70056
 		this.runConformTest(
 			new String[] {
@@ -367,6 +367,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"");
 	}
 
+	@Test
 	public void test007() { // array dimension test compatibility with Object
 		this.runNegativeTest(
 			new String[] {
@@ -514,6 +515,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test008() {
 		this.runNegativeTest(
 			new String[] {
@@ -576,6 +578,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test009() {
 		this.runConformTest(
 			new String[] {
@@ -627,6 +630,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"<212>");
 	}
 
+	@Test
 	public void test010() {
 		// according to spec this should find count(Object) since it should consider count(Object...) as count(Object[]) until all fixed arity methods are ruled out
 		this.runConformTest(
@@ -708,6 +712,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83379
+	@Test
 	public void test011() {
 		runConformTest(
 			true,
@@ -744,6 +749,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77084
+	@Test
 	public void test012() {
 		this.runConformTest(
 			new String[] {
@@ -760,6 +766,7 @@ public class VarargsTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test013() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runConformTest(
 			new String[] {
@@ -777,6 +784,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1");
 	}
 
+	@Test
 	public void test014() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runConformTest(
 			new String[] {
@@ -796,6 +804,7 @@ public class VarargsTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test015() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest(
 			new String[] {
@@ -820,6 +829,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
+	@Test
 	public void test015_tolerate() throws Exception {
 		Map options = getCompilerOptions();
 		try {
@@ -849,6 +859,7 @@ public class VarargsTest extends AbstractComparableTest {
 		}
 	}
 
+	@Test
 	public void test016() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest( // but this call is ambiguous
 			new String[] {
@@ -878,6 +889,7 @@ public class VarargsTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test017() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest(
 			new String[] {
@@ -915,6 +927,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590
+	@Test
 	public void test018() {
 		this.runConformTest(
 			new String[] {
@@ -932,6 +945,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590 - variation
+	@Test
 	public void test019() {
 		this.runConformTest(
 			new String[] {
@@ -954,6 +968,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81590 - variation
+	@Test
 	public void test020() {
 		this.runConformTest(
 			new String[] {
@@ -976,6 +991,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81911
+	@Test
 	public void test021() {
 		this.runConformTest(
 			new String[] {
@@ -994,6 +1010,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83032
+	@Test
 	public void test022() {
 		this.runConformTest(
 			new String[] {
@@ -1025,6 +1042,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83536
+	@Test
 	public void test023() {
 		this.runConformTest(
 			new String[] {
@@ -1042,6 +1060,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87042
+	@Test
 	public void test024() {
 		this.runConformTest(
 			new String[] {
@@ -1060,6 +1079,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87042
+	@Test
 	public void test025() {
 		this.runConformTest(
 			new String[] {
@@ -1078,6 +1098,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87318
+	@Test
 	public void test026() {
 		this.runConformTest(
 			new String[] {
@@ -1103,6 +1124,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87900
+	@Test
 	public void test027() { // ensure AccVarargs does not collide
 		this.runNegativeTest(
 			new String[] {
@@ -1136,6 +1158,7 @@ public class VarargsTest extends AbstractComparableTest {
 		);
 	}
 	// check no offending unnecessary varargs cast gets diagnosed
+	@Test
 	public void test028() {
 		this.runNegativeTest(
 			new String[] {
@@ -1167,6 +1190,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91467
+	@Test
 	public void test029() {
 		this.runNegativeTest(
 			new String[] {
@@ -1206,6 +1230,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99260
+	@Test
 	public void test030() {
 		this.runConformTest(
 			new String[] {
@@ -1233,6 +1258,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"class java.awt.Point");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102181
+	@Test
 	public void test031() {
 		this.runConformTest(
 			new String[] {
@@ -1264,6 +1290,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102278
+	@Test
 	public void test032() {
 		this.runConformTest(
 			new String[] {
@@ -1286,6 +1313,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1");
 	}
  	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102631
+	@Test
 	public void test033() {
 		this.runNegativeTest(
 			false /* skipJavac */,
@@ -1355,6 +1383,7 @@ public class VarargsTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
+	@Test
 	public void test033_tolerate() {
 		Map options = getCompilerOptions();
 		try {
@@ -1392,6 +1421,7 @@ public class VarargsTest extends AbstractComparableTest {
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106106
+	@Test
 	public void test034() {
 		this.runConformTest(
 			new String[] {
@@ -1409,6 +1439,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"List size: 2");
 	}
 	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=108095
+	@Test
 	public void test035() {
 		this.runConformTest(
 			new String[] {
@@ -1426,6 +1457,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"class [Ljava.lang.String;class [Ljava.lang.String;");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110563
+	@Test
 	public void test036() {
 		this.runConformTest(
 			new String[] {
@@ -1441,6 +1473,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110783
+	@Test
 	public void test037() {
 		this.runConformTest(
 			new String[] {
@@ -1496,6 +1529,7 @@ public class VarargsTest extends AbstractComparableTest {
 			);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801
+	@Test
 	public void test038() {
 		this.runNegativeTest(
 			new String[] {
@@ -1533,6 +1567,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	@Test
 	public void test039() {
 		this.runConformTest(
 			new String[] {
@@ -1562,6 +1597,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"[[1, 2]] (argument wrapped)SUCCESS");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	@Test
 	public void test040() {
 		this.runConformTest(
 			new String[] {
@@ -1584,6 +1620,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"[3, 4][5, 6]null");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	@Test
 	public void test041() {
 		this.runNegativeTest(
 			new String[] {
@@ -1622,6 +1659,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	@Test
 	public void test042() {
 		this.runConformTest(
 			new String[] {
@@ -1646,6 +1684,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"[[1, 2]] (argument wrapped)[[3, 4]] (argument wrapped)[[5, 6]] (argument wrapped)[null] (argument wrapped)");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	@Test
 	public void test043() {
 		this.runNegativeTest(
 			new String[] {
@@ -1681,6 +1720,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	@Test
 	public void test044() {
 		this.runConformTest(
 			new String[] {
@@ -1708,6 +1748,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"[3, 4][5, 6]nullSUCCESS");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801 - variation
+	@Test
 	public void test045() {
 		this.runNegativeTest(
 				new String[] {
@@ -1747,6 +1788,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133918
+	@Test
 	public void test046() {
 		this.runNegativeTest(
 				new String[] {
@@ -1773,6 +1815,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140168
+	@Test
 	public void test047() {
 		this.runConformTest(
 			new String[] {
@@ -1809,6 +1852,7 @@ public class VarargsTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139931
+	@Test
 	public void test048() {
 		this.runNegativeTest(
 				new String[] {
@@ -1846,6 +1890,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141704
+	@Test
 	public void test049() {
 		this.runConformTest(
 				new String[] {
@@ -1875,6 +1920,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"121212");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141800
+	@Test
 	public void test050() {
 		this.runNegativeTest(
 				new String[] {
@@ -1898,6 +1944,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141800 - variation
+	@Test
 	public void test051() {
 		this.runConformTest(
 				new String[] {
@@ -1914,6 +1961,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"12");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159607
+	@Test
 	public void test052() {
 		this.runNegativeTest(
 				new String[] {
@@ -1952,6 +2000,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159607 - variation
+	@Test
 	public void test053() {
 		this.runNegativeTest(
 				new String[] {
@@ -1989,6 +2038,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test054() {
 		this.runNegativeTest(
 				new String[] {
@@ -2035,6 +2085,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"Type Integer[] of the last argument to method varargs(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 				"----------\n");
 	}
+	@Test
 	public void test055() {
 		this.runConformTest(
 				new String[] {
@@ -2053,6 +2104,7 @@ public class VarargsTest extends AbstractComparableTest {
 				},
 				"null length array: 0/[null] length array: 1/empty length array: 0/[a,b,c] length array: 3");
 	}
+	@Test
 	public void test056() {
 		this.runNegativeTest(
 				new String[] {
@@ -2083,6 +2135,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163889
+	@Test
 	public void test057() {
 		this.runNegativeTest(
 				new String[] {
@@ -2114,6 +2167,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162171
+	@Test
 	public void test058() {
 		this.runNegativeTest(
 				new String[] {
@@ -2159,6 +2213,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=170765
+	@Test
 	public void test059() {
 		this.runNegativeTest(
 				new String[] {
@@ -2182,6 +2237,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186181
+	@Test
 	public void test060() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
@@ -2244,6 +2300,7 @@ public class VarargsTest extends AbstractComparableTest {
 				null);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223427
+	@Test
 	public void test061() {
 		String expectedOutput =
 				"----------\n" +
@@ -2279,6 +2336,7 @@ public class VarargsTest extends AbstractComparableTest {
 				expectedOutput);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328247
+	@Test
 	public void test062() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2307,6 +2365,7 @@ public class VarargsTest extends AbstractComparableTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$1.class", "X$1", expectedOutput);
 	}
 	//safe varargs support
+	@Test
 	public void test063() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2341,6 +2400,7 @@ public class VarargsTest extends AbstractComparableTest {
 			options,
 			null);
 	}
+	@Test
 	public void test064() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2366,6 +2426,7 @@ public class VarargsTest extends AbstractComparableTest {
 			options,
 			null);
 	}
+	@Test
 	public void test065() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2392,6 +2453,7 @@ public class VarargsTest extends AbstractComparableTest {
 			null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337093
+	@Test
 	public void test066() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
@@ -2435,6 +2497,7 @@ public class VarargsTest extends AbstractComparableTest {
 				options);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
+	@Test
 	public void test067() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2494,6 +2557,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
+	@Test
 	public void test067b() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2518,6 +2582,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is no warning if vararg parameter is reifiable)
+	@Test
 	public void test068() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2546,6 +2611,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is a warning if vararg parameter is not reifiable)
+	@Test
 	public void test068b() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2589,6 +2655,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
+	@Test
 	public void test068c() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2626,6 +2693,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
+	@Test
 	public void test068d() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2664,6 +2732,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (test effect of SuppressWarnings (should suppress at declaration site, but not at call site)
+	@Test
 	public void test068e() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -2697,6 +2766,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042
+	@Test
 	public void test069() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2726,6 +2796,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
+	@Test
 	public void test070() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2743,6 +2814,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
+	@Test
 	public void test070_tolerate() throws Exception {
 		Map options = getCompilerOptions();
 		try {
@@ -2768,6 +2840,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
+	@Test
 	public void test070_tolerate2() throws Exception {
 		Map options = getCompilerOptions();
 		try {
@@ -2801,6 +2874,7 @@ public class VarargsTest extends AbstractComparableTest {
 
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
+	@Test
 	public void test070a() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2817,6 +2891,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"Done");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
+	@Test
 	public void test070a_tolerate() throws Exception {
 		Map options = getCompilerOptions();
 		try {
@@ -2840,6 +2915,7 @@ public class VarargsTest extends AbstractComparableTest {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
+	@Test
 	public void test070b() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2856,6 +2932,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
+	@Test
 	public void test070b_tolerate() throws Exception {
 		String[] src = new String[] {
 				"X.java",
@@ -2878,6 +2955,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
+	@Test
 	public void test070c() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest(
 			new String[] {
@@ -2910,6 +2988,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
+	@Test
 	public void test070d() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest(
 			new String[] {
@@ -2939,6 +3018,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346039
+	@Test
 	public void test071() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runConformTest(
 			new String[] {
@@ -2962,6 +3042,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
+	@Test
 	public void test071_tolerate() throws Exception {
 		String[] src =
 			new String[] {
@@ -2992,6 +3073,7 @@ public class VarargsTest extends AbstractComparableTest {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=364672
+	@Test
 	public void test072() {
 		this.runConformTest(
 			new String[] {
@@ -3012,6 +3094,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=364672
+	@Test
 	public void test073() {
 		this.runConformTest(
 			new String[] {
@@ -3040,6 +3123,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=364672
+	@Test
 	public void test074() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3068,6 +3152,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382469
+	@Test
 	public void testBug382469() throws Exception {
 		String[] src =
 			new String[] {
@@ -3105,6 +3190,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386361
+	@Test
 	public void testBug386361() throws Exception {
 		String[] src =
 			new String[] {
@@ -3136,6 +3222,7 @@ public class VarargsTest extends AbstractComparableTest {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426678, [1.8][compiler] Another issue with vararg type element accessibility
+	@Test
 	public void test426678() {
 		runNegativeTest(
 			new String[] {
@@ -3164,6 +3251,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n"); // check and adjust,
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436474, [codegen]Problem with varargs and List.toString
+	@Test
 	public void test436474() {
 		runConformTest(
 			new String[] {
@@ -3185,6 +3273,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
+	@Test
 	public void test437973() {
 		runConformTest(
 			new String[] {
@@ -3275,6 +3364,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
+	@Test
 	public void test437973a() {
 		runConformTest(
 		new String[] {
@@ -3309,6 +3399,7 @@ public class VarargsTest extends AbstractComparableTest {
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
 	//The parameter of one method is not a subtype of the other.
+	@Test
 	public void test437973b() {
 		runNegativeTest(
 		new String[] {
@@ -3333,6 +3424,7 @@ public class VarargsTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
 	// Lambda functions
+	@Test
 	public void test437973c() {
 		runNegativeTest(
 		new String[] {
@@ -3357,6 +3449,7 @@ public class VarargsTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
 	// Original Test Case - Comment 0
+	@Test
 	public void test437973d() {
 		runConformTest(
 		new String[] {
@@ -3399,6 +3492,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=470370, [1.8] Wrong varargs behaviour causes ArrayStoreException
+		@Test
 		public void test470370() {
 			runConformTest(
 			new String[] {
@@ -3420,6 +3514,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"");
 		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=488658
+		@Test
 		public void testBug488658_001() throws Exception {
 			if (this.complianceLevel < ClassFileConstants.JDK9) return;
 			this.runConformTest(

@@ -19,8 +19,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TryWithResourcesStatementTest extends AbstractRegressionTest {
@@ -30,13 +31,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public TryWithResourcesStatementTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+public TryWithResourcesStatementTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // Test resource type related errors
+@Test
 public void test001() {
 	this.runNegativeTest(
 		new String[] {
@@ -57,6 +56,7 @@ public void test001() {
 		"----------\n");
 }
 // Test resource type related errors
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -77,6 +77,7 @@ public void test002() {
 		"----------\n");
 }
 // Test that resource type could be interface type.
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -102,6 +103,7 @@ public void test003() {
 		"----------\n");
 }
 // Type resource type related errors
+@Test
 public void test003a() {
 	this.runNegativeTest(
 		new String[] {
@@ -130,6 +132,7 @@ public void test003a() {
 		"----------\n");
 }
 // Scope, visibility related tests.
+@Test
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
@@ -158,6 +161,7 @@ public void test004() {
 		"----------\n");
 }
 //Scope, visibility related tests.
+@Test
 public void test004a() {
 	this.runNegativeTest(
 		new String[] {
@@ -190,6 +194,7 @@ public void test004a() {
 		"----------\n");
 }
 // check that resources are implicitly final
+@Test
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
@@ -211,6 +216,7 @@ public void test005() {
 		"----------\n");
 }
 //check that try statement can be empty
+@Test
 public void test006() {
 	this.runNegativeTest( // cannot be a conform test as this triggers an AIOOB.
 		new String[] {
@@ -232,6 +238,7 @@ public void test006() {
 		"----------\n");
 }
 //check that resources are implicitly final but they can be explicitly final
+@Test
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -253,6 +260,7 @@ public void test007() {
 		"----------\n");
 }
 // resource type tests
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -276,6 +284,7 @@ public void test008() {
 		"----------\n");
 }
 // Resource Type tests
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -299,6 +308,7 @@ public void test009() {
 		"----------\n");
 }
 // Scope, visibility tests
+@Test
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -333,6 +343,7 @@ public void test010() {
 		"----------\n");
 }
 // Scope, visibility tests
+@Test
 public void test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -368,6 +379,7 @@ public void test011() {
 		"-------\n");
 }
 // Scope, visibility related tests.
+@Test
 public void test012() {
 	this.runNegativeTest(
 		new String[] {
@@ -410,6 +422,7 @@ public void test012() {
 		"----------\n");
 }
 // Shadowing behavior tests
+@Test
 public void test013() {
 	this.runNegativeTest(
 		new String[] {
@@ -455,6 +468,7 @@ public void test013() {
 		"----------\n");
 }
 // Test for unhandled exceptions
+@Test
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -513,6 +527,7 @@ public void test014() {
 		null, true, options);
 }
 // Resource nullness tests
+@Test
 public void test015() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -543,6 +558,7 @@ public void test015() {
 	runner.runWarningTest();
 }
 // Dead code tests, resource nullness, unhandled exception tests
+@Test
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -601,6 +617,7 @@ public void test016() {
 		options);
 }
 // Dead code tests
+@Test
 public void test017() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -632,6 +649,7 @@ public void test017() {
 	runner.runWarningTest();
 }
 // Syntax error tests
+@Test
 public void test018() {
 	this.runNegativeTest(
 		new String[] {
@@ -652,6 +670,7 @@ public void test018() {
 		"----------\n");
 }
 // Unhandled exception tests
+@Test
 public void test020() {
 	this.runNegativeTest(
 		new String[] {
@@ -749,6 +768,7 @@ public void test020() {
 		"----------\n");
 }
 // Resource type test
+@Test
 public void test021() {
 	this.runNegativeTest(
 		new String[] {
@@ -772,6 +792,7 @@ public void test021() {
 		"----------\n");
 }
 // Interface method return type compatibility test
+@Test
 public void test022() {
 	this.runNegativeTest(
 		new String[] {
@@ -795,6 +816,7 @@ public void test022() {
 		"----------\n");
 }
 // Exception handling, compatibility tests
+@Test
 public void test023() {
 	this.runNegativeTest(
 		new String[] {
@@ -829,6 +851,7 @@ public void test023() {
 		"----------\n");
 }
 // Exception handling tests
+@Test
 public void test024() {
 	this.runNegativeTest(
 		new String[] {
@@ -909,6 +932,7 @@ public void test024() {
 		"----------\n");
 }
 // Unhandled exception tests
+@Test
 public void test025() {
 	this.runNegativeTest(
 		new String[] {
@@ -1005,6 +1029,7 @@ public void test025() {
 		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n");
 }
+@Test
 public void test026() {
 	this.runNegativeTest(
 		new String[] {
@@ -1083,6 +1108,7 @@ public void test026() {
 		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n");
 }
+@Test
 public void test027() {
 	this.runConformTest(
 		new String[] {
@@ -1131,6 +1157,7 @@ public void test027() {
 		"Suppressed:java.lang.Exception: X Close\n" +
 		"10");
 }
+@Test
 public void test028() {
 	this.runConformTest(
 		new String[] {
@@ -1166,6 +1193,7 @@ public void test028() {
 		"X DTOR");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338881
+@Test
 public void test029() {
 	this.runConformTest(
 		new String[] {
@@ -1191,6 +1219,7 @@ public void test029() {
 		},
 		"Got IO exception");
 }
+@Test
 public void test030() {  // test return + resources
 	this.runConformTest(
 		new String[] {
@@ -1257,6 +1286,7 @@ public void test030() {  // test return + resources
 		"X::~X\n" +
 		"X::~X");
 }
+@Test
 public void test030a() {  // test return + resources + with exceptions being thrown by close()
 	this.runConformTest(
 		new String[] {
@@ -1338,6 +1368,7 @@ public void test030a() {  // test return + resources + with exceptions being thr
 		"Suppressed: java.lang.Exception: X::~X\n" +
 		"Suppressed: java.lang.Exception: X::~X");
 }
+@Test
 public void test031() { // test break + resources
 	this.runConformTest(
 		new String[] {
@@ -1405,6 +1436,7 @@ public void test031() { // test break + resources
 		"X::~X\n" +
 		"X::~X");
 }
+@Test
 public void test032() { // test continue + resources
 	this.runConformTest(
 		new String[] {
@@ -1480,6 +1512,7 @@ public void test032() { // test continue + resources
 		"X::~X\n" +
 		"Outer Finally");
 }
+@Test
 public void test033() { // test null resources
 	this.runConformTest(
 		new String[] {
@@ -1524,6 +1557,7 @@ public void test033() { // test null resources
 		"Y::~Y\n" +
 		"Outer Finally");
 }
+@Test
 public void test034() {
 	this.runConformTest(
 		new String[] {
@@ -1627,6 +1661,7 @@ public void test034() {
 		"java.lang.Exception: A::A\n" +
 		"All done");
 }
+@Test
 public void test035() {
 	this.runConformTest(
 		new String[] {
@@ -1732,6 +1767,7 @@ public void test035() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test036() {
 	this.runConformTest(
 		new String[] {
@@ -1840,6 +1876,7 @@ public void test036() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test037() {
 	this.runConformTest(
 		new String[] {
@@ -1950,6 +1987,7 @@ public void test037() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test038() {
 	this.runConformTest(
 		new String[] {
@@ -2063,6 +2101,7 @@ public void test038() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test039() {
 	this.runConformTest(
 		new String[] {
@@ -2178,6 +2217,7 @@ public void test039() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test040() {
 	this.runConformTest(
 		new String[] {
@@ -2295,6 +2335,7 @@ public void test040() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test041() {
 	this.runConformTest(
 		new String[] {
@@ -2410,6 +2451,7 @@ public void test041() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test042() {
 	this.runConformTest(
 		new String[] {
@@ -2523,6 +2565,7 @@ public void test042() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test043() {
 	this.runConformTest(
 		new String[] {
@@ -2634,6 +2677,7 @@ public void test043() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test044() {
 	this.runConformTest(
 		new String[] {
@@ -2743,6 +2787,7 @@ public void test044() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test045() {
 	this.runConformTest(
 		new String[] {
@@ -2850,6 +2895,7 @@ public void test045() {
 		"Suppressed: java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test046() {
 	this.runConformTest(
 		new String[] {
@@ -2955,6 +3001,7 @@ public void test046() {
 		"java.lang.Exception: A::~A\n" +
 		"All done");
 }
+@Test
 public void test047() {
 	this.runConformTest(
 		new String[] {
@@ -3058,6 +3105,7 @@ public void test047() {
 		"A::~A\n" +
 		"All done");
 }
+@Test
 public void test048() {
 	this.runConformTest(
 		new String[] {
@@ -3148,6 +3196,7 @@ public void test048() {
 		"All done");
 }
 
+@Test
 public void test050() {
 	this.runConformTest(
 		new String[] {
@@ -3187,6 +3236,7 @@ public void test050() {
 		"java.lang.Exception: E::~E\n" +
 		"All done");
 }
+@Test
 public void test051() {
 	this.runConformTest(
 		new String[] {
@@ -3219,6 +3269,7 @@ public void test051() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348705
 // Unhandled exception due to autoclose should be reported separately
+@Test
 public void test053() {
 	this.runNegativeTest(
 		new String[] {
@@ -3268,6 +3319,7 @@ public void test053() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348705
 // Variant of the above, witness for https://bugs.eclipse.org/358827#c6
+@Test
 public void test053a() {
 	this.runNegativeTest(
 		new String[] {
@@ -3318,6 +3370,7 @@ public void test053a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349862 (NPE when union type is used in the resource section.)
+@Test
 public void test054() {
 	this.runNegativeTest(
 		new String[] {
@@ -3338,6 +3391,7 @@ public void test054() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349862 (NPE when union type is used in the resource section.)
+@Test
 public void test054a() {
 	this.runNegativeTest(
 		new String[] {
@@ -3358,6 +3412,7 @@ public void test054a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353535 (verify error with try with resources)
+@Test
 public void test055() {
 	this.runConformTest(
 		new String[] {
@@ -3377,6 +3432,7 @@ public void test055() {
 		"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353535 (verify error with try with resources)
+@Test
 public void test055a() {
 	this.runConformTest(
 		new String[] {
@@ -3404,6 +3460,7 @@ public void test055a() {
 // Note: test056* have been moved to ResourceLeakTests.java
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=361053
+@Test
 public void test057() {
 	this.runConformTest(
 		new String[] {
@@ -3425,6 +3482,7 @@ public void test057() {
 		},  "");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=364008
+@Test
 public void test058() {
 	this.runConformTest(
 		new String[] {
@@ -3446,6 +3504,7 @@ public void test058() {
 		},  "");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=367566 - In try-with-resources statement close() method of resource is not called
+@Test
 public void test059() {
 	this.runConformTest(
 		new String[] {
@@ -3473,6 +3532,7 @@ public void test059() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=367566 - In try-with-resources statement close() method of resource is not called
+@Test
 public void test060() {
 	this.runConformTest(
 		new String[] {
@@ -3574,6 +3634,7 @@ public void test060() {
 		"true");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+@Test
 public void test375248() {
 	this.runConformTest(
 		new String[] {
@@ -3604,6 +3665,7 @@ public void test375248() {
 		"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+@Test
 public void test375248a() {
 	this.runConformTest(
 		new String[] {
@@ -3645,6 +3707,7 @@ public void test375248a() {
 		"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+@Test
 public void test375248b() {
 	this.runConformTest(
 		new String[] {
@@ -3686,6 +3749,7 @@ public void test375248b() {
 		"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+@Test
 public void test375248c() {
 	this.runConformTest(
 		new String[] {
@@ -3724,6 +3788,7 @@ public void test375248c() {
 		"Finally");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+@Test
 public void test375248d() {
 	this.runConformTest(
 		new String[] {
@@ -3761,6 +3826,7 @@ public void test375248d() {
 		"Finally");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326() {
 	this.runConformTest(
 		new String[] {
@@ -3789,6 +3855,7 @@ public void test375326() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326a() {
 	this.runNegativeTest(
 		new String[] {
@@ -3821,6 +3888,7 @@ public void test375326a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326b() {
 	this.runNegativeTest(
 		new String[] {
@@ -3853,6 +3921,7 @@ public void test375326b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326c() {
 	this.runConformTest(
 		new String[] {
@@ -3884,6 +3953,7 @@ public void test375326c() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326d() {
 	this.runNegativeTest(
 		new String[] {
@@ -3918,6 +3988,7 @@ public void test375326d() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326e() {
 	this.runNegativeTest(
 		new String[] {
@@ -3952,6 +4023,7 @@ public void test375326e() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326f() {
 	this.runNegativeTest(
 		new String[] {
@@ -3982,6 +4054,7 @@ public void test375326f() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+@Test
 public void test375326g() {
 	this.runNegativeTest(
 		new String[] {
@@ -4026,6 +4099,7 @@ public void test375326g() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+@Test
 public void test380112a() {
 	this.runConformTest(
 			new String[] {
@@ -4047,6 +4121,7 @@ public void test380112a() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
 //variant with finally
+@Test
 public void test380112b() {
 	this.runConformTest(
 			new String[] {
@@ -4070,6 +4145,7 @@ public void test380112b() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
 //variant with two methods throwing different Exceptions (one subtype of other)
 //subtype should be the one to be caught
+@Test
 public void test380112c() {
 	this.runConformTest(
 			new String[] {
@@ -4092,6 +4168,7 @@ public void test380112c() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
 //test380112c's variant with finally
+@Test
 public void test380112d() {
 	this.runConformTest(
 			new String[] {
@@ -4115,6 +4192,7 @@ public void test380112d() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
 //test380112a variant moving the Interface into a binary
+@Test
 public void test380112e() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test380112.jar";
 	String[] defaultLibs = getDefaultClassPaths();
@@ -4139,6 +4217,7 @@ public void test380112e() {
 			}, "Done", libs, true, new String[] {"-cp", "."+File.pathSeparator+path});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=394780
+@Test
 public void test394780() {
 	this.runConformTest(
 			new String[] {
@@ -4175,6 +4254,7 @@ public void test394780() {
 			"computeclose");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=533187
+@Test
 public void testBug533187() {
 	this.runConformTest(
 			true,
@@ -4213,6 +4293,7 @@ public void testBug533187() {
 			null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467230
+@Test
 public void testBug467230() {
 	this.runConformTest(
 			true,
@@ -4293,6 +4374,7 @@ public void _testGHIssue934() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1063
 // Regression in code generation for try with resources with the fix for Issue # 934
+@Test
 public void testGHIssue1063() {
 	this.runConformTest(
 			true,
@@ -4328,6 +4410,7 @@ public void testGHIssue1063() {
 }
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/pull/1495
+@Test
 public void testGHissue1495() {
     this.runConformTest(
         new String[] {
@@ -4345,8 +4428,5 @@ public void testGHissue1495() {
                 "   public static I i() { return null; }\n" +
                 "}\n"
     });
-}
-public static Class testClass() {
-	return TryWithResourcesStatementTest.class;
 }
 }

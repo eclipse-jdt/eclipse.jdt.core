@@ -13,12 +13,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_25)
 public class JavaNonLanguageTests extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25");
@@ -29,14 +33,8 @@ public class JavaNonLanguageTests extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testIssue001" };
 	}
 	private String extraLibPath;
-	public static Class<?> testClass() {
-		return JavaNonLanguageTests.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_25);
-	}
-	public JavaNonLanguageTests(String testName) {
-		super(testName);
+	public JavaNonLanguageTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -135,6 +133,7 @@ public class JavaNonLanguageTests extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testStable_001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -159,6 +158,7 @@ public class JavaNonLanguageTests extends AbstractRegressionTest9 {
 			"true\n" +
 		    "false");
 	}
+	@Test
 	public void testStable_002() {
 		Map<String,String> options = getCompilerOptions(false);
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);

@@ -14,8 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocTestMixed extends JavadocTest {
@@ -25,12 +26,8 @@ public class JavadocTestMixed extends JavadocTest {
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 
-	public JavadocTestMixed(String name) {
-		super(name);
-	}
-
-	public static Class javadocTestClass() {
-		return JavadocTestMixed.class;
+	public JavadocTestMixed(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -40,9 +37,6 @@ public class JavadocTestMixed extends JavadocTest {
 //		TESTS_NAMES = new String[] { "testBug80910" };
 //		TESTS_NUMBERS = new int[] { 31, 32, 33 };
 //		TESTS_RANGE = new int[] { 21, 50 };
-	}
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(javadocTestClass());
 	}
 
 	@Override
@@ -80,6 +74,7 @@ public class JavadocTestMixed extends JavadocTest {
 	/*
 	 * Test missing javadoc
 	 */
+	@Test
 	public void test001() {
 		runConformTest(
 			new String[] {
@@ -96,6 +91,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test002() {
 		runConformTest(
 			new String[] {
@@ -112,6 +108,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test003() {
 		runConformTest(
 			new String[] {
@@ -128,6 +125,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test004() {
 		runConformTest(
 			new String[] {
@@ -144,6 +142,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test005() {
 		this.reportInvalidJavadoc = CompilerOptions.IGNORE;
 		runConformTest(
@@ -159,6 +158,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test006() {
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -179,6 +179,7 @@ public class JavadocTestMixed extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test010() {
 		runNegativeTest(
 			new String[] {
@@ -204,6 +205,7 @@ public class JavadocTestMixed extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test011() {
 		runNegativeTest(
 			new String[] {
@@ -229,6 +231,7 @@ public class JavadocTestMixed extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test012() {
 		runNegativeTest(
 			new String[] {
@@ -254,6 +257,7 @@ public class JavadocTestMixed extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test013() {
 		runNegativeTest(
 			new String[] {
@@ -282,6 +286,7 @@ public class JavadocTestMixed extends JavadocTest {
 	/*
 	 * Test mixing javadoc comments
 	 */
+	@Test
 	public void test021() {
 		runConformTest(
 			new String[] {
@@ -324,6 +329,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "}\n" });
 	}
 
+	@Test
 	public void test022() {
 		runNegativeTest(
 			new String[] {
@@ -374,6 +380,7 @@ public class JavadocTestMixed extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test023() {
 		runNegativeTest(
 			new String[] {
@@ -424,6 +431,7 @@ public class JavadocTestMixed extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test024() {
 		runNegativeTest(
 			new String[] {
@@ -478,6 +486,7 @@ public class JavadocTestMixed extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test025() {
 		runNegativeTest(
 			new String[] {
@@ -532,6 +541,7 @@ public class JavadocTestMixed extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test026() {
 		runNegativeTest(
 			new String[] {
@@ -598,6 +608,7 @@ public class JavadocTestMixed extends JavadocTest {
 	/*
 	 * Javadoc on invalid syntax
 	 */
+	@Test
 	public void test030() {
 		runNegativeTest(
 			new String[] {
@@ -646,6 +657,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test031() {
 		runNegativeTest(
 			new String[] {
@@ -694,6 +706,7 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n");
 	}
 
+	@Test
 	public void test032() {
 		runNegativeTest(
 			new String[] {
@@ -805,6 +818,7 @@ public class JavadocTestMixed extends JavadocTest {
 						+ "----------\n");
 	}
 
+	@Test
 	public void test040() {
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runConformTest(
@@ -826,6 +840,7 @@ public class JavadocTestMixed extends JavadocTest {
 					"}\n" });
 	}
 
+	@Test
 	public void test041() {
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runNegativeTest(

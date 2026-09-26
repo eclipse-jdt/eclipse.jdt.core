@@ -19,14 +19,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import junit.framework.Test;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -37,8 +37,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
 	boolean isJRE14 = false;
-	public RepeatableAnnotationTest(String name) {
-		super(name);
+	public RepeatableAnnotationTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 		String javaVersion = System.getProperty("java.version");
 		int index = javaVersion.indexOf('.');
 		if (index != -1) {
@@ -59,15 +59,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		return s;
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-
-	public static Class testClass() {
-		return RepeatableAnnotationTest.class;
-	}
-
 	// check repeated occurrence of non-repeatable annotation
+	@Test
 	public void test001() {
 		this.runNegativeTest(
 			new String[] {
@@ -92,6 +85,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test002() {
 		this.runConformTest(
 				new String[] {
@@ -111,6 +105,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// check repeated occurrence of annotation where annotation container is not valid for the target
+	@Test
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -147,6 +142,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// This is the same test as test003, only where the annotation info for Foo is from a class file, not from the compiler
+	@Test
 	public void test004() {
 		this.runConformTest(
 			new String[] {
@@ -181,6 +177,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// Test that a single, repeatable annotation can exist just fine an occurrence of its container annotation
+	@Test
 	public void test005() {
 		this.runConformTest(
 			new String[] {
@@ -193,6 +190,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// Test that an repeated annotation can't occur together with its container annotation
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -210,6 +208,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// Test that an repeated annotation can't occur together with its container annotation, even if it itself is repeatable.
+	@Test
 	public void test007() {
 		this.runNegativeTest(
 			new String[] {
@@ -228,6 +227,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// Test that an repeated annotation can't occur together with its container annotation, even if it itself is repeatable.
+	@Test
 	public void test007a() {
 		this.runNegativeTest(
 			new String[] {
@@ -303,6 +303,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// Bug 412151: [1.8][compiler] Check repeating annotation's collection type
 	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
+	@Test
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
@@ -320,6 +321,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		"----------\n");
 	}
 	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
+	@Test
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
@@ -338,6 +340,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		"----------\n");
 	}
 	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
+	@Test
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
@@ -362,6 +365,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		);
 	}
 	// 412151: Any methods declared by TC other than value() have a default value (JLS 9.6.2).
+	@Test
 	public void test013() {
 		this.runNegativeTest(
 			new String[] {
@@ -382,6 +386,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		"----------\n");
 	}
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
+	@Test
 	public void test014() {
 		this.runConformTest(
 			new String[] {
@@ -401,6 +406,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	//
+	@Test
 	public void test015() {
 		// These are fine:
 		this.runConformTest(
@@ -443,6 +449,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
 	// Base example, both targets are specified
+	@Test
 	public void test016() {
 		this.runNegativeTest(
 			new String[] {
@@ -465,6 +472,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
 	// Only specified on FooContainer
+	@Test
 	public void test017() {
 		this.runNegativeTest(
 			new String[] {
@@ -486,6 +494,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
 	// Only specified on Foo
+	@Test
 	public void test018() {
 		this.runNegativeTest(
 			new String[] {
@@ -507,6 +516,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
 	// Only specified on Foo - but positive
+	@Test
 	public void test019() {
 		this.runConformTest(
 			new String[] {
@@ -522,6 +532,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T
 	// Only specified on FooContainer, separate compilation
+	@Test
 	public void test020() {
 		this.runConformTest(
 			new String[] {
@@ -554,6 +565,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
 	// Only specified on Foo, separate compilation
+	@Test
 	public void test021() {
 		this.runConformTest(
 			new String[] {
@@ -587,6 +599,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
 	// TC's @Targets, if specified, must be a subset or the same as T's @Targets. Simple test
+	@Test
 	public void test022() {
 		this.runNegativeTest(
 			new String[] {
@@ -613,6 +626,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
 	// TC's @Targets, if specified, must be a subset or the same as T's @Targets. Test this as a separate pass, so that
 	// FooContainer is loaded from binary.
+	@Test
 	public void test023() {
 		this.runConformTest(
 			new String[] {
@@ -647,6 +661,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
 	// TC's may target ANNOTATION_TYPE but that should match TYPE for T, since it's a superset
+	@Test
 	public void test024() {
 		this.runConformTest(
 			new String[] {
@@ -664,6 +679,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
 	// Test that all ElementTypes can be reported
+	@Test
 	public void test025() {
 		this.runNegativeTest(
 			new String[] {
@@ -689,6 +705,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
 	// TC's has no @Targets (=every declaration location), but @Foo has, then complain.
+	@Test
 	public void test026() {
 		this.runConformTest(
 			new String[] {
@@ -716,6 +733,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: If T is @Documented, then TC should also be Documented
+	@Test
 	public void test027() {
 		this.runConformTest(
 			new String[] {
@@ -726,6 +744,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: If T is @Documented, then TC should also be Documented, OK for TC to be documented while T is not
+	@Test
 	public void test028() {
 		this.runConformTest(
 			new String[] {
@@ -736,6 +755,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: If T is @Documented, then TC should also be Documented
+	@Test
 	public void test029() {
 		this.runNegativeTest(
 			new String[] {
@@ -754,6 +774,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: If T is @Documented, then TC should also be Documented - check from previous compilation
+	@Test
 	public void test030() {
 		this.runConformTest(
 				new String[] {
@@ -775,6 +796,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: If T is @Inherited, then TC should also be Inherited
+	@Test
 	public void test031() {
 		this.runConformTest(
 			new String[] {
@@ -785,6 +807,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: If T is @Inherited, then TC should also be Inherited, OK for TC to be inherited while T is not.
+	@Test
 	public void test032() {
 		this.runConformTest(
 			new String[] {
@@ -794,6 +817,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@interface Foo { }\n"});
 	}
 	// 412151: If T is @Inherited, then TC should also be Inherited
+	@Test
 	public void test033() {
 		this.runNegativeTest(
 			new String[] {
@@ -812,6 +836,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: If T is @Inherited, then TC should also be Inherited - check from previous compilation
+	@Test
 	public void test034() {
 		this.runConformTest(
 				new String[] {
@@ -832,6 +857,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				null);
 	}
 	// 412151: Ensure no double reporting for bad target.
+	@Test
 	public void test035() {
 		this.runNegativeTest(
 			new String[] {
@@ -865,6 +891,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
+	@Test
 	public void test036() {
 		this.runConformTest(
 			new String[] {
@@ -896,6 +923,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
 	// Test that only repetitions go into the container
+	@Test
 	public void test037() {
 		this.runConformTest(
 			new String[] {
@@ -941,6 +969,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
 	// Test that the retention from the containing annotation is used
+	@Test
 	public void test038() {
 		this.runConformTest(
 			new String[] {
@@ -974,6 +1003,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
 	// Test that repeated annotations can appear at package targets
+	@Test
 	public void test039() throws Exception {
 		String[] testFiles = {
 				"repeatable/Main.java",
@@ -1018,6 +1048,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
 	// Test that repeated annotations show up on fields, methods, and parameters
+	@Test
 	public void test040() {
 		this.runConformTest(
 			new String[] {
@@ -1060,6 +1091,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 					"@Attr(value=1) @Attr(value=2) @Attr(value=3) @Attr(value=4) @Attr(value=5) @Attr(value=6)"));
 	}
 	// Test that repeated annotations show up type parameters properly.
+	@Test
 	public void testTypeParameters() {
 		this.runConformTest(
 			new String[] {
@@ -1147,6 +1179,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 	// Test that repeated annotations show up at various sites, both type use and declaration.
+	@Test
 	public void testVariousSites() {
 		this.runConformTest(
 			new String[] {
@@ -1339,6 +1372,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// Test that bad container specifications are handled properly.
+	@Test
 	public void testBadContainerType() {
 		this.runNegativeTest(
 			new String[] {
@@ -1359,6 +1393,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Test unspecified target.
+	@Test
 	public void testUnspecifiedTarget() {
 		this.runNegativeTest(
 			new String[] {
@@ -1389,6 +1424,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Test unspecified target.
+	@Test
 	public void testUnspecifiedTarget2() {
 		this.runNegativeTest(
 			new String[] {
@@ -1418,6 +1454,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"The annotation @T cannot be repeated at this location since its container annotation type @TC is disallowed at this location\n" +
 			"----------\n");
 	}
+	@Test
 	public void testDeprecation() {
 		this.runNegativeTest(
 			new String[] {
@@ -1445,6 +1482,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	            ^^\n" +
 			"The type TC is deprecated\n");
 	}
+	@Test
 	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same class defining it.
 		this.runNegativeTest(
 			new String[] {
@@ -1470,6 +1508,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+	@Test
 	public void testRepeatableWithContaining1() {
 		this.runNegativeTest(
 			false /* skipJavac */,
@@ -1497,6 +1536,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+	@Test
 	public void testRepeatableWithContaining2() {
 		this.runNegativeTest(
 			false /* skipJavac */,
@@ -1524,6 +1564,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+	@Test
 	public void testRepeatableWithContaining3() {
 		this.runNegativeTest(
 			false /* skipJavac */,
@@ -1551,6 +1592,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// check repeated occurrence of annotation where annotation container is not valid for the target
+	@Test
 	public void testRepeatingAnnotationsWithoutTarget() {
 		this.runNegativeTest(
 			new String[] {

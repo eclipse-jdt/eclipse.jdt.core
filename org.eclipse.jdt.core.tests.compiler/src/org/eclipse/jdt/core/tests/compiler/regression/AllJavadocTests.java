@@ -18,7 +18,27 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
-	ArrayTest.class,
-	AnnotationTest_9.class
+	JavadocBugsTest.class,
+	JavadocTestForMethod.class,
+	JavadocTestMixed.class,
+	JavadocTestForClass.class,
+	JavadocTestForConstructor.class,
+	JavadocTestForField.class,
+	JavadocTestForInterface.class,
+	JavadocTestOptions.class,
+
+	//	legacy:
+	JavadocTest_1_3.class,
+	JavadocTest_1_4.class,
+	JavadocTest_1_5.class,
+	// since 9
+	JavadocTestForModule.class,
+	// since 15
+	JavadocTest_15.class,
+	// since 16
+	JavadocTestForRecord.class,
+	JavadocTest_16.class,
+	// since 18
+	JavadocTest_18.class,
 })
-public class TestAll2 { }
+public class AllJavadocTests { }

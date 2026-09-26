@@ -14,27 +14,21 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 @RunJavac
 public class PolymorphicSignatureTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "testBug515863" };
 	}
-	public PolymorphicSignatureTest(String name) {
-		super(name);
+	public PolymorphicSignatureTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-	public static Class testClass() {
-		return PolymorphicSignatureTest.class;
-	}
-
+	@Test
 	public void test0001() {
 		this.runConformTest(
 			new String[] {
@@ -53,6 +47,7 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 			},
 			"nanny");
 	}
+	@Test
 	public void test0002() {
 		this.runConformTest(
 			new String[] {
@@ -69,6 +64,7 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 			},
 			"42");
 	}
+	@Test
 	public void testBug515863() {
 		runConformTest(
 			new String[] {
@@ -90,6 +86,7 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 				"}\n"
 			});
 	}
+	@Test
 	public void testBug475996() {
 		if (!isJRE9Plus)
 			return; // VarHandle is @since 9
@@ -108,6 +105,7 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 				"}\n"
 			});
 	}
+	@Test
 	public void testGH3651() throws ClassFormatException, IOException {
 		Runner runner = new Runner();
 		String source = """
@@ -152,6 +150,7 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 			""";
 		checkClassFile("VarHandleCast", source, expectedOutput);
 	}
+	@Test
 	public void testGH3651_noCheckcast() throws ClassFormatException, IOException {
 		String source = """
 				import java.lang.invoke.MethodHandle;

@@ -15,18 +15,19 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AutoBoxingTest extends AbstractComparableTest {
 
-	public AutoBoxingTest(String name) {
-		super(name);
+	public AutoBoxingTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -43,14 +44,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 //		TESTS_NUMBERS = new int[] { 78 };
 //		TESTS_RANGE = new int[] { 151, -1 };
 	}
-	public static Test suite() {
-		return buildComparableTestSuite(testClass());
-	}
 
-	public static Class testClass() {
-		return AutoBoxingTest.class;
-	}
-
+	@Test
 	public void test001() { // constant cases of base type -> Number
 		// int -> Integer
 		this.runConformTest(
@@ -158,6 +153,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test002() { // non constant cases of base type -> Number
 		// int -> Integer
 		this.runConformTest(
@@ -273,6 +269,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test003() { // Number -> base type
 		// Integer -> int
 		this.runConformTest(
@@ -393,6 +390,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test004() { // autoboxing method is chosen over private exact match & visible varargs method
 		this.runConformTest(
 			new String[] {
@@ -428,6 +426,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test005() { // this is NOT an ambiguous case as 'long' is matched before autoboxing kicks in
 		this.runConformTest(
 			new String[] {
@@ -446,6 +445,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test006() {
 		this.runNegativeTest( // Integers are not compatible with Longs, even though ints are compatible with longs
 			new String[] {
@@ -489,6 +489,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test007() {
 		this.runConformTest( // this is NOT an ambiguous case as Long is not a match for int
 			new String[] {
@@ -507,6 +508,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test008() { // test autoboxing AND varargs method match
 		this.runConformTest(
 			new String[] {
@@ -524,6 +526,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test009() {
 		this.runNegativeTest( // 2 of these sends are ambiguous
 			new String[] {
@@ -570,6 +573,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test010() { // local declaration assignment tests
 		this.runConformTest(
 			new String[] {
@@ -603,6 +607,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test011() { // field declaration assignment tests
 		this.runConformTest(
 			new String[] {
@@ -636,6 +641,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test012() { // varargs and autoboxing
 		this.runConformTest(
 			new String[] {
@@ -652,6 +658,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test013() { // foreach and autoboxing
 		this.runConformTest(
 			new String[] {
@@ -683,6 +690,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test014() { // switch
 		this.runConformTest(
 			new String[] {
@@ -700,6 +708,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test015() { // return statement
 		this.runConformTest(
 			new String[] {
@@ -721,6 +730,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test016() { // conditional expression
 		this.runConformTest(
 			new String[] {
@@ -736,6 +746,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test017() { // cast expression
 		this.runConformTest(
 			new String[] {
@@ -751,6 +762,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test018() { // cast expression
 		this.runNegativeTest(
 			new String[] {
@@ -781,6 +793,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test019() { // cast expression
 		this.runNegativeTest(
 			new String[] {
@@ -806,6 +819,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		"----------\n");
 	}
 
+	@Test
 	public void test020() { // binary expression
 		this.runConformTest(
 			new String[] {
@@ -822,6 +836,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test021() { // unary expression
 		this.runConformTest(
 			new String[] {
@@ -839,6 +854,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test022() { // unary expression
 		this.runConformTest(
 			new String[] {
@@ -857,6 +873,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test023() { // 78849
 		this.runConformTest(
 			new String[] {
@@ -872,6 +889,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test024() { // 79254
 		this.runConformTest(
 			new String[] {
@@ -885,6 +903,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test025() { // 79641
 		this.runConformTest(
 			new String[] {
@@ -898,6 +917,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test026() { // compound assignment
 		this.runConformTest(
 			new String[] {
@@ -916,6 +936,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test027() { // equal expression
 		this.runNegativeTest(
 			new String[] {
@@ -937,6 +958,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test028() { // unary expression
 		this.runConformTest(
 			new String[] {
@@ -954,6 +976,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test029() { // generic type case
 		this.runConformTest(
 			new String[] {
@@ -981,6 +1004,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test030() { // boolean expression
 		this.runConformTest(
 			new String[] {
@@ -1002,6 +1026,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test031() { // boolean expression
 		this.runConformTest(
 			new String[] {
@@ -1023,6 +1048,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test032() throws Exception { // boolean expression
 		this.runConformTest(
 			new String[] {
@@ -1076,6 +1102,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		}
 	}
 
+	@Test
 	public void test033() { // boolean expression
 		this.runConformTest(
 			new String[] {
@@ -1090,6 +1117,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test034() { // postfix expression
 		this.runConformTest(
 			new String[] {
@@ -1108,6 +1136,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test035() { // postfix expression
 		this.runConformTest(
 			new String[] {
@@ -1126,6 +1155,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test036() { // prefix expression
 		this.runConformTest(
 			new String[] {
@@ -1144,6 +1174,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test037() { // prefix expression
 		this.runConformTest(
 			new String[] {
@@ -1162,6 +1193,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test038() { // boolean expression
 		this.runConformTest(
 			new String[] {
@@ -1178,6 +1210,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test039() { // equal expression
 		this.runNegativeTest(
 			new String[] {
@@ -1199,6 +1232,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test040() { // boolean expression
 		this.runConformTest(
 			new String[] {
@@ -1217,6 +1251,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test041() { // equal expression
 		this.runConformTest(
 			new String[] {
@@ -1234,6 +1269,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test042() { // conditional expression
 		this.runConformTest(
 			new String[] {
@@ -1251,6 +1287,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test043() { // compound assignment
 		this.runNegativeTest(
 			new String[] {
@@ -1275,6 +1312,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test044() { // compound assignment
 		this.runNegativeTest(
 			new String[] {
@@ -1299,6 +1337,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test045() { // binary expression
 		this.runNegativeTest(
 			new String[] {
@@ -1323,6 +1362,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test046() { // postfix increment
 		this.runConformTest(
 			new String[] {
@@ -1338,6 +1378,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"2");
 	}
 
+	@Test
 	public void test047() { // postfix increment
 		this.runConformTest(
 			new String[] {
@@ -1355,6 +1396,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS2");
 	}
 
+	@Test
 	public void test048() { // postfix increment
 		this.runConformTest(
 			new String[] {
@@ -1372,6 +1414,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS2");
 	}
 
+	@Test
 	public void test049() { // postfix increment
 		this.runConformTest(
 			new String[] {
@@ -1391,6 +1434,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS2");
 	}
 
+	@Test
 	public void test050() { // prefix increment
 		this.runConformTest(
 			new String[] {
@@ -1408,6 +1452,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS2");
 	}
 
+	@Test
 	public void test051() { // prefix increment
 		this.runConformTest(
 			new String[] {
@@ -1427,6 +1472,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS2");
 	}
 
+	@Test
 	public void test052() { // boxing in var decl
 		this.runNegativeTest(
 			new String[] {
@@ -1464,6 +1510,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test053() { // boxing in var decl
 		this.runConformTest(
 			new String[] {
@@ -1481,6 +1528,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test054() { // boxing in field decl
 		this.runConformTest(
 			new String[] {
@@ -1498,6 +1546,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test055() { // boxing in foreach
 		this.runNegativeTest(
 			new String[] {
@@ -1524,6 +1573,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test056() { // boxing in foreach
 		this.runConformTest(
 			new String[] {
@@ -1540,6 +1590,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"012");
 	}
 
+	@Test
 	public void test057() { // boxing in foreach
 		this.runConformTest(
 			new String[] {
@@ -1556,6 +1607,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"012");
 	}
 
+	@Test
 	public void test058() { // autoboxing and generics
 		this.runConformTest(
 			new String[] {
@@ -1582,6 +1634,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"10");
 	}
 
+	@Test
 	public void test059() { // autoboxing and generics
 		this.runConformTest(
 			new String[] {
@@ -1610,6 +1663,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test060() { // autoboxing and boolean expr
 		this.runConformTest(
 			new String[] {
@@ -1637,6 +1691,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test061() { // autoboxing and boolean expr
 		this.runConformTest(
 			new String[] {
@@ -1665,6 +1720,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test062() { // autoboxing and generics
 		this.runConformTest(
 			new String[] {
@@ -1692,6 +1748,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"10");
 	}
 
+	@Test
 	public void test063() { // autoboxing and generics
 		this.runConformTest(
 			new String[] {
@@ -1719,6 +1776,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"-5");
 	}
 
+	@Test
 	public void test064() { // autoboxing and generics
 		this.runConformTest(
 			new String[] {
@@ -1746,6 +1804,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"10");
 	}
 
+	@Test
 	public void test065() { // generic type case + foreach statement
 		this.runConformTest(
 			new String[] {
@@ -1771,6 +1830,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test066() { // array case + foreach statement
 		this.runConformTest(
 			new String[] {
@@ -1793,6 +1853,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test067() { // array case + foreach statement
 		this.runConformTest(
 			new String[] {
@@ -1815,6 +1876,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test068() { // generic type case + foreach statement
 		this.runConformTest(
 			new String[] {
@@ -1840,6 +1902,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test069() { // assert
 		this.runConformTest(
 			new String[] {
@@ -1855,6 +1918,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test070() { // assert
 		this.runConformTest(
 			new String[] {
@@ -1874,6 +1938,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
+	@Test
 	public void test071() { // assert
 		this.runConformTest(
 			new String[] {
@@ -1894,6 +1959,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81971
+	@Test
 	public void test072() {
 		this.runNegativeTest(
 			new String[] {
@@ -1917,6 +1983,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81571
+	@Test
 	public void test073() {
 		this.runNegativeTest(
 			new String[] {
@@ -1941,6 +2008,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432
+	@Test
 	public void test074() {
 		this.runConformTest(
 			new String[] {
@@ -1958,6 +2026,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
+	@Test
 	public void test075() {
 		this.runNegativeTest(
 			new String[] {
@@ -1986,6 +2055,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
+	@Test
 	public void test076() {
 		this.runNegativeTest(
 			new String[] {
@@ -2088,6 +2158,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
+	@Test
 	public void test077() {
 		this.runConformTest(
 			new String[] {
@@ -2119,6 +2190,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81923
+	@Test
 	public void test078() {
 		this.runConformTest(
 			new String[] {
@@ -2172,6 +2244,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407 - variation
+	@Test
 	public void test080() {
 		this.runConformTest(
 			new String[] {
@@ -2193,6 +2266,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407 - variation
+	@Test
 	public void test081() {
 		this.runConformTest(
 			new String[] {
@@ -2214,6 +2288,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82859
+	@Test
 	public void test082() {
 		this.runConformTest(
 			new String[] {
@@ -2229,6 +2304,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82647
+	@Test
 	public void test083() {
 		this.runConformTest(
 			new String[] {
@@ -2306,6 +2382,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82647 - variation
+	@Test
 	public void test084() {
 		this.runNegativeTest(
 			new String[] {
@@ -2336,6 +2413,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83965
+	@Test
 	public void test085() {
 		this.runConformTest(
 			new String[] {
@@ -2460,6 +2538,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84055
+	@Test
 	public void test086() {
 		this.runNegativeTest(
 			new String[] {
@@ -2490,6 +2569,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
         );
 	}
     // autoboxing and type argument inference
+    @Test
     public void test087() {
         this.runNegativeTest(
             new String[] {
@@ -2525,6 +2605,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=84480 - variation with autoboxing diagnosis on
 	 */
+	@Test
 	public void test088() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
@@ -2563,6 +2644,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			customOptions);
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84345
+    @Test
     public void test089() {
         this.runNegativeTest(
             new String[] {
@@ -2597,6 +2679,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
         );
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84345 - variation
+    @Test
     public void test090() {
         this.runNegativeTest(
             new String[] {
@@ -2627,6 +2710,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
     }
 
     // type argument inference and autoboxing
+    @Test
     public void test091() {
         this.runConformTest(
             new String[] {
@@ -2648,6 +2732,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84669
+    @Test
     public void test092() {
         this.runConformTest(
             new String[] {
@@ -2678,6 +2763,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
         );
     }
 
+    @Test
     public void test093() {
         this.runConformTest(
             new String[] {
@@ -2693,6 +2779,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
         );
     }
 
+    @Test
     public void test094() {
         this.runNegativeTest(
             new String[] {
@@ -2725,6 +2812,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
     }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80630
+    @Test
     public void test095() {
         this.runConformTest(
             new String[] {
@@ -2747,6 +2835,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
         );
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80630 - variation
+    @Test
     public void test096() {
         this.runNegativeTest(
             new String[] {
@@ -2786,6 +2875,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
     }
     // conditional operator: bool ? Integer : Integer --> Integer (identical operand types)
     // but   bool ? Integer : Short --> unboxed int
+    @Test
     public void test097() {
         this.runConformTest(
             new String[] {
@@ -2812,6 +2902,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
     // conditional operator: bool ? Integer : Integer --> Integer (identical operand types)
     // but   bool ? Integer : Short --> unboxed int
     // check autoboxing warnings
+    @Test
     public void test098() {
         this.runNegativeTest(
             new String[] {
@@ -2868,6 +2959,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
     }
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801
+	@Test
 	public void test099() {
 		this.runConformTest(
 			new String[] {
@@ -2891,6 +2983,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87267
+	@Test
 	public void test100() {
 		this.runNegativeTest(
 			new String[] {
@@ -2918,6 +3011,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85491
+	@Test
 	public void test101() {
 		this.runNegativeTest(
 			new String[] {
@@ -3013,6 +3107,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801
+	@Test
 	public void test102() {
 		runConformTest(
 			// test directory preparation
@@ -3065,6 +3160,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801 - variation (check warnings)
+	@Test
 	public void test103() {
 		this.runNegativeTest(
 			new String[] {
@@ -3155,6 +3251,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95868
+	@Test
 	public void test104() {
 		this.runConformTest(
 			false /* skipJavac */,
@@ -3178,6 +3275,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779
+@Test
 public void test105() {
 	runConformTest(
 		// test directory preparation
@@ -3222,6 +3320,7 @@ public void test105() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
+@Test
 public void test106() {
 	runConformTest(
 		// test directory preparation
@@ -3256,6 +3355,7 @@ public void test106() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
+@Test
 public void test107() {
 	runConformTest(
 		// test directory preparation
@@ -3290,6 +3390,7 @@ public void test107() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
+@Test
 public void test108() {
 	runConformTest(
 		// test directory preparation
@@ -3324,6 +3425,7 @@ public void test108() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100043
+@Test
 public void test109() {
 	this.runConformTest(
 		new String[] {
@@ -3339,6 +3441,7 @@ public void test109() {
 		"zero");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100043 - variation
+@Test
 public void test110() {
 	this.runConformTest(
 		new String[] {
@@ -3356,6 +3459,7 @@ public void test110() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105524
+@Test
 public void test111() {
 	runConformTest(
 		// test directory preparation
@@ -3388,6 +3492,7 @@ public void test111() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105284
+@Test
 public void test112() {
 	this.runConformTest(
 		new String[] {
@@ -3404,6 +3509,7 @@ public void test112() {
 		"7");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105284 - variation
+@Test
 public void test113() {
 	this.runNegativeTest(
 		new String[] {
@@ -3460,6 +3566,7 @@ public void test113() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100182
+@Test
 public void test114() {
 	this.runNegativeTest(
 		new String[] {
@@ -3492,6 +3599,7 @@ public void test114() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100182 - variation
+@Test
 public void test115() {
 	this.runConformTest(
 		new String[] {
@@ -3507,6 +3615,7 @@ public void test115() {
 		"a97");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106870
+@Test
 public void test116() {
 	this.runNegativeTest(
 		new String[] {
@@ -3551,6 +3660,7 @@ public void test116() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122987
+@Test
 public void test117() {
 	this.runNegativeTest(
 		new String[] {
@@ -3582,6 +3692,7 @@ public void test117() {
 }
 
 // Integer array and method with T extends Integer bound
+@Test
 public void test118() {
 	runConformTest(
 		// test directory preparation
@@ -3609,6 +3720,7 @@ public void test118() {
 }
 
 // Integer as member of a parametrized class
+@Test
 public void test119() {
 	runConformTest(
 		// test directory preparation
@@ -3636,6 +3748,7 @@ public void test119() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137918
+@Test
 public void test120() {
 	this.runNegativeTest(
 		new String[] {
@@ -3667,6 +3780,7 @@ public void test120() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156108
+@Test
 public void test121() {
 	this.runNegativeTest(
 		new String[] {
@@ -3712,6 +3826,7 @@ public void test121() {
 );
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156108 - variation
+@Test
 public void test122() {
 	this.runNegativeTest(
 		new String[] {
@@ -3740,6 +3855,7 @@ public void test122() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255
+@Test
 public void test123() {
 	this.runConformTest(
 		new String[] {
@@ -3773,6 +3889,7 @@ public void test123() {
 		"[1:true,java.lang.Boolean][2:true,java.lang.Boolean][3:false,java.lang.Boolean][4:false,java.lang.Boolean][done]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255 - variation
+@Test
 public void test124() {
 	String specVersion = System.getProperty("java.specification.version");
 	isJRE15Plus =  Integer.valueOf(specVersion) >= Integer.valueOf(CompilerOptions.VERSION_15);
@@ -3799,6 +3916,7 @@ public void test124() {
 		"----------\n");
 	}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255 - variation
+@Test
 public void test125() {
 	this.runConformTest(
 		new String[] {
@@ -3826,6 +3944,7 @@ public void test125() {
 		},
 		"[1:3.0,java.lang.Float][2:2,java.lang.Integer][3:false,java.lang.Boolean][done]");
 	}
+@Test
 public void test126() {
 	this.runNegativeTest(
 		new String[] {
@@ -3861,6 +3980,7 @@ public void test126() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
+@Test
 public void test127() {
 	this.runConformTest(
 		new String[] {
@@ -3881,6 +4001,7 @@ public void test127() {
 		"SUCCESS:o1[java.lang.Long],o2:[class java.lang.Integer]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159987
+@Test
 public void test128() {
 	// check there is no unncessary cast warning when autoboxing, even in array initializer
 	this.runNegativeTest(
@@ -3926,6 +4047,7 @@ public void test128() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155104
+@Test
 public void test129() {
 	this.runNegativeTest(
 		new String[] {
@@ -3948,6 +4070,7 @@ public void test129() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+@Test
 public void test130() {
 	this.runConformTest(
 		new String[] {
@@ -3970,6 +4093,7 @@ public void test130() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+@Test
 public void test131() {
 	this.runConformTest(
 		new String[] {
@@ -3992,6 +4116,7 @@ public void test131() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+@Test
 public void test132() {
 	this.runConformTest(
 		new String[] {
@@ -4014,6 +4139,7 @@ public void test132() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+@Test
 public void test133() {
 	this.runConformTest(
 		new String[] {
@@ -4036,6 +4162,7 @@ public void test133() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+@Test
 public void test134() {
 	this.runConformTest(
 		new String[] {
@@ -4058,6 +4185,7 @@ public void test134() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372
+@Test
 public void test135() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4090,6 +4218,7 @@ public void test135() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test136() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4123,6 +4252,7 @@ public void test136() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test137() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4156,6 +4286,7 @@ public void test137() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test138() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4191,6 +4322,7 @@ public void test138() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test139() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4226,6 +4358,7 @@ public void test139() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test140() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4254,6 +4387,7 @@ public void test140() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test141() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4280,6 +4414,7 @@ public void test141() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test142() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4308,6 +4443,7 @@ public void test142() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test143() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4336,6 +4472,7 @@ public void test143() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test144() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4371,6 +4508,7 @@ public void test144() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test145() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4399,6 +4537,7 @@ public void test145() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+@Test
 public void test146() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -4425,6 +4564,7 @@ public void test146() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+@Test
 public void test147() {
 	this.runConformTest(
 		new String[] {
@@ -4439,6 +4579,7 @@ public void test147() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+@Test
 public void test148() {
 	this.runConformTest(
 		new String[] {
@@ -4461,6 +4602,7 @@ public void test148() {
 		"SUCCESS0");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+@Test
 public void test149() {
 	this.runConformTest(
 		new String[] {
@@ -4480,6 +4622,7 @@ public void test149() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+@Test
 public void test150() {
 	this.runConformTest(
 		new String[] {
@@ -4497,6 +4640,7 @@ public void test150() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+@Test
 public void test151() {
 	this.runConformTest(
 		new String[] {
@@ -4514,6 +4658,7 @@ public void test151() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+@Test
 public void test152() {
 	this.runConformTest(
 		new String[] {
@@ -4528,6 +4673,7 @@ public void test152() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223685
+@Test
 public void test153() {
 	this.runNegativeTest(
 		new String[] {
@@ -4594,6 +4740,7 @@ public void test153() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565
+@Test
 public void test154() {
 	this.runConformTest(
 		new String[] {
@@ -4626,6 +4773,7 @@ public void test154() {
 		"000");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test155() {
 	this.runConformTest(
 		new String[] {
@@ -4658,6 +4806,7 @@ public void test155() {
 		"000");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test156() {
 	this.runConformTest(
 		new String[] {
@@ -4677,6 +4826,7 @@ public void test156() {
 		"HIdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test157() {
 	this.runConformTest(
 		new String[] {
@@ -4697,6 +4847,7 @@ public void test157() {
 		"HIdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test158() {
 	this.runConformTest(
 		new String[] {
@@ -4719,6 +4870,7 @@ public void test158() {
 		"HIdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236019
+@Test
 public void test159() {
 	this.runNegativeTest(
 		new String[] {
@@ -4757,6 +4909,7 @@ public void test159() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test160() {
 	this.runConformTest(
 		new String[] {
@@ -4789,6 +4942,7 @@ public void test160() {
 		"111");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test161() {
 	this.runConformTest(
 		new String[] {
@@ -4821,6 +4975,7 @@ public void test161() {
 		"111");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test162() {
 	this.runConformTest(
 		new String[] {
@@ -4840,6 +4995,7 @@ public void test162() {
 		"IJdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test163() {
 	this.runConformTest(
 		new String[] {
@@ -4860,6 +5016,7 @@ public void test163() {
 		"IJdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
+@Test
 public void test164() {
 	this.runConformTest(
 		new String[] {
@@ -4882,6 +5039,7 @@ public void test164() {
 		"IJdone");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231709
+@Test
 public void test165() {
 	this.runNegativeTest(
 		new String[] {
@@ -4980,6 +5138,7 @@ public void test165() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231709 - variation
+@Test
 public void test166() {
 	this.runNegativeTest(
 		new String[] {
@@ -5092,6 +5251,7 @@ public void test166() {
 		"The expression of type short is boxed into Character\n" +
 		"----------\n");
 }
+@Test
 public void test167() {
 	this.runNegativeTest(
 		new String[] {
@@ -5128,6 +5288,7 @@ public void test167() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
+@Test
 public void test168() {
 	this.runNegativeTest(
 		new String[] {
@@ -5188,6 +5349,7 @@ public void test168() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
+@Test
 public void test169() {
 	String expectedCompilerLog = this.complianceLevel >= ClassFileConstants.JDK21 ?
 			"----------\n" +

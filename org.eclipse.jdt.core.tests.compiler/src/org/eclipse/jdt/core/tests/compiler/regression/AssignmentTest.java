@@ -17,16 +17,17 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AssignmentTest extends AbstractRegressionTest {
 
-public AssignmentTest(String name) {
-	super(name);
+public AssignmentTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 @Override
 protected Map getCompilerOptions() {
@@ -45,14 +46,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 69 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public static Test suite() {
-	Test suite = buildAllCompliancesTestSuite(testClass());
-	return suite;
-}
 /*
  * no effect assignment bug
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=27235
  */
+@Test
 public void test001() {
 	this.runConformTest(		new String[] {
 			"X.java",
@@ -78,6 +76,7 @@ public void test001() {
 		"3 3");
 }
 
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -139,6 +138,7 @@ public void test002() {
 		"The assignment to variable next has no effect\n" +
 		"----------\n");
 }
+@Test
 public void test003() {
 	this.runConformTest(
 		new String[] {
@@ -159,6 +159,7 @@ public void test003() {
 		"12");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=151787
+@Test
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
@@ -276,6 +277,7 @@ public void test004() {
 		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190391
+@Test
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
@@ -312,6 +314,7 @@ public void test005() {
 		"----------\n");
 }
 // final multiple assignment
+@Test
 public void test020() {
 	this.runNegativeTest(
 		new String[] {
@@ -340,6 +343,7 @@ public void test020() {
 }
 
 // null part has been repeated into NullReferenceTest#test1033
+@Test
 public void test033() {
 	this.runNegativeTest(
 		new String[] {
@@ -380,6 +384,7 @@ public void test033() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84215
 //TODO (philippe) should move to InitializationTest suite
+@Test
 public void test034() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
@@ -777,6 +782,7 @@ public void test034() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=84480
  * disabled: https://bugs.eclipse.org/bugs/show_bug.cgi?id=111898
  */
+@Test
 public void test035() {
 	this.runNegativeTest(
 		new String[] {
@@ -809,6 +815,7 @@ public void test035() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
+@Test
 public void test036() {
 	runNegativeTest(
 		new String[] {
@@ -840,6 +847,7 @@ public void test036() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93588
+@Test
 public void test037() {
 	this.runConformTest(
 		new String[] {
@@ -863,6 +871,7 @@ public void test037() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111703
+@Test
 public void test038() {
 	String expectedError = 	this.complianceLevel < ClassFileConstants.JDK16 ?
 			"----------\n" +
@@ -949,6 +958,7 @@ public void test038() {
 		expectedError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111898
+@Test
 public void test039() {
 	this.runConformTest(
 		new String[] {
@@ -969,6 +979,7 @@ public void test039() {
 }
 // warn upon parameter assignment
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
+@Test
 public void test040() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -999,6 +1010,7 @@ public void test040() {
 // warn upon parameter assignment
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
 // diagnose within fake reachable code
+@Test
 public void test041() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -1031,6 +1043,7 @@ public void test041() {
 // warn upon parameter assignment
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
 // diagnose within fake reachable code
+@Test
 public void test042() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -1064,6 +1077,7 @@ public void test042() {
 // warn upon parameter assignment
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
 // we only show the 'assignment to final' error here
+@Test
 public void test043() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -1087,6 +1101,7 @@ public void test043() {
 		null, true, options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100369
+@Test
 public void test044() {
 	this.runNegativeTest(
 		new String[] {
@@ -1144,6 +1159,7 @@ public void test044() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133351
+@Test
 public void test045() {
 	this.runNegativeTest(
 		new String[] {
@@ -1170,6 +1186,7 @@ public void test045() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+@Test
 public void test046() {
 	this.runNegativeTest(
 		new String[] {
@@ -1190,6 +1207,7 @@ public void test046() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+@Test
 public void test047() {
 	this.runConformTest(
 		new String[] {
@@ -1223,6 +1241,7 @@ public void _test048() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // adding a package to the picture
+@Test
 public void test049() {
 	this.runNegativeTest(
 		new String[] {
@@ -1245,6 +1264,7 @@ public void test049() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // adding an inner class to the picture
+@Test
 public void test050() {
 	String expectedError = 	this.complianceLevel < ClassFileConstants.JDK16 ?
 			"----------\n" +
@@ -1284,6 +1304,7 @@ public void test050() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // swap lhs and rhs
+@Test
 public void test051() {
 	this.runNegativeTest(
 		new String[] {
@@ -1304,6 +1325,7 @@ public void test051() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=206017
+@Test
 public void test052() {
 	this.runNegativeTest(
 		new String[] {
@@ -1328,6 +1350,7 @@ public void test052() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=206017
+@Test
 public void test053() {
 	this.runNegativeTest(
 		new String[] {
@@ -1385,6 +1408,7 @@ public void _test054_definite_unassignment_try_catch() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
 // variant
+@Test
 public void test055_definite_unassignment_try_catch() {
 	runNegativeTest(
 		// test directory preparation
@@ -1419,6 +1443,7 @@ public void test055_definite_unassignment_try_catch() {
 		JavacTestOptions.EclipseJustification.EclipseBug235543 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
+@Test
 public void test056_definite_unassignment_infinite_for_loop() {
 	runConformTest(
 		// test directory preparation
@@ -1449,6 +1474,7 @@ public void test056_definite_unassignment_infinite_for_loop() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
 // variant
+@Test
 public void test057_definite_unassignment_infinite_while_loop() {
 	runConformTest(
 		// test directory preparation
@@ -1478,6 +1504,7 @@ public void test057_definite_unassignment_infinite_while_loop() {
 		JavacTestOptions.EclipseJustification.EclipseBug235546 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
+@Test
 public void test058_definite_unassignment_try_finally() {
 	runConformTest(
 		// test directory preparation
@@ -1503,6 +1530,7 @@ public void test058_definite_unassignment_try_finally() {
 		// I hold to be wrong
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
+@Test
 public void test059_definite_unassignment_assign_in_for_condition() {
 	runConformTest(
 		// test directory preparation
@@ -1528,6 +1556,7 @@ public void test059_definite_unassignment_assign_in_for_condition() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
 // variant
+@Test
 public void test060_definite_unassignment_assign_in_for_condition() {
 	runConformTest(
 		// test directory preparation
@@ -1547,6 +1576,7 @@ public void test060_definite_unassignment_assign_in_for_condition() {
 		"SUCCESS" /* expected output string */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=241841
+@Test
 public void test061() {
 	this.runNegativeTest(
 		new String[] {
@@ -1564,6 +1594,7 @@ public void test061() {
 }
 
 // challenge widening conversion
+@Test
 public void test062() {
 	this.runNegativeTest(
 		new String[] {
@@ -1777,6 +1808,7 @@ public void test062() {
 		"----------\n");
 }
 //challenge narrowing conversion
+@Test
 public void test063() {
 	this.runNegativeTest(
 		new String[] {
@@ -1874,6 +1906,7 @@ public void test063() {
 		"Cannot cast from boolean to double\n" +
 		"----------\n");
 }
+@Test
 public void test064() {
 	this.runConformTest(
 		new String[] {
@@ -1890,6 +1923,7 @@ public void test064() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=282891
+@Test
 public void test065() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
@@ -1922,6 +1956,7 @@ public void test065() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=290376
+@Test
 public void test066() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
@@ -1953,6 +1988,7 @@ public void test066() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=290376
+@Test
 public void test067() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
@@ -1984,6 +2020,7 @@ public void test067() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=362279
+@Test
 public void test068() {
 	this.runNegativeTest(
 		new String[] {
@@ -2035,6 +2072,7 @@ public void test068() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=480989
+@Test
 public void testbug480989() {
 	String src =
 			"public abstract class Unassigned {\n" +
@@ -2064,6 +2102,7 @@ public void testbug480989() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=486908
+@Test
 public void testBug486908_A(){
 	this.runConformTest(new String[] {
 			"Random.java",
@@ -2090,6 +2129,7 @@ public void testBug486908_A(){
 			"}\n"
 	});
 }
+@Test
 public void testBug486908_B() {
 	this.runConformTest(new String[] {
 			"Sample.java",

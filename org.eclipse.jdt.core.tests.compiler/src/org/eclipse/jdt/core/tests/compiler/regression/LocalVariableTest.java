@@ -15,9 +15,10 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class LocalVariableTest extends AbstractRegressionTest {
@@ -25,13 +26,11 @@ public class LocalVariableTest extends AbstractRegressionTest {
 static {
 	TESTS_NAMES = new String[] { "testStaticInitializerInLocalClassAccessingOuterLocalVariable" };
 }
-public LocalVariableTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public LocalVariableTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -44,6 +43,7 @@ public void test001() {
 		"}\n",
 	});
 }
+@Test
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -60,6 +60,7 @@ public void test002() {
 		"}\n",
 	});
 }
+@Test
 public void test003() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -76,6 +77,7 @@ public void test003() {
 		"}\n",
 	});
 }
+@Test
 public void test004() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -90,6 +92,7 @@ public void test004() {
 		"}\n",
 	});
 }
+@Test
 public void test005() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -120,6 +123,7 @@ public void test005() {
 	});
 }
 
+@Test
 public void test006() {
 	this.runConformTest(new String[] {
 		"p/Truc.java",
@@ -138,6 +142,7 @@ public void test006() {
 	"SUCCESS");
 }
 
+@Test
 public void test007() {
 	this.runConformTest(new String[] {
 		"p/A.java",
@@ -165,6 +170,7 @@ public void test007() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127078
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -189,6 +195,7 @@ public void test008() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127078
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -210,6 +217,7 @@ public void test009() {
 			"The local variable y may not have been initialized\n" +
 			"----------\n");
 }
+@Test
 public void test010() {
 	Map options = getCompilerOptions();
 	options.put(
@@ -236,6 +244,7 @@ public void test010() {
 	null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144426
+@Test
 public void test011() {
 	this.runNegativeTest(
 			new String[] {
@@ -257,6 +266,7 @@ public void test011() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+@Test
 public void test012() {
 	this.runNegativeTest(
 			new String[] {
@@ -290,6 +300,7 @@ public void test012() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858 - variation
 //check variable collision resiliance (catch argument)
 // variable collision should not interfere with exception collision
+@Test
 public void test013() {
 	this.runNegativeTest(
 			new String[] {
@@ -318,6 +329,7 @@ public void test013() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858 - variation
+@Test
 public void test014() {
 	this.runNegativeTest(
 			new String[] {
@@ -338,6 +350,7 @@ public void test014() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157379
+@Test
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -364,6 +377,7 @@ public void test015() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217
+@Test
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -422,6 +436,7 @@ public void test016() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+@Test
 public void test017() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED);
@@ -490,6 +505,7 @@ public void test017() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+@Test
 public void test018() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -558,6 +574,7 @@ public void test018() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+@Test
 public void test019() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -641,6 +658,7 @@ public void test019() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+@Test
 public void test020() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -720,6 +738,7 @@ public void test020() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //No error message for exception parameter not being used.
+@Test
 public void test412119a() {
 	runConformTest(new String[] {
 			"p/X.java",
@@ -739,6 +758,7 @@ public void test412119a() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Error message for exception parameter not being used.
+@Test
 public void test412119b() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -785,6 +805,7 @@ public void test412119b() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Multi-catch parameters.
+@Test
 public void test412119c() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -830,6 +851,7 @@ public void test412119c() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Suppress Warnings.
+@Test
 public void test412119d() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
@@ -857,6 +879,7 @@ public void test412119d() {
 			true,
 			options);
 }
+@Test
 public void testBug537033() {
 	runNegativeTest(
 		new String[] {
@@ -912,6 +935,7 @@ public void testBug537033() {
 // Test for static method in non-static local class accessing outer local variable
 // Per JLS 8.1.3, static methods cannot reference local variables from enclosing methods
 // Note: static methods in local classes are only allowed in Java 16+
+@Test
 public void testStaticMethodInLocalClassAccessingOuterLocal() {
 	runNegativeTest(
 		new String[] {
@@ -955,6 +979,7 @@ public void testStaticMethodInLocalClassAccessingOuterLocal() {
 		"----------\n");
 }
 // Test for static method in non-static local class accessing outer local variable (field reference)
+@Test
 public void testStaticMethodInLocalClassAccessingOuterLocal2() {
 	runNegativeTest(
 		new String[] {
@@ -998,6 +1023,7 @@ public void testStaticMethodInLocalClassAccessingOuterLocal2() {
 		"----------\n");
 }
 // Test for QualifiedNameReference - static method accessing outer local variable with field access
+@Test
 public void testStaticMethodInLocalClassAccessingOuterLocalQualified() {
 	runNegativeTest(
 		new String[] {
@@ -1042,6 +1068,7 @@ public void testStaticMethodInLocalClassAccessingOuterLocalQualified() {
 		"----------\n");
 }
 // Test for QualifiedNameReference - accessing multiple fields starting with outer local
+@Test
 public void testStaticMethodInLocalClassAccessingOuterLocalQualified2() {
 	runNegativeTest(
 		new String[] {
@@ -1087,6 +1114,7 @@ public void testStaticMethodInLocalClassAccessingOuterLocalQualified2() {
 		"----------\n");
 }
 // Test that non-static methods can still access outer locals (to ensure we didn't break the normal case)
+@Test
 public void testNonStaticMethodInLocalClassAccessingOuterLocal() {
 	runConformTest(
 		new String[] {
@@ -1112,6 +1140,7 @@ public void testNonStaticMethodInLocalClassAccessingOuterLocal() {
 // Test for static initializer block in local class accessing outer local variable.
 // This exercises the safety net in CodeStream.generateOuterAccess (line 2218)
 // where mappingSequence is null for a LocalVariableBinding target.
+@Test
 public void testStaticInitializerInLocalClassAccessingOuterLocal() {
 	if (this.complianceLevel < ClassFileConstants.JDK16) return;
 	runNegativeTest(
@@ -1137,6 +1166,7 @@ public void testStaticInitializerInLocalClassAccessingOuterLocal() {
 		"----------\n");
 }
 
+@Test
 public void testStaticInitializerInLocalClassAccessingOuterLocalVariable() {
 	runNegativeTest(
 		new String[] {
@@ -1169,9 +1199,5 @@ public void testStaticInitializerInLocalClassAccessingOuterLocalVariable() {
 		"	        ^^^\n" +
 		"Cannot make a static reference to the non-static variable NUM\n" +
 		"----------\n");
-}
-
-public static Class testClass() {
-	return LocalVariableTest.class;
 }
 }

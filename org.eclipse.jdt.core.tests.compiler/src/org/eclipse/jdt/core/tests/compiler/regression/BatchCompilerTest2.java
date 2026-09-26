@@ -15,13 +15,16 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
+@MinimalCompliance(value = AbstractCompilerTest.F_11, singleVersion = true)
 public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 
 	static {
@@ -32,19 +35,11 @@ public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 
 	/**
 	 * This test suite only needs to be run on one compliance.
-	 * As it includes some specific 1.5 tests, it must be used with a least a 1.5 VM
-	 * and not be duplicated in general test suite.
-	 * @see TestAll
 	 */
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_11);
+	public BatchCompilerTest2(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
-	public static Class testClass() {
-		return BatchCompilerTest2.class;
-	}
-	public BatchCompilerTest2(String name) {
-		super(name);
-	}
+	@Test
 	public void test001() {
 		this.runNegativeTest(
 				new String[] {
@@ -69,6 +64,7 @@ public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 		        "Preview of features is supported only at the latest source level\n",
 		        true);
 }
+@Test
 public void test002() throws Exception {
 	this.runNegativeTest(
 			new String[] {
@@ -99,6 +95,7 @@ public void test002() throws Exception {
 							"1 problem (1 error)\n",
 							true);
 }
+@Test
 public void test003() {
 	this.runNegativeTest(
 			new String[] {
@@ -125,6 +122,7 @@ public void test003() {
 					"1 problem (1 error)\n",
 					true);
 }
+@Test
 public void test004_previewUnused() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -150,6 +148,7 @@ public void test004_previewUnused() throws Exception {
 	String expectedOutput = ".0, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+@Test
 public void test004_previewUsed() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -173,6 +172,7 @@ public void test004_previewUsed() throws Exception {
 	String expectedOutput = ".65535, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+@Test
 public void test006() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -198,6 +198,7 @@ public void test006() throws Exception {
 	String expectedOutput = "// Compiled from X.java (version 11 : 55.0, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+@Test
 public void testBug540123a() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -231,6 +232,7 @@ public void testBug540123a() throws Exception {
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
+@Test
 public void testBug540123b() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -264,6 +266,7 @@ public void testBug540123b() throws Exception {
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
+@Test
 public void testBug540123c() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -297,6 +300,7 @@ public void testBug540123c() throws Exception {
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
+@Test
 public void testBug540123d() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -330,6 +334,7 @@ public void testBug540123d() throws Exception {
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
+@Test
 public void testBug540123e() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -363,6 +368,7 @@ public void testBug540123e() throws Exception {
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
+@Test
 public void testBug562473() {
 	this.runConformTest(
 			new String[] {
@@ -379,6 +385,7 @@ public void testBug562473() {
 					"",
 					true);
 }
+@Test
 public void testBug568802() {
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	String libPath = currentWorkingDirectoryPath + File.separator + "lib568802.jar";
@@ -415,6 +422,7 @@ public void testBug568802() {
 		new File(libPath).delete();
 	}
 }
+@Test
 public void testIssue114() {
 	this.runNegativeTest(
 		new String[] {
@@ -435,6 +443,7 @@ public void testIssue114() {
 		);
 }
 
+@Test
 public void testIssue147() throws Exception {
 	runConformTest(
 		new String[] {
@@ -467,6 +476,7 @@ public void testIssue147() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4955
 // native varargs Object... on user-defined class must NOT be treated as polymorphic
+@Test
 public void testGH4955() throws Exception {
 	runConformTest(
 		new String[] {
@@ -487,6 +497,7 @@ public void testGH4955() throws Exception {
 	String expectedOutput = "invokestatic X.debug(java.lang.Object[])";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+@Test
 public void testGH4744() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK21) {
 		return;

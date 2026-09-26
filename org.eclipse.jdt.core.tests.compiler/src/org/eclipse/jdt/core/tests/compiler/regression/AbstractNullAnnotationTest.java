@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.TestInfo;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
@@ -73,8 +74,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			"public @interface NonNullByDefault {\n" + // has no details, so default default locations should be applied
 			"}\n";
 
-	public AbstractNullAnnotationTest(String name) {
-		super(name);
+	public AbstractNullAnnotationTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override

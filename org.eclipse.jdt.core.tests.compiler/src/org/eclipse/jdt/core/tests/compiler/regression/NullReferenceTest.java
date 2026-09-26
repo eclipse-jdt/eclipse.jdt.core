@@ -47,21 +47,22 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /* See also NullReferenceImplTests for low level, implementation dependent
  * tests. */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullReferenceTest extends AbstractRegressionTest {
 
-public NullReferenceTest(String name) {
-	super(name);
+public NullReferenceTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -77,14 +78,6 @@ static {
 //		TESTS_NAMES = new String[] { "testBug418500" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
-}
-
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-
-public static Class testClass() {
-	return NullReferenceTest.class;
 }
 
 // Conditionally augment problem detection settings
@@ -107,6 +100,7 @@ protected void runNegativeNullTest(String[] testFiles, String expectedCompilerLo
 }
 
 // null analysis -- simple case for local
+@Test
 public void test0001_simple_local() {
 	runNegativeTest(
 		new String[] {
@@ -128,6 +122,7 @@ public void test0001_simple_local() {
 
 // null analysis -- simple case for field
 // the current design leaves fields out of the analysis altogether
+@Test
 public void test0002_simple_field() {
 	this.runNegativeTest(
 		new String[] {
@@ -150,6 +145,7 @@ public void test0002_simple_field() {
 }
 
 // null analysis -- simple case for parameter
+@Test
 public void test0003_simple_parameter() {
 	runNegativeTest(
 		new String[] {
@@ -170,6 +166,7 @@ public void test0003_simple_parameter() {
 }
 
 // null analysis -- final local
+@Test
 public void test0004_final_local() {
 	runNegativeTest(
 		new String[] {
@@ -190,6 +187,7 @@ public void test0004_final_local() {
 }
 
 // null analysis -- final local
+@Test
 public void test0005_final_local() {
 	this.runNegativeTest(
 		new String[] {
@@ -210,6 +208,7 @@ public void test0005_final_local() {
 }
 
 // null analysis -- final local
+@Test
 public void test0006_final_local() {
 	runNegativeTest(
 		new String[] {
@@ -235,6 +234,7 @@ public void test0006_final_local() {
 }
 
 // null analysis -- local with member
+@Test
 public void test0007_local_with_member() {
 	runNegativeTest(
 		new String[] {
@@ -256,6 +256,7 @@ public void test0007_local_with_member() {
 }
 
 // null analysis -- local with member
+@Test
 public void test0008_local_with_member() {
 	runNegativeTest(
 		new String[] {
@@ -277,6 +278,7 @@ public void test0008_local_with_member() {
 }
 
 // null analysis -- local with member
+@Test
 public void test0009_local_with_member() {
 	this.runConformTest(
 		new String[] {
@@ -291,6 +293,7 @@ public void test0009_local_with_member() {
 }
 
 // null analysis -- field
+@Test
 public void test0010_field_with_method_call() {
 	this.runConformTest(
 		new String[] {
@@ -309,6 +312,7 @@ public void test0010_field_with_method_call() {
 }
 
 // null analysis -- field
+@Test
 public void test0011_field_with_method_call() {
 	this.runConformTest(
 		new String[] {
@@ -327,6 +331,7 @@ public void test0011_field_with_method_call() {
 }
 
 // null analysis -- field
+@Test
 public void test0012_field_with_method_call() {
 	this.runConformTest(
 		new String[] {
@@ -346,6 +351,7 @@ public void test0012_field_with_method_call() {
 }
 
 // null analysis -- field
+@Test
 public void test0013_field_with_method_call() {
 	this.runConformTest(
 		new String[] {
@@ -365,6 +371,7 @@ public void test0013_field_with_method_call() {
 }
 
 // null analysis -- field
+@Test
 public void test0014_field_with_explicit_this_access() {
 	this.runNegativeTest(
 		new String[] {
@@ -387,6 +394,7 @@ public void test0014_field_with_explicit_this_access() {
 }
 
 // null analysis -- field
+@Test
 public void test0015_field_with_explicit_this_access() {
 	this.runNegativeTest(
 		new String[] {
@@ -409,6 +417,7 @@ public void test0015_field_with_explicit_this_access() {
 }
 
 // null analysis -- field
+@Test
 public void test0016_field_of_another_object() {
 	this.runConformTest(
 		new String[] {
@@ -425,6 +434,7 @@ public void test0016_field_of_another_object() {
 }
 
 // null analysis -- field
+@Test
 public void test0017_field_of_another_object() {
 	this.runConformTest(
 		new String[] {
@@ -441,6 +451,7 @@ public void test0017_field_of_another_object() {
 }
 
 // null analysis -- field
+@Test
 public void test0018_field_of_enclosing_object() {
 	this.runNegativeTest(
 		new String[] {
@@ -467,6 +478,7 @@ public void test0018_field_of_enclosing_object() {
 // null analysis -- fields
 // check that fields that are protected against concurrent access
 // behave as locals when no call to further methods can affect them
+@Test
 public void test0019_field_synchronized() {
 	this.runNegativeTest(
 		new String[] {
@@ -492,6 +504,7 @@ public void test0019_field_synchronized() {
 // null analysis -- field
 // check that final fields behave as locals despite calls to further
 // methods
+@Test
 public void test0020_final_field() {
 	this.runNegativeTest(
 		new String[] {
@@ -515,6 +528,7 @@ public void test0020_final_field() {
 }
 
 // null analysis -- field
+@Test
 public void test0021_final_field() {
 	this.runNegativeTest(
 		new String[] {
@@ -538,6 +552,7 @@ public void test0021_final_field() {
 }
 
 // null analysis -- field
+@Test
 public void test0022_final_field() {
 	this.runNegativeTest(
 		new String[] {
@@ -561,6 +576,7 @@ public void test0022_final_field() {
 }
 
 // null analysis -- field
+@Test
 public void test0023_field_assignment() {
 	this.runConformTest(
 		new String[] {
@@ -576,6 +592,7 @@ public void test0023_field_assignment() {
 }
 
 // null analysis -- field
+@Test
 public void test0024_field_cast_assignment() {
 	this.runConformTest(
 		new String[] {
@@ -591,6 +608,7 @@ public void test0024_field_cast_assignment() {
 }
 
 // null analysis -- parameter
+@Test
 public void test0025_parameter() {
 	this.runConformTest(
 		new String[] {
@@ -604,6 +622,7 @@ public void test0025_parameter() {
 }
 
 // null analysis -- suppress warnings
+@Test
 public void test0026_suppress_warnings() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
@@ -621,6 +640,7 @@ public void test0026_suppress_warnings() {
 }
 
 // null analysis -- embedded comparison
+@Test
 public void test0027_embedded_comparison() {
 	runNegativeTest(
 		new String[] {
@@ -642,6 +662,7 @@ public void test0027_embedded_comparison() {
 }
 
 // null analysis -- field
+@Test
 public void test0028_field_as_initializer() {
 	this.runConformTest(
 		new String[] {
@@ -657,6 +678,7 @@ public void test0028_field_as_initializer() {
 }
 
 // null analysis -- field
+@Test
 public void test0029_field_assignment() {
 	runNegativeTest(
 		new String[] {
@@ -678,6 +700,7 @@ public void test0029_field_assignment() {
 }
 
 // null analysis -- conditional expression
+@Test
 public void test0030_conditional_expression() {
 	runNegativeTest(
 		new String[] {
@@ -703,6 +726,7 @@ public void test0030_conditional_expression() {
 }
 
 // null analysis -- conditional expression
+@Test
 public void test0031_conditional_expression() {
 	runNegativeTest(
 		new String[] {
@@ -728,6 +752,7 @@ public void test0031_conditional_expression() {
 }
 
 // null analysis -- conditional expression
+@Test
 public void test0032_conditional_expression() {
 	this.runConformTest(
 		new String[] {
@@ -742,6 +767,7 @@ public void test0032_conditional_expression() {
 }
 
 // null analysis -- conditional expression
+@Test
 public void test0033_conditional_expression() {
 	runNegativeTest(
 		new String[] {
@@ -773,6 +799,7 @@ public void test0033_conditional_expression() {
 
 // null analysis -- conditional expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+@Test
 public void test0034_conditional_expression() {
 	runNegativeNullTest(
 		new String[] {
@@ -795,6 +822,7 @@ public void test0034_conditional_expression() {
 // null analysis -- conditional expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
 // variant with constant condition
+@Test
 public void test0034_conditional_expression_2() {
 	this.runConformTest(
 		new String[] {
@@ -811,6 +839,7 @@ public void test0034_conditional_expression_2() {
 
 // null analysis -- conditional expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+@Test
 public void test0034_conditional_expression_3() {
 	runNegativeNullTest(
 		new String[] {
@@ -871,6 +900,7 @@ public void _test0034_conditional_expression_5() {
 }
 
 // null analysis -- conditional expression
+@Test
 public void test0035_conditional_expression() {
 	this.runConformTest(
 		new String[] {
@@ -886,6 +916,7 @@ public void test0035_conditional_expression() {
 }
 
 // null analysis -- conditional expression
+@Test
 public void test0036_conditional_expression() {
 	runNegativeTest(
 		new String[] {
@@ -907,6 +938,7 @@ public void test0036_conditional_expression() {
 }
 
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+@Test
 public void test0037_conditional_expression_1() {
 	runNegativeTest(
 		new String[] {
@@ -925,6 +957,7 @@ public void test0037_conditional_expression_1() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+@Test
 public void test0037_conditional_expression_2() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
@@ -952,6 +985,7 @@ public void test0037_conditional_expression_2() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+@Test
 public void test0037_conditional_expression_3() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -977,6 +1011,7 @@ public void test0037_conditional_expression_3() {
 }
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
 // if-then-else instead of conditional expression
+@Test
 public void test0037_conditional_expression_4() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1006,6 +1041,7 @@ public void test0037_conditional_expression_4() {
 }
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
 // pot-null cond-expr in receiver position
+@Test
 public void test0037_conditional_expression_5() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1039,6 +1075,7 @@ public void test0037_conditional_expression_5() {
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
 // finally block injects pot-nn into itself via enclosing loop
+@Test
 public void test0037_autounboxing_1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1087,6 +1124,7 @@ public void test0037_autounboxing_1() {
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
 // inject pot.nn from try into finally
+@Test
 public void test0037_autounboxing_2() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1135,6 +1173,7 @@ public void test0037_autounboxing_2() {
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
 // null from try, nn from catch, merge both into finally
+@Test
 public void test0037_autounboxing_3() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1190,6 +1229,7 @@ public void test0037_autounboxing_3() {
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
 // effective protection locally within the finally block
+@Test
 public void test0037_autounboxing_4() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1234,6 +1274,7 @@ public void test0037_autounboxing_4() {
 }
 // https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
 // array reference in nested try
+@Test
 public void test0037_autounboxing_5() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -1269,6 +1310,7 @@ public void test0037_autounboxing_5() {
 }
 
 // Bug 406384 - Internal error with I20130413
+@Test
 public void test0037_autounboxing_6() {
 	runConformTest(
 		new String[] {
@@ -1290,6 +1332,7 @@ public void test0037_autounboxing_6() {
 }
 
 // null analysis -- autoboxing
+@Test
 public void test0040_autoboxing_compound_assignment() {
 	runNegativeTest(
 		new String[] {
@@ -1310,6 +1353,7 @@ public void test0040_autoboxing_compound_assignment() {
 }
 
 // null analysis -- autoboxing
+@Test
 public void test0041_autoboxing_increment_operator() {
 	runNegativeTest(
 		new String[] {
@@ -1331,6 +1375,7 @@ public void test0041_autoboxing_increment_operator() {
 }
 
 // null analysis -- autoboxing
+@Test
 public void test0042_autoboxing_literal() {
 	runNegativeTest(
 		new String[] {
@@ -1356,6 +1401,7 @@ public void test0042_autoboxing_literal() {
 }
 
 // null analysis -- autoboxing
+@Test
 public void test0043_autoboxing_literal() {
 	runNegativeTest(
 		new String[] {
@@ -1377,6 +1423,7 @@ public void test0043_autoboxing_literal() {
 
 // null analysis -- autoboxing
 // origin: AssignmentTest#test020
+@Test
 public void test0044_autoboxing() {
 	this.runConformTest(
 		new String[] {
@@ -1393,6 +1440,7 @@ public void test0044_autoboxing() {
 // null analysis -- autoboxing
 // variant of 42 for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165346
+@Test
 public void test0045_autoboxing_operator() {
 	runNegativeTest(
 		new String[] {
@@ -1419,6 +1467,7 @@ public void test0045_autoboxing_operator() {
 }
 
 // null analysis -- array
+@Test
 public void test0050_array() {
 	this.runConformTest(
 		new String[] {
@@ -1435,6 +1484,7 @@ public void test0050_array() {
 }
 
 // null analysis -- array
+@Test
 public void test0051_array() {
 	runNegativeTest(
 		new String[] {
@@ -1455,6 +1505,7 @@ public void test0051_array() {
 }
 
 // null analysis -- array
+@Test
 public void test0052_array() {
 	this.runConformTest(
 		new String[] {
@@ -1470,6 +1521,7 @@ public void test0052_array() {
 }
 
 // null analysis -- array
+@Test
 public void test0053_array() {
 	this.runConformTest(
 		new String[] {
@@ -1483,6 +1535,7 @@ public void test0053_array() {
 }
 
 // null analysis -- method call
+@Test
 public void test0061_method_call_guard() {
 	runNegativeTest(
 		new String[] {
@@ -1508,6 +1561,7 @@ public void test0061_method_call_guard() {
 }
 
 // null analysis - method call
+@Test
 public void test0062_method_call_isolation() {
 	runNegativeTest(
 		new String[] {
@@ -1532,6 +1586,7 @@ public void test0062_method_call_isolation() {
 }
 
 // null analysis - method call
+@Test
 public void test0063_method_call_isolation() {
 	this.runConformTest(
 		new String[] {
@@ -1550,6 +1605,7 @@ public void test0063_method_call_isolation() {
 }
 
 // null analysis - method call
+@Test
 public void test0064_method_call_isolation() {
 	runNegativeTest(
 		new String[] {
@@ -1579,6 +1635,7 @@ public void test0064_method_call_isolation() {
 }
 
 // null analysis - method call
+@Test
 public void test0065_method_call_invocation_target() {
 	this.runConformTest(
 		new String[] {
@@ -1593,6 +1650,7 @@ public void test0065_method_call_invocation_target() {
 }
 
 // null analysis - method call
+@Test
 public void test0066_method_call_invocation_target() {
 	runNegativeTest(
 		new String[] {
@@ -1613,6 +1671,7 @@ public void test0066_method_call_invocation_target() {
 }
 
 // null analysis - method call
+@Test
 public void test0067_method_call_invocation_target() {
 	runNegativeTest(
 		new String[] {
@@ -1638,6 +1697,7 @@ public void test0067_method_call_invocation_target() {
 }
 
 // null analysis - method call
+@Test
 public void test0068_method_call_assignment() {
 	this.runConformTest(
 		new String[] {
@@ -1655,6 +1715,7 @@ public void test0068_method_call_assignment() {
 }
 
 // null analysis -- type reference
+@Test
 public void test0070_type_reference() {
 	runNegativeTest(
 		new String[] {
@@ -1679,6 +1740,7 @@ public void test0070_type_reference() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test0080_shortcut_boolean_expressions() {
 	runNegativeTest(
 		new String[] {
@@ -1697,6 +1759,7 @@ public void test0080_shortcut_boolean_expressions() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test0081_shortcut_boolean_expressions() {
 	runNegativeTest(
 		new String[] {
@@ -1716,6 +1779,7 @@ public void test0081_shortcut_boolean_expressions() {
 }
 
 // null analysis - shortcut boolean expression
+@Test
 public void test0082_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
@@ -1748,6 +1812,7 @@ public void test0082_shortcut_boolean_expression() {
 }
 
 // null analysis - shortcut boolean expression
+@Test
 public void test0083_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
@@ -1781,6 +1846,7 @@ public void test0083_shortcut_boolean_expression() {
 
 // null analysis - shortcut boolean expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
+@Test
 public void test0084_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
@@ -1802,6 +1868,7 @@ public void test0084_shortcut_boolean_expression() {
 
 // null analysis - shortcut boolean expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
+@Test
 public void test0085_shortcut_boolean_expression() {
 	runNegativeTest(
 		new String[] {
@@ -1828,6 +1895,7 @@ public void test0085_shortcut_boolean_expression() {
 
 // null analysis - shortcut boolean expression and correlation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195774
+@Test
 public void test0086_shortcut_boolean_expression() {
 	this.runConformTest(
 		new String[] {
@@ -1874,6 +1942,7 @@ public void _test0087_shortcut_boolean_expression() {
 
 // null analysis -- instanceof
 // JLS: instanceof returns false if o turns out to be null
+@Test
 public void test0090_instanceof() {
 	this.runConformTest(
 		new String[] {
@@ -1891,6 +1960,7 @@ public void test0090_instanceof() {
 }
 
 // null analysis -- instanceof
+@Test
 public void test0091_instanceof() {
 	this.runConformTest(
 		new String[] {
@@ -1910,6 +1980,7 @@ public void test0091_instanceof() {
 
 // null analysis -- instanceof
 // can only be null always yields false
+@Test
 public void test0092_instanceof() {
 	runNegativeTest(
 		new String[] {
@@ -1931,6 +2002,7 @@ public void test0092_instanceof() {
 }
 
 // null analysis -- instanceof
+@Test
 public void test0093_instanceof() {
 	runNegativeTest(
 		new String[] {
@@ -1957,6 +2029,7 @@ public void test0093_instanceof() {
 }
 
 // null analysis -- instanceof
+@Test
 public void test0094_instanceof() {
 	this.runConformTest(
 		new String[] {
@@ -1975,6 +2048,7 @@ public void test0094_instanceof() {
 
 // null analysis -- instanceof combined with conditional or
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=145202
+@Test
 public void test0095_instanceof_conditional_or() {
 	runNegativeTest(
 		new String[] {
@@ -2001,6 +2075,7 @@ public void test0095_instanceof_conditional_or() {
 // Note: having the diagnostic could come handy when the initialization path
 //       is non trivial; to get the diagnostic, simply put in place an
 //       extraneous call to toString() -- and remove it before releasing.
+@Test
 public void test0120_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
@@ -2015,6 +2090,7 @@ public void test0120_strings_concatenation() {
 }
 
 // null analysis -- strings concatenation
+@Test
 public void test0121_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
@@ -2030,6 +2106,7 @@ public void test0121_strings_concatenation() {
 }
 
 // null analysis -- strings concatenation
+@Test
 public void test0122_strings_concatenation() {
 	this.runNegativeTest(
 		new String[] {
@@ -2053,6 +2130,7 @@ public void test0122_strings_concatenation() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127919
 // it should suffice that the return type is String to avoid
 // errors
+@Test
 public void test0123_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
@@ -2075,6 +2153,7 @@ public void test0123_strings_concatenation() {
 // null analysis -- strings concatenation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127919
 // variant
+@Test
 public void test0124_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
@@ -2093,6 +2172,7 @@ public void test0124_strings_concatenation() {
 // null analysis -- strings concatenation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127919
 // variant
+@Test
 public void test0125_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
@@ -2108,6 +2188,7 @@ public void test0125_strings_concatenation() {
 
 // null analysis -- strings concatenation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132867
+@Test
 public void test0126_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
@@ -2123,6 +2204,7 @@ public void test0126_strings_concatenation() {
 
 // null analysis -- strings concatenation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132867
+@Test
 public void test0127_strings_concatenation() {
 	this.runConformTest(
 		new String[] {
@@ -2142,6 +2224,7 @@ public void test0127_strings_concatenation() {
 // the said code is not marked as unreachable per JLS 14.21 (the rationale
 // being the accommodation for the if (constant_flag_evaluating_to_false)
 // {code...} volontary code exclusion pattern)
+@Test
 public void test0300_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2185,6 +2268,7 @@ public void test0300_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0301_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2206,6 +2290,7 @@ public void test0301_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0302_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2229,6 +2314,7 @@ public void test0302_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0303_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2252,6 +2338,7 @@ public void test0303_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0304_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2273,6 +2360,7 @@ public void test0304_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0305_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2295,6 +2383,7 @@ public void test0305_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0306_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2325,6 +2414,7 @@ public void test0306_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0307_if_else() {
 	this.runConformTest(
 		new String[] {
@@ -2347,6 +2437,7 @@ public void test0307_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0308_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2370,6 +2461,7 @@ public void test0308_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0309_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2396,6 +2488,7 @@ public void test0309_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0310_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2428,6 +2521,7 @@ public void test0310_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0311_if_else() {
 	this.runConformTest(
 		new String[] {
@@ -2443,6 +2537,7 @@ public void test0311_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0312_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2476,6 +2571,7 @@ public void test0312_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0313_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2504,6 +2600,7 @@ public void test0313_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0314_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2526,6 +2623,7 @@ public void test0314_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0315_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2548,6 +2646,7 @@ public void test0315_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0316_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2569,6 +2668,7 @@ public void test0316_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0317_if_else_nested() {
 	this.runConformTest(
 		new String[] {
@@ -2587,6 +2687,7 @@ public void test0317_if_else_nested() {
 }
 
 // null analysis - if/else
+@Test
 public void test0318_if_else_nested() {
 	this.runConformTest(
 		new String[] {
@@ -2606,6 +2707,7 @@ public void test0318_if_else_nested() {
 
 // null analysis - if/else
 // we do nothing to diagnose the contents of fake reachable code
+@Test
 public void test0319_if_else_dead_branch() {
 	this.runConformTest(
 		new String[] {
@@ -2622,6 +2724,7 @@ public void test0319_if_else_dead_branch() {
 }
 
 // null analysis - if/else
+@Test
 public void test0320_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2647,6 +2750,7 @@ public void test0320_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0321_if_else() {
 	this.runConformTest(
 		new String[] {
@@ -2664,6 +2768,7 @@ public void test0321_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0322_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2690,6 +2795,7 @@ public void test0322_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0323_if_else() {
 	this.runConformTest(
 		new String[] {
@@ -2706,6 +2812,7 @@ public void test0323_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0324_if_else_nested() {
 	this.runConformTest(
 		new String[] {
@@ -2734,6 +2841,7 @@ public void test0324_if_else_nested() {
 }
 
 // null analysis - if/else
+@Test
 public void test0325_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -2772,6 +2880,7 @@ public void test0325_if_else_nested() {
 // null analysis - if/else
 // limit: we cannot sync on external factors, even if this is a pattern
 // that is quite used
+@Test
 public void test0326_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2797,6 +2906,7 @@ public void test0326_if_else() {
 // null analysis - if/else
 // limit: we cannot sync on external factors, even if this is a pattern
 // that is quite used
+@Test
 public void test0327_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2822,6 +2932,7 @@ public void test0327_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0328_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2847,6 +2958,7 @@ public void test0328_if_else() {
 }
 
 // null analysis - if/else
+@Test
 public void test0329_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -2869,6 +2981,7 @@ public void test0329_if_else_nested() {
 }
 
 // null analysis - if/else
+@Test
 public void test0330_if_else_nested() {
 	this.runConformTest(
 		new String[] {
@@ -2887,6 +3000,7 @@ public void test0330_if_else_nested() {
 }
 
 // null analysis - if/else
+@Test
 public void test0331_if_else_nested() {
 	this.runConformTest(
 		new String[] {
@@ -2905,6 +3019,7 @@ public void test0331_if_else_nested() {
 }
 
 // null analysis - if/else
+@Test
 public void test0332_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2930,6 +3045,7 @@ public void test0332_if_else() {
 // null analysis - if/else
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
 // invalid analysis when redundant check is done
+@Test
 public void test0333_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2955,6 +3071,7 @@ public void test0333_if_else() {
 // null analysis - if/else
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
 // invalid analysis when redundant check is done - variant
+@Test
 public void test0334_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -2991,6 +3108,7 @@ public void test0334_if_else() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129581
 // Test that no false null reference warning is issued for a variable
 // that has been wrongly tainted by a redundant null check upstream.
+@Test
 public void test0335_if_else() {
 	runNegativeNullTest(
 		new String[] {
@@ -3016,6 +3134,7 @@ public void test0335_if_else() {
 // null analysis - if/else
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
 // invalid analysis when redundant check is done - variant
+@Test
 public void test0336_if_else() {
 	this.runNegativeTest(
 		new String[] {
@@ -3088,6 +3207,7 @@ public void _test0337_if_else_nested_correlation() {
 // null analysis - if/else nested with correlation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128861
 // workaround
+@Test
 public void test0338_if_else_nested() {
 	this.runConformTest(
 		new String[] {
@@ -3121,6 +3241,7 @@ public void test0338_if_else_nested() {
 }
 
 // null analysis - if/else nested with unknown protection: unknown cannot protect
+@Test
 public void test0339_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -3147,6 +3268,7 @@ public void test0339_if_else_nested() {
 }
 
 // null analysis - if/else nested
+@Test
 public void test0340_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -3173,6 +3295,7 @@ public void test0340_if_else_nested() {
 }
 
 // null analysis - if/else nested
+@Test
 public void test0341_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -3196,6 +3319,7 @@ public void test0341_if_else_nested() {
 }
 
 // null analysis - if/else nested
+@Test
 public void test0342_if_else_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -3219,6 +3343,7 @@ public void test0342_if_else_nested() {
 }
 
 // null analysis -- while
+@Test
 public void test0401_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3240,6 +3365,7 @@ public void test0401_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0402_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3261,6 +3387,7 @@ public void test0402_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0403_while() {
 	this.runConformTest(
 		new String[] {
@@ -3279,6 +3406,7 @@ public void test0403_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0404_while() {
 	this.runConformTest(
 		new String[] {
@@ -3299,6 +3427,7 @@ public void test0404_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0405_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3324,6 +3453,7 @@ public void test0405_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0406_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3345,6 +3475,7 @@ public void test0406_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0407_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3378,6 +3509,7 @@ public void test0407_while() {
 // never affected by the looping code (unassigned variables)
 // complete solution would call for multiple iterations in the
 // null analysis
+@Test
 public void test0408_while() {
 	this.runConformTest(
 		new String[] {
@@ -3402,6 +3534,7 @@ public void test0408_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0409_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3425,6 +3558,7 @@ public void test0409_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0410_while_nested() {
 	this.runConformTest(
 		new String[] {
@@ -3447,6 +3581,7 @@ public void test0410_while_nested() {
 }
 
 // null analysis -- while
+@Test
 public void test0411_while_nested() {
 	this.runConformTest(
 		new String[] {
@@ -3473,6 +3608,7 @@ public void test0411_while_nested() {
 }
 
 // null analysis -- while
+@Test
 public void test0412_while_if_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -3499,6 +3635,7 @@ public void test0412_while_if_nested() {
 }
 
 // null analysis -- while
+@Test
 public void test0413_while_unknown_field() {
 	this.runConformTest(
 		new String[] {
@@ -3516,6 +3653,7 @@ public void test0413_while_unknown_field() {
 }
 
 // null analysis -- while
+@Test
 public void test0414_while_unknown_parameter() {
 	this.runNegativeTest(
 		new String[] {
@@ -3539,6 +3677,7 @@ public void test0414_while_unknown_parameter() {
 }
 
 // null analysis -- while
+@Test
 public void test0415_while_unknown_if_else() {
 	this.runConformTest(
 		new String[] {
@@ -3560,6 +3699,7 @@ public void test0415_while_unknown_if_else() {
 }
 
 // null analysis -- while
+@Test
 public void test0416_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3584,6 +3724,7 @@ public void test0416_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0417_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3607,6 +3748,7 @@ public void test0417_while() {
 
 // null analysis -- while
 // origin AssignmentTest.testO22
+@Test
 public void test0418_while_try() {
 	this.runConformTest(
 		new String[] {
@@ -3628,6 +3770,7 @@ public void test0418_while_try() {
 }
 
 // null analysis -- while
+@Test
 public void test0419_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3651,6 +3794,7 @@ public void test0419_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0420_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3677,6 +3821,7 @@ public void test0420_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0421_while() {
 	this.runConformTest(
 		new String[] {
@@ -3695,6 +3840,7 @@ public void test0421_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0422_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3725,6 +3871,7 @@ public void test0422_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0423_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3755,6 +3902,7 @@ public void test0423_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0424_while_try() {
 	this.runConformTest(
 		new String[] {
@@ -3778,6 +3926,7 @@ public void test0424_while_try() {
 }
 
 // null analysis -- while
+@Test
 public void test0425_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3802,6 +3951,7 @@ public void test0425_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0426_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3829,6 +3979,7 @@ public void test0426_while() {
 }
 
 // null analysis -- while
+@Test
 public void test0427_while_return() {
 	this.runNegativeTest(
 		new String[] {
@@ -3854,6 +4005,7 @@ public void test0427_while_return() {
 }
 
 // null analysis - while
+@Test
 public void test0428_while() {
 	this.runConformTest(
 		new String[] {
@@ -3873,6 +4025,7 @@ public void test0428_while() {
 }
 
 // null analysis - while
+@Test
 public void test0429_while_nested() {
 	this.runConformTest(
 		new String[] {
@@ -3899,6 +4052,7 @@ public void test0429_while_nested() {
 }
 
 // null analysis - while
+@Test
 public void test0430_while_for_nested() {
 	this.runConformTest(
 		new String[] {
@@ -3924,6 +4078,7 @@ public void test0430_while_for_nested() {
 }
 
 // null analysis - while
+@Test
 public void test0431_while() {
 	this.runConformTest(
 		new String[] {
@@ -3945,6 +4100,7 @@ public void test0431_while() {
 }
 
 // null analysis - while
+@Test
 public void test0432_while() {
 	this.runConformTest(
 		new String[] {
@@ -3965,6 +4121,7 @@ public void test0432_while() {
 }
 
 // null analysis - while
+@Test
 public void test0433_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -3990,6 +4147,7 @@ public void test0433_while() {
 
 // null analysis - while
 // this one shows that we cannot project definitely unknown onto potentially unknown too soon
+@Test
 public void test0434_while_switch_nested() {
 	this.runConformTest(
 		new String[] {
@@ -4015,6 +4173,7 @@ public void test0434_while_switch_nested() {
 }
 
 // null analysis - while
+@Test
 public void test0435_while_init() {
 	this.runConformTest(
 		new String[] {
@@ -4036,6 +4195,7 @@ public void test0435_while_init() {
 }
 
 // null analysis - while
+@Test
 public void test0436_while_init() {
 	this.runConformTest(
 		new String[] {
@@ -4055,6 +4215,7 @@ public void test0436_while_init() {
 }
 
 // null analysis - while
+@Test
 public void test0437_while_exit() {
 	this.runConformTest(
 		new String[] {
@@ -4077,6 +4238,7 @@ public void test0437_while_exit() {
 
 
 // null analysis - while
+@Test
 public void test0438_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4098,6 +4260,7 @@ public void test0438_while() {
 }
 
 // null analysis - while
+@Test
 public void test0439_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4114,6 +4277,7 @@ public void test0439_while() {
 }
 
 // null analysis - while
+@Test
 public void test0440_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4136,6 +4300,7 @@ public void test0440_while() {
 }
 
 // null analysis - while
+@Test
 public void test0441_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4161,6 +4326,7 @@ public void test0441_while() {
 }
 
 // null analysis - while
+@Test
 public void test0442_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4184,6 +4350,7 @@ public void test0442_while() {
 }
 
 // null analysis - while
+@Test
 public void test0443_while_nested() {
 	this.runConformTest(
 		new String[] {
@@ -4208,6 +4375,7 @@ public void test0443_while_nested() {
 }
 
 // null analysis - while
+@Test
 public void test0444_while_deeply_nested() {
 	this.runConformTest(
 		new String[] {
@@ -4234,6 +4402,7 @@ public void test0444_while_deeply_nested() {
 }
 
 // null analysis - while
+@Test
 public void test0445_while_deeply_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -4266,6 +4435,7 @@ public void test0445_while_deeply_nested() {
 }
 
 // null analysis - while
+@Test
 public void test0446_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4288,6 +4458,7 @@ public void test0446_while() {
 }
 
 // null analysis - while
+@Test
 public void test0447_while() {
 	this.runConformTest(
 		new String[] {
@@ -4304,6 +4475,7 @@ public void test0447_while() {
 }
 
 // null analysis - while
+@Test
 public void test0448_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4351,6 +4523,7 @@ public void test0448_while() {
 // potential non null and potential unknown yields damages in
 // case of nested loops (unested loops still OK because we can
 // carry the definite non null property)
+@Test
 public void test0449_while_nested() {
 	this.runConformTest(
 		new String[] {
@@ -4370,6 +4543,7 @@ public void test0449_while_nested() {
 }
 
 // null analysis - while
+@Test
 public void test0450_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -4394,6 +4568,7 @@ public void test0450_while() {
 
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
+@Test
 public void test0451_while_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -4470,6 +4645,7 @@ public void _test0453_while() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129122
+@Test
 public void test0454_while() {
 	this.runConformTest(
 		new String[] {
@@ -4496,6 +4672,7 @@ public void test0454_while() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
 // variant
+@Test
 public void test0455_while_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -4521,6 +4698,7 @@ public void test0455_while_nested() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=134848
 // false positive after nested loop with break to explicit label
+@Test
 public void test0456_while_nested_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -4543,6 +4721,7 @@ public void test0456_while_nested_explicit_label() {
 
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=154995
+@Test
 public void test0457_while_nested_break() {
 	this.runConformTest(
 		new String[] {
@@ -4573,6 +4752,7 @@ public void test0457_while_nested_break() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=134848
 // variant: no label yields no problem
+@Test
 public void test0458_while_nested_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -4594,6 +4774,7 @@ public void test0458_while_nested_explicit_label() {
 }
 
 // null analysis -- while nested hits CAN_ONLY_NON_NULL
+@Test
 public void test0459_while_nested() {
 	this.runNegativeTest(
 		new String[] {
@@ -4630,6 +4811,7 @@ public void test0459_while_nested() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // extraneous error in case of a labeled while(true) statement
+@Test
 public void test0460_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -4656,6 +4838,7 @@ public void test0460_while_explicit_label() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // extraneous error in case of a labeled while(true) statement
+@Test
 public void test0461_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -4682,6 +4865,7 @@ public void test0461_while_explicit_label() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
+@Test
 public void test0462_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -4716,6 +4900,7 @@ public void test0462_while_explicit_label() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
+@Test
 public void test0463_while_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -4740,6 +4925,7 @@ public void test0463_while_infinite() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
+@Test
 public void test0464_while_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -4764,6 +4950,7 @@ public void test0464_while_infinite() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
+@Test
 public void test0465_while_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -4788,6 +4975,7 @@ public void test0465_while_infinite() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=198955
 // dupe of bug 184298 in fact
+@Test
 public void test0466_while_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -4813,6 +5001,7 @@ public void test0466_while_infinite() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=212283
 // (which is a dupe of 184298)
+@Test
 public void test0467_while_break() {
 	this.runConformTest(
 		new String[] {
@@ -4841,6 +5030,7 @@ public void test0467_while_break() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=212283
 // (which is a dupe of 184298)
+@Test
 public void test0468_while_break() {
 	this.runConformTest(
 		new String[] {
@@ -4869,6 +5059,7 @@ public void test0468_while_break() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=212283
 // (which is a dupe of 184298)
+@Test
 public void test0469_while_break() {
 	this.runConformTest(
 		new String[] {
@@ -4896,6 +5087,7 @@ public void test0469_while_break() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=220788
+@Test
 public void test0470_while() {
 	runNegativeNullTest(
 		new String[] {
@@ -4923,6 +5115,7 @@ public void test0470_while() {
 		"----------\n");
 }
 // null analysis -- try/finally
+@Test
 public void test0500_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -4943,6 +5136,7 @@ public void test0500_try_finally() {
 }
 
 // null analysis -- try/finally
+@Test
 public void test0501_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -4967,6 +5161,7 @@ public void test0501_try_finally() {
 }
 
 // null analysis -- try/finally
+@Test
 public void test0502_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -4988,6 +5183,7 @@ public void test0502_try_finally() {
 }
 
 // null analysis -- try/finally
+@Test
 public void test0503_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5010,6 +5206,7 @@ public void test0503_try_finally() {
 }
 
 // null analysis -- try/finally
+@Test
 public void test0504_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5038,6 +5235,7 @@ public void test0504_try_finally() {
 // Previously, we followed JLS's conservative approach, which considers
 // that the try block may exit before the assignment is completed.
 // As of Bug 345305 this has been changed to a more accurate analysis.
+@Test
 public void test0505_try_finally() {
 	runNegativeNullTest(
 		new String[] {
@@ -5061,6 +5259,7 @@ public void test0505_try_finally() {
 }
 
 // null analysis -- try finally
+@Test
 public void test0506_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5089,6 +5288,7 @@ public void test0506_try_finally() {
 }
 
 // null analysis -- try finally
+@Test
 public void test0507_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5121,6 +5321,7 @@ public void test0507_try_finally() {
 }
 
 // null analysis -- try finally
+@Test
 public void test0508_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5146,6 +5347,7 @@ public void test0508_try_finally() {
 }
 
 // null analysis -- try finally
+@Test
 public void test0509_try_finally_embedded() {
 	this.runNegativeTest(
 		new String[] {
@@ -5174,6 +5376,7 @@ public void test0509_try_finally_embedded() {
 }
 
 // null analysis -- try finally
+@Test
 public void test0510_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5200,6 +5403,7 @@ public void test0510_try_finally() {
 }
 
 // null analysis -- try finally
+@Test
 public void test0511_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5221,6 +5425,7 @@ public void test0511_try_finally() {
 }
 
 // null analysis -- try/finally
+@Test
 public void test0512_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5246,6 +5451,7 @@ public void test0512_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
+@Test
 public void test0513_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5273,6 +5479,7 @@ public void test0513_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
 // embedded variant 1
+@Test
 public void test0514_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5305,6 +5512,7 @@ public void test0514_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
 // embedded variant 2
+@Test
 public void test0515_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5340,6 +5548,7 @@ public void test0515_try_finally() {
 // variant
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184546
 // variant
+@Test
 public void test0516_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5364,6 +5573,7 @@ public void test0516_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132072
 // AIOOBE in null check compiling com.sun.org.apache.xalan.internal.res.XSLTErrorResources from JDK 1.5 source
+@Test
 public void test0517_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5405,6 +5615,7 @@ public void test0517_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132120
 // [compiler][null] NPE batch compiling JDT/Core from HEAD
+@Test
 public void test0518_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5452,6 +5663,7 @@ public void test0518_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128962
 // incorrect analysis within try finally with a constructor throwing an exception
+@Test
 public void test0519_try_finally_constructor_exc() {
 	this.runConformTest(
 		new String[] {
@@ -5480,6 +5692,7 @@ public void test0519_try_finally_constructor_exc() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128962
 // incorrect analysis within try finally with a constructor throwing an exception
 // variant
+@Test
 public void test0520_try_finally_constructor_exc() {
 	this.runConformTest(
 		new String[] {
@@ -5512,6 +5725,7 @@ public void test0520_try_finally_constructor_exc() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
 // incorrect analysis within try finally with an embedded && expression
+@Test
 public void test0521_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5540,6 +5754,7 @@ public void test0521_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
 // variant
+@Test
 public void test0522_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5574,6 +5789,7 @@ public void test0522_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
 // variant
+@Test
 public void test0523_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5608,6 +5824,7 @@ public void test0523_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
 // variant
+@Test
 public void test0524_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5678,6 +5895,7 @@ public void _test0525_try_finally_unchecked_exception() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 // variant
+@Test
 public void test0526_try_finally_unchecked_exception() {
 	this.runNegativeTest(
 		new String[] {
@@ -5714,6 +5932,7 @@ public void test0526_try_finally_unchecked_exception() {
 //null analysis -- try/finally
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 //variant
+@Test
 public void test0527_try_finally_unchecked_exception() {
 	this.runNegativeTest(
 		new String[] {
@@ -5746,6 +5965,7 @@ public void test0527_try_finally_unchecked_exception() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+@Test
 public void test0528_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5777,6 +5997,7 @@ public void test0528_try_finally() {
 
 // null analysis -- try finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+@Test
 public void test0529_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5808,6 +6029,7 @@ public void test0529_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+@Test
 public void test0530_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5840,6 +6062,7 @@ public void test0530_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+@Test
 public void test0531_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -5873,6 +6096,7 @@ public void test0531_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177863
+@Test
 public void test0532_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -5892,6 +6116,7 @@ public void test0532_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184546
+@Test
 public void test0533_try_finally_field() {
 	this.runConformTest(
 		new String[] {
@@ -5952,6 +6177,7 @@ public void _test0534_try_finally() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=295260
+@Test
 public void test0535_try_finally() {
 	this.runConformTest(
 			new String[] {
@@ -5977,6 +6203,7 @@ public void test0535_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320170 -  [compiler] [null] Whitebox issues in null analysis
 // trigger nullbits 0111 (pot n|nn|un), don't let "definitely unknown" override previous information
+@Test
 public void test0536_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -6007,6 +6234,7 @@ public void test0536_try_finally() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320170 -  [compiler] [null] Whitebox issues in null analysis
 // trigger nullbits 0111 (pot n|nn|un), don't let "definitely unknown" override previous information
 // multiple variables
+@Test
 public void test0537_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -6047,6 +6275,7 @@ public void test0537_try_finally() {
 }
 
 // null analysis -- try/catch
+@Test
 public void test0550_try_catch() {
 	this.runConformTest(
 		new String[] {
@@ -6068,6 +6297,7 @@ public void test0550_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0551_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6098,6 +6328,7 @@ public void test0551_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0552_try_catch() {
 	this.runConformTest(
 		new String[] {
@@ -6124,6 +6355,7 @@ public void test0552_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0553_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6159,6 +6391,7 @@ public void test0553_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0554_try_catch() {
 	runNegativeNullTest(
 		new String[] {
@@ -6200,6 +6433,7 @@ public void test0554_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0555_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6229,6 +6463,7 @@ public void test0555_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0556_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6258,6 +6493,7 @@ public void test0556_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0557_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6287,6 +6523,7 @@ public void test0557_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0558_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6320,6 +6557,7 @@ public void test0558_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0559_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6355,6 +6593,7 @@ public void test0559_try_catch() {
 }
 
 // null analysis - try/catch
+@Test
 public void test0560_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6393,6 +6632,7 @@ public void test0560_try_catch() {
 
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130359
+@Test
 public void test0561_try_catch_unchecked_exception() {
 	this.runNegativeTest(
 		new String[] {
@@ -6422,6 +6662,7 @@ public void test0561_try_catch_unchecked_exception() {
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
 // (slightly different) variant of 561
+@Test
 public void test0562_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -6460,6 +6701,7 @@ public void test0562_try_catch_unchecked_exception() {
 
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=155117
+@Test
 public void test0563_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6504,6 +6746,7 @@ public void test0563_try_catch() {
 
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
+@Test
 public void test0564_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -6533,6 +6776,7 @@ public void test0564_try_catch_unchecked_exception() {
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
 // variant
+@Test
 public void test0565_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -6563,6 +6807,7 @@ public void test0565_try_catch_unchecked_exception() {
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
 // variant
+@Test
 public void test0566_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -6601,6 +6846,7 @@ public void test0566_try_catch_unchecked_exception() {
 
 // null analysis - try/catch for checked exceptions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=295260
+@Test
 public void test0567_try_catch_checked_exception() {
 	this.runConformTest(
 			new String[] {
@@ -6626,6 +6872,7 @@ public void test0567_try_catch_checked_exception() {
 
 // null analysis - try/catch for checked exceptions with finally block
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=295260
+@Test
 public void test0568_try_catch_checked_exception() {
 	this.runConformTest(
 			new String[] {
@@ -6653,6 +6900,7 @@ public void test0568_try_catch_checked_exception() {
 }
 // null analysis -- try/catch
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+@Test
 public void test0569_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6687,6 +6935,7 @@ public void test0569_try_catch() {
 }
 // null analysis -- try/catch
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+@Test
 public void test0570_try_catch() {
 	this.runNegativeTest(
 		new String[] {
@@ -6729,6 +6978,7 @@ public void test0570_try_catch() {
 }
 //null analysis -- try/catch
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+@Test
 public void test0571_try_catch_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -6776,6 +7026,7 @@ public void test0571_try_catch_finally() {
 }
 //null analysis -- if statement
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=302446
+@Test
 public void test0572_if_statement() {
 	this.runNegativeTest(
 		new String[] {
@@ -6804,6 +7055,7 @@ public void test0572_if_statement() {
 }
 
 // take care for Java7 changes
+@Test
 public void test0573_try_catch_unchecked_and_checked_exception() {
 	this.runNegativeTest(
 		new String[] {
@@ -6840,6 +7092,7 @@ public void test0573_try_catch_unchecked_and_checked_exception() {
 }
 
 // similar to test0573 using multi catch parameters
+@Test
 public void test0574_try_multi_catch_unchecked_and_checked_exception() {
 	this.runNegativeTest(
 		new String[] {
@@ -6868,6 +7121,7 @@ public void test0574_try_multi_catch_unchecked_and_checked_exception() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //multi catch variant of test0561_try_catch_unchecked_exception
+@Test
 public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
 	this.runNegativeTest(
 		new String[] {
@@ -6896,6 +7150,7 @@ public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
 }
 
 // null test for resources inside try with resources statement
+@Test
 public void test0576_try_with_resources() {
 	this.runNegativeTest(
 		new String[] {
@@ -6959,6 +7214,7 @@ public void test0576_try_with_resources() {
 
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
+@Test
 public void test0595_throw() {
 	runTest(
 		new String[] {
@@ -6991,6 +7247,7 @@ public void test0595_throw() {
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 // variant - potential NPE
+@Test
 public void test0596_throw() {
 	runTest(
 		new String[] {
@@ -7027,6 +7284,7 @@ public void test0596_throw() {
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 // variant - unknown
+@Test
 public void test0597_throw() {
 	runTest(
 		new String[] {
@@ -7054,6 +7312,7 @@ public void test0597_throw() {
 }
 
 // null analysis -- do while
+@Test
 public void test0601_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -7076,6 +7335,7 @@ public void test0601_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0602_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -7098,6 +7358,7 @@ public void test0602_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0603_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -7122,6 +7383,7 @@ public void test0603_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0604_do_while() {
 	this.runConformTest(
 		new String[] {
@@ -7141,6 +7403,7 @@ public void test0604_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0605_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -7165,6 +7428,7 @@ public void test0605_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0606_do_while() {
 	this.runConformTest(
 		new String[] {
@@ -7190,6 +7454,7 @@ public void test0606_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0607_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -7216,6 +7481,7 @@ public void test0607_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0608_do_while() {
 	this.runConformTest(
 		new String[] {
@@ -7235,6 +7501,7 @@ public void test0608_do_while() {
 }
 
 // null analysis -- do while
+@Test
 public void test0609_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -7258,6 +7525,7 @@ public void test0609_do_while() {
 }
 
 // null analysis - do while
+@Test
 public void test0610_do_while() {
 	this.runConformTest(
 		new String[] {
@@ -7277,6 +7545,7 @@ public void test0610_do_while() {
 }
 
 // null analysis - do while
+@Test
 public void test0611_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -7332,6 +7601,7 @@ public void _test0612_do_while() {
 
 // null analysis - do while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=147118
+@Test
 public void test0613_do_while() {
 	this.runConformTest(
 		new String[] {
@@ -7407,6 +7677,7 @@ public void _test0615_do_while() {
 // null analysis - do while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
+@Test
 public void test0616_do_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -7433,6 +7704,7 @@ public void test0616_do_while_explicit_label() {
 // null analysis - do while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
+@Test
 public void test0617_do_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -7459,6 +7731,7 @@ public void test0617_do_while_explicit_label() {
 // null analysis - do while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
+@Test
 public void test0618_do_while_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -7482,6 +7755,7 @@ public void test0618_do_while_infinite() {
 // null analysis - do while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
+@Test
 public void test0619_do_while_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -7503,6 +7777,7 @@ public void test0619_do_while_infinite() {
 }
 
 // null analysis -- for
+@Test
 public void test0701_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7524,6 +7799,7 @@ public void test0701_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0702_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7545,6 +7821,7 @@ public void test0702_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0703_for() {
 	this.runConformTest(
 		new String[] {
@@ -7563,6 +7840,7 @@ public void test0703_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0704_for() {
 	this.runConformTest(
 		new String[] {
@@ -7583,6 +7861,7 @@ public void test0704_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0705_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7608,6 +7887,7 @@ public void test0705_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0707_for() {
 	this.runConformTest(
 		new String[] {
@@ -7623,6 +7903,7 @@ public void test0707_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0708_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7643,6 +7924,7 @@ public void test0708_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0709_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7662,6 +7944,7 @@ public void test0709_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0710_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7686,6 +7969,7 @@ public void test0710_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0711_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7707,6 +7991,7 @@ public void test0711_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0712_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7728,6 +8013,7 @@ public void test0712_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0713_for() {
 	this.runConformTest(
 		new String[] {
@@ -7742,6 +8028,7 @@ public void test0713_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0714_for() {
 	this.runConformTest(
 		new String[] {
@@ -7756,6 +8043,7 @@ public void test0714_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0715_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7781,6 +8069,7 @@ public void test0715_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0716_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7803,6 +8092,7 @@ public void test0716_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0717_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7826,6 +8116,7 @@ public void test0717_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0718_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -7848,6 +8139,7 @@ public void test0718_for() {
 
 // null analysis -- for
 // origin: AssignmentTest#test019
+@Test
 public void test0719_for() {
 	this.runConformTest(
 		new String[] {
@@ -7874,6 +8166,7 @@ public void test0719_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0720_for_continue_break() {
 	this.runNegativeTest(
 		new String[] {
@@ -7900,6 +8193,7 @@ public void test0720_for_continue_break() {
 }
 
 // null analysis -- for
+@Test
 public void test0721_for() {
 	this.runConformTest(
 		new String[] {
@@ -7919,6 +8213,7 @@ public void test0721_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0722_for_return() {
 	this.runNegativeTest(
 		new String[] {
@@ -7946,6 +8241,7 @@ public void test0722_for_return() {
 }
 
 // null analysis -- for
+@Test
 public void test0723_for() {
 	this.runConformTest(
 		new String[] {
@@ -7964,6 +8260,7 @@ public void test0723_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0724_for_with_initialization() {
 	this.runConformTest(
 		new String[] {
@@ -7987,6 +8284,7 @@ public void test0724_for_with_initialization() {
 }
 
 // null analysis -- for
+@Test
 public void test0725_for_with_assignment() {
 	this.runConformTest(
 		new String[] {
@@ -8012,6 +8310,7 @@ public void test0725_for_with_assignment() {
 // null analysis -- for
 // changed with https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
 // we are now able to see that x2 is reinitialized with x1, which is unknown
+@Test
 public void test0726_for() {
 	this.runConformTest(
 		new String[] {
@@ -8031,6 +8330,7 @@ public void test0726_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0727_for() {
 	this.runConformTest(
 		new String[] {
@@ -8044,6 +8344,7 @@ public void test0727_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0728_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -8063,6 +8364,7 @@ public void test0728_for() {
 }
 
 // null analysis -- for
+@Test
 public void test0729_for_try_catch_finally() {
 	this.runConformTest(
 		new String[] {
@@ -8095,6 +8397,7 @@ public void test0729_for_try_catch_finally() {
 }
 
 // null analysis - for
+@Test
 public void test0730_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -8117,6 +8420,7 @@ public void test0730_for() {
 }
 
 // null analysis - for
+@Test
 public void test0731_for() {
 	this.runNegativeTest(
 		new String[] {
@@ -8143,6 +8447,7 @@ public void test0731_for() {
 
 // null analysis - for nested with break
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
+@Test
 public void test0732_for_nested_break() {
 	this.runConformTest(
 		new String[] {
@@ -8167,6 +8472,7 @@ public void test0732_for_nested_break() {
 // null analysis - for while with break
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
 // variant
+@Test
 public void test0733_for_while_break() {
 	this.runConformTest(
 		new String[] {
@@ -8191,6 +8497,7 @@ public void test0733_for_while_break() {
 // null analysis - for while with break
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
 // variant
+@Test
 public void test0734_for_while_break() {
 	this.runConformTest(
 		new String[] {
@@ -8215,6 +8522,7 @@ public void test0734_for_while_break() {
 // null analysis - for nested with break
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
 // variant
+@Test
 public void test0735_for_nested_break() {
 	this.runConformTest(
 		new String[] {
@@ -8238,6 +8546,7 @@ public void test0735_for_nested_break() {
 
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
+@Test
 public void test0736_for_embedded_lazy_init() {
 	this.runConformTest(
 		new String[] {
@@ -8261,6 +8570,7 @@ public void test0736_for_embedded_lazy_init() {
 
 // null analysis - for with unknown protection: unknown cannot protect anything
 // suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
+@Test
 public void test0737_for_unknown_protection() {
 	this.runNegativeTest(
 		new String[] {
@@ -8322,6 +8632,7 @@ public void _test0738_for_unknown_protection() {
 
 // null analysis -- for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=178895
+@Test
 public void test0739_for() {
 	this.runConformTest(
 		new String[] {
@@ -8346,6 +8657,7 @@ public void test0739_for() {
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
+@Test
 public void test0740_for_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -8372,6 +8684,7 @@ public void test0740_for_explicit_label() {
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
+@Test
 public void test0741_for_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -8398,6 +8711,7 @@ public void test0741_for_explicit_label() {
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
+@Test
 public void test0742_for_explicit_label() {
 	this.runConformTest(
 		new String[] {
@@ -8424,6 +8738,7 @@ public void test0742_for_explicit_label() {
 
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
+@Test
 public void test0743_for_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -8448,6 +8763,7 @@ public void test0743_for_infinite() {
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
+@Test
 public void test0744_for_infinite() {
 	this.runConformTest(
 		new String[] {
@@ -8471,6 +8787,7 @@ public void test0744_for_infinite() {
 
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195638
+@Test
 public void test0746_for_try_catch() {
 	runNegativeNullTest(
 		new String[] {
@@ -8501,6 +8818,7 @@ public void test0746_for_try_catch() {
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195638
 // variant: do not reset to null
+@Test
 public void test0747_for_try_catch() {
 	runNegativeTest(
 		new String[] {
@@ -8529,6 +8847,7 @@ public void test0747_for_try_catch() {
 }
 
 // null analysis -- switch
+@Test
 public void test0800_switch() {
 	this.runConformTest(
 		new String[] {
@@ -8551,6 +8870,7 @@ public void test0800_switch() {
 }
 
 // null analysis -- switch
+@Test
 public void test0801_switch() {
 	this.runNegativeTest(
 		new String[] {
@@ -8584,6 +8904,7 @@ public void test0801_switch() {
 }
 
 // null analysis -- switch
+@Test
 public void test0802_switch() {
 	this.runNegativeTest(
 		new String[] {
@@ -8609,6 +8930,7 @@ public void test0802_switch() {
 }
 
 // null analysis -- switch
+@Test
 public void test0803_switch() {
 	this.runNegativeTest(
 		new String[] {
@@ -8636,6 +8958,7 @@ public void test0803_switch() {
 }
 
 // null analysis -- switch
+@Test
 public void test0804_switch() {
 	this.runNegativeTest(
 		new String[] {
@@ -8667,6 +8990,7 @@ public void test0804_switch() {
 }
 
 // null analysis -- switch
+@Test
 public void test0805_switch() {
 	this.runConformTest(
 		new String[] {
@@ -8763,6 +9087,7 @@ public void _test0902_non_null_protection_tag() {
 }
 
 // null analysis -- non null protection tag
+@Test
 public void test0903_non_null_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
@@ -8831,6 +9156,7 @@ public void test0903_non_null_protection_tag() {
 
 
 // null analysis -- non null protection tag
+@Test
 public void test0905_non_null_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
@@ -8851,6 +9177,7 @@ public void test0905_non_null_protection_tag() {
 }
 
 // null analysis -- non null protection tag
+@Test
 public void test0906_non_null_protection_tag() {
 	this.runNegativeTest(
 		new String[] {
@@ -8872,6 +9199,7 @@ public void test0906_non_null_protection_tag() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
+@Test
 public void test0950_assert() {
 	this.runConformTest(
 		new String[] {
@@ -8888,6 +9216,7 @@ public void test0950_assert() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
+@Test
 public void test0951_assert() {
 	this.runNegativeTest(
 		new String[] {
@@ -8909,6 +9238,7 @@ public void test0951_assert() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
+@Test
 public void test0952_assert() {
 	this.runNegativeTest(
 		new String[] {
@@ -8930,6 +9260,7 @@ public void test0952_assert() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
+@Test
 public void test0953_assert_combined() {
 	this.runNegativeTest(
 		new String[] {
@@ -8962,6 +9293,7 @@ public void test0953_assert_combined() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
+@Test
 public void test0954_assert_fake_reachable() {
 	runConformTest(
 		true/*flush*/,
@@ -8987,6 +9319,7 @@ public void test0954_assert_fake_reachable() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
+@Test
 public void test0955_assert_combined() {
 	this.runNegativeTest(
 		new String[] {
@@ -9013,6 +9346,7 @@ public void test0955_assert_combined() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
+@Test
 public void test0956_assert_combined() {
 	this.runNegativeTest(
 		new String[] {
@@ -9046,6 +9380,7 @@ public void test0956_assert_combined() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
 // Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
+@Test
 public void test0957_assert() {
 	this.runNegativeTest(
 		new String[] {
@@ -9113,6 +9448,7 @@ public void test0957_assert() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
 // Test to verify that asserts are exempted from null comparison warnings,
 // but this doesn't affect the downstream info.
+@Test
 public void test0958_assert() {
 	this.runNegativeTest(
 		new String[] {
@@ -9149,6 +9485,7 @@ public void test0958_assert() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
 // Test to verify that asserts are exempted from redundant null check warnings in a looping context,
 // but this doesn't affect the downstream info.
+@Test
 public void test0959a_assert_loop() {
 	this.runNegativeTest(
 		new String[] {
@@ -9218,6 +9555,7 @@ public void test0959a_assert_loop() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
 // Test to verify that asserts are exempted from redundant null check warnings in a looping context,
 // but this doesn't affect the downstream info.
+@Test
 public void test0959b_assert_loop() {
 	this.runNegativeTest(
 		new String[] {
@@ -9287,6 +9625,7 @@ public void test0959b_assert_loop() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
 // Test to verify that asserts are exempted from redundant null check warnings in a finally context,
 // but this doesn't affect the downstream info.
+@Test
 public void test0960_assert_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -9396,6 +9735,7 @@ public void _test0902_notNull_protection_tag() {
 }
 
 // null analysis -- notNull protection tag
+@Test
 public void test0903_notNull_protection_tag() {
 	this.runConformTest(
 		new String[] {
@@ -9488,6 +9828,7 @@ public void _test0952_nullable_tag() {
 }
 
 // moved from AssignmentTest
+@Test
 public void test1004() {
 	this.runNegativeTest(
 		new String[] {
@@ -9534,6 +9875,7 @@ public void test1004() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1005() {
 	this.runConformTest(
 		new String[] {
@@ -9548,6 +9890,7 @@ public void test1005() {
 		"");
 }
 
+@Test
 public void test1006() {
 	this.runConformTest(
 		new String[] {
@@ -9562,6 +9905,7 @@ public void test1006() {
 		"");
 }
 
+@Test
 public void test1007() {
 	this.runConformTest(
 		new String[] {
@@ -9578,6 +9922,7 @@ public void test1007() {
 		"");
 }
 
+@Test
 public void test1008() {
 	this.runConformTest(
 		new String[] {
@@ -9596,6 +9941,7 @@ public void test1008() {
 		"");
 }
 
+@Test
 public void test1009() {
 	this.runNegativeTest(
 		new String[] {
@@ -9639,6 +9985,7 @@ public void test1009() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1010() {
 	this.runConformTest(
 		new String[] {
@@ -9659,6 +10006,7 @@ public void test1010() {
 		"");
 }
 
+@Test
 public void test1011() {
 	this.runNegativeTest(
 		new String[] {
@@ -9698,6 +10046,7 @@ public void test1011() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1012() {
 	this.runNegativeTest(
 		new String[] {
@@ -9728,6 +10077,7 @@ public void test1012() {
 
 // x cannot equal this then null with no assignment in between
 // each diagnostic is locally sound though
+@Test
 public void test1013() {
 	this.runNegativeTest(
 		new String[] {
@@ -9757,6 +10107,7 @@ public void test1013() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1014() {
 	this.runConformTest(
 		new String[] {
@@ -9774,6 +10125,7 @@ public void test1014() {
 		"");
 }
 
+@Test
 public void test1015() {
 	this.runConformTest(
 		new String[] {
@@ -9794,6 +10146,7 @@ public void test1015() {
 		"");
 }
 
+@Test
 public void test1016() {
 	this.runNegativeTest(
 		new String[] {
@@ -9824,6 +10177,7 @@ public void test1016() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1017() {
 	this.runNegativeTest(
 		new String[] {
@@ -9854,6 +10208,7 @@ public void test1017() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1018() {
 	this.runNegativeTest(
 		new String[] {
@@ -9885,6 +10240,7 @@ public void test1018() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1019() {
 	this.runConformTest(
 		new String[] {
@@ -9915,6 +10271,7 @@ public void test1019() {
 		"");
 }
 
+@Test
 public void test1021() {
 	this.runConformTest(
 		new String[] {
@@ -9947,6 +10304,7 @@ public void test1021() {
 		"");
 }
 
+@Test
 public void test1022() {
 	this.runConformTest(
 		new String[] {
@@ -9976,6 +10334,7 @@ public void test1022() {
 		"");
 }
 
+@Test
 public void test1023() {
 	this.runNegativeTest(
 		new String[] {
@@ -10009,6 +10368,7 @@ public void test1023() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1024() {
 	this.runNegativeTest(
 		new String[] {
@@ -10043,6 +10403,7 @@ public void test1024() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1025() {
 	this.runNegativeTest(
 		new String[] {
@@ -10093,6 +10454,7 @@ public void _test1026() {
 		"SUCCESS");
 }
 
+@Test
 public void test1027() {
 	runNegativeNullTest(
 		new String[] {
@@ -10144,6 +10506,7 @@ public void _test1028() {
 		"");
 }
 
+@Test
 public void test1029() {
 	this.runConformTest(
 		new String[] {
@@ -10167,6 +10530,7 @@ public void test1029() {
 		"SUCCESS");
 }
 
+@Test
 public void test1030() {
 	this.runNegativeTest(
 		new String[] {
@@ -10199,6 +10563,7 @@ public void test1030() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1031() {
 	this.runNegativeTest(
 		new String[] {
@@ -10246,6 +10611,7 @@ public void test1031() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test1032() {
 	this.runNegativeTest(
 		new String[] {
@@ -10274,6 +10640,7 @@ public void test1032() {
 }
 
 // (simplified to focus on nulls)
+@Test
 public void test1033() {
 	this.runNegativeTest(
 		new String[] {
@@ -10309,6 +10676,7 @@ public void test1033() {
 }
 
 // from AssignmentTest#test034, simplified
+@Test
 public void test1034() {
 	runNegativeNullTest(
 		new String[] {
@@ -10351,6 +10719,7 @@ public void test1034() {
 		"----------\n");
 }
 
+@Test
 public void test1036() {
 	this.runNegativeTest(
 		new String[] {
@@ -10385,6 +10754,7 @@ public void test1036() {
 // default for null options is Ignore
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=192875
 // changed default for null access to warning
+@Test
 public void test1050_options_all_default() {
 	try {
 		setNullRelatedOptions = false;
@@ -10428,6 +10798,7 @@ public void test1050_options_all_default() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // all null options set to Ignore
+@Test
 public void test1051_options_all_ignore() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
@@ -10458,6 +10829,7 @@ public void test1051_options_all_ignore() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // all options set to error
+@Test
 public void test1052_options_all_error() {
 	this.runNegativeTest(
 		new String[] {
@@ -10501,6 +10873,7 @@ public void test1052_options_all_error() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // selectively changing error levels
+@Test
 public void test1053_options_mix() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
@@ -10546,6 +10919,7 @@ public void test1053_options_mix() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // selectively changing error levels
+@Test
 public void test1054_options_mix() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
@@ -10596,6 +10970,7 @@ public void test1054_options_mix() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // selectively changing error levels
+@Test
 public void test1055_options_mix() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
@@ -10646,6 +11021,7 @@ public void test1055_options_mix() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // selectively changing error levels
+@Test
 public void test1056_options_mix_with_SuppressWarnings() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
@@ -10691,6 +11067,7 @@ public void test1056_options_mix_with_SuppressWarnings() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
+@Test
 public void test1057_options_instanceof_is_check() {
 	this.runNegativeTest(
 		new String[] {
@@ -10713,6 +11090,7 @@ public void test1057_options_instanceof_is_check() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
+@Test
 public void test1058_options_instanceof_is_check() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
@@ -10737,6 +11115,7 @@ public void test1058_options_instanceof_is_check() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
+@Test
 public void test1059_options_cannot_be_null_check() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
@@ -10758,6 +11137,7 @@ public void test1059_options_cannot_be_null_check() {
 	  	false /* do not skip javac for this peculiar test */);
 }
 // encoding validation
+@Test
 public void test1500() {
 	this.runConformTest(
 		new String[] {
@@ -10781,6 +11161,7 @@ public void test1500() {
 }
 
 // encoding validation
+@Test
 public void test1501() {
 	this.runConformTest(
 		new String[] {
@@ -10807,6 +11188,7 @@ public void test1501() {
 }
 
 // encoding validation
+@Test
 public void test1502() {
 	this.runConformTest(
 		new String[] {
@@ -10833,6 +11215,7 @@ public void test1502() {
 }
 
 // encoding validation
+@Test
 public void test1503() {
 	this.runConformTest(
 		new String[] {
@@ -10861,6 +11244,7 @@ public void test1503() {
 }
 
 // flow info low-level validation
+@Test
 public void test2000_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -10905,6 +11289,7 @@ public void test2000_flow_info() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test2001_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -10933,6 +11318,7 @@ public void test2001_flow_info() {
 		"");
 }
 
+@Test
 public void test2002_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -10959,6 +11345,7 @@ public void test2002_flow_info() {
 		"");
 }
 
+@Test
 public void test2003_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -10984,6 +11371,7 @@ public void test2003_flow_info() {
 		"");
 }
 
+@Test
 public void test2004_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11015,6 +11403,7 @@ public void test2004_flow_info() {
 		"----------\n");
 }
 
+@Test
 public void test2005_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -11040,6 +11429,7 @@ public void test2005_flow_info() {
 		"");
 }
 
+@Test
 public void test2006_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -11065,6 +11455,7 @@ public void test2006_flow_info() {
 		"");
 }
 
+@Test
 public void test2007_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -11091,6 +11482,7 @@ public void test2007_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2008_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -11127,6 +11519,7 @@ public void test2008_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2009_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11168,6 +11561,7 @@ public void test2009_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2010_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11210,6 +11604,7 @@ public void test2010_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2011_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11255,6 +11650,7 @@ public void test2011_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2012_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11300,6 +11696,7 @@ public void test2012_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2013_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11331,6 +11728,7 @@ public void test2013_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2014_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11383,6 +11781,7 @@ public void test2014_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2015_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11449,6 +11848,7 @@ public void test2015_flow_info() {
 }
 
 // null analysis -- flow info
+@Test
 public void test2016_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11498,6 +11898,7 @@ public void test2016_flow_info() {
 		"----------\n");
 }
 
+@Test
 public void test2017_flow_info() {
 	this.runConformTest(
 		new String[] {
@@ -11525,6 +11926,7 @@ public void test2017_flow_info() {
 		"");
 }
 
+@Test
 public void test2018_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11562,6 +11964,7 @@ public void test2018_flow_info() {
 		"----------\n");
 }
 
+@Test
 public void test2019_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11599,6 +12002,7 @@ public void test2019_flow_info() {
 		"----------\n");
 }
 
+@Test
 public void test2020_flow_info() {
 	this.runNegativeTest(
 		new String[] {
@@ -11646,6 +12050,7 @@ public void test2020_flow_info() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
 // Test to verify that redundant null checks are properly reported in all loops
+@Test
 public void testBug291418a() {
 	runNegativeNullTest(
 			new String[] {
@@ -11729,6 +12134,7 @@ public void testBug291418a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
 // Test to verify that redundant null checks are properly reported
 // in a loop in case the null status is modified downstream in the loop
+@Test
 public void testBug291418b() {
 	runNegativeNullTest(
 			new String[] {
@@ -11762,6 +12168,7 @@ public void testBug291418b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=293917
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream.
+@Test
 public void testBug293917a() {
 	this.runNegativeTest(
 		new String[] {
@@ -11792,6 +12199,7 @@ public void testBug293917a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=293917
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream in a loop.
+@Test
 public void testBug293917b() {
 	this.runNegativeTest(
 		new String[] {
@@ -11819,6 +12227,7 @@ public void testBug293917b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=293917
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream in a finally block.
+@Test
 public void testBug293917c() {
 	this.runNegativeTest(
 		new String[] {
@@ -11852,6 +12261,7 @@ public void testBug293917c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=190623
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream.
+@Test
 public void testBug190623() {
 	this.runNegativeTest(
 		new String[] {
@@ -11892,6 +12302,7 @@ public void testBug190623() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
 //Test to verify that null checks are properly reported for the variable(s)
 //in the right expression of an OR condition statement.
+@Test
 public void testBug299900a() {
 	runNegativeNullTest(
 		new String[] {
@@ -11920,6 +12331,7 @@ public void testBug299900a() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
 //Test to verify that null checks are properly reported for the variable(s)
 //in the right expression of an OR condition statement.
+@Test
 public void testBug299900b() {
 	runNegativeNullTest(
 		new String[] {
@@ -11947,6 +12359,7 @@ public void testBug299900b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
 // Test whether Null pointer access warnings are being reported correctly when auto-unboxing
+@Test
 public void testBug253896a() {
 	runNegativeNullTest(
 		new String[] {
@@ -11996,6 +12409,7 @@ public void testBug253896a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
 // To test whether null pointer access and potential null pointer access warnings are correctly reported when auto-unboxing
+@Test
 public void testBug253896b() {
 	runNegativeNullTest(
 		new String[] {
@@ -12025,6 +12439,7 @@ public void testBug253896b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
 // Test whether Null pointer access warnings are being reported correctly when auto-unboxing inside loops
+@Test
 public void testBug253896c() {
 	runNegativeNullTest(
 		new String[] {
@@ -12091,6 +12506,7 @@ public void testBug253896c() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
 // Test whether Null pointer access warnings are being reported correctly when auto-unboxing inside finally contexts
+@Test
 public void testBug253896d() {
 	runNegativeNullTest(
 		new String[] {
@@ -12158,6 +12574,7 @@ public void testBug253896d() {
 //To check that code gen is not optimized for an if statement
 //where a local variable's definite nullness or otherwise is known because of
 //an earlier assert expression (inside finally context)
+@Test
 public void testBug303448a() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
@@ -12273,6 +12690,7 @@ public void testBug303448a() throws Exception {
 //To check that code gen is not optimized for an if statement
 //where a local variable's definite nullness or otherwise is known because of
 //an earlier assert expression (inside finally context)
+@Test
 public void testBug303448b() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
@@ -12302,6 +12720,7 @@ public void testBug303448b() throws Exception {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=304416
+@Test
 public void testBug304416() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
@@ -12351,6 +12770,7 @@ public void testBug304416() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305590
 // To verify that a "instanceof always yields false" warning is not elicited in the
 // case when the expression has been assigned a non null value in the instanceof check.
+@Test
 public void testBug305590() {
 	runNegativeTest(
 		new String[] {
@@ -12376,6 +12796,7 @@ public void testBug305590() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
 // unboxing raises an NPE
 //   LocalDeclaration
+@Test
 public void testBug319201() {
 	runNegativeTest(
 			new String[] {
@@ -12397,6 +12818,7 @@ public void testBug319201() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
 // unboxing could raise an NPE
 //   Assignment
+@Test
 public void testBug319201a() {
 	runNegativeTest(
 			new String[] {
@@ -12419,6 +12841,7 @@ public void testBug319201a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
 // unboxing raises an NPE
 //   MessageSend
+@Test
 public void testBug319201b() {
 	runNegativeTest(
 			new String[] {
@@ -12455,6 +12878,7 @@ public void testBug319201b() {
 //   CastExpression
 //   AssertStatement
 //   ReturnStatement
+@Test
 public void testBug319201c() {
 	runNegativeTest(
 			new String[] {
@@ -12582,6 +13006,7 @@ public void testBug319201c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
 // unboxing raises an NPE
 // DoStatement, variants with assignement and/or continue in the body & empty body
+@Test
 public void testBug319201d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
@@ -12655,6 +13080,7 @@ public void testBug319201d() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=320414
+@Test
 public void testBug320414() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
@@ -12710,6 +13136,7 @@ public void testBug320414() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
 // To verify that a "redundant null check" warning is NOT elicited for a variable assigned non-null
 // in an infinite while loop inside a try catch block and that code generation shows no surprises.
+@Test
 public void testBug321926a() {
 	this.runConformTest(
 		new String[] {
@@ -12742,6 +13169,7 @@ public void testBug321926a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
 // need more precise info from the throw location
+@Test
 public void testBug321926a2() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN, JavaCore.ERROR);
@@ -12780,6 +13208,7 @@ public void testBug321926a2() {
 		options);
 }
 // Test that dead code warning does show up.
+@Test
 public void testBug321926b() {
 	this.runNegativeTest(
 		new String[] {
@@ -12817,6 +13246,7 @@ public void testBug321926b() {
 			"----------\n");
 }
 // Check nullness in catch block, finally block and downstream code.
+@Test
 public void testBug321926c() {
 	this.runConformTest(
 		new String[] {
@@ -12858,6 +13288,7 @@ public void testBug321926c() {
 		"Compiler good Compiler good Compiler good");
 }
 // Various nested loops.
+@Test
 public void testBug321926d() {
 	this.runConformTest(
 		new String[] {
@@ -12903,6 +13334,7 @@ public void testBug321926d() {
 		"Compiler good Compiler good Compiler good");
 }
 // Test widening catch.
+@Test
 public void testBug321926e() {
 	this.runConformTest(
 		new String[] {
@@ -12934,6 +13366,7 @@ public void testBug321926e() {
 		"Compiler good");
 }
 // Tested nested try blocks.
+@Test
 public void testBug321926f() {
 	this.runConformTest(
 		new String[] {
@@ -12974,6 +13407,7 @@ public void testBug321926f() {
 		"Compiler good Compiler good");
 }
 // test for loop
+@Test
 public void testBug321926g() {
 	this.runConformTest(
 		new String[] {
@@ -13005,6 +13439,7 @@ public void testBug321926g() {
 		"Compiler good");
 }
 // test do while loop
+@Test
 public void testBug321926h() {
 	this.runConformTest(
 		new String[] {
@@ -13036,6 +13471,7 @@ public void testBug321926h() {
 		"Compiler good");
 }
 // test with while (true) with a break inside. was working already.
+@Test
 public void testBug321926i() {
 	this.runConformTest(
 		new String[] {
@@ -13068,6 +13504,7 @@ public void testBug321926i() {
 		"Compiler good");
 }
 // Test with non-explicit throws, i.e call method which throws rather than an inline throw statement.
+@Test
 public void testBug321926j() {
 	this.runConformTest(
 		new String[] {
@@ -13102,6 +13539,7 @@ public void testBug321926j() {
 		"Compiler good");
 }
 // Variation with nested loops
+@Test
 public void testBug321926k() {
 	this.runConformTest(
 		new String[] {
@@ -13144,6 +13582,7 @@ public void testBug321926k() {
 		"Compiler good Compiler good");
 }
 // variation with nested loops.
+@Test
 public void testBug321926l() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
@@ -13204,6 +13643,7 @@ public void testBug321926l() {
 		null,
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
+@Test
 public void testBug321926m() {
 	this.runConformTest(
 		new String[] {
@@ -13237,6 +13677,7 @@ public void testBug321926m() {
 			"}"},
 		"Compiler good");
 }
+@Test
 public void testBug321926n() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13272,6 +13713,7 @@ public void testBug321926n() {
 		"Compiler good",
 		options);
 }
+@Test
 public void testBug321926o() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13307,6 +13749,7 @@ public void testBug321926o() {
 		"Compiler good",
 		options);
 }
+@Test
 public void testBug321926p() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13342,6 +13785,7 @@ public void testBug321926p() {
 		"Compiler good",
 		options);
 }
+@Test
 public void testBug321926q() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -13375,6 +13819,7 @@ public void testBug321926q() {
 			"}"},
 		"Compiler good", null, true, null, options, null);
 }
+@Test
 public void testBug321926r() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
@@ -13408,6 +13853,7 @@ public void testBug321926r() {
 		"Compiler good", null, true, null, options, null
 		);
 }
+@Test
 public void testBug321926s() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
@@ -13442,6 +13888,7 @@ public void testBug321926s() {
 		"Compiler good", null, true, null, options, null
 		);
 }
+@Test
 public void testBug321926t() {
 	this.runConformTest(
 		new String[] {
@@ -13470,6 +13917,7 @@ public void testBug321926t() {
 			"}\n"},
 		"Compiler good");
 }
+@Test
 public void testBug321926u() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
@@ -13503,6 +13951,7 @@ public void testBug321926u() {
 		"Compiler good",
 		options);
 }
+@Test
 public void testBug321926v() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
@@ -13537,6 +13986,7 @@ public void testBug321926v() {
 		options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+@Test
 public void testBug317829a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13573,6 +14023,7 @@ public void testBug317829a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
 // assignment from unknown - not reporting redundant check
+@Test
 public void testBug317829a2() {
 	this.runConformTest(
 		new String[] {
@@ -13605,6 +14056,7 @@ public void testBug317829a2() {
 			"Compiler good Compiler good");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+@Test
 public void testBug317829b() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13643,6 +14095,7 @@ public void testBug317829b() {
 			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+@Test
 public void testBug317829c() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13678,6 +14131,7 @@ public void testBug317829c() {
 			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+@Test
 public void testBug317829d() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13716,6 +14170,7 @@ public void testBug317829d() {
 			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+@Test
 public void testBug317829e() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13751,6 +14206,7 @@ public void testBug317829e() {
 			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+@Test
 public void testBug317829f() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
@@ -13791,6 +14247,7 @@ public void testBug317829f() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // LocalDeclaration
+@Test
 public void testBug292478() {
     this.runNegativeTest(
             new String[] {
@@ -13813,6 +14270,7 @@ public void testBug292478() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // Assignment
+@Test
 public void testBug292478a() {
   this.runNegativeTest(
           new String[] {
@@ -13836,6 +14294,7 @@ public void testBug292478a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // Assignment after definite null
+@Test
 public void testBug292478b() {
 this.runNegativeTest(
         new String[] {
@@ -13859,6 +14318,7 @@ this.runNegativeTest(
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // Assignment after definite null - many locals
+@Test
 public void testBug292478c() {
 this.runNegativeTest(
       new String[] {
@@ -13889,6 +14349,7 @@ this.runNegativeTest(
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // Assignment affects initsOnFinally
+@Test
 public void testBug292478d() {
 	runNegativeNullTest(
 		new String[] {
@@ -13923,6 +14384,7 @@ public void testBug292478d() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // test regression reported in comment 8
+@Test
 public void testBug292478e() {
 	this.runConformTest(
 		new String[] {
@@ -13952,6 +14414,7 @@ public void testBug292478e() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // variant where regression occurred inside the while-switch structure
+@Test
 public void testBug292478f() {
 	this.runConformTest(
 		new String[] {
@@ -13981,6 +14444,7 @@ public void testBug292478f() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // variant for transfering state potentially unknown
+@Test
 public void testBug292478g() {
 	this.runConformTest(
 		new String[] {
@@ -14011,6 +14475,7 @@ public void testBug292478g() {
 // Bug 324762 -  Compiler thinks there is deadcode and removes it!
 // regression caused by the fix for bug 133125
 // ternary is non-null or null
+@Test
 public void testBug324762() {
 	this.runConformTest(
 		new String[] {
@@ -14031,6 +14496,7 @@ public void testBug324762() {
 // Bug 324762 -  Compiler thinks there is deadcode and removes it!
 // regression caused by the fix for bug 133125
 // ternary is unknown or null
+@Test
 public void testBug324762a() {
 	this.runConformTest(
 		new String[] {
@@ -14051,6 +14517,7 @@ public void testBug324762a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
 // instancof expression
+@Test
 public void testBug325229a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -14081,6 +14548,7 @@ public void testBug325229a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
 // MessageSend in assert
+@Test
 public void testBug325229b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -14114,6 +14582,7 @@ public void testBug325229b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
 // QualifiedNameReference in assert
+@Test
 public void testBug325229c() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -14148,6 +14617,7 @@ public void testBug325229c() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
 // EqualExpression in assert, comparison against non null
+@Test
 public void testBug325229d() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -14187,6 +14657,7 @@ public void testBug325229d() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // Null warnings because of assert statements should be suppressed
 // when CompilerOptions.OPTION_IncludeNullInfoFromAsserts is disabled.
+@Test
 public void testBug325342a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.DISABLED);
@@ -14237,6 +14708,7 @@ public void testBug325342a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // Null warnings because of assert statements should not be suppressed
 // when CompilerOptions.OPTION_IncludeNullInfoFromAsserts is enabled.
+@Test
 public void testBug325342b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
@@ -14305,6 +14777,7 @@ public void testBug325342b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325755
 // null analysis -- conditional expression
+@Test
 public void testBug325755a() {
 	this.runConformTest(
 		new String[] {
@@ -14337,6 +14810,7 @@ public void testBug325755a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325755
 // null analysis -- conditional expression, many locals
+@Test
 public void testBug325755b() {
 	this.runConformTest(
 		new String[] {
@@ -14376,6 +14850,7 @@ public void testBug325755b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332637
 // Dead Code detection removing code that isn't dead
+@Test
 public void testBug332637() {
 	this.runConformTest(
 		new String[] {
@@ -14440,6 +14915,7 @@ public void testBug332637() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332637
 // Dead Code detection removing code that isn't dead
 // variant with a finally block
+@Test
 public void testBug332637b() {
 	this.runConformTest(
 		new String[] {
@@ -14505,6 +14981,7 @@ public void testBug332637b() {
 		"-1");
 }
 
+@Test
 public void testBug406160a() {
 	this.runConformTest(
 		new String[] {
@@ -14573,6 +15050,7 @@ public void testBug406160a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=333089
 // null analysis -- to make sure no AIOOBE or NPE is thrown while calling UnconditionalFlowInfo.markNullStatus(..)
+@Test
 public void testBug333089() {
 	this.runConformTest(
 		new String[] {
@@ -14599,6 +15077,7 @@ public void testBug333089() {
 
 //Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
 //original issue
+@Test
 public void testBug336428() {
 	this.runConformTest(
 		new String[] {
@@ -14663,6 +15142,7 @@ public void _testBug336428b() {
 
 //Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
 //in this case considering o1 as unknown is correct
+@Test
 public void testBug336428c() {
 	this.runConformTest(
 		new String[] {
@@ -14681,6 +15161,7 @@ public void testBug336428c() {
 
 //Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
 //one more if-statement triggers the expected warnings
+@Test
 public void testBug336428d() {
 	runNegativeNullTest(
 		new String[] {
@@ -14717,6 +15198,7 @@ public void testBug336428d() {
 // variant after Bug 454031 to demonstrate:
 // - previously we would believe that o1 is always null in the assignment to o2 -> bogus warning re redundant null check
 // - with improved analysis we don't claim to know the value of o1 in this assignment -> no warning
+@Test
 public void testBug336428d2() {
 	this.runConformTest(
 		new String[] {
@@ -14738,6 +15220,7 @@ public void testBug336428d2() {
 
 //Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
 //same analysis, but assert instead of if suppresses the warning
+@Test
 public void testBug336428e() {
 	runNegativeNullTest(
 		new String[] {
@@ -14772,6 +15255,7 @@ public void testBug336428e() {
 // Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
 // same analysis, but assert instead of if suppresses the warning
 // condition inside assert is redundant null check and hence should not be warned against
+@Test
 public void testBug336428f() {
 	runNegativeNullTest(
 		new String[] {
@@ -14799,6 +15283,7 @@ public void testBug336428f() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332838
 // Null info of assert statements should not affect flow info
 // when CompilerOptions.OPTION_IncludeNullInfoFromAsserts is disabled.
+@Test
 public void testBug332838() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.DISABLED);
@@ -14842,6 +15327,7 @@ public void testBug332838() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=336544
+@Test
 public void testBug336544() {
 	this.runConformTest(
 		new String[] {
@@ -14865,6 +15351,7 @@ public void testBug336544() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=336544
+@Test
 public void testBug336544_2() {
 	this.runConformTest(
 		new String[] {
@@ -14888,6 +15375,7 @@ public void testBug336544_2() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=336544
+@Test
 public void testBug336544_3() {
 	this.runConformTest(
 		new String[] {
@@ -14912,6 +15400,7 @@ public void testBug336544_3() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=313870
+@Test
 public void testBug313870() {
 	this.runConformTest(
 		new String[] {
@@ -14937,6 +15426,7 @@ public void testBug313870() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=313870
+@Test
 public void testBug313870b() {
 	this.runConformTest(
 		new String[] {
@@ -14963,6 +15453,7 @@ public void testBug313870b() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=313870
+@Test
 public void testBug313870c() {
 	this.runConformTest(
 		new String[] {
@@ -14989,6 +15480,7 @@ public void testBug313870c() {
 		"");
 }
 // https://bugs.eclipse.org/338303 - Warning about Redundant assignment conflicts with definite assignment
+@Test
 public void testBug338303() {
 	this.runConformTest(
 		new String[] {
@@ -15019,6 +15511,7 @@ public void testBug338303() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
+@Test
 public void testBug338234() {
 	runNegativeNullTest(
 		new String[] {
@@ -15052,6 +15545,7 @@ public void testBug338234() {
 		"----------\n");
 }
 // Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+@Test
 public void testBug324178() {
 	this.runConformTest(
 		new String[] {
@@ -15069,6 +15563,7 @@ public void testBug324178() {
 }
 
 // Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+@Test
 public void testBug324178a() {
 	this.runConformTest(
 		new String[] {
@@ -15086,6 +15581,7 @@ public void testBug324178a() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
+@Test
 public void testBug326950a() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
@@ -15129,6 +15625,7 @@ public void testBug326950a() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
 // Code marked dead due to if(false), etc. can be optimized out
+@Test
 public void testBug326950b() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
@@ -15167,6 +15664,7 @@ public void testBug326950b() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
 // Free return should be generated for a method even if it ends with dead code
+@Test
 public void testBug326950c() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
@@ -15207,6 +15705,7 @@ public void testBug326950c() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
 // Free return should be generated for a constructor even if it ends with dead code
+@Test
 public void testBug326950d() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
@@ -15249,6 +15748,7 @@ public void testBug326950d() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
 // Check code gen
+@Test
 public void testBug339250() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
@@ -15274,6 +15774,7 @@ public void testBug339250() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
 // Check that the redundant null check warning is correctly produced
+@Test
 public void testBug339250a() throws Exception {
 	runNegativeNullTest(
 		new String[] {
@@ -15297,6 +15798,7 @@ public void testBug339250a() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
 // Check that the redundant null check warning is correctly produced
+@Test
 public void testBug339250b() throws Exception {
 	runNegativeNullTest(
 		new String[] {
@@ -15337,6 +15839,7 @@ public void testBug339250b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=342300
+@Test
 public void testBug342300() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -15357,6 +15860,7 @@ public void testBug342300() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=342300
 // To make sure only the redundant null check is given and not a potential NPE
+@Test
 public void testBug342300b() throws Exception {
 	runNegativeNullTest(
 		new String[] {
@@ -15381,6 +15885,7 @@ public void testBug342300b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+@Test
 public void testBug348379a() throws Exception {
 	runNegativeNullTest(
 		new String[] {
@@ -15407,6 +15912,7 @@ public void testBug348379a() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+@Test
 public void testBug348379b() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -15428,6 +15934,7 @@ public void testBug348379b() throws Exception {
 		"abcd");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+@Test
 public void testBug348379c() throws Exception {
 	runNegativeNullTest(
 		new String[] {
@@ -15454,6 +15961,7 @@ public void testBug348379c() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+@Test
 public void testBug348379d() throws Exception {
 	runNegativeNullTest(
 		new String[] {
@@ -15480,6 +15988,7 @@ public void testBug348379d() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+@Test
 public void testBug348379e() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -15502,6 +16011,7 @@ public void testBug348379e() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+@Test
 public void testBug348379f() throws Exception {
 	runNegativeNullTest(
 		new String[] {
@@ -15533,6 +16043,7 @@ public void testBug348379f() throws Exception {
 		"----------\n");
 }
 // Bug 354554 - [null] conditional with redundant condition yields weak error message
+@Test
 public void testBug354554() {
 	runNegativeNullTest(
 		new String[] {
@@ -15558,6 +16069,7 @@ public void testBug354554() {
 		"----------\n");
 }
 //Bug 354554 - [null] conditional with redundant condition yields weak error message
+@Test
 public void testBug354554b() {
 	runNegativeNullTest(
 		new String[] {
@@ -15578,6 +16090,7 @@ public void testBug354554b() {
 		"----------\n");
 }
 // Bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
+@Test
 public void test358827() {
 	runNegativeNullTest(
 			new String[] {
@@ -15603,6 +16116,7 @@ public void test358827() {
 			"----------\n");
 }
 // Bug 367879 - Incorrect "Potential null pointer access" warning on statement after try-with-resources within try-finally
+@Test
 public void test367879() {
 	this.runConformTest(
 			new String[] {
@@ -15627,6 +16141,7 @@ public void test367879() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=256796
+@Test
 public void testBug256796() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
@@ -15677,6 +16192,7 @@ public void testBug256796() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=256796
+@Test
 public void testBug256796a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
@@ -15777,6 +16293,7 @@ public void testBug256796a() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 // Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+@Test
 public void testBug360328() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
@@ -15841,6 +16358,7 @@ public void testBug360328() {
 }
 // Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 // constructors
+@Test
 public void testBug360328b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
@@ -15911,6 +16429,7 @@ public void testBug360328b() {
 }
 // Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 // initializers
+@Test
 public void testBug360328c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
@@ -15982,6 +16501,7 @@ public void testBug360328c() {
 }
 // Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 // try-finally instead of loop
+@Test
 public void testBug360328d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
@@ -16049,6 +16569,7 @@ public void testBug360328d() {
 }
 // Bug 384380 - False positive on a "Potential null pointer access" after a continue
 // original test case
+@Test
 public void testBug384380() {
 	this.runConformTest(
 		new String[] {
@@ -16084,6 +16605,7 @@ public void testBug384380() {
 }
 // Bug 384380 - False positive on a "Potential null pointer access" after a continue
 // variant with a finally block
+@Test
 public void testBug384380_a() {
 	this.runConformTest(
 		new String[] {
@@ -16121,6 +16643,7 @@ public void testBug384380_a() {
 }
 // Bug 384380 - False positive on a "Potential null pointer access" after a continue
 // while & foreach loops
+@Test
 public void testBug384380_b() {
 	this.runConformTest(
 		new String[] {
@@ -16156,6 +16679,7 @@ public void testBug384380_b() {
 		},
 		"");
 }
+@Test
 public void testBug376263() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -16192,6 +16716,7 @@ public void testBug376263() {
 		null/*requestor*/);
 }
 //object/array allocation
+@Test
 public void testExpressions01() {
 	runNegativeNullTest(
 		new String[] {
@@ -16236,6 +16761,7 @@ public void testExpressions01() {
 	);
 }
 //'this' expressions (incl. qualif.)
+@Test
 public void testExpressions02() {
 	runNegativeNullTest(
 		new String[] {
@@ -16272,6 +16798,7 @@ public void testExpressions02() {
 	);
 }
 //various non-null expressions: class-literal, string-literal, casted 'this'
+@Test
 public void testExpressions03() {
 	runNegativeNullTest(
 		new String[] {
@@ -16319,6 +16846,7 @@ public void testExpressions03() {
 }
 
 //a non-null ternary expression
+@Test
 public void testExpressions04() {
 	runNegativeNullTest(
 		new String[] {
@@ -16343,6 +16871,7 @@ public void testExpressions04() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // simplified: only try-finally involved
+@Test
 public void testBug345305_1() {
 	runConformTest(
 		new String[] {
@@ -16363,6 +16892,7 @@ public void testBug345305_1() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // original test case
+@Test
 public void testBug345305_2() {
 	runConformTest(
 		new String[] {
@@ -16386,6 +16916,7 @@ public void testBug345305_2() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // assignment in method argument position
+@Test
 public void testBug345305_3() {
 	runConformTest(
 		new String[] {
@@ -16410,6 +16941,7 @@ public void testBug345305_3() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // analysis of second local variable must not interfere
+@Test
 public void testBug345305_4() {
 	runNegativeNullTest(
 		new String[] {
@@ -16443,6 +16975,7 @@ public void testBug345305_4() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // block-less if involved - info about pot.nn. was lost when checking against loop's info (deferred check)
+@Test
 public void testBug345305_6() {
 	runNegativeNullTest(
 		new String[] {
@@ -16473,6 +17006,7 @@ public void testBug345305_6() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // block-less if involved
+@Test
 public void testBug345305_7() {
 	runNegativeNullTest(
 		new String[] {
@@ -16503,6 +17037,7 @@ public void testBug345305_7() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // consider exception thrown from cast expression
+@Test
 public void testBug345305_8() {
 	runNegativeNullTest(
 		new String[] {
@@ -16532,6 +17067,7 @@ public void testBug345305_8() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // consider exception thrown from binary expression
+@Test
 public void testBug345305_9() {
 	runNegativeNullTest(
 		new String[] {
@@ -16561,6 +17097,7 @@ public void testBug345305_9() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // inner labeled block with break
+@Test
 public void testBug345305_10() {
 	runNegativeNullTest(
 		new String[] {
@@ -16596,6 +17133,7 @@ public void testBug345305_10() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // switch statement
+@Test
 public void testBug345305_11() {
 	runNegativeNullTest(
 		new String[] {
@@ -16630,6 +17168,7 @@ public void testBug345305_11() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // assignment inside conditional expression
+@Test
 public void testBug345305_12() {
 	runNegativeNullTest(
 		new String[] {
@@ -16659,6 +17198,7 @@ public void testBug345305_12() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // explicit throw
+@Test
 public void testBug345305_13() {
 	runNegativeNullTest(
 		new String[] {
@@ -16691,6 +17231,7 @@ public void testBug345305_13() {
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
 // do-while
+@Test
 public void testBug345305_14() {
 	runNegativeNullTest(
 		new String[] {
@@ -16740,6 +17281,7 @@ public void testBug345305_14() {
 }
 
 // Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
+@Test
 public void testBug364326() {
 	runNegativeNullTest(
 		new String[] {
@@ -16779,6 +17321,7 @@ public void testBug364326() {
 }
 
 // Bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
+@Test
 public void testBug401088() {
 	runConformTest(
 		new String[] {
@@ -16823,6 +17366,7 @@ public void testBug401088() {
 		"java.lang.Exception");
 }
 // Bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
+@Test
 public void testBug401088a() {
  runConformTest(
      new String[] {
@@ -16868,6 +17412,7 @@ public void testBug401088a() {
      "1java.lang.Exception");
 }
 // Bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
+@Test
 public void test401092() {
 	runConformTest(
 		new String[] {
@@ -16905,6 +17450,7 @@ public void test401092() {
 		});
 }
 // Bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
+@Test
 public void test401092a() {
 	runConformTest(
 		new String[] {
@@ -16944,6 +17490,7 @@ public void test401092a() {
 		});
 }
 // Bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+@Test
 public void testBug402993() {
 	runNegativeNullTest(
 		new String[] {
@@ -16999,6 +17546,7 @@ public void testBug402993() {
 }
 // Bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
 // variant with finally block in inner try
+@Test
 public void testBug402993a() {
 	runNegativeNullTest(
 		new String[] {
@@ -17054,6 +17602,7 @@ public void testBug402993a() {
 		"Redundant null check: The variable exc can only be null at this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug453305() {
 	runConformTest(
 		new String[] {
@@ -17090,6 +17639,7 @@ public void testBug453305() {
 			"}\n"
 		});
 }
+@Test
 public void testBug431016() {
 	runConformTest(
 		new String[] {
@@ -17113,6 +17663,7 @@ public void testBug431016() {
 		});
 }
 // originally created for documentation purpose, see https://bugs.eclipse.org/453483#c9
+@Test
 public void testBug431016_simplified() {
 	runConformTest(
 		new String[] {
@@ -17131,6 +17682,7 @@ public void testBug431016_simplified() {
 			"}\n"
 		});
 }
+@Test
 public void testBug432109() {
 	runConformTest(
 		new String[] {
@@ -17165,6 +17717,7 @@ public void testBug432109() {
 			"}\n"
 		});
 }
+@Test
 public void testBug435528_orig() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -17209,6 +17762,7 @@ public void testBug435528_orig() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug435528_notaconstant() {
 	runConformTest(
 		true/*flush*/,
@@ -17247,6 +17801,7 @@ public void testBug435528_notaconstant() {
 		"",
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
+@Test
 public void testBug418500() {
 	runConformTest(
 		new String[] {
@@ -17280,6 +17835,7 @@ public void testBug418500() {
 			"}\n"
 		});
 }
+@Test
 public void testBug441737() {
 	runConformTest(
 		new String[] {
@@ -17312,6 +17868,7 @@ public void testBug441737() {
 		});
 }
 // fixed in 3.6.2, likely via bug 332637.
+@Test
 public void testBug195638_comment3() {
 	runConformTest(
 		new String[] {
@@ -17354,6 +17911,7 @@ public void testBug195638_comment3() {
 			"}\n"
 		});
 }
+@Test
 public void testBug195638_comment6() {
 	runNegativeNullTest(
 		new String[] {
@@ -17387,6 +17945,7 @@ public void testBug195638_comment6() {
 		"Potential null pointer access: The variable tblVarRpl may be null at this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug195638_comment14() {
 	runNegativeNullTest(
 		new String[] {
@@ -17418,6 +17977,7 @@ public void testBug195638_comment14() {
 		"Potential null pointer access: The variable o may be null at this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug195638_comment19() {
 	runConformTest(
 		new String[] {
@@ -17441,6 +18001,7 @@ public void testBug195638_comment19() {
 			"}\n"
 		});
 }
+@Test
 public void testBug454031() {
 	runNegativeNullTest(
 		new String[] {
@@ -17480,6 +18041,7 @@ public void testBug454031() {
 		"----------\n");
 }
 // switch with fall-through nested in for:
+@Test
 public void testBug451660() {
 	runNegativeNullTest(
 		new String[] {
@@ -17510,6 +18072,7 @@ public void testBug451660() {
 		"Potential null pointer access: The variable s may be null at this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug486912KnownNullInLoop() {
 	runNegativeNullTest(
 		new String[] {
@@ -17547,6 +18110,7 @@ public void testBug486912KnownNullInLoop() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug486912PotNullInLoop_orig() {
 	runNegativeNullTest(
 		new String[] {
@@ -17679,6 +18243,7 @@ public void testBug486912PotNullInLoop_orig() {
 	);
 }
 // variant of testBug486912PotNullInLoop_orig spiced up with potentiality from an 'unknown' o0:
+@Test
 public void testBug486912PotNullInLoop() {
 	runNegativeNullTest(
 		new String[] {
@@ -17775,6 +18340,7 @@ public void testBug486912PotNullInLoop() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug447695() {
 	runConformTest(
 		new String[] {
@@ -17794,6 +18360,7 @@ public void testBug447695() {
 		}
 	);
 }
+@Test
 public void testBug447695b() {
 	runConformTest(
 		new String[] {
@@ -17808,6 +18375,7 @@ public void testBug447695b() {
 			"}\n"
 		});
 }
+@Test
 public void testBug447695c() {
 	runConformTest(
 		new String[] {
@@ -17824,6 +18392,7 @@ public void testBug447695c() {
 		}
 	);
 }
+@Test
 public void testBug447695d() {
 	runConformTest(
 		new String[] {
@@ -17841,6 +18410,7 @@ public void testBug447695d() {
 		}
 	);
 }
+@Test
 public void testBug447695e() {
 	runConformTest(
 		new String[] {
@@ -17858,6 +18428,7 @@ public void testBug447695e() {
 		}
 	);
 }
+@Test
 public void testBug447695f() {
 	runConformTest(
 		new String[] {
@@ -17879,6 +18450,7 @@ public void testBug447695f() {
 		}
 	);
 }
+@Test
 public void testBug447695g() {
 	runNegativeNullTest(
 		new String[] {
@@ -17947,6 +18519,7 @@ public void testBug447695g() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug509188() {
 	runConformTest(
 		new String[] {
@@ -17984,6 +18557,7 @@ public void testBug509188() {
 		"not dead"
 	);
 }
+@Test
 public void testBug536408() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -18014,6 +18588,7 @@ public void testBug536408() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug542707_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) // switch expression
 		return;
@@ -18040,6 +18615,7 @@ public void testBug542707_1() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testBug544872() {
 	runNegativeNullTest(
 		new String[] {
@@ -18063,6 +18639,7 @@ public void testBug544872() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug551012() {
 	runNegativeNullTest(
 		new String[] {
@@ -18114,6 +18691,7 @@ public void testBug551012() {
 		"Redundant null check: The field BAR is a nonnull constant\n" +
 		"----------\n");
 }
+@Test
 public void testBug561280() {
 	runConformTest(
 		new String[] {
@@ -18214,6 +18792,7 @@ public void testBug561280() {
 			"}\n"
 		});
 }
+@Test
 public void testBug380786() {
 	runNegativeTest(
 		new String[] {
@@ -18251,6 +18830,7 @@ public void testBug380786() {
 		"----------\n"
 			);
 }
+@Test
 public void testGH1642_a() {
 	runConformTest(
 		new String[] {
@@ -18266,6 +18846,7 @@ public void testGH1642_a() {
 			}
 			"""});
 }
+@Test
 public void testGH1667() {
 	runConformTest(
 		new String[] {
@@ -18296,6 +18877,7 @@ public void testGH1667() {
 		});
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1461
+@Test
 public void testGH1461() {
 	if (this.complianceLevel < ClassFileConstants.JDK15) return;
 	runNegativeTest(
@@ -18325,6 +18907,7 @@ public void testGH1461() {
 			""");
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1461
+@Test
 public void testGH1461SuppressWarnings() {
 	if (this.complianceLevel < ClassFileConstants.JDK15) return;
 	runConformTest(
@@ -18348,6 +18931,7 @@ public void testGH1461SuppressWarnings() {
 		"");
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1461
+@Test
 public void testGH1461_a() {
 	if (this.complianceLevel < ClassFileConstants.JDK15) return;
 	runNegativeTest(
@@ -18377,6 +18961,7 @@ public void testGH1461_a() {
 			""");
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1461
+@Test
 public void testGH1461_b() {
 	if (this.complianceLevel < ClassFileConstants.JDK15) return;
 	runNegativeTest(
@@ -18406,6 +18991,7 @@ public void testGH1461_b() {
 			""");
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1461
+@Test
 public void testGH1461_c() {
 	if (this.complianceLevel < ClassFileConstants.JDK15) return;
 	runNegativeTest(
@@ -18429,6 +19015,7 @@ public void testGH1461_c() {
 			""");
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1461
+@Test
 public void testGH1461_d() {
 	if (this.complianceLevel < ClassFileConstants.JDK15) return;
 	runNegativeTest(
@@ -18457,6 +19044,7 @@ public void testGH1461_d() {
 			----------
 			""");
 }
+@Test
 public void testGH1755() {
 	runNegativeTest(
 		new String[] {

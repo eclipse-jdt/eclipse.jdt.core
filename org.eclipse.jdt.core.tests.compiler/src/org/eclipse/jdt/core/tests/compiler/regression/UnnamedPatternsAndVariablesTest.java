@@ -13,23 +13,23 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_23)
 public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_23);
-	}
 
 	static {
 		//	TESTS_NAMES = new String [] { "testInstanceOfPatternMatchingWithMixedPatterns" };
 	}
 
-	public UnnamedPatternsAndVariablesTest(String name) {
-		super(name);
+	public UnnamedPatternsAndVariablesTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -44,6 +44,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 		super.runConformTest(files, expectedOutput, null, null);
 	}
 
+	@Test
 	public void testAllSnippetsFromUnnamedVariablesAndPatternsProposal() {
 		runConformTest(new String[] { "X.java", """
 				import java.util.Queue;
@@ -153,6 +154,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "Bad number:");
 	}
 
+	@Test
 	public void testCatchStatementWithUnnamedVars() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -168,6 +170,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "12");
 	}
 
+	@Test
 	public void testTryWithResourcesWithUnnamedVars() {
 		runConformTest(new String[] { "A.java", """
 				import java.io.File;
@@ -186,6 +189,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "expected failure");
 	}
 
+	@Test
 	public void testLambdaUnnamedParameter() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -200,6 +204,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "10");
 	}
 
+	@Test
 	public void testLambdaBracketedUnnamedParameter() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.function.Function;
@@ -212,6 +217,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "Hello");
 	}
 
+	@Test
 	public void testLambdaNoTypeBracketedUnnamedParameter() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.function.Function;
@@ -224,6 +230,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "Hello");
 	}
 
+	@Test
 	public void testLambdaNoTypeNoBracketsUnnamedParameter() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.function.Function;
@@ -236,6 +243,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "Hello");
 	}
 
+	@Test
 	public void testLambdaTypeWithNoParens() {
 		runNegativeTest(new String[] { "A.java", """
 				import java.util.function.Function;
@@ -254,6 +262,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testLambdaBiFunctionBracketedWithOneNamedParam() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.function.BiFunction;
@@ -266,6 +275,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "Hello, 3");
 	}
 
+	@Test
 	public void testLambdaBiFunctionBracketedWithNoNamedParam() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.function.BiFunction;
@@ -278,6 +288,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "Hello");
 	}
 
+	@Test
 	public void testLambdaBiFunctionUnbracketedWithNoNamedParam() {
 		runNegativeTest(new String[] { "A.java", """
 				import java.util.function.BiFunction;
@@ -298,6 +309,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				""");
 	}
 
+	@Test
 	public void testInstanceOfPatternMatchingWithUnnamedPatterns() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -313,6 +325,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "matched point");
 	}
 
+	@Test
 	public void testInstanceOfPatternMatchingWithMixedPatterns() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -328,6 +341,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "matched point! y: 2");
 	}
 
+	@Test
 	public void testInstanceOfPatternMatchingWithMixedPatterns2() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -343,6 +357,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "matched point! x: 1");
 	}
 
+	@Test
 	public void testInstanceOfPatternMatchingWithUnnamedVariables() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -358,6 +373,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "matched point");
 	}
 
+	@Test
 	public void testSwitchPatternMatchingWithUnnamedPatterns() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -374,6 +390,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "I am utilizing pattern matching");
 	}
 
+	@Test
 	public void testSwitchPatternMatchingWithMixedPatterns() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -390,6 +407,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "1");
 	}
 
+	@Test
 	public void testSwitchPatternMatchingWithUnnamedVariables() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -406,6 +424,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "2");
 	}
 
+	@Test
 	public void testSwitchPatternMatchingWithUnnamedVariablesVar() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -422,6 +441,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "2");
 	}
 
+	@Test
 	public void testSwitchPatternMatchingWithUnnamedVariablesUnicodeEscape() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -438,6 +458,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "2");
 	}
 
+	@Test
 	public void testEnhancedForLoopVariableWithModifier() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.List;
@@ -460,6 +481,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 
 
 
+	@Test
 	public void testInstanceofUnnamedPatternMatching() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -476,6 +498,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "");
 	}
 
+	@Test
 	public void testReuseLocalUnnamedVariable() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -491,6 +514,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "");
 	}
 
+	@Test
 	public void testReuseLocalUnnamedVariableUnicodeEscape() {
 		runConformTest(new String[] { "A.java", """
 				public class A {
@@ -506,6 +530,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "");
 	}
 
+	@Test
 	public void testUnnamedVariableInEnhancedFor() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.List;
@@ -522,6 +547,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "2");
 	}
 
+	@Test
 	public void testUnnamedVariableAsLambdaParameter() {
 		runConformTest(new String[] { "A.java", """
 				import java.util.function.Function;
@@ -534,6 +560,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"""}, "1");
 	}
 
+	@Test
 	public void testUnnamedVariableWithoutInitializer() {
 		runNegativeTest(new String[] { "A.java", """
 				import java.io.BufferedReader;
@@ -574,6 +601,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				""");
 	}
 
+	@Test
 	public void test001() {
 		runConformTest(new String[] {
 				"X.java",
@@ -591,6 +619,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	}
 
 	// Test that pattern variables are allowed for the nested patterns (not just the outermost record pattern)
+	@Test
 	public void test002() {
 		runConformTest(new String[] {
 				"X.java",
@@ -611,6 +640,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 			"0");
 	}
 
+	@Test
 	public void test003() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -633,6 +663,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void test004() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -657,6 +688,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				""");
 	}
 
+	@Test
 	public void test005() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -680,6 +712,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2024
 	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	@Test
 	public void testIssue2024() {
 		runConformTest(new String[] {
 				"X.java",
@@ -700,6 +733,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2024
 	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	@Test
 	public void testIssue2024_2() {
 		runConformTest(new String[] {
 				"X.java",
@@ -720,6 +754,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2024
 	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	@Test
 	public void testIssue2024_3() {
 		runConformTest(new String[] {
 				"X.java",
@@ -743,6 +778,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
 	// [Patterns][Unnamed] Wasteful allocation and assignment into unnamed pattern variables.
+    @Test
     public void testIssue2020() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -829,6 +865,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
     }
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
 	// [Patterns][Unnamed] Wasteful allocation and assignment into unnamed pattern variables.
+    @Test
     public void testIssue2020_2() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -915,6 +952,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
     }
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
 	// [Patterns][Unnamed] Wasteful allocation and assignment into unnamed pattern variables.
+    @Test
     public void testIssue2020_3() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -1000,6 +1038,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
     }
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
 	// [Patterns][Unnamed] Wasteful allocation and assignment into unnamed pattern variables.
+    @Test
     public void testIssue2020_4() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -1099,6 +1138,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
     }
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
 	// [Patterns][Unnamed] Wasteful allocation and assignment into unnamed pattern variables.
+    @Test
     public void testIssue2020_5() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -1129,6 +1169,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
  	// [Patterns][Unnamed] Wasteful allocation and assignment into unnamed pattern variables.
+     @Test
      public void testIssue2020_6() throws ClassFormatException, IOException {
      	String source =
      			"""
@@ -1155,6 +1196,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
                  "Y is of class: class X");
      }
  	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
+ 	@Test
  	public void testIssue1889_2() {
  		runConformTest(
  				new String[] {
@@ -1184,6 +1226,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
  	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
 	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	@Test
 	public void testIssue2007() {
 		runConformTest(new String[] {
 				"X.java",

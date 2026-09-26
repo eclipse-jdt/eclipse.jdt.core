@@ -14,10 +14,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public class JavadocTest_1_3 extends JavadocTest {
 
 	String docCommentSupport = CompilerOptions.ENABLED;
@@ -27,12 +31,8 @@ public class JavadocTest_1_3 extends JavadocTest {
 	String reportMissingJavadocComments = null;
 	String reportMissingJavadocCommentsVisibility = null;
 
-	public JavadocTest_1_3(String name) {
-		super(name);
-	}
-
-	public static Class testClass() {
-		return JavadocTest_1_3.class;
+	public JavadocTest_1_3(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -43,9 +43,6 @@ public class JavadocTest_1_3 extends JavadocTest {
 //		};
 //		TESTS_NUMBERS = new int[] { 101283 };
 //		TESTS_RANGE = new int[] { 21, 50 };
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	@Override
@@ -95,6 +92,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	/* (non-Javadoc)
 	 * Test @param for generic class type parameter
 	 */
+	@Test
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -113,6 +111,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 				"----------\n"
 		);
 	}
+	@Test
 	public void test020() {
 		this.runNegativeTest(
 			new String[] {
@@ -140,6 +139,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"""
 		);
 	}
+	@Test
 	public void test021() {
 		this.runNegativeTest(
 			new String[] {
@@ -172,6 +172,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"""
 		);
 	}
+	@Test
 	public void test022() {
 		this.runNegativeTest(
 			new String[] {
@@ -200,6 +201,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test026() {
 		this.runNegativeTest(
 			new String[] {
@@ -225,6 +227,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 
 	// TODO (david) recovery seems not to work properly here:
 	// we should have type parameters in method declaration.
+	@Test
 	public void test036() {
 		this.runNegativeTest(
 			new String[] {
@@ -265,6 +268,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 		);
 	}
 
+	@Test
 	public void test040() {
 		runConformReferenceTest(
 			new String[] {
@@ -282,6 +286,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	 * Bug 96237: [javadoc] Inner types must be qualified
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=96237"
 	 */
+	@Test
 	public void testBug96237_Public01() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runConformTest(
@@ -301,6 +306,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Public02() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -322,6 +328,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			""
 		);
 	}
+	@Test
 	public void testBug96237_Public03() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -376,6 +383,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Public04() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -415,6 +423,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Public05() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -444,6 +453,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Public06() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -491,6 +501,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Public07() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -555,6 +566,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Public08() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
 		runNegativeTest(
@@ -586,6 +598,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Private01() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -605,6 +618,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private02() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runNegativeTest(
@@ -632,6 +646,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Private03() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runNegativeTest(
@@ -686,6 +701,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Private04() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runNegativeTest(
@@ -725,6 +741,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug96237_Private05() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -741,6 +758,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private06() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -763,6 +781,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private07() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -790,6 +809,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug96237_Private08() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -815,6 +835,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	 * Bug 95286: [1.5][javadoc] package-info.java incorrectly flags "Missing comment for public declaration"
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95286"
 	 */
+	@Test
 	public void testBug95286_Default() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
@@ -828,6 +849,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug95286_Private() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
@@ -843,6 +865,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	}
 
 	// Verify that ProblemReasons.InheritedNameHidesEnclosingName is not reported as Javadoc error
+	@Test
 	public void testBug101283g() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 		runNegativeTest(
@@ -887,6 +910,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	 * Bug 119857: [javadoc] Some inner class references should be flagged as unresolved
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=119857"
 	 */
+	@Test
 	public void testBug119857() {
 		runNegativeTest(
 			new String[] {
@@ -942,6 +966,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			""
 		);
 	}
+	@Test
 	public void testBug119857_Fields() {
 		runNegativeTest(
 			new String[] {
@@ -961,6 +986,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			""
 		);
 	}
+	@Test
 	public void testBug119857_Methods() {
 		runNegativeTest(
 			new String[] {
@@ -987,6 +1013,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			""
 		);
 	}
+	@Test
 	public void testBug119857_Types() {
 		runNegativeTest(
 			new String[] {
@@ -1013,6 +1040,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			""
 		);
 	}
+	@Test
 	public void testBug119857_Private01() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runConformTest(
@@ -1034,6 +1062,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Public01() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -1063,6 +1092,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void testBug119857_Private02() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -1088,6 +1118,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			""
 		);
 	}
+	@Test
 	public void testBug119857_Public02() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
@@ -1112,6 +1143,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+	@Test
 	public void testBug119857_Public03() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;

@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -26,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SwitchTest extends AbstractRegressionTest {
@@ -34,13 +35,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 22 };
 //	TESTS_NAMES = new String[] { "testFor356002", "testFor356002_2", "testFor356002_3" };
 }
-public SwitchTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public SwitchTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -62,6 +61,7 @@ public void test001() {
 		"}\n",
 	});
 }
+@Test
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -83,6 +83,7 @@ public void test002() {
 	});
 }
 
+@Test
 public void test003() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -102,6 +103,7 @@ public void test003() {
 	});
 }
 
+@Test
 public void test004() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -123,6 +125,7 @@ public void test004() {
 	});
 }
 
+@Test
 public void test005() {
 	this.runConformTest(new String[] {
 		"p/BugJavaCase.java",
@@ -141,6 +144,7 @@ public void test005() {
 }
 
 
+@Test
 public void test006() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -168,6 +172,7 @@ public void test006() {
 	});
 }
 
+@Test
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -192,6 +197,7 @@ public void test007() {
 		"----------\n"
 	);
 }
+@Test
 public void test008() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -205,6 +211,7 @@ public void test008() {
 	},
 	"SUCCESS");
 }
+@Test
 public void test009() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -222,6 +229,7 @@ public void test009() {
 	},
 	"SUCCESS");
 }
+@Test
 public void test010() {
 	String newMessage =
 			"----------\n" +
@@ -292,6 +300,7 @@ public void test010() {
 	},
 	this.complianceLevel >= ClassFileConstants.JDK21 ? java21Plus : newMessage);
 }
+@Test
 public void test011() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -311,6 +320,7 @@ public void test011() {
 	"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86813
+@Test
 public void test012() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -383,6 +393,7 @@ public void test012() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test013() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -522,6 +533,7 @@ public void test013() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257
+@Test
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -565,6 +577,7 @@ public void test014() {
 	options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257 - variation
+@Test
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -608,6 +621,7 @@ public void test015() {
 	options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257 - variation
+@Test
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -637,6 +651,7 @@ public void test016() {
 	options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=245257 - variation
+@Test
 public void test017() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -667,6 +682,7 @@ public void test017() {
 	options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=286682
+@Test
 public void test018() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -687,6 +703,7 @@ public void test018() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+@Test
 public void test019() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -704,6 +721,7 @@ public void test019() {
 	"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+@Test
 public void test020() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -724,6 +742,7 @@ public void test020() {
 	"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+@Test
 public void test021() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -742,6 +761,7 @@ public void test021() {
 	"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+@Test
 public void test022() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -760,6 +780,7 @@ public void test022() {
 	"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+@Test
 public void test023() {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -780,6 +801,7 @@ public void test023() {
 }
 
 // JDK7: Strings in Switch.
+@Test
 public void testStringSwitchAtJDK6() {
 		String newMessage =
 			"----------\n" +
@@ -802,6 +824,7 @@ public void testStringSwitchAtJDK6() {
 }
 
 //JDK7: Strings in Switch.
+@Test
 public void testCaseTypeMismatch() {
 	String newMessage =
 		"----------\n" +
@@ -876,6 +899,7 @@ public void testCaseTypeMismatch() {
 		newMessage);
 }
 // JDK7: Strings in Switch.
+@Test
 public void testCaseTypeMismatch2() {
 	String newMessage =
 		"----------\n" +
@@ -901,6 +925,7 @@ public void testCaseTypeMismatch2() {
 		newMessage);
 }
 // JDK7: Strings in Switch.
+@Test
 public void testCaseTypeMismatch3() {
 	String newMessage =
 		"----------\n" +
@@ -942,6 +967,7 @@ public void testCaseTypeMismatch3() {
 		newMessage);
 }
 // JDK7: Strings in Switch.
+@Test
 public void testDuplicateCase() {
 		String newMessage =
 			"----------\n" +
@@ -972,6 +998,7 @@ public void testDuplicateCase() {
 }
 
 // JDK7: Strings in Switch.
+@Test
 public void testDuplicateCase2() {
 		String newMessage =
 			"----------\n" +
@@ -1049,6 +1076,7 @@ public void testDuplicateCase2() {
 		newMessage);
 }
 // JDK7: Strings in Switch.
+@Test
 public void testVariableCase() {
 		String newMessage =
 			"----------\n" +
@@ -1098,6 +1126,7 @@ public void testVariableCase() {
 		newMessage);
 }
 // JDK7: Strings in Switch.
+@Test
 public void testVariableCaseFinal() {
 		String newMessage =
 			"----------\n" +
@@ -1132,6 +1161,7 @@ public void testVariableCaseFinal() {
 		newMessage);
 }
 //JDK7: Strings in Switch.
+@Test
 public void testNullCase() {
 		String newMessage =
 			"----------\n" +
@@ -1187,6 +1217,7 @@ public void testNullCase() {
 		newMessage);
 }
 // JDK7: Strings in Switch.
+@Test
 public void testDuplicateCase3() {
 		String newMessage =
 			"----------\n" +
@@ -1258,6 +1289,7 @@ public void testDuplicateCase3() {
 		newMessage);
 }
 
+@Test
 public void testDuplicateHashCode() {
 	String [] sourceFiles =
 		new String[] {
@@ -1302,6 +1334,7 @@ public void testDuplicateHashCode() {
 	};
 	this.runConformTest(sourceFiles, "1 2 3 4 5 6 7 8 Default");
 }
+@Test
 public void testDuplicateHashCode2() {
 	String [] sourceFiles =
 		new String[] {
@@ -1353,6 +1386,7 @@ public void testDuplicateHashCode2() {
 	};
 	this.runConformTest(sourceFiles, "1 3 5 7 8 6 4 2 Default");
 }
+@Test
 public void testSwitchOnNull() {
 	String [] sourceFiles =
 		new String[] {
@@ -1417,6 +1451,7 @@ public void testSwitchOnNull() {
 	};
 	this.runConformTest(sourceFiles, "NPE1NPE2NPE3NPE4NPE5");
 }
+@Test
 public void testSideEffect() {
 	String [] sourceFiles =
 		new String[] {
@@ -1443,6 +1478,7 @@ public void testSideEffect() {
 	};
 	this.runConformTest(sourceFiles, "DONE");
 }
+@Test
 public void testFallThrough() {
 	String [] sourceFiles =
 		new String[] {
@@ -1481,6 +1517,7 @@ public void testFallThrough() {
 	};
 	this.runConformTest(sourceFiles, "0(even) 1(odd) 2(even) 3(odd) 4(even) 5(odd) 6(even) 7(odd) 8(even) 9(odd) DONE");
 }
+@Test
 public void testFallThrough2() {
 	String [] sourceFiles =
 		new String[] {
@@ -1510,6 +1547,7 @@ public void testFallThrough2() {
 	};
 	this.runConformTest(sourceFiles, "1 22 333 4444 DONE");
 }
+@Test
 public void testMarysLamb() {
 	String [] sourceFiles =
 		new String[] {
@@ -1526,6 +1564,7 @@ public void testMarysLamb() {
 	};
 	this.runConformTest(sourceFiles, "Mary Had A Little Lamb");
 }
+@Test
 public void testBreakOut() {
 	String [] sourceFiles =
 		new String[] {
@@ -1547,6 +1586,7 @@ public void testBreakOut() {
 	};
 	this.runConformTest(sourceFiles, "DONE");
 }
+@Test
 public void testMultipleSwitches() {
 	String [] sourceFiles =
 		new String[] {
@@ -1624,6 +1664,7 @@ public void testMultipleSwitches() {
 	};
 	this.runConformTest(sourceFiles, "SundayMondayTuesdayWednesdayThursdayFridaySaturday ---- SundayMondayTuesdayWednesdayThursdayFridaySaturday ---- HolidayWorkdayWorkdayWorkdayWorkdayWorkdayHoliday DONE");
 }
+@Test
 public void testNestedSwitches() {
 	String [] sourceFiles =
 		new String[] {
@@ -1671,6 +1712,7 @@ public void testNestedSwitches() {
 										 "Saturday is a holiday\n" +
 										 "DONE");
 }
+@Test
 public void testFor356002() {
 	String [] sourceFiles =
 		new String[] {
@@ -1693,6 +1735,7 @@ public void testFor356002() {
 	};
 	this.runConformTest(sourceFiles, "DONE");
 }
+@Test
 public void testFor356002_2() {
 	String [] sourceFiles =
 		new String[] {
@@ -1712,6 +1755,7 @@ public void testFor356002_2() {
 	};
 	this.runConformTest(sourceFiles, "DONE");
 }
+@Test
 public void testFor356002_3() {
 	String [] sourceFiles =
 		new String[] {
@@ -1738,6 +1782,7 @@ public void testFor356002_3() {
 	};
 	this.runConformTest(sourceFiles, "DONE");
 }
+@Test
 public void testBug374605() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
@@ -1768,6 +1813,7 @@ public void testBug374605() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927() {
 	this.runConformTest(
 			new String[] {
@@ -1797,6 +1843,7 @@ public void testBug380927() {
 			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927a() {
 	this.runConformTest(
 			new String[] {
@@ -1826,6 +1873,7 @@ public void testBug380927a() {
 			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927b() {
 	this.runConformTest(
 			new String[] {
@@ -1855,6 +1903,7 @@ public void testBug380927b() {
 			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927c() {
 	this.runConformTest(
 			new String[] {
@@ -1884,6 +1933,7 @@ public void testBug380927c() {
 			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927d() {
 	this.runNegativeTest(
 			new String[] {
@@ -1912,6 +1962,7 @@ public void testBug380927d() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927e() {
 	this.runNegativeTest(
 			new String[] {
@@ -1940,6 +1991,7 @@ public void testBug380927e() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927f() {
 	this.runNegativeTest(
 			new String[] {
@@ -1968,6 +2020,7 @@ public void testBug380927f() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+@Test
 public void testBug380927g() {
 	this.runNegativeTest(
 			new String[] {
@@ -1998,6 +2051,7 @@ public void testBug380927g() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383629
 // To check that code gen is ok
+@Test
 public void testBug383629() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2046,6 +2100,7 @@ public void testBug383629() throws Exception {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=381172
 // To check that code gen is ok
+@Test
 public void testBug381172() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2108,6 +2163,7 @@ public void testBug381172() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383643, NPE in problem reporter.
+@Test
 public void test383643() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
@@ -2152,6 +2208,7 @@ public void test383643() {
 		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146 - the fall-through comment is ignored
+@Test
 public void test387146a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -2181,6 +2238,7 @@ public void test387146a() {
 	options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146 - the fall-through comment is respected
+@Test
 public void test387146b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -2210,6 +2268,7 @@ public void test387146b() {
 	options);
 }
 //JDK7: Strings in Switch.
+@Test
 public void test393537() {
 	String [] sourceFiles =
 		new String[] {
@@ -2226,6 +2285,7 @@ public void test393537() {
 	this.runConformTest(sourceFiles, "");
 }
 //JDK7: Strings in Switch.
+@Test
 public void test410892() {
 	String [] sourceFiles =
 		new String[] {
@@ -2247,6 +2307,7 @@ public void test410892() {
 	this.runConformTest(sourceFiles, options);
 }
 //JDK7: Strings in Switch.
+@Test
 public void test410892_2() {
 	String [] sourceFiles =
 		new String[] {
@@ -2268,6 +2329,7 @@ public void test410892_2() {
 	this.runConformTest(sourceFiles, options);
 }
 //JDK7: Strings in Switch.
+@Test
 public void test410892_3() {
 	String [] sourceFiles =
 		new String[] {
@@ -2290,6 +2352,7 @@ public void test410892_3() {
 	this.runConformTest(sourceFiles, options);
 }
 //JDK7: Strings in Switch.
+@Test
 public void test410892_4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -2323,6 +2386,7 @@ public void test410892_4() {
 		options);
 }
 //JDK7: Strings in Switch.
+@Test
 public void test410892_5() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -2356,6 +2420,7 @@ public void test410892_5() {
 		options);
 }
 //JDK7: Strings in Switch.
+@Test
 public void test410892_6() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
@@ -2389,6 +2454,7 @@ public void test410892_6() {
 		true,
 		options);
 }
+@Test
 public void test526911() {
 	String [] sourceFiles =
 		new String[] {
@@ -2493,6 +2559,7 @@ public void test526911() {
 	};
 	this.runConformTest(sourceFiles, "1 11");
 }
+@Test
 public void test526911a() {
 	// target 1.8, run with 9, should work fine
 	if (this.complianceLevel < ClassFileConstants.JDK9)
@@ -2602,6 +2669,7 @@ public void test526911a() {
 	};
 	this.runConformTest(sourceFiles, "1 11", options);
 }
+@Test
 public void testBug533475() {
 	runConformTest(
 		new String[] {
@@ -2634,6 +2702,7 @@ public void testBug533475() {
 			"}\n"
 		});
 }
+@Test
 public void testBug545518() {
 	if (this.complianceLevel >= ClassFileConstants.JDK12)
 		return;
@@ -2659,6 +2728,7 @@ public void testBug545518() {
 		message);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576093
+@Test
 public void testBug576093a() {
 	this.runConformTest(
 			new String[] {
@@ -2686,6 +2756,7 @@ public void testBug576093a() {
 			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576093
+@Test
 public void testBug576093b() {
 	this.runConformTest(
 			new String[] {
@@ -2708,6 +2779,7 @@ public void testBug576093b() {
 			},
 			"Success");
 }
+@Test
 public void testBug443576_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK11) {
 		return;
@@ -2751,6 +2823,7 @@ public void testBug443576_1() {
 	options);
 }
 // Same as above, but keep swap the return and break statements
+@Test
 public void testBug443576_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK11) {
 		return;
@@ -2793,6 +2866,7 @@ public void testBug443576_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1782
 // [Follow up of #1773] For classic string switch, emitted code wastes two local variable slots
+@Test
 public void testGHI1782() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return;
@@ -2863,6 +2937,7 @@ public void testGHI1782() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2190
 // [Enhanced switch] Case null disallowed when switching on arrays
+@Test
 public void testIssue2190() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -2892,6 +2967,7 @@ public void testIssue2190() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
 // [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+@Test
 public void testIssue1777() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -2934,6 +3010,7 @@ public void testIssue1777() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
 // [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+@Test
 public void testIssue1777_2() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -2971,6 +3048,7 @@ public void testIssue1777_2() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
 // [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+@Test
 public void testIssue1777_3() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -3007,6 +3085,7 @@ public void testIssue1777_3() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3274
 // [Enhanced Switch] Compiler tolerates pure expressions in switch rule expressions in a switch statement
+@Test
 public void testIssue3274() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -3042,6 +3121,7 @@ public void testIssue3274() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3276
 // [Switch Expression] Verify error since at least 4.18 on switch expression with instance creation in switch block
+@Test
 public void testIssue3276() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -3072,6 +3152,7 @@ public void testIssue3276() throws Exception {
 	"42");
 }
 
+@Test
 public void testNonConstantCase() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -3101,6 +3182,7 @@ public void testNonConstantCase() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
 // Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+@Test
 public void testIssue3376() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -3155,6 +3237,7 @@ public void testIssue3376() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
 // Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+@Test
 public void testIssue3376_2() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -3186,6 +3269,7 @@ public void testIssue3376_2() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
 // [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+@Test
 public void testIssue3379() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return; // uses switch rules.
@@ -3219,6 +3303,7 @@ public void testIssue3379() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
 // [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+@Test
 public void testIssue3379_2() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return; // uses switch rules.
@@ -3257,6 +3342,7 @@ public void testIssue3379_2() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
 // [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+@Test
 public void testIssue3379_3() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return; // uses switch rules.
@@ -3293,6 +3379,7 @@ public void testIssue3379_3() throws Exception {
 // Duplicate case labels not detected when the two constants have different
 // compile-time kinds but the same value after binary numeric promotion to int,
 // e.g. (byte)0 + (byte)0 (an int constant) vs. a final byte constant 0.
+@Test
 public void testDuplicateCasePromotedConstant() {
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -3316,6 +3403,7 @@ public void testDuplicateCasePromotedConstant() {
 }
 // Same as testDuplicateCasePromotedConstant but with the case labels in the
 // opposite order, to ensure detection is independent of label ordering.
+@Test
 public void testDuplicateCasePromotedConstantReversed() {
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -3339,6 +3427,7 @@ public void testDuplicateCasePromotedConstantReversed() {
 }
 // 'A' (a char constant, value 65) and 65 (an int constant) collide after
 // promotion to int and must be reported as duplicate case labels.
+@Test
 public void testDuplicateCaseCharVsInt() {
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -3357,9 +3446,6 @@ public void testDuplicateCaseCharVsInt() {
 	"	     ^^\n" +
 	"Duplicate case\n" +
 	"----------\n");
-}
-public static Class testClass() {
-	return SwitchTest.class;
 }
 }
 

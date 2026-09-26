@@ -15,15 +15,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Map;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class JavadocTest extends AbstractRegressionTest {
@@ -31,76 +27,15 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	boolean useLibrary = false;
 	static String ZIP_FILE = "/TestJavadocVisibility.zip";
 	static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	public static ArrayList ALL_CLASSES = null;
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
 
 	// Javadoc execution
 	protected static final String JAVADOC_NAME =
 		File.pathSeparatorChar == ':' ? "javadoc" : "javadoc.exe";
-  protected static String javadocCommandLineHeader;
+	protected static String javadocCommandLineHeader;
 
-	static {
-		ALL_CLASSES = new ArrayList();
-		ALL_CLASSES.add(JavadocBugsTest.class);
-		ALL_CLASSES.add(JavadocTestForMethod.class);
-		ALL_CLASSES.add(JavadocTestMixed.class);
-		ALL_CLASSES.add(JavadocTestForClass.class);
-		ALL_CLASSES.add(JavadocTestForConstructor.class);
-		ALL_CLASSES.add(JavadocTestForField.class);
-		ALL_CLASSES.add(JavadocTestForInterface.class);
-		ALL_CLASSES.add(JavadocTestOptions.class);
-	}
-
-
-	public static void addTest(TestSuite suite, Class testClass) {
-		TestSuite innerSuite = new TestSuite(testClass);
-		suite.addTest(innerSuite);
-	}
-
-	public static Test suite() {
-		TestSuite testSuite = new TestSuite(JavadocTest.class.getName());
-
-		// Reset forgotten subsets of tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS = null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-
-		for (int i = 0, size=ALL_CLASSES.size(); i < size; i++) {
-			Class testClass = (Class) ALL_CLASSES.get(i);
-			Test suite = buildAllCompliancesTestSuite(testClass);
-			testSuite.addTest(suite);
-		}
-		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_3.class, ClassFileConstants.JDK1_8));
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_4.class, ClassFileConstants.JDK1_8));
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_5.class, ClassFileConstants.JDK1_8));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_9) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTestForModule.class, ClassFileConstants.JDK9));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_14) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTestForRecord.class, ClassFileConstants.JDK14));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_15) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_15.class, ClassFileConstants.JDK15));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_16) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_15.class, ClassFileConstants.JDK16));
-		}
-		return testSuite;
-	}
-
-	public static Test suiteForComplianceLevel(long level, Class testClass) {
-		TestSuite suite = new RegressionTestSetup(level);
-		buildAllCompliancesTestSuite(suite, testClass);
-		return suite;
-	}
-
-	public JavadocTest(String name) {
-		super(name);
+	public JavadocTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 	@Override
 	protected Map getCompilerOptions() {
@@ -350,6 +285,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@AfterEach
 	@Override
 	protected void tearDown() throws Exception {
 //		SHIFT = false;

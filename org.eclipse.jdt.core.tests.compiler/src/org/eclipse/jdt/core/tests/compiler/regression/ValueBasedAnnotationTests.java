@@ -13,23 +13,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testBug562219_001"};
 	}
-	public static Class<?> testClass() {
-		return ValueBasedAnnotationTests.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
-	}
-	public ValueBasedAnnotationTests(String testName){
-		super(testName);
+	public ValueBasedAnnotationTests(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 	// Enables the tests to run individually
 	@Override
@@ -73,6 +71,7 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
 		runner.runConformTest();
 	}
+	@Test
 	public void testBug571507_001() {
 		this.runWarningTest(
 			new String[] {
@@ -93,6 +92,7 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 			"Integer is a value-based type which is a discouraged argument for the synchronized statement\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug571507_002() {
 		this.runWarningTest(
 			new String[] {
@@ -114,6 +114,7 @@ public class ValueBasedAnnotationTests extends AbstractRegressionTest {
 			"Optional<T> is a value-based type which is a discouraged argument for the synchronized statement\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug571507_003() {
 		this.runConformTest(
 			new String[] {

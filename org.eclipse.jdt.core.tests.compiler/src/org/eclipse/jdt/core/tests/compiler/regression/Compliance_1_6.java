@@ -14,17 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Compliance_1_6 extends AbstractComparableTest {
 
-public Compliance_1_6(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+public Compliance_1_6(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
@@ -37,6 +35,7 @@ static {
 //		TESTS_RANGE = new int[] { 85, -1 };
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=283225
+@Test
 public void test1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());

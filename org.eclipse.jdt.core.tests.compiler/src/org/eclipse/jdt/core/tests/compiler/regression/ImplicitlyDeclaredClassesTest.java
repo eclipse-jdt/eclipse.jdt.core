@@ -16,6 +16,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -30,9 +32,11 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_25)
 public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static boolean optimizeStringLiterals = false;
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 25");
@@ -41,17 +45,10 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NAMES = new String[] {"testImplicitType001"};
 	}
-	public ImplicitlyDeclaredClassesTest(String testName){
-		super(testName);
+	public ImplicitlyDeclaredClassesTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
-	public static Class<?> testClass() {
-		return ImplicitlyDeclaredClassesTest.class;
-	}
-
-	public static junit.framework.Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_25);
-	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		return getCompilerOptions(false);

@@ -30,11 +30,12 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.TestInfo;
 
 public class AbstractRegressionTest9 extends AbstractRegressionTest {
 
-	public AbstractRegressionTest9(String name) {
-		super(name);
+	public AbstractRegressionTest9(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	protected Map<String,IModule> moduleMap = new HashMap<>(); // by name

@@ -14,21 +14,25 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Test class originally capturing issues specific to Java9, but meanwhile also just a continuation
  * of GenericsRegressionTest_1_8.
  */
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class GenericsRegressionTest_9 extends AbstractRegressionTest9 {
 
 static {
@@ -36,14 +40,12 @@ static {
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public GenericsRegressionTest_9(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_9);
+public GenericsRegressionTest_9(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5193
+@Test
 public void testGH5193() {
 	if (this.complianceLevel < ClassFileConstants.JDK10)
 		return; // uses 'var'
@@ -73,6 +75,7 @@ public void testGH5193() {
 		""");
 }
 
+@Test
 public void testGH5193ProblemBindingCannotInferDiamondConstructor() {
 	ProblemReferenceBinding missingType = new ProblemReferenceBinding(
 		new char[][] { "Missing".toCharArray() }, null, ProblemReasons.NotFound);
@@ -81,6 +84,7 @@ public void testGH5193ProblemBindingCannotInferDiamondConstructor() {
 }
 
 // vanilla test case
+@Test
 public void testBug488663_001() {
 	this.runConformTest(
 		new String[] {
@@ -113,6 +117,7 @@ public void testBug488663_001() {
 }
 
 // negative test case for diamond operator instantiation of denotable anonymous type but with parameterized method
+@Test
 public void testBug488663_002() {
 	this.runNegativeTest(
 		new String[] {
@@ -155,6 +160,7 @@ public void testBug488663_002() {
 }
 
 // diamond operator instantiation of denotable anonymous types with different type params
+@Test
 public void testBug488663_003() {
 	this.runConformTest(
 		new String[] {
@@ -174,6 +180,7 @@ public void testBug488663_003() {
 }
 
 // inner classes with diamond operator and anonymous classes
+@Test
 public void testBug488663_004() {
 	this.runConformTest(
 		new String[] {
@@ -194,6 +201,7 @@ public void testBug488663_004() {
 }
 
 // compiler error for non-denotable anonymous type with diamond operator - negative test
+@Test
 public void testBug488663_005() {
 	this.runNegativeTest(
 			new String[] {
@@ -218,6 +226,7 @@ public void testBug488663_005() {
 }
 
 //compiler error for non-denotable anonymous type with diamond operator - negative test
+@Test
 public void testBug488663_006() {
 	this.runNegativeTest(
 			new String[] {
@@ -242,6 +251,7 @@ public void testBug488663_006() {
 
 }
 // instantiate an interface using the anonymous diamond
+@Test
 public void testBug488663_007() {
 	this.runConformTest(
 		new String[] {
@@ -271,6 +281,7 @@ public void testBug488663_007() {
 		"Success");
 }
 // anonymous diamond instantiating interface as argument to an invocation
+@Test
 public void testBug488663_008() {
 	this.runConformTest(
 		new String[] {
@@ -302,6 +313,7 @@ public void testBug488663_008() {
 		"Success");
 }
 // anonymous diamond instantiating an abstract class as argument to an invocation
+@Test
 public void testBug488663_009() {
 	this.runConformTest(
 		new String[] {
@@ -334,6 +346,7 @@ public void testBug488663_009() {
 		"Success");
 }
 // anonymous diamond with polytype argument
+@Test
 public void testBug488663_010() {
 	this.runConformTest(
 		new String[] {
@@ -360,6 +373,7 @@ public void testBug488663_010() {
 		"Done");
 }
 // anonymous diamond with polytype argument
+@Test
 public void testBug488663_011() {
 	this.runConformTest(
 		new String[] {
@@ -389,6 +403,7 @@ public void testBug488663_011() {
 		"Done");
 }
 // Nested anonymous diamonds - TODO - confirm that this is indeed correct as per spec
+@Test
 public void testBug488663_012() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -426,6 +441,7 @@ public void testBug488663_012() {
 	runner.runConformTest();
 }
 // Redundant type argument specification - TODO - confirm that this is correct
+@Test
 public void testBug488663_013() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -466,6 +482,7 @@ public void testBug488663_013() {
 	runner.runNegativeTest();
 }
 // All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
+@Test
 public void testBug488663_014() {
 	this.runNegativeTest(
 		new String[] {
@@ -507,6 +524,7 @@ public void testBug488663_014() {
 		"----------\n");
 }
 // Inaccessible type inferred for anonymous diamond is an error
+@Test
 public void testBug488663_015() {
 	this.runNegativeTest(
 		new String[] {
@@ -548,6 +566,7 @@ public void testBug488663_015() {
 		"----------\n");
 }
 // Inaccessible type inferred for anonymous diamond is an error - interface case
+@Test
 public void testBug488663_016() {
 	this.runNegativeTest(
 		new String[] {
@@ -584,6 +603,7 @@ public void testBug488663_016() {
 		"----------\n");
 }
 // All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
+@Test
 public void testBug517926() {
 	this.runNegativeTest(
 		new String[] {
@@ -622,6 +642,7 @@ public void testBug517926() {
 		"The method name() of type new I<X>(){} must override or implement a supertype method\n" +
 		"----------\n");
 }
+@Test
 public void testBug521815a() {
 	runNegativeTest(
 			new String[] {
@@ -648,6 +669,7 @@ public void testBug521815a() {
 			"The type Inner is ambiguous\n" +
 			"----------\n");
 }
+@Test
 public void testBug521815b() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
 		return;
@@ -680,6 +702,7 @@ public void testBug521815b() {
 	runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void testBug533644() {
 	runConformTest(
 		new String[] {
@@ -730,6 +753,7 @@ public void testBug533644() {
 //As All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override,
 //"Remove redundant type arguments" diagnostic should be reported ONLY if all the non-private methods defined in the anonymous class
 //are also present in the parent class.
+@Test
 public void testBug551913_001() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -755,6 +779,7 @@ public void testBug551913_001() {
 // As All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override,
 // "Remove redundant type arguments" diagnostic should be reported ONLY if all the non-private methods defined in the anonymous class
 // are also present in the parent class.
+@Test
 public void testBug551913_002() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -785,6 +810,7 @@ public void testBug551913_002() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=551913
+@Test
 public void testBug551913_003() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -815,6 +841,7 @@ public void testBug551913_003() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=551913
+@Test
 public void testBug551913_004() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -837,6 +864,7 @@ public void testBug551913_004() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // Recommendation from compiler to drop type arguments leads to compile error
+@Test
 public void testGH1506() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -870,6 +898,7 @@ public void testGH1506() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // Recommendation from compiler to drop type arguments leads to compile error
+@Test
 public void testGH1506_2() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -911,6 +940,7 @@ public void testGH1506_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // Recommendation from compiler to drop type arguments leads to compile error
+@Test
 public void testGH1506_3() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -941,6 +971,7 @@ public void testGH1506_3() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1506
 // Recommendation from compiler to drop type arguments leads to compile error
+@Test
 public void testGH1506_4() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -971,6 +1002,7 @@ public void testGH1506_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1560
 // ECJ recommends diamond when using it would result in non-denotable types.
+@Test
 public void testGH1560() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -1023,6 +1055,7 @@ public void testGH1560() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1560
 // ECJ recommends diamond when using it would result in non-denotable types.
+@Test
 public void testGH1560_2() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
@@ -1073,6 +1106,7 @@ public void testGH1560_2() {
 		+ "----------\n",
 		null, true, options);
 }
+@Test
 public void testGH2817() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -1093,6 +1127,7 @@ public void testGH2817() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGH3501() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -1117,6 +1152,7 @@ public void testGH3501() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH3457() {
 	runConformTest(new String[] {
 		"Test.java",
@@ -1137,6 +1173,7 @@ public void testGH3457() {
 		"""
 	});
 }
+@Test
 public void testGH3457b() {
 	runConformTest(new String[] {
 		"QueryUtil.java",
@@ -1160,6 +1197,7 @@ public void testGH3457b() {
 		"""
 	});
 }
+@Test
 public void testGH3457c() {
 	runConformTest(new String[] {
 		"QueryUtil.java",
@@ -1184,6 +1222,7 @@ public void testGH3457c() {
 		"""
 	});
 }
+@Test
 public void testGH3948() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -1220,6 +1259,7 @@ public void testGH3948() {
 	runner.javacTestOptions = JavacHasABug.JavacBug8387487;
 	runner.runConformTest();
 }
+@Test
 public void testGH4022a() {
 	runConformTest(new String[] {
 			"Bug.java",
@@ -1250,6 +1290,7 @@ public void testGH4022a() {
 			"""
 		});
 }
+@Test
 public void testGH4022b() {
 	runConformTest(new String[] {
 			"OtherExample.java",
@@ -1277,6 +1318,7 @@ public void testGH4022b() {
 			"""
 		});
 }
+@Test
 public void testGH4033() {
 	runConformTest(new String[] {
 			"Snippet.java",
@@ -1302,6 +1344,7 @@ public void testGH4033() {
 			"""
 		});
 }
+@Test
 public void testGH4039() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -1329,6 +1372,7 @@ public void testGH4039() {
 	runner.runConformTest();
 }
 
+@Test
 public void testGH4003() {
 	if (this.complianceLevel < ClassFileConstants.JDK10)
 		return; // uses 'var'
@@ -1387,6 +1431,7 @@ public void testGH4003() {
 	});
 }
 
+@Test
 public void testGH4098() {
 	runConformTest(new String[] {
 		"ClassA.java",
@@ -1407,6 +1452,7 @@ public void testGH4098() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3907
 // Compilation error on full build but not on incremental build due to @deprecated
+@Test
 public void testIssue3907() {
 	runConformTest(new String[] {
 		"LoadExtension.java",
@@ -1443,6 +1489,7 @@ public void testIssue3907() {
 		"""
 	});
 }
+@Test
 public void testIssue3907_since() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -1490,6 +1537,7 @@ public void testIssue3907_since() {
 			""";
 	runner.runWarningTest();
 }
+@Test
 public void testGH4308() {
 	runConformTest(new String[] {
 			"ClassA.java",
@@ -1547,6 +1595,7 @@ public void testGH4308() {
 		},
 		"replay");
 }
+@Test
 public void testGH4392() {
 	runConformTest(new String[] {
 			"AFactory.java",
@@ -1562,6 +1611,7 @@ public void testGH4392() {
 			}
 			"""});
 }
+@Test
 public void testGH4402() {
 	runConformTest(new String[] {
 			"Main.java",
@@ -1629,6 +1679,7 @@ public void testGH4402() {
 		},
 		"");
 }
+@Test
 public void testGH4346() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return; // uses records
@@ -1653,6 +1704,7 @@ public void testGH4346() {
 			"""
 	});
 }
+@Test
 public void testGH4498() {
 	runConformTest(new String[] {
 			"AFactory.java",
@@ -1670,6 +1722,7 @@ public void testGH4498() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4503
 // [Mockito] Compilation error "Unhandled exception type Throwable"
+@Test
 public void testIssue4503_differs_from_javac() {
 	runConformTest(new String[] {
 			"X.java",
@@ -1700,6 +1753,7 @@ public void testIssue4503_differs_from_javac() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4503
 // [Mockito] Compilation error "Unhandled exception type Throwable"
+@Test
 public void testIssue4503_matches_with_javac() {
 	runNegativeTest(new String[] {
 			"X.java",
@@ -1734,6 +1788,7 @@ public void testIssue4503_matches_with_javac() {
 			"Unhandled exception type Throwable\n" +
 			"----------\n");
 }
+@Test
 public void testGH4715() {
 	runConformTest(new String[] {
 		"TestMain.java",
@@ -1767,6 +1822,7 @@ public void testGH4715() {
 		"""
 	});
 }
+@Test
 public void testGH4533() {
 	runConformTest(new String[] {
 		"X.java",
@@ -1800,6 +1856,7 @@ public void testGH4533() {
 		"""
 	});
 }
+@Test
 public void testGH4281() {
 	runConformTest(new String[] {
 		"InferenceTest.java",
@@ -1821,6 +1878,7 @@ public void testGH4281() {
 		"""
 	});
 }
+@Test
 public void testGH1501() {
 	runNegativeTest(new String[] {
 			"Test.java",
@@ -1884,6 +1942,7 @@ public void testGH1501() {
 		----------
 		""");
 }
+@Test
 public void testGH4463() {
 	runConformTest(new String[] {
 		"A.java",
@@ -1903,6 +1962,7 @@ public void testGH4463() {
 		"""
 	});
 }
+@Test
 public void testGH4463b() {
 	runConformTest(new String[] {
 		"A.java",
@@ -1924,6 +1984,7 @@ public void testGH4463b() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4550
 // Static interface methods excluded from type variable membership
+@Test
 public void testIssue4550() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -1962,6 +2023,7 @@ public void testIssue4550() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testGH4635() {
 	runConformTest(new String[] {
 		"Test.java",
@@ -2000,6 +2062,7 @@ public void testGH4635() {
 
 	});
 }
+@Test
 public void testGH4604() {
 	runConformTest(new String[] {
 			"X.java",
@@ -2020,6 +2083,7 @@ public void testGH4604() {
 			"""
 		});
 }
+@Test
 public void testGH4699_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
 	runConformTest(new String[] {
@@ -2042,6 +2106,7 @@ public void testGH4699_1() {
 			"""
 		});
 }
+@Test
 public void testGH4699_full() {
 	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
 	runConformTest(new String[] {
@@ -2076,6 +2141,7 @@ public void testGH4699_full() {
 		});
 }
 
+@Test
 public void testGH4810() {
 	runConformTest(new String[] {
 			"Repro.java",
@@ -2109,6 +2175,7 @@ public void testGH4810() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4864
 // Cannot infer type arguments with ecj 3.44.0 but not with 3.43.0
+@Test
 public void testIssue4864() {
 	runConformTest(new String[] {
 			"X.java",
@@ -2147,6 +2214,7 @@ public void testIssue4864() {
 	});
 }
 
+@Test
 public void testGH5052() {
 	runConformTest(new String[] {
 			"Freeze.java",
@@ -2177,6 +2245,7 @@ public void testGH5052() {
 		},
 		"map.consume");
 }
+@Test
 public void testGH5028() {
 	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
 	runConformTest(new String[] {
@@ -2214,6 +2283,7 @@ public void testGH5028() {
 			"""});
 }
 
+@Test
 public void testListRewrite() {
 	// previously this triggered an unchecked warning
 	runNegativeTest(new String[] {
@@ -2241,6 +2311,7 @@ public void testListRewrite() {
 		----------
 		""");
 }
+@Test
 public void testGH4774() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK16) return; // uses records
 	Runner runner = new Runner();
@@ -2268,6 +2339,7 @@ public void testGH4774() throws Exception {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGH4774b() throws Exception {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -2293,6 +2365,7 @@ public void testGH4774b() throws Exception {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testGH4731() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -2327,6 +2400,7 @@ public void testGH4731() {
 	runner.javacTestOptions = JavacHasABug.JavacBug8016207;
 	runner.runNegativeTest();
 }
+@Test
 public void testGH4937() {
 	runConformTest(new String[] {
 		"A.java",
@@ -2347,6 +2421,7 @@ public void testGH4937() {
 	});
 }
 
+@Test
 public void testGH3351() {
 	// error message is bogus (see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5078)
 	// but rejecting is in line with javac
@@ -2383,6 +2458,7 @@ public void testGH3351() {
 		----------
 		""");
 }
+@Test
 public void testGH3367() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -2404,6 +2480,7 @@ public void testGH3367() {
 	runner.runConformTest();
 }
 
+@Test
 public void testGH4984() throws Exception {
 	runConformTest(new String[] {
 		"MyCall.java",
@@ -2433,6 +2510,7 @@ public void testGH4984() throws Exception {
 		""" });
 }
 
+@Test
 public void testGH4893() throws Exception  {
 	runConformTest(new String[] {
 		"Bug.java",
@@ -2471,6 +2549,7 @@ public void testGH4893() throws Exception  {
 		"""
 	});
 }
+@Test
 public void testJDK8375572() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -2510,6 +2589,7 @@ public void testJDK8375572() {
 	runner.javacTestOptions = JavacHasABug.JavacBug8375572;
 	runner.runConformTest();
 }
+@Test
 public void testGH5219() {
 	runConformTest(new String[] {"Test.java",
 			"""
@@ -2532,6 +2612,7 @@ public void testGH5219() {
 			"");
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5214
+@Test
 public void testIssue5214() {
 	runNegativeTest(new String[] {"X.java",
 			"""

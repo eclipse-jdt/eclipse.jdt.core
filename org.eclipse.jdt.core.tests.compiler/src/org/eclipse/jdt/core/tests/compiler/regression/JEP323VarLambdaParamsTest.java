@@ -15,11 +15,15 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_11)
 public class JEP323VarLambdaParamsTest extends AbstractRegressionTest {
 
 public static Class testClass() {
@@ -29,12 +33,8 @@ public static Class testClass() {
 public void initialize(CompilerTestSetup setUp) {
 	super.initialize(setUp);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_11);
-}
-
-public JEP323VarLambdaParamsTest(String testName){
-	super(testName);
+public JEP323VarLambdaParamsTest(Compliance compliance, TestInfo info){
+	super(compliance, info);
 }
 static {
 //	TESTS_NUMBERS = new int[] { 1 };
@@ -50,6 +50,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 
+@Test
 public void testBug534787_positive_001() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -66,6 +67,7 @@ public void testBug534787_positive_001() throws IOException {
 			},
 			"SUCCESS 20");
 }
+@Test
 public void testBug534787_positive_002() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -82,6 +84,7 @@ public void testBug534787_positive_002() throws IOException {
 			},
 			"SUCCESS 220");
 }
+@Test
 public void testBug534787_positive_003() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -98,6 +101,7 @@ public void testBug534787_positive_003() throws IOException {
 			},
 			"SUCCESS 10");
 }
+@Test
 public void testBug534787_positive_004() throws IOException {
 	this.runConformTest(
 			new String[] {
@@ -114,6 +118,7 @@ public void testBug534787_positive_004() throws IOException {
 			},
 			"SUCCESS 10");
 }
+@Test
 public void testBug534787_negative_001() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -149,6 +154,7 @@ public void testBug534787_negative_001() throws IOException {
 			"Syntax error, insert \")\" to complete Expression\n" +
 			"----------\n");
 }
+@Test
 public void testBug534787_negative_002() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -170,6 +176,7 @@ public void testBug534787_negative_002() throws IOException {
 			"\'var\' cannot be mixed with non-var parameters\n" +
 			"----------\n");
 }
+@Test
 public void testBug534787_negative_003() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -191,6 +198,7 @@ public void testBug534787_negative_003() throws IOException {
 			"'var' cannot be mixed with non-var parameters\n" +
 			"----------\n");
 }
+@Test
 public void testBug534787_negative_004() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -212,6 +220,7 @@ public void testBug534787_negative_004() throws IOException {
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
+@Test
 public void testBug534787_negative_005() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -239,6 +248,7 @@ public void testBug534787_negative_005() throws IOException {
 			"----------\n");
 }
 
+@Test
 public void testBug534787_negative_006() throws IOException {
 	this.runNegativeTest(
 			new String[] {
@@ -259,6 +269,7 @@ public void testBug534787_negative_006() throws IOException {
 			"Syntax error on token \"x\", delete this token\n" +
 			"----------\n");
 }
+@Test
 public void testBug536159_01() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
@@ -272,6 +283,7 @@ public void testBug536159_01() throws IOException {
 			+ "}"
 	});
 }
+@Test
 public void testBug536159_02() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
@@ -285,6 +297,7 @@ public void testBug536159_02() throws IOException {
 			+ "}"
 	});
 }
+@Test
 public void testBug536159_03() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
@@ -298,6 +311,7 @@ public void testBug536159_03() throws IOException {
 			+ "}"
 	});
 }
+@Test
 public void testBug536159_04() throws IOException {
 	runNegativeTest(new String[] {
 			"X.java",
@@ -317,6 +331,7 @@ public void testBug536159_04() throws IOException {
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
+@Test
 public void testBug541532_01() throws IOException {
 	runConformTest(new String[] {
 			"X.java",
@@ -344,6 +359,7 @@ public void testBug541532_01() throws IOException {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4159
 // [LVTI/var] ECJ allows type arguments to be specified with the reserved type name var
+@Test
 public void testIssue4159() throws IOException {
 	runNegativeTest(new String[] {
 			"X.java",
@@ -368,6 +384,7 @@ public void testIssue4159() throws IOException {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4593
 // Type-use annotations on var lambda parameter should be rejected
+@Test
 public void testIssue4593() throws IOException {
 	runNegativeTest(new String[] {
 			"X.java",

@@ -22,4 +22,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface MinimalCompliance {
 	/** Per-class minimal compliance encoded by one of the constants {@link AbstractCompilerTest#F_1_8} ff. */
 	int value();
+	boolean singleVersion() default false;
 }

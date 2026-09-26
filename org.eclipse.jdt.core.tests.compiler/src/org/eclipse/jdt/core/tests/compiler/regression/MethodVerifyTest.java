@@ -25,7 +25,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -36,6 +35,8 @@ import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MethodVerifyTest extends AbstractComparableTest {
@@ -45,16 +46,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
 
-	public MethodVerifyTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildComparableTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return MethodVerifyTest.class;
+	public MethodVerifyTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -68,6 +61,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		return "The method " + method + " of type " + type +
 			" must override or implement a supertype method\n";
 	}
+	@Test
 	public void test001() {
 		this.runNegativeTest(
 			new String[] {
@@ -86,6 +80,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test001a() {
 		this.runNegativeTest(
 				new String[] {
@@ -108,6 +103,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				// J is not abstract and does not override abstract method foo(A) in I
 			);
 	}
+	@Test
 	public void test001b() {
 		this.runNegativeTest(
 			new String[] {
@@ -129,6 +125,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(T) in YY<T> and foo(U) in X have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test001c() {
 		this.runNegativeTest(
 				new String[] {
@@ -155,6 +152,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
 		);
 	}
+	@Test
 	public void test001d() {
 		this.runConformTest(
 				new String[] {
@@ -165,6 +163,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				""
 		);
 	}
+	@Test
 	public void test001e() {
 		this.runConformTest(
 				new String[] {
@@ -176,6 +175,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test002() { // separate files
 		this.runNegativeTest(
 			new String[] {
@@ -194,6 +194,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(T) in Y<T> and foo(U) in X<A> have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test002a() { // separate files
 		this.runNegativeTest(
 			new String[] {
@@ -217,6 +218,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// J is not abstract and does not override abstract method foo(A) in I
 		);
 	}
+	@Test
 	public void test002b() { // separate files
 		this.runNegativeTest(
 			new String[] {
@@ -239,6 +241,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(T) in YY<T> and foo(U) in X have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test002c() { // separate files
 		this.runNegativeTest(
 			new String[] {
@@ -266,6 +269,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
 		);
 	}
+	@Test
 	public void test002d() { // separate files
 		this.runConformTest(
 			new String[] {
@@ -277,6 +281,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test002e() { // separate files
 		this.runConformTest(
 			new String[] {
@@ -289,6 +294,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test003() { // pick up superTypes as binaries
 		this.runConformTest(
 			new String[] {
@@ -320,6 +326,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null
 		);
 	}
+	@Test
 	public void test003a() { // pick up superTypes as binaries
 		this.runConformTest(
 			new String[] {
@@ -356,6 +363,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null
 		);
 	}
+	@Test
 	public void test003b() {
 		this.runConformTest(
 			new String[] {
@@ -392,6 +400,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null
 		);
 	}
+	@Test
 	public void test003c() {
 		this.runConformTest(
 			new String[] {
@@ -433,6 +442,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null
 		);
 	}
+	@Test
 	public void test003d() {
 		this.runConformTest(
 			new String[] {
@@ -458,6 +468,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null
 		);
 	}
+	@Test
 	public void test003e() {
 		this.runConformTest(
 			new String[] {
@@ -484,6 +495,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test004() { // all together
 		this.runNegativeTest(
 			new String[] {
@@ -549,6 +561,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test005() { // separate files
 		this.runNegativeTest(
 			new String[] {
@@ -625,6 +638,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test006() { // pick up superTypes as binaries
 		this.runConformTest(
 			new String[] {
@@ -708,6 +722,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test007() { // simple covariance cases
 		this.runConformTest(
 			new String[] {
@@ -721,6 +736,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test007a() { // simple covariance cases
 		this.runNegativeTest(
 			new String[] {
@@ -739,6 +755,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void test007b() { // simple covariance cases
 		this.runConformTest(
 			new String[] {
@@ -752,6 +769,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test007c() { // simple covariance cases
 		this.runConformTest(
 			new String[] {
@@ -765,6 +783,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test007d() { // simple covariance cases
 		this.runConformTest(
 			new String[] {
@@ -777,6 +796,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test007e() { // simple covariance cases
 		this.runNegativeTest(
 			new String[] {
@@ -794,6 +814,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void test007f() { // simple covariance cases
 		this.runNegativeTest(
 			new String[] {
@@ -810,6 +831,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test008() { // covariance test
 		this.runNegativeTest(
 			new String[] {
@@ -830,6 +852,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test009() {
 		this.runNegativeTest(
 			new String[] {
@@ -847,6 +870,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(G<A>) in A and foo(G<I>) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test009a() {
 		this.runNegativeTest(
 			new String[] {
@@ -865,6 +889,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test010() { // executable bridge method case
 		this.runConformTest(
 			new String[] {
@@ -896,6 +921,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test011() {
 		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
@@ -915,6 +941,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// <T>foo(T) in A cannot implement <T>foo(T) in I; attempting to assign weaker access privileges; was public
 		);
 	}
+	@Test
 	public void test011a() {
 		this.runNegativeTest(
 			new String[] {
@@ -933,6 +960,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <T,S>foo(T) in A and <T>foo(T) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test011b() {
 		this.runNegativeTest(
 			new String[] {
@@ -952,6 +980,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test012() {
 		this.runNegativeTest(
 			new String[] {
@@ -968,6 +997,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// foo(java.lang.Object) in Y1 cannot override <T>foo(T) in A; attempting to assign weaker access privileges; was public
 		);
 	}
+	@Test
 	public void test012a() {
 		this.runNegativeTest(
 			new String[] {
@@ -984,6 +1014,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// foo(java.lang.Object[]) in Y2 cannot override <T>foo(T[]) in A; attempting to assign weaker access privileges; was public
 		);
 	}
+	@Test
 	public void test012b() {
 		this.runNegativeTest(
 			new String[] {
@@ -1001,6 +1032,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test013() {
 		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runConformTest(
@@ -1014,6 +1046,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test013a() {
 		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
@@ -1033,6 +1066,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <T,S>foo(java.lang.Class<T>) in A and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test013b() {
 		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
@@ -1052,6 +1086,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <T>foo(java.lang.Class<T>) in A and <T,S>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test013c() {
 		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
@@ -1071,6 +1106,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <T,S>foo(java.lang.Class<T>) in A and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test013d() {
 		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
@@ -1090,6 +1126,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <T>foo(java.lang.Class<T>) in A and <T,S>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test013e() {
 		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
@@ -1111,6 +1148,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test014() { // name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1122,6 +1160,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test014a() { // name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1133,6 +1172,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test014b() { // name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1144,6 +1184,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test014c() { // name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1155,6 +1196,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test014d() { // name clash tests
 		this.runNegativeTest(
 			new String[] {
@@ -1177,6 +1219,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in X have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test014e() { // name clash tests
 		this.runNegativeTest(
 			new String[] {
@@ -1200,6 +1243,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test015() { // more name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1212,6 +1256,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test015a() { // more name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1224,6 +1269,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test015b() { // more name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1236,6 +1282,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test015c() { // more name clash tests
 		this.runConformTest(
 			new String[] {
@@ -1248,6 +1295,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test015d() { // more name clash tests
 		this.runNegativeTest(
 			new String[] {
@@ -1271,6 +1319,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test015e() { // more name clash tests
 		this.runNegativeTest(
 			new String[] {
@@ -1295,6 +1344,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test016() { // 73971
 		this.runConformTest(
 			new String[] {
@@ -1313,6 +1363,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"A=class AB=class B"
 		);
 	}
+	@Test
 	public void test016b() { // 73971
 		this.runConformTest(
 			new String[] {
@@ -1332,6 +1383,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test017() { // 77785
 		this.runNegativeTest(
 			new String[] {
@@ -1349,6 +1401,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: test(X<java.lang.Number>) in Z and test(X<? extends java.lang.Number>) in Y have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test017a() { // 77785
 		this.runNegativeTest(
 			new String[] {
@@ -1367,6 +1420,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test018() { // 77861
 		this.runNegativeTest(
 			new String[] {
@@ -1386,6 +1440,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test019() { // 78140
 		this.runConformTest(
 			new String[] {
@@ -1401,6 +1456,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test020() { // 78232
 		this.runConformTest(
 			new String[] {
@@ -1440,6 +1496,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test021() {
 		this.runNegativeTest(
 			new String[] {
@@ -1488,6 +1545,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test022() { // 77562
 		this.runConformTest(
 			new String[] {
@@ -1499,6 +1557,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test022a() { // 77562
 		this.runNegativeTest(
 			new String[] {
@@ -1522,6 +1581,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test023() { // 80739
 		this.runNegativeTest(
 			new String[] {
@@ -1542,6 +1602,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test024() { // 80626
 		this.runConformTest(
 			new String[] {
@@ -1557,6 +1618,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// no complaint
 		);
 	}
+	@Test
 	public void test024a() { // 80626
 		this.runNegativeTest(
 			new String[] {
@@ -1577,6 +1639,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <E>m(E) in B and m(java.lang.Object) in A have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test024b() { // 80626
 		this.runNegativeTest(
 			new String[] {
@@ -1601,6 +1664,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test025() { // 81618
 		this.runNegativeTest(
 			new String[] {
@@ -1626,6 +1690,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
 	}
+	@Test
 	public void test025a() { // 81618
 		this.runNegativeTest(
 			new String[] {
@@ -1651,6 +1716,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
 	}
+	@Test
 	public void test025b() { // 81618
 		this.runConformTest(
 			new String[] {
@@ -1670,6 +1736,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1"
 		);
 	}
+	@Test
 	public void test025c() { // 81618
 		this.runConformTest(
 			new String[] {
@@ -1689,6 +1756,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1"
 		);
 	}
+	@Test
 	public void test025d() { // 81618
 		this.runConformTest(
 			new String[] {
@@ -1706,6 +1774,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1"
 		);
 	}
+	@Test
 	public void test025e() { // 81618
 		this.runConformTest(
 			true,
@@ -1740,6 +1809,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
+	@Test
 	public void test025f() { // 81618
 		this.runConformTest(
 			true,
@@ -1775,6 +1845,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test026() {
 		this.runConformTest(
 			new String[] {
@@ -1803,6 +1874,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"class B & class C & class D"
 		);
 	}
+	@Test
 	public void test026a() {
 		this.runConformTest(
 			new String[] {
@@ -1819,6 +1891,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test026b() {
 		this.runConformTest(
 			new String[] {
@@ -1831,6 +1904,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test026c() {
 		this.runNegativeTest(
 			new String[] {
@@ -1863,6 +1937,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	@Test
 	public void test027() {
 		this.runConformTest(
 			new String[] {
@@ -1874,6 +1949,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	@Test
 	public void test027a() {
 		this.runNegativeTest(
 			new String[] {
@@ -1891,6 +1967,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	@Test
 	public void test027b() {
 		this.runConformTest(
 			new String[] {
@@ -1902,6 +1979,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	@Test
 	public void test027c() {
 		this.runNegativeTest(
 			new String[] {
@@ -1919,6 +1997,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	@Test
 	public void test027d() {
 		this.runNegativeTest(
 			new String[] {
@@ -1947,6 +2026,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81727
+	@Test
 	public void test028() {
 		this.runConformTest(
 			new String[] {
@@ -1961,6 +2041,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81568
+	@Test
 	public void test029() {
 		this.runConformTest(
 			new String[] {
@@ -1975,6 +2056,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81535
+	@Test
 	public void test030() {
 		java.util.Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -1999,6 +2081,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80743
+	@Test
 	public void test031() {
 		this.runNegativeTest(
 			new String[] {
@@ -2016,6 +2099,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=113273
+	@Test
 	public void test032() {
 		// NOTE: javac only reports these errors when the problem type follows the bounds
 		// if the type X is defined first, then no errors are reported
@@ -2032,6 +2116,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=113273
+	@Test
 	public void test032a() {
 		this.runNegativeTest(
 			new String[] {
@@ -2050,6 +2135,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=113273
+	@Test
 	public void test032b() {
 		this.runNegativeTest(
 			new String[] {
@@ -2077,6 +2163,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80745
+	@Test
 	public void test033() {
 		this.runConformTest(
 			new String[] {
@@ -2098,6 +2185,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80745
+	@Test
 	public void test033a() {
 		this.runConformTest(
 			new String[] {
@@ -2121,6 +2209,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	@Test
 	public void test034() {
 		this.runConformTest(
 			new String[] {
@@ -2133,6 +2222,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	@Test
 	public void test034a() {
 		this.runConformTest(
 			new String[] {
@@ -2146,6 +2236,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	@Test
 	public void test034b() {
 		this.runNegativeTest(
 			new String[] {
@@ -2174,6 +2265,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	@Test
 	public void test034c() {
 		this.runNegativeTest(
 			new String[] {
@@ -2197,6 +2289,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	@Test
 	public void test034d() {
 		this.runNegativeTest(
 			new String[] {
@@ -2226,6 +2319,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80626
+	@Test
 	public void test035() {
 		this.runNegativeTest(
 			new String[] {
@@ -2244,6 +2338,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80626
+	@Test
 	public void test035a() {
 		this.runNegativeTest(
 			new String[] {
@@ -2264,6 +2359,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036() { // 2 interface cases
 		// no bridge methods are created in these conform cases so no name clashes can occur
 		this.runConformTest(
@@ -2283,6 +2379,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036a() { // 2 interface cases
 		this.runConformTest(
 			new String[] {
@@ -2303,6 +2400,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036b() { // 2 interface cases
 		this.runConformTest(
 			new String[] {
@@ -2321,6 +2419,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036c() { // 2 interface cases
 		this.runConformTest(
 			new String[] {
@@ -2341,6 +2440,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036d() { // 2 interface cases
 		// in these cases, bridge methods are needed once abstract/concrete methods are defiined (either in the abstract class or a concrete subclass)
 		this.runNegativeTest(
@@ -2360,6 +2460,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036e() { // 2 interface cases
 		this.runNegativeTest(
 			new String[] {
@@ -2390,6 +2491,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036f() { // 2 interface cases
 		// NOTE: javac has a bug, reverse the implemented interfaces & the name clash goes away
 		// but eventually when a concrete subclass must define the remaining method, the error shows up
@@ -2412,6 +2514,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	@Test
 	public void test036g() { // 2 interface cases
 		this.runNegativeTest(
 			new String[] {
@@ -2432,6 +2535,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test037() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
@@ -2476,6 +2580,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" +
 			"----------\n");
 	}
+	@Test
 	public void test037a() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
@@ -2499,6 +2604,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(A<java.lang.String>) in XX and foo(A) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test037b() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
@@ -2555,6 +2661,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void test037c() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
@@ -2578,6 +2685,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in I have the same erasure, yet neither overrides the other
 		);
 	}
+	@Test
 	public void test037d() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
@@ -2601,6 +2709,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// foo(A) in Y cannot implement foo(A<java.lang.String>) in I; attempting to assign weaker access privileges; was public
 		);
 	}
+	@Test
 	public void test037e() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
@@ -2619,6 +2728,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test038() {
 		this.runConformTest(
 			new String[] {
@@ -2630,6 +2740,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test038a() {
 		this.runNegativeTest(
 			new String[] {
@@ -2651,6 +2762,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83573
+	@Test
 	public void test039() {
 		this.runConformTest(
 			new String[] {
@@ -2684,6 +2796,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	@Test
 	public void test040() {
 		this.runNegativeTest(
 			new String[] {
@@ -2695,6 +2808,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	@Test
 	public void test040a() {
 		this.runNegativeTest(
 			new String[] {
@@ -2712,6 +2826,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	@Test
 	public void test040b() {
 		this.runNegativeTest(
 			new String[] {
@@ -2735,6 +2850,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	@Test
 	public void test040c() {
 		this.runNegativeTest(
 			new String[] {
@@ -2767,6 +2883,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	@Test
 	public void test040d() {
 		this.runNegativeTest(
 			new String[] {
@@ -2800,6 +2917,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	@Test
 	public void test041() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		runConformTest(
 			true,
@@ -2822,6 +2940,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	@Test
 	public void test041a() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runConformTest(
 			true,
@@ -2844,6 +2963,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	@Test
 	public void test041b() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runConformTest(
 			new String[] {
@@ -2864,6 +2984,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	@Test
 	public void test041c() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runNegativeTest(
 			new String[] {
@@ -2888,6 +3009,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	@Test
 	public void test041d() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runConformTest(
 			true,
@@ -2913,6 +3035,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930
+	@Test
 	public void test042() {
 		this.runConformTest(
 			new String[] {
@@ -2933,6 +3056,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	@Test
 	public void test043() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
@@ -2954,6 +3078,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
 	// variant where C and C.id are concrete
+	@Test
 	public void test043_1() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
@@ -2972,6 +3097,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	@Test
 	public void test043a() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
@@ -2991,6 +3117,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	@Test
 	public void test043b() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
@@ -3010,6 +3137,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	@Test
 	public void test043c() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
@@ -3039,6 +3167,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97161
+	@Test
 	public void test043d() {
 		this.runNegativeTest(
 			new String[] {
@@ -3101,6 +3230,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97161
+	@Test
 	public void test043e() {
 		this.runNegativeTest(
 			new String[] {
@@ -3156,6 +3286,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test043f() {
 		this.runConformTest(
 			new String[] {
@@ -3173,6 +3304,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test043g() {
 		this.runNegativeTest(
 			new String[] {
@@ -3198,6 +3330,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// ensure AccOverriding remains when attempting to override final method
+	@Test
 	public void test044() {
 		this.runNegativeTest(
 			new String[] {
@@ -3214,6 +3347,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// ensure AccOverriding remains when attempting to override final method
+	@Test
 	public void test044a() {
 		this.runNegativeTest(
 			new String[] {
@@ -3230,6 +3364,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// ensure AccOverriding remains when attempting to override final method
+	@Test
 	public void test044b() {
 		this.runNegativeTest(
 			new String[] {
@@ -3246,6 +3381,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	// ensure AccOverriding remains when attempting to override final method
+	@Test
 	public void test044c() {
 		this.runNegativeTest(
 			new String[] {
@@ -3262,6 +3398,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test045() {
 		this.runConformTest(
 			new String[] {
@@ -3280,6 +3417,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// ensure no unchecked warning
+	@Test
 	public void test046() {
 		this.runNegativeTest(
 			new String[] {
@@ -3303,6 +3441,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87157
+	@Test
 	public void test047() {
 		this.runConformTest(
 			new String[] {
@@ -3326,6 +3465,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3360,6 +3500,7 @@ X.java:4: name clash: putAll(Map<String,String>) in X1 and putAll(Map<? extends 
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048a() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3393,6 +3534,7 @@ X.java:2: name clash: foo(I<String>) in X2 and foo(I<? extends T>) in Y have the
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048b() {
 		this.runNegativeTest(
 			new String[] {
@@ -3424,6 +3566,7 @@ X.java:2: name clash: foo(I<String>) in X3 and foo(I<? extends T>) in Y have the
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048c() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3457,6 +3600,7 @@ X.java:2: name clash: foo(I<String>) in X4 and foo(I<? extends T>) in Y have the
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048d() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3491,6 +3635,7 @@ X.java:2: name clash: foo(I<String>) in X5 and foo(I<? extends T>) in Y have the
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048e() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3524,6 +3669,7 @@ X.java:2: name clash: foo(I<String>) in X6 and foo(I<? extends T>) in Y have the
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048f() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3557,6 +3703,7 @@ X.java:2: name clash: foo(I<String>) in X7 and foo(I<? extends T>) in Y have the
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	@Test
 	public void test048g() {
 		this.runNegativeTest(
 			new String[] {
@@ -3589,6 +3736,7 @@ X.java:2: name clash: foo(I<String>) in X8 and foo(I<? extends T>) in Y have the
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88094
+	@Test
 	public void test049() {
 		this.runNegativeTest(
 			new String[] {
@@ -3625,6 +3773,7 @@ X.java:2: name clash: foo(I<String>) in X8 and foo(I<? extends T>) in Y have the
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88094
+	@Test
 	public void test049a() {
 		this.runNegativeTest(
 			new String[] {
@@ -3647,6 +3796,7 @@ X.java:2: name clash: foo(I<String>) in X8 and foo(I<? extends T>) in Y have the
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
+	@Test
 	public void test050() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3708,6 +3858,7 @@ X.java:7: method foo in class X cannot be applied to given types
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
+	@Test
 	public void test050a() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3749,6 +3900,7 @@ X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	@Test
 	public void test050b() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3839,6 +3991,7 @@ X.java:16: foo(Object) is already defined in X.C4
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	@Test
 	public void test050c() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3895,6 +4048,7 @@ X.java:8: name clash: <T#1>foo(A<Z>) and <T#2>foo(A<Y>) have the same erasure
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	@Test
 	public void test050d() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -3936,6 +4090,7 @@ X.java:4: name clash: <T#1>foo(Object) and <T#2,U>foo(Object) have the same eras
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050e() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4005,6 +4160,7 @@ X.java:7: name clash: c(A<Number>) and c(A<String>) have the same erasure
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050f() {
 		this.runNegativeTest(
 			new String[] {
@@ -4039,6 +4195,7 @@ X.java:3: name clash: <N#1>a(A<Number>) and <N#2>a(A<String>) have the same eras
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050g() {
 		this.runNegativeTest(
 			new String[] {
@@ -4073,6 +4230,7 @@ X.java:3: name clash: <N#1>b(A<Number>) and <N#2>b(A<String>) have the same eras
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050h() {
 		this.runNegativeTest(
 			new String[] {
@@ -4105,6 +4263,7 @@ X.java:3: name clash: c(A<Number>) and c(A<String>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050i() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4159,6 +4318,7 @@ X.java:5: name clash: <N#1>b(A<String>) and <N#2>b(A<Number>) have the same eras
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050j() {
 		this.runNegativeTest(
 			new String[] {
@@ -4211,6 +4371,7 @@ X.java:5: name clash: <N#1>b(A<String>) and <N#2>b(A<Number>) have the same eras
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050k() {
 		this.runNegativeTest(
 			new String[] {
@@ -4261,6 +4422,7 @@ X.java:5: <N>b(A<Number>) is already defined in X
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	@Test
 	public void test050l() {
 		this.runNegativeTest(
 			new String[] {
@@ -4313,6 +4475,7 @@ X.java:5: b(A<Number>) is already defined in X
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
+	@Test
 	public void test051() {
 		this.runNegativeTest(
 			new String[] {
@@ -4341,6 +4504,7 @@ class X implements I {
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
+	@Test
 	public void test051a() {
 		this.runNegativeTest(
 			new String[] {
@@ -4371,6 +4535,7 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
+	@Test
 	public void test051b() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4404,6 +4569,7 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
+	@Test
 	public void test052() {
 		this.runConformTest(
 			new String[] {
@@ -4427,6 +4593,7 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
+	@Test
 	public void test052a() {
 		this.runNegativeTest(
 				new String[] {
@@ -4471,6 +4638,7 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
+	@Test
 	public void test053() {
 		this.runNegativeTest(
 			new String[] {
@@ -4515,6 +4683,7 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 	}
 
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	@Test
 	public void test054() {
 		this.runNegativeTest(
 			new String[] {
@@ -4544,6 +4713,7 @@ X.java:3: a(Object) is already defined in X
  */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	@Test
 	public void test054a() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4631,6 +4801,7 @@ X.java:9: name clash: <T#1,S>z(X) and <T#3>z(X) have the same erasure
  */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	@Test
 	public void test054b() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4665,6 +4836,7 @@ X.java:3: name clash: <S>foo(X<T>) and foo(X<T>) have the same erasure
  */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	@Test
 	public void test054c() {
 		this.runNegativeTest(
 			new String[] {
@@ -4696,6 +4868,7 @@ X.java:3: <T1>dupT() is already defined in X
  */
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	@Test
 	public void test054d() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4750,6 +4923,7 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95933
+	@Test
 	public void test055() {
 		this.runConformTest(
 			new String[] {
@@ -4771,6 +4945,7 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	@Test
 	public void test056() {
 		this.runConformTest(
 			new String[] {
@@ -4791,6 +4966,7 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84035
+	@Test
 	public void test057() {
 		this.runConformTest(
 			new String[] {
@@ -4813,6 +4989,7 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 			"12");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84035
+	@Test
 	public void test057a() {
 		this.runConformTest(
 			new String[] {
@@ -4836,6 +5013,7 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
+	@Test
 	public void test058() {
 		this.runConformTest(
 			new String[] {
@@ -4853,6 +5031,7 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 			"BB");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
+	@Test
 	public void test058a() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4910,6 +5089,7 @@ X.java:9: name clash: <T#1>foo2(A) and <T#3>foo2(T#3) have the same erasure
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
+	@Test
 	public void test058b() {
 		String expectedCompilerLog =
 					"----------\n" +
@@ -4982,6 +5162,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
  */
 	}
 
+	@Test
 	public void test059() {
 		this.runConformTest(
 			new String[] {
@@ -4994,6 +5175,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			},
 			"true");
 	}
+	@Test
 	public void test059a() {
 		this.runConformTest(
 			new String[] {
@@ -5008,6 +5190,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90619
+	@Test
 	public void test060() {
 		this.runConformTest(
 			new String[] {
@@ -5024,6 +5207,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90619
+	@Test
 	public void test060b() {
 		this.runConformTest(
 			new String[] {
@@ -5040,6 +5224,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90619
+	@Test
 	public void test060c() {
 		this.runNegativeTest(
 			new String[] {
@@ -5068,6 +5253,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
+	@Test
 	public void test061() {
 		this.runNegativeTest(
 			new String[] {
@@ -5130,6 +5316,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
+	@Test
 	public void test062() {
 		this.runNegativeTest(
 			new String[] {
@@ -5214,6 +5401,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551
+	@Test
 	public void test063() {
 		this.runConformTest(
 			new String[] {
@@ -5244,6 +5432,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551 - variation
+	@Test
 	public void test064() {
 		this.runConformTest(
 			new String[] {
@@ -5274,6 +5463,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551 - variation
+	@Test
 	public void test065() {
 		this.runConformTest(
 			new String[] {
@@ -5306,6 +5496,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103849
+	@Test
 	public void test066() {
 		this.runConformTest(
 			new String[] {
@@ -5324,6 +5515,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107098
+	@Test
 	public void test067() {
 		this.runConformTest(
 			new String[] {
@@ -5341,6 +5533,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"true");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107681
+	@Test
 	public void test068() {
 		this.runConformTest(
 			new String[] {
@@ -5359,6 +5552,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108203
+	@Test
 	public void test069() {
 		this.runNegativeTest(
 			new String[] {
@@ -5406,6 +5600,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101049
+	@Test
 	public void test070() {
 		Map<String,String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
@@ -5433,6 +5628,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107045
+	@Test
 	public void test071() {
 		this.runNegativeTest(
 			new String[] {
@@ -5463,6 +5659,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108780
+	@Test
 	public void test072() {
 		this.runConformTest(
 			new String[] {
@@ -5476,6 +5673,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	@Test
 	public void test073() {
 		this.runConformTest(
 			new String[] {
@@ -5492,6 +5690,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	@Test
 	public void test073a() {
 		this.runConformTest(
 			new String[] {
@@ -5508,6 +5707,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	@Test
 	public void test073b() {
 		this.runConformTest(
 			new String[] {
@@ -5524,6 +5724,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	@Test
 	public void test073c() {
 		this.runNegativeTest(
 			new String[] {
@@ -5544,6 +5745,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	@Test
 	public void test073d() {
 		this.runNegativeTest(
 			new String[] {
@@ -5564,6 +5766,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
+	@Test
 	public void test074() {
 		this.runNegativeTest(
 			new String[] {
@@ -5585,6 +5788,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
+	@Test
 	public void test074a() {
 		this.runNegativeTest(
 			new String[] {
@@ -5606,6 +5810,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
+	@Test
 	public void test074b() {
 		this.runNegativeTest(
 			new String[] {
@@ -5641,6 +5846,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
+	@Test
 	public void test075() {
 		this.runNegativeTest(
 			new String[] {
@@ -5684,6 +5890,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
+	@Test
 	public void test075a() {
 		this.runConformTest(
 			// there is no name clash in this case AND no override error - there would be if the annotation was present
@@ -5698,6 +5905,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
+	@Test
 	public void test075b() {
 		this.runNegativeTest(
 			new String[] {
@@ -5717,6 +5925,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			// A.java:2: method does not override a method from its superclass
 		);
 	}
+	@Test
 	public void test076() {
 		this.runConformTest(
 			new String[] {
@@ -5731,6 +5940,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			""
 		);
 	}
+	@Test
 	public void test076a() {
 		this.runNegativeTest(
 			new String[] {
@@ -5756,6 +5966,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			// <T,S>foo() is already defined in A
 		);
 	}
+	@Test
 	public void test076b() {
 		this.runNegativeTest(
 			new String[] {
@@ -5783,6 +5994,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	@Test
 	public void test077() {
 		this.runConformTest(
 			new String[] {
@@ -5799,6 +6011,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	@Test
 	public void test077a() {
 		this.runNegativeTest(
 			new String[] {
@@ -5844,6 +6057,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
+	@Test
 	public void test078() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getLatestVersion());
@@ -5865,6 +6079,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81222
+	@Test
 	public void test079() {
 		this.runNegativeTest(
 			new String[] {
@@ -5910,6 +6125,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106880
+	@Test
 	public void test080() {
 		this.runNegativeTest(
 			new String[] {
@@ -5931,6 +6147,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=125956
+	@Test
 	public void test081() {
 		this.runNegativeTest(
 			new String[] {
@@ -5961,6 +6178,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105339
+	@Test
 	public void test082() {
 		this.runNegativeTest(
 			new String[] {
@@ -5981,6 +6199,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132831
+	@Test
 	public void test083() {
 		this.runConformTest(
 			new String[] {
@@ -6004,6 +6223,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132841
+	@Test
 	public void test084() {
 		this.runConformTest(
 			new String[] {
@@ -6020,6 +6240,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132841
+	@Test
 	public void test084a() {
 		this.runConformTest(
 			new String[] {
@@ -6040,6 +6261,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132841
+	@Test
 	public void test084b() {
 		this.runNegativeTest(
 			new String[] {
@@ -6067,6 +6289,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136543
+	@Test
 	public void test085() {
 		this.runNegativeTest(
 			new String[] {
@@ -6121,6 +6344,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136543 - case 2
+	@Test
 	public void test085b() {
 		this.runNegativeTest(
 			new String[] {
@@ -6187,6 +6411,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=136543 - case 3
+	@Test
 	public void test085c() {
 		this.runNegativeTest(
 			new String[] {
@@ -6222,6 +6447,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90438
+	@Test
 	public void test086() {
 		this.runNegativeTest(
 			new String[] {
@@ -6240,6 +6466,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90438 - case 2
+	@Test
 	public void test086b() {
 		this.runConformTest(
 			new String[] {
@@ -6251,6 +6478,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			""
 		);
 	}
+	@Test
 	public void test087() {
 		this.runNegativeTest(
 			new String[] {
@@ -6285,6 +6513,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
+	@Test
 	public void test088() {
 		this.runNegativeTest(
 			new String[] {
@@ -6324,6 +6553,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
+	@Test
 	public void test089() {
 		this.runNegativeTest(
 			new String[] {
@@ -6342,6 +6572,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=147690
+	@Test
 	public void test090() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -6389,6 +6620,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783
+	@Test
 	public void test091() {
 		this.runNegativeTest(
 			new String[] {
@@ -6509,6 +6741,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
+	@Test
 	public void test092() {
 		this.runNegativeTest(
 			new String[] {
@@ -6617,6 +6850,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
+	@Test
 	public void test093() {
 		this.runNegativeTest(
 			new String[] {
@@ -6749,6 +6983,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146383
+@Test
 public void test094() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -6782,6 +7017,7 @@ public void test094() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148957
+@Test
 public void test096() {
 	this.runNegativeTest(
 		new String[] {
@@ -6811,6 +7047,7 @@ public void test096() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148957 - variation
+@Test
 public void test097() {
 	this.runConformTest(
 		new String[] {
@@ -6831,6 +7068,7 @@ public void test097() {
 }
 
 // autoboxing mixed with type parameters substitution
+@Test
 public void test098() {
 	this.runConformTest(
 		new String[] {
@@ -6861,6 +7099,7 @@ public void test098() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153874
+@Test
 public void test099() {
 	Map customOptions= getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -6884,6 +7123,7 @@ public void test099() {
 }
 
 // name conflict
+@Test
 public void test100() {
 	this.runNegativeTest(
 		new String[] {
@@ -6913,6 +7153,7 @@ public void test100() {
 }
 
 // name conflict
+@Test
 public void test101() {
 	String expectedCompilerLog =
 				"----------\n" +
@@ -6961,6 +7202,7 @@ public void test101() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test102() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7014,6 +7256,7 @@ public void test102() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test103() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7080,6 +7323,7 @@ public void test103() {
 	assertFalse("bar should not be there", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test104() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7146,6 +7390,7 @@ public void test104() {
 	assertFalse("bar should not be there", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test105() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7231,6 +7476,7 @@ public void test105() {
 	assertTrue("should have one bridge method", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test106() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7316,6 +7562,7 @@ public void test106() {
 	assertTrue("should have one bridge method", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test107() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7382,6 +7629,7 @@ public void test107() {
 	assertFalse("bar should not be there", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test108() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7435,6 +7683,7 @@ public void test108() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test109() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7501,6 +7750,7 @@ public void test109() {
 	assertFalse("bar should not be there", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test110() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7567,6 +7817,7 @@ public void test110() {
 	assertFalse("bar should not be there", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test111() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7652,6 +7903,7 @@ public void test111() {
 	assertTrue("should have one bridge method", found);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159973
+@Test
 public void test112() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -7737,6 +7989,7 @@ public void test112() {
 	assertTrue("should have one bridge method", found);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+@Test
 public void test113() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
@@ -7762,6 +8015,7 @@ public void test113() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+@Test
 public void test114() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
@@ -7793,6 +8047,7 @@ public void test114() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+@Test
 public void test115() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
@@ -7818,6 +8073,7 @@ public void test115() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+@Test
 public void test116() {
    	Map options = getCompilerOptions();
    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
@@ -7874,6 +8130,7 @@ public void test116() {
 		options	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+@Test
 public void test117() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
@@ -7918,6 +8175,7 @@ public void test117() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+@Test
 public void test118() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
@@ -7953,6 +8211,7 @@ public void test118() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+@Test
 public void test119() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
@@ -7988,6 +8247,7 @@ public void test119() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=161541
+@Test
 public void test120() {
 	this.runNegativeTest(
 		new String[] {
@@ -8009,6 +8269,7 @@ public void test120() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202830
+@Test
 public void test120a() {
 	String expectedCompilerLog =
 				"----------\n" +
@@ -8035,6 +8296,7 @@ public void test120a() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173477
+@Test
 public void test121() {
 	this.runConformTest(
 		new String[] {
@@ -8067,6 +8329,7 @@ public void test121() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=175987
+@Test
 public void test122() {
 	this.runNegativeTest(
 		new String[] {
@@ -8100,6 +8363,7 @@ public void test122() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=175987
 // variant that must pass because X#foo's signature is a subsignature of
 // I#foo's.
+@Test
 public void test123() {
 	this.runConformTest(
 		new String[] {
@@ -8118,6 +8382,7 @@ public void test123() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
 // **
+@Test
 public void test124() {
 	this.runConformTest(
 		new String[] {
@@ -8140,6 +8405,7 @@ public void test124() {
 			"Stack Overflow");
 }
 // Bug 460993: [compiler] Incremental build not always reports the same errors (type cannot be resolved - indirectly referenced)
+@Test
 public void test124b() {
 	this.runConformTest(
 		new String[] {
@@ -8170,6 +8436,7 @@ public void test124b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
 // variant
+@Test
 public void test125() {
 	this.runConformTest(
 		new String[] {
@@ -8227,6 +8494,7 @@ public void test125() {
 //		"----------\n");
 //}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=174445
+@Test
 public void test127() {
 	this.runNegativeTest(
 		new String[] {
@@ -8265,6 +8533,7 @@ public void test127() {
 		"java.lang.ClassCastException");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
+@Test
 public void test128() {
 	this.runNegativeTest(
 		new String[] {
@@ -8286,6 +8555,7 @@ public void test128() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - Object is not a subtype of Z
+@Test
 public void test129() {
 	this.runNegativeTest(
 		new String[] {
@@ -8308,6 +8578,7 @@ public void test129() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - Z<Object> is not a subtype of Z<U>, and |Z<U>| = Z, not Z<Object>
+@Test
 public void test130() {
 	this.runNegativeTest(
 		new String[] {
@@ -8331,6 +8602,7 @@ public void test130() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - two interfaces
+@Test
 public void test131() {
 	this.runNegativeTest(
 		new String[] {
@@ -8359,6 +8631,7 @@ public void test131() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - type identity vs type equivalence
+@Test
 public void test132() {
 	this.runNegativeTest(
 		new String[] {
@@ -8387,6 +8660,7 @@ public void test132() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - if we detect a return type incompatibility, then skip any @Override errors
+@Test
 public void test133() {
 	this.runNegativeTest(
 		new String[] {
@@ -8446,6 +8720,7 @@ public void test133() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+@Test
 public void test134() {
 	this.runNegativeTest(
 		new String[] {
@@ -8470,6 +8745,7 @@ public void test134() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+@Test
 public void test135() {
 	this.runNegativeTest(
 		new String[] {
@@ -8504,6 +8780,7 @@ public void test135() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+@Test
 public void test136() {
 	this.runNegativeTest(
 		new String[] {
@@ -8534,6 +8811,7 @@ public void test136() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+@Test
 public void test137() {
 	this.runNegativeTest(
 		new String[] {
@@ -8559,6 +8837,7 @@ public void test137() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+@Test
 public void test138() {
 	this.runNegativeTest(
 		new String[] {
@@ -8585,6 +8864,7 @@ public void test138() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+@Test
 public void test139() {
 	this.runNegativeTest(
 		new String[] {
@@ -8618,6 +8898,7 @@ public void test139() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+@Test
 public void test140() {
 	this.runNegativeTest(
 		new String[] {
@@ -8650,6 +8931,7 @@ public void test140() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=186457
+@Test
 public void test141() {
 	this.runNegativeTest(
 		new String[] {
@@ -8676,6 +8958,7 @@ public void test141() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=186457
+@Test
 public void test142() {
 	this.runConformTest(
 		new String[] {
@@ -8694,6 +8977,7 @@ public void test142() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190748
+@Test
 public void test143() {
 	this.runConformTest(
 		new String[] {
@@ -8718,6 +9002,7 @@ public void test143() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034
 // See that this test case exhibits the bug 345947
+@Test
 public void test144() {
 	this.runNegativeTest(
 		new String[] {
@@ -8749,6 +9034,7 @@ public void test144() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=195468
+@Test
 public void test145() {
 	this.runConformTest(
 		new String[] {
@@ -8761,6 +9047,7 @@ public void test145() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=195802
+@Test
 public void test146() {
 	this.runConformTest(
 		new String[] {
@@ -8775,6 +9062,7 @@ public void test146() {
 		""
 	);
 }
+@Test
 public void test147() {
 	this.runNegativeTest(
 		new String[] {
@@ -8827,6 +9115,7 @@ public void test147() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204624
+@Test
 public void test148() {
 	this.runNegativeTest(
 		new String[] {
@@ -8861,6 +9150,7 @@ public void test148() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208995
+@Test
 public void test149() {
 	this.runNegativeTest(
 		new String[] {
@@ -8944,6 +9234,7 @@ public void test149() {
 		"----------\n"
 	);
 }
+@Test
 public void test150() {
 	this.runNegativeTest(
 		new String[] {
@@ -8992,6 +9283,7 @@ public void test150() {
 		"X.D2 is a raw type. References to generic type X.D2<T> should be parameterized\n" +
 		"----------\n");
 }
+@Test
 public void test151() {
 	this.runConformTest(
 		new String[] {
@@ -9039,6 +9331,7 @@ public void test151() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=219625
+@Test
 public void test152() {
 	this.runConformTest(
 		new String[] {
@@ -9075,6 +9368,7 @@ public void test152() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986
+@Test
 public void test153() {
 	this.runConformTest(
 		new String[] {
@@ -9152,6 +9446,7 @@ public void test153() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+@Test
 public void test154() {
 	this.runConformTest(
 		new String[] {
@@ -9205,6 +9500,7 @@ public void test154() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+@Test
 public void test155() {
 	this.runNegativeTest(
 		new String[] {
@@ -9229,6 +9525,7 @@ public void test155() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+@Test
 public void test156() {
 	this.runNegativeTest(
 		new String[] {
@@ -9254,6 +9551,7 @@ public void test156() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+@Test
 public void test157() {
 	this.runNegativeTest(
 		new String[] {
@@ -9281,6 +9579,7 @@ public void test157() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+@Test
 public void test158() {
 	this.runNegativeTest(
 		new String[] {
@@ -9313,6 +9612,7 @@ public void test158() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+@Test
 public void test159() {
 	this.runNegativeTest(
 		new String[] {
@@ -9353,6 +9653,7 @@ public void test159() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208010
+@Test
 public void test160() {
 	this.runConformTest(
 		new String[] {
@@ -9371,6 +9672,7 @@ public void test160() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185
+@Test
 public void test161() {
 	this.runConformTest(
 		new String[] {
@@ -9390,6 +9692,7 @@ public void test161() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant
+@Test
 public void test162() {
 	this.runConformTest(
 		new String[] {
@@ -9408,6 +9711,7 @@ public void test162() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant return types
+@Test
 public void test163() {
 	this.runNegativeTest(
 		new String[] {
@@ -9434,6 +9738,7 @@ public void test163() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant return types
+@Test
 public void test164() {
 	this.runNegativeTest(
 		new String[] {
@@ -9460,6 +9765,7 @@ public void test164() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant return types
+@Test
 public void test165() {
 	this.runNegativeTest(
 		new String[] {
@@ -9476,6 +9782,7 @@ public void test165() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=238014
+@Test
 public void test166() {
 	this.runNegativeTest(
 		new String[] {
@@ -9496,6 +9803,7 @@ public void test166() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=238817
+@Test
 public void test167() {
 	this.runConformTest(
 		new String[] {
@@ -9510,6 +9818,7 @@ public void test167() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236096
+@Test
 public void test168() {
 	this.runNegativeTest(
 		new String[] {
@@ -9563,6 +9872,7 @@ public void test168() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
+@Test
 public void test169() {
 	this.runNegativeTest(
 		false,
@@ -9595,6 +9905,7 @@ public void test169() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
+@Test
 public void test169a() {
 	this.runNegativeTest(
 		false,
@@ -9628,6 +9939,7 @@ public void test169a() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066
+@Test
 public void test170() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
@@ -9650,6 +9962,7 @@ public void test170() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
+@Test
 public void test171() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
@@ -9674,6 +9987,7 @@ public void test171() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
+@Test
 public void test172() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
@@ -9698,6 +10012,7 @@ public void test172() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
+@Test
 public void test173() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
@@ -9721,6 +10036,7 @@ public void test173() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249140
+@Test
 public void test174() {
 	this.runNegativeTest(
 		new String[] {
@@ -9742,6 +10058,7 @@ public void test174() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=38751
+@Test
 public void test175() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingHashCodeMethod, CompilerOptions.WARNING);
@@ -9765,6 +10082,7 @@ public void test175() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=38751
+@Test
 public void test176() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingHashCodeMethod, CompilerOptions.WARNING);
@@ -9785,6 +10103,7 @@ public void test176() {
 	options);
 }
 
+@Test
 public void test177() {
 	String expectedCompilerLog =
 			"----------\n" +
@@ -9835,6 +10154,7 @@ public void test177() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=241821
+@Test
 public void test178() {
 	this.runConformTest(
 		new String[] {
@@ -9850,6 +10170,7 @@ public void test178() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=163093
+@Test
 public void test179() {
 	this.runNegativeTest(
 		new String[] {
@@ -9890,6 +10211,7 @@ public void test179() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=255035
+@Test
 public void test180() {
 	this.runNegativeTest(
 		new String[] {
@@ -9929,6 +10251,7 @@ public void test180() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249134
+@Test
 public void test181() {
 	this.runNegativeTest(
 		new String[] {
@@ -10066,6 +10389,7 @@ public void test181() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249134
+@Test
 public void test182() {
 	this.runNegativeTest(
 		new String[] {
@@ -10125,6 +10449,7 @@ public void test182() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262208
+@Test
 public void test183() {
 	this.runNegativeTest(
 		new String[] {
@@ -10168,6 +10493,7 @@ public void test183() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=264881
+@Test
 public void test184() {
 	this.runNegativeTest(
 		new String[] {
@@ -10246,6 +10572,7 @@ public void test184() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=267088
+@Test
 public void test185() {
 	this.runNegativeTest(
 		new String[] {
@@ -10263,6 +10590,7 @@ public void test185() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=271303
+@Test
 public void test186() {
 	this.runNegativeTest(
 		false,
@@ -10296,6 +10624,7 @@ public void test186() {
 }
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=?
+@Test
 public void test187() {
 	String expectedCompilerLog =
 			"----------\n" +
@@ -10342,6 +10671,7 @@ public void test187() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
+@Test
 public void test188() {
 	this.runNegativeTest(
 		false,
@@ -10365,6 +10695,7 @@ public void test188() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
+@Test
 public void test189() {
 	this.runNegativeTest(
 		new String[] {
@@ -10423,6 +10754,7 @@ public void test189() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test190() {
 	this.runNegativeTest(
 		new String[] {
@@ -10457,6 +10789,7 @@ public void test190() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test191() {
 	this.runNegativeTest(
 		new String[] {
@@ -10485,6 +10818,7 @@ public void test191() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test192() {
 	this.runNegativeTest(
 		new String[] {
@@ -10513,6 +10847,7 @@ public void test192() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test193() {
 	this.runNegativeTest(
 		new String[] {
@@ -10546,6 +10881,7 @@ public void test193() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test194() {
 	this.runNegativeTest(
 		new String[] {
@@ -10579,6 +10915,7 @@ public void test194() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test195() {
 	this.runNegativeTest(
 		new String[] {
@@ -10607,6 +10944,7 @@ public void test195() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test196() {
 	this.runNegativeTest(
 		new String[] {
@@ -10640,6 +10978,7 @@ public void test196() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284482
+@Test
 public void test197() {
 	this.runNegativeTest(
 		new String[] {
@@ -10679,6 +11018,7 @@ public void test197() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284948
+@Test
 public void test198() {
 	this.runConformTest(
 		new String[] {
@@ -10733,6 +11073,7 @@ public void test198() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284785
+@Test
 public void test199() {
 	this.runConformTest(
 		new String[] {
@@ -10761,6 +11102,7 @@ public void test199() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=285088
+@Test
 public void test200() {
 	String errorMessage =
 				"----------\n" +
@@ -10798,6 +11140,7 @@ X.java:4: foo(Collection) is already defined in X
  */
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=286228
+@Test
 public void test201() {
 	this.runConformTest(
 		new String[] {
@@ -10812,6 +11155,7 @@ public void test201() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284280
+@Test
 public void test202() {
 	this.runConformTest(
 		new String[] {
@@ -10832,6 +11176,7 @@ public void test202() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=292240
+@Test
 public void test203() {
 	this.runConformTest(
 		new String[] {
@@ -10852,6 +11197,7 @@ public void test203() {
 }
 // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615 (bad name clash error)
 // No user vs user clash or user vs synthetic clash in this test
+@Test
 public void test204() {
 	this.runConformTest(
 		new String[] {
@@ -10873,6 +11219,7 @@ public void test204() {
 }
 // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615 (bad name clash error)
 // verify that we report user vs bridge clash properly.
+@Test
 public void test204a() {
 	this.runNegativeTest(
 		new String[] {
@@ -10898,6 +11245,7 @@ public void test204a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362
+@Test
 public void test205() {
 	this.runConformTest(
 		new String[] {
@@ -10930,6 +11278,7 @@ public void test205() {
 		"T");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362 (variation)
+@Test
 public void test206() {
 	this.runConformTest(
 		new String[] {
@@ -10963,6 +11312,7 @@ public void test206() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362 (variation)
 // Note that this test prints "T" with javac5 and "class java.lang.Object with javac 6,7
+@Test
 public void test207() {
 	this.runConformTest(
 		new String[] {
@@ -10997,6 +11347,7 @@ public void test207() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
 // is generated when a public method is inherited from a non-public class into a
 // public class.
+@Test
 public void test208() {
 	this.runConformTest(
 		new String[] {
@@ -11034,6 +11385,7 @@ public void test208() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
 // is generated when a public method is inherited from a non-public class into a
 // public class.
+@Test
 public void test208a() {
 	this.runConformTest(
 		new String[] {
@@ -11070,6 +11422,7 @@ public void test208a() {
 		"Annotation was found");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322001
+@Test
 public void test209() {
 	this.runNegativeTest(
 		new String[] {
@@ -11112,6 +11465,7 @@ public void test209() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321548
+@Test
 public void test210() {
 	this.runNegativeTest(
 		new String[] {
@@ -11147,6 +11501,7 @@ public void test210() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+@Test
 public void test211() {
 	this.runNegativeTest(
 		new String[] {
@@ -11176,6 +11531,7 @@ public void test211() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323693
+@Test
 public void test212() {
 	this.runNegativeTest(
 		new String[] {
@@ -11202,6 +11558,7 @@ public void test212() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
+@Test
 public void test213() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11253,6 +11610,7 @@ public void test213() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
+@Test
 public void test213a() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11304,6 +11662,7 @@ public void test213a() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
+@Test
 public void test213b() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11362,6 +11721,7 @@ public void test213b() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
+@Test
 public void test213c() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11419,6 +11779,7 @@ public void test213c() {
 		compilerOptions14,
 		null);
 }
+@Test
 public void test326354() {
 	this.runConformTest(
 			new String[] {
@@ -11441,6 +11802,7 @@ public void test326354() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827
+@Test
 public void test328827() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11490,6 +11852,7 @@ public void test328827() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=329584
+@Test
 public void test329584() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11532,6 +11895,7 @@ public void test329584() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
+@Test
 public void test329588() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11580,6 +11944,7 @@ public void test329588() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330445
+@Test
 public void test330445() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_9);
@@ -11630,6 +11995,7 @@ public void test330445() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330435
+@Test
 public void test330435() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11678,6 +12044,7 @@ public void test330435() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330264
+@Test
 public void test330264() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11726,6 +12093,7 @@ public void test330264() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+@Test
 public void test331446a() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11796,6 +12164,7 @@ public void test331446a() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446 (all 1.4)
+@Test
 public void test331446b() {
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11834,6 +12203,7 @@ public void test331446b() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446 (1.4/1.5 mix)
+@Test
 public void test331446c() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11877,6 +12247,7 @@ public void test331446c() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446 (all 1.5)
+@Test
 public void test331446d() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11914,6 +12285,7 @@ public void test331446d() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+@Test
 public void test1415Mix() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11957,6 +12329,7 @@ public void test1415Mix() {
 		compilerOptions14);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+@Test
 public void test1415Mix2() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -11998,6 +12371,7 @@ public void test1415Mix2() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332744 (all 1.5+)
+@Test
 public void test332744() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
@@ -12091,6 +12465,7 @@ public void _test332744b() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=339447
+@Test
 public void test339447() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -12119,6 +12494,7 @@ public void test339447() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322740
+@Test
 public void test322740() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12146,6 +12522,7 @@ public void test322740() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=334306
+@Test
 public void test334306() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12166,6 +12543,7 @@ public void test334306() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=342819
+@Test
 public void test342819() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12195,6 +12573,7 @@ public void test342819() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+@Test
 public void test346029() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12224,6 +12603,7 @@ public void test346029() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+@Test
 public void test346029b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12248,6 +12628,7 @@ public void test346029b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+@Test
 public void test346029c() throws Exception {
 	this.runNegativeTest(
 		false,
@@ -12275,6 +12656,7 @@ public void test346029c() throws Exception {
 		Excuse.EclipseHasSomeMoreWarnings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+@Test
 public void test346029d() throws Exception {
 	this.runNegativeTest(
 		false,
@@ -12302,6 +12684,7 @@ public void test346029d() throws Exception {
 		Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+@Test
 public void test346029e() throws Exception {
 	this.runNegativeTest(
 		false,
@@ -12329,6 +12712,7 @@ public void test346029e() throws Exception {
 		Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+@Test
 public void test346029f() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12358,6 +12742,7 @@ public void test346029f() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
+@Test
 public void test353089() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -12381,6 +12766,7 @@ public void test353089() throws Exception {
 		"Built OK");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
+@Test
 public void test353089b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12441,6 +12827,7 @@ public void test353089b() throws Exception {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
+@Test
 public void test353089c() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12466,6 +12853,7 @@ public void test353089c() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719() throws Exception {
 	String output =
 				"----------\n" +
@@ -12508,6 +12896,7 @@ public void testBug317719() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719a() throws Exception {
 	String output =
 				"----------\n" +
@@ -12540,6 +12929,7 @@ public void testBug317719a() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719b() throws Exception {
 	String output =
 				"----------\n" +
@@ -12571,6 +12961,7 @@ public void testBug317719b() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719c() throws Exception {
 	String output =
 				"----------\n" +
@@ -12607,6 +12998,7 @@ public void testBug317719c() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719d() throws Exception {
 	String output =
 				"----------\n" +
@@ -12638,6 +13030,7 @@ public void testBug317719d() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719e() throws Exception {
 	String output =
 				"----------\n" +
@@ -12669,6 +13062,7 @@ public void testBug317719e() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719f() throws Exception {
 	String output =
 				"----------\n" +
@@ -12706,6 +13100,7 @@ public void testBug317719f() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719g() throws Exception {
 	String output =
 				"----------\n" +
@@ -12750,6 +13145,7 @@ public void testBug317719g() throws Exception {
 		output);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+@Test
 public void testBug317719h() throws Exception {
 	String output =
 				"----------\n" +
@@ -12786,6 +13182,7 @@ public void testBug317719h() throws Exception {
 		},
 		output);
 }
+@Test
 public void test345949a() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -12806,6 +13203,7 @@ public void test345949a() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=355838
+@Test
 public void testBug355838() throws Exception {
 	String output =
 			"----------\n" +
@@ -12854,6 +13252,7 @@ public void testBug355838() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
 // is generated when a public method is inherited from a non-public class into a
 // public class if the non public class happens to be defined in a named package.
+@Test
 public void test288658() {
 	this.runConformTest(
 		new String[] {
@@ -12892,6 +13291,7 @@ public void test288658() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
 // is generated when a public method is inherited from a non-public class into a
 // public class if the non public class happens to be defined in a named package.
+@Test
 public void test288658a() {
 	this.runConformTest(
 		new String[] {
@@ -12929,6 +13329,7 @@ public void test288658a() {
 		"Annotation was found");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+@Test
 public void test354229() {
 	this.runNegativeTest(
 		new String[] {
@@ -12958,6 +13359,7 @@ public void test354229() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+@Test
 public void test354229b() {
 	this.runNegativeTest(
 		new String[] {
@@ -12987,6 +13389,7 @@ public void test354229b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+@Test
 public void test354229c() {
 	this.runNegativeTest(
 		new String[] {
@@ -13017,6 +13420,7 @@ public void test354229c() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+@Test
 public void test354229d() {
 	this.runNegativeTest(
 		new String[] {
@@ -13041,6 +13445,7 @@ public void test354229d() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384580, Apply changes in JLS 8.4.5 to calculation of duplicate method return types
+@Test
 public void testBug384580() {
 	this.runNegativeTest(
 		new String[] {
@@ -13074,6 +13479,7 @@ public void testBug384580() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/406928 - computation of inherited methods seems damaged (affecting @Overrides)
+@Test
 public void testBug406928() {
 	this.runConformTest(
 		new String[] {
@@ -13093,6 +13499,7 @@ public void testBug406928() {
 }
 // https://bugs.eclipse.org/409473 - [compiler] JDT cannot compile against JRE 1.8
 // Test failed when running on a JRE 1.8 b90
+@Test
 public void testBug409473() {
     this.runConformTest(
         new String[] {
@@ -13101,6 +13508,7 @@ public void testBug409473() {
         });
 }
 // https://bugs.eclipse.org/410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
+@Test
 public void testBug410325() {
 	runConformTest(
 		new String[] {
@@ -13151,6 +13559,7 @@ public void testBug410325() {
 }
 // https://bugs.eclipse.org/410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
 // test from duplicate bug 411811
+@Test
 public void testBug411811() {
 	runConformTest(
 		new String[] {
@@ -13172,6 +13581,7 @@ public void testBug411811() {
 }
 // https://bugs.eclipse.org/410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
 // test from duplicate bug 415600
+@Test
 public void testBug415600() {
 	runConformTest(
 		new String[] {
@@ -13191,6 +13601,7 @@ public void testBug415600() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423849,  [1.8][compiler] cannot implement java.nio.file.Path because of compiler name clash
+@Test
 public void test423849() {
 	runConformTest(
 		new String[] {
@@ -13214,6 +13625,7 @@ public void test423849() {
 		});
 }
 // assure that an inherited bridge method need not be repeated
+@Test
 public void testBug426546() {
 	runConformTest(
 		new String[] {
@@ -13240,6 +13652,7 @@ public void testBug426546() {
 		"CCC");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438812, Missing bridge methods in indirect child classes with ECJ 3.10.0
+@Test
 public void testBug438812() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -13275,6 +13688,7 @@ public void testBug438812() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=469454, The compiler generates wrong code during inheritance
+@Test
 public void testBug469454() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -13298,6 +13712,7 @@ public void testBug469454() throws Exception {
 		"1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=469454, The compiler generates wrong code during inheritance
+@Test
 public void testBug469454a() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -13346,6 +13761,7 @@ public void testBug469454a() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438812, Missing bridge methods in indirect child classes with ECJ 3.10.0
+@Test
 public void testBug438812a() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -13381,6 +13797,7 @@ public void testBug438812a() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=461529, Abstract class extending interface with default impl won't compile, but does compile from cmd line
+@Test
 public void testBug461529() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -13408,6 +13825,7 @@ public void testBug461529() throws Exception {
 			"public abstract class ChildFoo extends Foo {}\n"
 		});
 }
+@Test
 public void testBug467776_regression() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
@@ -13436,6 +13854,7 @@ public void testBug467776_regression() {
 		},
 		compilerOptions);
 }
+@Test
 public void testBug500673() {
 	runNegativeTest(
 		new String[] {
@@ -13463,6 +13882,7 @@ public void testBug500673() {
 		"The type mfa must implement the inherited abstract method mfi.a(Throwable)\n" +
 		"----------\n");
 }
+@Test
 public void testBug506653() {
 	runConformTest(
 		false, // flushOutputDirectory
@@ -13503,6 +13923,7 @@ public void testBug506653() {
 		"",
 		JavacTestOptions.DEFAULT);
 }
+@Test
 public void testBug536593() {
 	runConformTest(
 		new String[] {
@@ -13519,6 +13940,7 @@ public void testBug536593() {
 			"}\n"
 		});
 }
+@Test
 public void testBug536978_comment2() {
 	runNegativeTest(
 			new String[] {
@@ -13562,6 +13984,7 @@ public void testBug536978_comment2() {
 			"The return type is incompatible with AbstractDemo<Request,Response>.test(Request)\n" +
 			"----------\n");
 }
+@Test
 public void testBug536978_comment5() {
 	String errMsg = isJRE11Plus
 			? "class Result1 cannot be cast to class OtherResult (Result1 and OtherResult are in unnamed module of loader"
@@ -13614,6 +14037,7 @@ public void testBug536978_comment5() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4354
 // ECJ fails to detect name clash between Function.andThen and BiFunction.andThen methods with same erasure
+@Test
 public void testIssue4354() {
 	this.runNegativeTest(
 		new String[] {
@@ -13659,6 +14083,7 @@ public void testIssue4354() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4601
 // New Compile Errors in Xtext Dev Workspace with newer jdt versions
+@Test
 public void testIssue4601() {
 	this.runNegativeTest(
 		new String[] {

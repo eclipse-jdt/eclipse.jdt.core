@@ -16,24 +16,16 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class InstanceofExpressionTest extends AbstractRegressionTest {
 
-	public InstanceofExpressionTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return InstanceofExpressionTest.class;
+	public InstanceofExpressionTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
@@ -41,6 +33,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341828
+	@Test
 	public void test001() {
 		this.runNegativeTest(
 			new String[] {
@@ -64,6 +57,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -127,6 +121,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_2() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -189,6 +184,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_3() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -252,6 +248,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_4() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -314,6 +311,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_5() throws ClassFormatException, IOException {
     	String source =
     			"""
@@ -379,6 +377,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_6() throws ClassFormatException, IOException {
      	String source =
      			"""
@@ -448,6 +447,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_7() throws ClassFormatException, IOException {
       	String source =
       			"""
@@ -517,6 +517,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_8() throws ClassFormatException, IOException {
       	String source =
       			"""
@@ -586,6 +587,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2098
     // Roll back gratuitous changes to !instanceof code generation in the absence of pattern bindings
+    @Test
     public void testIssue2098_9() throws ClassFormatException, IOException {
       	String source =
       			"""
@@ -631,6 +633,7 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2101
     // [Patterns] Secret local variable slots appear to be reaped later than they should be
+    @Test
     public void testIssue2101() throws ClassFormatException, IOException {
     	if (this.complianceLevel < ClassFileConstants.JDK16)
     		return;

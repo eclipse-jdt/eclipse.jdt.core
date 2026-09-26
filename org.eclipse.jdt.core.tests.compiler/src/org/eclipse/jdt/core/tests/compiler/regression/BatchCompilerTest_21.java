@@ -14,31 +14,26 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(value=AbstractCompilerTest.F_21, singleVersion=true)
 public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {
 
 	/**
 	 * This test suite only needs to be run on one compliance.
-	 *
-	 * @see TestAll
 	 */
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_21);
-	}
-
-	public static Class<BatchCompilerTest_21> testClass() {
-		return BatchCompilerTest_21.class;
-	}
-
-	public BatchCompilerTest_21(String name) {
-		super(name);
+	public BatchCompilerTest_21(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1774
 	// [switch] Code generated for statement switch doesn't handle MatchException
+	@Test
 	public void testGHI1774_Expression() throws Exception {
 
 		String path = LIB_DIR;
@@ -111,6 +106,7 @@ public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1774
 	// [switch] Code generated for statement switch doesn't handle MatchException
+	@Test
 	public void testGHI1774_Statement() throws Exception {
 
 		String path = LIB_DIR;
@@ -181,6 +177,7 @@ public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {
 		assertEquals("Incorrect output", "OK!END", this.verifier.getExecutionOutput());
 	}
 
+	@Test
 	public void testIssue558_1() throws Exception {
 		String path = LIB_DIR;
 		String libPath = null;
@@ -249,6 +246,7 @@ public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {
 		assertEquals("Incorrect output", "OKEND", this.verifier.getExecutionOutput());
 	}
 
+	@Test
 	public void testIssue558_2() throws Exception {
 		String path = LIB_DIR;
 		String libPath = null;

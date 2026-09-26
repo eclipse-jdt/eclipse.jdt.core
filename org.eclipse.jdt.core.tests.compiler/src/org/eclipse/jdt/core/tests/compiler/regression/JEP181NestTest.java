@@ -16,22 +16,25 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_11)
 public class JEP181NestTest extends AbstractComparableTest {
 
 	String versionString = null;
 
-public JEP181NestTest(String name) {
-	super(name);
+public JEP181NestTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // No need for a tearDown()
 @Override
@@ -52,9 +55,6 @@ static {
 }
 private static final String[] source_classic = JEP181NestTest.getTestSeriesClassic();
 
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_11);
-}
 private static String[] getTestSeriesClassic() {
 	return new String[] {
 			"pack1/X.java",
@@ -107,6 +107,7 @@ private void verifyOutput(String result, String expectedOutput, boolean positive
 		}
 	}
 }
+@Test
 public void testBug535851_001() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -126,6 +127,7 @@ public void testBug535851_001() throws Exception {
 			"   #48 pack1/X$Y$Z\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug535851_002() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -140,6 +142,7 @@ public void testBug535851_002() throws Exception {
 		"Nest Host: #17 pack1/X\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X$A.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug535851_003() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -154,6 +157,7 @@ public void testBug535851_003() throws Exception {
 		"NestMembers:";
 	verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$A.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug535851_004() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -169,6 +173,7 @@ public void testBug535851_004() throws Exception {
 	verifyClassFile(expectedPartialOutput, "pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // vanilla anonymous declaration
+@Test
 public void testBug535851_005() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -206,6 +211,7 @@ public void testBug535851_005() throws Exception {
 	verifyNegativeClassFile(expectedPartialOutput, "pack1/Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // anonymous declaration inside another anonymous declaration
+@Test
 public void testBug535851_006() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -252,6 +258,7 @@ public void testBug535851_006() throws Exception {
 }
 
 // lambda with anonymous inside anonymous
+@Test
 public void testBug535851_007() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -306,6 +313,7 @@ public void testBug535851_007() throws Exception {
 	verifyNegativeClassFile(expectedPartialOutput, "pack1/Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // type declaration in method
+@Test
 public void testBug535851_008() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -341,6 +349,7 @@ public void testBug535851_008() throws Exception {
 	verifyClassFile(expectedPartialOutput, "pack1/X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // testing the inner private instance field access from enclosing type
+@Test
 public void testBug535918_001a() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -383,6 +392,7 @@ public void testBug535918_001a() throws Exception {
 		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //testing the inner private static field access from enclosing type
+@Test
 public void testBug535918_001b() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -435,6 +445,7 @@ public void testBug535918_001b() throws Exception {
 	verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //testing the nested private field access from enclosing type
+@Test
 public void testBug535918_001c() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -474,6 +485,7 @@ public void testBug535918_001c() throws Exception {
 		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //testing the nested private method access from same type (implicit nesting/nest host)
+@Test
 public void testBug535918_002() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -508,6 +520,7 @@ public void testBug535918_002() throws Exception {
 }
 
 // sibling access: private static field
+@Test
 public void testBug535918_003a() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -558,6 +571,7 @@ public void testBug535918_003a() throws Exception {
 	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //sibling access: private instance field
+@Test
 public void testBug535918_003b() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -610,6 +624,7 @@ public void testBug535918_003b() throws Exception {
 }
 //sibling access: private instance field via Allocation Expression Field reference
 // note: internally this follows a different code path
+@Test
 public void testBug535918_003c() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -661,6 +676,7 @@ public void testBug535918_003c() throws Exception {
 }
 //sibling and super: private static field access of a super-type is accessed from a sub-type with
 //both super-type and sub-type being nestmates.
+@Test
 public void testBug535918_003d() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -712,6 +728,7 @@ public void testBug535918_003d() throws Exception {
 }
 //sibling and super: private instance field of a super-type is accessed from a sub-type with
 //both super-type and sub-type being nestmates.
+@Test
 public void testBug535918_003e() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -764,6 +781,7 @@ public void testBug535918_003e() throws Exception {
 }
 //sibling and super with super keyword: private instance field of a super-type is accessed from a sub-type
 // user keyword super with both super-type and sub-type being nestmates.
+@Test
 public void testBug535918_003f() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -814,6 +832,7 @@ public void testBug535918_003f() throws Exception {
 	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //vanilla field access of enclosing type: private static field of enclosing type accessed in inner type
+@Test
 public void testBug535918_004a() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -854,6 +873,7 @@ public void testBug535918_004a() throws Exception {
 
 }
 //vanilla field access of enclosing type: private instance field of enclosing type accessed in inner type
+@Test
 public void testBug535918_004b() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -894,6 +914,7 @@ public void testBug535918_004b() throws Exception {
 
 }
 //nestmate inner constructor call from outer - no synthetic and appropriate call site params
+@Test
 public void testBug535918_005a() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -942,6 +963,7 @@ public void testBug535918_005a() throws Exception {
 	verifyOutputNegative(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y, pack1.X$Y$Z)");
 }
 //nestmate sibling constructor call - no synthetic and appropriate call site params
+@Test
 public void testBug535918_005b() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -990,6 +1012,7 @@ public void testBug535918_005b() throws Exception {
 	verifyOutputNegative(XYFile, "invokespecial pack1.X$Z(pack1.X$Y, pack1.X$Z)");
 }
 //nestmate outer constructor call from inner - no synthetic and appropriate call site params
+@Test
 public void testBug535918_005c() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1038,6 +1061,7 @@ public void testBug535918_005c() throws Exception {
 	verifyOutputNegative(XYZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)");
 }
 //nestmate super call to private constructor from sibling nestmate which is a subtype - no synthetic and appropriate call site params
+@Test
 public void testBug535918_005d() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1083,6 +1107,7 @@ public void testBug535918_005d() throws Exception {
 }
 // nestmate super call to private constructor from sibling nestmate which is a subtype
 // super is a parameterized type
+@Test
 public void testBug535918_005e() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1130,6 +1155,7 @@ public void testBug535918_005e() throws Exception {
 	verifyOutputNegative(XZFile, "2  invokespecial pack1.X$Y(pack1.X$Y)");
 }
 //nestmate constructor reference
+@Test
 public void testBug535918_005f() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1177,6 +1203,7 @@ public void testBug535918_005f() throws Exception {
 	verifyOutputNegative(X1YFile, "synthetic X$Y(pack1.X.Y arg0)");
 }
 //testing the nested private method access from enclosing type
+@Test
 public void testBug535918_005g() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1220,6 +1247,7 @@ public void testBug535918_005g() throws Exception {
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //negative testing the nested private method access from enclosing type is not via invokespecial
+@Test
 public void testBug535918_005h() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1263,6 +1291,7 @@ public void testBug535918_005h() throws Exception {
 	verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //negative testing the synthetic method - access - not present in nested class
+@Test
 public void testBug535918_005i() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1306,6 +1335,7 @@ public void testBug535918_005i() throws Exception {
 		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //private interface method invoked from a method inside the same interface should be invokeinterface
+@Test
 public void testBug535918_005j() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1335,6 +1365,7 @@ public void testBug535918_005j() throws Exception {
 	verifyOutputPositive(IFile, partialOutput);
 }
 //private interface method invoked from a nestmate interface should be invokeinterface
+@Test
 public void testBug535918_005k() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1366,6 +1397,7 @@ public void testBug535918_005k() throws Exception {
 	verifyOutputPositive(IFile, partialOutput);
 }
 //test for SyntheticMethodBinding.SuperField*Access
+@Test
 public void testBug535918_0056a() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1410,6 +1442,7 @@ public void testBug535918_0056a() throws Exception {
 	verifyOutputNegative(XYZFile, "invokestatic X.access$0(X, int)");
 }
 
+@Test
 public void testBug545387_01() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1452,6 +1485,7 @@ public void testBug545387_01() throws Exception {
 	verifyOutputPositive(XSub1Sub2, "Nest Host: #29 pack1/X");
 }
 
+@Test
 public void testBug572190_01() throws Exception {
 
 	this.runConformTest(
@@ -1485,6 +1519,7 @@ public void testBug572190_01() throws Exception {
 	verifyOutputNegative(XFile, unexpectedOutput);
 }
 
+@Test
 public void testBug572190_02() throws Exception {
 
 	this.runConformTest(

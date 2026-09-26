@@ -14,14 +14,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class NullChecksTests extends AbstractNullAnnotationTest {
 
-	public NullChecksTests(String name) {
-		super(name);
+	public NullChecksTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -32,14 +33,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-
-	public static Class<NullChecksTests> testClass() {
-		return NullChecksTests.class;
-	}
-
+	@Test
 	public void testAssertNonNull1() {
 		runConformTestWithLibs(
 			new String[] {
@@ -72,6 +66,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"Shouldn\'t!");
 	}
 
+	@Test
 	public void testAssertNonNullElements() {
 		runConformTestWithLibs(
 			new String[] {
@@ -110,6 +105,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"Shouldn\'t!");
 	}
 
+	@Test
 	public void testRequireNonNull() {
 		runConformTestWithLibs(
 			new String[] {
@@ -141,6 +137,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"Shouldn\'t!");
 	}
 
+	@Test
 	public void testRequireNonEmptyString() {
 		runConformTestWithLibs(
 			new String[] {
@@ -178,6 +175,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"Shouldn\'t!");
 	}
 
+	@Test
 	public void testRequireNonEmptyCollection() {
 		runConformTestWithLibs(
 			new String[] {
@@ -217,6 +215,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"Shouldn\'t!");
 	}
 
+	@Test
 	public void testIsNull() {
 		Map<String, String> compilerOptions = getCompilerOptions();
 		compilerOptions.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
@@ -249,6 +248,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"IS ANY NULL 1");
 	}
 
+	@Test
 	public void testAsNullable() {
 		runConformTestWithLibs(
 			new String[] {
@@ -273,6 +273,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"NULL");
 	}
 
+	@Test
 	public void testNonNullElse() {
 		runConformTestWithLibs(
 			new String[] {
@@ -323,6 +324,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"good");
 	}
 
+	@Test
 	public void testBooleanNullAssertions() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -420,6 +422,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"Null pointer access: The variable initiallyNN can only be null at this location\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug465085_comment12() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);

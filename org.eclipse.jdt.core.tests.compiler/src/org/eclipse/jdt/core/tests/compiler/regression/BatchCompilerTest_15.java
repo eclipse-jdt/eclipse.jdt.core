@@ -15,12 +15,15 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_15,singleVersion=true)
 public class BatchCompilerTest_15 extends AbstractBatchCompilerTest {
 
 	static {
@@ -31,19 +34,11 @@ public class BatchCompilerTest_15 extends AbstractBatchCompilerTest {
 
 	/**
 	 * This test suite only needs to be run on one compliance.
-	 * As it includes some specific 1.5 tests, it must be used with a least a 1.5 VM
-	 * and not be duplicated in general test suite.
-	 * @see TestAll
 	 */
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_15);
+	public BatchCompilerTest_15(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
-	public static Class testClass() {
-		return BatchCompilerTest_15.class;
-	}
-	public BatchCompilerTest_15(String name) {
-		super(name);
-	}
+	@Test
 	public void testBug564047_001(){
 		if (!AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_15))
 			return; // preview test - relevant only at level 15

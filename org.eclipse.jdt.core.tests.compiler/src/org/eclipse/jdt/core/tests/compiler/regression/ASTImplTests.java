@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -26,15 +25,16 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * A tests series especially meant to validate the internals of our AST
  * implementation.
  */
-@SuppressWarnings({ "rawtypes" })
 public class ASTImplTests extends AbstractRegressionTest {
-public ASTImplTests(String name) {
-    super(name);
+public ASTImplTests(Compliance compliance, TestInfo info) {
+    super(compliance, info);
 }
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -47,14 +47,6 @@ public ASTImplTests(String name) {
 //    	TESTS_NUMBERS = new int[] { 2999 };
 //    	TESTS_RANGE = new int[] { 2050, -1 };
   	}
-
-public static Test suite() {
-    return buildAllCompliancesTestSuite(testClass());
-}
-
-public static Class testClass() {
-    return ASTImplTests.class;
-}
 
 // Helper methods
 static Parser defaultParser = new Parser(
@@ -84,6 +76,7 @@ public void runConformTest(String fileName, String fileContents,
 }
 
 // AST implementation - visiting binary expressions
+@Test
 public void test0001_regular_binary_expression() {
 	runConformTest(
 		"X.java",
@@ -138,6 +131,7 @@ public void test0001_regular_binary_expression() {
 // AST implementation - visiting binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions
+@Test
 public void test0002_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 3;
 	// one CBE each fourth BE
@@ -208,6 +202,7 @@ public void test0002_combined_binary_expression() {
 // AST implementation - visiting binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions
+@Test
 public void test0003_combined_binary_expression() {
 	Parser parser = new Parser(
 			new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -284,6 +279,7 @@ public void test0003_combined_binary_expression() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - effect of a literal at the start with
 // string literal optimization
+@Test
 public void test0004_combined_binary_expression() {
 	Parser parser = new Parser(
 			new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -315,6 +311,7 @@ public void test0004_combined_binary_expression() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - effect of a literal at the start without
 // string literals optimization
+@Test
 public void test0005_combined_binary_expression() {
 	runConformTest(
 		"X.java",
@@ -349,6 +346,7 @@ public void test0005_combined_binary_expression() {
 // AST implementation - visiting binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - cutting the traversal half-way down
+@Test
 public void test0006_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 1;
 	runConformTest(
@@ -403,6 +401,7 @@ public void test0006_combined_binary_expression() {
 // AST implementation - visiting binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - cutting the traversal right away
+@Test
 public void test0007_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 4;
 	runConformTest(
@@ -442,6 +441,7 @@ public void test0007_combined_binary_expression() {
 // AST implementation - visiting binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - case of one-deep expression
+@Test
 public void test0008_combined_binary_expression() {
 	runConformTest(
 		"X.java",
@@ -493,6 +493,7 @@ public void test0008_combined_binary_expression() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // check if the generated code is OK when leveraging CombinedBinaryExpression
+@Test
 public void test0009_combined_binary_expression() {
 	assertEquals(20, CombinedBinaryExpression.ARITY_MAX_MIN);
 	this.runConformTest(
@@ -523,6 +524,7 @@ public void test0009_combined_binary_expression() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // check if the generated code is OK when leveraging CombinedBinaryExpression
 // variant involving constant binary expressions deep in the tree
+@Test
 public void test0010_combined_binary_expression() {
 	assertEquals(20, CombinedBinaryExpression.ARITY_MAX_MIN);
 	this.runConformTest(
@@ -555,6 +557,7 @@ public void test0010_combined_binary_expression() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // check if the generated code is OK when leveraging CombinedBinaryExpression
 // variant involving a constant combined binary expression
+@Test
 public void test0011_combined_binary_expression() {
 	assertEquals(20, CombinedBinaryExpression.ARITY_MAX_MIN);
 	this.runConformTest(
@@ -586,6 +589,7 @@ public void test0011_combined_binary_expression() {
 // AST implementation - visiting binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - checking recursive print
+@Test
 public void test0012_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 2;
 	runConformTest(
@@ -619,6 +623,7 @@ public void test0012_combined_binary_expression() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // check if the generated code is OK when leveraging CombinedBinaryExpression
 // variant involving a left-deep right expression at the topmost level
+@Test
 public void test0013_combined_binary_expression() {
 	assertEquals(20, CombinedBinaryExpression.ARITY_MAX_MIN);
 	this.runConformTest(
@@ -651,6 +656,7 @@ public void test0013_combined_binary_expression() {
 // check if the generated code is OK when leveraging CombinedBinaryExpression
 // variant involving a left-deep right expression at the topmost level, with
 // a constant high in tree
+@Test
 public void test0014_combined_binary_expression() {
 	assertEquals(20, CombinedBinaryExpression.ARITY_MAX_MIN);
 	this.runConformTest(
@@ -683,6 +689,7 @@ public void test0014_combined_binary_expression() {
 // check if the generated code is OK when leveraging CombinedBinaryExpression
 // variant involving a left-deep right expression at the topmost level, with
 // a constant low in tree
+@Test
 public void test0015_combined_binary_expression() {
 	assertEquals(20, CombinedBinaryExpression.ARITY_MAX_MIN);
 	this.runConformTest(
@@ -714,6 +721,7 @@ public void test0015_combined_binary_expression() {
 // AST implementation - binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - alternate operands
+@Test
 public void test0016_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 2;
 	this.runConformTest(
@@ -738,6 +746,7 @@ public void test0016_combined_binary_expression() {
 		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
+@Test
 public void test0017() {
 	CompilerOptions options = new CompilerOptions();
 	this.runConformTest(
@@ -767,6 +776,7 @@ public void test0017() {
 		"normal annotation end visit\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
+@Test
 public void test0018() {
 	CompilerOptions options = new CompilerOptions();
 	options.docCommentSupport = true;
@@ -808,6 +818,7 @@ public void test0018() {
 		"java doc single type reference end visit\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
+@Test
 public void test0019() {
 	CompilerOptions options = new CompilerOptions();
 	options.docCommentSupport = true;

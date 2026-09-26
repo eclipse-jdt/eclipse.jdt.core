@@ -16,21 +16,16 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
+public class ConcurrentBatchCompilerTest extends AbstractBatchCompilerTest {
 
-	public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), CompilerOptions.getFirstSupportedJdkLevel());
-	}
-	public static Class testClass() {
-		return ConcurrentBatchCompilerTest.class;
-	}
-	public ConcurrentBatchCompilerTest(String name) {
-		super(name);
+	public ConcurrentBatchCompilerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	Thread runner1;
@@ -60,6 +55,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 		return baseName;
 	}
 
+	@Test
 	public void testBug372319() throws Throwable {
 		try {
 			FakedTrackingVariable.TEST_372319 = true;

@@ -16,8 +16,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -31,9 +32,12 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_15)
 public class JavadocTest_15 extends JavadocTest {
 
 	String docCommentSupport = CompilerOptions.ENABLED;
@@ -50,22 +54,14 @@ public class JavadocTest_15 extends JavadocTest {
 	protected Map<String,IModule> moduleMap = new HashMap<>(); // by name
 	Map<String,String> file2module = new HashMap<>();
 
-public JavadocTest_15(String name) {
-	super(name);
-}
-
-public static Class javadocTestClass() {
-	return JavadocTest_15.class;
+public JavadocTest_15(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
 static {
 
-}
-
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(javadocTestClass(), F_15);
 }
 
 @Override
@@ -200,6 +196,7 @@ protected void setUp() throws Exception {
 	this.reportDeprecation = CompilerOptions.ERROR;
 }
 
+@Test
 public void test001() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -242,6 +239,7 @@ public void test001() {
 	this.runConformTest( testFiles, modFiles, "" );
 }
 
+@Test
 public void test002() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -284,6 +282,7 @@ public void test002() {
 	this.runConformTest(testFiles , modFiles, "" );
 }
 
+@Test
 public void test003() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -328,6 +327,7 @@ public void test003() {
 	this.runConformTest(testFiles , modFiles, "" );
 }
 
+@Test
 public void test004() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -371,6 +371,7 @@ public void test004() {
 	this.runConformTest(testFiles , modFiles, "" );
 }
 
+@Test
 public void test005() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -415,6 +416,7 @@ public void test005() {
 	this.runConformTest(testFiles , modFiles, "" );
 }
 
+@Test
 public void test006() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -467,6 +469,7 @@ public void test006() {
 			            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test007() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -510,6 +513,7 @@ public void test007() {
 	this.runConformTest(testFiles , modFiles, "" );
 }
 
+@Test
 public void test008() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -553,6 +557,7 @@ public void test008() {
 	this.runConformTest(testFiles , modFiles, "" );
 }
 
+@Test
 public void test009() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -596,6 +601,7 @@ public void test009() {
 	this.runConformTest(testFiles , modFiles, "" );
 }
 
+@Test
 public void test010() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -648,6 +654,7 @@ public void test010() {
 			            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test011() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);
@@ -700,6 +707,7 @@ public void test011() {
 			            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+@Test
 public void test012() {
 	File outputDirectory = new File(OUTPUT_DIR);
 	Util.flushDirectoryContent(outputDirectory);

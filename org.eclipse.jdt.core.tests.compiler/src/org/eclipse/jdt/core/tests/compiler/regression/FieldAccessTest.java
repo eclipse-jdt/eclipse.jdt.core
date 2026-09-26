@@ -14,8 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class FieldAccessTest extends AbstractRegressionTest {
@@ -25,11 +26,8 @@ public class FieldAccessTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 
-public FieldAccessTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public FieldAccessTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 @Override
 protected Map getCompilerOptions() {
@@ -38,6 +36,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149004
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -59,6 +58,7 @@ public void test001() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149004
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -86,6 +86,7 @@ public void test002() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149004
+@Test
 public void test003() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
@@ -116,6 +117,7 @@ public void test003() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149004
+@Test
 public void test004() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
@@ -150,6 +152,7 @@ public void test004() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142234
+@Test
 public void test005() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.ERROR);
@@ -175,6 +178,7 @@ public void test005() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142234
+@Test
 public void test006() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.ERROR);
@@ -200,6 +204,7 @@ public void test006() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test007() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -230,6 +235,7 @@ public void test007() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test008() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -260,6 +266,7 @@ public void test008() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test009() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -290,6 +297,7 @@ public void test009() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test010() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -320,6 +328,7 @@ public void test010() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test011() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -350,6 +359,7 @@ public void test011() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test012() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -380,6 +390,7 @@ public void test012() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test013() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -407,6 +418,7 @@ public void test013() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -434,6 +446,7 @@ public void test014() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -462,6 +475,7 @@ public void test015() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+@Test
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
@@ -491,6 +505,7 @@ public void test016() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534
+@Test
 public void test017() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
@@ -520,6 +535,7 @@ public void test017() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534 - variation
+@Test
 public void test018() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
@@ -560,6 +576,7 @@ public void test018() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534 - variation
+@Test
 public void test019() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
@@ -588,6 +605,7 @@ public void test019() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534 - variation
+@Test
 public void test020() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
@@ -627,6 +645,7 @@ public void test020() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=303830
+@Test
 public void test021() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
@@ -653,6 +672,7 @@ public void test021() {
 		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=303830
+@Test
 public void test022() {
 	this.runNegativeTest(
 		new String[] {
@@ -683,6 +703,7 @@ public void test022() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
+@Test
 public void test023() {
 	this.runNegativeTest(
 		new String[] {
@@ -706,6 +727,7 @@ public void test023() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
+@Test
 public void test024() {
 	this.runNegativeTest(
 		new String[] {
@@ -737,6 +759,7 @@ public void test024() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
+@Test
 public void test025() {
 	this.runNegativeTest(
 		new String[] {
@@ -771,6 +794,7 @@ public void test025() {
 		"The field B.field is hiding a field from type Interface\n" +
 		"----------\n");
 }
+@Test
 public void testBug361039() {
 	runNegativeTest(
 		new String[] {
@@ -790,6 +814,7 @@ public void testBug361039() {
 		"f cannot be resolved or is not a field\n" +
 		"----------\n");
 }
+@Test
 public void testBug568959_001() {
 	runNegativeTest(
 		new String[] {

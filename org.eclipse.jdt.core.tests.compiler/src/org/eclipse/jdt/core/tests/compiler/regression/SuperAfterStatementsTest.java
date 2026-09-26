@@ -14,15 +14,19 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_25)
 public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	static {
@@ -32,14 +36,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "test037" };
 	}
 	private String extraLibPath;
-	public static Class<?> testClass() {
-		return SuperAfterStatementsTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_25);
-	}
-	public SuperAfterStatementsTest(String testName) {
-		super(testName);
+	public SuperAfterStatementsTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -98,6 +96,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			this.customOptions = getCompilerOptions();
 		}
 	}
+	@Test
 	public void test001() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -129,6 +128,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void test002() {
 		runConformTest(new String[] {
 			"X.java",
@@ -156,6 +156,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void test003() {
 		runConformTest(new String[] {
 			"X.java",
@@ -183,6 +184,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"100");
 	}
+	@Test
 	public void test004() {
 		runConformTest(new String[] {
 			"X.java",
@@ -221,6 +223,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"100\n" +
 			"1");
 	}
+	@Test
 	public void test005() {
 		runConformTest(new String[] {
 			"X.java",
@@ -256,6 +259,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 	// any unqualified this expression is disallowed in a pre-construction context:
+	@Test
 	public void test006() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -290,6 +294,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	// any field access, method invocation, or method reference
 	// qualified by super is disallowed in a pre-construction context:
+	@Test
 	public void test007() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -313,6 +318,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"----------\n"
 		);
 	}
+	@Test
 	public void test007b() {
 		// not a problem in outer early construction context
 		Runner runner = new Runner();
@@ -341,6 +347,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	@Test
 	public void test007c() {
 		// but no access to outer this from local class
 		Runner runner = new Runner();
@@ -370,6 +377,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void test007d() {
 		// early construction context of far outer, while inners happily use 'this'
 		Runner runner = new Runner();
@@ -404,6 +412,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runConformTest();
 	}
 	// an illegal access does not need to contain a this or super keyword:
+	@Test
 	public void test008() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -430,6 +439,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot invoke method hashCode() in an early construction context\n" +
 			"----------\n");
 	}
+	@Test
 	public void test008_OK() {
 		// early construction context of outer
 		runConformTest(new String[] {
@@ -458,6 +468,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	//an expression involving this does not refer to the current instance but,
 	// rather, to the enclosing instance of an inner class:
+	@Test
 	public void test009_NOK() {
 		runNegativeTest(new String[] {
 			"B.java",
@@ -480,6 +491,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot read field c in an early construction context\n" +
 			"----------\n");
 	}
+	@Test
 	public void test009_OK() {
 		runConformTest(new String[] {
 			"B.java",
@@ -507,6 +519,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * Inner (which, in this case, has the type Outer), not the instance of Inner
 	 * that is being constructed
 	 */
+	@Test
 	public void test010() {
 		runConformTest(new String[] {
 			"X.java",
@@ -533,6 +546,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * with an enclosing instance of Outer, but the instance of Outer that would be provided is
 	 * still under construction and therefore inaccessible.
 	 */
+	@Test
 	public void test011() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -553,6 +567,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot instantiate class Outer.Inner in an early construction context of class Outer\n" +
 			"----------\n");
 	}
+	@Test
 	public void test011_inherited() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -577,6 +592,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void test011_nested() {
 		runConformTest(new String[] {
 			"Outer.java",
@@ -606,6 +622,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * anonymous classes cannot have the newly created object as the implicit enclosing
 	 * instance
 	 */
+	@Test
 	public void test012() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -631,6 +648,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * an interface instead of a class, then it would have no enclosing instance and
 	 * hence there would be no compile-time error.
 	 */
+	@Test
 	public void test013() {
 		runConformTest(new String[] {
 			"X.java",
@@ -654,6 +672,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * an interface instead of a class, then it would have no enclosing instance and
 	 * hence there would be no compile-time error.
 	 */
+	@Test
 	public void test014() {
 		runConformTest(new String[] {
 			"X.java",
@@ -677,6 +696,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * an interface instead of a class, then it would have no enclosing instance and
 	 * hence there would be no compile-time error.
 	 */
+	@Test
 	public void test015() {
 		runConformTest(new String[] {
 			"X.java",
@@ -698,6 +718,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/* Here the enclosing instance of the class instance creation expression is not
 	 * the newly created U object but, rather, the lexically enclosing O instance.
 	 */
+	@Test
 	public void test016() {
 		runConformTest(new String[] {
 			"X.java",
@@ -722,6 +743,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * if it does not include an expression (i.e. return; is allowed,
 	 * but return e; is not).
 	 */
+	@Test
 	public void test017() {
 		runConformTest(new String[] {
 			"X.java",
@@ -749,6 +771,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/* It is a compile-time error if a return statement that includes an expression
 	 *  appears in the epilogue of a constructor body.
 	 */
+	@Test
 	public void test018() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -780,6 +803,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* It is a compile-time error if a return statement appears in the prologue of a constructor body.
 	 */
+	@Test
 	public void test019() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -811,6 +835,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* It is a compile-time error if a return statement appears in the prologue of a constructor body.
 	 */
+	@Test
 	public void test020() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -840,6 +865,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* Throwing an exception in a prologue of a constructor body is permitted.
 	 */
+	@Test
 	public void test021() {
 		runConformTest(new String[] {
 			"X.java",
@@ -867,6 +893,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* Throwing an exception in a prologue of a constructor body is permitted.
 	 */
+	@Test
 	public void test022() {
 		runConformTest(new String[] {
 			"X.java",
@@ -898,6 +925,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/* Unlike in a static context, code in a pre-construction context may refer to the type
 	 * of the instance under construction, as long as it does not access the instance itself:
 	 */
+	@Test
 	public void test023() {
 		runConformTest(new String[] {
 			"X.java",
@@ -922,6 +950,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"hello");
 	}
+	@Test
 	public void test024() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -956,6 +985,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* Its an error of this is used in super(this) - no change for this error
 	 */
+	@Test
 	public void test025() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -985,6 +1015,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/**
 	 *
 	 */
+	@Test
 	public void test026() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1016,6 +1047,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot use 'super' in an early construction context\n" +
 			"----------\n");
 	}
+	@Test
 	public void test027() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1049,6 +1081,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot read field a in an early construction context\n" +
 			"----------\n");
 	}
+	@Test
 	public void test028() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1079,6 +1112,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot use 'J.super' in an early construction context\n" +
 			"----------\n");
 	}
+	@Test
 	public void test029() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1109,6 +1143,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot use 'J.super' in an early construction context\n" +
 			"----------\n");
 	}
+	@Test
 	public void test030() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1131,6 +1166,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void test032() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1157,6 +1193,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"0"
 		);
 	}
+	@Test
 	public void test033() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1187,6 +1224,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"----------\n"
 			);
 	}
+	@Test
 	public void test034() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1226,6 +1264,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"----------\n"
 			);
 	}
+	@Test
 	public void test035() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1260,6 +1299,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"----------\n"
 			);
 	}
+	@Test
 	public void test036() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1288,6 +1328,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			);
 	}
 	// regression test for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2373
+	@Test
 	public void test037() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1321,6 +1362,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"true"
 		);
 	}
+	@Test
 	public void test038() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1368,6 +1410,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"true"
 		);
 	}
+	@Test
 	public void test039() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1415,6 +1458,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"true"
 		);
 	}
+	@Test
 	public void test040() {
 		Runner runner = new Runner();
 		runner.customOptions.put(CompilerOptions.OPTION_Source, "24");
@@ -1451,6 +1495,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testGH2467() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1477,6 +1522,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testOuterConstruction_1() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1510,6 +1556,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testOuterConstruction_2() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1535,6 +1582,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "Test$Inner";
 		runner.runConformTest();
 	}
+	@Test
 	public void testFieldAssignedInSuperArgument_OK() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1571,6 +1619,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "3456";
 		runner.runConformTest();
 	}
+	@Test
 	public void testFieldAssignedInSuperArgument_NOK_superclass() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1629,6 +1678,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testFieldAssignedInSuperArgument_NOK_hasInitializer() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1687,6 +1737,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testFieldAssignedInSuperArgument_notEnabled() {
 		Runner runner = new Runner();
 		runner.customOptions.put(CompilerOptions.OPTION_Source, "24");
@@ -1743,6 +1794,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testFieldCompoundAssignedInSuperArgument() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1795,6 +1847,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testFieldReadInSuperArgument() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1847,6 +1900,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				""";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testBug564263() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1880,6 +1934,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "OK";
 		runner.runConformTest();
 	}
+	@Test
 	public void testComplexNesting_OK() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1918,6 +1973,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "f3f1";
 		runner.runConformTest();
 	}
+	@Test
 	public void testComplexNesting_NOK() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -1959,6 +2015,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testDuplicateCalls() {
 		// but no access to outer this from local class
 		Runner runner = new Runner();
@@ -1983,6 +2040,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testGH2464() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2023,6 +2081,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testGH2468() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2055,6 +2114,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testGH666() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2081,6 +2141,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testGH3094() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2110,6 +2171,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH3094_2() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2139,6 +2201,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH3094_3() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2180,6 +2243,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testGH3132() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2204,6 +2268,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH3132_2() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2229,6 +2294,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH3153() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2249,6 +2315,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"");
 	}
 
+	@Test
 	public void testLocalAccesToOuter () {
 		runConformTest(new String[] {
 			"Outer.java",
@@ -2279,6 +2346,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"m");
 	}
 
+	@Test
 	public void testCtorRef_staticContext () {
 		runNegativeTest(new String[] {
 			"Outer.java",
@@ -2326,6 +2394,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			""");
 	}
 
+	@Test
 	public void testCtorRef_nonStatic () {
 		runConformTest(new String[] {
 			"Outer.java",
@@ -2361,6 +2430,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"g");
 	}
 
+	@Test
 	public void testGH3188() {
 		runConformTest(new String[] {
 			"EarlyLocalCtorRef.java",
@@ -2381,6 +2451,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"");
 	}
 
+	@Test
 	public void testGH3194_reopen() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2407,6 +2478,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		});
 	}
 
+	@Test
 	public void testGH3116() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2430,6 +2502,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runConformTest();
 	}
 
+	@Test
 	public void testGH3115() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2455,6 +2528,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call.
 	// Variant for early construction context
+	@Test
 	public void test406614() {
 		this.runNegativeTest(
 				new String[] {
@@ -2534,6 +2608,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call.
 	// Variant for early construction context - this time a lambda in early construction of a member accesses the outer this - OK.
+	@Test
 	public void test406614_member() throws IOException, ClassFormatException {
 		this.runConformTest(
 				new String[] {
@@ -2577,6 +2652,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		verifyClassFile("version 25 : 69.0", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void testFieldAssignment_OK() throws Exception {
 		runConformTest(new String[] {
 				"X.java",
@@ -2600,6 +2676,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"OK");
 	}
 
+	@Test
 	public void testFieldAssignmentNotAlways_NOK() throws Exception {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2628,6 +2705,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		""");
 	}
 
+	@Test
 	public void testFieldAssignmentInLambda_NOK() throws Exception {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2658,6 +2736,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		""");
 	}
 
+	@Test
 	public void testFieldAssignmentInLocal_NOK() throws Exception {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2700,6 +2779,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		""");
 	}
 	// test case from https://bugs.openjdk.org/browse/JDK-8322882
+	@Test
 	public void testJDK8322882() throws Exception {
 		runNegativeTest(
 			new String[] {
@@ -2735,6 +2815,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testGH3654() throws Exception {
 		// from https://bugs.openjdk.org/browse/JDK-8334252
 		runConformTest(new String[] {
@@ -2760,6 +2841,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"""},
 				"");
 	}
+	@Test
 	public void testGH3655() {
 		runConformTest(new String[] {
 			"Test1.java",
@@ -2784,6 +2866,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"3");
 	}
+	@Test
 	public void testGH3653() {
 		runConformTest(new String[] {
 			"Outer.java",
@@ -2822,6 +2905,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"Hello");
 	}
+	@Test
 	public void testGH3652() {
 		runConformTest(new String[] {
 			"Outer.java",
@@ -2872,6 +2956,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		},
 		"Outer$Inner1$1.m() Outer.g()");
 	}
+	@Test
 	public void testGH3687a() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -2903,6 +2988,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	@Test
 	public void testGH3687b() {
 		runConformTest(new String[] {
 				"X.java",
@@ -2930,6 +3016,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"10");
 	}
+	@Test
 	public void testGH3700() {
 		// test case from https://bugs.openjdk.org/browse/JDK-8333313
 		runConformTest(new String[] {
@@ -2969,6 +3056,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"1");
 	}
 
+	@Test
 	public void testGH3748a() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3001,6 +3089,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testGH3748b() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3032,6 +3121,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"The final field fin2 may already have been assigned\n" +
 			"----------\n");
 	}
+	@Test
 	public void testGH3687c() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3067,6 +3157,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"Cannot instantiate local class \'Parent\' in a static context\n" +
 				"----------\n");
 	}
+	@Test
 	public void testGH3687d() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3105,6 +3196,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"Cannot instantiate local class \'Parent\' in a static context\n" +
 			"----------\n");
 	}
+	@Test
 	public void testGH3687e() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3135,6 +3227,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"Cannot instantiate local class \'SuperClass\' in a static context\n" +
 				"----------\n");
 	}
+	@Test
 	public void testGH3753() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -3175,6 +3268,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"----------\n");
 	}
 
+	@Test
 	public void testGH3844() {
 		runConformTest(new String[] {
 			"SubClass.java",
@@ -3199,6 +3293,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"init");
 	}
 
+	@Test
 	public void testJDK8346380() {
 		runNegativeTest(new String[] {
 			"O.java",
@@ -3224,6 +3319,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			""");
 	}
 
+	@Test
 	public void testGH4193() {
 		runConformTest(new String[] {
 				"C.java",
@@ -3261,6 +3357,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"""
 		});
 	}
+	@Test
 	public void testGH4193_neg() {
 		runNegativeTest(new String[] {
 				"C.java",
@@ -3318,6 +3415,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	@Test
 	public void testGH4449a() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -3348,6 +3446,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	@Test
 	public void testGH4449b() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -3378,6 +3477,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	@Test
 	public void testGH4449c() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -3408,6 +3508,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	@Test
 	public void testGH4449d() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -3477,6 +3578,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4585
 	// [25] ECJ reports a bogus "The final field t may already have been assigned" error
+	@Test
 	public void testIssue4585() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3500,6 +3602,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		});
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4696
+	@Test
 	public void testIssue4696a() {
 	    runConformTest(new String[] {
 	        "EcjBugRepro.java",
@@ -3543,6 +3646,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         "Constructor 2: Added item. Size: 1\n" +
         "Success: Map size is 1");
 	}
+	@Test
 	public void testIssue4696b() {
 	    runConformTest(new String[] {
 	        "Problem.java",
@@ -3576,6 +3680,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	        "counter=1\n" +
 	        "1");
 	}
+	@Test
 	public void testIssue4720() {
 		runNegativeTest(new String[] {
 			"Test.java",
@@ -3605,6 +3710,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4700
+	@Test
 	public void testIssue4700() {
 	    runConformTest(new String[] {
         	"Test.java",
@@ -3626,6 +3732,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         	"""
 	    });
 	}
+	@Test
 	public void testIssue4700b() {
 		runNegativeTest(new String[] {
 			"Test.java",
@@ -3662,6 +3769,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5353
 	// Flexible recursive constructors tolerated at compile time lead to StackOverflowError at runtime.
+	@Test
 	public void testIssue5353() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -3701,6 +3809,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5352
 	// Unused flexible constructor not complained about
+	@Test
 	public void testIssue5352() {
 		// but no access to outer this from local class
 		Runner runner = new Runner();
@@ -3750,6 +3859,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5371#issuecomment-5579445496
+	@Test
 	public void test5371Comment_5579445496() {
 		Runner runner = new Runner();
 		runner.customOptions.put(CompilerOptions.OPTION_Source, "24");
@@ -3798,6 +3908,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5374#issuecomment-5585179647
+	@Test
 	public void testIssue5374() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3824,6 +3935,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5378
 	// ECJ fails to complain about a flexible constructor failing to initialize a blank final variable.
+	@Test
 	public void testIssue5378() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -3858,6 +3970,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383#issuecomment-5608172836
+	@Test
 	public void testIssue5383_issuecomment_5608172836() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -3887,6 +4000,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383#issuecomment-5608408274
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5396
 	// [flexible-constructors] java.lang.VerifyError: Constructor must call super() or this() before return
+	@Test
 	public void testIssue5396() { // testIssue5383Comment5608408274() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3909,6 +4023,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"good");
 	}
 
+	@Test
 	public void testAnonymousClassInFieldInit() {
 		runConformTest(new String[] {
 			"TokenManager.java",
@@ -3988,6 +4103,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5400
 	// [Flexible constructors] VerifyError: Bad type on operand stack
+	@Test
 	public void testIssue5400() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4023,6 +4139,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5404
     // [Flexible constructors] Incorrect diagnostic: The final field x may already have been assigned
+    @Test
     public void testIssue5404() {
         runConformTest(new String[] {
             "X.java",
@@ -4061,6 +4178,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5404
     // [Flexible constructors] Incorrect diagnostic: The final field x may already have been assigned
+    @Test
     public void testIssue5404_b() {
         runNegativeTest(new String[] {
             "X.java",
@@ -4111,6 +4229,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
     }
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5383/#discussion_r4014770952
+	@Test
 	public void testIssue5383_discussion_r4014770952() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -4147,6 +4266,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 
 	// test nullity preservation across constructor chaining
+	@Test
 	public void testNullWarningsAcrossConstructorCalls() {
 		Runner runner = new Runner();
 		runner.customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -4225,6 +4345,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5382#issuecomment-5713823868
+    @Test
     public void testIssue5382Comment_5713823868() {
         runConformTest(new String[] {
             "X.java",
@@ -4260,6 +4381,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         "OK!");
     }
     // https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5382#issuecomment-5723018357
+    @Test
     public void testIssue5382Comment_5723018357() {
         runConformTest(new String[] {
             "X.java",
@@ -4298,6 +4420,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
         "OK!");
     }
 
+	@Test
 	public void testDiscardInitializationInfo() {
 		Runner runner = new Runner();
 		runner.customOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
@@ -4349,6 +4472,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void testInstanceFieldsFlowInfoMergedWith() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4384,6 +4508,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5410
     // Missing dead code warning
+    @Test
     public void testIssue5410() {
         Runner runner = new Runner();
         runner.customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
@@ -4415,6 +4540,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5410
     // Missing dead code warning
+    @Test
     public void testIssue5410_2() {
         Runner runner = new Runner();
         runner.customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);

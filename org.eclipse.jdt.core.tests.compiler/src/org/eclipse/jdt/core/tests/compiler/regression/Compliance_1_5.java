@@ -15,19 +15,20 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Compliance_1_5 extends AbstractComparableTest {
 boolean docSupport = false;
 
-public Compliance_1_5(String name) {
-	super(name);
+public Compliance_1_5(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 /*
@@ -48,9 +49,6 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	return options;
-}
-public static Test suite() {
-		return buildComparableTestSuite(testClass());
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
@@ -83,6 +81,7 @@ protected void setUp() throws Exception {
 // test009 - moved to RuntimeTests#test1004
 
 // check actualReceiverType when array type
+@Test
 public void test010() {
 	this.runConformTest(
 		new String[] {
@@ -99,6 +98,7 @@ public void test010() {
 		"1SUCCESS");
 }
 // test unreachable code complaints
+@Test
 public void test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -150,6 +150,7 @@ public void test011() {
 		"----------\n");
 }
 /// binary compatibility
+@Test
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -240,6 +241,7 @@ public void test012() {
 		null); // no special vm args
 }
 // binary compatibility
+@Test
 public void test013() {
 	this.runConformTest(
 		new String[] {
@@ -321,6 +323,7 @@ public void test013() {
 		// transient error
 }
 
+@Test
 public void test014() {
 	this.runConformTest(
 		new String[] {
@@ -364,6 +367,7 @@ public void test014() {
 /*
  * check handling of default abstract methods
  */
+@Test
 public void test015() {
 	this.runConformTest(
 		new String[] {
@@ -388,6 +392,7 @@ public void test015() {
 		"SUCCESS");
 }
 
+@Test
 public void test016() {
 	this.runNegativeTest(
 		new String[] {
@@ -414,6 +419,7 @@ public void test016() {
 		"----------\n");
 }
 
+@Test
 public void test017() {
 	this.runConformTest(
 		new String[] {
@@ -438,6 +444,7 @@ public void test017() {
 		"SUCCESS");
 }
 
+@Test
 public void test018() {
 	this.runConformTest(
 		new String[] {
@@ -461,6 +468,7 @@ public void test018() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test019() {
 	this.runConformTest(
 		new String[] {
@@ -486,6 +494,7 @@ public void test019() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test020() {
 	this.runConformTest(
 		new String[] {
@@ -511,6 +520,7 @@ public void test020() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test020a() {
 	this.runConformTest(
 		new String[] {
@@ -537,6 +547,7 @@ public void test020a() {
 		"SUCCESS");
 }
 // binary check for 11511
+@Test
 public void test021() {
 	this.runConformTest(
 		new String[] {
@@ -579,6 +590,7 @@ public void test021() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis
  */
+@Test
 public void test022() {
 
 	this.runNegativeTest(
@@ -621,6 +633,7 @@ public void test022() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis
  */
+@Test
 public void test023() {
 
 	this.runNegativeTest(
@@ -662,6 +675,7 @@ public void test023() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis
  */
+@Test
 public void test024() {
 
 	this.runNegativeTest(
@@ -718,6 +732,7 @@ public void test024() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis (no matter if super is abstract or not)
  */
+@Test
 public void test025() {
 
 	this.runNegativeTest(
@@ -752,6 +767,7 @@ public void test025() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11511
  * variant - applicable error diagnosis (no matter if super is abstract or not)
  */
+@Test
 public void test026() {
 
 	this.runNegativeTest(
@@ -785,6 +801,7 @@ public void test026() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11922
  * should report unreachable empty statement
  */
+@Test
 public void test027() {
 
 	this.runNegativeTest(
@@ -818,6 +835,7 @@ public void test027() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=12445
  * should report unreachable empty statement
  */
+@Test
 public void test028() {
 
 	this.runConformTest(
@@ -855,6 +873,7 @@ public void test028() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * verify error on qualified name ref in 1.4
  */
+@Test
 public void test029() {
 
 	this.runConformTest(
@@ -892,6 +911,7 @@ public void test029() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * 1.4 signals invocations of non-visible abstract protected method implementations.
  */
+@Test
 public void test030() {
 
 	this.runNegativeTest(
@@ -953,6 +973,7 @@ public void test030() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * 1.4 signals invocations of non-visible abstract protected method implementations.
  */
+@Test
 public void test031() {
 
 	this.runNegativeTest(
@@ -1013,6 +1034,7 @@ public void test031() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580
  * 1.4 signals invocations of non-visible abstract protected field implementations.
  */
+@Test
 public void test032() {
 
 	this.runNegativeTest(
@@ -1063,6 +1085,7 @@ public void test032() {
  * Initialization of synthetic fields prior to super constructor call
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23075
  */
+@Test
 public void test033() {
 
 	this.runConformTest(
@@ -1112,6 +1135,7 @@ public void test033() {
  * Initialization of synthetic fields prior to super constructor call - NPE check
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25174
  */
+@Test
 public void test034() {
 
 	this.runConformTest(
@@ -1144,6 +1168,7 @@ public void test034() {
 		"X.this != null-X$1.baz()");
 }
 
+@Test
 public void test035() {
 	this.runConformTest(
 		new String[] {
@@ -1168,6 +1193,7 @@ public void test035() {
 	);
 }
 
+@Test
 public void test036() {
 	this.runConformTest(
 		new String[] {
@@ -1201,6 +1227,7 @@ public void test036() {
  *
  * NOTE: since JLS got revised to allow unterminated line comments (32476)
  */
+@Test
 public void test037() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
@@ -1237,6 +1264,7 @@ public void test037() {
  *
  * NOTE: since JLS got revised to allow unterminated line comments (32476)
  */
+@Test
 public void test038() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
@@ -1267,6 +1295,7 @@ public void test038() {
 /*
  * unreachable empty statement/block are diagnosed in 1.3
  */
+@Test
 public void test039() {
 	this.runNegativeTest(
 		new String[] {
@@ -1319,6 +1348,7 @@ public void test039() {
 }
 // jls6.5.5.1 - simple type names favor member type over toplevel one.
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=30705
+@Test
 public void test040() {
 	this.runNegativeTest(
 		new String[] {
@@ -1359,6 +1389,7 @@ public void test040() {
 /*
  * 30856 - 1.4 compliant mode should consider abstract method matches
  */
+@Test
 public void test041() {
 	this.runConformTest(
 		new String[] {
@@ -1390,6 +1421,7 @@ public void test041() {
 /*
  * variation - 30856 - 1.4 compliant mode should consider abstract method matches
  */
+@Test
 public void test042() {
 	this.runConformTest(
 		new String[] {
@@ -1474,6 +1506,7 @@ public void _test043() {
  * array.clone() should use array type in methodRef
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=36307
  */
+@Test
 public void test044() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1508,6 +1541,7 @@ public void test044() throws Exception {
 	}
 }
 // 39172
+@Test
 public void test045() {
 	this.runNegativeTest(
 		new String[] {
@@ -1532,6 +1566,7 @@ public void test045() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39467
  * should diagnose missing abstract method implementation
  */
+@Test
 public void test046() {
 	this.runNegativeTest(
 		new String[] {
@@ -1567,6 +1602,7 @@ public void test046() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442
  * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
  */
+@Test
 public void test047() {
 	this.runConformTest(
 		new String[] {
@@ -1602,6 +1638,7 @@ public void test047() {
  * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
  * variation with 2 found methods
  */
+@Test
 public void test048() {
 	this.runConformTest(
 		new String[] {
@@ -1636,6 +1673,7 @@ public void test048() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=41278
  */
+@Test
 public void test049() {
 	this.runNegativeTest(
 		new String[] {
@@ -1676,6 +1714,7 @@ public void test049() {
 		"----------\n");
 }
 
+@Test
 public void test050() {
 	this.runNegativeTest(new String[] {
 		"p/X.java",
@@ -1701,6 +1740,7 @@ public void test050() {
 		"----------\n");
 }
 
+@Test
 public void test051() {
 	this.runNegativeTest(new String[] {
 		"p/X.java",
@@ -1726,6 +1766,7 @@ public void test051() {
 		"----------\n");
 }
 
+@Test
 public void test052() {
 	this.runNegativeTest(
 		new String[] {
@@ -1773,6 +1814,7 @@ public void test052() {
 		"----------\n");
 }
 
+@Test
 public void test053() {
 	this.runConformTest(
 		new String[] {
@@ -1800,6 +1842,7 @@ public void test053() {
 	);
 }
 
+@Test
 public void test054() {
 	this.runConformTest(
 		new String[] {
@@ -1833,6 +1876,7 @@ public void test054() {
 		}
 	);
 }
+@Test
 public void test055() {
 	runConformTest(
 		// test directory preparation
@@ -1885,6 +1929,7 @@ public void test055() {
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
 }
 
+@Test
 public void test056() {
 	this.runConformTest(
 		new String[] {
@@ -1906,6 +1951,7 @@ public void test056() {
 	);
 }
 
+@Test
 public void test057() {
 	this.runConformTest(
 		new String[] {
@@ -1936,6 +1982,7 @@ public void test057() {
 	);
 }
 
+@Test
 public void test058() {
 	this.runConformTest(
 		new String[] {
@@ -1962,6 +2009,7 @@ public void test058() {
 	);
 }
 
+@Test
 public void test059() {
 	runConformTest(
 		// test directory preparation
@@ -2000,6 +2048,7 @@ public void test059() {
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
 }
 
+@Test
 public void test060() {
 	this.runConformTest(
 		new String[] {
@@ -2033,6 +2082,7 @@ public void test060() {
 /*
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=32342
  */
+@Test
 public void test061() {
 	runConformTest(
 		// test directory preparation
@@ -2065,6 +2115,7 @@ public void test061() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11435
  * variant - must still complain when targeting super abstract method
  */
+@Test
 public void test062() {
 
 	this.runNegativeTest(
@@ -2090,6 +2141,7 @@ public void test062() {
 		"----------\n"); // expected log
 }
 
+@Test
 public void test063() {
 	String[] sources = new String[] {
 		/* p1/X.java */
@@ -2113,6 +2165,7 @@ public void test063() {
 /**
  * Refuse selection of own enclosing instance arg for super constructor call in 1.5 compliant mode
  */
+@Test
 public void test064() {
 	String[] sources = new String[] {
 		"Foo.java",
@@ -2133,6 +2186,7 @@ public void test064() {
 	this.runConformTest(sources, "SUCCESS");
 }
 
+@Test
 public void test065() {
 	String[] sources = new String[] {
 		"X.java",
@@ -2161,6 +2215,7 @@ public void test065() {
 /*
  * Check that anonymous type allocation is denied access to compatible enclosing instance available as constructor argument
  */
+@Test
 public void test066() {
 	this.runNegativeTest(
 		new String[] {
@@ -2188,6 +2243,7 @@ public void test066() {
 /*
  * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
  */
+@Test
 public void test067() {
 	String expectedError =
 			"----------\n" +
@@ -2240,6 +2296,7 @@ public void test067() {
 /*
  * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
  */
+@Test
 public void test068() {
 	String[] sources = new String[] {
 		"X.java",
@@ -2264,6 +2321,7 @@ public void test068() {
 /*
  * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
  */
+@Test
 public void test069() {
 	String expectedError =
 			"----------\n" +
@@ -2319,6 +2377,7 @@ public void test069() {
 }
 
 // binary compatibility
+@Test
 public void test070() {
 	this.runConformTest(
 		new String[] {
@@ -2355,6 +2414,7 @@ public void test070() {
 /*
  * 43429 - AbstractMethodError calling clone() at runtime when using Eclipse compiler
  */
+@Test
 public void test071() {
 	this.runConformTest(
 		new String[] {
@@ -2391,6 +2451,7 @@ public void test071() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test072() {
 
 	this.runConformTest(
@@ -2416,6 +2477,7 @@ public void test072() {
 	"SUCCESS");
 }
 // 52221
+@Test
 public void test073() {
 
 	this.runNegativeTest(
@@ -2456,6 +2518,7 @@ public void test073() {
 // checking for captured outer local initialization status
 // NOTE: only complain against non-inlinable outer locals
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=26134
+@Test
 public void test074() {
 	this.runNegativeTest(
 		new String[] {
@@ -2502,6 +2565,7 @@ public void test074() {
 		"Local cannot be resolved to a type\n" +
 		"----------\n");
 }
+@Test
 public void test075() {
 	this.runConformTest(
 		new String[] {
@@ -2526,6 +2590,7 @@ public void test075() {
  * Test fix for bug 58069.
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=58069">58069</a>
  */
+@Test
 public void test076() {
 	this.docSupport = true;
 	runNegativeTest(
@@ -2571,6 +2636,7 @@ public void test076() {
  * Note that problem is not flagged in doc comments as it is only raised while verifying
  * implicit method and javadoc resolution does not use it.
  */
+@Test
 public void test077() {
 	this.docSupport = true;
 	this.runConformTest(
@@ -2604,6 +2670,7 @@ public void test077() {
  * Note that problem is not flagged in doc comments as it is only raised while verifying
  * Name or Qualified name references and javadoc reference is a field reference.
  */
+@Test
 public void test078() {
 	this.docSupport = true;
 	this.runConformTest(
@@ -2634,6 +2701,7 @@ public void test078() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
 // TODO: Enable after Bug 552769 is fixed
+@Test
 public void test079() {
 
 	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK25) ?
@@ -2737,6 +2805,7 @@ public void test079() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=67643
  * from 1.5 source level on most specific common super type is allowed
  */
+@Test
 public void test080() {
 	this.runConformTest(
 		new String[] {
@@ -2755,6 +2824,7 @@ public void test080() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test081() {
 	this.runConformTest(
 		new String[] {
@@ -2772,6 +2842,7 @@ public void test081() {
 		"SUCCESS");
 }
 // covariance
+@Test
 public void test082() {
 	this.runConformTest(
 		new String[] {
@@ -2800,6 +2871,7 @@ public void test082() {
  * Test fix for bug 71079: [1.5] ClassCastException resolving Javadoc
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=71079">71079</a>
  */
+@Test
 public void test083() {
 	this.docSupport = true;
 	this.runConformTest(
@@ -2815,6 +2887,7 @@ public void test083() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66533
  */
+@Test
 public void test084() {
 	this.runNegativeTest(
 		new String[] {
@@ -2835,6 +2908,7 @@ public void test084() {
 /**
  * Test unused import with static
  */
+@Test
 public void test085() {
 	runConformTest(
 		// test directory preparation
@@ -2874,6 +2948,7 @@ public void test085() {
 /**
  * Test invalid static import syntax
  */
+@Test
 public void test086() {
 	this.runNegativeTest(
 		new String[] {
@@ -2905,6 +2980,7 @@ public void test086() {
 			"----------\n"
 		);
 }
+@Test
 public void test087() {
 	this.runNegativeTest(
 		new String[] {
@@ -2935,6 +3011,7 @@ public void test087() {
 			"----------\n"
 		);
 }
+@Test
 public void test088() {
 	String errorMessage;
 		errorMessage =
@@ -3015,6 +3092,7 @@ public void test088() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089
  */
+@Test
 public void test089() {
 	this.runConformTest(
 		new String[] {
@@ -3032,6 +3110,7 @@ public void test089() {
 		"SUCCESS");
 }
 //78104
+@Test
 public void test090() {
 	this.runNegativeTest(
 		new String[] {
@@ -3054,6 +3133,7 @@ public void test090() {
 	);
 }
 //78104 - variation
+@Test
 public void test091() {
 	this.runConformTest(
 		new String[] {
@@ -3069,6 +3149,7 @@ public void test091() {
 	);
 }
 // check autoboxing only enabled in 1.5 source mode
+@Test
 public void test092() {
 	this.runConformTest(
 		new String[] {
@@ -3084,6 +3165,7 @@ public void test092() {
 		""
 	);
 }
+@Test
 public void test093() {
 	this.runNegativeTest(
 		new String[] {
@@ -3144,6 +3226,7 @@ public void test093() {
  * Test unused import warning in presence of syntax errors
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21022
  */
+@Test
 public void test094(){
 
 	this.runNegativeTest(
@@ -3165,6 +3248,7 @@ public void test094(){
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743
+@Test
 public void test095(){
 
 	this.runConformTest(
@@ -3196,6 +3280,7 @@ public void test095(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
  */
+@Test
 public void test096() {
 	this.runConformTest(
 		new String[] {
@@ -3223,6 +3308,7 @@ public void test096() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=79396
+@Test
 public void test097() {
 	this.runConformTest(
 		new String[] {
@@ -3254,6 +3340,7 @@ public void test097() {
 		"[X2]");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=78906
+@Test
 public void test098() {
 	this.runConformTest(
 		new String[] {
@@ -3282,6 +3369,7 @@ public void test098() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77349
+@Test
 public void test099() {
 	this.runNegativeTest(
 		new String[] {
@@ -3301,6 +3389,7 @@ public void test099() {
 	);
 }
 
+@Test
 public void test100() {
 	this.runConformTest(
 		new String[] {
@@ -3314,6 +3403,7 @@ public void test100() {
 		}
 	);
 }
+@Test
 public void test101() {
 	this.runConformTest(
 		new String[] {
@@ -3334,6 +3424,7 @@ public void test101() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108856
+@Test
 public void test102() {
 	this.runConformTest(
 		new String[] {
@@ -3355,6 +3446,7 @@ public void test102() {
 		},
 		"X$1$1");
 }
+@Test
 public void test103() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -3411,6 +3503,7 @@ public void test103() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=125570
+@Test
 public void test104() {
 	this.runConformTest(
 		new String[] {
@@ -3441,6 +3534,7 @@ public void test104() {
 }
 
 // enclosing instance - note that the behavior is different in 1.3 and 1.4
+@Test
 public void test105() {
 	this.runConformTest(
 		new String[] {
@@ -3468,6 +3562,7 @@ public void test105() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
+@Test
 public void test106() {
 	this.runConformTest(
 		new String[] {
@@ -3492,6 +3587,7 @@ public void test106() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99986
+@Test
 public void test107() {
 	this.runConformTest(
 		new String[] {
@@ -3512,9 +3608,5 @@ public void test107() {
 			"}"
 		},
 		"1");
-}
-
-public static Class testClass() {
-	return Compliance_1_5.class;
 }
 }

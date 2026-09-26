@@ -30,12 +30,17 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public class StandAloneASTParserTest extends AbstractRegressionTest {
-	public StandAloneASTParserTest(String name) {
-		super(name);
+	public StandAloneASTParserTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
@@ -69,6 +74,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 		return file;
 	}
+	@Test
 	public void testBug529654_001() {
 		String contents =
 				"module m {\n" +
@@ -92,6 +98,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		ModuleDeclaration module = unit.getModule();
 		assertTrue("Incorrect Module Name", module.getName().getFullyQualifiedName().equals("m"));
 	}
+	@Test
 	public void test1() {
 		String contents =
 				"package p;\n" +
@@ -134,6 +141,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertNull("Got a java element", variableBinding2.getJavaElement());
 	}
 
+	@Test
 	public void test2() {
 		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
 		parser.setEnvironment(null, null, null, true);
@@ -162,6 +170,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertNull("No java element", typeBinding.getJavaElement());
 	}
 
+	@Test
 	public void test3() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
@@ -253,6 +262,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test4() {
 		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
 		try {
@@ -263,6 +273,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test5() {
 		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
 		try {
@@ -273,6 +284,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test6() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
@@ -377,6 +389,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	/**
 	 * @deprecated
 	 */
+	@Test
 	public void testBug415066_001() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 		ASTParser parser = ASTParser.newParser(AST.JLS4);
@@ -465,6 +478,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	 * Negative test case
 	 * @deprecated
 	 */
+	@Test
 	public void testBug415066_002() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 		ASTParser parser = ASTParser.newParser(AST.JLS4);
@@ -551,6 +565,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test7() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 
@@ -611,6 +626,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void testBug461250() {
 		String source =
 				"class QH<T> implements QR.Q {\n" +
@@ -632,6 +648,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	}
 
 	@Deprecated
+	@Test
 	public void testBug465048() {
 		String source =
 				"class A {\n" +
@@ -666,6 +683,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	 * this valid input.
 	 * @deprecated
 	 */
+	@Test
 	public void testBug480545() {
 	    String input = "class Test2 { void f(Test2... xs) {} }";
 	    ASTParser parser = ASTParser.newParser(AST.JLS9);
@@ -676,6 +694,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	    assertNotNull(parser.createAST(null));
 	}
 	@Deprecated
+	@Test
 	public void testBug493336_001() {
 	    String input = "public class X implements á¼³ {\n" +
 	    			   "  public static final class if {\n"+
@@ -698,6 +717,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	    assertNotNull(parser.createAST(null));
 	}
 	@Deprecated
+	@Test
 	public void testBug526996_001() {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 		String contents =
@@ -782,6 +802,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			fileY.delete();
 		}
 	}
+	@Test
 	public void testBug526996_002() {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 		String contents =
@@ -1579,6 +1600,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			fileY.delete();
 		}
 	}
+	@Test
 	public void testBug530299_001() {
 		String contents =
 				"public class X {\n" +
@@ -1611,6 +1633,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertNotNull(type);
 		assertTrue("not a var", type.isVar());
 	}
+	@Test
 	public void testBug482254() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 
@@ -1687,6 +1710,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	/*
 	 * To test isVar returning false for ast level 10 and compliance 9
 	 */
+	@Test
 	public void testBug533210_0001() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
@@ -1756,6 +1780,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertTrue(problems.length > 0);
 		assertTrue(problems[0].toString().contains("preview"));
 	}
+	@Test
 	public void testBug547900_01() throws JavaModelException {
 		String contents =
 				"class X {\n"+
@@ -1790,6 +1815,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		YieldStatement yieldStatement = (YieldStatement) ((Block)se.statements().get(1)).statements().get(0);
 		assertNotNull("Expression null", yieldStatement.getExpression());
 	}
+	@Test
 	public void testBug558517() throws IOException {
 		File f1 = null, f2 = null, packDir = null;
 		try {
@@ -1839,6 +1865,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void testGitHub316() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
@@ -1859,6 +1886,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			assertEquals("Problems in compilation", 1,cu.getProblems().length);
 			assertEquals("The left-hand side of an assignment must be a variable",cu.getProblems()[0].getMessage());
 	}
+	@Test
 	public void testGitHub1122() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
@@ -1883,6 +1911,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			// XXX BatchCompiler instead reports 'Syntax error, insert "AssignmentOperator Expression" to complete Expression':
 			assertEquals("The left-hand side of an assignment must be a variable",cu.getProblems()[1].getMessage());
 	}
+	@Test
 	public void testBug568629() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
@@ -1915,6 +1944,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			assertEquals("Syntax error, insert \"AssignmentOperator Expression\" to complete Expression",cu.getProblems()[6].getMessage());
 	}
 
+	@Test
 	public void testBugGithub2402() throws JavaModelException {
         String contents = """
         			package test;
@@ -1951,6 +1981,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570472
 	// Incorrect line number in Text Block having '\"' before endline
+	@Test
 	public void testBug570472() throws JavaModelException {
         String contents = """
 				public class TestTextBlocks {
@@ -1982,6 +2013,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2462
 	// Incorrect line numbers when parsing text blocks
+	@Test
 	public void testIssue2462() throws JavaModelException {
         String contents = """
 				public class TestWrongLineNumber {

@@ -16,10 +16,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class StaticImportTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -31,19 +31,11 @@ public class StaticImportTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 75, -1 };
 	}
 
-	public StaticImportTest(String name) {
-		super(name);
+	public StaticImportTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Test suite() {
-		return buildComparableTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return StaticImportTest.class;
-	}
-
-
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -55,6 +47,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 
+	@Test
 	public void test002() {
 		this.runConformTest(
 			new String[] {
@@ -87,6 +80,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 
+	@Test
 	public void test003() { // test inheritance
 		this.runConformTest(
 			new String[] {
@@ -154,6 +148,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 	}
 
+	@Test
 	public void test004() { // test static vs. instance
 		this.runNegativeTest(
 			new String[] {
@@ -221,6 +216,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test005() { // test visibility
 		this.runNegativeTest(
 			new String[] {
@@ -288,6 +284,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		"----------\n");
 	}
 
+	@Test
 	public void test006() { // test non static member types
 		this.runNegativeTest(
 			new String[] {
@@ -315,6 +312,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test007() { // test non static member types vs. static field
 		this.runConformTest(
 			new String[] {
@@ -334,6 +332,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 
+	@Test
 	public void test008() { // test static top level types
 		this.runNegativeTest(
 			new String[] {
@@ -350,6 +349,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test009() { // test static top level types
 		this.runNegativeTest(
 			new String[] {
@@ -366,6 +366,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76174
+	@Test
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
@@ -383,6 +384,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76360
+	@Test
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
@@ -413,6 +415,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	@Test
 	public void test012() {
 		this.runConformTest(
 			new String[] {
@@ -458,6 +461,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77955
+	@Test
 	public void test013() {
 		this.runNegativeTest(
 			new String[] {
@@ -542,6 +546,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78056
+	@Test
 	public void test014() {
 		this.runConformTest(
 			new String[] {
@@ -559,6 +564,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78075
+	@Test
 	public void test015() {
 		this.runConformTest(
 			new String[] {
@@ -591,6 +597,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77630
+	@Test
 	public void test016() {
 		this.runNegativeTest(
 			new String[] {
@@ -608,6 +615,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81724
+	@Test
 	public void test017() {
 		this.runConformTest(
 			new String[] {
@@ -633,6 +641,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81724 - variation
+	@Test
 	public void test018() {
 		this.runNegativeTest(
 			new String[] {
@@ -674,6 +683,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81718
+	@Test
 	public void test019() {
 		this.runNegativeTest(
 			new String[] {
@@ -694,6 +704,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82754
+	@Test
 	public void test020() {
 		this.runNegativeTest(
 			new String[] {
@@ -711,6 +722,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"	);
 	}
 
+	@Test
 	public void test021() {
 		this.runConformTest(
 			new String[] {
@@ -756,6 +768,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test022() { // test field/method collisions
 		this.runConformTest(
 			new String[] {
@@ -836,6 +849,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test023() {
 		this.runConformTest(
 			new String[] {
@@ -882,6 +896,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83376
+	@Test
 	public void test024() {
 		this.runNegativeTest(
 			new String[] {
@@ -918,6 +933,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test025() {
 		this.runConformTest(
 			new String[] {
@@ -938,6 +954,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test026() { // ensure inherited problem fields do not stop package resolution
 		this.runConformTest(
 			new String[] {
@@ -949,6 +966,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 
+	@Test
 	public void test027() {
 		this.runNegativeTest(
 			new String[] {
@@ -973,6 +991,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87490
+	@Test
 	public void test028() {
 		this.runConformTest(
 			new String[] {
@@ -1012,6 +1031,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93913
+	@Test
 	public void test029() {
 		this.runNegativeTest(
 			new String[] {
@@ -1049,6 +1069,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94262
+	@Test
 	public void test030() {
 		this.runNegativeTest(
 			new String[] {
@@ -1096,6 +1117,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95909
+	@Test
 	public void test031() {
 		this.runNegativeTest(
 			new String[] {
@@ -1120,6 +1142,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	@Test
 	public void test032() {
 		this.runConformTest(
 			new String[] {
@@ -1144,6 +1167,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	@Test
 	public void test032b() {
 		this.runNegativeTest(
 			new String[] {
@@ -1173,6 +1197,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	@Test
 	public void test032c() {
 		this.runConformTest(
 			new String[] {
@@ -1197,6 +1222,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	@Test
 	public void test032d() {
 		this.runConformTest(
 			new String[] {
@@ -1220,6 +1246,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"true");
 	}
 
+	@Test
 	public void test033() {
 		this.runConformTest(
 			new String[] {
@@ -1243,6 +1270,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"true");
 	}
 
+	@Test
 	public void test033b() {
 		this.runConformTest(
 			new String[] {
@@ -1266,6 +1294,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"true");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104198
+	@Test
 	public void test034() {
 		this.runConformTest(
 			new String[] {
@@ -1291,6 +1320,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=117861
+	@Test
 	public void test035() {
 		this.runConformTest(
 			new String[] {
@@ -1346,6 +1376,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564
+	@Test
 	public void test036() {
 		this.runNegativeTest(
 			new String[] {
@@ -1382,6 +1413,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
+	@Test
 	public void test037() {
 		this.runConformTest(
 			new String[] {
@@ -1403,6 +1435,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
+	@Test
 	public void test038() {
 		this.runNegativeTest(
 			new String[] {
@@ -1454,6 +1487,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
+	@Test
 	public void test039() {
 		this.runNegativeTest(
 			new String[] {
@@ -1490,6 +1524,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87490 - variation
+	@Test
 	public void test040() {
 		this.runConformTest(
 			new String[] {
@@ -1528,6 +1563,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			null);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134118
+	@Test
 	public void test041() {
 		this.runConformTest(
 			true,
@@ -1557,6 +1593,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133737
+	@Test
 	public void test042() {
 		this.runNegativeTest(
 			new String[] {
@@ -1601,6 +1638,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			// toString() in java.lang.Object cannot be applied to (java.lang.Object[])
 		);
 	}
+	@Test
 	public void test042b() {
 		this.runConformTest(
 			new String[] {
@@ -1622,6 +1660,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129388
+	@Test
 	public void test043() {
 		this.runConformTest(
 			new String[] {
@@ -1643,6 +1682,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// names potential confusion
+	@Test
 	public void test044() {
 		this.runConformTest(
 			new String[] {
@@ -1669,6 +1709,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142772
+	@Test
 	public void test045() {
 		this.runNegativeTest(
 			new String[] {
@@ -1688,6 +1729,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			// arrayList(int) in X cannot be applied to ()
 		);
 	}
+	@Test
 	public void test045b() {
 		this.runNegativeTest(
 			new String[] {
@@ -1733,6 +1775,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133737
+	@Test
 	public void test046() {
 		this.runNegativeTest(
 			new String[] {
@@ -1770,6 +1813,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165069
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165081
+	@Test
 	public void test047() {
 		this.runNegativeTest(
 			new String[] {
@@ -1818,6 +1862,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165069 - variation
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165081 - variation
+	@Test
 	public void test048() {
 		this.runNegativeTest(
 			new String[] {
@@ -1859,6 +1904,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165081 - variation
+	@Test
 	public void test049() {
 		this.runNegativeTest(
 			new String[] {
@@ -1886,6 +1932,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=187329
+	@Test
 	public void test050() {
 		this.runConformTest(
 			new String[] {
@@ -1912,6 +1959,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207433
+	@Test
 	public void test051() {
 		this.runConformTest(
 			new String[] {
@@ -1941,6 +1989,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207433 - variation
+	@Test
 	public void test052() {
 		this.runConformTest(
 			new String[] {
@@ -1970,6 +2019,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207433 - variation
+	@Test
 	public void test053() {
 		this.runConformTest(
 			new String[] {
@@ -1997,6 +2047,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193210
+	@Test
 	public void test055() {
 		this.runConformTest(
 				new String[] {
@@ -2030,6 +2081,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"");
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193210 - variation
+	@Test
 	public void test056() {
 		this.runNegativeTest(
 				new String[] {
@@ -2067,6 +2119,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"----------\n");
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193210 - variation
+	@Test
 	public void test057() {
 		this.runNegativeTest(
 				new String[] {
@@ -2114,6 +2167,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"----------\n");
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216930
+	@Test
 	public void test058() {
 		this.runConformTest(
 			new String[] {
@@ -2136,6 +2190,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
+	@Test
 	public void test059() {
 		this.runConformTest(
 			new String[] {
@@ -2158,6 +2213,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	@Test
 	public void test060() {
 		this.runConformTest(
 			new String[] {
@@ -2180,6 +2236,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	@Test
 	public void test061() {
 		runConformTest(
 			// test directory preparation
@@ -2210,6 +2267,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			JavacTestOptions.DEFAULT /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	@Test
 	public void test062() {
 		this.runNegativeTest(
 			new String[] {
@@ -2237,6 +2295,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	@Test
 	public void test063() {
 		this.runNegativeTest(
 			new String[] {
@@ -2282,6 +2341,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	@Test
 	public void test064() {
 		this.runNegativeTest(
 			new String[] {
@@ -2307,6 +2367,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026
+	@Test
 	public void test065() {
 		this.runConformTest(
 			new String[] {
@@ -2328,6 +2389,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	@Test
 	public void test066() {
 		this.runConformTest(
 			new String[] {
@@ -2349,6 +2411,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	@Test
 	public void test067() {
 		this.runNegativeTest(
 			new String[] {
@@ -2374,6 +2437,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	@Test
 	public void test068() {
 		this.runConformTest(
 			new String[] {
@@ -2394,6 +2458,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	@Test
 	public void test069() {
 		this.runConformTest(
 			new String[] {
@@ -2414,6 +2479,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211
+	@Test
 	public void test070() {
 		this.runConformTest(
 			new String[] {
@@ -2431,6 +2497,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
+	@Test
 	public void test071() {
 		this.runNegativeTest(
 			new String[] {
@@ -2464,6 +2531,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93913 - variation
+	@Test
 	public void test072() {
 		this.runNegativeTest(
 			new String[] {
@@ -2499,6 +2567,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375
+	@Test
 	public void test073() {
 		this.runNegativeTest(
 			new String[] {
@@ -2526,6 +2595,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375 - variation
+	@Test
 	public void test074() {
 		this.runConformTest(
 			new String[] {
@@ -2546,6 +2616,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// To verify that a static import importing a type which has already been
 	// imported by a single type import is reported as duplicate
 	// while the other static members imported by it are not shadowed.
+	@Test
 	public void test075() {
 		this.runNegativeTest(
 			new String[] {
@@ -2574,6 +2645,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302865
 	// To verify that a static import importing a static method doesn't collide
 	// with a single type import importing a non-static type with the same name as the method
+	@Test
 	public void test076() {
 		this.runConformTest(
 			new String[] {
@@ -2601,6 +2673,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302865
 	// To verify that two static imports importing the same type don't collide
+	@Test
 	public void test077() {
 		this.runConformTest(
 			new String[] {
@@ -2636,6 +2709,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// To verify that a static import importing a type which has already been
 	// imported by a single type import is reported as duplicate
 	// while the other static members imported by it are not shadowed.
+	@Test
 	public void test078() {
 		this.runNegativeTest(
 			new String[] {
@@ -2670,6 +2744,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// To verify that a static import importing a type which has already been
 	// imported by a single type import is not reported as duplicate
 	// if they are just the same type
+	@Test
 	public void test079() {
 		this.runNegativeTest(
 			new String[] {
@@ -2696,6 +2771,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336934
+	@Test
 	public void test080() {
 		this.runNegativeTest(
 			new String[] {
@@ -2726,6 +2802,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318401
+	@Test
 	public void test081() {
 		this.runConformTest(
 			new String[] {
@@ -2767,6 +2844,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318401
+	@Test
 	public void test082() {
 		this.runNegativeTest(
 			new String[] {
@@ -2814,6 +2892,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318401
+	@Test
 	public void test083() {
 		this.runConformTest(
 			new String[] {
@@ -2856,6 +2935,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// Check if we're able to find the correct static member type being imported,
 	// even though the import originally resolved to the static field of the same name,
 	// coming from the supertype
+	@Test
 	public void test084() {
 		this.runConformTest(
 			new String[] {
@@ -2895,6 +2975,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
 	// To verify that all static members are imported with a single static import statement
+	@Test
 	public void test085() {
 		this.runNegativeTest(
 			new String[] {
@@ -2934,6 +3015,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
 	// To verify that all static members are imported with a single static import statement,
 	// even from a supertype
+	@Test
 	public void test085a() {
 		this.runNegativeTest(
 			new String[] {
@@ -2978,6 +3060,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
 	// To verify that all static members are imported with a single static import statement
 	// this tests checks collision with single type import
+	@Test
 	public void test085b() {
 		this.runNegativeTest(
 			new String[] {
@@ -3017,6 +3100,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
 	// To verify that all static members are imported with a single static import statement
 	// this tests checks collision with top level type
+	@Test
 	public void test085c() {
 		this.runNegativeTest(
 			new String[] {
@@ -3050,6 +3134,7 @@ public class StaticImportTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
 	// Test obscuring rules defined in JLS 7.5.3
+	@Test
 	public void test086() {
 		this.runConformTest(
 			new String[] {
@@ -3083,6 +3168,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/401271 - StackOverflowError when searching for a methods references
+	@Test
 	public void testBug401271() {
 		runNegativeTest(
 			new String[] {
@@ -3112,6 +3198,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426544 - [1.8][compiler] Compiler over-eagerly detects collision of single static imports
+	@Test
 	public void test426544() {
 		runNegativeTest(
 			new String[] {
@@ -3161,6 +3248,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=479287
 	// erroneous compile error using static imports and generics
+	@Test
 	public void testBug479287() {
 		this.runConformTest(
 			new String[] {
@@ -3194,6 +3282,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442580
 	// Explicit static import after two wildcard imports is ambiguous (works in javac)
+	@Test
 	public void testBug442580() {
 		this.runConformTest(new String [] {
 				"a/A.java",
@@ -3224,6 +3313,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}"
 		});
 	}
+	@Test
 	public void testBug520874a() {
 		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
 			return;
@@ -3256,6 +3346,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The type Inner is not visible\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug520874b() {
 		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
 			return;
@@ -3279,6 +3370,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The type Inner is not visible\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug520874c() {
 		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
 			return;
@@ -3321,6 +3413,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"Inner cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug520874d() {
 		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
 			return;
@@ -3353,6 +3446,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The import p.Bar.Inner is never used\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug520874e() {
 		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
 			return;
@@ -3385,6 +3479,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The import p.Bar is never used\n" +
 				"----------\n");
 	}
+	@Test
 	public void testGH809_field_a() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -3414,6 +3509,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH809_field_b() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -3443,6 +3539,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH809_field_c() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -3472,6 +3569,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH809_method_a() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -3501,6 +3599,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH809_method_b() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -3530,6 +3629,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	@Test
 	public void testGH809_method_c() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -3562,15 +3662,16 @@ public class StaticImportTest extends AbstractComparableTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4986
 	// Test that error message for inaccessible static import field is correctly formatted
+	@Test
 	public void testBug4986() {
 		this.runNegativeTest(
 			new String[] {
 				"p/C.java",
 				"""
 				package p;
-				
+
 				import static p.C.f;
-				
+
 				public class C {
 					private static int f;
 				}

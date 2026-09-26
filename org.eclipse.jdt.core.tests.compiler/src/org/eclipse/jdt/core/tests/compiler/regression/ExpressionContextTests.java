@@ -16,8 +16,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ExpressionContextTests extends AbstractRegressionTest {
@@ -28,12 +29,8 @@ static {
 	//	TESTS_RANGE = new int[] { 11, -1 };
 }
 
-public ExpressionContextTests(String name) {
-	super(name);
-}
-
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
+public ExpressionContextTests(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -48,6 +45,7 @@ protected Map getCompilerOptions() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test001() {
 	this.runNegativeTest(
 			new String[] {
@@ -69,6 +67,7 @@ public void test001() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test002() {
 	this.runConformTest(
 			new String[] {
@@ -87,6 +86,7 @@ public void test002() {
 			});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test003() {
 	this.runNegativeTest(
 			new String[] {
@@ -111,6 +111,7 @@ public void test003() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test004() {
 	this.runNegativeTest(
 			new String[] {
@@ -140,6 +141,7 @@ public void test004() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test005() {
 	this.runNegativeTest(
 			new String[] {
@@ -169,6 +171,7 @@ public void test005() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test006() {
 	this.runNegativeTest(
 			new String[] {
@@ -198,6 +201,7 @@ public void test006() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test007() {
 	this.runNegativeTest(
 			new String[] {
@@ -221,6 +225,7 @@ public void test007() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test008() {
 	this.runNegativeTest(
 			new String[] {
@@ -260,6 +265,7 @@ public void test008() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test009() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -285,6 +291,7 @@ public void test009() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test010() {
 	this.runNegativeTest(
 			new String[] {
@@ -313,6 +320,7 @@ public void test010() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test011() {
 	this.runNegativeTest(
 			new String[] {
@@ -337,6 +345,7 @@ public void test011() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test012() {
 	this.runNegativeTest(
 			new String[] {
@@ -366,6 +375,7 @@ public void test012() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test013() {
 	this.runNegativeTest(
 			new String[] {
@@ -395,6 +405,7 @@ public void test013() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test014() {
 	this.runNegativeTest(
 			new String[] {
@@ -420,6 +431,7 @@ public void test014() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test015() {
 	this.runNegativeTest(
 			new String[] {
@@ -449,6 +461,7 @@ public void test015() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test016() {
 	this.runNegativeTest(
 			new String[] {
@@ -473,6 +486,7 @@ public void test016() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
+@Test
 public void test017() {
 	this.runNegativeTest(
 			new String[] {
@@ -502,6 +516,7 @@ public void test017() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+@Test
 public void test018() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -526,6 +541,7 @@ public void test018() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+@Test
 public void test019() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -556,6 +572,7 @@ public void test019() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+@Test
 public void test020() {
 	this.runNegativeTest(
 			new String[] {
@@ -583,6 +600,7 @@ public void test020() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+@Test
 public void test021() {
 	this.runNegativeTest(
 			new String[] {
@@ -628,6 +646,7 @@ public void test021() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401222, [1.8][compiler] Conditional operator expressions results differ from 8b76
+@Test
 public void test022() {
 	this.runNegativeTest(
 			new String[] {

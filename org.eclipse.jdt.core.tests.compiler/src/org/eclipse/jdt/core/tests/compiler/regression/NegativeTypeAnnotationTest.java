@@ -15,11 +15,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.EclipseJustification;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
@@ -28,15 +29,10 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int [] { 35 };
 //		TESTS_NAMES = new String [] { "test0390882b" };
 	}
-	public static Class testClass() {
-		return NegativeTypeAnnotationTest.class;
+	public NegativeTypeAnnotationTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-	public NegativeTypeAnnotationTest(String testName){
-		super(testName);
-	}
+	@Test
 	public void test001() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -50,6 +46,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker2 cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test002() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -66,6 +63,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker2 cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test003() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -79,6 +77,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test004() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -92,6 +91,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test005() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -105,6 +105,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test006() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -131,6 +132,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"C cannot be resolved to a type\n" +
 		"----------\n");
 	}
+	@Test
 	public void test007() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -158,6 +160,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"C cannot be resolved to a type\n" +
 		"----------\n");
 	}
+	@Test
 	public void test010() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -184,6 +187,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"C cannot be resolved to a type\n" +
 		"----------\n");
 	}
+	@Test
 	public void test011() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -212,6 +216,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// throws
+	@Test
 	public void test012() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -250,6 +255,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// method receiver
+	@Test
 	public void test013() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -266,6 +272,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// method return type
+	@Test
 	public void test014() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -284,6 +291,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// field type
+	@Test
 	public void test015() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -300,6 +308,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// method parameter
+	@Test
 	public void test016() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -318,6 +327,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// method parameter generic or array
+	@Test
 	public void test017() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -336,6 +346,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// field type generic or array
+	@Test
 	public void test018() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -352,6 +363,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// class type parameter
+	@Test
 	public void test019() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -371,6 +383,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// method type parameter
+	@Test
 	public void test020() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -392,6 +405,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// class type parameter bound
+	@Test
 	public void test021() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -413,6 +427,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// class type parameter bound generic or array
+	@Test
 	public void test022() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -444,6 +459,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// method type parameter bound
+	@Test
 	public void test023() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -467,6 +483,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// class type parameter bound generic or array
+	@Test
 	public void test024() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -502,6 +519,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// local variable + generic or array
+	@Test
 	public void test025() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -539,6 +557,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// type argument constructor call
+	@Test
 	public void test026() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -565,6 +584,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// type argument constructor call generic or array
+	@Test
 	public void test027() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -591,6 +611,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// type argument method call and generic or array
+	@Test
 	public void test028() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -622,6 +643,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"C cannot be resolved to a type\n" +
 		"----------\n");
 	}
+	@Test
 	public void test029() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -635,6 +657,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker2 cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test030() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -651,6 +674,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker2 cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test031() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -684,6 +708,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"The annotation @Marker is disallowed for this location\n" +
 				"----------\n");
 	}
+	@Test
 	public void test032() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -695,6 +720,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"");
 
 	}
+	@Test
 	public void test033() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -713,6 +739,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// check locations
+	@Test
 	public void test034() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -798,6 +825,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// check locations
+	@Test
 	public void test035() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -831,6 +859,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383884 -- Compiler tolerates illegal dimension annotation in class literal expressions
+	@Test
 	public void test036() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -880,6 +909,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"Syntax error, type annotations are illegal here\n" +
 			"----------\n");
 	}
+	@Test
 	public void test037() {
 		this.runNegativeTest(
 				new String[] {
@@ -901,6 +931,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383950
 	// [1.8][compiler] Type annotations must have target type meta annotation TYPE_USE
+	@Test
 	public void test038() {
 		this.runNegativeTest(
 				new String[] {
@@ -925,6 +956,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// JSR 308: "It is not permitted to annotate the type name in an import statement."
+	@Test
 	public void test039() {
 		this.runNegativeTest(
 				new String[] {
@@ -942,6 +974,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// Test that type name can't be left out in a cast expression with an annotations
+	@Test
 	public void test040() {
 		this.runNegativeTest(
 				new String[] {
@@ -962,6 +995,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385111
 	// [1.8][compiler] Compiler fails to flag undefined annotation type.
+	@Test
 	public void test0385111() {
 		this.runNegativeTest(
 				new String[] {
@@ -989,6 +1023,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385111
 	// Test to exercise assorted cleanup along with bug fix.
+	@Test
 	public void test0385111a() {
 		this.runNegativeTest(
 				new String[] {
@@ -1034,6 +1069,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	@Test
 	public void test0383913() {
 		this.runNegativeTest(
 				new String[]{
@@ -1070,6 +1106,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	@Test
 	public void test0383913b() {
 		this.runNegativeTest(
 				new String[] {
@@ -1162,6 +1199,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	@Test
 	public void test0383913c() {
 		this.runNegativeTest(
 				new String[] {
@@ -1228,6 +1266,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	@Test
 	public void test0383913d() {
 		this.runNegativeTest(
 				new String[] {
@@ -1315,6 +1354,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 							"Missing cannot be resolved to a type\n" +
 							"----------\n");
 	}
+	@Test
 	public void test0383908() {
 		this.runNegativeTest(
 				new String[]{"X.java",
@@ -1341,6 +1381,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on nested package names.
+	@Test
 	public void test383596() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1367,6 +1408,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on nested package names.
+	@Test
 	public void test383596a() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1398,6 +1440,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on nested import names.
+	@Test
 	public void test039b() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1429,6 +1472,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on nested import names.
+	@Test
 	public void test383596b() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1460,6 +1504,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on nested static import names.
+	@Test
 	public void test041() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1491,6 +1536,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on nested static import names.
+	@Test
 	public void test042() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1524,6 +1570,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on Qualified name in explicit this.
 	// Much water has flown under the bridge. The grammar itself does not allow annotations in qualified name in explicit this.
 	// We now use the production UnannotatableName instead of plain Name.
+	@Test
 	public void test043() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -1545,6 +1592,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on Qualified name in explicit constructor call -- super form
+	@Test
 	public void test044() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1578,6 +1626,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on Qualified name in explicit constructor call, super form with explicit type arguments
+	@Test
 	public void test045() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1616,6 +1665,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on Qualified name in explicit constructor call - this form
+	@Test
 	public void test046() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1654,6 +1704,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on Qualified name in explicit constructor call, this form with explicit type arguments
+	@Test
 	public void test047() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1697,6 +1748,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations on Qualified name in PrimaryNoNewArray
+	@Test
 	public void test048() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1716,6 +1768,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified this.
+	@Test
 	public void test049() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1738,6 +1791,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified super.
+	@Test
 	public void test050() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1758,6 +1812,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in Name.class
+	@Test
 	public void test051() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1778,6 +1833,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in Name [].class.
+	@Test
 	public void test052() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1803,6 +1859,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in binary expressions with qualified names.
+	@Test
 	public void test053() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1952,9 +2009,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	   AnnotationName ::= '@' UnannotatableName. We don't want to add tests that will be fragile and unstable due to
 	   syntax. If a construct is provably not parsed at the grammar level, that ought to be good enough.
 	*/
+	@Test
 	public void test054() throws Exception {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified names used as annotation values.
+	@Test
 	public void test055() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1975,6 +2034,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified names that are postfix expressions.
+	@Test
 	public void test056() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -1994,6 +2054,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified names used in array access.
+	@Test
 	public void test057() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2013,6 +2074,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified name with type arguments used in method invocation.
+	@Test
 	public void test058() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2037,6 +2099,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified name used in method invocation.
+	@Test
 	public void test059() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2061,6 +2124,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified name used in class instance creation
+	@Test
 	public void test060() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2084,6 +2148,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596 -- reject annotations in qualified name used in class instance creation
+	@Test
 	public void test061() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2102,6 +2167,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error, type annotations are illegal here\n" +
 				"----------\n");
 	}
+	@Test
 	public void test062() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2121,6 +2187,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 				"----------\n");
 	}
+	@Test
 	public void test063() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2138,6 +2205,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error, type annotations are illegal here\n" +
 				"----------\n");
 	}
+	@Test
 	public void test064() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2160,6 +2228,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Annotation attributes cannot be generic\n" +
 				"----------\n");
 	}
+	@Test
 	public void test065() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2182,6 +2251,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 				"----------\n");
 	}
+	@Test
 	public void test066() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2204,6 +2274,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"X.X cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test067() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2221,6 +2292,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"x cannot be resolved to a variable\n" +
 				"----------\n");
 	}
+	@Test
 	public void test068() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2244,6 +2316,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385293
+	@Test
 	public void test069() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -2270,6 +2343,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388085
+	@Test
 	public void test0388085() {
 		this.runNegativeTest(
 				new String[] {"X.java",
@@ -2305,6 +2379,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 							"Marker cannot be resolved to a type\n" +
 							"----------\n");
 	}
+	@Test
 	public void test0388085a() {
 		this.runNegativeTest(
 				new String[] {"X.java",
@@ -2343,6 +2418,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"Annotation types that do not specify explicit target element types cannot be applied here\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390882
+	@Test
 	public void test0390882() {
 		this.runNegativeTest(
 				new String[] {
@@ -2397,6 +2473,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" +
 				"----------\n");
 	}
+	@Test
 	public void test0390882a() {
 		this.runNegativeTest(
 				new String[] {
@@ -2440,6 +2517,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"java.lang cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void test0390882b() {
 		this.runNegativeTest(
 				new String[] {
@@ -2501,6 +2579,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385137
+	@Test
 	public void test0385137() {
 		this.runNegativeTest(
 				new String[]{ "A.java",
@@ -2573,6 +2652,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"Type annotations are not allowed on type names used to access static members\n" +
 					"----------\n");
 	}
+	@Test
 	public void test0385137a() {
 		this.runNegativeTest(
 				new String[]{"A.java",
@@ -2642,6 +2722,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"Type annotations are not allowed on type names used to access static members\n" +
 					"----------\n");
 	}
+	@Test
 	public void testBug391196() {
 		this.runNegativeTest(
 				new String[]{
@@ -2684,6 +2765,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Unresolved cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug391315() {
 		this.runNegativeTest(
 				new String[]{
@@ -2727,6 +2809,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug391315a() {
 		this.runNegativeTest(
 				new String[]{
@@ -2770,6 +2853,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391500
+	@Test
 	public void testBug391500() {
 		this.runNegativeTest(
 				new String[]{
@@ -2804,6 +2888,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug391464() {
 		this.runNegativeTest(
 				new String[]{
@@ -2839,6 +2924,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug391464_2() {
 		this.runNegativeTest(
 				new String[]{
@@ -2876,6 +2962,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391108
+	@Test
 	public void testBug391108() {
 		this.runNegativeTest(
 				new String[]{
@@ -2918,6 +3005,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119
+	@Test
 	public void test392119() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2961,6 +3049,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit class file retention.
+	@Test
 	public void test392119b() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3007,6 +3096,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit runtime retention.
+	@Test
 	public void test392119c() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3051,6 +3141,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=394355
+	@Test
 	public void testBug394355() {
 		this.runNegativeTest(
 			new String[]{
@@ -3095,6 +3186,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399453
+	@Test
 	public void testBug399453() {
 		this.runNegativeTest(
 				new String[]{
@@ -3131,6 +3223,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399453
+	@Test
 	public void testBug391894() {
 		this.runNegativeTest(
 				new String[]{
@@ -3174,6 +3267,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402618, [1.8][compiler] Compiler fails to resolve type annotations on method/constructor references
+	@Test
 	public void test402618() {
 		this.runNegativeTest(
 				new String[]{
@@ -3211,6 +3305,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"NonNegative cannot be resolved to a type\n" +
 				"----------\n");
 		}
+	@Test
 	public void testBug403132() {
 		this.runNegativeTest(
 				new String[] {
@@ -3252,6 +3347,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403410
+	@Test
 	public void testBug403410() {
 		this.runNegativeTest(
 				new String[] {
@@ -3290,6 +3386,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403581,  [1.8][compiler] Compile error on varargs annotations.
+	@Test
 	public void test403581() {
 		this.runNegativeTest(
 				new String[] {
@@ -3310,6 +3407,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392671, [1.8][recovery] NPE with a method with explicit this and a following incomplete parameter
+	@Test
 	public void test392671() {
 		this.runNegativeTest(
 				new String[] {
@@ -3336,6 +3434,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// [1.8][compiler] Missing expected error for incorrect placement of type annotation (https://bugs.eclipse.org/bugs/show_bug.cgi?id=406587)
+	@Test
 	public void test406587() {
 		this.runNegativeTest(
 				new String[] {
@@ -3424,6 +3523,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417076, Eclipse compiler rejects multiple annotations for varargs.
+	@Test
 	public void test417076() {
 		this.runNegativeTest(
 				new String[] {
@@ -3453,6 +3553,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417076, Eclipse compiler rejects multiple annotations for varargs.
+	@Test
 	public void test417076b() {
 		this.runNegativeTest(
 				new String[] {
@@ -3486,6 +3587,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	// This is the basic test case which demonstrated the issue for a local variable.
 	// We correctly identified the problem in function bar but failed to do so for foo.
+	@Test
 	public void test415308a() {
 		this.runNegativeTest(
 				new String[] {
@@ -3527,6 +3629,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	// This test case is similar to test415308a. SimpleTypes on which annotations are applied are modified to array
 	// types.
+	@Test
 	public void test415308a2() {
 		this.runNegativeTest(
 				new String[] {
@@ -3569,6 +3672,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// Testing type use annotations on nested types.
 	// We check all the qualifiers as we look for a static type. This test checks if we are able to
 	// go beyond 1 level as part of the loop.
+	@Test
 	public void test415308b() {
 		this.runNegativeTest(
 				new String[] {
@@ -3611,6 +3715,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	// This test case is similar to test415308a. SimpleTypes on which annotations are applied are modified to array
 	// types.
+	@Test
 	public void test415308b2() {
 		Runner runner = new Runner();
 		runner.testFiles =
@@ -3657,6 +3762,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	// The test case is to validate that we report errors for only type annotations and nothing else in case of
 	// of parameter types.
+	@Test
 	public void test415308c() {
 		this.runNegativeTest(
 				new String[] {
@@ -3699,6 +3805,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	//[1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	//The test case is to validate type use annotation for class fields.
+	@Test
 	public void test415308d() {
 		this.runNegativeTest(
 				new String[] {
@@ -3728,6 +3835,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	//[1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	//The test case checks for annotations which are not exclusively TYPE_USE. We should not report a error.
+	@Test
 	public void test415308d2() {
 		this.runNegativeTest(
 				new String[] {
@@ -3754,6 +3862,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	//The test case is to validate type use annotation for class fields.
 	//We check all the qualifiers as we look for a static type. This test checks if we are able to
 	//go beyond 1 level as part of the loop.
+	@Test
 	public void test415308e() {
 		this.runNegativeTest(
 				new String[] {
@@ -3796,6 +3905,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	// The test case is to validate type use annotations on return types for methods.
+	@Test
 	public void test415308f() {
 		this.runNegativeTest(
 				new String[] {
@@ -3824,6 +3934,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	// The test case is a array version of test415308f.
+	@Test
 	public void test415308f2() {
 		Runner runner = new Runner();
 		runner.testFiles =
@@ -3856,6 +3967,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
 	// The test case is used to test enums with type annotations.
+	@Test
 	public void test415308g() {
 		this.runNegativeTest(
 				new String[] {
@@ -3888,6 +4000,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418041, NPE during AST creation.
+	@Test
 	public void test418041() {
 		this.runNegativeTest(
 				new String[] {
@@ -4019,6 +4132,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418041, NPE during AST creation.
+	@Test
 	public void test418041a() {
 		this.runNegativeTest(
 				new String[] {
@@ -4040,6 +4154,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"The type parameter Q should not be bounded by the final type Integer. Final types cannot be further extended\n" +
 				"----------\n");
 	}
+	@Test
 	public void testWildcardCapture() {
 		runNegativeTest(
 			new String[] {
@@ -4088,6 +4203,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414038, [1.8][compiler] CCE in resolveAnnotations
+	@Test
 	public void testBug414038() {
 		runNegativeTest(
 			new String[] {
@@ -4106,6 +4222,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"Syntax error on tokens, delete these tokens\n" +
 			"----------\n");
 	}
+	@Test
 	public void testGenericConstructor() {
 		runNegativeTest(
 			new String[] {
@@ -4132,6 +4249,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419833, [1.8] NPE in CompilationUnitProblemFinder and ASTNode
+	@Test
 	public void test419833() {
 		runNegativeTest(
 			new String[] {
@@ -4159,6 +4277,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420038,  [1.8][compiler] Tolerate type annotations on array dimensions of class literals for now for compatibility.
+	@Test
 	public void test420038() {
 		runNegativeTest(
 			new String[] {
@@ -4182,6 +4301,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420284, [1.8][compiler] IllegalStateException from TypeSystem.cacheDerivedType
+	@Test
 	public void test420284() {
 		runNegativeTest(
 			new String[] {
@@ -4203,6 +4323,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391521, [1.8][compiler] Error highlighting is not accurate for type references with type annotations
+	@Test
 	public void test391521() {
 		runNegativeTest(
 			new String[] {
@@ -4271,6 +4392,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414038, [1.8][compiler] CCE in resolveAnnotations
+	@Test
 	public void test414038() {
 		runNegativeTest(
 			new String[] {
@@ -4291,6 +4413,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			true);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421791,  [1.8][compiler] TYPE_USE annotations should be allowed on annotation type declarations
+	@Test
 	public void test421791() {
 		runNegativeTest(
 				new String[] {
@@ -4307,6 +4430,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				true);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424977,  [1.8][compiler]ArrayIndexIndexOutOfBoundException in annotated wrong<> code
+	@Test
 	public void testBug426977() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -4337,6 +4461,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424977,  [1.8][compiler] ArrayIndexIndexOutOfBoundException in annotated wrong<> code
+	@Test
 	public void testBug426977a() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -4367,6 +4492,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425599, [1.8][compiler] ISE when trying to compile qualified and annotated class instance creation
+	@Test
 	public void test425599() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -4389,6 +4515,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427955, [1.8][compiler] NPE in TypeSystem.getUnannotatedType
+	@Test
 	public void test427955() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -4420,6 +4547,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419827,  [1.8] Annotation with TYPE_USE as target is not allowed to use container with target TYPE
+	@Test
 	public void test419827a() {
 		runNegativeTest(
 				new String[] {
@@ -4443,6 +4571,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419827,  [1.8] Annotation with TYPE_USE as target is not allowed to use container with target TYPE
 	// Although the target of FooContainer is different from that of Foo, Foo container cannot be used in any place where
 	// Foo can't be used.
+	@Test
 	public void test419827b() {
 		runNegativeTest(
 				new String[] {
@@ -4464,6 +4593,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				true);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=552082
+	@Test
 	public void test552082_comment_0() throws Exception {
 		this.runNegativeTest(
 				new String[] {
@@ -4495,6 +4625,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2554
 	// [sealed types] ECJ should not accept type annotations on permitted types
+	@Test
 	public void testIssue2554() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK17)
 			return;

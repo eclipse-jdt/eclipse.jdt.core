@@ -14,10 +14,13 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_14, singleVersion=true)
 public class BatchCompilerTest_14 extends AbstractBatchCompilerTest {
 
 	static {
@@ -26,15 +29,10 @@ public class BatchCompilerTest_14 extends AbstractBatchCompilerTest {
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_14);
+	public BatchCompilerTest_14(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
-	public static Class testClass() {
-		return BatchCompilerTest_14.class;
-	}
-	public BatchCompilerTest_14(String name) {
-		super(name);
-	}
+@Test
 public void testBatchBug565787_001() throws Exception {
 	this.runConformTest(
 			new String[] {

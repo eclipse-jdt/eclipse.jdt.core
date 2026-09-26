@@ -13,9 +13,13 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class JavadocTestForRecord extends JavadocTest {
 
 	static {
@@ -24,8 +28,8 @@ public class JavadocTestForRecord extends JavadocTest {
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
 
-	public JavadocTestForRecord(String name) {
-		super(name);
+	public JavadocTestForRecord(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	String docCommentSupport = CompilerOptions.ENABLED;
@@ -38,10 +42,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	String reportMissingJavadocComments = CompilerOptions.ERROR;
 	String reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
 
-	public static Class<JavadocTestForRecord> testClass() {
-		return JavadocTestForRecord.class;
-	}
-
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
@@ -49,10 +49,6 @@ public class JavadocTestForRecord extends JavadocTest {
 //		TESTS_NAMES = new String[] { "testBug331872d" };
 //		TESTS_NUMBERS = new int[] { 101283 };
 //		TESTS_RANGE = new int[] { 23, -1 };
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
 
 	protected Map<String, String> getCompilerOptions() {
@@ -135,6 +131,7 @@ public class JavadocTestForRecord extends JavadocTest {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	}
 
+	@Test
 	public void test001() {
 		this.runNegativeTest(new String[] { "X.java", "public record X() {\n" + "}\n" },
 				"----------\n" + "1. ERROR in X.java (at line 1)\n" + "	public record X() {\n" + "	              ^\n"
@@ -142,6 +139,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test002() {
 		this.runNegativeTest(
 				new String[] { "X.java",
@@ -152,6 +150,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test003() {
 		runConformTest(new String[] { "X.java",
 				"		/**  \n" + "		 *   \n" + "		 */  \n" + "public record X() {\n" + "		/**  \n"
@@ -160,6 +159,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				"0");
 	}
 
+	@Test
 	public void test004() {
 		runConformTest(new String[] { "X.java",
 				"		/**  \n" +
@@ -175,6 +175,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				"0");
 	}
 
+	@Test
 	public void test005() {
 		runNegativeTest(new String[] { "X.java",
 				"		/**  \n" +
@@ -196,6 +197,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test006() {
 		runNegativeTest(new String[] { "X.java",
 				"		/**  \n" +
@@ -219,6 +221,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
+	@Test
 	public void test007() {
 		runNegativeTest(new String[] { "X.java",
 				"		/**  \n" +
@@ -241,6 +244,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				"----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void test_bug572367() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(new String[] { "X.java",
@@ -256,6 +260,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				"		}" },
 				"0");
 	}
+	@Test
 	public void testGHIssue4158_1() {
 		runNegativeTest(new String[] { "X.java",
 				"""
@@ -291,6 +296,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				"----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testGHIssue4158_2() {
 		runNegativeTest(new String[] { "X.java",
 					"""

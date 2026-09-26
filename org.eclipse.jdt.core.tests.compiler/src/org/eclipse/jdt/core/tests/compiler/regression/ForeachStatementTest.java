@@ -20,17 +20,18 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ForeachStatementTest extends AbstractComparableTest {
 
-public ForeachStatementTest(String name) {
-	super(name);
+public ForeachStatementTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 /*
@@ -50,9 +51,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 50, 51, 52, 53 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
-public static Test suite() {
-	return buildComparableTestSuite(testClass());
-}
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -69,6 +68,7 @@ public void test001() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -89,6 +89,7 @@ public void test002() {
 		"value cannot be resolved to a variable\n" +
 		"----------\n");
 }
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -109,6 +110,7 @@ public void test003() {
 		"value cannot be resolved to a variable\n" +
 		"----------\n");
 }
+@Test
 public void test004() {
 	this.runConformTest(
 		new String[] {
@@ -130,6 +132,7 @@ public void test004() {
 		},
 		"6");
 }
+@Test
 public void test005() {
 	this.runNegativeTest(
 		new String[] {
@@ -157,6 +160,7 @@ public void test005() {
 		"The local variable i may not have been initialized\n" +
 		"----------\n");
 }
+@Test
 public void test006() {
 	this.runNegativeTest(
 		new String[] {
@@ -194,6 +198,7 @@ public void test006() {
 		"The local variable i may not have been initialized\n" +
 		"----------\n");
 }
+@Test
 public void test007() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -309,6 +314,7 @@ public void test007() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -333,6 +339,7 @@ public void test008() {
 		"Type mismatch: cannot convert from element type Object to X\n" +
 		"----------\n");
 }
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -355,6 +362,7 @@ public void test009() {
 /*
  * Test implicit conversion to float. If missing, VerifyError
  */
+@Test
 public void test010() {
 	this.runConformTest(
 		new String[] {
@@ -379,6 +387,7 @@ public void test010() {
 /*
  * Cannot convert int[] to int
  */
+@Test
 public void test011() {
 	this.runNegativeTest(
 			new String[] {
@@ -405,6 +414,7 @@ public void test011() {
 /*
  * Ensure access to int[]
  */
+@Test
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -427,6 +437,7 @@ public void test012() {
 /*
  * Ensure access to int[]
  */
+@Test
 public void test013() {
 	this.runConformTest(
 		new String[] {
@@ -449,6 +460,7 @@ public void test013() {
 /*
  * Empty block action
  */
+@Test
 public void test014() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -503,6 +515,7 @@ public void test014() throws Exception {
 /*
  * Empty statement action
  */
+@Test
 public void test015() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -556,6 +569,7 @@ public void test015() throws Exception {
 /*
  * Empty block action
  */
+@Test
 public void test016() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -623,6 +637,7 @@ public void test016() throws Exception {
 /*
  * Ensure access to int[]
  */
+@Test
 public void test017() {
 	this.runConformTest(
 		new String[] {
@@ -642,6 +657,7 @@ public void test017() {
 /*
  * Break the loop
  */
+@Test
 public void test018() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -707,6 +723,7 @@ public void test018() throws Exception {
 /*
  * Break the loop
  */
+@Test
 public void test019() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -774,6 +791,7 @@ public void test019() throws Exception {
 /*
  * Break the loop
  */
+@Test
 public void test020() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -846,6 +864,7 @@ public void test020() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test021() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -989,6 +1008,7 @@ public void test021() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test022() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1091,6 +1111,7 @@ public void test022() throws Exception {
 /*
  * Type mismatch, using non parameterized collection type (indirectly implementing parameterized type)
  */
+@Test
 public void test023() {
 	this.runNegativeTest(
 			new String[] {
@@ -1118,6 +1139,7 @@ public void test023() {
 			"Type mismatch: cannot convert from element type String to Thread\n" +
 			"----------\n");
 }
+@Test
 public void test024() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1218,6 +1240,7 @@ public void test024() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test025() {
 	this.runConformTest(
 		new String[] {
@@ -1243,6 +1266,7 @@ public void test025() {
 		"SUCCESS");
 }
 // 68440 - verify error due to local variable invalid slot sharing
+@Test
 public void test026() {
 	this.runConformTest(
 		new String[] {
@@ -1265,6 +1289,7 @@ public void test026() {
 		"SUCCESS");
 }
 // 68863 - missing local variable attribute after foreach statement
+@Test
 public void test027() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1335,6 +1360,7 @@ public void test027() throws Exception {
 	}
 }
 //72760 - missing local variable attribute after foreach statement
+@Test
 public void test028() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1492,6 +1518,7 @@ public void test028() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86487
+@Test
 public void test029() {
 	this.runConformTest(
 		new String[] {
@@ -1516,6 +1543,7 @@ public void test029() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86487
+@Test
 public void test030() {
 	this.runConformTest(
 		new String[] {
@@ -1540,6 +1568,7 @@ public void test030() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86487
+@Test
 public void test031() {
 	this.runConformTest(
 		new String[] {
@@ -1562,6 +1591,7 @@ public void test031() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test032() {
 	this.runConformTest(
 		new String[] {
@@ -1579,6 +1609,7 @@ public void test032() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+@Test
 public void test033() {
 	this.runConformTest(
 		new String[] {
@@ -1596,6 +1627,7 @@ public void test033() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783 - variation
+@Test
 public void test034() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1689,6 +1721,7 @@ public void test034() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783 - variation
+@Test
 public void test035() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1784,6 +1817,7 @@ public void test035() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+@Test
 public void test036() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1855,6 +1889,7 @@ public void test036() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+@Test
 public void test037() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1924,6 +1959,7 @@ public void test037() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119175
+@Test
 public void test038() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1987,6 +2023,7 @@ public void test038() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test039() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2080,6 +2117,7 @@ public void test039() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test040() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -2181,6 +2219,7 @@ public void test040() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test041() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2219,6 +2258,7 @@ public void test041() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test042() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -2284,6 +2324,7 @@ public void test042() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test043() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2328,6 +2369,7 @@ public void test043() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test044() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -2394,6 +2436,7 @@ public void test044() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test045() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -2465,6 +2508,7 @@ public void test045() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+@Test
 public void test046() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -2531,6 +2575,7 @@ public void test046() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471
+@Test
 public void test047() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2585,6 +2630,7 @@ public void test047() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471 - variation
+@Test
 public void test048() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2643,6 +2689,7 @@ public void test048() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471 - variation
+@Test
 public void test049() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2697,6 +2744,7 @@ public void test049() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+@Test
 public void test050() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2720,6 +2768,7 @@ public void test050() throws Exception {
 		"12345");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+@Test
 public void test051() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2743,6 +2792,7 @@ public void test051() throws Exception {
 		"12345");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+@Test
 public void test052() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2766,6 +2816,7 @@ public void test052() throws Exception {
 		"12345");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=291472
+@Test
 public void test053() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2789,6 +2840,7 @@ public void test053() throws Exception {
 		"12345");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321085
+@Test
 public void test054() throws Exception {
 	this.runNegativeTest(
 			new String[] {
@@ -2844,6 +2896,7 @@ public void test054() throws Exception {
 }
 // https://bugs.eclipse.org/393719
 // like test054 but suppressing the warnings.
+@Test
 public void test055() throws Exception {
 	this.runNegativeTest(
 			new String[] {
@@ -2879,6 +2932,7 @@ public void test055() throws Exception {
 }
 // https://bugs.eclipse.org/393719
 // "unchecked" warning against the collection (raw Iterable)
+@Test
 public void test056() throws Exception {
 	this.runNegativeTest(
 			new String[] {
@@ -2915,6 +2969,7 @@ public void test056() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401853
 // Eclipse Java compiler creates invalid bytecode (java.lang.VerifyError)
+@Test
 public void test057() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -2988,6 +3043,7 @@ public void test057() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425632, [1.8][compiler] Compiler gets the scope of enhanced for loop's expression wrong.
+@Test
 public void test425632() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3004,6 +3060,7 @@ public void test425632() throws Exception {
 			"1\n2\n3");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=508215
+@Test
 public void testBug508215() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -3067,8 +3124,5 @@ public void testBug508215() throws Exception {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
-}
-public static Class testClass() {
-	return ForeachStatementTest.class;
 }
 }

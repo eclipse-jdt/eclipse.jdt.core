@@ -12,20 +12,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UseOfUnderscoreTest.class, F_1_8);
+	public UseOfUnderscoreTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public UseOfUnderscoreTest(String name) {
-		super(name);
-	}
-
+	@Test
 	public void testReportsUnderscoreInstanceMemberAsError() {
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 
@@ -59,6 +57,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnicodeEscapeUnderscoreInstanceMemberAsError() {
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 
@@ -91,6 +90,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnderscoreParameterAsError() {
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 
@@ -125,6 +125,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnderscoreParameterAsErrorUnicodeEscape() {
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 
@@ -159,6 +160,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnderscoreLocalVariableAsErrorUnicodeEscape() {
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 

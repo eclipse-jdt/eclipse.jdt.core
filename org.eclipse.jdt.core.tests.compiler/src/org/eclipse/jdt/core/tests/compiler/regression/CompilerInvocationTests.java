@@ -59,7 +59,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -71,6 +70,8 @@ import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * This class is meant to gather test cases related to the invocation of the
@@ -79,8 +80,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class CompilerInvocationTests extends AbstractRegressionTest {
 
-	public CompilerInvocationTests(String name) {
-		super(name);
+	public CompilerInvocationTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -96,15 +97,8 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 //    	TESTS_RANGE = new int[] { 900, 999 };
 	}
 
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return CompilerInvocationTests.class;
-	}
-
 // irritant vs warning token - check To/From symmetry
+	@Test
 	public void test001_irritant_warning_token() {
 		Map matcher = new HashMap();
 		for (int group = 0; group < IrritantSet.GROUP_MAX; group++) {
@@ -131,6 +125,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 
 // problem categories - check that none is left unspecified
 // see also discussion in https://bugs.eclipse.org/bugs/show_bug.cgi?id=208383
+	@Test
 	public void test002_problem_categories() {
 		try {
 			Class iProblemClass;
@@ -227,6 +222,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 	}
 
 // Basic test on task tags: watch default behavior
+	@Test
 	public void test003_task_tags_options() {
 		runTaskTagsOptionsTest(
 				new String[] { "X.java",
@@ -278,6 +274,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 	}
 
 // effect of changing priorities
+	@Test
 	public void test007_task_tags_options() {
 		Map customOptions = new HashMap();
 		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL,NORMAL");
@@ -306,12 +303,14 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 // that bug showed that we had no coverage in the area of missing message
 // templates, which can occur downstream in the localization process (assuming
 // that we always release the English version right)
+	@Test
 	public void test009_missing_message_templates() {
 		assertEquals("Unable to retrieve the error message for problem id: 2097151. Check compiler resources.",
 				new DefaultProblemFactory().getLocalizedMessage(Integer.MAX_VALUE, new String[] {}));
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=206423
+	@Test
 	public void test010_missing_elaboration_templates() {
 		assertEquals(
 				"Unable to retrieve the error message elaboration for elaboration id: 1073741823. Check compiler resources.",
@@ -320,6 +319,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 
 // problem categories - check that categories match expected ones
 // see also discussion in https://bugs.eclipse.org/bugs/show_bug.cgi?id=208383
+@Test
 public void test011_problem_categories() {
 	try {
 		Class iProblemClass;
@@ -1473,6 +1473,7 @@ public void test011_problem_categories() {
 
 // compiler problems tuning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=218603
+@Test
 public void test012_compiler_problems_tuning() {
 	try {
 		class ProblemAttributes {
@@ -2596,6 +2597,7 @@ public void test012_compiler_problems_tuning() {
 		}
 	}
 	@SuppressWarnings("unused")
+	@Test
 	public void testuniqueIDs() throws IllegalArgumentException, IllegalAccessException {
 		Field[] fields = IProblem.class.getFields();
 		Map<Integer,List<String>> id2names = new HashMap<>();
@@ -2623,6 +2625,7 @@ public void test012_compiler_problems_tuning() {
 		return false;
 	}
 
+	@Test
 	public void testTooNewJavaVersionRequested() {
 		Map<String, String> options = new HashMap<>(JavaCore.getDefaultOptions());
 		String latestJavaVersionSupportedByECJ = CompilerOptions.versionFromJdkLevel(ClassFileConstants.getLatestJDKLevel());

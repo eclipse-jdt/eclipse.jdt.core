@@ -14,10 +14,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(AbstractCompilerTest.F_15)
 public class ExternalizeStringLiteralsTest_15 extends AbstractRegressionTest {
 
 private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 15");
@@ -27,13 +31,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 6 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public ExternalizeStringLiteralsTest_15(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_15);
+public ExternalizeStringLiteralsTest_15(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
@@ -66,6 +68,7 @@ public void test001() {
 		"----------\n",
 		JAVAC_OPTIONS);
 }
+@Test
 public void test002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
@@ -95,6 +98,7 @@ public void test002() {
 		"----------\n",
 		JAVAC_OPTIONS);
 }
+@Test
 public void test003() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -134,6 +138,7 @@ public void test003() {
 		"----------\n",
 		JAVAC_OPTIONS);
 }
+@Test
 public void test004() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
@@ -165,6 +170,7 @@ public void test004() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+@Test
 public void test005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -192,6 +198,7 @@ public void test005() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=237245
+@Test
 public void test006() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);

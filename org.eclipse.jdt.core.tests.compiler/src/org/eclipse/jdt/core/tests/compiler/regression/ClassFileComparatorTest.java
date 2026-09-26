@@ -19,26 +19,18 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class ClassFileComparatorTest extends AbstractRegressionTest {
 
-	public ClassFileComparatorTest(String name) {
-		super(name);
+	public ClassFileComparatorTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return ClassFileComparatorTest.class;
-	}
-
 
 	private void compileAndDeploy(String source, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
@@ -101,6 +93,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test001() {
 		try {
 			String sourceA001 =
@@ -129,6 +122,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test002() {
 		try {
 			String sourceA002 =
@@ -154,6 +148,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test003() {
 		try {
 			String sourceA003 =
@@ -171,6 +166,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			removeTempClass("A003");
 		}
 	}
+	@Test
 	public void test004() {
 		try {
 			String sourceA004 =
@@ -198,6 +194,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			removeTempClass("A004");
 		}
 	}
+	@Test
 	public void test005() {
 		try {
 			String sourceA005 =
@@ -222,6 +219,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			removeTempClass("A005");
 		}
 	}
+	@Test
 	public void test006() {
 		try {
 			String sourceA006 =
@@ -240,6 +238,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test007() {
 		try {
 			String sourceA007 =
@@ -263,6 +262,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			removeTempClass("A007");
 		}
 	}
+	@Test
 	public void test008() {
 		try {
 			String sourceA008 =
@@ -287,6 +287,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test009() {
 		try {
 			String sourceA009 =
@@ -315,6 +316,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			removeTempClass("A009");
 		}
 	}
+	@Test
 	public void test010() {
 		try {
 			String sourceA010 =
@@ -344,6 +346,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test011() {
 		try {
 			String sourceA011 =
@@ -372,6 +375,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			removeTempClass("A011");
 		}
 	}
+	@Test
 	public void test013() {
 		try {
 			String sourceA013 =
@@ -393,6 +397,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			removeTempClass("A013");
 		}
 	}
+	@Test
 	public void test014() {
 		try {
 			String sourceA014 =
@@ -415,6 +420,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test015() {
 		try {
 			String sourceA015 =
@@ -435,6 +441,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test016() {
 		try {
 			String sourceA016 =

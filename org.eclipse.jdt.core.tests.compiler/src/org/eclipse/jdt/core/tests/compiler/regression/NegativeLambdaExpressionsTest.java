@@ -27,12 +27,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
@@ -42,18 +42,8 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public NegativeLambdaExpressionsTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
-
-public static Test setUpTest(Test test) throws Exception {
-	TestCase.setUpTest(test);
-	RegressionTestSetup suite = new RegressionTestSetup(ClassFileConstants.JDK1_8);
-	suite.addTest(test);
-	return suite;
+public NegativeLambdaExpressionsTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -65,6 +55,7 @@ protected Map getCompilerOptions() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382818, ArrayStoreException while compiling lambda
+@Test
 public void test001() {
 	this.runNegativeTest(
 			new String[] {
@@ -95,6 +86,7 @@ public void test001() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382841, ClassCastException while compiling lambda
+@Test
 public void test002() {
 	this.runNegativeTest(
 			new String[] {
@@ -120,6 +112,7 @@ public void test002() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382841, ClassCastException while compiling lambda
+@Test
 public void test003() {
 	this.runNegativeTest(
 			new String[] {
@@ -145,6 +138,7 @@ public void test003() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on syntactically valid lambda expression
+@Test
 public void test004() {
 	this.runNegativeTest(
 			new String[] {
@@ -170,6 +164,7 @@ public void test004() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383085 super::identifier not accepted.
+@Test
 public void test005() {
 	this.runNegativeTest(
 			new String[] {
@@ -190,6 +185,7 @@ public void test005() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on *syntactically* valid reference expression
+@Test
 public void test006() {
 	this.runNegativeTest(
 			new String[] {
@@ -254,6 +250,7 @@ public void _test007() {
 			true /* perform statement recovery */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383949,  Explicit this parameter illegal in lambda expressions
+@Test
 public void test008() {
 	this.runNegativeTest(
 			new String[] {
@@ -275,6 +272,7 @@ public void test008() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383949,  Explicit this parameter illegal in lambda expressions
+@Test
 public void test009() {
 	this.runNegativeTest(
 			new String[] {
@@ -308,6 +306,7 @@ public void test009() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=381121,  [] should be accepted in reference expressions.
+@Test
 public void test010() {
 	this.runNegativeTest(
 			new String[] {
@@ -331,6 +330,7 @@ public void test010() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382701, [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expressions.
+@Test
 public void test011() {
 	// This test checks that common semantic checks are indeed
 	this.runNegativeTest(
@@ -401,6 +401,7 @@ public void test011() {
 );
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384600, [1.8] 'this' should not be allowed in lambda expressions in contexts that don't allow it
+@Test
 public void test012() {
 	// This test checks that common semantic checks are indeed
 	this.runNegativeTest(
@@ -442,6 +443,7 @@ public void test012() {
 				);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384600, [1.8] 'this' should not be allowed in lambda expressions in contexts that don't allow it
+@Test
 public void test013() {
 	this.runNegativeTest(
 			new String[] {
@@ -472,6 +474,7 @@ public void test013() {
 				);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384595, Reject illegal modifiers on lambda arguments.
+@Test
 public void test014() {
 	String extra = this.complianceLevel < ClassFileConstants.JDK17 ? "" :
 		"----------\n" +
@@ -521,6 +524,7 @@ public void test014() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399534, [1.8][compiler] Lambda parameters must be checked for compatibility with the single abstract method of the functional interface.
+@Test
 public void test015() {
 	this.runNegativeTest(
 			new String[] {
@@ -602,6 +606,7 @@ public void test015() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test016() {
 	this.runNegativeTest(
 			new String[] {
@@ -632,6 +637,7 @@ public void test016() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test017() {
 	this.runNegativeTest(
 			new String[] {
@@ -662,6 +668,7 @@ public void test017() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test018() {
 	this.runNegativeTest(
 			new String[] {
@@ -705,6 +712,7 @@ public void test018() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test019() {
 	this.runNegativeTest(
 			new String[] {
@@ -732,6 +740,7 @@ public void test019() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test020() {
 	this.runNegativeTest(
 			new String[] {
@@ -751,6 +760,7 @@ public void test020() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test021() {
 	this.runNegativeTest(
 			new String[] {
@@ -771,6 +781,7 @@ public void test021() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test022() {
 	this.runNegativeTest(
 			new String[] {
@@ -794,6 +805,7 @@ public void test022() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test023() {
 	this.runNegativeTest(
 			new String[] {
@@ -824,6 +836,7 @@ public void test023() {
 				"----------\n");
 }
 // Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test024() {
 	this.runNegativeTest(
 			new String[] {
@@ -848,6 +861,7 @@ public void test024() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test025() {
 	this.runNegativeTest(
 			new String[] {
@@ -869,6 +883,7 @@ public void test025() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test026() {
 	this.runNegativeTest(
 			new String[] {
@@ -894,6 +909,7 @@ public void test026() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test027() {
 	this.runNegativeTest(
 			new String[] {
@@ -943,6 +959,7 @@ public void test027() {
 			"----------\n");
 }
 // Bug 399979 - [1.8][compiler] Statement expressions should be allowed in non-block lambda body when return type is void (edit)
+@Test
 public void test028() {
 	this.runNegativeTest(
 			new String[] {
@@ -980,6 +997,7 @@ public void test028() {
 			"----------\n");
 }
 // Bug 384600 - [1.8] 'this' should not be allowed in lambda/Reference expressions in contexts that don't allow it
+@Test
 public void test029() {
 	this.runNegativeTest(
 			new String[] {
@@ -1033,6 +1051,7 @@ public void test029() {
 			"----------\n");
 }
 // Bug 382713 - [1.8][compiler] Compiler should reject lambda expressions when target type is not a functional interface
+@Test
 public void test030() {
 	this.runNegativeTest(
 			new String[] {
@@ -1061,6 +1080,7 @@ public void test030() {
 			"----------\n");
 }
 // Bug 398267 - [1.8][compiler] Variables in the body of the lambda expression should be valid
+@Test
 public void test031() {
 	this.runNegativeTest(
 			new String[] {
@@ -1107,6 +1127,7 @@ public void test031() {
 			"----------\n");
 }
 // Bug 399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+@Test
 public void test032() {
 	this.runNegativeTest(
 			new String[] {
@@ -1135,6 +1156,7 @@ public void test032() {
 			"----------\n");
 }
 // Bug 399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+@Test
 public void test033() {
 	this.runNegativeTest(
 			new String[] {
@@ -1163,6 +1185,7 @@ public void test033() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+@Test
 public void test034() {
 	this.runNegativeTest(
 			new String[] {
@@ -1187,6 +1210,7 @@ public void test034() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=381121,  [] should be accepted in reference expressions.
+@Test
 public void test035() {
 	this.runNegativeTest(
 			new String[] {
@@ -1209,6 +1233,7 @@ public void test035() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727,  Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test036() {
 	this.runNegativeTest(
 			new String[] {
@@ -1242,6 +1267,7 @@ public void test036() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382702 - [1.8][compiler] Lambda expressions should be rejected in disallowed contexts
+@Test
 public void test037() {
 	this.runNegativeTest(
 			new String[] {
@@ -1290,6 +1316,7 @@ public void test037() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+@Test
 public void test038() {
 	this.runNegativeTest(
 			new String[] {
@@ -1327,6 +1354,7 @@ public void test038() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+@Test
 public void test039() {
 	this.runNegativeTest(
 			new String[] {
@@ -1420,6 +1448,7 @@ public void test039() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+@Test
 public void test040() {
 	this.runNegativeTest(
 			new String[] {
@@ -1446,6 +1475,7 @@ public void test040() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+@Test
 public void test041() {
 	this.runNegativeTest(
 			new String[] {
@@ -1495,6 +1525,7 @@ public void test041() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+@Test
 public void test042() {
 	this.runNegativeTest(
 			new String[] {
@@ -1535,6 +1566,7 @@ public void test042() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399224 - [1.8][compiler][internal] Implement TypeBinding.getSingleAbstractMethod
+@Test
 public void test043() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -1666,6 +1698,7 @@ public void test043() {
 			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399224 - [1.8][compiler][internal] Implement TypeBinding.getSingleAbstractMethod
+@Test
 public void test044() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
@@ -1727,6 +1760,7 @@ public void test044() {
 			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400386 - [1.8][spec] Broken example in 9.8, discussion box - bullet 2 ?
+@Test
 public void test045() {
 	this.runNegativeTest(
 			new String[] {
@@ -1751,6 +1785,7 @@ public void test045() {
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n");
 }
+@Test
 public void test046() {
 	this.runNegativeTest(
 			new String[] {
@@ -1769,6 +1804,7 @@ public void test046() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test047() {
 	// This test checks that the simple cases are OK
 	this.runNegativeTest(
@@ -1799,6 +1835,7 @@ public void test047() {
 				);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test048() {
 	// This test checks that the simple cases are OK
 	this.runNegativeTest(
@@ -1825,6 +1862,7 @@ public void test048() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test049() {
 	// This test checks that the simple cases are OK
 	this.runNegativeTest(
@@ -1846,6 +1884,7 @@ public void test049() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test050() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -1869,6 +1908,7 @@ public void test050() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test051() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -1892,6 +1932,7 @@ public void test051() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test052() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -1926,6 +1967,7 @@ public void test052() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test053() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -1949,6 +1991,7 @@ public void test053() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test054() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -1981,6 +2024,7 @@ public void test054() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test055() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2005,6 +2049,7 @@ public void test055() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test056() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2029,6 +2074,7 @@ public void test056() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test057() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2053,6 +2099,7 @@ public void test057() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test058() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2077,6 +2124,7 @@ public void test058() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test059() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2100,6 +2148,7 @@ public void test059() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test060() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2121,6 +2170,7 @@ public void test060() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test061() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2151,6 +2201,7 @@ public void test061() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test062() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2178,6 +2229,7 @@ public void test062() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test063() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2218,6 +2270,7 @@ public void test063() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test064() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2243,6 +2296,7 @@ public void test064() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test065() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2268,6 +2322,7 @@ public void test065() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test066() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2303,6 +2358,7 @@ public void test066() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test067() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2346,6 +2402,7 @@ public void test067() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+@Test
 public void test068() {
 	// This test checks that common semantic checks are indeed run
 	this.runNegativeTest(
@@ -2384,6 +2441,7 @@ public void test068() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test069() {
 	// Lambda argument hides a field.
 	this.runNegativeTest(
@@ -2412,6 +2470,7 @@ public void test069() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test070() {
 	// Lambda argument redeclares outer method argument.
 	this.runNegativeTest(
@@ -2435,6 +2494,7 @@ public void test070() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test071() {
 	// Lambda argument redeclares outer method local.
 	this.runNegativeTest(
@@ -2459,6 +2519,7 @@ public void test071() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test072() {
 	// Lambda redeclares its own argument
 	this.runNegativeTest(
@@ -2483,6 +2544,7 @@ public void test072() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test073() {
 	// Lambda local hides a field
 	this.runNegativeTest(
@@ -2510,6 +2572,7 @@ public void test073() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test074() {
 	// Lambda local redeclares the enclosing method's argument
 	this.runNegativeTest(
@@ -2535,6 +2598,7 @@ public void test074() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test075() {
 	// Lambda local redeclares the enclosing method's local
 	this.runNegativeTest(
@@ -2561,6 +2625,7 @@ public void test075() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test076() {
 	// Lambda local redeclares its own parameter
 	this.runNegativeTest(
@@ -2587,6 +2652,7 @@ public void test076() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test077() {
 	// Lambda local redeclares its own self
 	this.runNegativeTest(
@@ -2613,6 +2679,7 @@ public void test077() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test078() {
 	// Nested Lambda argument redeclares a field.
 	this.runNegativeTest(
@@ -2641,6 +2708,7 @@ public void test078() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test079() {
 	// Nested Lambda argument redeclares outer method's argument.
 	this.runNegativeTest(
@@ -2672,6 +2740,7 @@ public void test079() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test080() {
 	// Nested Lambda argument redeclares outer method's local.
 	this.runNegativeTest(
@@ -2703,6 +2772,7 @@ public void test080() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test081() {
 	// Nested Lambda argument redeclares outer lambda's argument.
 	this.runNegativeTest(
@@ -2734,6 +2804,7 @@ public void test081() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test082() {
 	// Nested Lambda argument redeclares outer lambda's local.
 	this.runNegativeTest(
@@ -2766,6 +2837,7 @@ public void test082() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test083() {
 	// Nested Lambda local redeclares a field.
 	this.runNegativeTest(
@@ -2803,6 +2875,7 @@ public void test083() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test084() {
 	// Nested Lambda local redeclares outer methods local.
 	this.runNegativeTest(
@@ -2840,6 +2913,7 @@ public void test084() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test085() {
 	// Nested Lambda local redeclares outer lambda's argument & local
 	this.runNegativeTest(
@@ -2877,6 +2951,7 @@ public void test085() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test086() {
 	// Nested Lambda local redeclares its own argument & local
 	this.runNegativeTest(
@@ -2909,6 +2984,7 @@ public void test086() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test087() {
 	// Inner class (!) inside Lambda hides field
 	this.runNegativeTest(
@@ -2941,6 +3017,7 @@ public void test087() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test088() {
 	// class inside lambda (!) redeclares a field.
 	this.runNegativeTest(
@@ -2969,6 +3046,7 @@ public void test088() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test089() {
 	// class inside lambda redeclares outer method's argument.
 	this.runNegativeTest(
@@ -3002,6 +3080,7 @@ public void test089() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test090() {
 	// class inside lambda redeclares outer method's local.
 	this.runNegativeTest(
@@ -3035,6 +3114,7 @@ public void test090() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test091() {
 	// class inside lambda redeclares outer lambda's argument.
 	this.runNegativeTest(
@@ -3068,6 +3148,7 @@ public void test091() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test092() {
 	// class inside lambda redeclares outer lambda's local.
 	this.runNegativeTest(
@@ -3102,6 +3183,7 @@ public void test092() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test093() {
 	// local of class inside lambda redeclares a field.
 	this.runNegativeTest(
@@ -3141,6 +3223,7 @@ public void test093() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test094() {
 	// local of class under lambda redeclares outer methods local.
 	this.runNegativeTest(
@@ -3180,6 +3263,7 @@ public void test094() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test095() {
 	// local of class under lambda redeclares outer lambda's argument & local
 	this.runNegativeTest(
@@ -3219,6 +3303,7 @@ public void test095() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+@Test
 public void test096() {
 	// local of class under lambda redeclares its own argument & local
 	this.runNegativeTest(
@@ -3251,6 +3336,7 @@ public void test096() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384687 [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+@Test
 public void test097() {
 	this.runNegativeTest(
 			new String[] {
@@ -3275,6 +3361,7 @@ public void test097() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=384687 [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+@Test
 public void test098() {
 	this.runNegativeTest(
 			new String[] {
@@ -3300,6 +3387,7 @@ public void test098() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399770: [1.8][compiler] Implement support for @FunctionalInterface
+@Test
 public void test_bug399770_1() {
 	this.runConformTest(
 			new String[] {
@@ -3317,6 +3405,7 @@ public void test_bug399770_1() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399770: [1.8][compiler] Implement support for @FunctionalInterface
+@Test
 public void test_bug399770_2() {
 	this.runNegativeTest(
 			new String[] {
@@ -3361,6 +3450,7 @@ public void test_bug399770_2() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400745, [1.8][compiler] Compiler incorrectly allows shadowing of local class names.
+@Test
 public void test400745() {
 	// Lambda redeclares a local class from its outer scope.
 	this.runNegativeTest(
@@ -3386,6 +3476,7 @@ public void test400745() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400745, [1.8][compiler] Compiler incorrectly allows shadowing of local class names.
+@Test
 public void test400745a() {
 	// local type hiding scenario
 	this.runNegativeTest(
@@ -3462,6 +3553,7 @@ public void test400745a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556() {
 	this.runNegativeTest(
 			new String[] {
@@ -3515,6 +3607,7 @@ public void test400556() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556a() {
 	this.runNegativeTest(
 			new String[] {
@@ -3559,6 +3652,7 @@ public void test400556a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556b() {
 	this.runNegativeTest(
 			new String[] {
@@ -3607,6 +3701,7 @@ public void test400556b() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556c() {
 	this.runNegativeTest(
 			new String[] {
@@ -3652,6 +3747,7 @@ public void test400556c() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556d() {
 	this.runNegativeTest(
 			new String[] {
@@ -3687,6 +3783,7 @@ public void test400556d() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556e() {
 	this.runNegativeTest(
 			new String[] {
@@ -3728,6 +3825,7 @@ public void test400556e() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556f() {
 	this.runNegativeTest(
 			new String[] {
@@ -3769,6 +3867,7 @@ public void test400556f() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556g() {
 	this.runNegativeTest(
 			new String[] {
@@ -3818,6 +3917,7 @@ public void test400556g() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556h() {
 	this.runNegativeTest(
 			new String[] {
@@ -3882,6 +3982,7 @@ public void test400556h() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556i() {
 	this.runNegativeTest(
 			new String[] {
@@ -3931,6 +4032,7 @@ public void test400556i() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556j() {
 	this.runNegativeTest(
 			new String[] {
@@ -3986,6 +4088,7 @@ public void test400556j() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+@Test
 public void test400556k() {
 	this.runNegativeTest(
 			new String[] {
@@ -4032,6 +4135,7 @@ public void test400556k() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750() {
 	this.runNegativeTest(
 			new String[] {
@@ -4052,6 +4156,7 @@ public void test384750() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750a() {
 	this.runNegativeTest(
 			new String[] {
@@ -4072,6 +4177,7 @@ public void test384750a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750b() {
 	this.runNegativeTest(
 			new String[] {
@@ -4092,6 +4198,7 @@ public void test384750b() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750c() {
 	this.runNegativeTest(
 			new String[] {
@@ -4113,6 +4220,7 @@ public void test384750c() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750d() {
 	this.runNegativeTest(
 			new String[] {
@@ -4133,6 +4241,7 @@ public void test384750d() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750e() {
 	this.runNegativeTest(
 			new String[] {
@@ -4153,6 +4262,7 @@ public void test384750e() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750f() {
 	this.runNegativeTest(
 			new String[] {
@@ -4174,6 +4284,7 @@ public void test384750f() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750g() {
 	this.runNegativeTest(
 			new String[] {
@@ -4197,6 +4308,7 @@ public void test384750g() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750h() {
 	this.runNegativeTest(
 			new String[] {
@@ -4213,6 +4325,7 @@ public void test384750h() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750i() {
 	this.runNegativeTest(
 			new String[] {
@@ -4237,6 +4350,7 @@ public void test384750i() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750j() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -4261,6 +4375,7 @@ public void test384750j() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750k() {
 	this.runNegativeTest(
 			new String[] {
@@ -4285,6 +4400,7 @@ public void test384750k() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750l() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -4311,6 +4427,7 @@ public void test384750l() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750m() {
 	this.runNegativeTest(
 			new String[] {
@@ -4357,6 +4474,7 @@ public void test384750m() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750n() {
 	this.runNegativeTest(
 			new String[] {
@@ -4385,6 +4503,7 @@ public void test384750n() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750o() {
 	this.runNegativeTest(
 			new String[] {
@@ -4462,6 +4581,7 @@ public void test384750o() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750p() {
 	this.runNegativeTest(
 			new String[] {
@@ -4498,6 +4618,7 @@ public void test384750p() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750q() {
 	this.runNegativeTest(
 			new String[] {
@@ -4534,6 +4655,7 @@ public void test384750q() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750r() {
 	this.runNegativeTest(
 			new String[] {
@@ -4558,6 +4680,7 @@ public void test384750r() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750s() {
 	this.runNegativeTest(
 			new String[] {
@@ -4582,6 +4705,7 @@ public void test384750s() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750t() {
 	this.runNegativeTest(
 			new String[] {
@@ -4606,6 +4730,7 @@ public void test384750t() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750u() {
 	this.runNegativeTest(
 			new String[] {
@@ -4630,6 +4755,7 @@ public void test384750u() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750v() {
 	this.runNegativeTest(
 			new String[] {
@@ -4655,6 +4781,7 @@ public void test384750v() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750w() {
 	this.runNegativeTest(
 			new String[] {
@@ -4706,6 +4833,7 @@ public void test384750w() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750x() {
 	this.runNegativeTest(
 			new String[] {
@@ -4758,6 +4886,7 @@ public void test384750x() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750y() {
 	this.runNegativeTest(
 			new String[] {
@@ -4782,6 +4911,7 @@ public void test384750y() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.WARNING);
@@ -4809,6 +4939,7 @@ public void test384750z() {
 					null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z1() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
@@ -4840,6 +4971,7 @@ public void test384750z1() {
 					null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z2() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, CompilerOptions.WARNING);
@@ -4876,6 +5008,7 @@ public void test384750z2() {
 					null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z3() {
 	this.runNegativeTest(
 			new String[] {
@@ -4891,6 +5024,7 @@ public void test384750z3() {
 					"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z4() {
 	this.runNegativeTest(
 			new String[] {
@@ -4912,6 +5046,7 @@ public void test384750z4() {
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z5() {
 	this.runNegativeTest(
 			new String[] {
@@ -4934,6 +5069,7 @@ public void test384750z5() {
 					"----------\n");
 }
 //  https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z6() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -4953,6 +5089,7 @@ public void test384750z6() {
 					"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z7() {
 this.runNegativeTest(
 		false /* skipJavac */,
@@ -4977,6 +5114,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z8() {
 this.runNegativeTest(
 		new String[] {
@@ -4991,6 +5129,7 @@ this.runNegativeTest(
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+@Test
 public void test384750z9() {
 this.runNegativeTest(
 		new String[] {
@@ -5022,6 +5161,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // reference to missing type occurs during type inference involving a reference expression:
+@Test
 public void testGH3501() {
 	runNegativeTest(new String[] {
 			"X.java",
@@ -5056,6 +5196,7 @@ public void testGH3501() {
 		""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610() {
 this.runConformTest(
 		new String[] {
@@ -5075,6 +5216,7 @@ this.runConformTest(
 				"foo");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610a() {
 this.runConformTest(
 		new String[] {
@@ -5110,6 +5252,7 @@ this.runConformTest(
 				"foo(K)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610b() {
 this.runNegativeTest(
 		new String[] {
@@ -5150,6 +5293,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610c() {
 this.runNegativeTest(
 		new String[] {
@@ -5222,6 +5366,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610d() {
 this.runNegativeTest(
 		new String[] {
@@ -5234,6 +5379,7 @@ this.runNegativeTest(
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610e() {
 this.runNegativeTest(
 		new String[] {
@@ -5272,6 +5418,7 @@ this.runNegativeTest(
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
 // demonstrate that the bound problem is the only real issue in test401610e()
+@Test
 public void test401610ee() {
 this.runNegativeTest(
 		false /* skipJavac */,
@@ -5301,6 +5448,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610f() {
 this.runNegativeTest(
 		new String[] {
@@ -5318,6 +5466,7 @@ this.runNegativeTest(
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610g() {
 this.runConformTest(
 		new String[] {
@@ -5339,6 +5488,7 @@ this.runConformTest(
 				"foo(I)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610h() {
 this.runNegativeTest(
 		new String[] {
@@ -5370,6 +5520,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610i() {
 this.runConformTest(
 		new String[] {
@@ -5392,6 +5543,7 @@ this.runConformTest(
 				"foo(J)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+@Test
 public void test401610j() {
 this.runNegativeTest(
 		new String[] {
@@ -5425,6 +5577,7 @@ this.runNegativeTest(
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401789, [1.8][compiler] Enable support for method/constructor references in non-overloaded method calls.
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401790, Follow up of bug 401610, explicit constructor calls and allocation expressions needs updates too.
+@Test
 public void test401789_401790() {
 this.runNegativeTest(
 		new String[] {
@@ -5471,6 +5624,7 @@ this.runNegativeTest(
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401789, [1.8][compiler] Enable support for method/constructor references in non-overloaded method calls.
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401790, Follow up of bug 401610, explicit constructor calls and allocation expressions needs updates too.
+@Test
 public void test401789_401790a() {
 this.runNegativeTest(
 		new String[] {
@@ -5576,6 +5730,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+@Test
 public void test401845() {
 	this.runNegativeTest(
 			new String[] {
@@ -5600,6 +5755,7 @@ public void test401845() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+@Test
 public void test401845a() {
 	this.runNegativeTest(
 			new String[] {
@@ -5639,6 +5795,7 @@ public void test401845a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+@Test
 public void test401845b() {
 	this.runNegativeTest(
 			new String[] {
@@ -5663,6 +5820,7 @@ public void test401845b() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+@Test
 public void test401845c() {
 	this.runNegativeTest(
 			new String[] {
@@ -5690,6 +5848,7 @@ public void test401845c() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+@Test
 public void test401845d() {
 	this.runNegativeTest(
 			new String[] {
@@ -5716,6 +5875,7 @@ public void test401845d() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+@Test
 public void test401845e() {
 	this.runNegativeTest(
 			new String[] {
@@ -5743,6 +5903,7 @@ public void test401845e() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401847, [1.8][compiler] Polyconditionals not accepted in method invocation contexts.
+@Test
 public void test401847() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -5774,6 +5935,7 @@ public void test401847() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401847, [1.8][compiler] Polyconditionals not accepted in method invocation contexts.
+@Test
 public void test401847a() {
 	this.runNegativeTest(
 			new String[] {
@@ -5818,6 +5980,7 @@ public void test401847a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -5842,6 +6005,7 @@ public void test401939() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939a() {
 	this.runNegativeTest(
 			new String[] {
@@ -5869,6 +6033,7 @@ public void test401939a() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939b() {
 	this.runNegativeTest(
 			new String[] {
@@ -5920,6 +6085,7 @@ public void test401939b() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939c() {
 	this.runNegativeTest(
 			new String[] {
@@ -5948,6 +6114,7 @@ public void test401939c() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939ca() {
 	this.runNegativeTest(
 			new String[] {
@@ -5970,6 +6137,7 @@ public void test401939ca() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939d() {
 	this.runNegativeTest(
 			new String[] {
@@ -5992,6 +6160,7 @@ public void test401939d() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939e() {
 	this.runNegativeTest(
 			new String[] {
@@ -6019,6 +6188,7 @@ public void test401939e() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+@Test
 public void test401939f() {
 	this.runNegativeTest(
 			new String[] {
@@ -6036,6 +6206,7 @@ public void test401939f() {
 				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402219, [1.8][compiler] Compile time errors in lambda during hypothetical type check should render candidate method inapplicable.
+@Test
 public void test402219() {
 	this.runNegativeTest(
 			new String[] {
@@ -6067,6 +6238,7 @@ public void test402219() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402219, [1.8][compiler] Compile time errors in lambda during hypothetical type check should render candidate method inapplicable.
+@Test
 public void test402219a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
@@ -6099,6 +6271,7 @@ public void test402219a() {
 			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402219, [1.8][compiler] Compile time errors in lambda during hypothetical type check should render candidate method inapplicable.
+@Test
 public void test402219b() {
 	this.runNegativeTest(
 			new String[] {
@@ -6130,6 +6303,7 @@ public void test402219b() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402259, [1.8][compiler] NPE during overload resolution when there are syntax errors.
+@Test
 public void test402259() {
 	this.runNegativeTest(
 			new String[] {
@@ -6154,6 +6328,7 @@ public void test402259() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes..
+@Test
 public void test402261() {
 	this.runNegativeTest(
 			new String[] {
@@ -6180,6 +6355,7 @@ public void test402261() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes..
+@Test
 public void test402261a() {
 	this.runNegativeTest(
 			new String[] {
@@ -6206,6 +6382,7 @@ public void test402261a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes..
+@Test
 public void test402261b() {
 	this.runNegativeTest(
 			new String[] {
@@ -6232,6 +6409,7 @@ public void test402261b() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes..
+@Test
 public void test402261c() {
 	this.runNegativeTest(
 			new String[] {
@@ -6258,6 +6436,7 @@ public void test402261c() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401769, [1.8][compiler] Explore solutions with better performance characteristics than LambdaExpression#copy()
+@Test
 public void test401769() {
 	this.runNegativeTest(
 			new String[] {
@@ -6285,6 +6464,7 @@ public void test401769() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+@Test
 public void test402609() {
 	this.runNegativeTest(
 			new String[] {
@@ -6318,6 +6498,7 @@ public void test402609() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+@Test
 public void test402609a() {
 	this.runNegativeTest(
 			new String[] {
@@ -6356,6 +6537,7 @@ public void test402609a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+@Test
 public void test402609b() {
 	this.runNegativeTest(
 			new String[] {
@@ -6394,6 +6576,7 @@ public void test402609b() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+@Test
 public void test402609c() {
 	this.runNegativeTest(
 			new String[] {
@@ -6429,6 +6612,7 @@ public void test402609c() {
 
 // 15.28:
 // https://bugs.eclipse.org/382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
+@Test
 public void testSuperReference01() {
 	this.runNegativeTest(
 		new String[] {
@@ -6470,6 +6654,7 @@ public void testSuperReference01() {
 
 // 15.28.1:
 // https://bugs.eclipse.org/382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
+@Test
 public void testSuperReference02() {
 	this.runNegativeTest(
 		new String[] {
@@ -6513,6 +6698,7 @@ public void testSuperReference02() {
 	);
 }
 
+@Test
 public void testSuperReference03() {
 	this.runNegativeTest(
 			new String[] {
@@ -6552,6 +6738,7 @@ public void testSuperReference03() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call.
+@Test
 public void test406614() {
 	this.runNegativeTest(
 			new String[] {
@@ -6650,6 +6837,7 @@ public void test406614() {
 			));
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
+@Test
 public void test406588() {
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -6683,6 +6871,7 @@ public void test406588() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406586, [1.8][compiler] Missing error about unavailable enclosing instance
+@Test
 public void test406586() {
 	this.runNegativeTest(
 			new String[] {
@@ -6706,6 +6895,7 @@ public void test406586() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401989, [1.8][compiler] hook lambda expressions into "can be static" analysis
+@Test
 public void test401989() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6741,6 +6931,7 @@ public void test401989() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+@Test
 public void test406773() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6812,6 +7003,7 @@ public void test406773() {
 			compilerOptions /* custom options */
 		);
 }
+@Test
 public void test406773_positive() {
 	// demonstrate that access to 'local' works in ctors for Y and Z
 	this.runConformTest(
@@ -6861,6 +7053,7 @@ public void test406773_positive() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
+@Test
 public void test406859a() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6889,6 +7082,7 @@ public void test406859a() {
 		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
+@Test
 public void test406859b() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6921,6 +7115,7 @@ public void test406859b() {
 		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
+@Test
 public void test406859c() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6953,6 +7148,7 @@ public void test406859c() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
 // A case where we can't help but report the wrong hint due to separate compilation.
+@Test
 public void test406859d() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6991,6 +7187,7 @@ public void test406859d() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=410114, [1.8] CCE when trying to parse method reference expression with inappropriate type arguments
+@Test
 public void test410114() throws IOException {
 	String source = "interface I {\n" +
 					"    void foo(Y<String> y);\n" +
@@ -7029,6 +7226,7 @@ public void test410114() throws IOException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412453,
 //[1.8][compiler] Stackoverflow when compiling LazySeq
+@Test
 public void test412453() {
 	this.runNegativeTest(
 		new String[] {
@@ -7068,6 +7266,7 @@ public void test412453() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
 //[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
+@Test
 public void test412284a() {
 	this.runNegativeTest(
 		new String[] {
@@ -7101,6 +7300,7 @@ public void test412284a() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
 //[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
+@Test
 public void test412284b() {
 	this.runNegativeTest(
 		new String[] {
@@ -7143,6 +7343,7 @@ public void test412284b() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
 //[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
+@Test
 public void test412284c() {
 	this.runNegativeTest(
 		new String[] {
@@ -7194,6 +7395,7 @@ public void test412284c() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=412650
 // [1.8][compiler]Incongruent Lambda Exception thrown
+@Test
 public void test412650() {
 	this.runNegativeTest(
 		new String[] {
@@ -7233,6 +7435,7 @@ public void test412650() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=409544
 // Bug 409544 - [1.8][compiler] Any local variable used but not declared in a lambda body must be definitely assigned before the lambda body.
+@Test
 public void test409544() {
 	this.runNegativeTest(
 		new String[] {
@@ -7260,6 +7463,7 @@ public void test409544() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=409544
 // Bug 409544 - [1.8][compiler] Any local variable used but not declared in a lambda body must be definitely assigned before the lambda body.
+@Test
 public void test409544b() {
 	this.runNegativeTest(
 		new String[] {
@@ -7298,6 +7502,7 @@ public void test409544b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=415844
 // Bug 415844 - [1.8][compiler] Blank final initialized in a lambda expression should not pass
+@Test
 public void test415844a() {
 	this.runNegativeTest(
 		new String[] {
@@ -7325,6 +7530,7 @@ public void test415844a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=415844
 // Bug 415844 - [1.8][compiler] Blank final initialized in a lambda expression should not pass
+@Test
 public void test415844b() {
 	this.runNegativeTest(
 		new String[] {
@@ -7361,6 +7567,7 @@ public void test415844b() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=404657 [1.8][compiler] Analysis for effectively final variables fails to consider loops
+@Test
 public void test404657_final() {
 		this.runNegativeTest(
 			new String[] {
@@ -7391,6 +7598,7 @@ public void test404657_final() {
 		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=404657 [1.8][compiler] Analysis for effectively final variables fails to consider loops
+@Test
 public void test404657_loop() {
 		this.runNegativeTest(
 			new String[] {
@@ -7418,6 +7626,7 @@ public void test404657_loop() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420580, [1.8][compiler] ReferenceExpression drops explicit type arguments
+@Test
 public void testExplicitTypeArgument() {
 		this.runNegativeTest(
 			new String[] {
@@ -7444,6 +7653,7 @@ public void testExplicitTypeArgument() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420582,  [1.8][compiler] Compiler should allow creation of generic array creation with unbounded wildcard type arguments
+@Test
 public void testGenericArrayCreation() {
 		this.runNegativeTest(
 			new String[] {
@@ -7477,6 +7687,7 @@ public void testGenericArrayCreation() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420598, [1.8][compiler] Incorrect error about intersection cast type not being a functional interface.
+@Test
 public void testIntersectionCast() {
 		this.runConformTest(
 			new String[] {
@@ -7507,6 +7718,7 @@ public void testIntersectionCast() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421711, [1.8][compiler] '_' as identifier for a lambda parameter should be rejected.
+@Test
 public void testUnderScoreParameter() {
 		if (this.complianceLevel >= ClassFileConstants.JDK22)
 			return;
@@ -7549,6 +7761,7 @@ public void testUnderScoreParameter() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383096, [1.8][compiler]NullPointerException with a wrong lambda code snippet.
+@Test
 public void test383096() {
 	this.runNegativeTest(
 			new String[] {
@@ -7581,6 +7794,7 @@ public void test383096() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422516,  [1.8][compiler] NPE in ArrayReference.analyseAssignment.
+@Test
 public void test422516() {
 	this.runNegativeTest(
 			new String[] {
@@ -7608,6 +7822,7 @@ public void test422516() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422516,  [1.8][compiler] NPE in ArrayReference.analyseAssignment.
+@Test
 public void test422516a() {
 	this.runNegativeTest(
 			new String[] {
@@ -7634,6 +7849,7 @@ public void test422516a() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
+@Test
 public void test422489() {
 	this.runNegativeTest(
 			new String[] {
@@ -7663,6 +7879,7 @@ public void test422489() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
+@Test
 public void test422489a() { // interfaces and methods order changed, triggers NPE.
 	this.runNegativeTest(
 			new String[] {
@@ -7698,6 +7915,7 @@ public void test422489a() { // interfaces and methods order changed, triggers NP
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
+@Test
 public void test422489b() { // interfaces and methods order changed, triggers NPE.
 	this.runNegativeTest(
 			false /* skipJavac */,
@@ -7724,6 +7942,7 @@ public void test422489b() { // interfaces and methods order changed, triggers NP
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
+@Test
 public void test422489c() { // interfaces and methods order changed, triggers NPE.
 	this.runNegativeTest(
 			new String[] {
@@ -7759,6 +7978,7 @@ public void test422489c() { // interfaces and methods order changed, triggers NP
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
+@Test
 public void test422489d() { // interfaces and methods order changed, triggers NPE.
 	this.runNegativeTest(
 			new String[] {
@@ -7794,6 +8014,7 @@ public void test422489d() { // interfaces and methods order changed, triggers NP
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422801, [1.8][compiler] NPE in MessageSend.analyseCode in lambda body with missing import
+@Test
 public void test422801() {
 	this.runNegativeTest(
 			new String[] {
@@ -7815,6 +8036,7 @@ public void test422801() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422801, [1.8][compiler] NPE in MessageSend.analyseCode in lambda body with missing import
+@Test
 public void test422801a() {
 	this.runNegativeTest(
 			new String[] {
@@ -7842,6 +8064,7 @@ public void test422801a() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405134, [1.8][code assist + compiler] compiler and code assist problem in multilevel lambda with curly bracketed body
+@Test
 public void test405134a() {
 	this.runNegativeTest(
 			new String[] {
@@ -7868,6 +8091,7 @@ public void test405134a() {
 			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
+@Test
 public void test421927() {
 	this.runNegativeTest(
 			new String[] {
@@ -7883,6 +8107,7 @@ public void test421927() {
 			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
+@Test
 public void test421927a() {
 	this.runNegativeTest(
 			false,
@@ -7913,6 +8138,7 @@ public void test421927a() {
 			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423429, [1.8][compiler] NPE in LambdaExpression.analyzeCode
+@Test
 public void test423429() {
 	this.runNegativeTest(
 			new String[] {
@@ -7943,6 +8169,7 @@ public void test423429() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423129,  [1.8][compiler] Hook up lambda expressions into statement recovery
+@Test
 public void test423129() {
 	this.runNegativeTest(
 			new String[] {
@@ -7977,6 +8204,7 @@ public void test423129() {
 			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423129,  [1.8][compiler] Hook up lambda expressions into statement recovery
+@Test
 public void test423129b() {
 	this.runNegativeTest(
 			new String[] {
@@ -8003,6 +8231,7 @@ public void test423129b() {
 			true);
 }
 // modified the previous example to craft a result requiring constant narrowing (13 -> byte)
+@Test
 public void test423129c() {
 	this.runConformTest(
 			new String[] {
@@ -8022,6 +8251,7 @@ public void test423129c() {
 			});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424400, [1.8] Interfaces in the same hierarchy are allowed in an intersection cast with different type argument
+@Test
 public void test424400() {
 	this.runNegativeTest(
 			new String[] {
@@ -8088,6 +8318,7 @@ public void _test424400() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+@Test
 public void test424444() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8114,6 +8345,7 @@ public void test424444() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+@Test
 public void test425512() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8135,6 +8367,7 @@ public void test425512() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+@Test
 public void test425512a() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8157,6 +8390,7 @@ public void test425512a() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+@Test
 public void test425512b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8179,6 +8413,7 @@ public void test425512b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+@Test
 public void test425512c() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8201,6 +8436,7 @@ public void test425512c() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+@Test
 public void test425512cd() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8228,6 +8464,7 @@ public void test425512cd() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+@Test
 public void test425512ce() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8255,6 +8492,7 @@ public void test425512ce() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425621, [1.8][compiler] Missing error for raw type in constructor reference with explicit type arguments
+@Test
 public void test425621() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8282,6 +8520,7 @@ public void test425621() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423803, [1.8][compiler] No error shown for ambiguous reference to the method
+@Test
 public void test423803() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8320,6 +8559,7 @@ public void test423803() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423803, [1.8][compiler] No error shown for ambiguous reference to the method
+@Test
 public void test423803b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8348,6 +8588,7 @@ public void test423803b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425712, [1.8][compiler] Valid program rejected by the compiler.
+@Test
 public void test425712() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8374,6 +8615,7 @@ public void test425712() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421926, [1.8][compiler] Compiler tolerates illegal forward reference from lambda in initializer
+@Test
 public void test421926() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8406,6 +8648,7 @@ public void test421926() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421926, [1.8][compiler] Compiler tolerates illegal forward reference from lambda in initializer
+@Test
 public void test421926b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8426,6 +8669,7 @@ public void test421926b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421926, [1.8][compiler] Compiler tolerates illegal forward reference from lambda in initializer
+@Test
 public void test421926c() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8441,6 +8685,7 @@ public void test421926c() throws Exception {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426206, [1.8][compiler] Compiler tolerates illegal code.
+@Test
 public void test426206() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -8464,6 +8709,7 @@ public void test426206() throws Exception {
 		"Type mismatch: cannot convert from Comparator<Long> to Comparator<? extends String>\n" +
 		"----------\n");
 }
+@Test
 public void testBug426563() {
 	runNegativeTest(
 		new String[] {
@@ -8501,6 +8747,7 @@ public void testBug426563() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426965,  [1.8] Eclipse rejects valid type conversion in lambda
+@Test
 public void test426965() {
 	runNegativeTest(
 		new String[] {
@@ -8518,6 +8765,7 @@ public void test426965() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
+@Test
 public void test427207() {
 	runNegativeTest(
 		new String[] {
@@ -8545,6 +8793,7 @@ public void test427207() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425278, [1.8][compiler] Suspect error: The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
 // NOTE: javac 8b127 incorrectly accepts this program due to https://bugs.openjdk.java.net/browse/JDK-8033810
+@Test
 public void test425278() {
 	runNegativeTest(
 		false /*skipJavac */,
@@ -8568,6 +8817,7 @@ public void test425278() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427265, - [1.8][compiler] Type inference with anonymous classes
+@Test
 public void test427265() {
 	runNegativeTest(
 		new String[] {
@@ -8584,6 +8834,7 @@ public void test427265() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427749, - [1.8][compiler]NullPointerException in ReferenceExpression.resolveType
+@Test
 public void test427749() {
 	runNegativeTest(
 		new String[] {
@@ -8634,6 +8885,7 @@ public void test427749() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428300, - [1.8] Map.computeIfAbsent fails with array value types
+@Test
 public void test428300() {
 	runNegativeTest(
 		new String[] {
@@ -8649,6 +8901,7 @@ public void test428300() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428300, - [1.8] Map.computeIfAbsent fails with array value types
+@Test
 public void test428300a() {
 	runNegativeTest(
 		new String[] {
@@ -8666,6 +8919,7 @@ public void test428300a() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428177, - [1.8][compiler] Insistent capture issues
+@Test
 public void test428177() {
 	runNegativeTest(
 		new String[] {
@@ -8745,6 +8999,7 @@ public void test428177() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428795, - [1.8]Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.MessageSend.analyseCode
+@Test
 public void test428795() {
 	runNegativeTest(
 		new String[] {
@@ -8769,6 +9024,7 @@ public void test428795() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -8794,6 +9050,7 @@ public void test428857() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -8824,6 +9081,7 @@ public void test428857a() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -8854,6 +9112,7 @@ public void test428857b() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -8889,6 +9148,7 @@ public void test428857c() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -8924,6 +9184,7 @@ public void test428857d() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857e() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -8964,6 +9225,7 @@ public void test428857e() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857f() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -8999,6 +9261,7 @@ public void test428857f() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+@Test
 public void test428857g() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
@@ -9029,6 +9292,7 @@ public void test428857g() {
 		"----------\n", null, false, customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429833, - [1.8][compiler] Missing types cause NPE in lambda analysis.
+@Test
 public void test429833() {
 	runNegativeTest(
 		new String[] {
@@ -9053,6 +9317,7 @@ public void test429833() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429934, - [1.8][search] for references to type of lambda with 'this' parameter throws AIIOBE/NPE
+@Test
 public void test429934() {
 	runNegativeTest(
 		new String[] {
@@ -9107,6 +9372,7 @@ public void test429934() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429969, [1.8][compiler] Possible RuntimeException in Lambda tangles ECJ
+@Test
 public void test429969() {
 	this.runNegativeTest(
 			new String[] {
@@ -9143,6 +9409,7 @@ public void test429969() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429969, [1.8][compiler] Possible RuntimeException in Lambda tangles ECJ
+@Test
 public void test429969a() {
 	this.runNegativeTest(
 			new String[] {
@@ -9167,6 +9434,7 @@ public void test429969a() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+@Test
 public void test430310() {
 	this.runNegativeTest(
 			new String[] {
@@ -9192,6 +9460,7 @@ public void test430310() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424154, [1.8][compiler] PolyTypeBinding must not render the full lambda body in error messages
 //Example copied from bug report.
+@Test
 public void test424154a() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -9222,6 +9491,7 @@ public void test424154a() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424154,  [1.8][compiler] PolyTypeBinding must not render the full lambda body in error messages
 //Variations where return types or arguments mismatch or both.
+@Test
 public void test424154b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -9265,6 +9535,7 @@ public void test424154b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431514 [1.8] Incorrect compilation error in lambda expression
+@Test
 public void test431514() {
 	this.runNegativeTest(
 		new String[] {
@@ -9291,6 +9562,7 @@ public void test431514() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439707 [1.8][compiler] Lambda can be passed illegally to invisible method argument
+@Test
 public void test439707() {
 	this.runNegativeTest(
 		new String[] {
@@ -9317,6 +9589,7 @@ public void test439707() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=442983, [1.8] NPE in Scope.findDefaultAbstractMethod
+@Test
 public void test442983() {
 	this.runNegativeTest(
 		new String[] {
@@ -9346,6 +9619,7 @@ public void test442983() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438945, [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
+@Test
 public void test438945() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -9369,6 +9643,7 @@ public void test438945() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515, [1.8] ECJ reports error at method reference to overloaded instance method
+@Test
 public void test440643() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -9407,6 +9682,7 @@ public void test440643() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515, [1.8] ECJ reports error at method reference to overloaded instance method
+@Test
 public void test440643a() {
 	this.runNegativeTest(
 		new String[] {
@@ -9439,6 +9715,7 @@ public void test440643a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515, [1.8] ECJ reports error at method reference to overloaded instance method
+@Test
 public void test440643b() {
 	this.runNegativeTest(
 		new String[] {
@@ -9467,6 +9744,7 @@ public void test440643b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435397, [1.8][compiler] Ambiguous method while using Lambdas
+@Test
 public void test435397() {
 	this.runNegativeTest(
 		new String[] {
@@ -9516,6 +9794,7 @@ public void test435397() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433458, [1.8][compiler] Eclipse accepts lambda expression with potentially uninitialized arguments
+@Test
 public void test433458() {
 	this.runNegativeTest(
 		new String[] {
@@ -9551,6 +9830,7 @@ public void test433458() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433458, [1.8][compiler] Eclipse accepts lambda expression with potentially uninitialized arguments
+@Test
 public void test433458a() {
 	this.runNegativeTest(
 		new String[] {
@@ -9580,6 +9860,7 @@ public void test433458a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433588, [1.8][compiler] ECJ compiles an ambiguous call in the presence of an unrelated unused method.
+@Test
 public void test433588() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -9667,6 +9948,7 @@ public void test433588() {
 		errMessage);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433588, [1.8][compiler] ECJ compiles an ambiguous call in the presence of an unrelated unused method.
+@Test
 public void test433588a() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -9744,6 +10026,7 @@ public void test433588a() {
 		errMessage);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433735, [1.8] Discrepancy with javac when dealing with local classes in lambda expressions
+@Test
 public void test433735() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -9788,6 +10071,7 @@ public void test433735() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
+@Test
 public void test432531a() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -9889,6 +10173,7 @@ public void _test432605() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444665, Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.problem.ProblemReporter.invalidMethod
+@Test
 public void test444665() {
 	this.runNegativeTest(
 		new String[] {
@@ -9907,6 +10192,7 @@ public void test444665() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=442446, [1.8][compiler] compiler unable to infer lambda's generic argument types
+@Test
 public void test442446() {
 	this.runNegativeTest(
 		new String[] {
@@ -9931,6 +10217,7 @@ public void test442446() {
 	"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432759,  [1.8][compiler] Some differences between Javac and ECJ regarding wildcards and static methods
+@Test
 public void test432759() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -9976,6 +10263,7 @@ public void test432759() {
 	"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c36,  NPE in broken code
+@Test
 public void test437444() {
 	this.runNegativeTest(
 		new String[] {
@@ -10012,6 +10300,7 @@ public void test437444() {
 	"----------\n");
 }
 // test ground target type with wildcards left in non parameter positions.
+@Test
 public void testGroundTargetTypeWithWithWildcards() {
 	this.runNegativeTest(
 		new String[] {
@@ -10037,6 +10326,7 @@ public void testGroundTargetTypeWithWithWildcards() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=474522, [1.8][compiler] ecj doesn't handle captured final fields correctly in lambdas
+@Test
 public void test474522() {
 	this.runNegativeTest(
 		new String[] {
@@ -10073,6 +10363,7 @@ public void test474522() {
 		"The blank final field s may not have been initialized\n" +
 		"----------\n");
 }
+@Test
 public void testBug487390() {
 	runNegativeTest(
 		new String[] {
@@ -10105,6 +10396,7 @@ public void testBug487390() {
 		"Lambda expression\'s signature does not match the signature of the functional interface method consume()\n" +
 		"----------\n");
 }
+@Test
 public void testBug487390b() {
 	runNegativeTest(
 		new String[] {
@@ -10133,6 +10425,7 @@ public void testBug487390b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=458332, [1.8][compiler] only 409 method references/lambda expressions per class possible
+@Test
 public void testBug458332() {
 	runConformTest(
 		false,
@@ -10236,6 +10529,7 @@ public void testBug458332() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/125
 // Java parser/compiler accepts invalid source code with lambdas
+@Test
 public void testGH125() {
 	this.runNegativeTest(
 		new String[] {
@@ -10303,6 +10597,7 @@ public void testGH125() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/367
 // ECJ accepts invalid syntax without error
+@Test
 public void testGH367() {
 	this.runNegativeTest(
 		new String[] {
@@ -10325,6 +10620,7 @@ public void testGH367() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/859
 // Invalid code not rejected by compiler
+@Test
 public void testGH859() {
 	this.runNegativeTest(
 		new String[] {
@@ -10363,6 +10659,7 @@ public void testGH859() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=553601
 // Compile without errors invalid source code
+@Test
 public void test553601() {
 	this.runNegativeTest(
 		new String[] {
@@ -10612,6 +10909,7 @@ public void test553601() {
 		"----------\n");
 }
 
+@Test
 public void testIssue810() {
 	this.runNegativeTest(
 			new String[] {
@@ -10646,6 +10944,7 @@ public void testIssue810() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3792
 // Silent Acceptance of Non-Final Variable in Unreachable Lambda Expression
+@Test
 public void testIssue3792() {
 	this.runNegativeTest(
 			new String[] {
@@ -10688,6 +10987,7 @@ public void testIssue3792() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3792
 // Silent Acceptance of Non-Final Variable in Unreachable Lambda Expression
+@Test
 public void testIssue3792_full() {
 	this.runNegativeTest(
 			new String[] {
@@ -10743,6 +11043,7 @@ public void testIssue3792_full() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3956
 // NPE in TypeBinding.getSingleAbstractMethod()
+@Test
 public void testIssue3956() {
 	this.runNegativeTest(
 			new String[] {
@@ -10816,6 +11117,7 @@ public void testIssue3956() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=568332
 //  Internal compiler error: NPE in QualifiedNameReference.optimizedBooleanConstant(QualifiedNameReference.java:931) because "this.binding" is null
+@Test
 public void testBug568332() {
 	this.runNegativeTest(
 			new String[] {
@@ -10847,6 +11149,7 @@ public void testBug568332() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4202
 // java.lang.NullPointerException: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.TypeBinding.isLocalType()" because "originalType" is null
+@Test
 public void testIssue4202() {
 this.runNegativeTest(
 		new String[] {
@@ -10933,6 +11236,7 @@ this.runNegativeTest(
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4227
 // ECJ fails to complain about misapplication of @FunctionalInterface annotation on annotation types
+@Test
 public void testIssue4227() {
 this.runNegativeTest(
 		new String[] {
@@ -10953,6 +11257,7 @@ this.runNegativeTest(
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/903
 // Internal/synthetic token name ElidedSemicolonAndRightBrace shows up in compile error messages
+@Test
 public void testIssue903() {
 this.runNegativeTest(
 		new String[] {

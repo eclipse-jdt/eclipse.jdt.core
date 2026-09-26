@@ -26,12 +26,12 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractBatchCompilerTest;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
-public class AbstractCompilerToolTest extends BatchCompilerTest {
+public class AbstractCompilerToolTest extends AbstractBatchCompilerTest {
 	public AbstractCompilerToolTest(String name) {
-		super(name);
+		super(null, null);
 	}
 	static class CompilerInvocationTestsArguments {
 		StandardJavaFileManager standardJavaFileManager;

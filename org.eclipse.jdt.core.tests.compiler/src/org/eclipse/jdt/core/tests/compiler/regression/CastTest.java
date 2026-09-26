@@ -17,19 +17,20 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class CastTest extends AbstractRegressionTest {
 
-public CastTest(String name) {
-	super(name);
+public CastTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 @Override
 protected Map getCompilerOptions() {
@@ -38,9 +39,6 @@ protected Map getCompilerOptions() {
 	defaultOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	return defaultOptions;
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
 
 static {
 //	TESTS_NAMES = new String[] { "test428388d" };
@@ -48,6 +46,7 @@ static {
 /*
  * check extra checkcast (interface->same interface)
  */
+@Test
 public void test001() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -101,6 +100,7 @@ public void test001() throws Exception {
 	}
 }
 
+@Test
 public void test002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -142,6 +142,7 @@ public void test002() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test003() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -179,6 +180,7 @@ public void test003() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test004() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -217,6 +219,7 @@ public void test004() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -302,6 +305,7 @@ public void _test006() { // TODO (philippe) add support to conditional expressio
 		customOptions);
 }
 
+@Test
 public void test007() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -358,6 +362,7 @@ public void test007() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test008() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -388,6 +393,7 @@ public void test008() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -423,6 +429,7 @@ public void test009() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -458,6 +465,7 @@ public void test010() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -488,6 +496,7 @@ public void test011() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -529,6 +538,7 @@ public void test012() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=42289
+@Test
 public void test013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -568,6 +578,7 @@ public void test013() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // 39925 - Unnecessary instanceof checking leads to a NullPointerException
+@Test
 public void test014() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -594,6 +605,7 @@ public void test014() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // narrowing cast on base types may change value, thus necessary
+@Test
 public void test015() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -625,6 +637,7 @@ public void test015() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // narrowing cast on base types may change value, thus necessary
+@Test
 public void test016() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -657,6 +670,7 @@ public void test016() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //fault tolerance (40288)
+@Test
 public void test017() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -688,6 +702,7 @@ public void test017() {
 		customOptions);
 }
 //fault tolerance (40423)
+@Test
 public void test018() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -745,6 +760,7 @@ public void tes019() {
 		customOptions);
 }
 //fault tolerance
+@Test
 public void test020() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -769,6 +785,7 @@ public void test020() {
 }
 
 // unnecessary cast diagnosis should also consider receiver type (40572)
+@Test
 public void test021() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -865,6 +882,7 @@ public void test021() {
 		customOptions);
 }
 // unnecessary cast diagnosis should tolerate array receiver type (40752)
+@Test
 public void test022() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -897,6 +915,7 @@ public void test022() {
 }
 
 // unnecessary cast diagnosis should tolerate array receiver type (40752)
+@Test
 public void test023() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -932,6 +951,7 @@ public void test023() {
 }
 
 // unnecessary cast diagnosis for message receiver (44400)
+@Test
 public void test024() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -962,6 +982,7 @@ public void test024() {
 
 // unnecessary cast diagnosis for message receiver (44400)
 // variation with field access
+@Test
 public void test025() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -993,6 +1014,7 @@ public void test025() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
  */
+@Test
 public void test026() {
 
 	this.runConformTest(
@@ -1017,6 +1039,7 @@ public void test026() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
  */
+@Test
 public void test027() {
 	this.runConformTest(
 		new String[] {
@@ -1039,6 +1062,7 @@ public void test027() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
  */
+@Test
 public void test028() {
 	this.runConformTest(
 		new String[] {
@@ -1065,6 +1089,7 @@ public void test028() {
  * verify error when assigning null to array
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
  */
+@Test
 public void test029() {
 	this.runConformTest(
 		new String[] {
@@ -1106,6 +1131,7 @@ public void test029() {
  * verify error when assigning null to array
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
  */
+@Test
 public void test030() {
 	this.runConformTest(
 		new String[] {
@@ -1143,6 +1169,7 @@ public void test030() {
  * verify error when assigning null to array
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
  */
+@Test
 public void test031() {
 	this.runConformTest(
 		new String[] {
@@ -1181,6 +1208,7 @@ public void test031() {
  * verify error when assigning null to array
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
  */
+@Test
 public void test032() {
 	this.runConformTest(
 		new String[] {
@@ -1204,6 +1232,7 @@ public void test032() {
  * unused cast diagnosis
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=54763
  */
+@Test
 public void test033() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -1284,6 +1313,7 @@ public void test033() {
  * check non insertion of checkcast for unnecessary cast to interfaces
  * (same test case as test033)
  */
+@Test
 public void test034() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1360,6 +1390,7 @@ public void test034() throws Exception {
 	}
 }
 // javac incorrectly accepts it
+@Test
 public void test035() {
 	String[] sources = {
 			"Test231.java",
@@ -1396,6 +1427,7 @@ public void test035() {
 		runConformTest(sources, "");
 	}
 }
+@Test
 public void test036() {
 	runConformTest(
 		// test directory preparation
@@ -1440,6 +1472,7 @@ public void test036() {
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
+@Test
 public void test037() {
 	this.runNegativeTest(
 		new String[] {
@@ -1459,6 +1492,7 @@ public void test037() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101208
+@Test
 public void test038() {
 	this.runNegativeTest(
 		new String[] {
@@ -1478,6 +1512,7 @@ public void test038() {
 		"----------\n");
 }
 //unnecessary cast warnings in assignment (Object o = (String) something).
+@Test
 public void test039() {
 	this.runNegativeTest(
 		new String[] {
@@ -1534,6 +1569,7 @@ public void test039() {
 		"----------\n");
 }
 //http://bugs.eclipse.org/bugs/show_bug.cgi?id=116647
+@Test
 public void test040() {
 	this.runNegativeTest(
 		new String[] {
@@ -1560,6 +1596,7 @@ public void test040() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158855
+@Test
 public void test041() {
 	this.runNegativeTest(
 		new String[] {
@@ -1598,6 +1635,7 @@ public void test041() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159654
+@Test
 public void test042() {
 	this.runConformTest(
 		new String[] {
@@ -1618,6 +1656,7 @@ public void test042() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159654
+@Test
 public void test043() {
 	this.runConformTest(
 		new String[] {
@@ -1638,6 +1677,7 @@ public void test043() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159822
+@Test
 public void test044() {
 	this.runConformTest(
 		new String[] {
@@ -1657,6 +1697,7 @@ public void test044() {
 		"null");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239305
+@Test
 public void test045() {
 	this.runConformTest(
 		new String[] {
@@ -1673,6 +1714,7 @@ public void test045() {
 		"3");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282869
+@Test
 public void test046() {
 	this.runConformTest(
 		true,
@@ -1701,6 +1743,7 @@ public void test046() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=287676
 // Test to make sure that an unnecessary cast warning is produced in case of
 // wrapper types like Integer, Character, Short, Byte, etc.
+@Test
 public void test047() {
 	this.runNegativeTest(
 		new String[] {
@@ -1734,6 +1777,7 @@ public void test047() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug418795() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -1766,6 +1810,7 @@ public void testBug418795() {
 		},
 		options);
 }
+@Test
 public void testBug329437() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -1783,6 +1828,7 @@ public void testBug329437() {
 		},
 		options);
 }
+@Test
 public void testBug521778() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -1806,6 +1852,7 @@ public void testBug521778() {
 		options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
+@Test
 public void test048() {
 	this.runNegativeTest(
 		new String[] {
@@ -1833,6 +1880,7 @@ public void test048() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
+@Test
 public void test049() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1865,6 +1913,7 @@ public void test049() {
 	runner.runWarningTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
+@Test
 public void test050() {
 	this.runNegativeTest(
 		new String[] {
@@ -1892,6 +1941,7 @@ public void test050() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test051() {
 	String source =
 			"public class X {\n" +
@@ -1913,6 +1963,7 @@ public void test051() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test052() {
 	String source =
 			"public class X {\n" +
@@ -1934,6 +1985,7 @@ public void test052() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test053() {
 	String source =
 			"public class X {\n" +
@@ -1956,6 +2008,7 @@ public void test053() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
 // Also confirm that a check cast and unboxing conversion are generated.
+@Test
 public void test054() throws Exception {
 	String source =
 			"public class X {\n" +
@@ -2012,6 +2065,7 @@ public void test054() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test055() {
 	String source =
 			"public class X {\n" +
@@ -2033,6 +2087,7 @@ public void test055() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test056() {
 	String source =
 			"public class X {\n" +
@@ -2054,6 +2109,7 @@ public void test056() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test057() {
 	String source =
 			"public class X {\n" +
@@ -2075,6 +2131,7 @@ public void test057() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test058() {
 	String source =
 			"public class X {\n" +
@@ -2096,6 +2153,7 @@ public void test058() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test059() {
 	String source =
 			"public class X {\n" +
@@ -2122,6 +2180,7 @@ public void test059() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test059b() {
 	String source =
 			"public class X {\n" +
@@ -2148,6 +2207,7 @@ public void test059b() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test059c() {
 	String source =
 			"public class X {\n" +
@@ -2174,6 +2234,7 @@ public void test059c() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test060() {
 	String source =
 			"public class X {\n" +
@@ -2195,6 +2256,7 @@ public void test060() {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+@Test
 public void test061() {
 	String source =
 			"public class X {\n" +
@@ -2222,6 +2284,7 @@ public void test061() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=359284
 // Verify that checkcast is emitted for a cast expression.
+@Test
 public void test061b() throws Exception {
 	String source =
 		"public class X {\n" +
@@ -2269,6 +2332,7 @@ public void test061b() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420283, [1.8] Wrong error "Type is not visible" for cast to intersection type
+@Test
 public void test420283() {
 	this.runConformTest(
 			new String[] {
@@ -2288,6 +2352,7 @@ public void test420283() {
 		);
 }
 
+@Test
 public void testBug428274() {
 	String source =
 			"public class Junk4 {\n" +
@@ -2307,6 +2372,7 @@ public void testBug428274() {
 		},
 		"3\n4");
 }
+@Test
 public void testBug428274b() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -2329,6 +2395,7 @@ public void testBug428274b() {
 	runner.runConformTest();
 }
 // note: spec allows all reference types, but neither javac nor common sense accept arrays :)
+@Test
 public void testBug428274c() {
 	String source =
 			"public class Junk4 {\n" +
@@ -2353,6 +2420,7 @@ public void testBug428274c() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388() {
 	runNegativeTest(
 		new String[] {
@@ -2371,6 +2439,7 @@ public void test428388() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388a() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2427,6 +2496,7 @@ public void test428388a() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -2450,6 +2520,7 @@ public void test428388b() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388c() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2472,6 +2543,7 @@ public void test428388c() throws Exception {
 		"CCE\nCCE");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388d() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2495,6 +2567,7 @@ public void test428388d() throws Exception {
 		"CCE\n-1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388e() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2518,6 +2591,7 @@ public void test428388e() throws Exception {
 		"CCE\n-1");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388f() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2541,6 +2615,7 @@ public void test428388f() throws Exception {
 		"1234");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388g() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -2575,6 +2650,7 @@ public void test428388g() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388h() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -2603,6 +2679,7 @@ public void test428388h() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388i() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2656,6 +2733,7 @@ public void test428388i() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+@Test
 public void test428388j() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2674,6 +2752,7 @@ public void test428388j() throws Exception {
 		"10101010");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
+@Test
 public void test428522() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -2725,6 +2804,7 @@ public void test428522() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
+@Test
 public void test428522a() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -2777,6 +2857,7 @@ public void test428522a() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
+@Test
 public void test428522b() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -2797,6 +2878,7 @@ public void test428522b() throws Exception {
 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
+@Test
 public void test428522c() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -2849,6 +2931,7 @@ public void test428522c() throws Exception {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=441731 JDT reports unnecessary cast, using the Quickfix to remove it creates syntax error
+@Test
 public void test441731() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -2869,6 +2952,7 @@ public void test441731() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448112, [compiler] Compiler crash (ArrayIndexOutOfBoundsException at StackMapFrame.addStackItem()) with unused variable
+@Test
 public void test448112() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -2936,6 +3020,7 @@ public void test448112() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=461706 [1.8][compiler] "Unnecessary cast" problems for necessary cast in lambda expression
+@Test
 public void test461706() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -2970,6 +3055,7 @@ public void test461706() {
 		customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=461706 [1.8][compiler] "Unnecessary cast" problems for necessary cast in lambda expression
+@Test
 public void test461706a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -3011,6 +3097,7 @@ public void test461706a() {
 		"----------\n";
 	runner.runWarningTest();
 }
+@Test
 public void testAnonymous_bug520727() {
 	String[] source = {
 		"O.java",
@@ -3037,6 +3124,7 @@ public void testAnonymous_bug520727() {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=543727 False positive "Unnecessary cast"
+@Test
 public void test543727() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -3057,6 +3145,7 @@ public void test543727() {
 		},
 		"SUCCESS");
 }
+@Test
 public void test543727_notequals() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -3078,6 +3167,7 @@ public void test543727_notequals() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=548647 JDT reports unnecessary cast, using the Quickfix to remove it creates syntax error
+@Test
 public void test548647() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -3105,6 +3195,7 @@ public void test548647() {
 		},
 		customOptions);
 }
+@Test
 public void test548647a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -3149,6 +3240,7 @@ public void test548647a() {
 	runner.runWarningTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=472466 [compiler] bogus warning "unnecessary cast"
+@Test
 public void test472466() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -3183,6 +3275,7 @@ public void test472466() {
 	runner.runWarningTest();
 }
 
+@Test
 public void testBug561167() {
 	if (this.complianceLevel < ClassFileConstants.JDK10)
 		return;
@@ -3222,6 +3315,7 @@ public void testBug561167() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=572534
 // ClassCastException LocalTypeBinding cannot be cast to ParameterizedTypeBinding in inferDiamondConstructor
+@Test
 public void testBug572534() {
 	if (this.complianceLevel > ClassFileConstants.JDK1_8) {
 		Map customOptions = getCompilerOptions();
@@ -3280,6 +3374,7 @@ public void testBug572534() {
 	}
 }
 
+@Test
 public void testGH2470() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -3324,6 +3419,7 @@ public void testGH2470() {
 	runner.runWarningTest();
 }
 
+@Test
 public void testGH2470_generic() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -3354,6 +3450,7 @@ public void testGH2470_generic() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testGH2470_generic2() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -3405,6 +3502,7 @@ public void testGH2470_generic2() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testGH2470_overload() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -3442,6 +3540,7 @@ public void testGH2470_overload() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4375
 // JDT generates invalid "Unnecessary cast" warning on ambiguous reference
+@Test
 public void testIssue4375() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -3474,6 +3573,7 @@ public void testIssue4375() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4101
 // False positive "Unnecessary cast" warning in Eclipse 2025-06
+@Test
 public void testIssue4101() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {

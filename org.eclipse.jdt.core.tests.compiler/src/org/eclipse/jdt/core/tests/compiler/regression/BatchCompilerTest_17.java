@@ -23,28 +23,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.SubstringMatcher;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(value=AbstractCompilerTest.F_17, singleVersion=true)
 public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 
 	/**
 	 * This test suite only needs to be run on one compliance.
-	 *
-	 * @see TestAll
 	 */
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_17);
-	}
-
-	public static Class<BatchCompilerTest_17> testClass() {
-		return BatchCompilerTest_17.class;
-	}
-
-	public BatchCompilerTest_17(String name) {
-		super(name);
+	public BatchCompilerTest_17(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
@@ -57,6 +51,7 @@ public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 	 * due some error in the initialization of shared static compiler data.
 	 * @see <a href="https://github.com/eclipse-jdt/eclipse.jdt.core/issues/183">bug 183</a>
 	 */
+	@Test
 	public void testParallelCompilation() throws Throwable {
 		Path root = Files.createDirectories(Paths.get(OUTPUT_DIR));
 		String[] sources = new String[] {
@@ -155,6 +150,7 @@ public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1774
 	// Check behavior of expression switch in JDK18-
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3096#issuecomment-2417954288
+	@Test
 	public void testGHI1774_Expression() throws Exception {
 		String javaVersion = System.getProperty("java.version");
 		if (javaVersion != null && JavaCore.compareJavaVersions(javaVersion, "18") < 0)

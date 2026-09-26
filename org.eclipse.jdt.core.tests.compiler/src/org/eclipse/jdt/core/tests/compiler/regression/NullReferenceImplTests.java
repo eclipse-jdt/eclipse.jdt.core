@@ -27,8 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.regression.NullReferenceImplTests.State;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -38,7 +36,10 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+// FIXME: this test has not been maintained recently
 /**
  * A tests series especially meant to validate the internals of our null
  * reference analysis. See NullReferenceTest for tests targetted at
@@ -525,8 +526,8 @@ public class NullReferenceImplTests extends NullReferenceTest {
 	}
 	}
 
-public NullReferenceImplTests(String name) {
-    super(name);
+public NullReferenceImplTests(Compliance compliance, TestInfo info) {
+    super(compliance, info);
 }
 
   	// Tests tuning
@@ -534,56 +535,64 @@ public NullReferenceImplTests(String name) {
 	private static final int COMBINATION_TESTS_LOOP_NB = 1; // define to 10000s to measure performances
 	private static final boolean MEASURE_PERFORMANCES = COMBINATION_TESTS_LOOP_NB > 1;
 
-public static Test suite() {
-	// we do not want to run for 1.3, 1.4, 1.5 but once only
-    Class clazz = testClass();
-    TestSuite all = new TestSuite(clazz.getName());
-    List tests = buildTestsList(testClass());
-    for (int i = 0, length = tests.size(); i < length; i++) {
-    	all.addTest((Test) tests.get(i));
-    }
-	return all;
-}
+//public static Test suite() {
+//	// we do not want to run for 1.3, 1.4, 1.5 but once only
+//    Class clazz = testClass();
+//    TestSuite all = new TestSuite(clazz.getName());
+//    List tests = buildTestsList(testClass());
+//    for (int i = 0, length = tests.size(); i < length; i++) {
+//    	all.addTest((Test) tests.get(i));
+//    }
+//	return all;
+//}
+//
+//public static Class testClass() {
+//    return NullReferenceImplTests.class;
+//}
 
-public static Class testClass() {
-    return NullReferenceImplTests.class;
-}
-
+@Test
 public void test2050_markAsComparedEqualToNonNull() {
 	int failures = NullReferenceImplTransformations.markAsComparedEqualToNonNull.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2051_markAsComparedEqualToNull() {
 	int failures = NullReferenceImplTransformations.markAsComparedEqualToNull.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2055_markAsDefinitelyNonNull() {
 	int failures = NullReferenceImplTransformations.markAsDefinitelyNonNull.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2056_markAsDefinitelyNull() {
 	int failures = NullReferenceImplTransformations.markAsDefinitelyNull.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2057_markAsDefinitelyUnknown() {
 	int failures = NullReferenceImplTransformations.markAsDefinitelyUnknown.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2060_addInitializationsFrom() {
 	int failures = NullReferenceImplTransformations.addInitializationsFrom.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2061_addPotentialInitializationsFrom() {
 	int failures = NullReferenceImplTransformations.addPotentialInitializationsFrom.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2062_mergedWith() {
 	int failures = NullReferenceImplTransformations.mergedWith.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
@@ -641,6 +650,7 @@ public void test2062_mergedWith() {
 //	assertTrue("nb of failures: " + failures, failures == 0);
 //}
 
+@Test
 public void test2400_state_consistency() {
 	int failures = 0;
 	long startNanos;
@@ -796,6 +806,7 @@ public void test2400_state_consistency() {
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+@Test
 public void test2500_addInitializationsFrom_for_definites() {
 	// when an added initialization is a def. something, it should
 	// affect the left hand term as the markAsDefinite* method would
@@ -868,6 +879,7 @@ private static int coveragePointsNb = 45;
 
 // PREMATURE reactivate coverage tests
 // Coverage by state transition tables methods.
+@Test
 public void test2998_coverage() {
 	if (UnconditionalFlowInfo.COVERAGE_TEST_FLAG) {
 		// sanity check: need to be sure that the tests execute properly when not
@@ -930,6 +942,7 @@ public void test2998_coverage() {
 }
 
 // Coverage by code samples.
+@Test
 public void test2999_coverage() {
 	if (UnconditionalFlowInfo.COVERAGE_TEST_FLAG) {
 		// sanity check: need to be sure that the tests execute properly when not

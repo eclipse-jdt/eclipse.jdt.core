@@ -14,22 +14,20 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class LineNumberAttributeTest extends AbstractRegressionTest {
 
-public LineNumberAttributeTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public LineNumberAttributeTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173800
+@Test
 public void test001() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -123,6 +121,7 @@ public void test001() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173800
+@Test
 public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -213,6 +212,7 @@ public void test002() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=509027
+@Test
 public void testBug509027() throws Exception {
 	runConformTest(
 		new String[] {
@@ -270,6 +270,7 @@ public void testBug509027() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=520714
+@Test
 public void testBug520714() throws Exception {
 	runConformTest(
 		new String[] {
@@ -304,8 +305,5 @@ public void testBug520714() throws Exception {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
-}
-public static Class testClass() {
-	return LineNumberAttributeTest.class;
 }
 }

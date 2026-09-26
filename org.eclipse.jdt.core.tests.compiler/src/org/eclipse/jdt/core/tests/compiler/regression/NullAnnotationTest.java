@@ -21,11 +21,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 // see bug 186342 - [compiler][null] Using annotations for null checking
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -33,8 +34,8 @@ public class NullAnnotationTest extends AbstractNullAnnotationTest {
 
 protected String TEST_JAR_SUFFIX = "_1.8.jar";
 
-public NullAnnotationTest(String name) {
-	super(name);
+public NullAnnotationTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // Static initializer to specify tests subset using TESTS_* static variables
@@ -43,14 +44,6 @@ static {
 //		TESTS_NAMES = new String[] { "testBug545715" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
-}
-
-public static Test suite() {
-	return buildComparableTestSuite(testClass());
-}
-
-public static Class testClass() {
-	return NullAnnotationTest.class;
 }
 
 public boolean useDeclarationAnnotations() {
@@ -137,6 +130,7 @@ protected void setUp() throws Exception {
 }
 
 // a nullable argument is dereferenced without a check
+@Test
 public void test_nullable_paramter_001() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -156,6 +150,7 @@ public void test_nullable_paramter_001() {
 }
 
 // a null value is passed to a nullable argument
+@Test
 public void test_nullable_paramter_002() {
 	runConformTestWithLibs(
 		new String[] {
@@ -174,6 +169,7 @@ public void test_nullable_paramter_002() {
 }
 
 // a non-null argument is checked for null
+@Test
 public void test_nonnull_parameter_001() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -193,6 +189,7 @@ public void test_nonnull_parameter_001() {
 		"----------\n");
 }
 // a non-null argument is dereferenced without a check
+@Test
 public void test_nonnull_parameter_002() {
 	runConformTestWithLibs(
 		new String[] {
@@ -211,6 +208,7 @@ public void test_nonnull_parameter_002() {
 	    "OK");
 }
 // passing null to nonnull parameter - many fields in enclosing class
+@Test
 public void test_nonnull_parameter_003() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -239,6 +237,7 @@ public void test_nonnull_parameter_003() {
 		"----------\n");
 }
 // passing potential null to nonnull parameter - target method is consumed from .class
+@Test
 public void test_nonnull_parameter_004() {
 	runConformTestWithLibs(
 			new String[] {
@@ -270,6 +269,7 @@ public void test_nonnull_parameter_004() {
 		"----------\n");
 }
 // passing unknown value to nonnull parameter  - target method is consumed from .class
+@Test
 public void test_nonnull_parameter_005() {
 	runConformTestWithLibs(
 			new String[] {
@@ -299,6 +299,7 @@ public void test_nonnull_parameter_005() {
 		"----------\n");
 }
 // a ternary non-null expression is passed to a nonnull parameter
+@Test
 public void test_nonnull_parameter_006() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -316,6 +317,7 @@ public void test_nonnull_parameter_006() {
 		""  /* compiler output */);
 }
 // nullable value passed to a non-null parameter in a super-call
+@Test
 public void test_nonnull_parameter_007() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -344,6 +346,7 @@ public void test_nonnull_parameter_007() {
 		"----------\n");
 }
 // a nullable value is passed to a non-null parameter in an allocation expression
+@Test
 public void test_nonnull_parameter_008() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -366,6 +369,7 @@ public void test_nonnull_parameter_008() {
 		"----------\n"  /* compiler output */);
 }
 // a nullable value is passed to a non-null parameter in a qualified allocation expression
+@Test
 public void test_nonnull_parameter_009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -390,6 +394,7 @@ public void test_nonnull_parameter_009() {
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, across CUs
+@Test
 public void test_nonnull_parameter_010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -425,6 +430,7 @@ public void test_nonnull_parameter_010() {
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, target class read from .class
+@Test
 public void test_nonnull_parameter_011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -469,6 +475,7 @@ public void test_nonnull_parameter_011() {
 // Note: in new type inference we infer the parameter of the Inner ctor to NullTypeBinding.
 // This needs special treatment in ctor of ParameterizedGenericMethodBinding and in Statement.analyseOneArgument18
 // as to propagate nonnull info, although the NullTypeBinding cannot transport this info.
+@Test
 public void test_nonnull_parameter_012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -510,6 +517,7 @@ public void test_nonnull_parameter_012() {
 		"----------\n");
 }
 // a method of a local class has a non-null parameter, client passes null
+@Test
 public void test_nonnull_parameter_013() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -533,6 +541,7 @@ public void test_nonnull_parameter_013() {
 		"----------\n");
 }
 // non-null varargs (message send)
+@Test
 public void test_nonnull_parameter_015() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -586,6 +595,7 @@ public void test_nonnull_parameter_015() {
 		"----------\n");
 }
 // non-null varargs (allocation and explicit constructor calls)
+@Test
 public void test_nonnull_parameter_016() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -638,6 +648,7 @@ public void test_nonnull_parameter_016() {
 		"----------\n");
 }
 // Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+@Test
 public void test_nonnull_argument_001() {
 	runNegativeTestWithLibs(
 			new String[] {
@@ -665,6 +676,7 @@ public void test_nonnull_argument_001() {
 			"----------\n");
 }
 // Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+@Test
 public void test_nonnull_argument_002() {
 	runNegativeTestWithLibs(
 			new String[] {
@@ -687,6 +699,7 @@ public void test_nonnull_argument_002() {
 			"----------\n");
 }
 // a method of a local class has a non-null parameter, client passes potential null (msg send)
+@Test
 public void test_nonnull_parameter_014() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -711,6 +724,7 @@ public void test_nonnull_parameter_014() {
 		"----------\n");
 }
 // assigning potential null to a nonnull local variable
+@Test
 public void test_nonnull_local_001() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -747,6 +761,7 @@ public void test_nonnull_local_001() {
 }
 
 // assigning potential null to a nonnull local variable - separate decl and assignment
+@Test
 public void test_nonnull_local_002() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -788,6 +803,7 @@ public void test_nonnull_local_002() {
 // a method tries to tighten the type specification, super declares parameter o as @Nullable
 // other parameters: s is redefined from not constrained to @Nullable which is OK
 //                   third is redefined from not constrained to @NonNull which is bad, too
+@Test
 public void test_parameter_specification_inheritance_001() {
 	runConformTestWithLibs(
 		new String[] {
@@ -823,6 +839,7 @@ public void test_parameter_specification_inheritance_001() {
 		"----------\n");
 }
 // a method body fails to redeclare the inherited null annotation, super declares parameter as @Nullable
+@Test
 public void test_parameter_specification_inheritance_002() {
 	runConformTestWithLibs(
 		new String[] {
@@ -855,6 +872,7 @@ public void test_parameter_specification_inheritance_002() {
 }
 // a method relaxes the parameter null specification, super interface declares parameter o as @NonNull
 // other (first) parameter just repeats the inherited @NonNull
+@Test
 public void test_parameter_specification_inheritance_003() {
 	runConformTestWithLibs(
 		new String[] {
@@ -875,6 +893,7 @@ public void test_parameter_specification_inheritance_003() {
 }
 // a method adds a @NonNull annotation, super interface has no null annotation
 // changing other from unconstrained to @Nullable is OK
+@Test
 public void test_parameter_specification_inheritance_004() {
 	runConformTestWithLibs(
 		new String[] {
@@ -903,6 +922,7 @@ public void test_parameter_specification_inheritance_004() {
 		"----------\n");
 }
 // a method tries to relax the null contract, super declares @NonNull return
+@Test
 public void test_parameter_specification_inheritance_005() {
 	runConformTestWithLibs(
 		new String[] {
@@ -934,6 +954,7 @@ public void test_parameter_specification_inheritance_005() {
 }
 
 // super has no constraint for return, sub method confirms the null contract as @Nullable
+@Test
 public void test_parameter_specification_inheritance_006() {
 	runConformTestWithLibs(
 		new String[] {
@@ -958,6 +979,7 @@ public void test_parameter_specification_inheritance_006() {
 		"");
 }
 // a method body violates the inherited null specification, super declares @NonNull return, missing redeclaration
+@Test
 public void test_parameter_specification_inheritance_007() {
 	runConformTestWithLibs(
 		new String[] {
@@ -987,6 +1009,7 @@ public void test_parameter_specification_inheritance_007() {
 		"----------\n");
 }
 //a method body violates the @NonNull return specification (repeated from super)
+@Test
 public void test_parameter_specification_inheritance_007a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -1017,6 +1040,7 @@ public void test_parameter_specification_inheritance_007a() {
 		"----------\n");
 }
 // a client potentially violates the inherited null specification, super interface declares @NonNull parameter
+@Test
 public void test_parameter_specification_inheritance_008() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1065,6 +1089,7 @@ public void test_parameter_specification_inheritance_008() {
 		"----------\n");
 }
 // a static method has a more relaxed null contract than a like method in the super class, but no overriding.
+@Test
 public void test_parameter_specification_inheritance_009() {
 	runConformTestWithLibs(
 		new String[] {
@@ -1083,6 +1108,7 @@ public void test_parameter_specification_inheritance_009() {
 		"");
 }
 // class default is nonnull, method and its super both use the default
+@Test
 public void test_parameter_specification_inheritance_010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1114,6 +1140,7 @@ public void test_parameter_specification_inheritance_010() {
 		"");
 }
 // class default is nonnull, method and its super both use the default, super-call passes null
+@Test
 public void test_parameter_specification_inheritance_011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1151,6 +1178,7 @@ public void test_parameter_specification_inheritance_011() {
 }
 // methods from two super types have different null contracts.
 // sub-class merges both using the weakest common contract
+@Test
 public void test_parameter_specification_inheritance_012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1185,6 +1213,7 @@ public void test_parameter_specification_inheritance_012() {
 }
 // methods from two super types have different null contracts.
 // sub-class overrides this method in non-conforming ways
+@Test
 public void test_parameter_specification_inheritance_013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1236,6 +1265,7 @@ public void test_parameter_specification_inheritance_013() {
 }
 // methods from two super types have different null contracts.
 // sub-class does not override, but should to bridge the incompatibility
+@Test
 public void test_parameter_specification_inheritance_014() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1328,6 +1358,7 @@ public void test_parameter_specification_inheritance_014() {
 }
 // a method relaxes the parameter null specification from @NonNull to un-annotated
 // see https://bugs.eclipse.org/381443
+@Test
 public void test_parameter_specification_inheritance_015() {
 	runWarningTestWithLibs(
 		true, // flush
@@ -1356,6 +1387,7 @@ public void test_parameter_specification_inheritance_015() {
 // a method relaxes the parameter null specification from @NonNull to un-annotated
 // see https://bugs.eclipse.org/381443
 // issue configured as error
+@Test
 public void test_parameter_specification_inheritance_016() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED, JavaCore.ERROR);
@@ -1385,6 +1417,7 @@ public void test_parameter_specification_inheritance_016() {
 // a class inherits two methods with different spec: one non-null param & one unannotated param
 // widening reported as warning by default
 // see https://bugs.eclipse.org/381443
+@Test
 public void test_parameter_specification_inheritance_017() {
 	runWarningTestWithLibs(
 		true,
@@ -1418,6 +1451,7 @@ public void test_parameter_specification_inheritance_017() {
 // a class inherits two methods with different spec: one non-null param & one unannotated param
 // opt to accept this widening
 // see https://bugs.eclipse.org/381443
+@Test
 public void test_parameter_specification_inheritance_018() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED, JavaCore.IGNORE);
@@ -1445,6 +1479,7 @@ public void test_parameter_specification_inheritance_018() {
 }
 
 // a nullable return value is dereferenced without a check
+@Test
 public void test_nullable_return_001() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -1466,6 +1501,7 @@ public void test_nullable_return_001() {
 		"----------\n");
 }
 // a nullable return value is dereferenced without a check, method is read from .class file
+@Test
 public void test_nullable_return_002() {
 	runConformTestWithLibs(
 		new String[] {
@@ -1497,6 +1533,7 @@ public void test_nullable_return_002() {
 		"----------\n");
 }
 // a non-null return value is checked for null, method is read from .class file
+@Test
 public void test_nonnull_return_001() {
 	runConformTestWithLibs(
 		new String[] {
@@ -1529,6 +1566,7 @@ public void test_nonnull_return_001() {
 		"----------\n");
 }
 // a non-null method returns null
+@Test
 public void test_nonnull_return_003() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -1550,6 +1588,7 @@ public void test_nonnull_return_003() {
 		"----------\n");
 }
 // a non-null method potentially returns null
+@Test
 public void test_nonnull_return_004() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -1570,6 +1609,7 @@ public void test_nonnull_return_004() {
 		"----------\n");
 }
 // a non-null method returns its non-null argument
+@Test
 public void test_nonnull_return_005() {
 	runConformTestWithLibs(
 		new String[] {
@@ -1585,6 +1625,7 @@ public void test_nonnull_return_005() {
 		"");
 }
 //a non-null method has insufficient nullness info for its return value
+@Test
 public void test_nonnull_return_006() {
 	runWarningTestWithLibs(
 		true, // flush
@@ -1606,6 +1647,7 @@ public void test_nonnull_return_006() {
 		"----------\n");
 }
 // a result from a nullable method is directly dereferenced
+@Test
 public void test_nonnull_return_007() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -1628,6 +1670,7 @@ public void test_nonnull_return_007() {
 		"----------\n");
 }
 // a result from a nonnull method is directly checked for null: redundant
+@Test
 public void test_nonnull_return_008() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -1659,6 +1702,7 @@ public void test_nonnull_return_008() {
 		"----------\n");
 }
 // a result from a nonnull method is directly checked for null (from local): redundant
+@Test
 public void test_nonnull_return_009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -1691,6 +1735,7 @@ public void test_nonnull_return_009() {
 		"----------\n");
 }
 // a result from a nonnull method is directly checked for null (from local): not redundant due to loop
+@Test
 public void test_nonnull_return_009a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -1754,6 +1799,7 @@ public void _test_nonnull_return_009b() {
 }
 // a result from a nullable method is assigned and checked for null (from local): not redundant
 // see also Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+@Test
 public void test_nonnull_return_010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -1783,6 +1829,7 @@ public void test_nonnull_return_010() {
 		"----------\n");
 }
 // a non-null method returns a checked-for null value, but that branch is dead code
+@Test
 public void test_nonnull_return_011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1845,6 +1892,7 @@ public void _test_nonnull_return_012() {
 		"----------\n");
 }
 // don't apply any default annotations to return void
+@Test
 public void test_nonnull_return_013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -1866,6 +1914,7 @@ public void test_nonnull_return_013() {
 		"");
 }
 // bug 365835: [compiler][null] inconsistent error reporting.
+@Test
 public void test_nonnull_return_014() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -1899,6 +1948,7 @@ public void test_nonnull_return_014() {
 		"----------\n");
 }
 // suppress an error regarding null-spec violation
+@Test
 public void test_suppress_001() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
@@ -1917,6 +1967,7 @@ public void test_suppress_001() {
 			"");
 }
 // mixed use of fully qualified name / explicit import
+@Test
 public void test_annotation_import_001() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
@@ -1944,6 +1995,7 @@ public void test_annotation_import_001() {
 }
 
 // use of explicit imports throughout
+@Test
 public void test_annotation_import_002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
@@ -1973,6 +2025,7 @@ public void test_annotation_import_002() {
 }
 // explicit import of existing annotation types
 // using a Lib without null specifications
+@Test
 public void test_annotation_import_005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -2019,6 +2072,7 @@ public void test_annotation_import_005() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // a non-null method returns a value obtained from an unannotated method, missing annotation types
+@Test
 public void test_annotation_import_006() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -2055,6 +2109,7 @@ public void test_annotation_import_006() {
 }
 
 // a null annotation is illegally used on a class:
+@Test
 public void test_illegal_annotation_001() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2097,6 +2152,7 @@ public void _test_illegal_annotation_002() {
 }
 
 // a null annotation is illegally used on a void method:
+@Test
 public void test_illegal_annotation_003() {
 	runNegativeTest(
 		new String[] {
@@ -2119,6 +2175,7 @@ public void test_illegal_annotation_003() {
 }
 
 // a null annotation is illegally used on an int method:
+@Test
 public void test_illegal_annotation_003b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2137,6 +2194,7 @@ public void test_illegal_annotation_003b() {
 }
 
 // a null annotation is illegally used on a primitive type parameter
+@Test
 public void test_illegal_annotation_004() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2155,6 +2213,7 @@ public void test_illegal_annotation_004() {
 }
 
 // a null annotation is illegally used on a primitive type local var
+@Test
 public void test_illegal_annotation_005() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2177,6 +2236,7 @@ public void test_illegal_annotation_005() {
 
 // a configured annotation type does not exist
 // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342#c133
+@Test
 public void test_illegal_annotation_006() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "nullAnn.Nullable");
@@ -2211,6 +2271,7 @@ public void test_illegal_annotation_006() {
 
 // a configured annotation type does not exist
 // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342#c186
+@Test
 public void test_illegal_annotation_007() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTest(
@@ -2248,6 +2309,7 @@ public void test_illegal_annotation_007() {
 }
 
 // a null annotation is illegally used on a constructor:
+@Test
 public void test_illegal_annotation_008() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2273,6 +2335,7 @@ public void test_illegal_annotation_008() {
 		"----------\n");
 }
 
+@Test
 public void test_default_nullness_002() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2314,6 +2377,7 @@ public void test_default_nullness_002() {
 		"----------\n");
 }
 
+@Test
 public void test_default_nullness_002_custom() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -2361,6 +2425,7 @@ public void test_default_nullness_002_custom() {
 }
 
 // package default is non-null
+@Test
 public void test_default_nullness_003() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2404,6 +2469,7 @@ public void test_default_nullness_003() {
 		"----------\n");
 }
 // package level default is consumed from package-info.class, similarly for type level default
+@Test
 public void test_default_nullness_003a() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2461,6 +2527,7 @@ public void test_default_nullness_003a() {
 		"----------\n");
 }
 // same as test_default_nullness_003a, but default-induced annotations are combined with explicit ones (not null related)
+@Test
 public void test_default_nullness_003b() {
 	Map customOptions = getCompilerOptions();
 	runConformTestWithLibs(
@@ -2524,6 +2591,7 @@ public void test_default_nullness_003b() {
 		"----------\n");
 }
 // package level default is consumed from package-info.class, similarly for type level default - fine tuned default
+@Test
 public void test_default_nullness_003c() {
 	if (useDeclarationAnnotations()) return; // uses version 2.0 of @NonNullByDefault
 	Map customOptions = getCompilerOptions();
@@ -2586,6 +2654,7 @@ public void test_default_nullness_003c() {
 		"----------\n");
 }
 // don't apply type-level default to non-reference type
+@Test
 public void test_default_nullness_004() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2615,6 +2684,7 @@ public void test_default_nullness_004() {
 }
 // package default is non-null
 // see also Bug 354536 - compiling package-info.java still depends on the order of compilation units
+@Test
 public void test_default_nullness_005() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2649,6 +2719,7 @@ public void test_default_nullness_005() {
 }
 // package default is non-null, package-info.java read before the annotation type
 // compile order: beginToCompile(X.Inner) triggers reading of package-info.java before the annotation type was read
+@Test
 public void test_default_nullness_006() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2711,6 +2782,7 @@ public void _test_default_nullness_007() {
 }
 
 // cancel type level default to comply with super specification
+@Test
 public void test_default_nullness_008() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2742,6 +2814,7 @@ public void test_default_nullness_008() {
 }
 
 // cancel outer type level default to comply with super specification
+@Test
 public void test_default_nullness_009() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2785,6 +2858,7 @@ public void test_default_nullness_009() {
 		"----------\n");
 }
 // non-null declarations are redundant within a default scope.
+@Test
 public void test_default_nullness_010() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2820,6 +2894,7 @@ public void test_default_nullness_010() {
 // package-info declares nonnull-by-default
 // special compile order due to import of type from that package
 // cf. https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342#add_comment
+@Test
 public void test_default_nullness_011() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2860,6 +2935,7 @@ public void test_default_nullness_011() {
 		"----------\n");
 }
 // Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
+@Test
 public void test_default_nullness_012() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2886,6 +2962,7 @@ public void test_default_nullness_012() {
 		"----------\n");
 }
 // Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
+@Test
 public void test_default_nullness_013() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2915,6 +2992,7 @@ public void test_default_nullness_013() {
 		"----------\n");
 }
 // bug 367154 - [compiler][null] Problem in propagating null defaults.
+@Test
 public void test_default_nullness_014() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2946,6 +3024,7 @@ public void test_default_nullness_014() {
 }
 // bug 367154 - [compiler][null] Problem in propagating null defaults.
 // initializer involved
+@Test
 public void test_default_nullness_015() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -2976,6 +3055,7 @@ public void test_default_nullness_015() {
 }
 
 // default nullness applied to fields, class-level:
+@Test
 public void test_default_nullness_016() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -3019,6 +3099,7 @@ public void test_default_nullness_016() {
 }
 
 // default nullness applied to fields, method level applied to local class + redundant annotation
+@Test
 public void test_default_nullness_017() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
@@ -3057,6 +3138,7 @@ public void test_default_nullness_017() {
 }
 
 // package case
+@Test
 public void test_nullness_default_018() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.WARNING);
@@ -3078,6 +3160,7 @@ public void test_nullness_default_018() {
 }
 
 // type case (inside default package)
+@Test
 public void test_nullness_default_018b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.WARNING);
@@ -3098,6 +3181,7 @@ public void test_nullness_default_018b() {
 }
 
 // redundant default annotations - class vs. inner class
+@Test
 public void test_redundant_annotation_01() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -3177,6 +3261,7 @@ public void test_redundant_annotation_01() {
 }
 
 // redundant default annotations - class vs. method
+@Test
 public void test_redundant_annotation_02() {
 	Map customOptions = getCompilerOptions();
 	runWarningTestWithLibs(
@@ -3227,6 +3312,7 @@ public void test_redundant_annotation_02() {
 }
 
 //redundant default annotations - class vs. method - generics
+@Test
 public void test_redundant_annotation_02g() {
 	Map customOptions = getCompilerOptions();
 	runWarningTestWithLibs(
@@ -3267,6 +3353,7 @@ public void test_redundant_annotation_02g() {
 }
 
 // test missing default nullness annotation for types in default package
+@Test
 public void test_missing_default_annotation_01() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -3300,6 +3387,7 @@ public void test_missing_default_annotation_01() {
 }
 
 // test missing default nullness annotation for a package with package-info
+@Test
 public void test_missing_default_annotation_02() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -3340,6 +3428,7 @@ public void test_missing_default_annotation_02() {
 
 // redundant default annotations - class vs. inner class
 // ensure that disabling null annotations also disables this diagnostic
+@Test
 public void test_redundant_annotation_04() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.DISABLED);
@@ -3382,6 +3471,7 @@ public void test_redundant_annotation_04() {
 }
 
 // contradictory null annotations
+@Test
 public void test_contradictory_annotations_01() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -3420,6 +3510,7 @@ public void test_contradictory_annotations_01() {
 }
 
 // contradictory null annotations on a field
+@Test
 public void test_contradictory_annotations_02() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -3441,6 +3532,7 @@ public void test_contradictory_annotations_02() {
 }
 
 // contradictory null annotations on a field - array type
+@Test
 public void test_contradictory_annotations_03() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -3462,6 +3554,7 @@ public void test_contradictory_annotations_03() {
 }
 
 // a nonnull variable is dereferenced in a loop
+@Test
 public void test_nonnull_var_in_constrol_structure_1() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -3522,6 +3615,7 @@ public void test_nonnull_var_in_constrol_structure_1() {
 		"----------\n");
 }
 // a nonnull variable is dereferenced in a finally block
+@Test
 public void test_nonnull_var_in_constrol_structure_2() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -3569,6 +3663,7 @@ public void test_nonnull_var_in_constrol_structure_2() {
 		"----------\n");
 }
 // a nonnull variable is dereferenced in a finally block inside a loop
+@Test
 public void test_nonnull_var_in_constrol_structure_3() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
@@ -3616,6 +3711,7 @@ public void test_nonnull_var_in_constrol_structure_3() {
 		"----------\n");
 }
 // witness for an AIOOBE in FlowContext.recordExpectedType()
+@Test
 public void test_message_send_in_control_structure_01() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.IGNORE);
@@ -3702,6 +3798,7 @@ public void test_message_send_in_control_structure_01() {
 }
 
 // Bug 370930 - NonNull annotation not considered for enhanced for loops
+@Test
 public void test_message_send_in_control_structure_02() {
 	runWarningTestWithLibs(
 		true, // flush
@@ -3728,6 +3825,7 @@ public void test_message_send_in_control_structure_02() {
 		"----------\n");
 }
 //Bug 370930 - NonNull annotation not considered for enhanced for loops over array
+@Test
 public void test_message_send_in_control_structure_02a() {
 	runWarningTestWithLibs(
 		true, // flush
@@ -3753,6 +3851,7 @@ public void test_message_send_in_control_structure_02a() {
 		"----------\n");
 }
 //Bug 370930 - NonNull annotation not considered for enhanced for loops
+@Test
 public void test_message_send_in_control_structure_03() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -3776,6 +3875,7 @@ public void test_message_send_in_control_structure_03() {
 		mismatch_NonNull_Nullable("String") +
 		"----------\n");
 }
+@Test
 public void test_assignment_expression_1() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -3805,6 +3905,7 @@ public void test_assignment_expression_1() {
 		"");
 }
 // a nonnull variable is dereferenced in a method of a nested type
+@Test
 public void test_nesting_1() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -3862,6 +3963,7 @@ public void test_nesting_1() {
 }
 // Test a regression incurred to the OT/J based implementation
 // by the fix in Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+@Test
 public void test_constructor_with_nested_class() {
 	runConformTestWithLibs(
 		new String[] {
@@ -3882,6 +3984,7 @@ public void test_constructor_with_nested_class() {
 		"");
 }
 // test analysis disablement, binary type contains annotation
+@Test
 public void test_options_01() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -3914,6 +4017,7 @@ public void test_options_01() {
 		""  /* compiler output */);
 }
 // test illegally trying to ignore null spec violations
+@Test
 public void test_options_02() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.IGNORE); // has no effect
@@ -3948,6 +4052,7 @@ public void test_options_02() {
 		"----------\n");
 }
 // test setting null spec violations to "warning"
+@Test
 public void test_options_03() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING); // OK
@@ -3983,6 +4088,7 @@ public void test_options_03() {
 }
 // access to a non-null field
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_1() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4001,6 +4107,7 @@ public void test_nonnull_field_1() {
 
 // a non-null field is not properly initialized
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_2() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4024,6 +4131,7 @@ public void test_nonnull_field_2() {
 
 // a non-null field is not properly initialized - explicit constructor
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_2a() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4054,6 +4162,7 @@ public void test_nonnull_field_2a() {
 
 // a non-null field is not properly initialized - explicit constructor - incomplete switch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_2b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4084,6 +4193,7 @@ public void test_nonnull_field_2b() {
 
 // a non-null static field is not properly initialized
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_2c() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4108,6 +4218,7 @@ public void test_nonnull_field_2c() {
 
 // a non-null static field is properly initialized
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_2d() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4126,6 +4237,7 @@ public void test_nonnull_field_2d() {
 
 // a non-null field is properly initialized - using this.f reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_2e() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4144,6 +4256,7 @@ public void test_nonnull_field_2e() {
 
 // a non-null field is initialized to null
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_3() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4166,6 +4279,7 @@ public void test_nonnull_field_3() {
 }
 // a non-null field is assigned to null
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_4() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4196,6 +4310,7 @@ public void test_nonnull_field_4() {
 }
 // a non-null field is checked for null
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_5() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4227,6 +4342,7 @@ public void test_nonnull_field_5() {
 
 // a non-null field is checked for null twice - method call inbetween
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_6() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4258,6 +4374,7 @@ public void test_nonnull_field_6() {
 
 // a non-null field is accessed via a qualified name reference - static field
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_7() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4300,6 +4417,7 @@ public void test_nonnull_field_7() {
 
 // a non-null field is accessed via a qualified name reference - instance field
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_8() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4336,6 +4454,7 @@ public void test_nonnull_field_8() {
 
 // a non-null field is accessed via an indirect field reference - instance field
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_9() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4376,6 +4495,7 @@ public void test_nonnull_field_9() {
 
 // trying to assign null to a nonnull field via a single / a qualified name reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_11() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4409,6 +4529,7 @@ public void test_nonnull_field_11() {
 
 // @NonNull is applied to a field with primitive type
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_12() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4450,6 +4571,7 @@ public void _test_nonnull_field_13() {
 // A field in a different CU is implicitly @NonNull (by type default) - that class is read from binary
 // Assignment to other @NonNull field should not raise a warning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_14() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4484,6 +4606,7 @@ public void test_nonnull_field_14() {
 // A field in a different CU is implicitly @NonNull (by package default) - that class is read from binary
 // Assignment to other @NonNull field should not raise a warning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nonnull_field_14b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4519,6 +4642,7 @@ public void test_nonnull_field_14b() {
 // A @NonNull field is assumed to be initialized by the injection framework
 // [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
+@Test
 public void test_nonnull_field_15() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4541,6 +4665,7 @@ public void test_nonnull_field_15() {
 // Injection is optional, don't rely on the framework
 // [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
+@Test
 public void test_nonnull_field_16() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4574,6 +4699,7 @@ public void test_nonnull_field_16() {
 // Using javax.inject.Inject, slight variations
 // [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
+@Test
 public void test_nonnull_field_17() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4600,6 +4726,7 @@ public void test_nonnull_field_17() {
 //Using jakarta.inject.Inject
 //jakarta.inject.Inject not treated properly with annotation-based null analysis
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1112
+@Test
 public void test_nonnull_field_18() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4622,6 +4749,7 @@ public void test_nonnull_field_18() {
 //Using jakarta.inject.Inject, slight variations
 //jakarta.inject.Inject not treated properly with annotation-based null analysis
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1112
+@Test
 public void test_nonnull_field_19() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4646,6 +4774,7 @@ public void test_nonnull_field_19() {
 }
 
 //Using jakarta.inject.Inject and javax.inject.Inject
+@Test
 public void test_nonnull_field_20() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4673,6 +4802,7 @@ public void test_nonnull_field_20() {
 
 // access to a nullable field - field reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_1() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4695,6 +4825,7 @@ public void test_nullable_field_1() {
 }
 // access to a nullable field - single name reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_2() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4717,6 +4848,7 @@ public void test_nullable_field_2() {
 }
 // access to a nullable field - qualified name reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_3() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4745,6 +4877,7 @@ public void test_nullable_field_3() {
 }
 // access to a nullable field - qualified name reference - multiple segments
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_3m() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4778,6 +4911,7 @@ public void test_nullable_field_3m() {
 }
 // access to a nullable field - dereference after check
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_4() {
 	// currently no flow analysis for fields is implemented,
 	// but the direct sequence of null-check + dereference is optionally supported as a special case
@@ -4822,6 +4956,7 @@ public void test_nullable_field_4() {
 
 // access to a nullable field - intermediate component in a QNR
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_5() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4855,6 +4990,7 @@ public void test_nullable_field_5() {
 
 // access to a nullable field - intermediate component in a QNR - inverse of test_nullable_field_5
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_6() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4894,6 +5030,7 @@ public void test_nullable_field_6() {
 
 // access to a nullable field - intermediate component in a double field reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_7() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4927,6 +5064,7 @@ public void test_nullable_field_7() {
 
 // static access to a nullable field - qualified name reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_8() {
 	runConformTestWithLibs(
 		new String[] {
@@ -4947,6 +5085,7 @@ public void test_nullable_field_8() {
 
 // illegal use of @Nullable for a field of primitive type
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_9() {
 	runNegativeTestWithLibs(
 			new String[] {
@@ -4967,6 +5106,7 @@ public void test_nullable_field_9() {
 
 // protected access to nullable fields - different kinds of references
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_10a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5001,6 +5141,7 @@ public void test_nullable_field_10a() {
 
 // protected access to nullable fields - different kinds of references - option not enabled
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_10b() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.DISABLED);
@@ -5070,6 +5211,7 @@ public void test_nullable_field_10b() {
 
 // protected access to nullable fields - different boolean operators
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_10c() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5123,6 +5265,7 @@ public void test_nullable_field_10c() {
 
 // protected access to nullable fields - assignment as expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_10d() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5156,6 +5299,7 @@ public void test_nullable_field_10d() {
 
 // protected access to nullable fields - distinguish local and field
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_10e() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5212,6 +5356,7 @@ public void test_nullable_field_10e() {
 
 // protected access to nullable fields - duplicate comparison
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_10f() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5245,6 +5390,7 @@ public void test_nullable_field_10f() {
 }
 
 // combined test from comment 20 in https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_11() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5283,6 +5429,7 @@ public void test_nullable_field_11() {
 
 // combined test from comment 20 in https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
 //  - version with 'this' field references
+@Test
 public void test_nullable_field_11a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5321,6 +5468,7 @@ public void test_nullable_field_11a() {
 
 // protected access to nullable field - expiration of information
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_12() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5371,6 +5519,7 @@ public void test_nullable_field_12() {
 
 // example from comment 47
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_13() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5399,6 +5548,7 @@ public void test_nullable_field_13() {
 
 // access to a nullable field - protected by check against a @NonNull value
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_14() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5421,6 +5571,7 @@ public void test_nullable_field_14() {
 
 // access to a nullable field - not protected by negative check against a @NonNull value
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+@Test
 public void test_nullable_field_14a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -5447,6 +5598,7 @@ public void test_nullable_field_14a() {
 }
 
 // https://bugs.eclipse.org/401017: [compiler][null] casted reference to @Nullable field lacks a warning
+@Test
 public void test_nullable_field_15() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5486,6 +5638,7 @@ public void test_nullable_field_15() {
 }
 // access to a nullable field - dereference after check in while loop
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=414761
+@Test
 public void test_nullable_field_16() {
 	// currently no flow analysis for fields is implemented,
 	// but the direct sequence of null-check + dereference is optionally supported as a special case
@@ -5533,6 +5686,7 @@ public void test_nullable_field_16() {
 }
 // access to a nullable field - field reference
 // Configured as of https://bugs.eclipse.org/bugs/show_bug.cgi?id=433615
+@Test
 public void test_nullable_field_17() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.INFO);
@@ -5557,6 +5711,7 @@ public void test_nullable_field_17() {
 }
 // an enum is declared within the scope of a null-default
 // https://bugs.eclipse.org/331649#c61
+@Test
 public void test_enum_field_01() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5577,6 +5732,7 @@ public void test_enum_field_01() {
 
 // Bug 380896 - Enum constants not recognised as being NonNull.
 // see also https://bugs.eclipse.org/331649#c61
+@Test
 public void test_enum_field_02() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5600,6 +5756,7 @@ public void test_enum_field_02() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372011
 // Test whether @NonNullByDefault on a binary package or an enclosing type is respected from enclosed elements.
+@Test
 public void testBug372011() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test372011.jar";
 	String[] libs = new String[this.LIBS.length + 1];
@@ -5653,6 +5810,7 @@ public void testBug372011() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374129  - more tests for bug 372011
 // Test whether @NonNullByDefault on a binary package or an enclosing type is respected from enclosed elements.
+@Test
 public void testBug374129() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test374129"+this.TEST_JAR_SUFFIX;
 	/* content of Test372129.jar:
@@ -5766,6 +5924,7 @@ public void testBug374129() {
 }
 
 // Bug 385626 - @NonNull fails across loop boundaries
+@Test
 public void testBug385626_1() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5791,6 +5950,7 @@ public void testBug385626_1() {
 }
 
 // Bug 385626 - @NonNull fails across loop boundaries
+@Test
 public void testBug385626_2() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5821,6 +5981,7 @@ public void testBug385626_2() {
 
 // Bug 388630 - @NonNull diagnostics at line 0
 // synthetic constructor must repeat null annotations of its super
+@Test
 public void testBug388630_1() {
 	runConformTestWithLibs(
 		new String[] {
@@ -5843,6 +6004,7 @@ public void testBug388630_1() {
 
 // Bug 388630 - @NonNull diagnostics at line 0
 // additionally also references to outer variables must share their nullness
+@Test
 public void testBug388630_2() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5939,6 +6101,7 @@ public class C2 implements i2.I2 {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // Test whether null annotations from a super interface are respected
 // Class and its super interface both read from binary
+@Test
 public void testBug388281_01() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
@@ -5976,6 +6139,7 @@ public void testBug388281_01() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // Test whether null annotations from a super interface are respected
 // Class from source, its supers (class + super interface) from binary
+@Test
 public void testBug388281_02() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
@@ -6038,6 +6202,7 @@ public void testBug388281_02() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // Test whether null annotations from a super interface trigger an error against the overriding implementation
 // Class from source, its super interface from binary
+@Test
 public void testBug388281_03() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
@@ -6088,6 +6253,7 @@ public void testBug388281_03() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // Do inherit even if one parameter/return is annotated
 // also features some basic overloading
+@Test
 public void testBug388281_04() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
@@ -6138,6 +6304,7 @@ public void testBug388281_04() {
 // Test whether null annotations from a super interface trigger an error against the overriding implementation
 // Class from source, its super interface from binary
 // Super interface subject to package level @NonNullByDefault
+@Test
 public void testBug388281_05() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
@@ -6191,6 +6358,7 @@ public void testBug388281_05() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // Conflicting annotations from several indirect super interfaces must be detected
+@Test
 public void testBug388281_06() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
@@ -6238,6 +6406,7 @@ public void testBug388281_06() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // report conflict between inheritance and default
+@Test
 public void testBug388281_07() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
@@ -6297,6 +6466,7 @@ public void testBug388281_07() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // report conflict between inheritance and default - binary types
+@Test
 public void testBug388281_08() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
@@ -6363,6 +6533,7 @@ public void testBug388281_08() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // difference between inherited abstract & non-abstract methods
+@Test
 public void testBug388281_09() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
@@ -6423,6 +6594,7 @@ public void testBug388281_09() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // respect inherited @NonNull also inside the method body, see comment 28
+@Test
 public void testBug388281_10() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
@@ -6454,6 +6626,7 @@ public void testBug388281_10() {
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // junit's assertNull vs. a @NonNull field / expression
+@Test
 public void testBug382069_j() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.ERROR);
@@ -6499,6 +6672,7 @@ public void testBug382069_j() {
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // junit's assertNonNull et al. affecting a @Nullable field using syntactic analysis
+@Test
 public void testBug382069_k() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -6538,6 +6712,7 @@ public void testBug382069_k() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+@Test
 public void test_conditional_expression_1() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6561,6 +6736,7 @@ public void test_conditional_expression_1() {
 }
 
 // Bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+@Test
 public void testBug403086_1() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -6591,6 +6767,7 @@ public void testBug403086_1() {
 }
 
 //Bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+@Test
 public void testBug403086_2() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -6621,6 +6798,7 @@ public void testBug403086_2() {
 }
 
 // https://bugs.eclipse.org/412076 - [compiler] @NonNullByDefault doesn't work for varargs parameter when in generic interface
+@Test
 public void testBug412076() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION, JavaCore.IGNORE);
@@ -6658,6 +6836,7 @@ public void testBug412076() {
 		"");
 }
 
+@Test
 public void testBug413460() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6719,6 +6898,7 @@ public void testBug413460() {
 }
 
 // missing type in constructor declaration must not cause NPE in QAE#resolveType(..)
+@Test
 public void testBug415850_a() {
 	runNegativeTest(
 			new String[] {
@@ -6751,6 +6931,7 @@ public void testBug415850_a() {
 }
 
 // avoid NPE in BinaryTypeBinding.getField(..) due to recursive dependency enum->package-info->annotation->enum
+@Test
 public void testBug415850_b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6796,6 +6977,7 @@ public void testBug415850_b() {
 		"",
 		"class test180.Test");
 }
+@Test
 public void testBug417295_5() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -6815,6 +6997,7 @@ public void testBug417295_5() {
 		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n");
 }
+@Test
 public void testBug417295_7() {
 	runConformTestWithLibs(
 			new String[] {
@@ -6846,6 +7029,7 @@ public void testBug417295_7() {
 			"----------\n");
 }
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
+@Test
 public void testBug415413() {
 	Map options = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -6880,6 +7064,7 @@ public void testBug415413() {
 }
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
 // Variant: non-null before the loop and at the end of the loop body
+@Test
 public void testBug415413a() {
  Map options = getCompilerOptions();
  runConformTestWithLibs(
@@ -6910,6 +7095,7 @@ public void testBug415413a() {
 }
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
 // Variant: null before the loop and non-null at the end of the loop body
+@Test
 public void testBug415413b() {
  Map options = getCompilerOptions();
  runNegativeTestWithLibs(
@@ -6945,6 +7131,7 @@ public void testBug415413b() {
 }
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
 // Variant: non-null before the loop and null at the end of the loop body
+@Test
 public void testBug415413c() {
  Map options = getCompilerOptions();
  runNegativeTestWithLibs(
@@ -6978,6 +7165,7 @@ public void testBug415413c() {
      "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
      "----------\n");
 }
+@Test
 public void testBug_415269() {
 	Map options = getCompilerOptions();
 	runConformTestWithLibs(
@@ -7002,6 +7190,7 @@ public void testBug_415269() {
 		options,
 		"");
 }
+@Test
 public void testBug416267() {
 	runNegativeTest(
 		new String[] {
@@ -7028,6 +7217,7 @@ public void testBug416267() {
 		null /*options*/);
 }
 //duplicate of bug 416267
+@Test
 public void testBug418843() {
 	runNegativeTest(
 		new String[] {
@@ -7046,6 +7236,7 @@ public void testBug418843() {
 		true,/*flush*/
 		null/*options*/);
 }
+@Test
 public void testBug418235() {
 	String[] testFiles =
             new String[] {
@@ -7079,6 +7270,7 @@ public void testBug418235() {
 				testFiles, getCompilerOptions(), "");
 	}
 }
+@Test
 public void testBug418235b() {
 	if (useDeclarationAnnotations())
 		return;
@@ -7107,6 +7299,7 @@ public void testBug418235b() {
 	        "----------\n");
 }
 
+@Test
 public void testTypeAnnotationProblemNotIn17() {
 	String source =
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -7150,6 +7343,7 @@ public void testTypeAnnotationProblemNotIn17() {
 			true, // flush
 			getCompilerOptions());
 }
+@Test
 public void testBug420313() {
 	runWarningTestWithLibs(
 		true, /*flush*/
@@ -7194,6 +7388,7 @@ public void testBug420313() {
 		"----------\n");
 }
 // original test
+@Test
 public void testBug424624() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7236,6 +7431,7 @@ public void testBug424624() {
 		"");
 }
 // other nesting levels, binary case
+@Test
 public void testBug424624a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7300,6 +7496,7 @@ public void testBug424624a() {
 		"");
 }
 // same as previous, source case for reference
+@Test
 public void testBug424624b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7355,6 +7552,7 @@ public void testBug424624b() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug430084() {
 	runNegativeTest(
 		new String[] {
@@ -7375,6 +7573,7 @@ public void testBug430084() {
 		true, /*flush*/
 		null /*options*/);
 }
+@Test
 public void testBug432348() {
 	String sourceString =
 		"import org.eclipse.jdt.annotation.NonNull;\n" +
@@ -7409,6 +7608,7 @@ public void testBug432348() {
 }
 // Bug 403674 - [compiler][null] Switching on @Nullable enum value does not trigger "Potential null pointer access" warning
 // String value being used in switch condition.
+@Test
 public void testBug403674() {
 	Map options = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -7433,6 +7633,7 @@ public void testBug403674() {
 }
 // Bug 403674 - [compiler][null] Switching on @Nullable enum value does not trigger "Potential null pointer access" warning
 // Enum value being used in switch condition.
+@Test
 public void testBug403674a() {
 	Map options = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -7471,6 +7672,7 @@ public void testBug403674a() {
 			"----------\n");
 }
 // original test
+@Test
 public void testBug422796() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7497,6 +7699,7 @@ public void testBug422796() {
 		"");
 }
 // inverted logic:
+@Test
 public void testBug422796a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7523,6 +7726,7 @@ public void testBug422796a() {
 		"");
 }
 // negative tests:
+@Test
 public void testBug422796b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7560,6 +7764,7 @@ public void testBug422796b() {
 		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
 		"----------\n");
 }
+@Test
 public void testBug434374() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7626,6 +7831,7 @@ public void testBug434374() {
 		"");
 }
 // test return type compatibility
+@Test
 public void testBug434374a() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7657,6 +7863,7 @@ public void testBug434374a() {
 		"");
 }
 // original (broken) test (second part):
+@Test
 public void testBug434374b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7680,6 +7887,7 @@ public void testBug434374b() {
 		"----------\n");
 }
 // rectified test:
+@Test
 public void testBug434374c() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7698,6 +7906,7 @@ public void testBug434374c() {
 }
 
 // @NNBD should not affect implicit constructor
+@Test
 public void testBug443347() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7724,6 +7933,7 @@ public void testBug443347() {
 }
 
 // explicit annotation on super ctor should be inherited
+@Test
 public void testBug443347b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7757,6 +7967,7 @@ public void testBug443347b() {
 }
 
 // @NNBD on super ctor should be inherited
+@Test
 public void testBug443347c() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7790,6 +8001,7 @@ public void testBug443347c() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444024, Type mismatch error in annotation generics assignment which happens "sometimes"
+@Test
 public void test444024() {
 		this.runConformTest(
 		   new String[] {
@@ -7820,6 +8032,7 @@ public void test444024() {
 		   },
 		   "");
 }
+@Test
 public void testBug435805() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
@@ -7859,6 +8072,7 @@ public void testBug435805() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+@Test
 public void testBug445147() {
 	runConformTestWithLibs(
 		new String[] {
@@ -7874,6 +8088,7 @@ public void testBug445147() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug445708() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -7961,6 +8176,7 @@ public void testBug445708() {
 		"----------\n");
 }
 // same as above but 1.8 with declaration annotations
+@Test
 public void testBug445708b() {
 	if (useDeclarationAnnotations()) return; // only one combination tested
 	Map customOptions = getCompilerOptions();
@@ -8052,6 +8268,7 @@ public void testBug445708b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=452780 - Internal compiler error: arrayIndexOutOfBounds
+@Test
 public void testBug452780() {
 	if (useDeclarationAnnotations()) return;
 	runConformTestWithLibs(
@@ -8083,6 +8300,7 @@ public void testBug452780() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug455557() {
 	runWarningTestWithLibs(
 		true, /*flush*/
@@ -8115,6 +8333,7 @@ public void testBug455557() {
 		) +
 		"----------\n");
 }
+@Test
 public void testBug455723() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8141,6 +8360,7 @@ public void testBug455723() {
 		null,
 		"");
 }
+@Test
 public void testBug455723b() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8163,6 +8383,7 @@ public void testBug455723b() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436486
+@Test
 public void test_null_with_apt() {
 	boolean apt = this.enableAPT;
 	this.enableAPT = true;
@@ -8184,6 +8405,7 @@ public void test_null_with_apt() {
 	this.enableAPT = apt;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436486#c4
+@Test
 public void test_null_with_apt_comment4() {
 	boolean apt = this.enableAPT;
 	this.enableAPT = true;
@@ -8217,6 +8439,7 @@ public void test_null_with_apt_comment4() {
 		"----------\n");
 	this.enableAPT = apt;
 }
+@Test
 public void testBug457210() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
@@ -8259,6 +8482,7 @@ public void testBug457210() {
 		true,
 		customOptions);
 }
+@Test
 public void testBug462790() {
 	Map<String,String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
@@ -8308,6 +8532,7 @@ public void testBug462790() {
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Class<T extends @NonNull String>\'. Type \'Class<T>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 		"----------\n"));
 }
+@Test
 public void testBug459967_Enum_valueOf() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8324,6 +8549,7 @@ public void testBug459967_Enum_valueOf() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug459967_Enum_valueOf_binary() {
 	runConformTest(
 		new String[] {
@@ -8344,6 +8570,7 @@ public void testBug459967_Enum_valueOf_binary() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug459967_Enum_values() {
 	String[] testFiles = new String[] {
 		"MyEnum.java",
@@ -8382,6 +8609,7 @@ public void testBug459967_Enum_values() {
 				"");
 	}
 }
+@Test
 public void testBug459967_Enum_values_binary() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -8427,6 +8655,7 @@ public void testBug459967_Enum_values_binary() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=407414
 // Incorrect warning on a primitive type being null.
+@Test
 public void test407414a()  {
 	 String testCode = "package p1;\n" +
 			 "public class Test {\n" +
@@ -8478,6 +8707,7 @@ public void test407414a()  {
 // and therefore there cannot be null values in i2 is
 // not flowing down to access of i2.
 // The test case also illustrates array access and Qualified access.
+@Test
 public void test407414b() {
 	 String testCode = "package p1;\n" +
 			 "  public class Test {\n" +
@@ -8519,6 +8749,7 @@ public void test407414b() {
 		"");
 }
 
+@Test
 public void test407414b2() {
 	 String testCode = "package p1;\n" +
 			 "  public class Test {\n" +
@@ -8547,6 +8778,7 @@ public void test407414b2() {
 }
 
 // FieldReference.
+@Test
 public void test407414b3() {
 	 String testCode = "package p1;\n" +
 			 "public class Test {\n" +
@@ -8583,6 +8815,7 @@ public void test407414b3() {
 }
 
 // arrayRefrence
+@Test
 public void test407414b4() {
 	 String testCode = "package p1;\n" +
 			 "public class Test {\n" +
@@ -8613,6 +8846,7 @@ public void test407414b4() {
 }
 
 // value of a (compound) assignment
+@Test
 public void testBug407414c() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8632,6 +8866,7 @@ public void testBug407414c() {
 }
 
 // primitive cast
+@Test
 public void testBug407414d() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8647,6 +8882,7 @@ public void testBug407414d() {
 }
 
 // conditional
+@Test
 public void testBug407414e() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8662,6 +8898,7 @@ public void testBug407414e() {
 }
 
 // operators
+@Test
 public void testBug407414f() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8687,6 +8924,7 @@ public void testBug407414f() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428104
 // Null annotation heuristics does not understand autoboxed primitives to be non-null.
+@Test
 public void test428104() {
 	 String testCode = "package p1;\n" +
 			 "import org.eclipse.jdt.annotation.NonNull;\n" +
@@ -8713,6 +8951,7 @@ public void test428104() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424702
 // Warning at an assignment of a boolean-Variable to an Boolean-Variable
+@Test
 public void test424702() {
 	 String testCode = "package p1;\n" +
 			 "import org.eclipse.jdt.annotation.NonNull;\n" +
@@ -8736,6 +8975,7 @@ public void test424702() {
 		"");
 }
 
+@Test
 public void testBug237236() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8750,6 +8990,7 @@ public void testBug237236() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug418236() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8770,6 +9011,7 @@ public void testBug418236() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug461878() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "javax.annotation.Nonnull");
@@ -8799,6 +9041,7 @@ public void testBug461878() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
+@Test
 public void testBug467610() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8826,6 +9069,7 @@ public void testBug467610() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug477719() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8842,6 +9086,7 @@ public void testBug477719() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug482075() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
@@ -8877,6 +9122,7 @@ public void testBug482075() {
 		""
 	);
 }
+@Test
 public void testMultipleAnnotations() {
 	Map options1 = new HashMap<>(getCompilerOptions());
 	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo1.NonNull");
@@ -9031,6 +9277,7 @@ public void testMultipleAnnotations() {
 				"----------\n");
 }
 
+@Test
 public void testBug489486conform() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9057,6 +9304,7 @@ public void testBug489486conform() {
 	);
 }
 
+@Test
 public void testBug489486negative() {
 	runNegativeTest(
 		new String[] {
@@ -9089,6 +9337,7 @@ public void testBug489486negative() {
 		getCompilerOptions()
 	);
 }
+@Test
 public void testBug502113() {
 	runConformTestWithLibs(
 		new String[] {
@@ -9119,6 +9368,7 @@ public void testBug502113() {
 		""
 	);
 }
+@Test
 public void testBug502113b() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9167,6 +9417,7 @@ public void testBug502113b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug502214() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9229,6 +9480,7 @@ public void testBug502214() {
 }
 
 //apply null default to parameters:
+@Test
 public void testBug530970_param() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9310,6 +9562,7 @@ public void testBug530970_param() {
 }
 
 //apply null default to return type - annotation at method:
+@Test
 public void testBug530970_return() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9373,6 +9626,7 @@ public void testBug530970_return() {
 }
 
 //apply null default to field
+@Test
 public void testBug530970_field() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9432,6 +9686,7 @@ public void testBug530970_field() {
 }
 
 //default default
+@Test
 public void testBug530970_default() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9497,6 +9752,7 @@ public void testBug530970_default() {
 }
 
 //apply null default to parameters:
+@Test
 public void testBug530970_param_bin() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9576,6 +9832,7 @@ public void testBug530970_param_bin() {
 }
 
 //apply null default to return type - annotation at method:
+@Test
 public void testBug530970_return_bin() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9660,6 +9917,7 @@ public void testBug530970_return_bin() {
 }
 
 //apply null default to field
+@Test
 public void testBug530970_field_bin() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9743,6 +10001,7 @@ public void testBug530970_field_bin() {
 		"----------\n");}
 
 //default default
+@Test
 public void testBug530970_default_bin() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -9829,6 +10088,7 @@ public void testBug530970_default_bin() {
 		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" +
 		"----------\n");}
 
+@Test
 public void testBug530970_on_field_and_local() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -10129,6 +10389,7 @@ public void testBug530970_on_field_and_local() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug530970_on_field_bin() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
@@ -10463,6 +10724,7 @@ public void testBug530970_on_field_bin() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug542707_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;
@@ -10517,6 +10779,7 @@ public void testBug542707_001() {
 /**
  * should not throw IOOBE while building - a safety check test case.
  */
+@Test
 public void testBug542707_002() {
 	if (this.complianceLevel != ClassFileConstants.JDK14)
 		return;
@@ -10555,6 +10818,7 @@ public void testBug542707_002() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug542707_003() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// outer expected type (from assignment) is propagated deeply into a switch expression
@@ -10585,6 +10849,7 @@ public void testBug542707_003() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testBug542707_003_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// outer expected type (from assignment) is propagated deeply into a switch expression
@@ -10615,6 +10880,7 @@ public void testBug542707_003_1() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testBug542707_003_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
@@ -10657,6 +10923,7 @@ public void testBug542707_003_2() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testBug542707_003_3() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
@@ -10699,6 +10966,7 @@ public void testBug542707_003_3() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testBug542707_003_4() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
@@ -10741,6 +11009,7 @@ public void testBug542707_003_4() {
 	runner.runNegativeTest();
 }
 
+@Test
 public void testBug542707_003_5() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// no expected type due to LVTI
@@ -10815,6 +11084,7 @@ public void _testBug542707_004() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testBug542707_005() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return; // switch expression
 	// switch value must not be null (@Nullable)
@@ -10844,6 +11114,7 @@ public void testBug542707_005() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testBug542707_006() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return; // switch expression
 	// switch value must not be null (pot-null by flow analysis)
@@ -10873,6 +11144,7 @@ public void testBug542707_006() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testBug545715() {
 	runConformTest(
 		new String[] {
@@ -10890,6 +11162,7 @@ public void testBug545715() {
 		},
 	    "");
 }
+@Test
 public void testBug548418_001a() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return;
 	runNegativeTestWithLibs(
@@ -10946,6 +11219,7 @@ public void testBug548418_001a() {
 			"Null type mismatch: required '@NonNull X' but the provided value is null\n" +
 			"----------\n");
 }
+@Test
 public void testBug548418_001b() {
 	if (this.complianceLevel < ClassFileConstants.JDK14 || useDeclarationAnnotations()) return;
 	runNegativeTestWithLibs(
@@ -10993,6 +11267,7 @@ public void testBug548418_001b() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug548418_002a() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
@@ -11032,6 +11307,7 @@ public void testBug548418_002a() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug548418_002b() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
@@ -11061,6 +11337,7 @@ public void testBug548418_002b() {
 		"----------\n"
 			);
 }
+@Test
 public void testBug499714() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11095,6 +11372,7 @@ public void testBug499714() {
 		getCompilerOptions(),
 		"");
 }
+@Test
 public void testBug481931_source() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11144,6 +11422,7 @@ public void testBug481931_source() {
 		"Dead code\n" +
 		"----------\n");
 }
+@Test
 public void testBug481931_binary() {
 	runConformTestWithLibs(
 		new String[] {
@@ -11210,6 +11489,7 @@ public void testBug481931_binary() {
 	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug459397() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11314,6 +11594,7 @@ public void testBug459397() {
 		"Redundant null check: The variable dc cannot be null at this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug466477() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -11345,6 +11626,7 @@ public void testBug466477() {
 		"Parameter 1 of method testNN(String) lacks a @NonNull annotation as specified in type SuperI\n" +
 		"----------\n");
 }
+@Test
 public void testBug565246() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -11521,6 +11803,7 @@ public void _testIssue3319() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_1a() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11549,6 +11832,7 @@ public void testIssue3971_1a() {
 			this.LIBS,
 			false/*shouldFlush*/);
 }
+@Test
 public void testIssue3971_1b() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11573,6 +11857,7 @@ public void testIssue3971_1b() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11647,6 +11932,7 @@ public void testIssue3971_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_3() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11673,6 +11959,7 @@ public void testIssue3971_3() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_4() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11741,6 +12028,7 @@ public void testIssue3971_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_5() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11809,6 +12097,7 @@ public void testIssue3971_5() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_6() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11841,6 +12130,7 @@ public void testIssue3971_6() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_7() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11910,6 +12200,7 @@ public void testIssue3971_7() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971#issuecomment-2863645113
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_8() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11958,6 +12249,7 @@ public void testIssue3971_8() {
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 //[Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_9a() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -11987,6 +12279,7 @@ public void testIssue3971_9a() {
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 //[Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+@Test
 public void testIssue3971_9b() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;

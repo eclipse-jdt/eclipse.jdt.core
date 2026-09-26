@@ -15,15 +15,19 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 
 	static {
@@ -32,14 +36,8 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testBug3504_1"};
 	}
 
-	public static Class<?> testClass() {
-		return RecordsRestrictedClassTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
-	}
-	public RecordsRestrictedClassTest(String testName){
-		super(testName);
+	public RecordsRestrictedClassTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -120,6 +118,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		return result;
 	}
 
+	@Test
 	public void testBug550750_001() {
 		runConformTest(
 				new String[] {
@@ -134,6 +133,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -155,6 +155,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	}
 	/* A record declaration is implicitly final. It is permitted for the declaration of
 	 * a record type to redundantly specify the final modifier. */
+	@Test
 	public void testBug550750_003() {
 		runConformTest(
 				new String[] {
@@ -169,6 +170,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_004() {
 		this.runNegativeTest(
 			new String[] {
@@ -188,6 +190,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Duplicate modifier for the type Point\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_005() {
 		runConformTest(
 				new String[] {
@@ -202,6 +205,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_006() {
 		this.runNegativeTest(
 			new String[] {
@@ -216,6 +220,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Duplicate modifier for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_007() {
 		runConformTest(
 				new String[] {
@@ -231,6 +236,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_008() {
 		runConformTest(
 				new String[] {
@@ -246,6 +252,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_009() {
 		runConformTest(
 				new String[] {
@@ -263,6 +270,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"0");
 	}
 	 /* nested record implicitly static*/
+	@Test
 	public void testBug550750_010() {
 		runConformTest(
 				new String[] {
@@ -278,6 +286,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"0");
 	}
 	 /* nested record explicitly static*/
+	@Test
 	public void testBug550750_011() {
 		runConformTest(
 				new String[] {
@@ -292,6 +301,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_012() {
 		runConformTest(
 				new String[] {
@@ -306,6 +316,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_013() {
 		runConformTest(
 				new String[] {
@@ -323,6 +334,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_014() {
 		runConformTest(
 				new String[] {
@@ -340,6 +352,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_015() {
 		runConformTest(
 				new String[] {
@@ -358,6 +371,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_016() {
 		runConformTest(
 				new String[] {
@@ -373,6 +387,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_017() {
 		runConformTest(
 				new String[] {
@@ -392,6 +407,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_018() {
 		this.runNegativeTest(
 				new String[] {
@@ -419,6 +435,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The blank final field myInt may not have been initialized\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_019() {
 		this.runNegativeTest(
 				new String[] {
@@ -443,6 +460,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Cannot reduce the visibility of a canonical constructor Point from that of the record\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_020() {
 		this.runNegativeTest(
 				new String[] {
@@ -472,6 +490,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				"Illegal explicit assignment of a final field myChar in compact constructor\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug550750_022() {
 		this.runNegativeTest(
 				new String[] {
@@ -497,6 +516,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The body of a compact constructor must not contain a return statement\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_023() {
 		this.runNegativeTest(
 				new String[] {
@@ -520,6 +540,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Illegal component name finalize in record Point;\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_024() {
 		this.runNegativeTest(
 				new String[] {
@@ -544,6 +565,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Illegal component name finalize in record Point;\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_025() {
 		getPossibleComplianceLevels();
 		this.runNegativeTest(
@@ -574,6 +596,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Duplicate component myZ in record\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_026() {
 		getPossibleComplianceLevels();
 		this.runNegativeTest(
@@ -609,6 +632,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Duplicate component myInt in record\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_027() {
 		this.runNegativeTest(
 				new String[] {
@@ -644,6 +668,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_028() {
 		this.runNegativeTest(
 				new String[] {
@@ -669,6 +694,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_029() {
 		this.runNegativeTest(
 				new String[] {
@@ -704,6 +730,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Illegal modifier native for method foo; native methods are not allowed in record\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_030() {
 		this.runNegativeTest(
 				new String[] {
@@ -729,6 +756,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Instance Initializer is not allowed in a record declaration\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_031() {
 		runConformTest(
 				new String[] {
@@ -747,6 +775,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_032() {
 		this.runNegativeTest(
 				new String[] {
@@ -764,6 +793,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_033() {
 		this.runNegativeTest(
 				new String[] {
@@ -781,6 +811,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_034() {
 		this.runNegativeTest(
 				new String[] {
@@ -804,6 +835,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_035() {
 		this.runNegativeTest(
 				new String[] {
@@ -822,6 +854,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_036() {
 		this.runNegativeTest(
 				new String[] {
@@ -848,6 +881,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_037() {
 		runConformTest(
 				new String[] {
@@ -862,6 +896,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_038() {
 		runConformTest(
 				new String[] {
@@ -877,6 +912,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_039() {
 		runConformTest(
 				new String[] {
@@ -892,6 +928,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug550750_040() {
 		this.runNegativeTest(
 				new String[] {
@@ -913,6 +950,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug550750_041() {
 		runConformTest(
 				new String[] {
@@ -929,6 +967,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug553152_001() {
 		this.runNegativeTest(
 				new String[] {
@@ -955,6 +994,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Illegal return type of accessor; should be the same as the declared type int of the record component\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_002() {
 		runConformTest(
 				new String[] {
@@ -973,6 +1013,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug553152_003() {
 		this.runNegativeTest(
 				new String[] {
@@ -996,6 +1037,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The accessor method must not be generic\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_004() {
 		this.runNegativeTest(
 				new String[] {
@@ -1027,6 +1069,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The accessor method must be declared public\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_005() {
 		this.runNegativeTest(
 				new String[] {
@@ -1050,6 +1093,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Throws clause not allowed for explicitly declared accessor method\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_006() {
 		runConformTest(
 				new String[] {
@@ -1069,6 +1113,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug553152_007() {
 		this.runNegativeTest(
 				new String[] {
@@ -1092,6 +1137,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The blank final field myZ may not have been initialized\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_008() {
 		getPossibleComplianceLevels();
 		this.runNegativeTest(
@@ -1136,6 +1182,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Duplicate method Point(Integer, int) in type Point\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_009() {
 		this.runConformTest(
 				new String[] {
@@ -1155,6 +1202,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug553152_010() {
 		this.runNegativeTest(
 				new String[] {
@@ -1179,6 +1227,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Canonical constructor Point of a record declaration should not be generic\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_011() {
 		this.runNegativeTest(
 				new String[] {
@@ -1203,6 +1252,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Throws clause not allowed for canonical constructor Point\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_012() {
 		this.runNegativeTest(
 				new String[] {
@@ -1228,6 +1278,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The body of a compact constructor must not contain a return statement\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_013() {
 		this.runNegativeTest(
 				new String[] {
@@ -1255,6 +1306,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The method Zork() is undefined for the type Point\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_014() {
 		this.runNegativeTest(
 				new String[] {
@@ -1280,6 +1332,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The body of a canonical constructor must not contain an explicit constructor call\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_015() {
 		this.runNegativeTest(
 				new String[] {
@@ -1311,6 +1364,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_016() {
 		this.runNegativeTest(
 				new String[] {
@@ -1336,6 +1390,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The body of a compact constructor must not contain an explicit constructor call\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug553152_017() {
 		this.runConformTest(
 			new String[] {
@@ -1351,6 +1406,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		},
 		"0");
 	}
+	@Test
 	public void testBug553152_018() {
 		runConformTest(
 				new String[] {
@@ -1368,6 +1424,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	@Test
 	public void testBug553152_019() {
 		this.runNegativeTest(
 				new String[] {
@@ -1391,6 +1448,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The accessor method must not be static\n" +
 			"----------\n");
 	}
+@Test
 public void testBug553153_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -1426,6 +1484,7 @@ public void testBug553153_002() {
 		"Illegal explicit assignment of a final field myChar in compact constructor\n" +
 		"----------\n");
 }
+@Test
 public void testBug553153_003() {
 	runConformTest(
 		new String[] {
@@ -1444,6 +1503,7 @@ public void testBug553153_003() {
 		},
 	 "0");
 }
+@Test
 public void testBug553153_004() {
 	this.runNegativeTest(
 		new String[] {
@@ -1467,6 +1527,7 @@ public void testBug553153_004() {
 	"The blank final field myChar may not have been initialized\n" +
 	"----------\n");
 }
+@Test
 public void testBug558069_001() {
 	this.runNegativeTest(
 			new String[] {
@@ -1486,6 +1547,7 @@ public void testBug558069_001() {
 			"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" +
 			"----------\n");
 }
+@Test
 public void testBug558069_002() {
 	runConformTest(
 		new String[] {
@@ -1500,6 +1562,7 @@ public void testBug558069_002() {
 		},
 	 "0");
 }
+@Test
 public void testBug558069_003() {
 	runConformTest(
 		new String[] {
@@ -1514,6 +1577,7 @@ public void testBug558069_003() {
 		},
 	 "0");
 }
+@Test
 public void testBug558343_001() {
 	runConformTest(
 		new String[] {
@@ -1532,6 +1596,7 @@ public void testBug558343_001() {
 		},
 	 "0");
 }
+@Test
 public void testBug558343_002() {
 	runConformTest(
 		new String[] {
@@ -1550,6 +1615,7 @@ public void testBug558343_002() {
 		},
 	 "0");
 }
+@Test
 public void testBug558343_003() {
 	runConformTest(
 		new String[] {
@@ -1568,6 +1634,7 @@ public void testBug558343_003() {
 		},
 	 "0");
 }
+@Test
 public void testBug558343_004() {
 	runConformTest(
 		new String[] {
@@ -1586,6 +1653,7 @@ public void testBug558343_004() {
 		},
 	 "0");
 }
+@Test
 public void testBug558494_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -1610,6 +1678,7 @@ public void testBug558494_001() throws Exception {
 			"int heyPinkCity;\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug558494_002() throws Exception {
 	runConformTest(
 		new String[] {
@@ -1632,6 +1701,7 @@ public void testBug558494_002() throws Exception {
 			"  \n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug558494_003() throws Exception {
 	runConformTest(
 		new String[] {
@@ -1652,6 +1722,7 @@ public void testBug558494_003() throws Exception {
 			"  \n";
 	verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug558494_004() throws Exception {
 	runConformTest(
 		new String[] {
@@ -1677,6 +1748,7 @@ public void testBug558494_004() throws Exception {
 			"java.lang.String[] wonders;\n";
 	verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug558764_001() {
 	runConformTest(
 			new String[] {
@@ -1694,6 +1766,7 @@ public void testBug558764_001() {
 			},
 		"0");
 }
+@Test
 public void testBug558764_002() {
 	this.runNegativeTest(
 			new String[] {
@@ -1716,6 +1789,7 @@ public void testBug558764_002() {
 			"The annotation @MyAnnotation is disallowed for this location\n" +
 			"----------\n");
 }
+@Test
 public void testBug558764_003() {
 	runConformTest(
 			new String[] {
@@ -1733,6 +1807,7 @@ public void testBug558764_003() {
 			},
 		"0");
 }
+@Test
 public void testBug558764_004() {
 	this.runNegativeTest(
 			new String[] {
@@ -1756,6 +1831,7 @@ public void testBug558764_004() {
 			"The annotation @MyAnnotation is disallowed for this location\n" +
 			"----------\n");
 }
+@Test
 public void testBug553567_001() {
 	this.runNegativeTest(
 			new String[] {
@@ -1773,6 +1849,7 @@ public void testBug553567_001() {
 			"The type X may not subclass Record explicitly\n" +
 			"----------\n");
 }
+@Test
 public void testBug553567_002() {
 	runConformTest(
 			new String[] {
@@ -1787,6 +1864,7 @@ public void testBug553567_002() {
 			},
 		"0");
 }
+@Test
 public void testBug559281_001() {
 	this.runNegativeTest(
 			new String[] {
@@ -1800,6 +1878,7 @@ public void testBug559281_001() {
 			"void is an invalid type for the variable k\n" +
 			"----------\n");
 }
+@Test
 public void testBug559281_002() {
 	this.runNegativeTest(
 			new String[] {
@@ -1818,6 +1897,7 @@ public void testBug559281_002() {
 			"Illegal component name wait in record X;\n" +
 			"----------\n");
 }
+@Test
 public void testBug559448_001() {
 	runConformTest(
 			new String[] {
@@ -1832,6 +1912,7 @@ public void testBug559448_001() {
 			},
 		"0");
 }
+@Test
 public void testBug559448_002() {
 	this.runNegativeTest(
 			new String[] {
@@ -1851,6 +1932,7 @@ public void testBug559448_002() {
 			"The variable argument type int of the record Point must be the last parameter\n" +
 			"----------\n");
 }
+@Test
 public void testBug559448_003() {
 	this.runNegativeTest(
 			new String[] {
@@ -1870,6 +1952,7 @@ public void testBug559448_003() {
 			"The variable argument type int of the record Point must be the last parameter\n" +
 			"----------\n");
 }
+@Test
 public void testBug559574_001() {
 	this.runNegativeTest(
 			new String[] {
@@ -1904,6 +1987,7 @@ public void testBug559574_001() {
 			"y cannot be resolved or is not a field\n" +
 			"----------\n");
 }
+@Test
 public void testBug559992_001() {
 	this.runNegativeTest(
 			new String[] {
@@ -1920,6 +2004,7 @@ public void testBug559992_001() {
 		"Throws clause not allowed for canonical constructor R\n" +
 		"----------\n");
 }
+@Test
 public void testBug559992_002() {
 	this.runNegativeTest(
 			new String[] {
@@ -1936,6 +2021,7 @@ public void testBug559992_002() {
 		"Throws clause not allowed for canonical constructor R\n" +
 		"----------\n");
 }
+@Test
 public void testBug560256_001() {
 	this.runNegativeTest(
 		new String[] {
@@ -1955,6 +2041,7 @@ public void testBug560256_001() {
 		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" +
 		"----------\n");
 }
+@Test
 public void testBug560256_002() {
 	this.runNegativeTest(
 		new String[] {
@@ -1974,6 +2061,7 @@ public void testBug560256_002() {
 		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" +
 		"----------\n");
 }
+@Test
 public void testBug560256_003() {
 	this.runConformTest(
 		new String[] {
@@ -1989,6 +2077,7 @@ public void testBug560256_003() {
 		},
 		"0");
 }
+@Test
 public void testBug560256_004() {
 	this.runNegativeTest(
 		new String[] {
@@ -2006,6 +2095,7 @@ public void testBug560256_004() {
 		"Illegal modifier for the record Point; only public, private, protected, static, final and strictfp are permitted\n" +
 		"----------\n");
 }
+@Test
 public void testBug560531_001() {
 	runConformTest(
 			new String[] {
@@ -2020,6 +2110,7 @@ public void testBug560531_001() {
 			},
 		"0");
 }
+@Test
 public void testBug560531_002() {
 	runConformTest(
 			new String[] {
@@ -2034,6 +2125,7 @@ public void testBug560531_002() {
 			},
 		"0");
 }
+@Test
 public void testBug560569_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2102,6 +2194,7 @@ public void testBug560569_001() throws Exception {
 			"  \n";
 	verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug560496_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2118,6 +2211,7 @@ public void testBug560496_001() throws Exception {
 			"public final int hashCode();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug560496_002() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
 		return; // strictfp = nop
@@ -2136,6 +2230,7 @@ public void testBug560496_002() throws Exception {
 			"public final int hashCode();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug560797_001() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
 		return; // strictfp = nop
@@ -2154,6 +2249,7 @@ public void testBug560797_001() throws Exception {
 			"public int x();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug560797_002() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
 		return; // strictfp = nop
@@ -2174,6 +2270,7 @@ public void testBug560797_002() throws Exception {
 			"public int x();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug560798_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2191,6 +2288,7 @@ public void testBug560798_001() throws Exception {
 		},
 	 "true");
 }
+@Test
 public void testBug560798_002() {
 	this.runNegativeTest(
 		new String[] {
@@ -2213,6 +2311,7 @@ public void testBug560798_002() {
 		"The annotation @MyAnnot is disallowed for this location\n" +
 		"----------\n");
 }
+@Test
 public void testBug560798_003() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2230,6 +2329,7 @@ public void testBug560798_003() throws Exception {
 		},
 	 "true");
 }
+@Test
 public void testBug560798_004() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2247,6 +2347,7 @@ public void testBug560798_004() throws Exception {
 		},
 	 "true");
 }
+@Test
 public void testBug560798_005() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2264,6 +2365,7 @@ public void testBug560798_005() throws Exception {
 		},
 	 "true");
 }
+@Test
 public void testBug560893_001() {
 	runConformTest(
 			new String[] {
@@ -2279,6 +2381,7 @@ public void testBug560893_001() {
 			},
 		 "0");
 }
+@Test
 public void testBug560893_002() {
 	runConformTest(
 			new String[] {
@@ -2292,6 +2395,7 @@ public void testBug560893_002() {
 			},
 		 "0");
 }
+@Test
 public void testBug560893_003() {
 	runConformTest(
 			new String[] {
@@ -2306,6 +2410,7 @@ public void testBug560893_003() {
 			},
 		 "100");
 }
+@Test
 public void testBug560893_004() {
 	runConformTest(
 			new String[] {
@@ -2322,6 +2427,7 @@ public void testBug560893_004() {
 			},
 		 "100");
 }
+@Test
 public void testBug560893_005() {
 	runConformTest(
 			new String[] {
@@ -2342,6 +2448,7 @@ public void testBug560893_005() {
 			},
 		 "100");
 }
+@Test
 public void testBug560893_006() {
 	runConformTest(
 			new String[] {
@@ -2356,6 +2463,7 @@ public void testBug560893_006() {
 			},
 		 "100");
 }
+@Test
 public void testBug560893_007() {
 	this.runNegativeTest(
 		new String[] {
@@ -2391,6 +2499,7 @@ public void testBug560893_007() {
 		"----------\n");
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@Test
 public void testBug558718_001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
@@ -2421,6 +2530,7 @@ public void testBug558718_001() {
 		options
 	);
 }
+@Test
 public void testBug56180_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2437,6 +2547,7 @@ public void testBug56180_001() throws Exception {
 			" public final java.lang.String toString();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug561528_001() {
 	runConformTest(
 			new String[] {
@@ -2452,6 +2563,7 @@ public void testBug561528_001() {
 			},
 		"0");
 }
+@Test
 public void testBug561528_002() {
 	runConformTest(
 			new String[] {
@@ -2467,6 +2579,7 @@ public void testBug561528_002() {
 			},
 		"0");
 }
+@Test
 public void testBug561528_003() {
 	runConformTest(
 			new String[] {
@@ -2483,6 +2596,7 @@ public void testBug561528_003() {
 			},
 		"0");
 }
+@Test
 public void testBug561528_004() {
 	runConformTest(
 			new String[] {
@@ -2500,6 +2614,7 @@ public void testBug561528_004() {
 			},
 		"0");
 }
+@Test
 public void testBug561528_005() { // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3880 - second error is due to bad recovery
 	this.runNegativeTest(
 			new String[] {
@@ -2530,6 +2645,7 @@ public void testBug561528_005() { // https://github.com/eclipse-jdt/eclipse.jdt.
 		true
 	);
 }
+@Test
 public void testBug561778_001() throws IOException, ClassFormatException {
 	runConformTest(
 			new String[] {
@@ -2573,6 +2689,7 @@ public void testBug561778_001() throws IOException, ClassFormatException {
 			"  public java.lang.Object value();\n";
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug561778_002() throws IOException, ClassFormatException {
 	runConformTest(
 			new String[] {
@@ -2599,6 +2716,7 @@ public void testBug561778_002() throws IOException, ClassFormatException {
 			"  public Y value();\n";
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562219_001() {
 	runConformTest(
 			new String[] {
@@ -2618,6 +2736,7 @@ public void testBug562219_001() {
 			},
 		"");
 }
+@Test
 public void testBug562219_002() {
 	runConformTest(
 			new String[] {
@@ -2638,6 +2757,7 @@ public void testBug562219_002() {
  * Test that annotation with implicit target as METHOD are included in the
  * generated bytecode on the record component and its accessor method
  */
+@Test
 public void test562250a() throws IOException, ClassFormatException {
 	runConformTest(
 			new String[] {
@@ -2679,6 +2799,7 @@ public void test562250a() throws IOException, ClassFormatException {
  * Test that annotation with explicit target as METHOD are included in the
  * generated bytecode on its accessor method (and not on record component)
  */
+@Test
 public void test562250b() throws IOException, ClassFormatException {
 	runConformTest(
 			new String[] {
@@ -2721,6 +2842,7 @@ public void test562250b() throws IOException, ClassFormatException {
  * compiler on a record component, the generated bytecode doesn't contain these annotations
  * on the record component.
  */
+@Test
 public void test562250c() throws IOException, ClassFormatException {
 	runConformTest(
 			new String[] {
@@ -2757,6 +2879,7 @@ public void test562250c() throws IOException, ClassFormatException {
 		"RecordComponents:\n" +
 		"Accessors:");
 }
+@Test
 public void testBug562439_001() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -2789,6 +2912,7 @@ public void testBug562439_001() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_001_1() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -2829,6 +2953,7 @@ public void testBug562439_001_1() throws IOException, ClassFormatException {
 		},
 		"All well!");
 }
+@Test
 public void testBug562439_002() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -2864,6 +2989,7 @@ public void testBug562439_002() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_003() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -2902,6 +3028,7 @@ public void testBug562439_003() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_004() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -2943,6 +3070,7 @@ public void testBug562439_004() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_005() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -2980,6 +3108,7 @@ public void testBug562439_005() throws IOException, ClassFormatException {
 			"char myChar;\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_006() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3020,6 +3149,7 @@ public void testBug562439_006() throws IOException, ClassFormatException {
 			"char myChar;\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_007() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3065,6 +3195,7 @@ public void testBug562439_007() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_008() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3115,6 +3246,7 @@ public void testBug562439_008() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_009() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3162,6 +3294,7 @@ public void testBug562439_009() throws IOException, ClassFormatException {
 			"char myChar;\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_010() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3209,6 +3342,7 @@ public void testBug562439_010() throws IOException, ClassFormatException {
 			"char myChar;\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_011() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3253,6 +3387,7 @@ public void testBug562439_011() throws IOException, ClassFormatException {
 			"char myChar;\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_012() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3297,6 +3432,7 @@ public void testBug562439_012() throws IOException, ClassFormatException {
 			"char myChar;\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_013() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3356,6 +3492,7 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_014() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3416,6 +3553,7 @@ public void testBug562439_014() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_015() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3495,6 +3633,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"      )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_016() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3576,6 +3715,7 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_017() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3630,6 +3770,7 @@ public void testBug562439_017() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_018() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3687,6 +3828,7 @@ public void testBug562439_018() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_019() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3761,6 +3903,7 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug562439_020() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -3818,6 +3961,7 @@ public void testBug562439_020() throws IOException, ClassFormatException {
 			"    )\n";
 	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug563178_001() {
 	this.runNegativeTest(
 		new String[] {
@@ -3837,6 +3981,7 @@ public void testBug563178_001() {
 		"A record component x cannot have modifiers\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_001() {
 	this.runConformTest(
 		new String[] {
@@ -3850,6 +3995,7 @@ public void testBug563183_001() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_002() {
 	this.runConformTest(
 		new String[] {
@@ -3863,6 +4009,7 @@ public void testBug563183_002() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_003() {
 	this.runNegativeTest(
 		new String[] {
@@ -3881,6 +4028,7 @@ public void testBug563183_003() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_004() {
 	this.runNegativeTest(
 		new String[] {
@@ -3899,6 +4047,7 @@ public void testBug563183_004() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_005() {
 	this.runNegativeTest(
 		new String[] {
@@ -3917,6 +4066,7 @@ public void testBug563183_005() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_006() {
 	this.runNegativeTest(
 		new String[] {
@@ -3935,6 +4085,7 @@ public void testBug563183_006() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_007() {
 	this.runNegativeTest(
 		new String[] {
@@ -3953,6 +4104,7 @@ public void testBug563183_007() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_008() {
 	this.runNegativeTest(
 		new String[] {
@@ -3971,6 +4123,7 @@ public void testBug563183_008() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_009() {
 	this.runConformTest(
 		new String[] {
@@ -3986,6 +4139,7 @@ public void testBug563183_009() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_010() {
 	this.runConformTest(
 		new String[] {
@@ -4001,6 +4155,7 @@ public void testBug563183_010() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_011() {
 	this.runConformTest(
 		new String[] {
@@ -4016,6 +4171,7 @@ public void testBug563183_011() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_012() {
 	this.runConformTest(
 		new String[] {
@@ -4031,6 +4187,7 @@ public void testBug563183_012() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_013() {
 	this.runNegativeTest(
 		new String[] {
@@ -4051,6 +4208,7 @@ public void testBug563183_013() {
 		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_014() {
 	this.runNegativeTest(
 		new String[] {
@@ -4071,6 +4229,7 @@ public void testBug563183_014() {
 		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_015() {
 	this.runNegativeTest(
 		new String[] {
@@ -4091,6 +4250,7 @@ public void testBug563183_015() {
 		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_016() {
 	this.runNegativeTest(
 		new String[] {
@@ -4111,6 +4271,7 @@ public void testBug563183_016() {
 		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_017() {
 	this.runConformTest(
 		new String[] {
@@ -4124,6 +4285,7 @@ public void testBug563183_017() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_018() {
 	this.runConformTest(
 		new String[] {
@@ -4137,6 +4299,7 @@ public void testBug563183_018() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_019() {
 	this.runConformTest(
 		new String[] {
@@ -4150,6 +4313,7 @@ public void testBug563183_019() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_020() {
 	this.runConformTest(
 		new String[] {
@@ -4163,6 +4327,7 @@ public void testBug563183_020() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_021() {
 	this.runConformTest(
 		new String[] {
@@ -4176,6 +4341,7 @@ public void testBug563183_021() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_022() {
 	this.runConformTest(
 		new String[] {
@@ -4189,6 +4355,7 @@ public void testBug563183_022() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_023() {
 	this.runNegativeTest(
 		new String[] {
@@ -4207,6 +4374,7 @@ public void testBug563183_023() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_024() {
 	this.runNegativeTest(
 		new String[] {
@@ -4225,6 +4393,7 @@ public void testBug563183_024() {
 		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
 }
+@Test
 public void testBug563183_025() {
 	this.runConformTest(
 		new String[] {
@@ -4240,6 +4409,7 @@ public void testBug563183_025() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_026() {
 	this.runConformTest(
 		new String[] {
@@ -4255,6 +4425,7 @@ public void testBug563183_026() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_027() {
 	this.runConformTest(
 		new String[] {
@@ -4270,6 +4441,7 @@ public void testBug563183_027() {
 		},
 		"0");
 }
+@Test
 public void testBug563183_028() {
 	this.runConformTest(
 		new String[] {
@@ -4285,6 +4457,7 @@ public void testBug563183_028() {
 		},
 		"0");
 }
+@Test
 public void testBug563184_001() {
 	this.runNegativeTest(
 		new String[] {
@@ -4302,6 +4475,7 @@ public void testBug563184_001() {
 		"Illegal parameter name devil in canonical constructor, expected angel, the corresponding component name\n" +
 		"----------\n");
 }
+@Test
 public void testBug563184_002() {
 	this.runConformTest(
 		new String[] {
@@ -4320,6 +4494,7 @@ public void testBug563184_002() {
 		},
 		"0");
 }
+@Test
 public void testBug562637_001() {
 	this.runConformTest(
 		new String[] {
@@ -4335,6 +4510,7 @@ public void testBug562637_001() {
 		},
 		"5");
 }
+	@Test
 	public void testBug563181_01() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -4367,6 +4543,7 @@ public void testBug562637_001() {
 				"  \n";
 		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug563181_02() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -4406,6 +4583,7 @@ public void testBug562637_001() {
 				"  \n";
 		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug563181_03() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -4442,6 +4620,7 @@ public void testBug562637_001() {
 				"  \n";
 		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug563181_04() throws IOException, ClassFormatException {
 		runConformTest(
 				new String[] {
@@ -4484,6 +4663,7 @@ public void testBug562637_001() {
 				"  \n";
 		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565104_001() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4500,6 +4680,7 @@ public void testBug562637_001() {
 				"    0  aload_0 [this]\n";
 		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565104_002() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4516,6 +4697,7 @@ public void testBug562637_001() {
 				"    0  aload_0 [this]\n";
 		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565104_003() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4532,6 +4714,7 @@ public void testBug562637_001() {
 				"    0  aload_0 [this]\n";
 		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug565104_004() throws IOException, ClassFormatException {
 		runConformTest(
 			new String[] {
@@ -4548,6 +4731,7 @@ public void testBug562637_001() {
 				"    0  aload_0 [this]\n";
 		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testBug564146_001() {
 		this.runNegativeTest(
 			new String[] {
@@ -4565,6 +4749,7 @@ public void testBug562637_001() {
 			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564146_002() {
 		this.runNegativeTest(
 			new String[] {
@@ -4583,6 +4768,7 @@ public void testBug562637_001() {
 			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564146_003() {
 		this.runNegativeTest(
 			new String[] {
@@ -4601,6 +4787,7 @@ public void testBug562637_001() {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564146_004() {
 		runConformTest(
 			new String[] {
@@ -4616,6 +4803,7 @@ public void testBug562637_001() {
 				},
 			"10");
 	}
+	@Test
 	public void testBug564146_005() {
 		this.runNegativeTest(
 			new String[] {
@@ -4633,6 +4821,7 @@ public void testBug562637_001() {
 			"Recursive constructor invocation X(int)\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564146_006() {
 		this.runNegativeTest(
 			new String[] {
@@ -4650,6 +4839,7 @@ public void testBug562637_001() {
 			"The body of a canonical constructor must not contain an explicit constructor call\n" +
 			"----------\n");
 	}
+	@Test
 	public void testBug564146_007() {
 		runConformTest(
 			new String[] {
@@ -4669,6 +4859,7 @@ public void testBug562637_001() {
 			"10");
 	}
 
+@Test
 public void testBug564672_001() {
 	this.runNegativeTest(
 		new String[] {
@@ -4692,6 +4883,7 @@ public void testBug564672_001() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_002() {
 	this.runNegativeTest(
 		new String[] {
@@ -4709,6 +4901,7 @@ public void testBug564672_002() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_003() {
 	this.runNegativeTest(
 		new String[] {
@@ -4732,6 +4925,7 @@ public void testBug564672_003() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_004() {
 	this.runNegativeTest(
 		new String[] {
@@ -4749,6 +4943,7 @@ public void testBug564672_004() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_005() {
 	this.runNegativeTest(
 		new String[] {
@@ -4774,6 +4969,7 @@ public void testBug564672_005() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_006() {
 	this.runNegativeTest(
 		new String[] {
@@ -4793,6 +4989,7 @@ public void testBug564672_006() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_007() {
 	this.runNegativeTest(
 		new String[] {
@@ -4818,6 +5015,7 @@ public void testBug564672_007() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_008() {
 	this.runNegativeTest(
 		new String[] {
@@ -4837,6 +5035,7 @@ public void testBug564672_008() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_009() {
 	this.runNegativeTest(
 		new String[] {
@@ -4862,6 +5061,7 @@ public void testBug564672_009() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_010() {
 	this.runNegativeTest(
 		new String[] {
@@ -4881,6 +5081,7 @@ public void testBug564672_010() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_011() {
 	this.runNegativeTest(
 		new String[] {
@@ -4906,6 +5107,7 @@ public void testBug564672_011() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_012() {
 	this.runNegativeTest(
 		new String[] {
@@ -4925,6 +5127,7 @@ public void testBug564672_012() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_013() {
 	this.runNegativeTest(
 		new String[] {
@@ -4947,6 +5150,7 @@ public void testBug564672_013() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_014() {
 	this.runNegativeTest(
 		new String[] {
@@ -4963,6 +5167,7 @@ public void testBug564672_014() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_015() {
 	this.runNegativeTest(
 		new String[] {
@@ -4985,6 +5190,7 @@ public void testBug564672_015() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_016() {
 	this.runNegativeTest(
 		new String[] {
@@ -5001,6 +5207,7 @@ public void testBug564672_016() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_017() {
 	this.runNegativeTest(
 		new String[] {
@@ -5023,6 +5230,7 @@ public void testBug564672_017() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_018() {
 	this.runNegativeTest(
 		new String[] {
@@ -5039,6 +5247,7 @@ public void testBug564672_018() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_019() {
 	this.runNegativeTest(
 		new String[] {
@@ -5075,6 +5284,7 @@ public void testBug564672_019() {
 		"Syntax error on token \"return\", byte expected\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_020() {
 	this.runNegativeTest(
 		new String[] {
@@ -5117,6 +5327,7 @@ public void testBug564672_020() {
 		"Syntax error on token \"return\", byte expected\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_021() {
 	this.runConformTest(
 		new String[] {
@@ -5136,6 +5347,7 @@ public void testBug564672_021() {
 		},
 		"Point[x=5, y=10]");
 }
+@Test
 public void testBug564672_022() {
 	this.runNegativeTest(
 		new String[] {
@@ -5197,6 +5409,7 @@ public void testBug564672_022() {
 		"The method a(int) is undefined for the type X.Point\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_023() {
 	this.runNegativeTest(
 		new String[] {
@@ -5221,6 +5434,7 @@ public void testBug564672_023() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_024() {
 	this.runNegativeTest(
 		new String[] {
@@ -5239,6 +5453,7 @@ public void testBug564672_024() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_025() {
 	this.runNegativeTest(
 		new String[] {
@@ -5254,6 +5469,7 @@ public void testBug564672_025() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_026() {
 	this.runNegativeTest(
 		new String[] {
@@ -5283,6 +5499,7 @@ public void testBug564672_026() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_027() {
 	this.runNegativeTest(
 		new String[] {
@@ -5316,6 +5533,7 @@ public void testBug564672_027() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_028() {
 	this.runNegativeTest(
 		new String[] {
@@ -5341,6 +5559,7 @@ public void testBug564672_028() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_029() {
 	this.runNegativeTest(
 		new String[] {
@@ -5366,6 +5585,7 @@ public void testBug564672_029() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_030() {
 	this.runNegativeTest(
 		new String[] {
@@ -5384,6 +5604,7 @@ public void testBug564672_030() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_031() {
 	this.runNegativeTest(
 		new String[] {
@@ -5404,6 +5625,7 @@ public void testBug564672_031() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_032() {
 	this.runNegativeTest(
 		new String[] {
@@ -5424,6 +5646,7 @@ public void testBug564672_032() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_033() {
 	this.runNegativeTest(
 		new String[] {
@@ -5443,6 +5666,7 @@ public void testBug564672_033() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_034() {
 	this.runNegativeTest(
 		new String[] {
@@ -5463,6 +5687,7 @@ public void testBug564672_034() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_035() {
 	this.runConformTest(
 			new String[] {
@@ -5482,6 +5707,7 @@ public void testBug564672_035() {
 			"Hello, World!"
 			);
 }
+@Test
 public void testBug564672_036() {
 	this.runNegativeTest(
 		new String[] {
@@ -5502,6 +5728,7 @@ public void testBug564672_036() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_037() {
 	this.runNegativeTest(
 		new String[] {
@@ -5520,6 +5747,7 @@ public void testBug564672_037() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_038() {
 	this.runNegativeTest(
 		new String[] {
@@ -5539,6 +5767,7 @@ public void testBug564672_038() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_039() {
 	this.runNegativeTest(
 		new String[] {
@@ -5564,6 +5793,7 @@ public void testBug564672_039() {
 		"Type mismatch: cannot convert from element type int to record\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_040() {
 	this.runNegativeTest(
 		new String[] {
@@ -5583,6 +5813,7 @@ public void testBug564672_040() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_041() {
 	this.runNegativeTest(
 		new String[] {
@@ -5603,6 +5834,7 @@ public void testBug564672_041() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_042() {
 	this.runNegativeTest(
 		new String[] {
@@ -5621,6 +5853,7 @@ public void testBug564672_042() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_043() {
 	this.runNegativeTest(
 		new String[] {
@@ -5650,6 +5883,7 @@ public void testBug564672_043() {
 		"The constructor Point(record) refers to the missing type record\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_044() {
 	this.runNegativeTest(
 		new String[] {
@@ -5681,6 +5915,7 @@ public void testBug564672_044() {
 		"The constructor Point(record) refers to the missing type record\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_045() {
 	this.runNegativeTest(
 		new String[] {
@@ -5709,6 +5944,7 @@ public void testBug564672_045() {
 		"Unused type arguments for the non generic method m1() of type Y; it should not be parameterized with arguments <record>\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_046() {
 	this.runNegativeTest(
 		new String[] {
@@ -5737,6 +5973,7 @@ public void testBug564672_046() {
 		"Unused type arguments for the non generic constructor Y() of type Y; it should not be parameterized with arguments <record>\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_047() {
 	this.runNegativeTest(
 		new String[] {
@@ -5766,6 +6003,7 @@ public void testBug564672_047() {
 		"Unused type arguments for the non generic constructor Object() of type Object; it should not be parameterized with arguments <record>\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_048() {
 	this.runNegativeTest(
 		new String[] {
@@ -5795,6 +6033,7 @@ public void testBug564672_048() {
 		"Unused type arguments for the non generic constructor Y() of type Y; it should not be parameterized with arguments <record>\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_049() {
 	this.runNegativeTest(
 		new String[] {
@@ -5818,6 +6057,7 @@ public void testBug564672_049() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_050() {
 	this.runNegativeTest(
 		new String[] {
@@ -5842,6 +6082,7 @@ public void testBug564672_050() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_051() {
 	this.runNegativeTest(
 		new String[] {
@@ -5863,6 +6104,7 @@ public void testBug564672_051() {
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_052() {
 	this.runNegativeTest(
 		new String[] {
@@ -5885,6 +6127,7 @@ public void testBug564672_052() {
 		"record cannot be resolved\n" +
 		"----------\n");
 }
+@Test
 public void testBug564672_053() {
 	this.runNegativeTest(
 		new String[] {
@@ -5913,6 +6156,7 @@ public void testBug564672_053() {
 		"----------\n");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -5932,6 +6176,7 @@ public void testBug564672b_001() {
 		options
 	);
 }
+@Test
 public void testBug564672b_002() {
 	this.runNegativeTest(
 		new String[] {
@@ -5952,6 +6197,7 @@ public void testBug564672b_002() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_003() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -5971,6 +6217,7 @@ public void testBug564672b_003() {
 		options
 	);
 }
+@Test
 public void testBug564672b_004() {
 	this.runNegativeTest(
 		new String[] {
@@ -5991,6 +6238,7 @@ public void testBug564672b_004() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_005() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6012,6 +6260,7 @@ public void testBug564672b_005() {
 		options
 	);
 }
+@Test
 public void testBug564672b_006() {
 	this.runNegativeTest(
 		new String[] {
@@ -6034,6 +6283,7 @@ public void testBug564672b_006() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_007() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6055,6 +6305,7 @@ public void testBug564672b_007() {
 		options
 	);
 }
+@Test
 public void testBug564672b_008() {
 	this.runNegativeTest(
 		new String[] {
@@ -6077,6 +6328,7 @@ public void testBug564672b_008() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_009() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6098,6 +6350,7 @@ public void testBug564672b_009() {
 		options
 	);
 }
+@Test
 public void testBug564672b_010() {
 	this.runNegativeTest(
 		new String[] {
@@ -6120,6 +6373,7 @@ public void testBug564672b_010() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_011() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6141,6 +6395,7 @@ public void testBug564672b_011() {
 		options
 	);
 }
+@Test
 public void testBug564672b_012() {
 	this.runNegativeTest(
 		new String[] {
@@ -6163,6 +6418,7 @@ public void testBug564672b_012() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_013() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6186,6 +6442,7 @@ public void testBug564672b_013() {
 		options
 	);
 }
+@Test
 public void testBug564672b_014() {
 	this.runNegativeTest(
 		new String[] {
@@ -6205,6 +6462,7 @@ public void testBug564672b_014() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6228,6 +6486,7 @@ public void testBug564672b_015() {
 		options
 	);
 }
+@Test
 public void testBug564672b_016() {
 	this.runNegativeTest(
 		new String[] {
@@ -6247,6 +6506,7 @@ public void testBug564672b_016() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_017() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6270,6 +6530,7 @@ public void testBug564672b_017() {
 		options
 	);
 }
+@Test
 public void testBug564672b_018() {
 	this.runNegativeTest(
 		new String[] {
@@ -6288,6 +6549,7 @@ public void testBug564672b_018() {
 		null,
 		true);
 }
+@Test
 public void testBug564672b_019() {
 	this.runNegativeTest(
 		new String[] {
@@ -6327,6 +6589,7 @@ public void testBug564672b_019() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_020() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6353,6 +6616,7 @@ public void testBug564672b_020() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_021() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6377,6 +6641,7 @@ public void testBug564672b_021() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6404,6 +6669,7 @@ public void testBug564672b_022() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_023() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6427,6 +6693,7 @@ public void testBug564672b_023() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_024() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6456,6 +6723,7 @@ public void testBug564672b_024() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_025() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6478,6 +6746,7 @@ public void testBug564672b_025() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_026() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6500,6 +6769,7 @@ public void testBug564672b_026() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_027() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6521,6 +6791,7 @@ public void testBug564672b_027() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_028() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6549,6 +6820,7 @@ public void testBug564672b_028() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_029() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6573,6 +6845,7 @@ public void testBug564672b_029() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_030() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6595,6 +6868,7 @@ public void testBug564672b_030() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_031() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6617,6 +6891,7 @@ public void testBug564672b_031() {
 		options
 	);
 }
+@Test
 public void testBug564672b_032() {
 	this.runConformTest(
 			new String[] {
@@ -6636,6 +6911,7 @@ public void testBug564672b_032() {
 			"Hello, World!");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_033() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6660,6 +6936,7 @@ public void testBug564672b_033() {
 		options
 	);
 }
+@Test
 public void testBug564672b_034() {
 	this.runConformTest(
 		new String[] {
@@ -6675,6 +6952,7 @@ public void testBug564672b_034() {
 		"0");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_035() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6717,6 +6995,7 @@ public void testBug564672b_035() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_036() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6758,6 +7037,7 @@ public void testBug564672b_036() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_037() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6789,6 +7069,7 @@ public void testBug564672b_037() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_038() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6815,6 +7096,7 @@ public void testBug564672b_038() {
 		options
 	);
 }
+@Test
 public void testBug564672b_039() {
 	this.runNegativeTest(
 		new String[] {
@@ -6842,6 +7124,7 @@ public void testBug564672b_039() {
 		true);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_040() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6869,6 +7152,7 @@ public void testBug564672b_040() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_041() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6898,6 +7182,7 @@ public void testBug564672b_041() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_042() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6924,6 +7209,7 @@ public void testBug564672b_042() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_043() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6950,6 +7236,7 @@ public void testBug564672b_043() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_044() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -6983,6 +7270,7 @@ public void testBug564672b_044() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_045() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -7012,6 +7300,7 @@ public void testBug564672b_045() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_046() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -7033,6 +7322,7 @@ public void testBug564672b_046() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_047() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -7065,6 +7355,7 @@ public void testBug564672b_047() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_048() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -7096,6 +7387,7 @@ public void testBug564672b_048() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testBug564672b_049() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
@@ -7126,6 +7418,7 @@ public void testBug564672b_049() {
 		options
 	);
 }
+@Test
 public void testBug565388_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	this.runNegativeTest(
@@ -7142,6 +7435,7 @@ public void testBug565388_001() {
 		null,
 		true);
 }
+@Test
 public void testBug565388_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	this.runNegativeTest(
@@ -7158,6 +7452,7 @@ public void testBug565388_002() {
 		null,
 		true);
 }
+@Test
 public void testBug565786_001() throws IOException, ClassFormatException {
 	runConformTest(
 		new String[] {
@@ -7180,6 +7475,7 @@ public void testBug565786_001() throws IOException, ClassFormatException {
 }
 // Test that without an explicit canonical constructor, we
 // report the warning on the record type.
+@Test
 public void testBug563182_01() {
 	Map<String, String> customOptions = getCompilerOptions();
 	this.runNegativeTest(
@@ -7204,6 +7500,7 @@ public void testBug563182_01() {
 }
 //Test that in presence of an explicit canonical constructor that is NOT annotated with @SafeVarargs,
 // we don't report the warning on the record type but report on the explicit canonical constructor
+@Test
 public void testBug563182_02() {
 	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
@@ -7232,6 +7529,7 @@ public void testBug563182_02() {
 }
 //Test that in presence of an explicit canonical constructor that IS annotated with @SafeVarargs,
 //we don't report the warning on neither the record type nor the explicit canonical constructor
+@Test
 public void testBug563182_03() {
 	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
@@ -7256,6 +7554,7 @@ public void testBug563182_03() {
 }
 //Test that in presence of a compact canonical constructor that is NOT annotated with @SafeVarargs,
 //we don't report the warning on the compact canonical constructor but report on the record type
+@Test
 public void testBug563182_04() {
 	Map<String, String> customOptions = getCompilerOptions();
 	this.runNegativeTest(
@@ -7282,6 +7581,7 @@ public void testBug563182_04() {
 }
 //Test that in presence of a compact canonical constructor that IS annotated with @SafeVarargs,
 //we don't report the warning on neither the record type nor the compact canonical constructor
+@Test
 public void testBug563182_05() {
 	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
@@ -7305,6 +7605,7 @@ public void testBug563182_05() {
 }
 //Test that in presence of a non-canonical constructor that is annotated with @SafeVarargs,
 //we don't report the warning on the non-canonical constructor but report on the record type
+@Test
 public void testBug563182_06() {
 	Map<String, String> customOptions = getCompilerOptions();
 	this.runNegativeTest(
@@ -7333,6 +7634,7 @@ public void testBug563182_06() {
 }
 //Test that in presence of a non-canonical constructor that is NOT annotated with @SafeVarargs,
 //we don't report the warning on the non-canonical constructor but report on the record type
+@Test
 public void testBug563182_07() {
 	Map<String, String> customOptions = getCompilerOptions();
 	this.runNegativeTest(
@@ -7363,6 +7665,7 @@ public void testBug563182_07() {
 		new String[] {"--enable-preview"},
 		customOptions);
 }
+	@Test
 	public void testBug563186_01() {
 		runConformTest(
 				new String[] {
@@ -7381,6 +7684,7 @@ public void testBug563182_07() {
 				},
 			 "0");
 	}
+	@Test
 	public void testBug563186_02() {
 		runConformTest(
 				new String[] {
@@ -7398,6 +7702,7 @@ public void testBug563182_07() {
 				},
 			 "0");
 	}
+	@Test
 	public void testBug563186_03() {
 		runNegativeTest(
 				new String[] {
@@ -7428,6 +7733,7 @@ public void testBug563182_07() {
 				null,
 				true);
 	}
+	@Test
 	public void testBug563186_04() {
 		runConformTest(
 				new String[] {
@@ -7445,6 +7751,7 @@ public void testBug563182_07() {
 				},
 			 "0");
 	}
+	@Test
 	public void testBug565732_01() {
 		runNegativeTest(
 				new String[] {
@@ -7461,6 +7768,7 @@ public void testBug563182_07() {
 				null,
 				true);
 	}
+	@Test
 	public void testBug565732_02() {
 		runNegativeTest(
 				new String[] {
@@ -7479,6 +7787,7 @@ public void testBug563182_07() {
 	}
 	// Test that a record without any record components was indeed compiled
 	// to be a record at runtime
+	@Test
 	public void testBug565732_03() {
 		runConformTest(
 				new String[] {
@@ -7493,6 +7802,7 @@ public void testBug563182_07() {
 	}
 	// Test that a record without any record components was indeed compiled
 	// to be a record at runtime
+	@Test
 	public void testBug565732_04() {
 		runConformTest(
 				new String[] {
@@ -7506,6 +7816,7 @@ public void testBug563182_07() {
 			 "java.lang.Record");
 	}
 	// Test that a "record" can be used as a method name and invoked inside a record
+	@Test
 	public void testBug565732_05() {
 		runConformTest(
 				new String[] {
@@ -7522,6 +7833,7 @@ public void testBug563182_07() {
 			 "record()");
 	}
 	// Test that a "record" can be used as a label and invoked inside a record
+	@Test
 	public void testBug565732_06() {
 		runConformTest(
 				new String[] {
@@ -7541,6 +7853,7 @@ public void testBug563182_07() {
 				},
 			 "record:");
 	}
+	@Test
 	public void testBug565732_07() {
 		runNegativeTest(
 				new String[] {
@@ -7558,6 +7871,7 @@ public void testBug563182_07() {
 				null,
 				true);
 	}
+	@Test
 	public void testBug565732_08() {
 		runConformTest(
 				new String[] {
@@ -7571,6 +7885,7 @@ public void testBug563182_07() {
 				},
 			 "java.lang.Record");
 	}
+	@Test
 	public void testBug565830_01() {
 		runConformTest(
 		new String[] {
@@ -7595,6 +7910,7 @@ public void testBug563182_07() {
 		},
 		"private final int X$1Bar.x");
 	}
+@Test
 public void testBug566063_001() {
 	runConformTest(
 			new String[] {
@@ -7617,6 +7933,7 @@ public void testBug566063_001() {
 			},
 			"ONE");
 }
+@Test
 public void testBug566063_002() {
 	runNegativeTest(
 			new String[] {
@@ -7646,6 +7963,7 @@ public void testBug566063_002() {
 			null,
 			true);
 }
+@Test
 public void testBug566063_003() {
 	runNegativeTest(
 			new String[] {
@@ -7685,6 +8003,7 @@ public void testBug566063_003() {
 			null,
 			true);
 }
+@Test
 public void testBug566063_004() {
 	this.runConformTest(
 			new String[] {
@@ -7708,6 +8027,7 @@ public void testBug566063_004() {
 				"ONE");
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@Test
 public void testBug566418_001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -7744,6 +8064,7 @@ public void testBug566418_001() {
 		options
 	);
 }
+@Test
 public void testBug565787_01() {
 	runConformTest(
 		new String[] {
@@ -7761,6 +8082,7 @@ public void testBug565787_01() {
 		},
 		"");
 }
+@Test
 public void testBug566554_01() {
 	runConformTest(
 		new String[] {
@@ -7782,6 +8104,7 @@ public void testBug566554_01() {
 		},
 		"0");
 }
+@Test
 public void testBug566554_02() {
 	runConformTest(
 		new String[] {
@@ -7806,6 +8129,7 @@ public void testBug566554_02() {
 		},
 		"0");
 }
+@Test
 public void testBug566554_03() {
 	runConformTest(
 		new String[] {
@@ -7830,6 +8154,7 @@ public void testBug566554_03() {
 		},
 		"Margin[left=0]");
 }
+@Test
 public void testBug566554_04() {
 	runNegativeTest(
 		new String[] {
@@ -7856,6 +8181,7 @@ public void testBug566554_04() {
 		"Type mismatch: cannot convert from Margin to int\n" +
 		"----------\n");
 }
+@Test
 public void testBug567731_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
 		return;
@@ -7883,6 +8209,7 @@ public void testBug567731_001() {
 		null,
 		true);
 }
+@Test
 public void testBug567731_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
 		return;
@@ -7910,6 +8237,7 @@ public void testBug567731_002() {
 		null,
 		true);
 }
+@Test
 public void testBug566846_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK24)
 		return;
@@ -7939,6 +8267,7 @@ public void testBug566846_1() {
 			null,
 			true);
 }
+@Test
 public void testBug566846_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK24)
 		return;
@@ -7970,6 +8299,7 @@ public void testBug566846_2() {
 			null,
 			true);
 }
+@Test
 public void testBug561199_001() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.ERROR);
@@ -7991,6 +8321,7 @@ public void testBug561199_001() {
 			new String[] {"--enable-preview"},
 			options);
 }
+@Test
 public void testBug568922_001() {
 	runNegativeTest(
 			new String[] {
@@ -8016,6 +8347,7 @@ public void testBug568922_001() {
 			null,
 			true);
 }
+@Test
 public void testBug568922_002() {
 	runConformTest(
 		new String[] {
@@ -8033,6 +8365,7 @@ public void testBug568922_002() {
 		},
 		"helo");
 }
+@Test
 public void testBug570243_001() {
 	runConformTest(
 		new String[] {
@@ -8052,6 +8385,7 @@ public void testBug570243_001() {
 		},
 		"int myCompOne");
 }
+@Test
 public void testBug570243_002() {
 	runConformTest(
 		new String[] {
@@ -8073,6 +8407,7 @@ public void testBug570243_002() {
 		"int myCompOne\n"+
 		"char myCompChar");
 }
+@Test
 public void testBug570243_003() {
 	runConformTest(
 		new String[] {
@@ -8094,6 +8429,7 @@ public void testBug570243_003() {
 		"int myCompOne\n"+
 		"char[] myCompChar");
 }
+@Test
 public void testBug570230_001() {
 	runNegativeTest(
 			new String[] {
@@ -8107,6 +8443,7 @@ public void testBug570230_001() {
 			"Extended dimensions are illegal for a record component\n" +
 			"----------\n");
 }
+@Test
 public void testBug571015_001() {
 	runNegativeTest(
 			new String[] {
@@ -8128,6 +8465,7 @@ public void testBug571015_001() {
 			"T cannot be resolved to a type\n" +
 			"----------\n");
 }
+@Test
 public void testBug571015_002() {
 	runNegativeTest(
 			new String[] {
@@ -8150,6 +8488,7 @@ public void testBug571015_002() {
 			"Type safety: Potential heap pollution via varargs parameter t\n" +
 			"----------\n");
 }
+@Test
 public void testBug571038_1() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8173,6 +8512,7 @@ public void testBug571038_1() throws Exception {
 			+ "  public MyIntf[] t();\n";
 	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug571038_2() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8197,6 +8537,7 @@ public void testBug571038_2() throws Exception {
 			+ "  public MyIntf[] t();\n";
 	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug571038_3() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8224,6 +8565,7 @@ public void testBug571038_3() throws Exception {
 			+ "  public MyIntf[] t();\n";
 	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug571038_4() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8252,6 +8594,7 @@ public void testBug571038_4() throws Exception {
 			+ "  public MyIntf[] t();\n";
 	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug571454() {
 	this.runNegativeTest(
 			new String[] {
@@ -8278,6 +8621,7 @@ public void testBug571454() {
 	        + "The body of a compact constructor must not contain an explicit constructor call\n"
 	        + "----------\n");
 }
+@Test
 public void testBug570399_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8299,6 +8643,7 @@ public void testBug570399_001() throws Exception {
 		},
 	 "Hi5");
 }
+@Test
 public void testBug570399_002() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8315,6 +8660,7 @@ public void testBug570399_002() throws Exception {
 		},
 	 "Hi5");
 }
+@Test
 public void testBug571141_1() {
 	runConformTest(new String[] { "X.java",
 			"public class X {\n" +
@@ -8329,6 +8675,7 @@ public void testBug571141_1() {
 			"}" },
 		"helo");
 }
+@Test
 public void testBug571141_2() {
 	runConformTest(new String[] { "X.java",
 			"public class X {\n" +
@@ -8346,6 +8693,7 @@ public void testBug571141_2() {
 			"}" },
 		"helo");
 }
+@Test
 public void testBug571141_3() throws IOException, ClassFormatException {
 	runConformTest(new String[] { "X.java",
 			"public class X {\n" +
@@ -8369,6 +8717,7 @@ public void testBug571141_3() throws IOException, ClassFormatException {
 	String rFile = getClassFileContents("MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 	verifyOutputNegative(rFile, unExpectedOutput);
 }
+@Test
 public void testBugLazyCanon_001() throws IOException, ClassFormatException {
 	runConformTest(new String[] { "X.java",
 			"record X(int xyz, int y2k) {\n"+
@@ -8383,6 +8732,7 @@ public void testBugLazyCanon_001() throws IOException, ClassFormatException {
 	},
 		"33");
 }
+@Test
 public void testBugLazyCanon_002() throws IOException, ClassFormatException {
 	runConformTest(new String[] { "X.java",
 			"record X(int xyz, int y2k) {\n"+
@@ -8393,6 +8743,7 @@ public void testBugLazyCanon_002() throws IOException, ClassFormatException {
 	},
 		"33");
 }
+@Test
 public void testBugLazyCanon_003() throws IOException, ClassFormatException {
 	runConformTest(new String[] { "X.java",
 			"class X {\n"+
@@ -8409,6 +8760,7 @@ public void testBugLazyCanon_003() throws IOException, ClassFormatException {
 	},
 	"33");
 }
+@Test
 public void testBugLazyCanon_004() throws IOException, ClassFormatException {
 	runConformTest(new String[] {
 			"X.java",
@@ -8421,6 +8773,7 @@ public void testBugLazyCanon_004() throws IOException, ClassFormatException {
 	},
 	"100");
 }
+@Test
 public void testBugLazyCanon_005() throws IOException, ClassFormatException {
 	runConformTest(new String[] {
 			"X.java",
@@ -8436,6 +8789,7 @@ public void testBugLazyCanon_005() throws IOException, ClassFormatException {
 	},
 	"100");
 }
+@Test
 public void testBugLazyCanon_006() throws IOException, ClassFormatException {
 	runConformTest(new String[] {
 			"X.java",
@@ -8452,6 +8806,7 @@ public void testBugLazyCanon_006() throws IOException, ClassFormatException {
 	"100");
 }
 // Disabled waiting for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3347
+@Test
 public void testBug571765_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK24)
 		return;
@@ -8479,6 +8834,7 @@ public void testBug571765_001() {
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n");
 }
+@Test
 public void testBug571905_01() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8528,6 +8884,7 @@ public void testBug571905_01() throws Exception {
 			"      )\n" ;
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug571905_02() throws Exception {
 	runConformTest(
 		new String[] {
@@ -8577,6 +8934,7 @@ public void testBug571905_02() throws Exception {
 			"      )\n" ;
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug572204_001() {
 	runNegativeTest(
 			new String[] {
@@ -8590,6 +8948,7 @@ public void testBug572204_001() {
 				"@SafeVarargs annotation cannot be applied to record component without explicit accessor method s\n" +
 				"----------\n");
 }
+@Test
 public void testBug572204_002() {
 	runConformTest(
 			new String[] {
@@ -8605,6 +8964,7 @@ public void testBug572204_002() {
 				},
 				"helo");
 }
+@Test
 public void testBug572204_003() {
 	runNegativeTest(
 			new String[] {
@@ -8630,6 +8990,7 @@ public void testBug572204_003() {
 				"The annotation @SafeVarargs is disallowed for this location\n" +
 				"----------\n");
 }
+@Test
 public void testBug572204_004() {
 	runNegativeTest(
 			new String[] {
@@ -8653,6 +9014,7 @@ public void testBug572204_004() {
 			"The annotation @SafeVarargs is disallowed for this location\n" +
 			"----------\n");
 }
+@Test
 public void testBug572204_005() {
 	runNegativeTest(
 			new String[] {
@@ -8671,6 +9033,7 @@ public void testBug572204_005() {
 				"@SafeVarargs annotation cannot be applied to record component without explicit accessor method s\n" +
 				"----------\n");
 }
+@Test
 public void testBug572204_006() {
 	runConformTest(
 			new String[] {
@@ -8690,6 +9053,7 @@ public void testBug572204_006() {
 				},
 			"helo");
 }
+@Test
 public void testBug572204_007() throws Exception {
 	runConformTest(
 			new String[] {
@@ -8737,6 +9101,7 @@ public void testBug572204_007() throws Exception {
 			"        [pc: 0, line: 5]\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@Test
 public void testBug572934_001() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
@@ -8761,6 +9126,7 @@ public void testBug572934_001() {
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
 }
+@Test
 public void testBug572934_002() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
@@ -8790,6 +9156,7 @@ public void testBug572934_002() {
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
 }
+@Test
 public void testBug572934_003() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
@@ -8819,6 +9186,7 @@ public void testBug572934_003() {
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
 }
+@Test
 public void testBug573195_001() throws Exception {
 	getPossibleComplianceLevels();
 	runConformTest(
@@ -8850,6 +9218,7 @@ public void testBug573195_001() throws Exception {
 	verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 
+@Test
 public void testBug574284_001() throws Exception {
 	getPossibleComplianceLevels();
 	runConformTest(
@@ -8887,6 +9256,7 @@ public void testBug574284_001() throws Exception {
 	verifyClassFile(expectedOutput, "X$Rec.class", ClassFileBytesDisassembler.SYSTEM);
 
 }
+@Test
 public void testBug574284_002() {
 	runConformTest(
 			new String[] {
@@ -8906,6 +9276,7 @@ public void testBug574284_002() {
 		"0");
 }
 
+@Test
 public void testBug574282_001() {
 	runConformTest(
 			new String[] {
@@ -8929,6 +9300,7 @@ public void testBug574282_001() {
 			},
 		"0");
 }
+@Test
 public void testBug576519_001() {
 	this.runNegativeTest(
 		new String[] {
@@ -8948,6 +9320,7 @@ public void testBug576519_001() {
 		"The record Point cannot be the superclass of X; a record is final and cannot be extended\n" +
 		"----------\n");
 }
+@Test
 public void testBug577251_001() {
 	this.runNegativeTest(
 		new String[] {
@@ -8972,6 +9345,7 @@ public void testBug577251_001() {
 		"----------\n");
 }
 
+@Test
 public void testBug576806_001() { // behavior amended for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3316
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
@@ -9004,6 +9378,7 @@ public void testBug576806_001() { // behavior amended for https://github.com/ecl
 		options);
 }
 
+@Test
 public void testIssue365_001() throws Exception {
 	getPossibleComplianceLevels();
 	runConformTest(
@@ -9046,6 +9421,7 @@ public void testIssue365_001() throws Exception {
  * }
  * </pre>
  */
+@Test
 public void testRecordConstructorWithExceptionGh487() throws Exception {
 	getPossibleComplianceLevels();
 	runConformTest(
@@ -9092,6 +9468,7 @@ public void testRecordConstructorWithExceptionGh487() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1092
 // Duplicate Annotation Error for Records
+@Test
 public void testGH1092() throws Exception {
 	runConformTest(
 			new String[] {
@@ -9210,6 +9587,7 @@ public void testGH1092() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576719
 // Useless warning in compact constructor of a record
+@Test
 public void testBug576719() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -9244,6 +9622,7 @@ public void testBug576719() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void testGH1258() {
 	runConformTest(
 		new String[] {
@@ -9262,6 +9641,7 @@ public void testGH1258() {
 			}
 			"""});
 }
+@Test
 public void testIssue1218_001() {
 	runNegativeTest(
 			new String[] {
@@ -9283,6 +9663,7 @@ public void testIssue1218_001() {
 			"----------\n");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testIssue1641_001() {
 	if (!isJRE17Plus)
 		return;
@@ -9323,6 +9704,7 @@ public void testIssue1641_001() {
 
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testIssue1641_002() {
 	if (!isJRE17Plus)
 		return;
@@ -9359,6 +9741,7 @@ public void testIssue1641_002() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testIssue1641_003() {
 	if (!isJRE17Plus)
 		return;
@@ -9396,6 +9779,7 @@ public void testIssue1641_003() {
 	);
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Test
 public void testIssue1641_004() {
 	if (!isJRE17Plus)
 		return;
@@ -9432,6 +9816,7 @@ public void testIssue1641_004() {
 	);
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@Test
 public void testIssue1641_005() {
 	if (!isJRE17Plus)
 		return;
@@ -9466,6 +9851,7 @@ public void testIssue1641_005() {
 	);
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@Test
 public void testIssue1641_006() {
 	if (!isJRE17Plus)
 		return;
@@ -9512,6 +9898,7 @@ public void testIssue1641_006() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1806
 // Parameters of compact canonical constructor are not marked as mandated
+@Test
 public void testGH1806() {
 	runConformTest(
 			new String[] {
@@ -9535,6 +9922,7 @@ public void testGH1806() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1939
 // [records] Class MethodBinding has a NullPointerException
+@Test
 public void testGH1939() {
 	runConformTest(
 			new String[] {
@@ -9560,6 +9948,7 @@ public void testGH1939() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3745
 // [Records] ClassCastException when saving a file with a record syntax error
+@Test
 public void testIssue3745() {
 	runNegativeTest(
 			new String[] {
@@ -9580,6 +9969,7 @@ public void testIssue3745() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3745
 // Records] ClassCastException when saving a file with a record syntax error
+@Test
 public void testIssue3745_full() {
 	runNegativeTest(
 			new String[] {
@@ -9617,6 +10007,7 @@ public void testIssue3745_full() {
 			"Syntax error on token \",\", SingleVariableDeclarator expected after this token\n" +
 			"----------\n");
 }
+@Test
 public void testBug3504_1() {
 	runNegativeTest(
 			new String[] {
@@ -9643,6 +10034,7 @@ public void testBug3504_1() {
 			"----------\n");
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3675
+@Test
 public void testPR3675() {
 	runNegativeTest(
 			new String[] {
@@ -9662,6 +10054,7 @@ public void testPR3675() {
 			"----------\n");
 }
 
+@Test
 public void testPR3675_2() {
 	runNegativeTest(
 			new String[] {
@@ -9681,6 +10074,7 @@ public void testPR3675_2() {
 			"----------\n");
 }
 
+@Test
 public void testGH3891() {
 	runNegativeTest(new String[] {
 		"Test.java",
@@ -9701,6 +10095,7 @@ public void testGH3891() {
 		----------
 		""");
 }
+@Test
 public void testGH3891_preview() {
 	if (this.complianceLevel < ClassFileConstants.JDK27) return;
 	Runner runner = new Runner();
@@ -9729,6 +10124,7 @@ public void testGH3891_preview() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3904
 // Unused parameters warning reported for record components
+@Test
 public void testIssue3904() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
@@ -9775,6 +10171,7 @@ public void testIssue3904() {
 		options
 	);
 }
+@Test
 public void testAnnotationsOnConstructor() {
 	runConformTest(
 			new String[] {
@@ -9820,6 +10217,7 @@ public void testAnnotationsOnConstructor() {
 			},
 		"Parameter x: Found Parameter annotation");
 }
+@Test
 public void testAnnotationsOnConstructor_2() {
 	runConformTest(
 			new String[] {
@@ -9868,6 +10266,7 @@ public void testAnnotationsOnConstructor_2() {
 			},
 		"Parameter x: Found Parameter annotation");
 }
+@Test
 public void testAnnotationsOnConstructor_3() {
 	runConformTest(
 			new String[] {
@@ -9917,6 +10316,7 @@ public void testAnnotationsOnConstructor_3() {
 			},
 		"Parameter x:  No Annotations!");
 }
+@Test
 public void testAnnotationsOnConstructor_4() {
 	runConformTest(
 			new String[] {
@@ -9968,6 +10368,7 @@ public void testAnnotationsOnConstructor_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3664
 // [Records] ECJ diagnostics are totally off-key when a records declares multiple compact constructors
+@Test
 public void testIssue3664() {
 	this.runNegativeTest(
 	new String[] {
@@ -10000,6 +10401,7 @@ public void testIssue3664() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3662
 // [Records] ECJ issues errors about methods generated by it
+@Test
 public void testIssue3662() {
 	this.runNegativeTest(
 	new String[] {
@@ -10019,6 +10421,7 @@ public void testIssue3662() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3927
 // I-Build failure with PR https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3896 integrated in
+@Test
 public void testIssue3927() {
 	runConformTest(
 			new String[] {
@@ -10059,6 +10462,7 @@ public void testIssue3927() {
 			},
 		"Ok!");
 }
+@Test
 public void testIssue3927_2() {
 	runConformTest(
 			new String[] {
@@ -10097,6 +10501,7 @@ public void testIssue3927_2() {
 			},
 		"Ok!");
 }
+@Test
 public void testIssue3927_3() {
 	runNegativeTest(
 			new String[] {
@@ -10145,6 +10550,7 @@ public void testIssue3927_3() {
 			"Cannot infer type arguments for ElementAtZoom<>\n" +
 			"----------\n");
 }
+@Test
 public void testSafeVarargs() {
 	runNegativeTest(
 			new String[] {
@@ -10177,6 +10583,7 @@ public void testSafeVarargs() {
 			"Ok!");
 
 }
+@Test
 public void testUnderscoreName() {
 	if (this.complianceLevel < ClassFileConstants.JDK21)
 		return;
@@ -10204,6 +10611,7 @@ public void testUnderscoreName() {
 						"As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters\n" +
 						"----------\n");
 }
+@Test
 public void testCompactConstuctorTypeAnnotations() {
 	runConformTest(
 			new String[] {
@@ -10249,6 +10657,7 @@ public void testCompactConstuctorTypeAnnotations() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3951
 // [Records] Generic signature is not preserved for compact constructors by PR #3928
+@Test
 public void testIssue3951() throws Exception {
 	runConformTest(
 		new String[] {
@@ -10294,6 +10703,7 @@ public void testIssue3951() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3957
 // [Records] Missing @Override annotation on component accessors not complained about by ECJ
+@Test
 public void testIssue3957() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
@@ -10323,6 +10733,7 @@ public void testIssue3957() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3663
 // [Records] ECJ compiles arity mismatched canonical constructor
+@Test
 public void testIssue3663() {
 	this.runNegativeTest(
  		new String[] {
@@ -10368,6 +10779,7 @@ public void testIssue3663() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
 // [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+@Test
 public void testIssue4015() {
 	this.runConformTest(
 		new String[] {
@@ -10406,6 +10818,7 @@ public void testIssue4015() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
 // [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+@Test
 public void testIssue4015_2() {
 	// test again with static enclosing method
 	this.runConformTest(
@@ -10444,6 +10857,7 @@ public void testIssue4015_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
 // [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+@Test
 public void testIssue4015_3() {
 	this.runConformTest(
 			new String[] {
@@ -10478,6 +10892,7 @@ public void testIssue4015_3() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
 // [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+@Test
 public void testIssue4015_4() {
 	// test again with static enclosing method
 	this.runConformTest(
@@ -10512,6 +10927,7 @@ public void testIssue4015_4() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4025
 // [Records] Record component by name equals with an explicit accessor leads to ClassFormatError
+@Test
 public void testIssue4025() {
 	this.runConformTest(
 		new String[] {
@@ -10533,6 +10949,7 @@ public void testIssue4025() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4094
 // Error on Eclipse 4.36 when compiling Record with field usage
+@Test
 public void testIssue4094() {
 	this.runConformTest(
 		new String[] {
@@ -10574,6 +10991,7 @@ public void testIssue4094() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4106
 // @Override-annotation on records not correctly handled by Eclipse 4.36
+@Test
 public void testIssue4106() {
 	Map<String, String> customOptions = getCompilerOptions();
 	customOptions.put(
@@ -10610,6 +11028,7 @@ public void testIssue4106() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4118
 // Record with compact ctor - Internal compiler error: java.lang.RuntimeException: Internal Error compiling
+@Test
 public void testIssue4118() {
 	this.runConformTest(
 		new String[] {
@@ -10636,6 +11055,7 @@ public void testIssue4118() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4070
 // Resource closure analysis triggers NPE with compact constructors
+@Test
 public void testIssue4070() {
 	this.runConformTest(
 		new String[] {
@@ -10664,6 +11084,7 @@ public void testIssue4070() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
 // Unable to build Record
+@Test
 public void testIssue4146() {
 	this.runNegativeTest(
 		new String[] {
@@ -10711,6 +11132,7 @@ public void testIssue4146() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
 // Unable to build Record
+@Test
 public void testIssue4146_2() {
 	this.runNegativeTest(
 		new String[] {
@@ -10758,6 +11180,7 @@ public void testIssue4146_2() {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
 // Unable to build Record
+@Test
 public void testIssue4146_3() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -10921,6 +11344,7 @@ public void testIssue4146_3() throws Exception {
 	verifyClassFile(expectedOutput, "Segment.class", ClassFileBytesDisassembler.SYSTEM);
 
 }
+@Test
 public void testIssue4290() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -10943,6 +11367,7 @@ public void testIssue4290() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4412
 // Internal Compile error problem since 2025-09
+@Test
 public void testIssue4412() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -10980,6 +11405,7 @@ public void testIssue4412() throws Exception {
 				"OK!");
 
 }
+@Test
 public void testDeprecation_type() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -11009,6 +11435,7 @@ public void testDeprecation_type() {
 		""";
 	runner.runWarningTest();
 }
+@Test
 public void testDeprecation_altCtor() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -11044,6 +11471,7 @@ public void testDeprecation_altCtor() {
 		""";
 	runner.runWarningTest();
 }
+@Test
 public void testDeprecation_compactCtor() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -11079,6 +11507,7 @@ public void testDeprecation_compactCtor() {
 		""";
 	runner.runWarningTest();
 }
+@Test
 public void testDeprecation_accessor() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -11112,6 +11541,7 @@ public void testDeprecation_accessor() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4551
 // ECJ fails on Record used within Enum in Annotation
+@Test
 public void testIssue4551() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -11151,6 +11581,7 @@ public void testIssue4551() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4551
 // ECJ fails on Record used within Enum in Annotation
+@Test
 public void testIssue4551_2() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -11248,6 +11679,7 @@ public void testIssue4551_2() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4616
 // NPE because annotation.resolvedType is null
+@Test
 public void testIssue4616() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -11285,6 +11717,7 @@ public void testIssue4616() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4616
 // NPE because annotation.resolvedType is null
+@Test
 public void testIssue4616_fuller() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -11612,6 +12045,7 @@ public void testIssue4616_fuller() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4622
 // Inconsistent classfile encountered on annotated generic types
+@Test
 public void testIssue4622() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -11690,6 +12124,7 @@ public void testIssue4622() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4749
 // ECJ erroneously allows a local record class to access its outer local variable and crashes while generating code
+@Test
 public void testIssue4749() throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -11808,6 +12243,7 @@ public void testIssue4749() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4835
 // Constant referenced in annotation is not recognized as a constant value
+@Test
 public void testIssue4835() throws Exception {
 	this.runConformTest(
 		new String[] {

@@ -18,7 +18,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -26,6 +25,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ResourceLeakTests extends AbstractRegressionTest {
@@ -80,13 +81,9 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public ResourceLeakTests(String name) {
-	super(name);
+public ResourceLeakTests(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(ResourceLeakTests.class);
-}
-
 void runTestsExpectingErrorsOnlyIn17(String[] testFiles, String errorsIn17, Map options) {
 	runLeakTest(testFiles, errorsIn17, options);
 }
@@ -121,6 +118,7 @@ protected String fieldDeclPrefix() {
 
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable without ever closing it.
+@Test
 public void test056() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -154,6 +152,7 @@ public void test056() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable and closes it but not protected by t-w-r nor regular try-finally
+@Test
 public void test056a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -185,6 +184,7 @@ public void test056a() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable and closes it properly in a finally block
+@Test
 public void test056b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -224,6 +224,7 @@ public void test056b() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable properly within try-with-resources.
+@Test
 public void test056c() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -262,6 +263,7 @@ public void test056c() {
 // a method uses two AutoCloseables (testing independent analysis)
 //- one closeable may be unclosed at a conditional return
 //- the other is only conditionally closed
+@Test
 public void test056d() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -310,6 +312,7 @@ public void test056d() {
 // a method uses two AutoCloseables (testing independent analysis)
 //- one closeable may be unclosed at a conditional return
 //- the other is only conditionally closed
+@Test
 public void test056d_suppress() {
 	Map options = getCompilerOptions();
 	enableAllWarningsForIrritants(options, IrritantSet.RESOURCE);
@@ -366,6 +369,7 @@ public void test056d_suppress() {
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // one method returns an AutoCleasble, a second method uses this object without ever closing it.
+@Test
 public void test056e() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -405,6 +409,7 @@ protected String getTest056e_log() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method explicitly closes its AutoCloseable rather than using t-w-r
+@Test
 public void test056f() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -440,6 +445,7 @@ public void test056f() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // an AutoCloseable local is re-assigned
+@Test
 public void test056g() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -477,6 +483,7 @@ public void test056g() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // an AutoCloseable local is re-assigned after null-assigned
+@Test
 public void test056g2() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -514,6 +521,7 @@ public void test056g2() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // two AutoCloseables at different nesting levels (anonymous local type)
+@Test
 public void test056h() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -559,6 +567,7 @@ public void test056h() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // three AutoCloseables in different blocks of the same method
+@Test
 public void test056i() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -608,6 +617,7 @@ public void test056i() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // three AutoCloseables in different blocks of the same method - problems ignored
+@Test
 public void test056i_ignore() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.IGNORE);
@@ -648,6 +658,7 @@ public void test056i_ignore() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // three AutoCloseables in different blocks of the same method
+@Test
 public void test056i2() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -693,6 +704,7 @@ public void test056i2() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable without closing it locally but passing as arg to another method
+@Test
 public void test056j() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -725,6 +737,7 @@ public void test056j() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable without closing it locally but passing as arg to another method
+@Test
 public void test056jconditional() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -761,6 +774,7 @@ public void test056jconditional() {
 // many locals, some are AutoCloseable.
 // Unfortunately analysis cannot respect how exception exits may affect ra3 and rb3,
 // doing so would create false positives.
+@Test
 public void test056k() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -848,6 +862,7 @@ public void test056k() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // various non-problems
+@Test
 public void test056l() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -911,6 +926,7 @@ public void test056l() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // nested try with early exit
+@Test
 public void test056m() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -951,6 +967,7 @@ public void test056m() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // nested try should not interfere with earlier analysis.
+@Test
 public void test056n() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -997,6 +1014,7 @@ public void test056n() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // if close is guarded by null check this should still be recognized as definitely closed
+@Test
 public void test056o() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -1040,6 +1058,7 @@ public void test056o() {
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a method uses an AutoCloseable without ever closing it, type from a type variable
+@Test
 public void test056p() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -1076,6 +1095,7 @@ public void test056p() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // closed in dead code
+@Test
 public void test056q() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1122,6 +1142,7 @@ public void test056q() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // properly closed, dead code in between
+@Test
 public void test056r() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1173,6 +1194,7 @@ public void test056r() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // resource inside t-w-r is re-assigned, shouldn't even record an errorLocation
+@Test
 public void test056s() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1211,6 +1233,7 @@ public void test056s() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // resource is closed, dead code follows
+@Test
 public void test056t() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1248,6 +1271,7 @@ public void test056t() {
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // resource is reassigned within t-w-r with different resource
 // was initially broken due to https://bugs.eclipse.org/358827
+@Test
 public void test056u() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1300,6 +1324,7 @@ public void test056u() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // scope-related pbs reported in https://bugs.eclipse.org/349326#c70 and https://bugs.eclipse.org/349326#c82
+@Test
 public void test056v() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1380,6 +1405,7 @@ public void test056v() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // end of method is dead end, but before we have both a close() and an early return
+@Test
 public void test056w() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1418,6 +1444,7 @@ public void test056w() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // different early exits, if no close seen report as definitely unclosed
+@Test
 public void test056x() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1457,6 +1484,7 @@ public void test056x() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // nested method passes the resource to outside code
+@Test
 public void test056y() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1507,6 +1535,7 @@ protected String getTest056y_log() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // resource assigned to second local and is (potentially) closed on the latter
+@Test
 public void test056z() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1541,6 +1570,7 @@ public void test056z() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // multiple early exists from nested scopes (always closed)
+@Test
 public void test056zz() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1577,6 +1607,7 @@ public void test056zz() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // multiple early exists from nested scopes (never closed)
+@Test
 public void test056zzz() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1612,6 +1643,7 @@ public void test056zzz() {
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
 // explicit throw is a true method exit here
+@Test
 public void test056throw1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1650,6 +1682,7 @@ public void test056throw1() {
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
 // close() within finally provides protection for throw
+@Test
 public void test056throw2() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1716,6 +1749,7 @@ public void test056throw2() {
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
 // close() nested within finally provides protection for throw
+@Test
 public void test056throw3() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1753,6 +1787,7 @@ public void test056throw3() {
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
 // additional boolean should shed doubt on whether we reach the close() call
+@Test
 public void test056throw4() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1795,6 +1830,7 @@ public void test056throw4() {
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
 // similar to test056throw3() but indirectly calling close(), so doubts remain.
+@Test
 public void test056throw5() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -1836,6 +1872,7 @@ public void test056throw5() {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 360908 - Avoid resource leak warning when the underlying/chained resource is closed explicitly
 // a resource wrapper is not closed but the underlying resource is
+@Test
 public void test061a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -1881,6 +1918,7 @@ public void test061a() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a closeable without OS resource is not closed
+@Test
 public void test061b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -1909,6 +1947,7 @@ public void test061b() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a resource wrapper is not closed but the underlying closeable is resource-free
+@Test
 public void test061c() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -1944,6 +1983,7 @@ public void test061c() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a resource wrapper is not closed neither is the underlying resource
+@Test
 public void test061d() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -1993,6 +2033,7 @@ public void test061d() {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 361073 - Avoid resource leak warning when the top level resource is closed explicitly
 // a resource wrapper is closed closing also the underlying resource
+@Test
 public void test061e() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2040,6 +2081,7 @@ public void test061e() {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 361073 - Avoid resource leak warning when the top level resource is closed explicitly
 // a resource wrapper is closed closing also the underlying resource - original test case
+@Test
 public void test061f() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2089,6 +2131,7 @@ public void test061f() throws IOException {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 361073 - Avoid resource leak warning when the top level resource is closed explicitly
 // a resource wrapper is closed closing also the underlying resource - from a real-world example
+@Test
 public void test061f2() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2127,6 +2170,7 @@ public void test061f2() throws IOException {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 361073 - Avoid resource leak warning when the top level resource is closed explicitly
 // a resource wrapper is sent to another method affecting also the underlying resource - from a real-world example
+@Test
 public void test061f3() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2165,6 +2209,7 @@ public void test061f3() throws IOException {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 360908 - Avoid resource leak warning when the underlying/chained resource is closed explicitly
 // Different points in a resource chain are closed
+@Test
 public void test061g() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2213,6 +2258,7 @@ public void test061g() {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // Bug 360908 - Avoid resource leak warning when the underlying/chained resource is closed explicitly
 // Different points in a resource chain are potentially closed
+@Test
 public void test061h() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2270,6 +2316,7 @@ public void test061h() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // local var is re-used for two levels of wrappers
+@Test
 public void test061i() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2319,6 +2366,7 @@ public void test061i() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // self-wrapping a method argument (caused NPE UnconditionalFlowInfo.markAsDefinitelyNull(..)).
+@Test
 public void test061j() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2350,6 +2398,7 @@ public void test061j() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a wrapper is created in a return statement
+@Test
 public void test061k() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2377,6 +2426,7 @@ public void test061k() throws IOException {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a closeable is assigned to a field
+@Test
 public void test061l() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2402,6 +2452,7 @@ public void test061l() throws IOException {
 }
 // Bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
 // a closeable is assigned to a field - constructor vs. method
+@Test
 public void test061l2() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2460,6 +2511,7 @@ protected String getTest061l2_log() {
 
 // Bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
 // a closeable is not assigned to a field - constructor vs. method
+@Test
 public void test061l3() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2505,6 +2557,7 @@ public void test061l3() throws IOException {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a closeable is passed to another method in a return statement
 // example constructed after org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository#getArtifact(..)
+@Test
 public void test061m() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2555,6 +2608,7 @@ public void test061m() throws IOException {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a resource wrapper does not wrap any provided resource
+@Test
 public void test061n() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2581,6 +2635,7 @@ public void test061n() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a resource wrapper is closed only in its local block, underlying resource may leak
+@Test
 public void test061o() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2614,6 +2669,7 @@ public void test061o() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a resource wrapper is conditionally allocated but not closed - from a real-world example
+@Test
 public void test061f4() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2646,6 +2702,7 @@ public void test061f4() throws IOException {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a t-w-r wraps an existing resource
+@Test
 public void test061p() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2705,6 +2762,7 @@ public void _test061q() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // the inner from a wrapper is returned
+@Test
 public void test061r() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2734,6 +2792,7 @@ public void test061r() {
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a wrapper is forgotten, the inner is closed afterwards
+@Test
 public void test061s() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2764,6 +2823,7 @@ public void test061s() {
 }
 // Bug 362331 - Resource leak not detected when closeable not assigned to variable
 // a resource is never assigned
+@Test
 public void test062a() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2790,6 +2850,7 @@ public void test062a() throws IOException {
 }
 // Bug 362331 - Resource leak not detected when closeable not assigned to variable
 // a freshly allocated resource is immediately closed
+@Test
 public void test062b() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2815,6 +2876,7 @@ public void test062b() throws IOException {
 }
 // Bug 362331 - Resource leak not detected when closeable not assigned to variable
 // a resource is directly passed to another method
+@Test
 public void test062c() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2845,6 +2907,7 @@ public void test062c() throws IOException {
 }
 // Bug 362331 - Resource leak not detected when closeable not assigned to variable
 // a resource is not used
+@Test
 public void test062d() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2871,6 +2934,7 @@ public void test062d() throws IOException {
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a wrapper is obtained from another method
+@Test
 public void test063a() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2915,6 +2979,7 @@ public void test063a() throws IOException {
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a wrapper is obtained from a field read
+@Test
 public void test063b() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2943,6 +3008,7 @@ public void test063b() throws IOException {
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a wrapper is assigned to a field
+@Test
 public void test063c() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -2970,6 +3036,7 @@ protected String getTest063c_log() {
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a resource is obtained as a method argument and/or assigned with a cast
+@Test
 public void test063d() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3012,6 +3079,7 @@ public void test063d() throws IOException {
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a resource is obtained from a field read, then re-assigned
+@Test
 public void test063e() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3039,6 +3107,7 @@ public void test063e() {
 }
 // Bug 368709 - Endless loop in FakedTrackingVariable.markPassedToOutside
 // original test case from jgit
+@Test
 public void testBug368709a() {
 	String JDK8225763_Fix = isJRE25Plus ?
 			"2. ERROR in X.java (at line 17)\n" +
@@ -3113,6 +3182,7 @@ public void testBug368709a() {
 }
 // Bug 368709 - Endless loop in FakedTrackingVariable.markPassedToOutside
 // minimal test case: constructing an indirect self-wrapper
+@Test
 public void testBug368709b() {
 	String JDK8225763_Fix = isJRE25Plus ?
 			"2. ERROR in X.java (at line 6)\n" +
@@ -3151,6 +3221,7 @@ public void testBug368709b() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 3
+@Test
 public void test064() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3225,6 +3296,7 @@ public void _test065() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 11
+@Test
 public void test066() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3258,6 +3330,7 @@ public void test066() {
 }
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 11 - variant with closing top-level resource
+@Test
 public void test066b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3322,6 +3395,7 @@ public void _test067() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 12
+@Test
 public void test067b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3350,6 +3424,7 @@ public void test067b() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 13
+@Test
 public void test068() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3386,6 +3461,7 @@ public void test068() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 16
+@Test
 public void test069() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3425,6 +3501,7 @@ public void test069() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // referenced in array initializer
+@Test
 public void test070() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3452,6 +3529,7 @@ public void test070() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // referenced in array initializer
+@Test
 public void test071() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3539,6 +3617,7 @@ public void _test071b() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // throw inside loop inside try - while closed in finally
+@Test
 public void test072() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3578,6 +3657,7 @@ public void test072() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // unspecific parameter is casted into a resource, yet need to mark as OWNED_BY_OUTSIDE
+@Test
 public void test073() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3606,6 +3686,7 @@ public void test073() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // status after nested try-finally
+@Test
 public void test074() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3641,6 +3722,7 @@ public void test074() {
 }
 // Bug 370639 - [compiler][resource] restore the default for resource leak warnings
 // check that the default is warning
+@Test
 public void test075() {
 	runLeakWarningTest(
 		new String[] {
@@ -3664,6 +3746,7 @@ public void test075() {
 		getCompilerOptions());
 }
 // Bug 385415 - Incorrect resource leak detection
+@Test
 public void testBug385415() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3694,6 +3777,7 @@ public void testBug385415() {
 // Bug 361073 - Avoid resource leak warning when the top level resource is closed explicitly
 // test case from comment 7
 // Duplicate of Bug 385415 - Incorrect resource leak detection
+@Test
 public void testBug361073c7() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3785,6 +3869,7 @@ public void _testBug386534() {
 }
 
 // https://bugs.eclipse.org/388996 - [compiler][resource] Incorrect 'potential resource leak'
+@Test
 public void testBug388996() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3827,6 +3912,7 @@ public void testBug388996() {
 }
 
 // https://bugs.eclipse.org/386534 -  [compiler][resource] "Potential resource leak" false positive warning
+@Test
 public void testBug386534() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3880,6 +3966,7 @@ public void testBug386534() {
 }
 
 //https://bugs.eclipse.org/386534 -  [compiler][resource] "Potential resource leak" false positive warning
+@Test
 public void testBug394768() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3923,6 +4010,7 @@ public void testBug394768() {
 
 // https://bugs.eclipse.org/386534 -  [compiler][resource] "Potential resource leak" false positive warning
 // variation: 2nd branch closes and nulls the newly acquired resource
+@Test
 public void testBug394768_1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3969,6 +4057,7 @@ public void testBug394768_1() {
 
 // Bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
 // A resource is closed using various known close helpers
+@Test
 public void testBug381445_1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4023,6 +4112,7 @@ public void testBug381445_1() {
 
 // Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
 // A resource is closed using more known close helpers
+@Test
 public void testBug381445_1b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4075,6 +4165,7 @@ public void testBug381445_1b() {
 
 // Bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
 // A resource is closed in different places of the flow
+@Test
 public void testBug381445_2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4120,6 +4211,7 @@ public void testBug381445_2() {
 
 // Bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
 // A close helper is referenced in various ways:
+@Test
 public void testBug381445_3() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4175,6 +4267,7 @@ public void testBug381445_3() {
 
 // Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
 // original test case
+@Test
 public void testBug395977() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4234,6 +4327,7 @@ public void testBug395977() {
 
 //Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
 //variant with named local class - accept as a secure resource wrapper since no close method
+@Test
 public void testBug395977_1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4294,6 +4388,7 @@ public void testBug395977_1() {
 }
 //Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
 //variant with named local class - don't accept as a secure resource wrapper since close() method exist
+@Test
 public void testBug395977_1a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4361,6 +4456,7 @@ public void testBug395977_1a() {
 
 // Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
 // anonymous class tries to "cheat" by overriding close()
+@Test
 public void testBug395977_2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4421,6 +4517,7 @@ public void testBug395977_2() {
 // include line number when reporting against <unassigned Closeable value>
 // UPDATE: never complain 'at this location' against unassigned Closeable,
 // hence no line number is needed.
+@Test
 public void testBug376053() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4455,6 +4552,7 @@ public void testBug376053() {
 }
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+@Test
 public void testBug411098_test1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4475,6 +4573,7 @@ public void testBug411098_test1() {
 }
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+@Test
 public void testBug411098_test2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4503,6 +4602,7 @@ public void testBug411098_test2() {
 }
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+@Test
 public void testBug411098_test3() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4532,6 +4632,7 @@ public void testBug411098_test3() {
 }
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+@Test
 public void testBug411098_test4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4556,6 +4657,7 @@ public void testBug411098_test4() {
 }
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+@Test
 public void testBug411098_test5() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4576,6 +4678,7 @@ public void testBug411098_test5() {
 }
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+@Test
 public void testBug411098_test6() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4597,6 +4700,7 @@ public void testBug411098_test6() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 // challenge nested resource allocations
+@Test
 public void testBug411098_test7() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4618,6 +4722,7 @@ public void testBug411098_test7() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 // field read should not trigger a warning.
+@Test
 public void testBug411098_comment19() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4639,6 +4744,7 @@ public void testBug411098_comment19() {
 		);
 }
 // normal java.util.stream.Stream doesn't hold on to any resources
+@Test
 public void testStream1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4659,6 +4765,7 @@ public void testStream1() {
 		);
 }
 // normal java.util.stream.IntStream doesn't hold on to any resources
+@Test
 public void testStream1_Int() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4680,6 +4787,7 @@ public void testStream1_Int() {
 		);
 }
 // normal java.util.stream.{Double,Long}Stream doesn't hold on to any resources
+@Test
 public void testStream1_Double_Long() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4701,6 +4809,7 @@ public void testStream1_Double_Long() {
 		);
 }
 // normal java.util.stream.{Double,Long}Stream doesn't hold on to any resources
+@Test
 public void testStreamEx_572707() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4720,6 +4829,7 @@ public void testStreamEx_572707() {
 		},
 		options);
 }
+@Test
 public void testStreamEx_GH2919() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4740,6 +4850,7 @@ public void testStreamEx_GH2919() {
 		options);
 }
 // Functions java.nio.file.Files.x() returning *Stream* do produce a resource needing closing
+@Test
 public void testStream2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4766,6 +4877,7 @@ public void testStream2() {
 		);
 }
 // closeable, but Stream, but produced by Files.m, but only potentially closed:
+@Test
 public void testStream3() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4793,6 +4905,7 @@ public void testStream3() {
 		);
 }
 // special stream from Files.m is properly handled by t-w-r
+@Test
 public void testStream4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4813,6 +4926,7 @@ public void testStream4() {
 		options
 		);
 }
+@Test
 public void testBug415790_ex2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4842,6 +4956,7 @@ public void testBug415790_ex2() {
 		},
 		options);
 }
+@Test
 public void testBug415790_ex4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4872,6 +4987,7 @@ public void testBug415790_ex4() {
 		},
 		options);
 }
+@Test
 public void testBug371614_comment0() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4923,6 +5039,7 @@ public void testBug371614_comment0() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug371614_comment2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4967,6 +5084,7 @@ public void testBug371614_comment2() {
 		},
 		options);
 }
+@Test
 public void testBug371614_comment8() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4991,6 +5109,7 @@ public void testBug371614_comment8() {
 		},
 		options);
 }
+@Test
 public void testBug462371_orig() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5080,6 +5199,7 @@ public void _testBug462371_shouldWarn() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug421035() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5106,6 +5226,7 @@ public void testBug421035() {
 		},
 		options);
 }
+@Test
 public void testBug444964() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5137,6 +5258,7 @@ public void testBug444964() {
 		},
 		options);
 }
+@Test
 public void testBug397204() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5197,6 +5319,7 @@ public void testBug397204() {
 		},
 		options);
 }
+@Test
 public void testBug397204_comment4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5219,6 +5342,7 @@ public void testBug397204_comment4() {
 		},
 		options);
 }
+@Test
 public void testBug433510() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5243,6 +5367,7 @@ public void testBug433510() {
 		},
 		options);
 }
+@Test
 public void testBug440282() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5332,6 +5457,7 @@ protected String getTestBug440282_log() {
 		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
 		"----------\n";
 }
+@Test
 public void testBug390064() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5387,6 +5513,7 @@ public void testBug390064() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug396575() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5446,6 +5573,7 @@ public void testBug396575() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug473317() {
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, JavaCore.IGNORE);
@@ -5530,6 +5658,7 @@ public void testBug473317() {
 	runner.customOptions = compilerOptions;
 	runner.runWarningTest(); // javac warns about exception thrown from close() method
 }
+@Test
 public void testBug541705() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -5559,6 +5688,7 @@ public void testBug541705() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testBug541705b() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return; // variable used in t-w-r
 	Runner runner = new Runner();
@@ -5588,6 +5718,7 @@ public void testBug541705b() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testBug542707_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) // switch expression
 		return;
@@ -5639,6 +5770,7 @@ public void testBug542707_001() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug542707_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return; // uses switch expression
 	Map options = getCompilerOptions();
@@ -5707,6 +5839,7 @@ public void testBug542707_002() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug542707_003() {
 	if (this.complianceLevel < ClassFileConstants.JDK14)
 		return;  // uses switch expression
@@ -5768,6 +5901,7 @@ public void testBug542707_003() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug486506() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5802,6 +5936,7 @@ public void testBug486506() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug463320() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5849,6 +5984,7 @@ public void testBug463320() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug463320_comment8() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5883,6 +6019,7 @@ public void testBug463320_comment8() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug558574() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5914,6 +6051,7 @@ public void testBug558574() {
 		"",
 		options);
 }
+@Test
 public void testBug560460() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5930,6 +6068,7 @@ public void testBug560460() {
 		},
 		options);
 }
+@Test
 public void testBug463320_comment19() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5956,6 +6095,7 @@ public void testBug463320_comment19() {
 		},
 		options);
 }
+@Test
 public void testBug552521() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6100,6 +6240,7 @@ public void testBug552521() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug552521_comment14() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6138,6 +6279,7 @@ public void testBug552521_comment14() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug552521_comment14b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6184,6 +6326,7 @@ public void testBug552521_comment14b() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug519740() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6203,6 +6346,7 @@ public void testBug519740() {
 		},
 		options);
 }
+@Test
 public void testBug552441() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6266,6 +6410,7 @@ public void testBug552441() {
 		},
 		options);
 }
+@Test
 public void testBug400523() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6318,6 +6463,7 @@ public void testBug400523() {
 		},
 		options);
 }
+@Test
 public void testBug527761() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6336,6 +6482,7 @@ public void testBug527761() {
 		},
 		options);
 }
+@Test
 public void testBug527761_otherClose() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6363,6 +6510,7 @@ public void testBug527761_otherClose() {
 			new String[] { "X.java", xSource },
 			"", "", "", null);
 }
+@Test
 public void testBug527761_neg() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6390,6 +6538,7 @@ public void testBug527761_neg() {
 		options);
 }
 // regression caused by Bug 527761
+@Test
 public void testBug558759() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6422,6 +6571,7 @@ public void testBug558759() {
 			new String[] { "Y.java", ySource },
 			"", "", "", null);
 }
+@Test
 public void testBug559119() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -6459,6 +6609,7 @@ public void testBug559119() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug560610() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6484,6 +6635,7 @@ public void testBug560610() {
 		"",
 		options);
 }
+@Test
 public void testBug560671() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6502,6 +6654,7 @@ public void testBug560671() {
 		},
 		options);
 }
+@Test
 public void testBug560671b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6524,6 +6677,7 @@ public void testBug560671b() {
 		},
 		options);
 }
+@Test
 public void testBug561259() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6550,6 +6704,7 @@ public void testBug561259() {
 		},
 		options);
 }
+@Test
 public void testBug560076() {
 	runNegativeTest(
 		new String[] {
@@ -6590,6 +6745,7 @@ public void testBug560076() {
 		"The type SQLiteDatabase must implement the inherited abstract method Closeable.close()\n" +
 		"----------\n");
 }
+@Test
 public void testBug499037_001_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6625,6 +6781,7 @@ public void testBug499037_001_since_9() {
 		"",
 		options);
 }
+@Test
 public void testBug499037_002_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6660,6 +6817,7 @@ public void testBug499037_002_since_9() {
 		"",
 		options);
 }
+@Test
 public void testBug499037_003_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6692,6 +6850,7 @@ public void testBug499037_003_since_9() {
 		"",
 		options);
 }
+@Test
 public void testBug499037_004_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6732,6 +6891,7 @@ public void testBug499037_004_since_9() {
 		"",
 		options);
 }
+@Test
 public void testBug499037_005_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6768,6 +6928,7 @@ public void testBug499037_005_since_9() {
 		options);
 }
 // non-empty finally block - takes a different route
+@Test
 public void testBug499037_006_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6806,6 +6967,7 @@ public void testBug499037_006_since_9() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug499037_007_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6841,6 +7003,7 @@ public void testBug499037_007_since_9() {
 		"",
 		options);
 }
+@Test
 public void testBug499037_008_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6880,6 +7043,7 @@ public void testBug499037_008_since_9() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug499037_009_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6921,6 +7085,7 @@ public void testBug499037_009_since_9() {
 		"----------\n",
 		options);
 }
+@Test
 public void testBug499037_010_since_9() {
 	if (this.complianceLevel < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
@@ -6968,6 +7133,7 @@ public void testBug499037_010_since_9() {
 		"----------\n",
 		options);
 }
+@Test
 public void testGH1762() {
 	runLeakTest(
 		new String[] {
@@ -6987,6 +7153,7 @@ public void testGH1762() {
 		null);
 
 }
+@Test
 public void testGH1867() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -7040,6 +7207,7 @@ public void testGH1867() {
 		"----------\n",
 		options);
 }
+@Test
 public void testGH1867_dupes() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -7099,6 +7267,7 @@ public void testGH1867_dupes() {
 		"----------\n",
 		options);
 }
+@Test
 public void testGH2207_1() {
 	// relevant only since 19, where ExecutorService implements AutoCloseable
 	Map options = getCompilerOptions();
@@ -7125,6 +7294,7 @@ public void testGH2207_1() {
 		"",
 		options);
 }
+@Test
 public void testGH2129() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -7168,6 +7338,7 @@ public void testGH2129() {
 		"",
 		options);
 }
+@Test
 public void testGH2642() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -7198,6 +7369,7 @@ public void testGH2642() {
 		""",
 		options);
 }
+@Test
 public void testBug561334() {
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.INFO);
@@ -7246,6 +7418,7 @@ String getBug561334_log() {
 	----------
 	""";
 }
+@Test
 public void testGH3328() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runConformTest(
@@ -7336,6 +7509,7 @@ public void testGH3328() {
 			"""
 		});
 }
+@Test
 public void testGH3328_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runConformTest(
@@ -7392,6 +7566,7 @@ public void testGH3328_2() {
 			"""
 		});
 }
+@Test
 public void testGH4486() {
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -7424,6 +7599,7 @@ public void testGH4486() {
 	"",
 	compilerOptions);
 }
+@Test
 public void testGH4511() {
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);

@@ -17,9 +17,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import java.util.StringTokenizer;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * Tests to verify that Compiler options work well for Javadoc.
@@ -1354,14 +1355,8 @@ public class JavadocTestOptions extends JavadocTest {
 		return result.toString();
 	}
 
-	public JavadocTestOptions(String name) {
-		super(name);
-	}
-	public static Class javadocTestClass() {
-		return JavadocTestOptions.class;
-	}
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(javadocTestClass());
+	public JavadocTestOptions(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
 	}
@@ -1435,18 +1430,22 @@ public class JavadocTestOptions extends JavadocTest {
 	/*
 	 * Tests for 'invalid javadoc' options when no doc support is set
 	 */
+	@Test
 	public void testInvalidTagsClassNoSupport() {
 		this.docCommentSupport = CompilerOptions.DISABLED;
 		runConformTest(CLASSES_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsFieldNoSupport() {
 		this.docCommentSupport = CompilerOptions.DISABLED;
 		runConformTest(FIELDS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsMethodNoSupport() {
 		this.docCommentSupport = CompilerOptions.DISABLED;
 		runConformTest(METHODS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsConstructorNoSupport() {
 		this.docCommentSupport = CompilerOptions.DISABLED;
 		runConformTest(CONSTRUCTORS_INVALID_COMMENT);
@@ -1456,35 +1455,43 @@ public class JavadocTestOptions extends JavadocTest {
 	 * Tests for 'invalid javadoc' options
 	 */
 	// Test default invalid javadoc (means "ignore" with tags"disabled" and visibility "public")
+	@Test
 	public void testInvalidTagsClassDefaults() {
 		runConformTest(CLASSES_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsFieldDefaults() {
 		runConformTest(FIELDS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsMethodDefaults() {
 		runConformTest(METHODS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsConstructorDefaults() {
 		runConformTest(CONSTRUCTORS_INVALID_COMMENT);
 	}
 
 	// Test invalid javadoc "error" + tags "disabled" and visibility "public"
+	@Test
 	public void testInvalidTagsClassErrorNotags() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(CLASSES_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsFieldErrorNotags() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(FIELDS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsMethodErrorNotags() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(METHODS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsConstructorErrorNotags() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.DISABLED;
@@ -1492,6 +1499,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" and visibility "public"
+	@Test
 	public void testInvalidTagsClassErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1499,6 +1507,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsFieldErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1506,6 +1515,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsMethodErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1513,6 +1523,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsConstructorErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1522,6 +1533,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" and visibility "protected"
+	@Test
 	public void testInvalidTagsClassErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1529,6 +1541,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsFieldErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1536,6 +1549,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsMethodErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1543,6 +1557,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsConstructorErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1552,6 +1567,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" and visibility "default"
+	@Test
 	public void testInvalidTagsClassErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1559,6 +1575,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsFieldErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1566,6 +1583,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsMethodErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1573,6 +1591,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsConstructorErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1582,24 +1601,29 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" and visibility "private"
+	@Test
 	public void testInvalidTagsClassErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		runErrorsTest(CLASSES_INVALID_COMMENT, JavadocTestOptions.PRIVATE_VISIBILITY, false);
 	}
+	@Test
 	public void testInvalidTagsFieldErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		runErrorsTest(FIELDS_INVALID_COMMENT, JavadocTestOptions.PRIVATE_VISIBILITY, false);
 	}
+	@Test
 	public void testInvalidTagsMethodErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		runErrorsTest(METHODS_INVALID_COMMENT, JavadocTestOptions.PRIVATE_VISIBILITY, true);
 	}
+	@Test
 	public void testInvalidTagsConstructorErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		runErrorsTest(CONSTRUCTORS_INVALID_COMMENT, JavadocTestOptions.PRIVATE_VISIBILITY, true);
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" and visibility "public"
+	@Test
 	public void testInvalidTagsDeprecatedRefClassErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1608,6 +1632,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefFieldErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1616,6 +1641,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefMethodErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1624,6 +1650,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefConstructorErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1634,6 +1661,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" visibility "protected"
+	@Test
 	public void testInvalidTagsDeprecatedRefClassErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1642,6 +1670,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefFieldErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1650,6 +1679,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefMethodErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1658,6 +1688,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefConstructorErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1668,6 +1699,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" and visibility "default"
+	@Test
 	public void testInvalidTagsDeprecatedRefClassErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1676,6 +1708,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefFieldErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1684,6 +1717,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefMethodErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1692,6 +1726,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefConstructorErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1702,24 +1737,28 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" and visibility "private"
+	@Test
 	public void testInvalidTagsDeprecatedRefClassErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefFieldErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefMethodErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedRefConstructorErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
@@ -1728,6 +1767,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" and visibility "public"
+	@Test
 	public void testInvalidTagsNotVisibleRefClassErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1736,6 +1776,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefFieldErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1744,6 +1785,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefMethodErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1752,6 +1794,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefConstructorErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1762,6 +1805,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" visibility "protected"
+	@Test
 	public void testInvalidTagsNotVisibleRefClassErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1770,6 +1814,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefFieldErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1778,6 +1823,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefMethodErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1786,6 +1832,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefConstructorErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1796,6 +1843,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" and visibility "default"
+	@Test
 	public void testInvalidTagsNotVisibleRefClassErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1804,6 +1852,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefFieldErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1812,6 +1861,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefMethodErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1820,6 +1870,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefConstructorErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1830,24 +1881,28 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" and visibility "private"
+	@Test
 	public void testInvalidTagsNotVisibleRefClassErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefFieldErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefMethodErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsNotVisibleRefConstructorErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
@@ -1856,6 +1911,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" and visibility "public"
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1865,6 +1921,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1874,6 +1931,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1883,6 +1941,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PUBLIC_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsPublic() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1894,6 +1953,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" visibility "protected"
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1903,6 +1963,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1912,6 +1973,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1921,6 +1983,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PROTECTED_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsProtected() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1932,6 +1995,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" and visibility "default"
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1941,6 +2005,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1950,6 +2015,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1959,6 +2025,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.DEFAULT_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsPackage() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -1970,6 +2037,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" and visibility "private"
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
@@ -1977,6 +2045,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
@@ -1984,6 +2053,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
@@ -1991,6 +2061,7 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(JavadocTestOptions.PRIVATE_VISIBILITY),
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
+	@Test
 	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsPrivate() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
@@ -2003,11 +2074,13 @@ public class JavadocTestOptions extends JavadocTest {
 	 * Tests for 'missing javadoc tags' options
 	 */
 	// Test default missing javadoc tags (means "ignore" with visibility "public" and overriding="enabled")
+	@Test
 	public void testMissingTagsDefaults() {
 		runConformTest(MISSING_TAGS);
 	}
 
 	// Test missing javadoc tags "error" + "public" visibility + "enabled" overriding
+	@Test
 	public void testMissingTagsErrorPublicOverriding() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PUBLIC;
@@ -2017,6 +2090,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" + "public" visibility + "disabled" overriding
+	@Test
 	public void testMissingTagsErrorPublic() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PUBLIC;
@@ -2026,6 +2100,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" + "protected" visibility + "enabled" overriding
+	@Test
 	public void testMissingTagsErrorProtectedOverriding() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PROTECTED;
@@ -2035,6 +2110,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" + "protected" visibility + "disabled" overriding
+	@Test
 	public void testMissingTagsErrorProtected() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PROTECTED;
@@ -2044,6 +2120,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" + "default" visibility + "enabled" overriding
+	@Test
 	public void testMissingTagsErrorPackageOverriding() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.DEFAULT;
@@ -2053,6 +2130,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" + "default" visibility + "disabled" overriding
+	@Test
 	public void testMissingTagsErrorPackage() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.DEFAULT;
@@ -2062,6 +2140,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" + "private" visibility + "enabled" overriding
+	@Test
 	public void testMissingTagsErrorPrivateOverriding() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
@@ -2071,6 +2150,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" + "private" visibility + "disabled" overriding
+	@Test
 	public void testMissingTagsErrorPrivate() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
@@ -2083,11 +2163,13 @@ public class JavadocTestOptions extends JavadocTest {
 	 * Tests for 'missing javadoc comments' options
 	 */
 	// Test default missing javadoc comments (means "ignore" with visibility "public" and overriding="enabled")
+	@Test
 	public void testMissingCommentsDefaults() {
 		runConformTest(MISSING_COMMENTS);
 	}
 
 	// Test missing javadoc comments "error" + "public" visibility + "enabled" overriding
+	@Test
 	public void testMissingCommentsErrorPublicOverriding() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
@@ -2097,6 +2179,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" + "public" visibility + "disabled" overriding
+	@Test
 	public void testMissingCommentsErrorPublic() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
@@ -2106,6 +2189,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" + "protected" visibility + "enabled" overriding
+	@Test
 	public void testMissingCommentsErrorProtectedOverriding() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
@@ -2115,6 +2199,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" + "protected" visibility + "disabled" overriding
+	@Test
 	public void testMissingCommentsErrorProtected() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
@@ -2124,6 +2209,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" + "default" visibility + "enabled" overriding
+	@Test
 	public void testMissingCommentsErrorPackageOverriding() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
@@ -2133,6 +2219,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" + "default" visibility + "disabled" overriding
+	@Test
 	public void testMissingCommentsErrorPackage() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
@@ -2142,6 +2229,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" + "private" visibility + "enabled" overriding
+	@Test
 	public void testMissingCommentsErrorPrivateOverriding() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
@@ -2151,6 +2239,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" + "private" visibility + "disabled" overriding
+	@Test
 	public void testMissingCommentsErrorPrivate() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
@@ -2162,26 +2251,31 @@ public class JavadocTestOptions extends JavadocTest {
 	/*
 	 * Crossed tests
 	 */
+	@Test
 	public void testInvalidTagsClassWithMissingTagsOption() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(CLASSES_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsFieldWithMissingTagsOption() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(FIELDS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsMethodWithMissingTagsOption() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(METHODS_INVALID_COMMENT);
 	}
+	@Test
 	public void testInvalidTagsConstructorWithMissingTagsOption() {
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;
 		this.reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(CONSTRUCTORS_INVALID_COMMENT);
 	}
+	@Test
 	public void testMissingTagsWithInvalidTagsOption() {
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
 		this.reportInvalidJavadocTags = CompilerOptions.ENABLED;
@@ -2194,6 +2288,7 @@ public class JavadocTestOptions extends JavadocTest {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>
 	 */
 	// Test invalid javadoc "error" with javadoc comment support disabled
+	@Test
 	public void testInvalidTagsJavadocSupportDisabled() {
 		this.docCommentSupport = CompilerOptions.DISABLED;
 		this.reportInvalidJavadoc = CompilerOptions.ERROR;
@@ -2205,6 +2300,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc comments "error" with javadoc comment support disabled
+	@Test
 	public void testMissingCommentsJavadocSupportDisabled() {
 		this.docCommentSupport = CompilerOptions.DISABLED;
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
@@ -2212,6 +2308,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 
 	// Test missing javadoc tags "error" with javadoc comment support disabled
+	@Test
 	public void testMissingTagsJavadocSupportDisabled() {
 		this.docCommentSupport = CompilerOptions.DISABLED;
 		this.reportMissingJavadocTags = CompilerOptions.ERROR;

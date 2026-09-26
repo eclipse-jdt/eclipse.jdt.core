@@ -15,14 +15,18 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public class Compliance_CLDC extends AbstractRegressionTest {
 
-public Compliance_CLDC(String name) {
-	super(name);
+public Compliance_CLDC(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 /*
@@ -36,12 +40,6 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	return options;
 }
-public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), CompilerOptions.getFirstSupportedJdkLevel());
-}
-public static Class testClass() {
-	return Compliance_CLDC.class;
-}
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
 static {
@@ -49,6 +47,7 @@ static {
 //		TESTS_NUMBERS = new int[] { 104 };
 //		TESTS_RANGE = new int[] { 76, -1 };
 }
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -77,6 +76,7 @@ public void test001() {
 		},
 		"OK");
 }
+@Test
 public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -93,6 +93,7 @@ public void test002() throws Exception {
 		},
 		"truetruetruetrue");
 }
+@Test
 public void test003() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -143,6 +144,7 @@ public void test003() throws Exception {
 		"}";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+@Test
 public void test004() {
 	this.runConformTest(
 		new String[] {

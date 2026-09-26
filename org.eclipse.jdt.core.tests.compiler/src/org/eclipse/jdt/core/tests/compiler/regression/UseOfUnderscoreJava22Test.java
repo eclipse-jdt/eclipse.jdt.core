@@ -12,17 +12,17 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_22)
 public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UseOfUnderscoreJava22Test.class, F_22);
-	}
-
-	public UseOfUnderscoreJava22Test(String name) {
-		super(name);
+	public UseOfUnderscoreJava22Test(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -36,6 +36,7 @@ public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 			return;
 		runNegativeTest(false/*skipJavac*/, null, testFiles, expectedCompilerLog);
 	}
+	@Test
 	public void testReportsUnderscoreInstanceMemberAsError() {
 		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
@@ -57,6 +58,7 @@ public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnicodeEscapeUnderscoreInstanceMemberAsError() {
 		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
@@ -77,6 +79,7 @@ public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnderscoreParameterAsError() {
 		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
@@ -99,6 +102,7 @@ public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnderscoreParameterAsErrorUnicodeEscape() {
 		String message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
@@ -121,6 +125,7 @@ public class UseOfUnderscoreJava22Test extends AbstractBatchCompilerTest {
 				"----------\n");
 	}
 
+	@Test
 	public void testReportsUnderscoreLocalVariableAsErrorUnicodeEscape() {
 		if(!isJRE22Plus)
 			return;

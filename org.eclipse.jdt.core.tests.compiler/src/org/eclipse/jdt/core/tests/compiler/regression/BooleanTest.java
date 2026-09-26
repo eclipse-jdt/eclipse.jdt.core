@@ -14,21 +14,20 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class BooleanTest extends AbstractRegressionTest {
 
-public BooleanTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public BooleanTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -58,6 +57,7 @@ public void test001() {
 	});
 }
 
+@Test
 public void test002() {
 	this.runConformTest(new String[] {
 		"p/H.java",
@@ -93,6 +93,7 @@ public void test002() {
 		"}\n",
 	});
 }
+@Test
 public void test003() {
 	this.runConformTest(new String[] {
 		"p/I.java",
@@ -122,6 +123,7 @@ public void test003() {
 		"}\n",
 	});
 }
+@Test
 public void test004() {
 	this.runConformTest(new String[] {
 		"p/J.java",
@@ -140,6 +142,7 @@ public void test004() {
 	});
 }
 
+@Test
 public void test005() {
 	this.runConformTest(new String[] {
 		"p/M.java",
@@ -158,6 +161,7 @@ public void test005() {
 	});
 }
 
+@Test
 public void test006() {
 	this.runConformTest(new String[] {
 		"p/Q.java",
@@ -183,6 +187,7 @@ public void test006() {
 }
 
 // Bug 6596
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -203,6 +208,7 @@ public void test007() {
 		"SUCCESS");
 }
 // Bug 6596
+@Test
 public void test008() {
 	this.runConformTest(
 		new String[] {
@@ -223,6 +229,7 @@ public void test008() {
 		"SUCCESS");
 }
 // Bug 6596
+@Test
 public void test009() {
 	this.runConformTest(
 		new String[] {
@@ -244,6 +251,7 @@ public void test009() {
 }
 
 // Bug 6596
+@Test
 public void test010() {
 	this.runConformTest(
 		new String[] {
@@ -265,6 +273,7 @@ public void test010() {
 }
 
 // Bug 46675
+@Test
 public void test011() {
 	this.runConformTest(
 		new String[] {
@@ -286,6 +295,7 @@ public void test011() {
 }
 
 // Bug 46675 - variation
+@Test
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -307,6 +317,7 @@ public void test012() {
 }
 
 // Bug 46675 - variation
+@Test
 public void test013() {
 	this.runConformTest(
 		new String[] {
@@ -328,6 +339,7 @@ public void test013() {
 }
 
 // Bug 47881
+@Test
 public void test014() {
 	this.runConformTest(
 		new String[] {
@@ -350,6 +362,7 @@ public void test014() {
 }
 
 // Bug 47881 - variation
+@Test
 public void test015() {
 	this.runConformTest(
 		new String[] {
@@ -371,6 +384,7 @@ public void test015() {
 		"SUCCESS");
 }
 // Bug 47881 - variation
+@Test
 public void test016() {
 	this.runConformTest(
 		new String[] {
@@ -393,6 +407,7 @@ public void test016() {
 }
 
 // Bug 47881 - variation
+@Test
 public void test017() {
 	this.runConformTest(
 		new String[] {
@@ -414,6 +429,7 @@ public void test017() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120
+@Test
 public void test018() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -469,6 +485,7 @@ public void test018() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test019() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -531,6 +548,7 @@ public void test019() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test020() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -582,6 +600,7 @@ public void test020() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test021() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -633,6 +652,7 @@ public void test021() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test022() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -684,6 +704,7 @@ public void test022() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120
+@Test
 public void test023() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -739,6 +760,7 @@ public void test023() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test024() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -801,6 +823,7 @@ public void test024() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test025() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -852,6 +875,7 @@ public void test025() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test026() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -904,6 +928,7 @@ public void test026() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test027() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -955,6 +980,7 @@ public void test027() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test028() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1007,6 +1033,7 @@ public void test028() throws Exception {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test029() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1064,6 +1091,7 @@ public void test029() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117120 - variation
+@Test
 public void test030() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1131,6 +1159,7 @@ public void test030() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117451
+@Test
 public void test031() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1192,6 +1221,7 @@ public void test031() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117451 - variation
+@Test
 public void test032() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1244,6 +1274,7 @@ public void test032() throws Exception {
 	}
 }
 
+@Test
 public void test033() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1296,6 +1327,7 @@ public void test033() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test034() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1347,6 +1379,7 @@ public void test034() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117451 - variation
+@Test
 public void test035() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1387,6 +1420,7 @@ public void test035() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117451 - variation
+@Test
 public void test036() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1430,6 +1464,7 @@ public void test036() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=147024
+@Test
 public void test037() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1738,6 +1773,7 @@ public void test037() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+@Test
 public void test038() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1781,6 +1817,7 @@ public void test038() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965
+@Test
 public void test039() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1839,6 +1876,7 @@ public void test039() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965 - variation
+@Test
 public void test040() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1899,6 +1937,7 @@ public void test040() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965 - variation
+@Test
 public void test041() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1959,6 +1998,7 @@ public void test041() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965 - variation
+@Test
 public void test042() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2016,6 +2056,7 @@ public void test042() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567
+@Test
 public void test043() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2067,6 +2108,7 @@ public void test043() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+@Test
 public void test044() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2116,6 +2158,7 @@ public void test044() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+@Test
 public void test045() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2167,6 +2210,7 @@ public void test045() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+@Test
 public void test046() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2218,6 +2262,7 @@ public void test046() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+@Test
 public void test047() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2264,6 +2309,7 @@ public void test047() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+@Test
 public void test048() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2310,6 +2356,7 @@ public void test048() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+@Test
 public void test049() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2359,6 +2406,7 @@ public void test049() throws Exception {
 	}
 }
 
+@Test
 public void test050() throws Exception {
 	this.runConformTest(
 		new String[] {

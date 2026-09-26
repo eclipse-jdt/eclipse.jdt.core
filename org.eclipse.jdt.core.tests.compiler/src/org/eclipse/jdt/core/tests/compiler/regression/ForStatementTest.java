@@ -15,17 +15,18 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ForStatementTest extends AbstractRegressionTest {
 
-public ForStatementTest(String name) {
-	super(name);
+public ForStatementTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -41,9 +42,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 45, 46 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
+@Test
 public void test001() {
 	this.runConformTest(
 		new String[] {
@@ -79,6 +78,7 @@ public void test001() {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471
+@Test
 public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -130,6 +130,7 @@ public void test002() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471 - variation
+@Test
 public void test003() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -172,6 +173,7 @@ public void test003() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471 - variation
+@Test
 public void test004() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -218,6 +220,7 @@ public void test004() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=195317
+@Test
 public void test005() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -276,6 +279,7 @@ public void test005() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test006() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1222,6 +1226,7 @@ public void test006() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test007() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1285,6 +1290,7 @@ public void test007() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test008() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1347,6 +1353,7 @@ public void test008() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test009() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1409,6 +1416,7 @@ public void test009() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test010() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1471,6 +1479,7 @@ public void test010() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test011() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1533,6 +1542,7 @@ public void test011() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test012() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1595,6 +1605,7 @@ public void test012() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test013() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1657,6 +1668,7 @@ public void test013() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test014() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
@@ -1719,6 +1731,7 @@ public void test014() throws Exception {
 		settings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=457426
+@Test
 public void test015() throws Exception {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);

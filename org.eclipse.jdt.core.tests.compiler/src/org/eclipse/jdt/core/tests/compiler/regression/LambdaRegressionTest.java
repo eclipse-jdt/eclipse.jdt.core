@@ -15,10 +15,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 @SuppressWarnings({ "rawtypes" })
 public class LambdaRegressionTest extends AbstractRegressionTest {
 
@@ -27,13 +28,11 @@ static {
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public LambdaRegressionTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
+public LambdaRegressionTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446317, java.lang.VerifyError: Bad type on operand stack with Lambdas and/or inner classes
+@Test
 public void test001() {
 	this.runConformTest(
 			new String[] {
@@ -69,6 +68,7 @@ public void test001() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446317, java.lang.VerifyError: Bad type on operand stack with Lambdas and/or inner classes
+@Test
 public void test002() {
 	this.runConformTest(
 			new String[] {
@@ -98,6 +98,7 @@ public void test002() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446317, java.lang.VerifyError: Bad type on operand stack with Lambdas and/or inner classes
+@Test
 public void test003() {
 	this.runNegativeTest(
 			new String[] {
@@ -127,6 +128,7 @@ public void test003() {
 			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446317, java.lang.VerifyError: Bad type on operand stack with Lambdas and/or inner classes
+@Test
 public void test004() {
 	this.runConformTest(
 		false,
@@ -156,6 +158,7 @@ public void test004() {
 	null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448724, [1.8] [compiler] Wrong resolution of overloaded method when irrelevant type parameter is present and lambda is used as parameter
+@Test
 public void test448724() {
 	this.runConformTest(
 		new String[] {
@@ -198,6 +201,7 @@ public void test448724() {
 	"case2: Runnable");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference
+@Test
 public void test447767() {
 	this.runConformTest(
 		new String[] {
@@ -225,6 +229,7 @@ public void test447767() {
 	"Right!");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference
+@Test
 public void test447767a() {
 	this.runNegativeTest(
 		new String[] {
@@ -252,6 +257,7 @@ public void test447767a() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference
+@Test
 public void test447767b() {
 	this.runConformTest(
 		new String[] {
@@ -278,6 +284,7 @@ public void test447767b() {
 	"Right!");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference
+@Test
 public void test447767c() {
 	this.runConformTest(
 		new String[] {
@@ -308,6 +315,7 @@ public void test447767c() {
 	"Right!");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference
+@Test
 public void test447767d() {
 	this.runConformTest(
 		new String[] {
@@ -338,6 +346,7 @@ public void test447767d() {
 	"Right!");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449410, [1.8][compiler] Eclipse java compiler does not detect a bad return type in lambda expression
+@Test
 public void test449410() {
 	this.runNegativeTest(
 		new String[] {
@@ -372,6 +381,7 @@ public void test449410() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449824, [1.8] Difference in behaviour with method references and lambdas
 // Captures present behavior - may not be correct.
+@Test
 public void test449824() {
 	this.runNegativeTest(
 		new String[] {
@@ -420,6 +430,7 @@ public void test449824() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448954, [1.8][compiler] Suspect error: "The method foo(String, String, X::goo) is undefined for the type X"
+@Test
 public void test448954() {
 	this.runConformTest(
 		new String[] {
@@ -453,6 +464,7 @@ public void test448954() {
 	"Right!");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=450380, [1.8][compiler] NPE in Scope.getExactConstructor(..) for bad constructor reference
+@Test
 public void test450380() {
 	this.runNegativeTest(
 		new String[] {
@@ -473,6 +485,7 @@ public void test450380() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=450604, [1.8] CCE at InferenceContext18.getParameter line 1377
+@Test
 public void test450604() {
 	this.runNegativeTest(
 		new String[] {
@@ -491,6 +504,7 @@ public void test450604() {
 	"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=450604, [1.8] CCE at InferenceContext18.getParameter line 1377
+@Test
 public void test450604a() {
 	this.runConformTest(
 		new String[] {
@@ -527,6 +541,7 @@ public void _test451677() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=451840
 // [1.8] java.lang.BootstrapMethodError when running code with constructor reference
+@Test
 public void testBug451840() {
 	runNegativeTest(new String [] {
 		"X.java",
@@ -548,6 +563,7 @@ public void testBug451840() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448556
 // [1.8][compiler] Invalid compiler error about effectively final variable outside the context of a lambda.
+@Test
 public void testBug4448556() {
 	this.runConformTest(new String [] {
 		"X.java",
@@ -570,6 +586,7 @@ public void testBug4448556() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=448556
 // [1.8][compiler] Invalid compiler error about effectively final variable outside the context of a lambda.
+@Test
 public void testBug4448556a() {
 	this.runConformTest(new String [] {
 		"X.java",
@@ -596,6 +613,7 @@ public void testBug4448556a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=453687
 // [1.8][compiler]Incorrect errors when compiling code with Method References
+@Test
 public void testBug453687() {
 	this.runConformTest(new String [] {
 		"X.java",
@@ -617,6 +635,7 @@ public void testBug453687() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=456481 - [1.8] VerifyError on constructor reference inside lambda
+@Test
 public void testBug456481() {
 	this.runConformTest(new String [] {
 		"Test.java",
@@ -681,6 +700,7 @@ public void testBug456481() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=457007, VerifyError
+@Test
 public void testBug457007() {
 	this.runConformTest(new String [] {
 		"Test.java",
@@ -696,6 +716,7 @@ public void testBug457007() {
 	},
 	"done");
 }
+@Test
 public void testBug446691_comment5() {
 	runConformTest(new String [] {
 		"Test.java",
@@ -716,6 +737,7 @@ public void testBug446691_comment5() {
 		"}\n"
 	});
 }
+@Test
 public void testBug446691_comment8() {
 	runConformTest(new String [] {
 		"Boom.java",
@@ -732,6 +754,7 @@ public void testBug446691_comment8() {
 		"}\n"
 	});
 }
+@Test
 public void testBug446691_comment14() {
 	runNegativeTest(new String [] {
 		"test/Main.java",
@@ -766,6 +789,7 @@ public void testBug446691_comment14() {
 	"----------\n");
 }
 // error in lambda even if field is assigned later
+@Test
 public void testBug446691_comment14b() {
 	runNegativeTest(new String [] {
 		"test/Main.java",
@@ -797,6 +821,7 @@ public void testBug446691_comment14b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=463526
 // Parenthesis are incorrectly allowed in lambda when LambdaBody is an expression statement
+@Test
 public void testBug463526() {
 	runNegativeTest(new String [] {
 		"Test.java",
@@ -832,6 +857,7 @@ public void testBug463526() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=463526
 // Parenthesis are incorrectly allowed in lambda when LambdaBody is an expression statement
+@Test
 public void testBug463526b() {
 	runNegativeTest(new String [] {
 		"Test.java",
@@ -861,6 +887,7 @@ public void testBug463526b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=463526
 // Parenthesis are incorrectly allowed in lambda when LambdaBody is an expression statement
+@Test
 public void testBug463526c() {
 	runNegativeTest(new String [] {
 		"Test.java",
@@ -889,6 +916,7 @@ public void testBug463526c() {
 	"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=464408
+@Test
 public void testBug464408() {
 	runNegativeTest(new String[]{
 		"test/X.java",
@@ -909,6 +937,7 @@ public void testBug464408() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=465900
 // Internal compiler error: java.lang.IllegalArgumentException: info cannot be null at org.eclipse.jdt.internal.compiler.codegen.StackMapFrame.addStackItem(StackMapFrame.java:81)
+@Test
 public void testBug465900() {
 	this.runConformTest(new String [] {
 		"X.java",
@@ -932,6 +961,7 @@ public void testBug465900() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=477888
 // [1.8][compiler] Compiler silently produces garbage but editor shows no errors
+@Test
 public void testBug477888() {
 	runNegativeTest(new String [] {
 		"Test.java",
@@ -962,6 +992,7 @@ public void testBug477888() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=472648
 // [compiler][1.8] Lambda expression referencing method with generic type has incorrect compile errors
+@Test
 public void testBug472648() {
 	runNegativeTest(
 		false,
@@ -1014,6 +1045,7 @@ public void testBug472648() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=473432
 // Internal compiler error: java.lang.IllegalArgumentException: info cannot be null at org.eclipse.jdt.internal.compiler.codegen.StackMapFrame.addStackItem(StackMapFrame.java:81)
+@Test
 public void testBug473432() {
 	this.runConformTest(new String [] {
 		"Tester.java",
@@ -1059,6 +1091,7 @@ public void testBug473432() {
 	"null");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=511676 [1.8] Lambda with inner class defs causes java.lang.VerifyError: Bad type on operand stack
+@Test
 public void testBug511676() {
 	this.runConformTest(new String [] {
 			"A.java",
@@ -1088,6 +1121,7 @@ public void testBug511676() {
 		"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=511676 [1.8] Lambda with inner class defs causes java.lang.VerifyError: Bad type on operand stack
+@Test
 public void testBug511676a() {
 	this.runConformTest(new String [] {
 			"A.java",
@@ -1113,6 +1147,7 @@ public void testBug511676a() {
 		},
 		"Done");
 }
+@Test
 public void testBug543778() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -1154,6 +1189,7 @@ public void testBug543778() {
 	runner.customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED); // bug happens due to type annotation handling
 	runner.runConformTest();
 }
+@Test
 public void test572873a() {
 	this.runConformTest(
 			new String[] {
@@ -1182,6 +1218,7 @@ public void test572873a() {
 			"test T"
 			);
 }
+@Test
 public void test572873b() {
 	this.runConformTest(
 			new String[] {
@@ -1210,6 +1247,7 @@ public void test572873b() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1507
 // Errors when referencing a var inside lambda
+@Test
 public void testIssue1507() {
 	if (this.complianceLevel < ClassFileConstants.JDK10)
 		return;
@@ -1256,6 +1294,7 @@ public void testIssue1507() {
 			"The local variable buggyLambda may not have been initialized\n" +
 			"----------\n");
 }
+@Test
 public void testGH3207() {
 	runNegativeTest(new String[] {
 			"EnclosedInstance.java",
@@ -1283,6 +1322,7 @@ public void testGH3207() {
 		----------
 		""");
 }
+@Test
 public void testGH3831() {
 	runConformTest(new String[] {
 			"X.java",
@@ -1297,6 +1337,7 @@ public void testGH3831() {
 			"""
 	});
 }
+@Test
 public void testGH3851() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return; // uses 'record'

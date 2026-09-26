@@ -17,13 +17,13 @@
  */
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class RuntimeTests extends AbstractRegressionTest {
 
-public RuntimeTests(String name) {
-	super(name);
+public RuntimeTests(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 // Static initializer to specify tests subset using TESTS_* static variables
@@ -34,14 +34,6 @@ static {
 //		TESTS_NAMES = new String[] { "test0001" };
 //	 	TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-}
-
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-
-public static Class testClass() {
-	return RuntimeTests.class;
 }
 
 // decided not to keep this active because of negative effects on the test
@@ -85,6 +77,7 @@ public void _test0001_memory_exhaustion() {
 
 // synchronization - concurrent access to a resource with explicit and
 // implicit locks
+@Test
 public void test0500_synchronization() {
 	this.runConformTest(
 		new String[] {
@@ -142,6 +135,7 @@ public void test0500_synchronization() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 // reflection - access to a public method of a package visible
 // class through a public extending class
+@Test
 public void test0600_reflection() {
 	runConformTest(
 		true,
@@ -187,6 +181,7 @@ public void test0600_reflection() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 // reflection - access to a public field of a package visible
 // class through a public extending class
+@Test
 public void test0601_reflection() {
 	this.runConformTest(
 		new String[] {
@@ -223,6 +218,7 @@ public void test0601_reflection() {
 }
 
 // partial rebuild - method signature changed (return type)
+@Test
 public void test1000_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
@@ -281,6 +277,7 @@ public void test1000_partial_rebuild() {
 }
 
 // partial rebuild - method signature changed (parameter type)
+@Test
 public void test1001_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
@@ -337,6 +334,7 @@ public void test1001_partial_rebuild() {
 }
 
 // partial rebuild - method signature changed (visibility)
+@Test
 public void test1002_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
@@ -403,6 +401,7 @@ public void test1002_partial_rebuild() {
 }
 
 // partial rebuild - method signature changed (visibility)
+@Test
 public void test1003_partial_rebuild() {
 	this.runConformTest(
 		new String[] {
@@ -472,6 +471,7 @@ public void test1003_partial_rebuild() {
 // partial rebuild - extending class now redefines extended class fields and
 //                   methods
 // was Compliance_1_x#test009
+@Test
 public void test1004_partial_rebuild() {
 	this.runConformTest(
 		new String[] {

@@ -13,21 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class CharOperationTest extends AbstractRegressionTest {
 
-public CharOperationTest(String name) {
-	super(name);
+public CharOperationTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-public static Class testClass() {
-	return CharOperationTest.class;
-}
+@Test
 public void test001() {
 	 char[] array = { 'a' , 'b', 'b', 'c', 'a', 'b', 'c', 'a' };
 	 char[] toBeReplaced = { 'b', 'c' };
@@ -41,6 +36,7 @@ public void test001() {
 		 assertEquals("Wrong value at " + i, result[i], array[i]);
 	 }
 }
+@Test
 public void test002() {
 	 char[] array = { 'a' , 'b', 'b', 'c', 'a', 'b', 'c', 'a' };
 	 char[] toBeReplaced = { 'b', 'c' };
@@ -54,6 +50,7 @@ public void test002() {
 		 assertEquals("Wrong value at " + i, result[i], array[i]);
 	 }
 }
+@Test
 public void test003() {
 	 char[] second = { 'a' , 'b', 'b', 'c', 'a', 'b', 'c', 'a' };
 	 char[] first = { 'b', 'c', 'a' };
@@ -61,6 +58,7 @@ public void test003() {
 	 int  end = 5;
 	 assertTrue(CharOperation.equals(first, second, start, end, true));
 }
+@Test
 public void test004() {
 	 char[] second = { 'A' };
 	 char[] first = { 'a' };
@@ -68,6 +66,7 @@ public void test004() {
 	 int  end = 1;
 	 assertTrue(CharOperation.equals(first, second, start, end, false));
 }
+@Test
 public void test005() {
 	 char[] array = { 'a' , 'b', 'b', 'c', 'a', 'b', 'c', 'a' };
 	 char[] toBeReplaced = { 'b', 'c' };
@@ -79,6 +78,7 @@ public void test005() {
 		 assertEquals("Wrong value at " + i, result[i], array[i]);
 	 }
 }
+@Test
 public void test006() {
 	 char[] array = { 'a' , 'a', 'a', 'a', 'a', 'b', 'c', 'a' };
 	 char[] toBeReplaced = { 'a', 'a' };
@@ -91,6 +91,7 @@ public void test006() {
 	 }
 }
 // test compareTo(char[], char[])
+@Test
 public void test007() {
 	char[] array = { 'a' , 'a', 'a', 'a', 'a', 'b', 'c', 'a' };
 	char[] array2 = { 'a', 'a' };
@@ -114,18 +115,21 @@ public void test007() {
 	assertTrue(CharOperation.compareTo(array, array2) < 0);
 }
 // test indexOf case sensitive
+@Test
 public void test008() {
 	char[] array = new char[] { 'a' , 'b', 'c' };
 	char[] array2 = new char[] { 'a' , 'b', 'c', 'a', 'a'};
 	assertTrue(CharOperation.indexOf(array, array2, true, -1) < 0);
 }
 // test indexOf case insensitive
+@Test
 public void test009() {
 	char[] array = new char[] { 'a' , 'b', 'c' };
 	char[] array2 = new char[] { 'a' , 'b', 'c', 'a', 'a'};
 	assertTrue(CharOperation.indexOf(array, array2, false, -1) < 0);
 }
 //test new API org.eclipse.jdt.core.compiler.CharOperation.prefixEquals(char[], char[], boolean, int)
+@Test
 public void test010() {
 	char[] name = new char[] {  'a' , 'b', 'c', 'a', 'a' };
 	char[] prefix = new char[] { 'c', 'a', 'a' };
@@ -139,6 +143,7 @@ public void test010() {
 	assertTrue(CharOperation.prefixEquals(prefix, name, false, 1));
 }
 // test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=324189
+@Test
 public void test011() {
 	char[] pattern = new char[] { 'a' };
 	char[] name = "AnotherA".toCharArray();
@@ -152,6 +157,7 @@ public void test011() {
 			false));
 }
 // test the javadoc examples
+@Test
 public void test012() {
 	assertTrue("Should match", CharOperation.match(
 			new char[] { '?', 'b', '*' },

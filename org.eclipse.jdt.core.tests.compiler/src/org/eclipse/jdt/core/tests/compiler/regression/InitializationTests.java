@@ -17,9 +17,10 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class InitializationTests extends AbstractRegressionTest {
@@ -27,16 +28,12 @@ public class InitializationTests extends AbstractRegressionTest {
 static {
 //	TESTS_NAMES = new String [] { "testIssue4416" };
 }
-public InitializationTests(String name) {
-		super(name);
-}
-
-public static Test suite() {
-	Test suite = buildAllCompliancesTestSuite(testClass());
-	return suite;
+public InitializationTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020a() {
 	this.runConformTest(
 		new String[] {
@@ -59,6 +56,7 @@ public void test318020a() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020b() {
 	this.runConformTest(
 		new String[] {
@@ -74,6 +72,7 @@ public void test318020b() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020c() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -108,6 +107,7 @@ public void test318020c() {
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020d() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -141,6 +141,7 @@ public void test318020d() {
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020e() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -171,6 +172,7 @@ public void test318020e() {
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020f() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -203,6 +205,7 @@ public void test318020f() {
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020g() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -239,6 +242,7 @@ public void test318020g() {
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020h() {
 	this.runConformTest(
 			new String[] {
@@ -257,6 +261,7 @@ public void test318020h() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020i() {
 	this.runConformTest(
 			new String[] {
@@ -288,6 +293,7 @@ public void test318020i() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020j() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -318,6 +324,7 @@ public void test318020j() {
 			null, false, options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318020
+@Test
 public void test318020k() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -348,6 +355,7 @@ public void test318020k() {
 			null, false, options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=325567
+@Test
 public void test325567() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
@@ -405,6 +413,7 @@ public void test325567() {
 
 // Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
 // definite assignment along all true-yielding paths is sufficient
+@Test
 public void testBug324178b() {
 	this.runConformTest(
 		new String[] {
@@ -426,6 +435,7 @@ public void testBug324178b() {
 
 // Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
 // definite assignment along all true-yielding paths is sufficient
+@Test
 public void testBug324178c() {
 	this.runConformTest(
 		new String[] {
@@ -446,6 +456,7 @@ public void testBug324178c() {
 }
 // Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
 // must detect that b2 may be uninitialized, no special semantics for Boolean
+@Test
 public void testBug324178d() {
 	this.runNegativeTest(
 		new String[] {
@@ -470,6 +481,7 @@ public void testBug324178d() {
 		"----------\n");
 }
 // Bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+@Test
 public void testBug383690() {
 	this.runNegativeTest(
 		new String[] {
@@ -493,6 +505,7 @@ public void testBug383690() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
 // Bogus error: The blank final field o may not have been initialized
+@Test
 public void testIssue4416() {
 	runConformTest(new String[] {
 			"WrongNotInitialized.java",
@@ -513,6 +526,7 @@ public void testIssue4416() {
 			"""
 	});
 }
+@Test
 public void testIssue4416_withPrologue() {
 	if (this.complianceLevel < ClassFileConstants.JDK25)
 		return; // uses flexible constructor bodies
@@ -538,6 +552,7 @@ public void testIssue4416_withPrologue() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
 // Bogus error: The blank final field o may not have been initialized
+@Test
 public void testIssue4416b() {
 	runConformTest(new String[] {
 			"Test.java",
@@ -560,6 +575,7 @@ public void testIssue4416b() {
 			"""
 	});
 }
+@Test
 public void testIssue4416b_withPrologue() {
 	if (this.complianceLevel < ClassFileConstants.JDK25)
 		return; // uses flexible constructor bodies
@@ -587,6 +603,7 @@ public void testIssue4416b_withPrologue() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
 // Bogus error: The blank final field o may not have been initialized
+@Test
 public void testIssue4416c() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
@@ -604,6 +621,7 @@ public void testIssue4416c() {
 			"""
 	});
 }
+@Test
 public void testIssue4416c_withPrologue() {
 	if (this.complianceLevel < ClassFileConstants.JDK25)
 		return; // uses flexible constructor bodies
@@ -624,6 +642,7 @@ public void testIssue4416c_withPrologue() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
 // Bogus error: The blank final field o may not have been initialized
+@Test
 public void testIssue4416d() {
 	runConformTest(new String[] {
 			"Test.java",
@@ -646,6 +665,7 @@ public void testIssue4416d() {
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
 //Bogus error: The blank final field o may not have been initialized
+@Test
 public void testIssue4416d_withPrologue() {
 	if (this.complianceLevel < ClassFileConstants.JDK25)
 		return; // uses flexible constructor bodies
@@ -669,6 +689,7 @@ public void testIssue4416d_withPrologue() {
 			"""
 	});
 }
+@Test
 public void testGH4865() {
 	runConformTest(new String[] {
 			"Foo.java",

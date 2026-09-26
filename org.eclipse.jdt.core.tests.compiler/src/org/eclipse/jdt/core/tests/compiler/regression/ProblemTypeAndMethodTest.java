@@ -21,7 +21,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -29,11 +28,13 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ProblemTypeAndMethodTest extends AbstractRegressionTest {
-public ProblemTypeAndMethodTest(String name) {
-	super(name);
+public ProblemTypeAndMethodTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
@@ -43,13 +44,7 @@ static {
 //		TESTS_RANGE = new int[] { 108, -1 };
 }
 
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-
-public static Class testClass() {
-	return ProblemTypeAndMethodTest.class;
-}
+@Test
 public void test001() {
 	this.runNegativeTest(
 		new String[] {
@@ -128,6 +123,7 @@ public void test001() {
 	assertEquals("Wrong number of foo method", 1, counter);
 }
 
+@Test
 public void test002() {
 	this.runNegativeTest(new String[] {
 			"X.java",
@@ -180,6 +176,7 @@ public void test002() {
 		"----------\n");
 }
 
+@Test
 public void test003() {
 	this.runNegativeTest(new String[] {
 			"X.java",
@@ -249,6 +246,7 @@ public void test003() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200
+@Test
 public void test004() {
 	this.runConformTest(
 			new String[] {
@@ -451,6 +449,7 @@ public void test004() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test005() {
 	this.runConformTest(
 			new String[] {
@@ -508,6 +507,7 @@ public void test005() {
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test006() {
 	this.runConformTest(
 			new String[] {
@@ -565,6 +565,7 @@ public void test006() {
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test007() {
 	this.runConformTest(
 			new String[] {
@@ -627,6 +628,7 @@ public void test007() {
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test008() {
 	this.runConformTest(
 			new String[] {
@@ -676,6 +678,7 @@ public void test008() {
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test009() {
 	this.runConformTest(
 			new String[] {
@@ -730,6 +733,7 @@ public void test009() {
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test010() {
 	this.runConformTest(
 			new String[] {
@@ -785,6 +789,7 @@ public void test010() {
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test011() {
 	this.runNegativeTest(new String[] {
 			"X.java",
@@ -818,6 +823,7 @@ public void test011() {
 		"void[] is an invalid type\n" +
 		"----------\n");
 }
+@Test
 public void test012() {
 	String expectedResult;
 	expectedResult =
@@ -869,6 +875,7 @@ public void test012() {
 		expectedResult);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test013() {
 	String expectedResult;
 	expectedResult =
@@ -893,6 +900,7 @@ public void test013() {
 		expectedResult);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test014() {
 	String expectedResult;
 	expectedResult =
@@ -917,6 +925,7 @@ public void test014() {
 		expectedResult);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test015() {
 	String expectedResult;
 	expectedResult =
@@ -974,6 +983,7 @@ public void test015() {
 		expectedResult);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test016() {
 	this.runNegativeTest(new String[] {
 			"X.java",
@@ -995,6 +1005,7 @@ public void test016() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test017() {
 	this.runNegativeTest(new String[] {
 			"X.java",
@@ -1016,6 +1027,7 @@ public void test017() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test018() {
 	this.runNegativeTest(new String[] {
 			"X.java",
@@ -1037,6 +1049,7 @@ public void test018() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test019() {
 	this.runConformTest(
 			new String[] {
@@ -1086,6 +1099,7 @@ public void test019() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test020() {
 	this.runConformTest(
 			new String[] {
@@ -1134,6 +1148,7 @@ public void test020() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test021() {
 	this.runNegativeTest(
 			new String[] {
@@ -1168,6 +1183,7 @@ public void test021() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test022() {
 	this.runConformTest(
 			new String[] {
@@ -1220,6 +1236,7 @@ public void test022() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test023() {
 	this.runConformTest(
 			new String[] {
@@ -1271,6 +1288,7 @@ public void test023() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test024() {
 	this.runConformTest(
 			new String[] {
@@ -1323,6 +1341,7 @@ public void test024() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test025() {
 	this.runConformTest(
 			new String[] {
@@ -1381,6 +1400,7 @@ public void test025() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test026() {
 	this.runNegativeTest(
 			new String[] {
@@ -1404,6 +1424,7 @@ public void test026() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test027() {
 	this.runNegativeTest(
 			new String[] {
@@ -1444,6 +1465,7 @@ public void test027() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test028() {
 	this.runNegativeTest(
 			new String[] {
@@ -1483,6 +1505,7 @@ public void test028() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test029() throws Exception {
 	this.runNegativeTest(
 			new String[] {
@@ -1520,6 +1543,7 @@ public void test029() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test030() {
 	this.runNegativeTest(
 			new String[] {
@@ -1560,6 +1584,7 @@ public void test030() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test031() {
 	this.runNegativeTest(
 			new String[] {
@@ -1584,6 +1609,7 @@ public void test031() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test032() {
 	this.runNegativeTest(
 			new String[] {
@@ -1610,6 +1636,7 @@ public void test032() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test033() {
 	this.runNegativeTest(
 			new String[] {
@@ -1647,6 +1674,7 @@ public void test033() {
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test034() {
 	this.runNegativeTest(
 			new String[] {
@@ -1675,6 +1703,7 @@ public void test034() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test035() {
 	this.runNegativeTest(
 			new String[] {
@@ -1719,6 +1748,7 @@ public void test035() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test036() {
 	this.runNegativeTest(
 			new String[] {
@@ -1747,6 +1777,7 @@ public void test036() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test037() {
 	this.runNegativeTest(
 			new String[] {
@@ -1791,6 +1822,7 @@ public void test037() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test038() {
 	this.runNegativeTest(
 			new String[] {
@@ -1819,6 +1851,7 @@ public void test038() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test039() {
 	this.runNegativeTest(
 			new String[] {
@@ -1863,6 +1896,7 @@ public void test039() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test040() {
 	this.runNegativeTest(
 			new String[] {
@@ -1891,6 +1925,7 @@ public void test040() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test041() {
 	this.runNegativeTest(
 			new String[] {
@@ -1935,6 +1970,7 @@ public void test041() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test042() {
 	this.runNegativeTest(
 			new String[] {
@@ -1963,6 +1999,7 @@ public void test042() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test043() {
 	this.runNegativeTest(
 			new String[] {
@@ -2007,6 +2044,7 @@ public void test043() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test044() {
 	this.runNegativeTest(
 			new String[] {
@@ -2035,6 +2073,7 @@ public void test044() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test045() {
 	this.runNegativeTest(
 			new String[] {
@@ -2079,6 +2118,7 @@ public void test045() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test046() {
 	this.runNegativeTest(
 			new String[] {
@@ -2107,6 +2147,7 @@ public void test046() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test047() {
 	this.runNegativeTest(
 			new String[] {
@@ -2151,6 +2192,7 @@ public void test047() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test048() {
 	this.runNegativeTest(
 			new String[] {
@@ -2179,6 +2221,7 @@ public void test048() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test049() {
 	this.runNegativeTest(
 			new String[] {
@@ -2223,6 +2266,7 @@ public void test049() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test050() {
 	this.runNegativeTest(
 			new String[] {
@@ -2251,6 +2295,7 @@ public void test050() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test051() {
 	this.runNegativeTest(
 			new String[] {
@@ -2295,6 +2340,7 @@ public void test051() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test052() {
 	this.runNegativeTest(
 			new String[] {
@@ -2359,6 +2405,7 @@ public void test052() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test053() {
 	this.runNegativeTest(
 			new String[] {
@@ -2423,6 +2470,7 @@ public void test053() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test054() {
 	this.runNegativeTest(
 			new String[] {
@@ -2492,6 +2540,7 @@ public void test054() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test055() {
 	this.runNegativeTest(
 			new String[] {
@@ -2574,6 +2623,7 @@ public void test055() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test056() {
 	this.runNegativeTest(
 			new String[] {
@@ -2656,6 +2706,7 @@ public void test056() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test057() {
 	this.runNegativeTest(
 			new String[] {
@@ -2743,6 +2794,7 @@ public void test057() {
 			false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test058() {
 	this.runNegativeTest(
 			new String[] {
@@ -2770,6 +2822,7 @@ public void test058() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test059() {
 	this.runNegativeTest(
 			new String[] {
@@ -2847,6 +2900,7 @@ public void test059() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test060() {
 	this.runNegativeTest(
 			new String[] {
@@ -2865,6 +2919,7 @@ public void test060() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test061() {
 	this.runNegativeTest(
 			new String[] {
@@ -2905,6 +2960,7 @@ public void test061() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test062() {
 	this.runNegativeTest(
 			new String[] {
@@ -2946,6 +3002,7 @@ public void test062() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test063() {
 	this.runNegativeTest(
 			new String[] {
@@ -2986,6 +3043,7 @@ public void test063() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test064() {
 	this.runNegativeTest(
 			new String[] {
@@ -3005,6 +3063,7 @@ public void test064() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test065() {
 	this.runNegativeTest(
 			new String[] {
@@ -3037,6 +3096,7 @@ public void test065() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test066() {
 	this.runNegativeTest(
 			new String[] {
@@ -3077,6 +3137,7 @@ public void test066() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test067() {
 	this.runNegativeTest(
 			new String[] {
@@ -3103,6 +3164,7 @@ public void test067() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test068() {
 	this.runNegativeTest(
 			new String[] {
@@ -3124,6 +3186,7 @@ public void test068() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test069() {
 	this.runNegativeTest(
 			new String[] {
@@ -3154,6 +3217,7 @@ public void test069() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test070() {
 	this.runNegativeTest(
 			new String[] {
@@ -3185,6 +3249,7 @@ public void test070() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test071() {
 	this.runNegativeTest(
 			new String[] {
@@ -3213,6 +3278,7 @@ public void test071() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test072() {
 	this.runNegativeTest(
 			new String[] {
@@ -3245,6 +3311,7 @@ public void test072() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test073() {
 	this.runNegativeTest(
 			new String[] {
@@ -3288,6 +3355,7 @@ public void test073() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test074() {
 	String expected =
 				"----------\n" +
@@ -3352,6 +3420,7 @@ public void test074() {
 			expected);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test075() {
 	String expected =
 				"----------\n" +
@@ -3399,6 +3468,7 @@ public void test075() {
 			expected);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test076() {
 	String expected =
 				"----------\n" +
@@ -3446,6 +3516,7 @@ public void test076() {
 			expected);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+@Test
 public void test077() {
 	String expected =
 				"----------\n" +
@@ -3493,6 +3564,7 @@ public void test077() {
 			expected);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220967
+@Test
 public void test078() {
 	this.runNegativeTest(
 			new String[] {
@@ -3515,6 +3587,7 @@ public void test078() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220967 - variation
+@Test
 public void test079() {
 	this.runNegativeTest(
 			new String[] {
@@ -3533,6 +3606,7 @@ public void test079() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220967 - variation
+@Test
 public void test080() {
 	this.runNegativeTest(
 			new String[] {
@@ -3554,6 +3628,7 @@ public void test080() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758
+@Test
 public void test081() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -3648,6 +3723,7 @@ public void test081() {
 	runner.runNegativeTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+@Test
 public void test082() {
 	this.runConformTest(
 			new String[] {
@@ -3700,6 +3776,7 @@ public void test082() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+@Test
 public void test083() {
 	this.runConformTest(
 			new String[] {
@@ -3718,6 +3795,7 @@ public void test083() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+@Test
 public void test084() {
 	this.runNegativeTest(
 			new String[] {
@@ -3747,6 +3825,7 @@ public void test084() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+@Test
 public void test085() {
 	this.runNegativeTest(
 			new String[] {
@@ -3778,6 +3857,7 @@ public void test085() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+@Test
 public void test086() {
 	this.runNegativeTest(
 			new String[] {
@@ -3809,6 +3889,7 @@ public void test086() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+@Test
 public void test087() {
 	this.runNegativeTest(
 			new String[] {
@@ -3841,6 +3922,7 @@ public void test087() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
+@Test
 public void test088() {
 	this.runNegativeTest(
 			new String[] {
@@ -3873,6 +3955,7 @@ public void test088() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=245304
+@Test
 public void test089() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -3907,6 +3990,7 @@ public void test089() {
 			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247666
+@Test
 public void test090() {
 	this.runNegativeTest(
 			new String[] {
@@ -3931,6 +4015,7 @@ public void test090() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=252288
+@Test
 public void test091()  throws Exception {
 	this.runNegativeTest(
 		new String[] {
@@ -4530,6 +4615,7 @@ public void test091()  throws Exception {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297
+@Test
 public void test092() {
 	this.runNegativeTest(
 		new String[] {
@@ -4582,6 +4668,7 @@ public void test092() {
 	runner.runConformTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
+@Test
 public void test093() {
 	this.runNegativeTest(
 			new String[] {
@@ -4604,6 +4691,7 @@ public void test093() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
+@Test
 public void test094() {
 	this.runNegativeTest(
 			new String[] {
@@ -4630,6 +4718,7 @@ public void test094() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
+@Test
 public void test095() {
 	this.runNegativeTest(
 			new String[] {
@@ -4661,6 +4750,7 @@ public void test095() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=257384
+@Test
 public void test096() {
 	this.runNegativeTest(
 		new String[] {
@@ -4705,6 +4795,7 @@ public void test096() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258248
+@Test
 public void test097() {
 	this.runNegativeTest(
 		new String[] {
@@ -4728,6 +4819,7 @@ public void test097() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+@Test
 public void test098() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4848,6 +4940,7 @@ public void test098() {
 	runner.runWarningTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+@Test
 public void test099() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4958,6 +5051,7 @@ public void test099() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
 // check independence of textual order
+@Test
 public void test099a() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -5068,6 +5162,7 @@ public void test099a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
 // check usage via super-call
+@Test
 public void test099b() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -5138,6 +5233,7 @@ public void test099b() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+@Test
 public void test100() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -5166,6 +5262,7 @@ public void test100() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+@Test
 public void test101() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -5194,6 +5291,7 @@ public void test101() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+@Test
 public void test102() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -5241,6 +5339,7 @@ public void test102() {
 	runner.runWarningTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+@Test
 public void test103() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -5297,6 +5396,7 @@ public void test103() {
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void test104() {
 	this.runNegativeTest(
 		new String[] {
@@ -5341,6 +5441,7 @@ public void test104() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=243917
+@Test
 public void test105() {
 	this.runNegativeTest(
 		new String[] {
@@ -5361,6 +5462,7 @@ public void test105() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=245007
+@Test
 public void test106() {
 	this.runNegativeTest(
 		new String[] {
@@ -5389,6 +5491,7 @@ public void test106() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=319425
+@Test
 public void test107() {
 	this.runNegativeTest(
 		new String[] {
@@ -5441,6 +5544,7 @@ public void test107() {
 	runner.runConformTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
+@Test
 public void test108() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -5539,6 +5643,7 @@ public void test108() {
 		errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
+@Test
 public void test109() {
 	this.runConformTest(
 		new String[] {
@@ -5621,6 +5726,7 @@ public void test109() {
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
+@Test
 public void test110() {
 	this.runConformTest(
 		new String[] {
@@ -5703,6 +5809,7 @@ public void test110() {
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
+@Test
 public void test111() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -5801,6 +5908,7 @@ public void test111() {
 		errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
+@Test
 public void test112() {
 	this.runConformTest(
 		new String[] {
@@ -5883,6 +5991,7 @@ public void test112() {
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=325567
+@Test
 public void test113() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -5958,6 +6067,7 @@ public void test113() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // QualifiedNameReference, SingleNameReference and MessageSend
 // Can be static warning shown
+@Test
 public void test114() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6025,6 +6135,7 @@ public void test114() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // FieldReference and MessageSend
 // Can be static warning shown
+@Test
 public void test115() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6070,6 +6181,7 @@ public void test115() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // MessageSend in different ways
+@Test
 public void test116a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6145,6 +6257,7 @@ public void test116a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // MessageSend in different ways, referencing a static method.
+@Test
 public void test116b() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6235,6 +6348,7 @@ public void test116b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // Referring a field in different ways, accessing non-static field.
+@Test
 public void test117a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6335,6 +6449,7 @@ public void test117a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // Referring a field in different ways, accessing non-static field.
+@Test
 public void test117b() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6465,6 +6580,7 @@ public void test117b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // Final class -> can be static (and not potentially be static) warning shown
+@Test
 public void test118() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6501,6 +6617,7 @@ public void test118() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // Method of a local class -> can't be static, so no warning
 // Also method with such a local class accessing a member of the outer class can't be static
+@Test
 public void test119() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6545,6 +6662,7 @@ public void test119() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // Method using type parameters declared by enclosing class can't be static, so don't warn
+@Test
 public void test120() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6593,6 +6711,7 @@ public void test120() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // Access to super in a method disqualifies it from being static
+@Test
 public void test121() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6638,6 +6757,7 @@ public void test121() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // Methods of non-static member types can't be static
+@Test
 public void test122() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6674,6 +6794,7 @@ public void test122() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 // If method returns type parameter not declared by it, it cannot be static
+@Test
 public void test123() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6706,6 +6827,7 @@ public void test123() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 // If method allocates an inner non-static type without an enclosing object, method can't be static
+@Test
 public void testBug335845a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6736,6 +6858,7 @@ public void testBug335845a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 // If method allocates an inner non-static type without an enclosing object, method can't be static
+@Test
 public void testBug335845b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6766,6 +6889,7 @@ public void testBug335845b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 // If method allocates an inner static type without an enclosing object, method can be static
+@Test
 public void testBug335845c() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6803,6 +6927,7 @@ public void testBug335845c() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 // If method allocates an inner non-static type without an enclosing object, method can't be static
+@Test
 public void testBug335845d() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6833,6 +6958,7 @@ public void testBug335845d() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 // If method allocates an inner static type without an enclosing object, method can be static
+@Test
 public void testBug335845e() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6869,6 +6995,7 @@ public void testBug335845e() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 // If method allocates an inner static type without an enclosing object, method can be static
+@Test
 public void testBug335845f() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -6906,6 +7033,7 @@ public void testBug335845f() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 // If method allocates an inner static type without an enclosing object, method can be static
+@Test
 public void testBug335845g() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6944,6 +7072,7 @@ public void testBug335845g() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335780
 // For this reference as an argument of a message send, method can't be static
+@Test
 public void test124a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -6972,6 +7101,7 @@ public void test124a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=335780
 // For this reference as an argument of a message send, method can't be static
+@Test
 public void test124b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7005,6 +7135,7 @@ public void test124b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354502
 // Anonymous class instantiation of a non-static member type, method can't be static
+@Test
 public void test354502() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7038,6 +7169,7 @@ public void test354502() {
 	runner.runNegativeTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360164
+@Test
 public void test360164() {
 	this.runConformTest(
 			new String[] {
@@ -7116,6 +7248,7 @@ public void test360164() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // SingleNameReference, assignment of instance field inside a local class method
+@Test
 public void test376550_1a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7146,6 +7279,7 @@ public void test376550_1a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // SingleNameReference, assignment of instance field of local class inside a local class method
+@Test
 public void test376550_1b() {
 	new Runner() {{
 	  this.customOptions = getCompilerOptions();
@@ -7182,6 +7316,7 @@ public void test376550_1b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // LocalDeclaration with type as a type variable binding
+@Test
 public void test376550_2a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7216,6 +7351,7 @@ public void test376550_2a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // LocalDeclaration with type as a type variable binding
+@Test
 public void test376550_2b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7244,6 +7380,7 @@ public void test376550_2b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // MessageSend, calling outer class method inside a local class method
+@Test
 public void test376550_3a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7273,6 +7410,7 @@ public void test376550_3a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // MessageSend, calling local class method inside a local class method
+@Test
 public void test376550_3b() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7308,6 +7446,7 @@ public void test376550_3b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // Local class instance field is an argument in messageSend in local class method
+@Test
 public void test376550_4a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7344,6 +7483,7 @@ public void test376550_4a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // Outerclass instance field is an argument in messageSend in local class method
+@Test
 public void test376550_4b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7374,6 +7514,7 @@ public void test376550_4b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameReference, accessing local class instance field
+@Test
 public void test376550_5a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7410,6 +7551,7 @@ public void test376550_5a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // https://bugs.eclispe.org/379784 - [compiler] "Method can be static" is not getting reported
 // Variation of the above
+@Test
 public void test376550_5aa() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7447,6 +7589,7 @@ public void test376550_5aa() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameReference, accessing outer class instance field
+@Test
 public void test376550_5b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7476,6 +7619,7 @@ public void test376550_5b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameRef.analyseCode()
+@Test
 public void test376550_6a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7511,6 +7655,7 @@ public void test376550_6a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameRef.analyseCode()
+@Test
 public void test376550_6b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7541,6 +7686,7 @@ public void test376550_6b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedAllocationExpression, allocating an anonymous type without an enclosing instance of parent type
 // anon. type is declared in local class
+@Test
 public void test376550_7a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7577,6 +7723,7 @@ public void test376550_7a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedAllocationExpression, allocating an anonymous type without an enclosing instance of parent type
 // anon. type is declared in outer class
+@Test
 public void test376550_7b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7606,6 +7753,7 @@ public void test376550_7b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // FieldRef, from object of a class in outer class
+@Test
 public void test376550_8a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7641,6 +7789,7 @@ public void test376550_8a() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 //FieldRef, from object of a class in local class
+@Test
 public void test376550_8b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7670,6 +7819,7 @@ public void test376550_8b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameRef, accessing a field from local class field
+@Test
 public void test376550_9a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7707,6 +7857,7 @@ public void test376550_9a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameRef, accessing a field from local class field
+@Test
 public void test376550_9b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7738,6 +7889,7 @@ public void test376550_9b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameRef, accessing a field from local class field
+@Test
 public void test376550_10a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7775,6 +7927,7 @@ public void test376550_10a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // QualifiedNameRef, accessing a field from local class field
+@Test
 public void test376550_10b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7806,6 +7959,7 @@ public void test376550_10b() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // bug test case
+@Test
 public void test376550_11() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7841,6 +7995,7 @@ public void test376550_11() {
 // https://bugs.eclipse.org/376550
 // https://bugs.eclipse.org/379784 - [compiler] "Method can be static" is not getting reported
 // bug test case
+@Test
 public void test376550_11a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7874,6 +8029,7 @@ public void test376550_11a() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
+@Test
 public void test376550_12() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -7908,6 +8064,7 @@ public void test376550_12() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 // https://bugs.eclipse.org/379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
+@Test
 public void test376550_13() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7940,6 +8097,7 @@ public void test376550_13() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=379530
+@Test
 public void test379530() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
@@ -7965,6 +8123,7 @@ public void test379530() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=393781
+@Test
 public void test393781() {
 	Map compilerOptions = getCompilerOptions(); // OPTION_ReportRawTypeReference
 	Object oldOption = compilerOptions.get(CompilerOptions.OPTION_ReportRawTypeReference);
@@ -8028,6 +8187,7 @@ private void runStaticWarningConformTest(String fileName, String body) {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places, i.e. if the type parameter is used in the signature
+@Test
 public void test378674_comment0() {
 	runStaticWarningConformTest(
 		"Test.java",
@@ -8051,6 +8211,7 @@ public void test378674_comment0() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment1b() {
 	runStaticWarningConformTest(
 		"X.java",
@@ -8065,6 +8226,7 @@ public void test378674_comment1b() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places
+@Test
 public void test378674_comment1c() {
 	runStaticWarningConformTest(
 		"X.java",
@@ -8080,6 +8242,7 @@ public void test378674_comment1c() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places
+@Test
 public void test378674_comment2() {
 	runStaticWarningConformTest(
 		"X.java",
@@ -8092,6 +8255,7 @@ public void test378674_comment2() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment3() {
 	runStaticWarningConformTest(
 		"Test.java",
@@ -8110,6 +8274,7 @@ public void test378674_comment3() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places
+@Test
 public void test378674_comment5a() {
 	runStaticWarningConformTest(
 		"Test.java",
@@ -8133,6 +8298,7 @@ public void test378674_comment5a() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment5b() {
 	runStaticWarningConformTest(
 		"Test.java",
@@ -8152,6 +8318,7 @@ public void test378674_comment5b() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment9() {
 	runStaticWarningConformTest(
 		"Test.java",
@@ -8170,6 +8337,7 @@ public void test378674_comment9() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment11() {
 	runStaticWarningConformTest(
 		"Test.java",
@@ -8193,6 +8361,7 @@ public void test378674_comment11() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment21a() {
 	runStaticWarningConformTest(
 		"X.java",
@@ -8204,6 +8373,7 @@ public void test378674_comment21a() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment21b() {
 	runStaticWarningConformTest(
 		"X.java",
@@ -8214,6 +8384,7 @@ public void test378674_comment21b() {
 		"}\n"
 	);
 }//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment21c() {
 	runStaticWarningConformTest(
 		"X.java",
@@ -8227,6 +8398,7 @@ public void test378674_comment21c() {
 		"}\n"
 	);
 }//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+@Test
 public void test378674_comment21d() {
 	runStaticWarningConformTest(
 		"X.java",
@@ -8240,6 +8412,7 @@ public void test378674_comment21d() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases...
+@Test
 public void test406396() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -8294,6 +8467,7 @@ public void test406396() {
 	runner.runNegativeTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases...
+@Test
 public void test406396a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -8334,6 +8508,7 @@ public void test406396a() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug542829() {
 	// m.Issing is a type that comes and goes:
 	String nameMissing = "m/Issing.java";
@@ -8418,6 +8593,7 @@ public void testBug542829() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testBug576735() {
 	String path = getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "lib576735.jar";
 	String[] libs = getDefaultClassPaths();
@@ -8461,6 +8637,7 @@ public void testBug576735() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -8523,6 +8700,7 @@ public void testMissingClassNeededForOverloadResolution() {
 		""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_pickByLateArg() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -8561,6 +8739,7 @@ public void testMissingClassNeededForOverloadResolution_pickByLateArg() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_ctor() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -8623,6 +8802,7 @@ public void testMissingClassNeededForOverloadResolution_ctor() {
 		""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs1a() {
 	// varargs arg: B vs Missing
 	Runner runner = new Runner();
@@ -8702,6 +8882,7 @@ public void testMissingClassNeededForOverloadResolution_varargs1a() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs1a_ctor() {
 	// varargs arg: B vs Missing
 	Runner runner = new Runner();
@@ -8781,6 +8962,7 @@ public void testMissingClassNeededForOverloadResolution_varargs1a_ctor() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs1b() {
 	// like testMissingClassNeededForOverloadResolution_varargs1a, but no preceding regular parameter
 	Runner runner = new Runner();
@@ -8873,6 +9055,7 @@ public void testMissingClassNeededForOverloadResolution_varargs1b() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs1c() {
 	// varargs arg: only missing types competing
 	Runner runner = new Runner();
@@ -8951,6 +9134,7 @@ public void testMissingClassNeededForOverloadResolution_varargs1c() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs1d() {
 	// like testMissingClassNeededForOverloadResolution_varargs1c, but no preceding regular parameter
 	Runner runner = new Runner();
@@ -9029,6 +9213,7 @@ public void testMissingClassNeededForOverloadResolution_varargs1d() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs2() {
 	// different arities
 	Runner runner = new Runner();
@@ -9101,6 +9286,7 @@ public void testMissingClassNeededForOverloadResolution_varargs2() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs2_ctorOK() {
 	// different arities
 	Runner runner = new Runner();
@@ -9142,6 +9328,7 @@ public void testMissingClassNeededForOverloadResolution_varargs2_ctorOK() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs2_qualCtorOK() {
 	// different arities
 	Runner runner = new Runner();
@@ -9185,6 +9372,7 @@ public void testMissingClassNeededForOverloadResolution_varargs2_qualCtorOK() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs2_ctorNOK() {
 	// different arities
 	Runner runner = new Runner();
@@ -9241,6 +9429,7 @@ public void testMissingClassNeededForOverloadResolution_varargs2_ctorNOK() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs3() {
 	// missing type in non-varargs position
 	Runner runner = new Runner();
@@ -9289,6 +9478,7 @@ public void testMissingClassNeededForOverloadResolution_varargs3() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClassNeededForOverloadResolution_varargs3_ctor() {
 	// missing type in non-varargs position
 	Runner runner = new Runner();
@@ -9337,6 +9527,7 @@ public void testMissingClassNeededForOverloadResolution_varargs3_ctor() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_varargs4_noArg() {
 	// missing type in non-varargs position
 	Runner runner = new Runner();
@@ -9376,6 +9567,7 @@ public void testMissingClass_varargs4_noArg() {
 		};
 	runner.runConformTest();
 }
+@Test
 public void testMissingClass_returnType_OK() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9440,6 +9632,7 @@ public void testMissingClass_returnType_OK() {
 	runner.expectedErrorString = null;
 	runner.runConformTest();
 }
+@Test
 public void testMissingClass_returnType_NOK() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9530,6 +9723,7 @@ public void testMissingClass_returnType_NOK() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_exception() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9575,6 +9769,7 @@ public void testMissingClass_exception() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_exception_ctor() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9620,6 +9815,7 @@ public void testMissingClass_exception_ctor() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_typeVariableBound() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9666,6 +9862,7 @@ public void testMissingClass_typeVariableBound() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_typeVariableBound_OK() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9712,6 +9909,7 @@ public void testMissingClass_typeVariableBound_OK() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_typeVariableBound2() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9762,6 +9960,7 @@ public void testMissingClass_typeVariableBound2() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_typeVariableBound2_ctor() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9817,6 +10016,7 @@ public void testMissingClass_typeVariableBound2_ctor() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_samMissingParameterType_OK() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9862,6 +10062,7 @@ public void testMissingClass_samMissingParameterType_OK() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_samMissingParameterType_NOK() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9908,6 +10109,7 @@ public void testMissingClass_samMissingParameterType_NOK() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingClass_samMissingReturnType() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -9953,6 +10155,7 @@ public void testMissingClass_samMissingReturnType() {
 			""";
 	runner.runNegativeTest();
 }
+@Test
 public void testGH3047() throws Exception {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -10055,6 +10258,7 @@ public void testGH3047() throws Exception {
 	}
 	runner.runNegativeTest();
 }
+@Test
 public void testGH3451() {
 	Runner runner = new Runner();
 	String[] libs = getDefaultClassPaths();
@@ -10117,6 +10321,7 @@ public void testGH3451() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4209
 // ECJ should not warn about missing serialVersionUID for anonymous inner classes
+@Test
 public void testIssue4209() throws Exception {
 	this.runNegativeTest(
 			new String[] {
@@ -10143,6 +10348,7 @@ public void testIssue4209() throws Exception {
 			"----------\n");
 }
 
+@Test
 public void testMissingClass_return() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -10193,6 +10399,7 @@ public void testMissingClass_return() {
 // from required type Y" when an inner class accesses a field declared on its outer
 // class, and a transitive supertype of the inner class happens to have a field whose
 // type is absent from the classpath.
+@Test
 public void testIssue5146() {
 	if (this.complianceLevel <= ClassFileConstants.JDK10) // we get access emulation warnings before nestmates arrival
 		return;

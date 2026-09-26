@@ -17,13 +17,13 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
@@ -31,15 +31,8 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-	}
-	public static Class testClass() {
-		return ClassFileReaderTest_1_5.class;
-	}
-
-	public ClassFileReaderTest_1_5(String name) {
-		super(name);
+	public ClassFileReaderTest_1_5(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	/**
@@ -80,6 +73,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
 	 */
+	@Test
 	public void test001() throws Exception {
 		String source =
 			"public class X {\n" +
@@ -107,6 +101,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76472
 	 */
+	@Test
 	public void test002() throws Exception {
 		String source =
 			"public class X {\n" +
@@ -136,6 +131,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
+	@Test
 	public void test003() throws Exception {
 		String source =
 			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" +
@@ -164,6 +160,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
+	@Test
 	public void test004() throws Exception {
 		String source =
 			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" +
@@ -194,6 +191,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
 	 */
+	@Test
 	public void test005() throws Exception {
 		String source =
 			"public class X {\n" +
@@ -219,6 +217,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 */
+	@Test
 	public void test006() throws Exception {
 		String source =
 			"public enum X { \n" +
@@ -247,6 +246,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 * TODO corner case that doesn't produce the right source
 	 */
+	@Test
 	public void test007() throws Exception {
 		String source =
 			"public enum X {\n" +
@@ -291,6 +291,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 * TODO corner case that doesn't produce the right source
 	 */
+	@Test
 	public void test008() throws Exception {
 		String source =
 			"interface I {\n" +
@@ -334,6 +335,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
 	 */
+	@Test
 	public void test009() throws Exception {
 		String source =
 			"@interface X {\n" +
@@ -354,6 +356,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
 	 * @deprecated Using deprecated API
 	 */
+	@Test
 	public void test010() throws Exception {
 		String source =
 			"@interface X {\n" +
@@ -373,6 +376,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203577
 	 */
+	@Test
 	public void test011() throws Exception {
 		String source =
 			"import java.lang.annotation.Retention;\n" +
@@ -414,6 +418,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203609
 	 */
+	@Test
 	public void test012() throws Exception {
 		String source =
 			"@Deprecated\n" +
@@ -428,6 +433,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217907
 	 */
+	@Test
 	public void test013() throws Exception {
 		String source =
 			"import java.lang.annotation.Retention;\n" +
@@ -469,6 +475,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217907
 	 */
+	@Test
 	public void test014() throws Exception {
 		String source =
 			"import java.lang.annotation.Retention;\n" +
@@ -489,6 +496,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217910
 	 */
+	@Test
 	public void test015() throws Exception {
 		String source =
 			"import java.lang.annotation.Retention;\n" +
@@ -507,6 +515,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=286405
 	 */
+	@Test
 	public void test016() throws Exception {
 		String source =
 			"public @interface MonAnnotation {\n" +
@@ -519,6 +528,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 		checkClassFile("", "MonAnnotation", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 
+	@Test
 	public void testBug504031() throws Exception {
 		String source =
 				"package test;\n" +

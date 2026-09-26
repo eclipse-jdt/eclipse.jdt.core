@@ -15,30 +15,25 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(value=AbstractCompilerTest.F_22, singleVersion=true)
 public class BatchCompilerTest_22 extends AbstractBatchCompilerTest {
 
 	/**
 	 * This test suite only needs to be run on one compliance.
-	 *
-	 * @see TestAll
 	 */
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_22);
-	}
-
-	public static Class<BatchCompilerTest_22> testClass() {
-		return BatchCompilerTest_22.class;
-	}
-
-	public BatchCompilerTest_22(String name) {
-		super(name);
+	public BatchCompilerTest_22(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3055
 	// Add warnings for structurally required but otherwise unused local variables
+	@Test
 	public void testIssue3055() throws IOException {
 		createOutputTestDirectory("regression/.settings");
 		Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
@@ -89,6 +84,7 @@ public class BatchCompilerTest_22 extends AbstractBatchCompilerTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3055
 	// Add warnings for structurally required but otherwise unused local variables
+	@Test
 	public void testIssue3055_2() throws IOException {
 		createOutputTestDirectory("regression/.settings");
 		Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",

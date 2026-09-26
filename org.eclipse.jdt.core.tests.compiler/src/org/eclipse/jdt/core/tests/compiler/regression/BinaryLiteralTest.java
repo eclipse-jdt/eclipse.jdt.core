@@ -14,22 +14,17 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BinaryLiteralTest extends AbstractRegressionTest {
-	public BinaryLiteralTest(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+	public BinaryLiteralTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
-	public static Class testClass() {
-		return BinaryLiteralTest.class;
-	}
-
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -42,6 +37,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	@Test
 	public void test002() {
 		this.runNegativeTest(
 			new String[] {
@@ -59,6 +55,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			"Invalid binary literal number (only \'0\' and \'1\' are expected)\n" +
 			"----------\n");
 	}
+	@Test
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -76,6 +73,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			"Invalid binary literal number (only \'0\' and \'1\' are expected)\n" +
 			"----------\n");
 	}
+	@Test
 	public void test004() {
 		Map customedOptions = getCompilerOptions();
 		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
@@ -95,6 +93,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			true,
 			customedOptions);
 	}
+	@Test
 	public void test005() {
 		Map customedOptions = getCompilerOptions();
 		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
@@ -114,6 +113,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			true,
 			customedOptions);
 	}
+	@Test
 	public void test006() {
 		Map customedOptions = getCompilerOptions();
 		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());

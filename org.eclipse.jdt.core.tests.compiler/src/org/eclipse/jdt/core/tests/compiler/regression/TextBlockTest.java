@@ -14,19 +14,17 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_15)
 public class TextBlockTest extends AbstractRegressionTest {
 
-	public static Class<?> testClass() {
-		return TextBlockTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_15);
-	}
-	public TextBlockTest(String testName){
-		super(testName);
+	public TextBlockTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 	protected Map<String, String> getCompilerOptions() {
 		return getCompilerOptions(true);
@@ -86,6 +84,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 			// javac options
 			javacTestOptions /* javac test options */);
 	}
+	@Test
 	public void test001() {
 		runNegativeTest(
 				new String[] {
@@ -104,6 +103,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Syntax error on token \"\"\"\", invalid AssignmentOperator\n" +
 				"----------\n");
 	}
+	@Test
 	public void test002() {
 		runNegativeTest(
 				new String[] {
@@ -122,6 +122,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Syntax error on token \"\" \"\", invalid AssignmentOperator\n" +
 				"----------\n");
 	}
+	@Test
 	public void test003() {
 		runNegativeTest(
 				new String[] {
@@ -142,6 +143,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Text block is not properly closed with the delimiter\n" +
 				"----------\n");
 	}
+	@Test
 	public void test003a() {
 		runNegativeTest(
 				new String[] {
@@ -165,6 +167,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * negative - unescaped '\' in a text block
 	 */
+	@Test
 	public void test004() {
 		runNegativeTest(
 				new String[] {
@@ -187,6 +190,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	/* empty text block */
+	@Test
 	public void test005() {
 		runConformTest(
 				new String[] {
@@ -205,6 +209,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - escaped '\'
 	 */
+	@Test
 	public void test006() {
 		runConformTest(
 				new String[] {
@@ -224,6 +229,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - escaped '\'
 	 */
+	@Test
 	public void test006a() {
 		runConformTest(
 				new String[] {
@@ -244,6 +250,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * Positive - Multi line text block with varying indentation
 	 * and \n
 	 */
+	@Test
 	public void test007() {
 		runConformTest(
 				new String[] {
@@ -269,6 +276,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * Positive - Multi line text block with varying indentation
 	 * and \n and \r
 	 */
+	@Test
 	public void test008() {
 		runConformTest(
 				new String[] {
@@ -294,6 +302,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * Positive - Multi line text block with varying indentation
 	 * and \n and \r
 	 */
+	@Test
 	public void test008a() {
 		runConformTest(
 				new String[] {
@@ -321,6 +330,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using unescaped '"' in text block
 	 */
+	@Test
 	public void test009() {
 		runConformTest(
 				new String[] {
@@ -340,6 +350,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using escaped '"' in text block
 	 */
+	@Test
 	public void test010() {
 		runConformTest(
 				new String[] {
@@ -358,6 +369,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using escaped \ and escaped " in text block
 	 */
+	@Test
 	public void test011() {
 		runConformTest(
 				new String[] {
@@ -377,6 +389,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * positive - using Unicode in text block
 	 * and compare with an equal String literal
 	 */
+	@Test
 	public void test012() {
 		runConformTest(
 				new String[] {
@@ -396,6 +409,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - bigger piece of code as text block
 	 */
+	@Test
 	public void test013() {
 		runConformTest(
 				new String[] {
@@ -419,6 +433,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - concatenation of string with text block
 	 */
+	@Test
 	public void test014() {
 		runConformTest(
 				new String[] {
@@ -442,6 +457,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - freely using quotes
 	 */
+	@Test
 	public void test015() {
 		runConformTest(
 				new String[] {
@@ -472,6 +488,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - html code with indentation
 	 */
+	@Test
 	public void test016() {
 		runConformTest(
 				new String[] {
@@ -498,6 +515,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - html code with indentation with empty lines
 	 */
+	@Test
 	public void test016a() {
 		runConformTest(
 				new String[] {
@@ -525,6 +543,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - html code with indentation with \r as terminator
 	 */
+	@Test
 	public void test016c() {
 		runConformTest(
 				new String[] {
@@ -552,6 +571,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - html code with indentation and trailing whitespace
 	 */
+	@Test
 	public void test017() {
 		runConformTest(
 				new String[] {
@@ -579,6 +599,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using octal escape char for trailing whitespace
 	 */
+	@Test
 	public void test018() {
 		runConformTest(
 				new String[] {
@@ -605,6 +626,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using text block as a method argument
 	 */
+	@Test
 	public void test019() {
 		runConformTest(
 				new String[] {
@@ -631,6 +653,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using variable assigned with text block as a method argument
 	 */
+	@Test
 	public void test020() {
 		runConformTest(
 				new String[] {
@@ -658,6 +681,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - assigning strings and text blocks interchangeably.
 	 */
+	@Test
 	public void test021() {
 		runConformTest(
 				new String[] {
@@ -683,6 +707,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"</html>",
 				null);
 	}
+	@Test
 	public void test024() {
 		runConformTest(
 				true,
@@ -725,6 +750,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				null,
 				JavacTestOptions.DEFAULT);
 	}
+	@Test
 	public void test025() {
 		runNegativeTest(
 				new String[] {
@@ -749,6 +775,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions());
 	}
 
+	@Test
 	public void test027() {
 		runConformTest(
 				new String[] {
@@ -791,6 +818,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions());
 	}
 	// An empty text block
+	@Test
 	public void test028() {
 		runConformTest(
 				new String[] {
@@ -808,6 +836,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions());
 	}
 	// An empty text block
+	@Test
 	public void test029() {
 		runConformTest(
 				new String[] {
@@ -826,6 +855,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Hello Guru", // output comparison tool strips off all trailing whitespace
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug551948_1() {
 		runConformTest(
 				new String[] {
@@ -845,6 +875,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", // output comparison tool strips off all trailing whitespace
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug551948_2() {
 		runConformTest(
 				new String[] {
@@ -863,6 +894,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"abc\n    defghi",
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug551948_3() {
 		runConformTest(
 				new String[] {
@@ -882,6 +914,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"    y == False",
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug551948_4() {
 		runConformTest(
 				new String[] {
@@ -901,6 +934,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"red   green blue  orange",
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug551948_5() {
 		runNegativeTest(
 				new String[] {
@@ -929,6 +963,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
+	@Test
 	public void testBug551948_6() {
 		runConformTest(
 				new String[] {
@@ -944,6 +979,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"A line with spaces",
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug551948_7() {
 		runConformTest(
 				new String[] {
@@ -963,6 +999,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"red   \ngreen \nblue", // trailing whitespaces are trimmed
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug551948_8() {
 		runConformTest(
 				new String[] {
@@ -987,6 +1024,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"ccc",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_1() {
 		runConformTest(
 				new String[] {
@@ -1009,6 +1047,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_2() {
 		runConformTest(
 				new String[] {
@@ -1032,6 +1071,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_3() {
 		runConformTest(
 				new String[] {
@@ -1055,6 +1095,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_4() {
 		runConformTest(
 				new String[] {
@@ -1084,6 +1125,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_5() {
 		runConformTest(
 				new String[] {
@@ -1107,6 +1149,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"false",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_6() {
 		runConformTest(
 				new String[] {
@@ -1129,6 +1172,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_7() {
 		runConformTest(
 				new String[] {
@@ -1151,6 +1195,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_8() {
 		runConformTest(
 				new String[] {
@@ -1168,6 +1213,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions());
 	}
 	// Escaped """ with escaping at the first '"'
+	@Test
 	public void testCompliances_9() {
 		runConformTest(
 				new String[] {
@@ -1185,6 +1231,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions());
 	}
 	// Escaped """ with escaping at the second '"'
+	@Test
 	public void testCompliances_10() {
 		runConformTest(
 				new String[] {
@@ -1202,6 +1249,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions());
 	}
 	// Escaped """ with escaping at the third '"'
+	@Test
 	public void testCompliances_11() {
 		runConformTest(
 				new String[] {
@@ -1218,6 +1266,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"26",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_12() {
 		runConformTest(
 				new String[] {
@@ -1240,6 +1289,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_13() {
 		runConformTest(
 				new String[] {
@@ -1261,6 +1311,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"256",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_14() {
 		runConformTest(
 				new String[] {
@@ -1285,6 +1336,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug553252() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
 		Map<String, String> copy = new HashMap<>(defaultOptions);
@@ -1315,6 +1367,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				new String[] {"-source 14 "},
 				copy);
 	}
+	@Test
 	public void testBug562460() {
 		runConformTest(
 				new String[] {
@@ -1330,6 +1383,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_15() {
 		runConformTest(
 				new String[] {
@@ -1350,6 +1404,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"8,97,97,",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_16() {
 		runConformTest(
 				new String[] {
@@ -1370,6 +1425,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"8,97,97,",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_17() {
 		runConformTest(
 				new String[] {
@@ -1390,6 +1446,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"9,8,97,97,",
 				getCompilerOptions());
 	}
+	@Test
 	public void testCompliances_18() {
 		runConformTest(
 				new String[] {
@@ -1410,6 +1467,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"11,8,97,97,",
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug565639_1() {
 		runConformTest(true,
 					new String[]{
@@ -1436,6 +1494,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				new String[] {"--enable-preview"},
 				new JavacTestOptions("-source 14 --enable-preview"));
 	}
+	@Test
 	public void testBug565639_2() {
 		runConformTest(true,
 				new String[]{
@@ -1462,6 +1521,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 			new String[] {"--enable-preview"},
 			new JavacTestOptions("-source 14 --enable-preview"));
 	}
+	@Test
 	public void testBug565639_3() {
 		runNegativeTest(new String[]{
 					"X.java",
@@ -1485,6 +1545,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"String literal is not properly closed by a double-quote\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug565639_4() {
 		runNegativeTest(new String[]{
 					"X.java",
@@ -1508,6 +1569,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Syntax error on token \"\"\"\", delete this token\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug565639_5() {
 		runNegativeTest(new String[]{
 					"X.java",
@@ -1531,6 +1593,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Syntax error on token \"\"\"\", delete this token\n" +
 				"----------\n");
 	}
+	@Test
 	public void testBug565639_6() {
 		runConformTest(
 				new String[] {
@@ -1556,6 +1619,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
+	@Test
 	public void testBug575953() {
 		runConformTest(
 				new String[] {
@@ -1588,6 +1652,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
+	@Test
 	public void testBug578649_1() {
 		runConformTest(
 				new String[] {
@@ -1609,6 +1674,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"</record>",
 				getCompilerOptions());
 	}
+	@Test
 	public void testBug578649_2() {
 		runConformTest(
 				new String[] {
@@ -1630,6 +1696,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * positive - html code with indentation with empty lines
 	 * output compared with String API
 	 */
+	@Test
 	public void test016b() {
 		String text = "<html>\n" +
 					"    <body>\n" +
@@ -1656,6 +1723,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - escaped '\', compare with String::translateEscapes
 	 */
+	@Test
 	public void test022() {
 		String text = "abc\\\\def";
 		runConformTest(
@@ -1679,6 +1747,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * 							String::translateEscapes
 	 * 							String::stripIndent
 	 */
+	@Test
 	public void test023() {
 		String text = "abc\\\"\"\"def\"  ";
 		runConformTest(
@@ -1697,6 +1766,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				null,
 				new String[] {"--enable-preview"});
 	}
+	@Test
 	public void testIssue544_1() {
 		runConformTest(
 				new String[] {
@@ -1713,6 +1783,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"30",
 				getCompilerOptions());
 	}
+	@Test
 	public void testIssue544_2() {
 		runConformTest(
 			new String[] {
@@ -1743,6 +1814,7 @@ String text = \\\"""
 			"true",
 			getCompilerOptions());
 	}
+	@Test
 	public void testIssue544_3() {
 		runConformTest(
 				new String[] {
@@ -1764,6 +1836,7 @@ public class X {
 				"true",
 				getCompilerOptions());
 	}
+	@Test
 	public void testIssue544_4() {
 		runConformTest(
 				new String[] {
@@ -1793,6 +1866,7 @@ string.\""");
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4129
 	// Text block with unicode escape before multiple backslashes has wrong value
+	@Test
 	public void testIssue4129() {
 		runConformTest(
 				new String[] {
@@ -1815,6 +1889,7 @@ string.\""");
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4153
 	// [Text blocks] Delimiters in unicode not handled properly
+	@Test
 	public void testIssue4153() {
 		runConformTest(
 				new String[] {
@@ -1833,6 +1908,7 @@ string.\""");
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=561978
 	// Text block with the \<line-terminator> distorts line numbers for Unix-style line delimiters
+	@Test
 	public void testBug561978() {
 		runConformTest(true,
 				new String[] {
@@ -1865,6 +1941,7 @@ string.\""");
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570719
 	// Text blocks: '\<line-terminator>' after '\s' compiled to "\\\n" instead of to ""
+	@Test
 	public void testBug570719() {
 		runConformTest(
 				new String[] {

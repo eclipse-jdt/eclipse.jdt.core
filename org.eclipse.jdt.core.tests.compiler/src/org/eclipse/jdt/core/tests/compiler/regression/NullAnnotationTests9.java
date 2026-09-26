@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -37,25 +38,20 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 
-	public NullAnnotationTests9(String name) {
-		super(name);
+	public NullAnnotationTests9(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	static {
 //			TESTS_NAMES = new String[] { "testBug456497" };
 //			TESTS_NUMBERS = new int[] { 001 };
 //			TESTS_RANGE = new int[] { 1, 12 };
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
-	}
-
-	public static Class<?> testClass() {
-		return NullAnnotationTests9.class;
 	}
 
 	@Deprecated // super method is deprecated
@@ -221,6 +217,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		return runner;
 	}
 
+	@Test
 	public void test_nnbd_in_module_01() {
 		associateToModule("my.mod", "my.mod/p/X.java");
 		Runner runner = getDefaultRunner();
@@ -250,6 +247,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void test_nnbd_in_module_02() throws IOException {
 
 		String jarPath = OUTPUT_DIR+"/mod.one.jar";
@@ -308,6 +306,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	@Test
 	public void test_redundant_nnbd_vs_module() {
 		associateToModule("my.mod", "my.mod/p/X.java", "my.mod/p2/package-info.java");
 		Runner runner = getDefaultRunner();
@@ -361,6 +360,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	@Test
 	public void testBug536037a() {
 		if (this.complianceLevel < ClassFileConstants.JDK10) return;
 		runConformTestWithLibs(
@@ -377,6 +377,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 			"");
 		this.verifier.shutDown();
 	}
+	@Test
 	public void testBug536037b() {
 		// tests combination of declaration null-annotations & 'var':
 		if (this.complianceLevel < ClassFileConstants.JDK10) return;
@@ -430,6 +431,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testGH1152() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {

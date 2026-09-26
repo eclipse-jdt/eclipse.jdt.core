@@ -40,12 +40,12 @@ public class EvaluationSetup extends CompilerTestSetup {
 	LocalVirtualMachine launchedVM;
 	INameEnvironment env;
 
-	public EvaluationSetup(long complianceLevel) {
-		super(complianceLevel);
+	public EvaluationSetup(String testName, long complianceLevel) {
+		super(testName, complianceLevel);
 	}
 
 	@Override
-	protected void setUp() {
+	public void setUp() {
 		if (this.context == null) { // non null if called from subclass
 			try (ServerSocket server = new ServerSocket(0)) {
 				// Launch VM in evaluation mode
@@ -118,7 +118,8 @@ public class EvaluationSetup extends CompilerTestSetup {
 	}
 
 	@Override
-	final protected void tearDown() {
+	public
+	final void tearDown() {
 		if (this.context != null) {
 			LocalVirtualMachine vm = this.launchedVM;
 			if (vm != null) {

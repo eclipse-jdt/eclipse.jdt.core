@@ -20,9 +20,10 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AmbiguousMethodTest extends AbstractComparableTest {
@@ -30,16 +31,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String [] { "test010a" };
 	}
-	public AmbiguousMethodTest(String name) {
-		super(name);
-	}
-
-	public static Test suite() {
-		return buildComparableTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return AmbiguousMethodTest.class;
+	public AmbiguousMethodTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	@Override
@@ -48,6 +41,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		compilerOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
 		return compilerOptions;
 	}
+	@Test
 	public void test000() {
 		this.runConformTest(
 			new String[] {
@@ -60,6 +54,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"1"
 		);
 	}
+	@Test
 	public void test000a() {
 		this.runConformTest(
 				new String[] {
@@ -72,6 +67,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	@Test
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -84,6 +80,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	@Test
 	public void test002() {
 		this.runNegativeTest(
 				new String[] {
@@ -109,6 +106,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	@Test
 	public void test002a() {
 		this.runConformTest(
 			new String[] {
@@ -129,6 +127,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"works"
 		);
 	}
+	@Test
 	public void test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -151,6 +150,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void test003a() {
 		this.runConformTest(
 			new String[] {
@@ -175,6 +175,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"231"
 		);
 	}
+	@Test
 	public void test003b() {
 		this.runNegativeTest(
 			new String[] {
@@ -197,6 +198,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void test003c() {
 		this.runNegativeTest(
 			new String[] {
@@ -217,6 +219,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	@Test
 	public void test004() {
 		this.runNegativeTest(
 			new String[] {
@@ -238,6 +241,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in M<java.lang.Integer,java.lang.Integer> match
 		);
 	}
+	@Test
 	public void test004a() {
 		this.runConformTest(
 			new String[] {
@@ -253,6 +257,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			""
 		);
 	}
+	@Test
 	public void test005() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
 		String expectedCompilerLog =
@@ -291,6 +296,7 @@ X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
 1 error
  */
 	}
+	@Test
 	public void test006() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
 		String expectedCompilerLog =
@@ -368,6 +374,7 @@ sure, yet neither overrides the other
  */
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129056
+	@Test
 	public void test007() {
 		this.runNegativeTest(
 			new String[] {
@@ -404,6 +411,7 @@ sure, yet neither overrides the other
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 - case 1
+	@Test
 	public void test008() {
 		this.runConformTest(
 			new String[] {
@@ -420,6 +428,7 @@ sure, yet neither overrides the other
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 - case 1
+	@Test
 	public void test008a() {
 		this.runNegativeTest(
 			new String[] {
@@ -445,6 +454,7 @@ sure, yet neither overrides the other
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 - case 2
 	// see also Bug 399567 - [1.8] Different error message from the reference compiler
+	@Test
 	public void test009() {
 		String[] testFiles =
 				new String[] {
@@ -480,6 +490,7 @@ sure, yet neither overrides the other
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 variant to make it pass on JRE8
+	@Test
 	public void test009a() {
 		this.runConformTest(
 			new String[] {
@@ -502,6 +513,7 @@ sure, yet neither overrides the other
 		);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+@Test
 public void test010a() {
 	this.runNegativeTest(
 		new String[] {
@@ -527,6 +539,7 @@ public void test010a() {
 // javac 7 randomly picks which ever method is second
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+@Test
 public void test010b() {
 	this.runConformTest(
 		new String[] {
@@ -546,6 +559,7 @@ public void test010b() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+@Test
 public void test010c() {
 	this.runConformTest(
 		new String[] {
@@ -565,6 +579,7 @@ public void test010c() {
 	);
 }
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
+	@Test
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
@@ -595,6 +610,7 @@ public void test010c() {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
+	@Test
 	public void test011a() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
 		String expectedCompilerLog =
@@ -636,6 +652,7 @@ X.java:3: name clash: <T#1>pickOne(Comparable<T#1>) and <T#2>pickOne(T#2) have t
  */
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
+	@Test
 	public void test011b() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
 		String expectedCompilerLog =
@@ -691,6 +708,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 1 warning
  */
 	}
+	@Test
 	public void test012() {
 		this.runConformTest(
 			new String[] {
@@ -704,6 +722,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"1"
 		);
 	}
+	@Test
 	public void test012a() {
 		this.runNegativeTest(
 			new String[] {
@@ -723,6 +742,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			// reference to id is ambiguous, both method id(T) in A<java.lang.Integer> and method <ZZ>id(java.lang.Integer) in B match
 		);
 	}
+	@Test
 	public void test013() {
 			this.runConformTest(
 			new String[] {
@@ -741,6 +761,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"12"
 		);
 	}
+	@Test
 	public void test014() {
 		this.runConformTest(
 			new String[] {
@@ -767,6 +788,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"1122"
 		);
 	}
+	@Test
 	public void test014a() {
 		this.runConformTest(
 			new String[] {
@@ -793,6 +815,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"1122"
 		);
 	}
+	@Test
 	public void test014b() {
 		this.runConformTest(
 			new String[] {
@@ -818,6 +841,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"13"
 		);
 	}
+	@Test
 	public void test014c() {
 		this.runNegativeTest(
 			new String[] {
@@ -859,6 +883,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			// reference to a is ambiguous, both method a(G) in X and method a(F<C>) in X match
 		);
 	}
+	@Test
 	public void test014d() {
 		this.runNegativeTest(
 			new String[] {
@@ -886,6 +911,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"----------\n"
 		);
 	}
+	@Test
 	public void test014e() {
 		this.runConformTest(
 			new String[] {
@@ -914,6 +940,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"145"
 		);
 	}
+	@Test
 	public void test014f() {
 		this.runNegativeTest(
 			new String[] {
@@ -941,6 +968,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"----------\n"
 		);
 	}
+	@Test
 	public void test014g() {
 		this.runConformTest(
 			new String[] {
@@ -969,6 +997,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"135"
 		);
 	}
+	@Test
 	public void test014h() {
 		this.runConformTest(
 			new String[] {
@@ -1096,6 +1125,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=262209
+	@Test
 	public void test014i() {
 		this.runNegativeTest(
 			new String[] {
@@ -1362,6 +1392,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
+	@Test
 	public void test015() {
 		this.runConformTest(
 			new String[] {
@@ -1447,6 +1478,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149893
+	@Test
 	public void test017() {
 		this.runConformTest(
 			new String[] {
@@ -1474,6 +1506,7 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: having both methods in the same class should not change anything
+	@Test
 	public void test021() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
 		String expectedCompilerLog =
@@ -1565,6 +1598,7 @@ X.java:13: warning: [unchecked] unchecked method invocation: method make in clas
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: using instances triggers raw methods, which are ambiguous
+	@Test
 	public void test022() {
 		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
 		String expectedCompilerLog =
@@ -1672,6 +1706,7 @@ X.java:14: warning: [unchecked] unchecked call to <W>make(Class<W>) as a member 
  */
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
+@Test
 public void test023() {
 	this.runConformTest(
 		new String[] {
@@ -1707,6 +1742,7 @@ public void test023() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 // self contained variant
+@Test
 public void test024() {
 	this.runConformTest(
 		new String[] {
@@ -1737,6 +1773,7 @@ public void test024() {
 		"2");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
+@Test
 public void test025() {
 	this.runConformTest(
 		new String[] {
@@ -1766,6 +1803,7 @@ public void test025() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
 // variant
+@Test
 public void test026() {
 	this.runConformTest(
 		new String[] {
@@ -1794,6 +1832,7 @@ public void test026() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
 // variant
+@Test
 public void test027() {
 	this.runNegativeTest(
 		new String[] {
@@ -1816,6 +1855,7 @@ public void test027() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+@Test
 public void test028() {
 	this.runConformTest(
 		new String[] { /* test files */
@@ -1839,6 +1879,7 @@ public void test028() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - simplified
+@Test
 public void test029() {
 	this.runConformTest(
 		new String[] { /* test files */
@@ -1858,6 +1899,7 @@ public void test029() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - same return type
+@Test
 public void test030() {
 	this.runConformTest(
 		new String[] {
@@ -1878,6 +1920,7 @@ public void test030() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant
+@Test
 public void test031() {
 	this.runConformTest(
 		new String[] { /* test files */
@@ -1903,6 +1946,7 @@ public void test031() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - the inheriting class implements foo
+@Test
 public void test035() {
 	this.runConformTest(
 		new String[] {
@@ -1926,6 +1970,7 @@ public void test035() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - extending instead of implementing
+@Test
 public void test037() {
 	this.runConformTest(
  		// test directory preparation
@@ -1946,6 +1991,7 @@ public void test037() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - no promotion of parameter from float to Number
+@Test
 public void test038() {
 	this.runConformTest(
 		new String[] { /* test files */
@@ -1965,6 +2011,7 @@ public void test038() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - an explicit cast solves the issue
+@Test
 public void test039() {
 	this.runConformTest(
 		new String[] {
@@ -1985,6 +2032,7 @@ public void test039() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - an explicit cast solves the issue
+@Test
 public void test040() {
 	this.runConformTest(
 		new String[] {
@@ -2005,6 +2053,7 @@ public void test040() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - connecting return types
+@Test
 public void test041() {
 	this.runNegativeTest(
 		new String[] {
@@ -2031,6 +2080,7 @@ public void test041() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - a further inheriting class implements String foo
+@Test
 public void test042() {
 	this.runConformTest(
  		// test directory preparation
@@ -2057,6 +2107,7 @@ public void test042() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - a further inheriting class implements Object foo
+@Test
 public void test043() {
 	this.runNegativeTest(
 		new String[] {
@@ -2088,6 +2139,7 @@ public void test043() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163370
+@Test
 public void test044() {
 	this.runConformTest(
 		new String[] {
@@ -2111,6 +2163,7 @@ public void test044() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165620
+@Test
 public void test045() {
 	this.runConformTest(
 		new String[] {
@@ -2141,6 +2194,7 @@ public void test045() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163370
 // variant
+@Test
 public void test046() {
 	this.runConformTest(
 		new String[] {
@@ -2169,6 +2223,7 @@ public void test046() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
+@Test
 public void test047() {
 	this.runNegativeTest(
  		// test directory preparation
@@ -2198,6 +2253,7 @@ public void test047() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
 // Variant: javac complains as well if we attempt to use method, but noone
 // complains upon bar or CONSTANT.
+@Test
 public void test048() {
 	this.runNegativeTest(
 		new String[] {
@@ -2237,6 +2293,7 @@ public void test048() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
 // can't implement both interfaces though
+@Test
 public void test049() {
 	this.runNegativeTest(
 		new String[] {
@@ -2262,6 +2319,7 @@ public void test049() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
 // variant: secure the legal case
+@Test
 public void test050() {
 	this.runConformTest(
 		new String[] {
@@ -2280,6 +2338,7 @@ public void test050() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+@Test
 public void test051() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -2325,6 +2384,7 @@ public void test051() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
+@Test
 public void test052() {
 	this.runConformTest(
 		new String[] {
@@ -2349,6 +2409,7 @@ public void test052() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
+@Test
 public void test053() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -2393,6 +2454,7 @@ public void test053() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
+@Test
 public void test054() {
 	this.runConformTest(
 		new String[] {
@@ -2437,6 +2499,7 @@ public void _test055() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=186382
+@Test
 public void test057() {
 	this.runConformTest(
 		new String[] {
@@ -2455,6 +2518,7 @@ public void test057() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=188741
+@Test
 public void test058() {
 	this.runConformTest(
 		new String[] {
@@ -2479,6 +2543,7 @@ public void test058() {
 		"11");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=188741
+@Test
 public void test058a() {
 	this.runConformTest(
 		new String[] {
@@ -2492,6 +2557,7 @@ public void test058a() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=188960
+@Test
 public void test059() {
 	this.runNegativeTest(
 		new String[] {
@@ -2543,6 +2609,7 @@ public void test059() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=191029
+@Test
 public void test059a() {
 	this.runNegativeTest(
 		new String[] {
@@ -2573,6 +2640,7 @@ public void test059a() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=189933
+@Test
 public void test060() {
 	this.runConformTest(
 		new String[] {
@@ -2597,6 +2665,7 @@ public void test060() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=189933
 // variant
+@Test
 public void test061() {
 	this.runNegativeTest(
 		new String[] {
@@ -2651,6 +2720,7 @@ public void test061() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193265
+@Test
 public void test062() {
 	this.runConformTest(
 		new String[] {
@@ -2672,6 +2742,7 @@ public void test062() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=196254
+@Test
 public void test063() {
 	this.runConformTest(
 		new String[] {
@@ -2692,6 +2763,7 @@ public void test063() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=198120
+@Test
 public void test064() {
 	this.runConformTest(
 		new String[] {
@@ -2711,6 +2783,7 @@ public void test064() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200547
+@Test
 public void test065() {
 	this.runConformTest(
 		new String[] {
@@ -2727,6 +2800,7 @@ public void test065() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=214558
+@Test
 public void test066() {
 	this.runNegativeTest(
 		new String[] {
@@ -2780,6 +2854,7 @@ public void test066() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=214558 - positive case
+@Test
 public void test067() {
 	this.runConformTest(
 		new String[] {
@@ -2800,6 +2875,7 @@ public void test067() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279
+@Test
 public void test068() {
 	this.runConformTest(
 		new String[] {
@@ -2822,6 +2898,7 @@ public void test068() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+@Test
 public void test069() {
 	this.runNegativeTest(
 		new String[] {
@@ -2847,6 +2924,7 @@ public void test069() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+@Test
 public void test070() {
 	this.runNegativeTest(
 		new String[] {
@@ -2889,6 +2967,7 @@ public void test070() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+@Test
 public void test071() {
 	this.runConformTest(
 		new String[] {
@@ -2918,6 +2997,7 @@ public void test071() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+@Test
 public void test072() {
 	this.runConformTest(
 		new String[] {
@@ -2954,6 +3034,7 @@ public void test072() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251279 - variation
+@Test
 public void test073() {
 	this.runNegativeTest(
 		new String[] {
@@ -3020,6 +3101,7 @@ public void test073() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=206930
+@Test
 public void test074() {
 	this.runNegativeTest(
 		false /* skipJavac */,
@@ -3110,6 +3192,7 @@ public void test074() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=266421
+@Test
 public void test075() {
 	this.runNegativeTest(
 		new String[] {
@@ -3140,6 +3223,7 @@ public void test075() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=268837
 // See that this test case exhibits the bug 345947
+@Test
 public void test076() {
 	String output =
 				"----------\n" +
@@ -3297,6 +3381,7 @@ public void test076() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=270194
+@Test
 public void test077() {
 	this.runConformTest(
 		new String[] {
@@ -3316,6 +3401,7 @@ public void test077() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=287592
+@Test
 public void test078() {
 	this.runNegativeTest(
 		new String[] {
@@ -3358,6 +3444,7 @@ public void test078() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=292350
 // See that this test case exhibits the bug 345947
+@Test
 public void test079() {
 	this.runNegativeTest(
 		new String[] {
@@ -3392,6 +3479,7 @@ public void test079() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=293384
+@Test
 public void test080() {
 	this.runConformTest(
 		new String[] {
@@ -3418,6 +3506,7 @@ public void test080() {
 		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358
+@Test
 public void test081() {
 	this.runConformTest(
 		new String[] {
@@ -3472,6 +3561,7 @@ public void test081() {
 		"In B.set(CharSequence)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358
+@Test
 public void test082() {
 	this.runConformTest(
 		new String[] {
@@ -3526,6 +3616,7 @@ public void test082() {
 		"In B.set(CharSequence)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358
+@Test
 public void test083() {
 	this.runConformTest(
 		new String[] {
@@ -3580,6 +3671,7 @@ public void test083() {
 		"In B.set(CharSequence)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358
+@Test
 public void test084() {
 	this.runConformTest(
 		new String[] {
@@ -3631,6 +3723,7 @@ public void test084() {
 		"In A.set(Object)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358
+@Test
 public void test085() {
 	this.runConformTest(
 		new String[] {
@@ -3682,6 +3775,7 @@ public void test085() {
 		"In A.set(Object)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358
+@Test
 public void test086() {
 	this.runConformTest(
 		new String[] {
@@ -3736,6 +3830,7 @@ public void test086() {
 		"In A.set(Object)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321485
+@Test
 public void test087() {
 	String source =
 		"import java.util.Collection;\n" +
@@ -3750,6 +3845,7 @@ public void test087() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=354579
+@Test
 public void test088a() {
 	this.runNegativeTest(
 		new String[] {
@@ -3773,6 +3869,7 @@ public void test088a() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=354579
+@Test
 public void test088b() {
 	this.runNegativeTest(
 		new String[] {
@@ -3796,6 +3893,7 @@ public void test088b() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354579
+@Test
 public void test089() {
 	this.runNegativeTest(
 		new String[] {
@@ -3819,6 +3917,7 @@ public void test089() {
 		"----------\n"
 	);
 }
+@Test
 public void testBug426521() {
 	runNegativeTest(
 		new String[] {
@@ -3843,6 +3942,7 @@ public void testBug426521() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428845
+@Test
 public void testBug428845() {
 	runNegativeTest(
 			new String[] {
@@ -3876,6 +3976,7 @@ public void testBug428845() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=458563 - invalid ambiguous method error on Java 8 that isn't seen on Java 7 (or with javac)
+@Test
 public void testBug458563() {
 	runConformTest(
 		new String[] {
@@ -3896,6 +3997,7 @@ public void testBug458563() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=458563 - invalid ambiguous method error on Java 8 that isn't seen on Java 7 (or with javac)
+@Test
 public void testBug458563a() {
 	runConformTest(
 		new String[] {
@@ -3916,6 +4018,7 @@ public void testBug458563a() {
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=466730 - Java 8: single method with generics is ambiguous when using import static ...* and inheritance
+@Test
 public void testBug466730() {
 	runConformTest(
 		new String[] {

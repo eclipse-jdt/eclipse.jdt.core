@@ -14,22 +14,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
-@SuppressWarnings({ "rawtypes" })
 public class ProblemConstructorTest extends AbstractRegressionTest {
 
-public ProblemConstructorTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
-}
-public static Class testClass() {
-	return ProblemConstructorTest.class;
+public ProblemConstructorTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
+@Test
 public void test001() {
 	this.runNegativeTest(
 		new String[] {
@@ -82,6 +77,7 @@ public void test001() {
 		JavacTestOptions.SKIP /* skip javac tests */);
 }
 // 49843
+@Test
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -110,6 +106,7 @@ public void test002() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=163443
+@Test
 public void test003() {
 	this.runNegativeTest(
 		new String[] {
@@ -146,6 +143,7 @@ public void test003() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201912, test to make sure that unused public members of
 // private class (including constructors, fields, types and methods) get warned about.
+@Test
 public void test004() {
 	this.runNegativeTest(
 		new String[] {
@@ -204,6 +202,7 @@ public void test004() {
 // we DON'T complain about the constructor of B not being used (as its removal would result in a compile
 // error since its base class does not have a no-arg constructor for the synthesized default constructor
 // to invoke.
+@Test
 public void test005() {
 	String[]  testFiles = new String[] {
 			"A.java",
@@ -232,6 +231,7 @@ public void test005() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142, wrong unused warning reported. Test to ensure that
 //we DO complain about the constructor of B not being used when its base class has a no-arg constructor
+@Test
 public void test006() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
 			"----------\n" +
@@ -271,6 +271,7 @@ public void test006() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142, wrong unused warning reported. Test to ensure that
 //we can compile the program successfully after deleting the unused constructor.
+@Test
 public void test007() {
 	this.runConformTest(
 		new String[] {
@@ -289,6 +290,7 @@ public void test007() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142, wrong unused warning reported. Test to ensure that
 //we DON'T complain about unused constructor when the super class's default constructor is not visible.
+@Test
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -311,6 +313,7 @@ public void test008() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142, wrong unused warning reported. Test to ensure that
 //we DO complain about unused constructor when the super class's default constructor is visible.
+@Test
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -337,6 +340,7 @@ public void test009() {
 			"----------\n");
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038a() {
 	this.runNegativeTest(
 		new String[] {
@@ -367,6 +371,7 @@ public void test408038a() {
 	);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038b() {
 	this.runNegativeTest(
 		new String[] {
@@ -397,6 +402,7 @@ public void test408038b() {
 	);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038c() {
 	this.runNegativeTest(
 		new String[] {
@@ -434,6 +440,7 @@ public void test408038c() {
 	);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+@Test
 public void test408038d() {
 	this.runNegativeTest(
 		new String[] {
@@ -479,6 +486,7 @@ public void test408038d() {
 //Classes which implement Externalizable should not have an unused constructor warning
 //The test case is not directly related to the bug. It was discovered as a result
 //of the bug. Please see comment 16 bullet 4 in bugzilla.
+@Test
 public void test408038e() {
 	this.runNegativeTest(
 		new String[] {

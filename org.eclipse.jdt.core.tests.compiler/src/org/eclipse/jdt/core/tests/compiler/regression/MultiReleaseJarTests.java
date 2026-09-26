@@ -3,10 +3,14 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import javax.lang.model.SourceVersion;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_9)
 public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 
 	static {
@@ -16,22 +20,14 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 	}
 
 	private boolean isJRE10 = false;
-	public MultiReleaseJarTests(String name) {
-		super(name);
+	public MultiReleaseJarTests(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 		try {
 			SourceVersion valueOf = SourceVersion.valueOf("RELEASE_10");
 			if (valueOf != null) this.isJRE10 = true;
 		} catch(Exception e) {
 
 		}
-	}
-
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9);
-	}
-
-	public static Class<?> testClass() {
-		return MultiReleaseJarTests.class;
 	}
 
 	private static String createMultiReleaseJar() throws IOException {
@@ -176,6 +172,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		return jarPath;
 	}
 
+	@Test
 	public void test001() {
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
@@ -205,6 +202,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false
 		   );
 	}
+	@Test
 	public void test002() {
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
@@ -229,6 +227,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false
 		   );
 	}
+	@Test
 	public void test003() {
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
@@ -248,6 +247,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false
 		   );
 	}
+	@Test
 	public void test004() {
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
@@ -273,6 +273,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false
 		   );
 	}
+	@Test
 	public void test005() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
@@ -319,6 +320,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false
 		   );
 	}
+	@Test
 	public void test006() {
 		if (!this.isJRE10) return;
 		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
@@ -360,6 +362,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		   );
 	}
 
+	@Test
 	public void test007_moduleDescriptorFromLowerRelease() throws IOException {
 		String path = createMultiReleaseJar();
 		runConformTest(
@@ -382,6 +385,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false);
 	}
 
+	@Test
 	public void test008_classFromLowerRelease() throws IOException {
 		String path = createMultiReleaseJar();
 		runConformTest(
@@ -399,6 +403,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false);
 	}
 
+	@Test
 	public void test009_highestCompatibleVersionWins() throws IOException {
 		String path = createMultiReleaseJar();
 		runConformTest(
@@ -416,6 +421,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false);
 	}
 
+	@Test
 	public void test010_moduleDescriptorFallsBackToRoot() throws IOException {
 		String path = createMultiReleaseJar(true);
 		runConformTest(
@@ -438,6 +444,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 			false);
 	}
 
+	@Test
 	public void test011_missingHeaderIgnoresVersionedModuleDescriptor() throws IOException {
 		String path = createJarWithoutMultiReleaseHeader();
 		runConformTest(

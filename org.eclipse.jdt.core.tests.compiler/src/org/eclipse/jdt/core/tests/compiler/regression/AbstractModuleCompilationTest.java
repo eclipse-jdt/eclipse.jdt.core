@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import junit.framework.AssertionFailedError;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.TestInfo;
 
 public abstract class AbstractModuleCompilationTest extends AbstractBatchCompilerTest {
 
@@ -38,8 +39,8 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 	protected static final String JAVAC_SOURCE_9_OPTIONS = "-source 9 -Xlint:-options";
 	protected static Pattern ECJ_VERSION_OPTION_PATTERN = Pattern.compile("-([0-9]+)");
 
-	public AbstractModuleCompilationTest(String name) {
-		super(name);
+	public AbstractModuleCompilationTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	class Runner extends AbstractRegressionTest.Runner {

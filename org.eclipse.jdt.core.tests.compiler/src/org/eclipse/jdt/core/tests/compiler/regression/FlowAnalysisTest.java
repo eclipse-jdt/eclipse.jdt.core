@@ -21,7 +21,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -37,6 +36,8 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class FlowAnalysisTest extends AbstractRegressionTest {
@@ -44,16 +45,14 @@ static {
 //	TESTS_NAMES = new String[] { "testBug380313" };
 //	TESTS_NUMBERS = new int[] { 43 };
 }
-public FlowAnalysisTest(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+public FlowAnalysisTest(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 private boolean checkSwitchAllowedLevel() {
 	return this.complianceLevel >= ClassFileConstants.JDK14;
 }
+@Test
 public void test001() {
 	this.runNegativeTest(new String[] {
 		"X.java", // =================
@@ -85,6 +84,7 @@ public void test001() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
 // Compiler incorrectly reports "variable may not have been initialized"
+@Test
 public void test002() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -111,6 +111,7 @@ public void test002() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
 // Compiler incorrectly reports "variable may not have been initialized"
+@Test
 public void test003() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -137,6 +138,7 @@ public void test003() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
 // Compiler incorrectly reports "variable may not have been initialized"
+@Test
 public void test004() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -163,6 +165,7 @@ public void test004() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127255
 // Compiler incorrectly reports "variable may not have been initialized"
+@Test
 public void test005() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
@@ -190,6 +193,7 @@ public void test005() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // basic scenario
+@Test
 public void test006() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -233,6 +237,7 @@ public void test006() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // SuppressWarnings effect - explicit fallthrough token
+@Test
 public void test007() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
@@ -266,6 +271,7 @@ public void test007() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // deep return (1) - fake reachable is seen as reachable
+@Test
 public void test008() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -304,6 +310,7 @@ public void test008() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // deep return (2)
+@Test
 public void test009() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -334,6 +341,7 @@ public void test009() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // deep return (3), limit: cannot recognize that we won't return
+@Test
 public void test010() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -369,6 +377,7 @@ public void test010() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // SuppressWarnings effect - implicit, using all token
+@Test
 public void test011() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
@@ -450,6 +459,7 @@ public void _test013() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // basic scenario: default label
+@Test
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -487,6 +497,7 @@ public void test014() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // skip because of comment - variants
+@Test
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -524,6 +535,7 @@ public void test015() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // skip because of comment - variants
+@Test
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -611,6 +623,7 @@ public void _test018() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // conditioned break
+@Test
 public void test019() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
@@ -648,6 +661,7 @@ public void test019() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // default reporting is ignore
+@Test
 public void test020() {
 	this.runNegativeTest(
 		new String[] {
@@ -675,6 +689,7 @@ public void test020() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
 // [compiler] warning on fall through
 // problem category
+@Test
 public void test021() {
 	if (ProblemReporter.getProblemCategory(ProblemSeverities.Warning, IProblem.FallthroughCase) !=
 			CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM) {
@@ -682,6 +697,7 @@ public void test021() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128840
+@Test
 public void test022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
@@ -717,6 +733,7 @@ public void test022() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+@Test
 public void test023() {
 	this.runNegativeTest(
 		new String[] {
@@ -750,6 +767,7 @@ public void test023() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132974
+@Test
 public void test024() {
 	this.runNegativeTest(
 		new String[] {
@@ -775,6 +793,7 @@ public void test024() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=135602
+@Test
 public void test025() {
 	this.runConformTest(
 		new String[] {
@@ -808,6 +827,7 @@ public void test025() {
 		"[starting][Loop 0][finished]");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=137298
+@Test
 public void test026() {
 	this.runNegativeTest(
 		new String[] {
@@ -840,6 +860,7 @@ public void test026() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Non-recursive approach for deep binary expressions. Check that the
 // flow analysis doesn't break.
+@Test
 public void test027() {
 	this.runConformTest(
 		new String[] {
@@ -863,6 +884,7 @@ public void test027() {
 		"s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423
+@Test
 public void test028() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -902,6 +924,7 @@ public void test028() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+@Test
 public void test029() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -946,6 +969,7 @@ public void test029() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+@Test
 public void test030() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1013,6 +1037,7 @@ public void test030() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+@Test
 public void test031() {
 	this.runConformTest(
 		new String[] {
@@ -1037,6 +1062,7 @@ public void test031() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+@Test
 public void test032() {
 	this.runNegativeTest(
 		new String[] {
@@ -1069,6 +1095,7 @@ public void test032() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+@Test
 public void test033() {
 	this.runConformTest(
 		new String[] {
@@ -1092,6 +1119,7 @@ public void test033() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
+@Test
 public void test034() {
 	this.runNegativeTest(
 		new String[] {
@@ -1121,6 +1149,7 @@ public void test034() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
 // variant
+@Test
 public void test035() {
 	this.runNegativeTest(
 		new String[] {
@@ -1145,6 +1174,7 @@ public void test035() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
 // variant - not a flow analysis issue per se, contrast with 34 and 35 above
+@Test
 public void test036() {
 	String src =
 		"public class X {\n" +
@@ -1172,6 +1202,7 @@ public void test036() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
+@Test
 public void test037() {
 	this.runNegativeTest(
 		new String[] {
@@ -1202,6 +1233,7 @@ public void test037() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant: the declaration is outside of the fake reachable block
+@Test
 public void test038() {
 	this.runConformTest(
 		new String[] {
@@ -1219,6 +1251,7 @@ public void test038() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant with deeper nesting
+@Test
 public void test039() {
 	this.runNegativeTest(
 		new String[] {
@@ -1253,6 +1286,7 @@ public void test039() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant - checking duplicate initialization of final variables
+@Test
 public void test040() {
 	this.runNegativeTest(
 		new String[] {
@@ -1282,6 +1316,7 @@ public void test040() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant - checking duplicate initialization of final variables
+@Test
 public void test041() {
 	this.runConformTest(
 		new String[] {
@@ -1300,6 +1335,7 @@ public void test041() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
 // variant - checking duplicate initialization of final variables
+@Test
 public void test042() {
 	this.runNegativeTest(
 		new String[] {
@@ -1329,6 +1365,7 @@ public void test042() {
 		"----------\n");
 }
 // switch and definite assignment
+@Test
 public void test043() {
 	this.runConformTest(
 		new String[] {
@@ -1354,6 +1391,7 @@ public void test043() {
 		"011\n22");
 }
 // switch and definite assignment
+@Test
 public void test044() {
 	this.runNegativeTest(
 		new String[] {
@@ -1384,6 +1422,7 @@ public void test044() {
 }
 // switch and definite assignment
 // **
+@Test
 public void test045() {
 	this.runNegativeTest(
 		new String[] {
@@ -1409,6 +1448,7 @@ public void test045() {
 		"----------\n");
 }
 // for and definite assignment
+@Test
 public void test046() {
 	this.runConformTest(
 		true,
@@ -1436,6 +1476,7 @@ public void test046() {
 // do while and named labels
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
+@Test
 public void test047() {
 	this.runConformTest(
 		new String[] {
@@ -1454,6 +1495,7 @@ public void test047() {
 // labeled loop
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200158
 // contrast this with test049
+@Test
 public void test048() {
 	runTest(
 		new String[] {
@@ -1493,6 +1535,7 @@ public void test048() {
 // labeled loop
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200158
 // variant: this one passes
+@Test
 public void test049() {
 	runTest(
 		new String[] {
@@ -1525,6 +1568,7 @@ public void test049() {
 		true /* skipJavac */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
+@Test
 public void test050_definite_assigment_and_if_true() {
 	runConformTest(
 		// test directory preparation
@@ -1542,6 +1586,7 @@ public void test050_definite_assigment_and_if_true() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
 // variant
+@Test
 public void test051_definite_assigment_and_if_true() {
 	runConformTest(
 		// test directory preparation
@@ -1560,6 +1605,7 @@ public void test051_definite_assigment_and_if_true() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399
+@Test
 public void test052() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1591,6 +1637,7 @@ public void test052() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+@Test
 public void test053() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1627,6 +1674,7 @@ public void test053() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+@Test
 public void test054() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1655,6 +1703,7 @@ public void test054() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+@Test
 public void test055() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1688,6 +1737,7 @@ public void test055() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+@Test
 public void test056() {
 	runNegativeTest(
 			new String[] { /* test files */
@@ -1731,6 +1781,7 @@ public void test056() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110544
+@Test
 public void test057() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1761,6 +1812,7 @@ public void test057() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+@Test
 public void test058() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1816,6 +1868,7 @@ public void test058() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+@Test
 public void test059() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1856,6 +1909,7 @@ public void test059() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=48399 - variation
+@Test
 public void test060() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1925,6 +1979,7 @@ public void test060() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265962
+@Test
 public void test061() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1964,6 +2019,7 @@ public void test061() throws Exception {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265962 - variation
+@Test
 public void test062() {
 	runNegativeTest(
 		new String[] { /* test files */
@@ -1989,6 +2045,7 @@ public void test062() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
+@Test
 public void test063() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
@@ -2015,6 +2072,7 @@ public void test063() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
 // non-throwable type
+@Test
 public void test064() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
@@ -2041,6 +2099,7 @@ public void test064() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
 // warning suppressed
+@Test
 public void test065() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.WARNING);
@@ -2066,6 +2125,7 @@ public void test065() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
 // warning ignored (default)
+@Test
 public void test066() {
 	runConformTest(
 		new String[] {
@@ -2083,6 +2143,7 @@ public void test066() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
 // instance is assigned
+@Test
 public void test067() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
@@ -2107,6 +2168,7 @@ public void test067() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
 // method invoked
+@Test
 public void test068() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
@@ -2130,6 +2192,7 @@ public void test068() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=236385
 //anonymous type
+@Test
 public void test069() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
@@ -2155,6 +2218,7 @@ public void test069() {
 		compilerOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322154
+@Test
 public void test070() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
@@ -2181,6 +2245,7 @@ public void test070() {
 		compilerOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=324154
+@Test
 public void test071() {
 	runNegativeTest(
 		new String[] {
@@ -2217,6 +2282,7 @@ public void test071() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
 // Warn uninitialized variable in deadcode if deadcode has been inferred
 // by null analysis
+@Test
 public void testBug338234a() {
 	this.runNegativeTest(
 		new String[] {
@@ -2246,6 +2312,7 @@ public void testBug338234a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
 // Don't warn uninitialized variable in deadcode if deadcode has not been inferred
 // by null analysis
+@Test
 public void testBug338234b() {
 	this.runConformTest(
 		new String[] {
@@ -2268,6 +2335,7 @@ public void testBug338234b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
 // Warn uninitialized field in deadcode if deadcode has been inferred
 // by null analysis
+@Test
 public void testBug338234c() {
 	this.runNegativeTest(
 		new String[] {
@@ -2302,6 +2370,7 @@ public void testBug338234c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
 // Warn uninitialized field in deadcode if deadcode has been inferred
 // by null analysis
+@Test
 public void testBug338234d() {
 	this.runNegativeTest(
 		new String[] {
@@ -2329,6 +2398,7 @@ public void testBug338234d() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // variant < 1.7 using Closeable: not closed
+@Test
 public void testCloseable1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -2357,6 +2427,7 @@ public void testCloseable1() {
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // variant < 1.7 using Closeable: resource is closed, cannot suggest try-with-resources < 1.7
+@Test
 public void testCloseable2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
@@ -2381,6 +2452,7 @@ public void testCloseable2() {
 }
 // Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 // return/break/continue inside anonymous class inside try-catch inside initializer
+@Test
 public void testLocalClassInInitializer1() {
 	this.runConformTest(
 			new String[] {
@@ -2410,6 +2482,7 @@ public void testLocalClassInInitializer1() {
 }
 // Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 // break/continue illegally inside anonymous class inside loop (loop is out of scope for break/continue)
+@Test
 public void testLocalClassInInitializer2() {
 	this.runNegativeTest(
 			new String[] {
@@ -2461,6 +2534,7 @@ public void testLocalClassInInitializer2() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
 // Verify that the code runs fine with all compliance levels.
+@Test
 public void testBug380313() {
 	this.runConformTest(
 			new String[] {
@@ -2505,6 +2579,7 @@ public void testBug380313() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
 // try with resources
 // Verify that the code runs fine with all compliance levels.
+@Test
 public void testBug380313b() {
 	this.runConformTest(
 			new String[] {
@@ -2540,6 +2615,7 @@ public void testBug380313b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380750
 // verify that s0 is not reported as uninitialized
+@Test
 public void testBug380750() {
 	this.runConformTest(
 			new String[] {
@@ -2561,6 +2637,7 @@ public void testBug380750() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=391517
 // java.lang.VerifyError on code that runs correctly in Eclipse 3.7 and eclipse 3.6
+@Test
 public void testBug391517() {
 	this.runConformTest(
 			new String[] {
@@ -2596,6 +2673,7 @@ public void testBug391517() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=415997
 // Bug 415997 - java.lang.VerifyError: Expecting a stackmap frame at branch target
+@Test
 public void testBug415997a() {
 	this.runConformTest(
 		new String[] {
@@ -2611,6 +2689,7 @@ public void testBug415997a() {
 		},
 		"");
 }
+@Test
 public void testBug415997b() {
 	this.runConformTest(
 		new String[] {
@@ -2627,6 +2706,7 @@ public void testBug415997b() {
 		},
 		"");
 }
+@Test
 public void testBug415997c() {
 	this.runConformTest(
 		new String[] {
@@ -2655,6 +2735,7 @@ public void testBug415997c() {
 		},
 		"test");
 }
+@Test
 public void testBug499809() {
 	this.runConformTest(
 		new String[] {
@@ -2676,6 +2757,7 @@ public void testBug499809() {
 		},
 		"Done");
 }
+@Test
 public void testBug499809a() {
 	this.runConformTest(
 		new String[] {
@@ -2700,6 +2782,7 @@ public void testBug499809a() {
 		"Done");
 }
 //Bug 506315 - ASTParser.createASTs() in StackMapFrame.addStackItem throws IllegalArgumentException
+@Test
 public void testBug506315() {
 	this.runNegativeTest(
 		new String[] {
@@ -2746,6 +2829,7 @@ public void _testBug533435() {
             }
         });
 }
+@Test
 public void testBug537804_comment0() {
 	runConformTest(
 		new String[] {
@@ -2785,6 +2869,7 @@ public void testBug537804_comment0() {
 			"}\n"
 		});
 }
+@Test
 public void testBug537804_comment5() {
 	runNegativeTest(
 		new String[] {
@@ -2839,6 +2924,7 @@ public void testBug537804_comment5() {
 		"The local variable action may not have been initialized\n" +
 		"----------\n");
 }
+@Test
 public void testBug548318_001() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -2888,6 +2974,7 @@ public void testBug548318_001() {
 			true);
 
 }
+@Test
 public void testBug548318_002() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -2939,6 +3026,7 @@ public void testBug548318_002() {
 /*
  * k is definitely assigned - no errors on that front.
  */
+@Test
 public void testBug548318_003() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -2988,6 +3076,7 @@ public void testBug548318_003() {
 			null,
 			true);
 }
+@Test
 public void testBug548318_004() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3052,6 +3141,7 @@ public void testBug548318_004() {
 			null,
 			true);
 }
+@Test
 public void testBug548318_005() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3118,6 +3208,7 @@ public void testBug548318_005() {
  * V is definitely assigned after a switch expression when false iff for every value yield statement with
  * expression e in the switch block that may exit the switch expression, V is definitely assigned after e when false.
  */
+@Test
 public void testBug548318_006() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3176,6 +3267,7 @@ public void testBug548318_006() {
  * e in the switch block that may exit the switch expression, V is definitely unassigned before the value yield
  * statement and V is definitely unassigned after e when false.
  */
+@Test
 public void testBug548318_007() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3234,6 +3326,7 @@ public void testBug548318_007() {
  * which are boolean-valued.
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
+@Test
 public void testBug548318_008() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3286,6 +3379,7 @@ public void testBug548318_008() {
  * which are boolean-valued.
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
+@Test
 public void testBug548318_009() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3345,6 +3439,7 @@ public void testBug548318_009() {
  * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
  * iff V is [un]assigned after the selector expression.
  */
+@Test
 public void testBug548318_010() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3399,6 +3494,7 @@ public void testBug548318_010() {
  * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
  * iff V is [un]assigned after the selector expression.
  */
+@Test
 public void testBug548318_011() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3459,6 +3555,7 @@ public void testBug548318_011() {
  * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
  * and V is [un]assigned after the preceding statement
  */
+@Test
 public void testBug548318_012() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3514,6 +3611,7 @@ public void testBug548318_012() {
  * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
  * and V is [un]assigned after the preceding statement"
  */
+@Test
 public void testBug548318_012b() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3571,6 +3669,7 @@ public void testBug548318_012b() {
  * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
  * and V is [un]assigned after the preceding statement" needs to be checked
  */
+@Test
 public void testBug548318_013() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3640,6 +3739,7 @@ public void testBug548318_013() {
  * 		V is definitely assigned after e when false.
  * 		It is a switch labeled throw statement.
  */
+@Test
 public void testBug548318_014() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3711,6 +3811,7 @@ public void testBug548318_014() {
  * 			after e when false.
  * 		It is a switch labeled throw statement.
  */
+@Test
 public void testBug548318_015() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3773,6 +3874,7 @@ public void testBug548318_015() {
  * V is [un]assigned before any switch labeled expression or statement in the switch
  * block iff V is [un]assigned after the selector expression.
  */
+@Test
 public void testBug548318_016() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3824,6 +3926,7 @@ public void testBug548318_016() {
  * V is [un]assigned before any switch labeled expression or statement in the switch
  * block iff V is [un]assigned after the selector expression.
  */
+@Test
 public void testBug548318_017() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3884,6 +3987,7 @@ public void testBug548318_017() {
  * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the
  *          expression, block, or throw statement of the switch labeled rule.
  */
+@Test
 public void testBug548318_018() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3936,6 +4040,7 @@ public void testBug548318_018() {
  * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the
  *          expression, block, or throw statement of the switch labeled rule.
  */
+@Test
 public void testBug548318_019() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -3991,6 +4096,7 @@ public void testBug548318_019() {
  * which are boolean-valued.
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
+@Test
 public void testBug548318_020() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4041,6 +4147,7 @@ public void testBug548318_020() {
  * which are boolean-valued.
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
+@Test
 public void testBug548318_021() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4100,6 +4207,7 @@ public void testBug548318_021() {
  * If the switch labeled statement group is not the first in the switch block,
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group.
  */
+@Test
 public void testBug548318_022() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4154,6 +4262,7 @@ public void testBug548318_022() {
  * If the switch labeled statement group is not the first in the switch block,
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group.
  */
+@Test
 public void testBug548318_023() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4213,6 +4322,7 @@ public void testBug548318_023() {
  * If the switch labeled statement group is not the first in the switch block,
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group.
  */
+@Test
 public void testBug548318_024() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4269,6 +4379,7 @@ public void testBug548318_024() {
  * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the
  *          expression, block, or throw statement of the switch labeled rule.
  */
+@Test
 public void testBug548318_025() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4326,6 +4437,7 @@ public void testBug548318_025() {
  * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the
  *          expression, block, or throw statement of the switch labeled rule.
  */
+@Test
 public void testBug548318_026() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4388,6 +4500,7 @@ public void testBug548318_026() {
  * V is [un]assigned before the expression, block, or throw statement of a switch labeled rule of a
  * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
+@Test
 public void testBug548318_027() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4445,6 +4558,7 @@ public void testBug548318_027() {
  * V is [un]assigned before the expression, block, or throw statement of a switch labeled rule of a
  * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
+@Test
 public void testBug548318_028() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4512,6 +4626,7 @@ public void testBug548318_028() {
  *     If there is no default label in the switch block, or if the switch block ends with a switch label
  *        followed by }, then V is [un]assigned after the selector expression
  */
+@Test
 public void testBug548318_029() {
 	if (!checkSwitchAllowedLevel())
 		return;
@@ -4578,6 +4693,7 @@ public void testBug548318_029() {
  *     If there is no default label in the switch block, or if the switch block ends with a switch label
  *        followed by }, then V is [un]assigned after the selector expression
  */
+@Test
 public void testBug548318_030() {
 	if (!checkSwitchAllowedLevel())
 		return;

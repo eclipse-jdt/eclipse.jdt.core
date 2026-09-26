@@ -14,16 +14,20 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @PreviewTest
 @RunJavac
+@MinimalCompliance(AbstractCompilerTest.F_27)
 public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 27");
@@ -34,14 +38,8 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testDominanceIssue4979_00" };
 	}
 	private String extraLibPath;
-	public static Class<?> testClass() {
-		return PrimitiveInPatternsTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_27);
-	}
-	public PrimitiveInPatternsTest(String testName) {
-		super(testName);
+	public PrimitiveInPatternsTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -143,6 +141,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	// https://cr.openjdk.org/~abimpoudis/instanceof/jep455-20240424/specs/instanceof-jls.html#jls-5.1.2
 	// 5.7 Testing Contexts
 	// Identity Conversion
+	@Test
 	public void test001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -163,6 +162,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test002() {
 		runConformTest(new String[] {
 			"X.java",
@@ -183,6 +183,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test003() {
 		runConformTest(new String[] {
 			"X.java",
@@ -203,6 +204,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test004() {
 		runConformTest(new String[] {
 			"X.java",
@@ -223,6 +225,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test005() {
 		runConformTest(new String[] {
 			"X.java",
@@ -243,6 +246,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test006() {
 		runConformTest(new String[] {
 			"X.java",
@@ -263,6 +267,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test007() {
 		runConformTest(new String[] {
 			"X.java",
@@ -283,6 +288,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test008() {
 		runConformTest(new String[] {
 			"X.java",
@@ -303,6 +309,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test009() {
 		runConformTest(new String[] {
 			"X.java",
@@ -323,6 +330,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test010() {
 		runConformTest(new String[] {
 			"X.java",
@@ -344,6 +352,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1.0");
 	}
 
+	@Test
 	public void test011() {
 		runConformTest(new String[] {
 			"X.java",
@@ -368,6 +377,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test012() {
 		runConformTest(new String[] {
 			"X.java",
@@ -391,6 +401,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test013() {
 		runConformTest(new String[] {
 			"X.java",
@@ -415,6 +426,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test014() {
 		runConformTest(new String[] {
 			"X.java",
@@ -438,6 +450,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test015() {
 		runConformTest(new String[] {
 			"X.java",
@@ -461,6 +474,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test016() {
 		runConformTest(new String[] {
 			"X.java",
@@ -483,6 +497,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test017() {
 		runConformTest(new String[] {
 			"X.java",
@@ -507,6 +522,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test018() {
 		runConformTest(new String[] {
 			"X.java",
@@ -530,6 +546,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test019() {
 		runConformTest(new String[] {
 			"X.java",
@@ -554,6 +571,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test020() {
 		runConformTest(new String[] {
 			"X.java",
@@ -579,6 +597,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1.0");
 	}
 	// Widening primitive conversions
+	@Test
 	public void test021() {
 		runConformTest(new String[] {
 			"X.java",
@@ -600,6 +619,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test022() {
 		runConformTest(new String[] {
 			"X.java",
@@ -620,6 +640,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test023() {
 		runConformTest(new String[] {
 			"X.java",
@@ -641,6 +662,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test024() {
 		runConformTest(new String[] {
 			"X.java",
@@ -661,6 +683,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test025() {
 		runConformTest(new String[] {
 			"X.java",
@@ -682,6 +705,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test026() {
 		runConformTest(new String[] {
 			"X.java",
@@ -702,6 +726,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test027() {
 		runConformTest(new String[] {
 			"X.java",
@@ -723,6 +748,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test028() {
 		runConformTest(new String[] {
 			"X.java",
@@ -743,6 +769,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test029() {
 		runConformTest(new String[] {
 			"X.java",
@@ -764,6 +791,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test030() {
 		runConformTest(new String[] {
 			"X.java",
@@ -784,6 +812,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test031() {
 		runConformTest(new String[] {
 			"X.java",
@@ -805,6 +834,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test032() {
 		runConformTest(new String[] {
 			"X.java",
@@ -825,6 +855,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test033() {
 		runConformTest(new String[] {
 			"X.java",
@@ -846,6 +877,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test034() {
 		runConformTest(new String[] {
 			"X.java",
@@ -866,6 +898,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test035() {
 		runConformTest(new String[] {
 			"X.java",
@@ -887,6 +920,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test036() {
 		runConformTest(new String[] {
 			"X.java",
@@ -907,6 +941,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test037() {
 		runConformTest(new String[] {
 			"X.java",
@@ -928,6 +963,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test038() {
 		runConformTest(new String[] {
 			"X.java",
@@ -948,6 +984,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test039() {
 		runConformTest(new String[] {
 			"X.java",
@@ -969,6 +1006,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test040() {
 		runConformTest(new String[] {
 			"X.java",
@@ -989,6 +1027,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test041() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1010,6 +1049,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test042() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1030,6 +1070,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test043() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1051,6 +1092,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test044() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1071,6 +1113,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test045() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1092,6 +1135,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test046() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1112,6 +1156,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test047() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1133,6 +1178,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test048() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1153,6 +1199,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test049() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1174,6 +1221,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test050() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1194,6 +1242,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test051() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1215,6 +1264,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test052() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1235,6 +1285,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test053() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1256,6 +1307,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test054() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1276,6 +1328,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test055() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1297,6 +1350,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test056() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1317,6 +1371,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test057() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1338,6 +1393,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test058() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1358,6 +1414,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test059() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1379,6 +1436,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
+	@Test
 	public void test060() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1399,6 +1457,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
+	@Test
 	public void test061() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1420,6 +1479,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
+	@Test
 	public void test062() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1442,6 +1502,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// Widening with functions
+	@Test
 	public void test063() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1465,6 +1526,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test064() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1487,6 +1549,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test065() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1510,6 +1573,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test066() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1532,6 +1596,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test067() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1555,6 +1620,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test068() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1577,6 +1643,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test069() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1600,6 +1667,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test070() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1622,6 +1690,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test071() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1645,6 +1714,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test072() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1667,6 +1737,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test073() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1717,6 +1788,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			+ "1.0\n"
 			+ "1.0");
 	}
+	@Test
 	public void test074() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1763,6 +1835,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			+ "1.0\n"
 			+ "1.0");
 	}
+	@Test
 	public void test075() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1813,6 +1886,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			+ "1.0\n"
 			+ "1.0");
 	}
+	@Test
 	public void test076() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1859,6 +1933,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			+ "1.0\n"
 			+ "1.0");
 	}
+	@Test
 	public void test077() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1900,6 +1975,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			+ "1.0\n"
 			+ "1.0");
 	}
+	@Test
 	public void test078() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1938,6 +2014,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			+ "1.0\n"
 			+ "1.0");
 	}
+	@Test
 	public void test079() {
 		runConformTest(new String[] {
 			"X.java",
@@ -1971,6 +2048,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			+ "1.0");
 	}
 
+	@Test
 	public void test080() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2001,6 +2079,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1.0\n"
 			+ "1.0");
 	}
+	@Test
 	public void test081() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2024,6 +2103,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test082() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2046,6 +2126,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1.0");
 	}
+	@Test
 	public void test083() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2067,6 +2148,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
+	@Test
 	public void test084() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2087,6 +2169,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
+	@Test
 	public void test085() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2108,6 +2191,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"-1.0");
 	}
+	@Test
 	public void test086() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2130,6 +2214,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 	// Narrowing Primitive Double
 
+	@Test
 	public void test087() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2196,6 +2281,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49\n" +
 			"49.0");
 	}
+	@Test
 	public void test088() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2257,6 +2343,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49.0");
 	}
 
+	@Test
 	public void test089() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2325,6 +2412,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49\n" +
 			"49.0");
 	}
+	@Test
 	public void test090() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2390,6 +2478,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
 
 	//Narrowing float
+	@Test
 	public void test091() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2457,6 +2546,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49.0");
 	}
+	@Test
 	public void test092() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2509,6 +2599,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
+	@Test
 	public void test093() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2568,6 +2659,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
+	@Test
 	public void test094() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2624,6 +2716,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// Narrowing Long
+	@Test
 	public void test095() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2673,6 +2766,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"49");
 	}
+	@Test
 	public void test096() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2717,6 +2811,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"49");
 	}
+	@Test
 	public void test097() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2767,6 +2862,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"49");
 	}
+	@Test
 	public void test098() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2814,6 +2910,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49");
 	}
 	// Narrowing int
+	@Test
 	public void test099() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2854,6 +2951,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
+	@Test
 	public void test100() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2890,6 +2988,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
+	@Test
 	public void test101() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2931,6 +3030,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
+	@Test
 	public void test102() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2970,6 +3070,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"1");
 	}
 	// Narrowing char
+	@Test
 	public void test103() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3001,6 +3102,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
+	@Test
 	public void test104() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3029,6 +3131,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
+	@Test
 	public void test105() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3061,6 +3164,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"49");
 	}
+	@Test
 	public void test106() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3093,6 +3197,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// Narrowing short
+	@Test
 	public void test107() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3124,6 +3229,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
+	@Test
 	public void test108() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3152,6 +3258,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
+	@Test
 	public void test109() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3184,6 +3291,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"49\n" +
 				"1");
 	}
+	@Test
 	public void test110() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3216,6 +3324,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// 5.1.4 Widening and Narrowing Primitive Conversion
+	@Test
 	public void test111() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3238,6 +3347,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 				"1");
 	}
+	@Test
 	public void test112() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3258,6 +3368,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 				"1");
 	}
+	@Test
 	public void test113() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3281,6 +3392,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test114() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3303,6 +3415,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test115() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3325,6 +3438,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 				"true");
 	}
+	@Test
 	public void test116() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3345,6 +3459,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 				"true");
 	}
+	@Test
 	public void test117() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3368,6 +3483,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	@Test
 	public void test118() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3391,6 +3507,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
+	@Test
 	public void test119() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3413,6 +3530,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test120() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3433,6 +3551,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test121() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3456,6 +3575,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test122() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3478,6 +3598,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test123() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3500,6 +3621,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test124() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3520,6 +3642,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test125() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3543,6 +3666,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test126() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3565,6 +3689,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test127() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3587,6 +3712,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test128() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3607,6 +3733,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test129() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3630,6 +3757,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test130() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3652,6 +3780,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+	@Test
 	public void test131() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3674,6 +3803,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test132() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3694,6 +3824,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test133() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3717,6 +3848,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test134() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3739,6 +3871,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test135() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3761,6 +3894,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test136() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3781,6 +3915,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test137() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3804,6 +3939,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test138() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3826,6 +3962,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49");
 	}
+	@Test
 	public void test139() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3848,6 +3985,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	@Test
 	public void test140() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3868,6 +4006,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	@Test
 	public void test141() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3891,6 +4030,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	@Test
 	public void test142() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3913,6 +4053,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	@Test
 	public void test143() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3935,6 +4076,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	@Test
 	public void test144() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3955,6 +4097,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	@Test
 	public void test145() {
 		runConformTest(new String[] {
 			"X.java",
@@ -3978,6 +4121,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"49.0");
 	}
+	@Test
 	public void test146() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4001,6 +4145,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49.0");
 	}
 	// boxing and widening reference conversion
+	@Test
 	public void test147() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4022,6 +4167,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test148() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4043,6 +4189,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test149() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4064,6 +4211,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test150() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4085,6 +4233,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test151() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4121,6 +4270,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true\n" +
 			"true");
 	}
+	@Test
 	public void test152() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -4146,6 +4296,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"Incompatible conditional operand types boolean and Number\n" +
 			"----------\n");
 	}
+	@Test
 	public void test153() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4190,6 +4341,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"1");
 	}
+	@Test
 	public void test154() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4226,6 +4378,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"1");
 	}
+	@Test
 	public void test155() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4270,6 +4423,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49\n" +
 			"49");
 	}
+	@Test
 	public void test156() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4314,6 +4468,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49\n" +
 			"49");
 	}
+	@Test
 	public void test157() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4358,6 +4513,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"49.0\n" +
 			"49.0");
 	}
+	@Test
 	public void test158() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4404,6 +4560,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	}
 
 	// reference - unboxing
+	@Test
 	public void test159() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4426,6 +4583,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
+	@Test
 	public void test160() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4447,6 +4605,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
+	@Test
 	public void test161() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4471,6 +4630,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
+	@Test
 	public void test162() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4494,6 +4654,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
+	@Test
 	public void test163() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4516,6 +4677,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test164() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4537,6 +4699,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test165() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4561,6 +4724,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test166() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4584,6 +4748,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+    @Test
     public void test167() {
         runConformTest(new String[] {
             "X.java",
@@ -4606,6 +4771,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test168() {
         runConformTest(new String[] {
             "X.java",
@@ -4627,6 +4793,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test169() {
         runConformTest(new String[] {
             "X.java",
@@ -4651,6 +4818,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test170() {
         runConformTest(new String[] {
             "X.java",
@@ -4673,6 +4841,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test171() {
         runConformTest(new String[] {
             "X.java",
@@ -4695,6 +4864,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test172() {
         runConformTest(new String[] {
             "X.java",
@@ -4716,6 +4886,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test173() {
         runConformTest(new String[] {
             "X.java",
@@ -4740,6 +4911,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test174() {
         runConformTest(new String[] {
             "X.java",
@@ -4762,6 +4934,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test175() {
         runConformTest(new String[] {
             "X.java",
@@ -4784,6 +4957,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test176() {
         runConformTest(new String[] {
             "X.java",
@@ -4805,6 +4979,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test177() {
         runConformTest(new String[] {
             "X.java",
@@ -4830,6 +5005,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
     }
 
 	// test from spec
+    @Test
     public void test178() {
         runConformTest(new String[] {
             "X.java",
@@ -4852,6 +5028,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test179() {
         runConformTest(new String[] {
             "X.java",
@@ -4874,6 +5051,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test180() {
         runConformTest(new String[] {
             "X.java",
@@ -4895,6 +5073,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test181() {
         runConformTest(new String[] {
             "X.java",
@@ -4919,6 +5098,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test182() {
         runConformTest(new String[] {
             "X.java",
@@ -4942,6 +5122,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test183() {
         runConformTest(new String[] {
             "X.java",
@@ -4964,6 +5145,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test184() {
         runConformTest(new String[] {
             "X.java",
@@ -4985,6 +5167,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test185() {
         runConformTest(new String[] {
             "X.java",
@@ -5009,6 +5192,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test186() {
         runConformTest(new String[] {
             "X.java",
@@ -5031,6 +5215,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test187() {
         runConformTest(new String[] {
             "X.java",
@@ -5053,6 +5238,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test188() {
         runConformTest(new String[] {
             "X.java",
@@ -5074,6 +5260,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test189() {
         runConformTest(new String[] {
             "X.java",
@@ -5098,6 +5285,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test190() {
         runConformTest(new String[] {
             "X.java",
@@ -5122,6 +5310,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
     }
 
     // reference - unboxing plus widening primitive
+	@Test
 	public void test191() {
 		runConformTest(new String[] {
 			"X.java",
@@ -5144,6 +5333,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test192() {
 		runConformTest(new String[] {
 			"X.java",
@@ -5165,6 +5355,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test193() {
 		runConformTest(new String[] {
 			"X.java",
@@ -5189,6 +5380,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void test194() {
 		runConformTest(new String[] {
 			"X.java",
@@ -5212,6 +5404,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+    @Test
     public void test195() {
         runConformTest(new String[] {
             "X.java",
@@ -5234,6 +5427,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test196() {
         runConformTest(new String[] {
             "X.java",
@@ -5255,6 +5449,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test197() {
         runConformTest(new String[] {
             "X.java",
@@ -5279,6 +5474,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test198() {
         runConformTest(new String[] {
             "X.java",
@@ -5301,6 +5497,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test199() {
         runConformTest(new String[] {
             "X.java",
@@ -5323,6 +5520,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test200() {
         runConformTest(new String[] {
             "X.java",
@@ -5344,6 +5542,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test201() {
         runConformTest(new String[] {
             "X.java",
@@ -5368,6 +5567,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test202() {
         runConformTest(new String[] {
             "X.java",
@@ -5390,6 +5590,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test203() {
         runConformTest(new String[] {
             "X.java",
@@ -5412,6 +5613,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test204() {
         runConformTest(new String[] {
             "X.java",
@@ -5433,6 +5635,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test205() {
         runConformTest(new String[] {
             "X.java",
@@ -5457,6 +5660,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test206() {
         runConformTest(new String[] {
             "X.java",
@@ -5479,6 +5683,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test207() {
         runConformTest(new String[] {
             "X.java",
@@ -5501,6 +5706,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test208() {
         runConformTest(new String[] {
             "X.java",
@@ -5522,6 +5728,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test209() {
         runConformTest(new String[] {
             "X.java",
@@ -5546,6 +5753,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test210() {
         runConformTest(new String[] {
             "X.java",
@@ -5568,6 +5776,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test212() {
         runConformTest(new String[] {
             "X.java",
@@ -5588,6 +5797,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test213() {
         runConformTest(new String[] {
             "X.java",
@@ -5612,6 +5822,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test214() {
         runConformTest(new String[] {
             "X.java",
@@ -5634,6 +5845,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test215() {
         runConformTest(new String[] {
             "X.java",
@@ -5656,6 +5868,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test216() {
         runConformTest(new String[] {
             "X.java",
@@ -5677,6 +5890,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test217() {
         runConformTest(new String[] {
             "X.java",
@@ -5700,6 +5914,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test218() {
         runConformTest(new String[] {
             "X.java",
@@ -5722,6 +5937,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test219() {
         runConformTest(new String[] {
             "X.java",
@@ -5744,6 +5960,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test220() {
         runConformTest(new String[] {
             "X.java",
@@ -5765,6 +5982,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test221() {
         runConformTest(new String[] {
             "X.java",
@@ -5788,6 +6006,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test222() {
         runConformTest(new String[] {
             "X.java",
@@ -5810,6 +6029,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test223() {
         runConformTest(new String[] {
             "X.java",
@@ -5832,6 +6052,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test224() {
         runConformTest(new String[] {
             "X.java",
@@ -5852,6 +6073,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test225() {
         runConformTest(new String[] {
             "X.java",
@@ -5875,6 +6097,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test226() {
         runConformTest(new String[] {
             "X.java",
@@ -5898,6 +6121,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test227() {
         runConformTest(new String[] {
             "X.java",
@@ -5920,6 +6144,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test228() {
         runConformTest(new String[] {
             "X.java",
@@ -5940,6 +6165,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test229() {
         runConformTest(new String[] {
             "X.java",
@@ -5963,6 +6189,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test230() {
         runConformTest(new String[] {
             "X.java",
@@ -5985,6 +6212,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test231() {
         runConformTest(new String[] {
             "X.java",
@@ -6006,6 +6234,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test232() {
         runConformTest(new String[] {
             "X.java",
@@ -6027,6 +6256,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1");
     }
 
+    @Test
     public void test233() {
         runConformTest(new String[] {
             "X.java",
@@ -6050,6 +6280,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test234() {
         runConformTest(new String[] {
             "X.java",
@@ -6072,6 +6303,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test235() {
         runConformTest(new String[] {
             "X.java",
@@ -6093,6 +6325,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test236() {
         runConformTest(new String[] {
             "X.java",
@@ -6113,6 +6346,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test237() {
         runConformTest(new String[] {
             "X.java",
@@ -6136,6 +6370,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test238() {
         runConformTest(new String[] {
             "X.java",
@@ -6158,6 +6393,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test239() {
         runConformTest(new String[] {
             "X.java",
@@ -6179,6 +6415,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test240() {
         runConformTest(new String[] {
             "X.java",
@@ -6199,6 +6436,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test241() {
         runConformTest(new String[] {
             "X.java",
@@ -6222,6 +6460,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test242() {
         runConformTest(new String[] {
             "X.java",
@@ -6244,6 +6483,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test243() {
         runConformTest(new String[] {
             "X.java",
@@ -6265,6 +6505,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test244() {
         runConformTest(new String[] {
             "X.java",
@@ -6285,6 +6526,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test245() {
         runConformTest(new String[] {
             "X.java",
@@ -6308,6 +6550,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test246() {
         runConformTest(new String[] {
             "X.java",
@@ -6330,6 +6573,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1");
     }
+    @Test
     public void test247() {
         runConformTest(new String[] {
             "X.java",
@@ -6351,6 +6595,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test248() {
         runConformTest(new String[] {
             "X.java",
@@ -6371,6 +6616,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test249() {
         runConformTest(new String[] {
             "X.java",
@@ -6394,6 +6640,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test250() {
         runConformTest(new String[] {
             "X.java",
@@ -6416,6 +6663,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test251() {
         runConformTest(new String[] {
             "X.java",
@@ -6438,6 +6686,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             "1.0");
     }
 
+    @Test
     public void test252() {
         runConformTest(new String[] {
             "X.java",
@@ -6458,6 +6707,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test253() {
         runConformTest(new String[] {
             "X.java",
@@ -6481,6 +6731,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test254() {
         runConformTest(new String[] {
             "X.java",
@@ -6503,6 +6754,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
             },
             "1.0");
     }
+    @Test
     public void test255() {
  	   runConformTest(new String[] {
  		        "X.java",
@@ -6524,6 +6776,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
  		        },
  		        "1.0");
  		}
+	@Test
 	public void test256() {
 	    runConformTest(new String[] {
 	        "X.java",
@@ -6545,6 +6798,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	        "1.0");
 	}
 
+	@Test
 	public void test257() {
 	    runConformTest(new String[] {
 	        "X.java",
@@ -6569,6 +6823,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	        "1.0");
 	}
 
+	@Test
 	public void test258() {
 	    runConformTest(new String[] {
 	        "X.java",
@@ -6591,6 +6846,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	        },
 	        "1.0");
 	}
+	@Test
 	public void test259() {
 	    runConformTest(new String[] {
 	        "X.java",
@@ -6612,6 +6868,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	        },
 	        "1.0");
 	}
+	@Test
 	public void test260() {
 	    runConformTest(new String[] {
 	        "X.java",
@@ -6632,6 +6889,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	        },
 	        "1.0");
 	}
+	 @Test
 	 public void test261() {
 	     runConformTest(new String[] {
 	         "X.java",
@@ -6655,6 +6913,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	         },
 	         "1.0");
 	 }
+	 @Test
 	 public void test262() {
 	     runConformTest(new String[] {
 	         "X.java",
@@ -6677,6 +6936,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	         },
 	         "1.0");
 	 }
+		@Test
 		public void test263() {
 		    runConformTest(new String[] {
 		        "X.java",
@@ -6698,6 +6958,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		        },
 		        "1.0");
 		}
+		@Test
 		public void test264() {
 		    runConformTest(new String[] {
 		        "X.java",
@@ -6718,6 +6979,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		        },
 		        "1.0");
 		}
+		 @Test
 		 public void test265() {
 		     runConformTest(new String[] {
 		         "X.java",
@@ -6741,6 +7003,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		         },
 		         "1.0");
 		 }
+		 @Test
 		 public void test266() {
 		     runConformTest(new String[] {
 		         "X.java",
@@ -6763,6 +7026,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		         },
 		         "1.0");
 		 }
+		 @Test
 		 public void test267() {
 		     runConformTest(new String[] {
 		         "X.java",
@@ -6783,6 +7047,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		         },
 		         "1");
 		 }
+	@Test
 	public void testIssue2928_001() {
 		runConformTest(new String[] {
 		    "X.java",
@@ -6805,6 +7070,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		"true");
 	}
 
+	@Test
 	public void testIssue2928_002() {
 		runConformTest(new String[] {
 		    "X.java",
@@ -6826,6 +7092,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		    },
 		"true");
 	}
+	@Test
 	public void testIssue2928_003() {
 		runConformTest(new String[] {
 		    "X.java",
@@ -6847,6 +7114,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		    },
 		"false");
 	}
+	@Test
 	public void testIssue2928_004() {
 		runConformTest(new String[] {
 		    "X.java",
@@ -6867,6 +7135,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		    },
 		"false");
 	}
+   @Test
    public void testNonPrim001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -6888,6 +7157,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+   @Test
    public void testGuardedPattern_001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -6910,6 +7180,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"true");
 	}
 
+   @Test
    public void testEnhancedPrimitiveSwitch_001() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -6947,6 +7218,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+   @Test
    public void testByteToFloat_001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -6968,6 +7240,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1.0");
 	}
 
+   @Test
    public void testByteToFloat_002() {
 		runConformTest(new String[] {
 			"X.java",
@@ -6988,6 +7261,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"2.0");
 	}
+   @Test
    public void testEnhancedPrimitiveSwitchNPE_001() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -7012,6 +7286,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+   @Test
    public void testIssue2936_001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7034,6 +7309,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
+   @Test
    public void testIssue2936_002() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7053,6 +7329,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1.0\n" +
 			"100.0");
 	}
+   @Test
    public void testIssue2937_1() {
 	   runConformTest(new String[] {
 				"X.java",
@@ -7073,6 +7350,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"2");
    }
+   @Test
    public void testIssue2937_2() {
 	   runConformTest(new String[] {
 				"X.java",
@@ -7094,6 +7372,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"2");
    }
    // test from spec
+	@Test
 	public void testSpec001() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -7122,6 +7401,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"Switch case cannot have both unconditional pattern and default label\n" +
 			"----------\n");
 	}
+	@Test
 	public void testSpec002() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -7151,6 +7431,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"Switch case cannot have both unconditional pattern and default label\n" +
 			"----------\n");
 	}
+	@Test
 	public void testSpec003() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7179,6 +7460,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"JsonNumber[d=30.0]");
 	}
+	@Test
 	public void testSpec004() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7214,6 +7496,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"30");
 	}
+	@Test
 	public void testSpec005() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7248,6 +7531,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"double:30.0");
 	}
+	@Test
 	public void testSpec006() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7287,6 +7571,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3181
 	// VerifyError during conversion between T extends Long and double
+	@Test
 	public void testGH3181() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7313,6 +7598,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3129
 	// VerifyError with instanceof record patterns with conversion from double to Long
+	@Test
 	public void testGH3129() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7334,6 +7620,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		"43.0");
 	}
 
+	@Test
 	public void testIssuePrimitivesWithNull() {
 		runConformTest(new String[] {
 				"X.java",
@@ -7368,6 +7655,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3336
 	// [Enhanced Switch][Primitive Patterns] Bogus error: Case constants in a switch on 'Long' must have type 'long'
+	@Test
 	public void testIssue3336() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7389,6 +7677,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"Default");
 	}
+	@Test
 	public void testIssue3505() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7415,6 +7704,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void testIssue3535_001() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7448,6 +7738,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"3");
 	}
+	@Test
 	public void testIssue3535_002() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7481,6 +7772,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			},
 			"2");
 	}
+	@Test
 	public void testIssue3536() {
 		runConformTest(new String[] {
 			"X.java",
@@ -7502,6 +7794,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	@Test
 	public void testSwitchPrimitiveboolean_01() throws IOException, ClassFormatException {
 		runConformTest(new String[] { "X.java",
 				"""
@@ -7527,6 +7820,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void testSwitchPrimitiveboolean_02() throws IOException, ClassFormatException {
 		runConformTest(new String[] { "X.java",
 				"""
@@ -7552,6 +7846,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		"		#50 1.0\n";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testSwitchPrimitiveboolean_03() throws IOException, ClassFormatException {
 		runConformTest(new String[] { "X.java",
 				"""
@@ -7577,6 +7872,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void testSwitchPrimitiveboolean_04() throws IOException, ClassFormatException {
 		runConformTest(new String[] { "X.java",
 				"""
@@ -7601,6 +7897,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 		"		#31 10.0\n";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testDominanceIssue4979_001() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -7631,6 +7928,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void testDominanceIssue4979_002() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -7660,6 +7958,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	@Test
 	public void testDominanceIssue4979_003() {
 		runConformTest(new String[] {
 				"X.java",
@@ -7684,6 +7983,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"A byte"
 			);
 	}
+	@Test
 	public void testDominanceIssue4979_004() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -7715,6 +8015,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"----------\n"
 			);
 	}
+	@Test
 	public void testDominanceIssue4979_005() {
 		runNegativeTest(new String[] {
 				"X.java",

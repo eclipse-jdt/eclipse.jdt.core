@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,58 +13,33 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
-import java.util.Enumeration;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+/**
+ * Instances of this class and subclasses encapsulate state and behavior that is
+ * shared among all tests of one test class at exactly one compliance level.
+ * <p>
+ * Instances are exclusively created via AbstractRegressionTest.newTestSetup(String, long)
+ * and overrides.
+ * </p>
+ */
+public class CompilerTestSetup {
 
-@SuppressWarnings({ "rawtypes" })
-public class CompilerTestSetup extends TestSuite {
-
+	private String testName;
 	public final long complianceLevel;
 
-	public CompilerTestSetup(long complianceLevel) {
-		super(CompilerOptions.versionFromJdkLevel(complianceLevel));
+	public CompilerTestSetup(String testName, long complianceLevel) {
+		this.testName = testName;
 		this.complianceLevel = complianceLevel;
 	}
 
-	protected void initTest(Object test) {
-		if (test instanceof AbstractCompilerTest) {
-			AbstractCompilerTest compilerTest = (AbstractCompilerTest)test;
-			compilerTest.initialize(this);
-			return;
-		}
-		if (test instanceof TestSuite) {
-			TestSuite testSuite = (TestSuite)test;
-			Enumeration evaluationTestClassTests = testSuite.tests();
-			while (evaluationTestClassTests.hasMoreElements()) {
-				initTest(evaluationTestClassTests.nextElement());
-			}
-			return;
-		}
-		if (test instanceof Enumeration) {
-			Enumeration evaluationTestClassTests = (Enumeration) test;
-			while (evaluationTestClassTests.hasMoreElements()) {
-				initTest(evaluationTestClassTests.nextElement());
-			}
-			return;
-		}
+	public String getName() {
+		return this.testName;
 	}
 
-	public void run(TestResult result) {
-		try {
-			setUp();
-			super.run(result);
-		} finally {
-			tearDown();
-		}
+	public void setUp() {
+		// hook for subclasses
 	}
 
-	protected void setUp() {
-		// Init wrapped suite
-		initTest(tests());
-	}
-
-	protected void tearDown() {
+	public void tearDown() {
+		// hook for subclasses
 	}
 }

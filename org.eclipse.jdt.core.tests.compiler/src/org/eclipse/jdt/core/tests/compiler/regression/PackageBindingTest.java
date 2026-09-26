@@ -22,11 +22,13 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PlainPackageBinding;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class PackageBindingTest extends AbstractCompilerTest
 {
-	public PackageBindingTest(String name) {
-		super(name);
+	public PackageBindingTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	/**
@@ -50,6 +52,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 	 * The test {@link #_test01()} checks if the package search is executed before the type search.
 	 * The search for packages is much faster than searching for types, therefore it should get executed before searching for types.
 	 */
+	@Test
 	public void test02() {
 		NameEnvironmentDummy nameEnv = new NameEnvironmentDummy(false);
 
@@ -66,6 +69,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 	 * This test checks if {@link INameEnvironment#findType(char[], char[][])} is executed.
 	 * INameEnvironment has no option to avoid the search for secondary types, therefore the search for secondary types is executed (when available).
 	 */
+	@Test
 	public void test03() {
 		NameEnvironmentDummy nameEnv = new NameEnvironmentDummy(false);
 
@@ -82,6 +86,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 	 * The search for secondary types should not get executed, because the search for secondary types is very expensive regarding performance
 	 * (all classes of a package have to get loaded, parsed and analyzed).
 	 */
+	@Test
 	public void test04() {
 		NameEnvironmentWithProgressDummy nameEnvWithProgress = new NameEnvironmentWithProgressDummy();
 

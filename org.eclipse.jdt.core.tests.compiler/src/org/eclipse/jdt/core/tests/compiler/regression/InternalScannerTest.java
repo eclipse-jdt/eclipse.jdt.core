@@ -15,27 +15,21 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
 
-import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
-@SuppressWarnings({ "rawtypes" })
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 public class InternalScannerTest extends AbstractRegressionTest {
 
-	public InternalScannerTest(String name) {
-		super(name);
-	}
-	public static Test suite() {
-		return buildAllCompliancesTestSuite(testClass());
-	}
-
-	public static Class testClass() {
-		return InternalScannerTest.class;
+	public InternalScannerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23181
 	 */
+	@Test
 	public void test001() {
 		String source =	"//Comment";
 		Scanner scanner = new Scanner();
@@ -54,6 +48,7 @@ public class InternalScannerTest extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=73762
 	 */
+	@Test
 	public void test002() throws InvalidInputException {
 		Scanner scanner = new Scanner();
 		scanner.recordLineSeparator = true;

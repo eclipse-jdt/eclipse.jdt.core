@@ -27,7 +27,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -36,6 +35,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TypeAnnotationTest extends AbstractRegressionTest {
@@ -44,14 +45,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_NAMES = new String[] { "testTypeVariable" };
 	}
-	public static Class testClass() {
-		return TypeAnnotationTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-	public TypeAnnotationTest(String testName){
-		super(testName);
+	public TypeAnnotationTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -141,6 +136,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	//			} element_value_pairs[num_element_value_pairs];
 	//			}
 
+	@Test
 	public void test001_classTypeParameter() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -164,6 +160,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test002_classTypeParameter_reflection() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -183,6 +180,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"X<@Marker T>");
 	}
 
+	@Test
 	public void test003_classTypeParameter() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -227,6 +225,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test004_classTypeParameter_reflection() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -257,6 +256,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"X<@A1 T1,@A2 @A3 T2>");
 	}
 
+	@Test
 	public void test005_classTypeParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -299,6 +299,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test006_classTypeParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -341,6 +342,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test007_methodTypeParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -385,6 +387,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test008_methodTypeParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -429,6 +432,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test009_classExtends() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -451,6 +455,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test010_classExtends() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -474,6 +479,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test011_classExtends_reflection() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -490,6 +496,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"  class java.lang.Object:no annotations");
 	}
 
+	@Test
 	public void test012_classExtends_reflection() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -507,6 +514,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"  class java.lang.Object:@Marker");
 	}
 
+	@Test
 	public void test013_classExtends_interfaces() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -573,6 +581,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test014_classExtends_interfaces_reflection() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -597,6 +606,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"  interface I:@A");
 	}
 
+	@Test
 	public void test015_classExtends_interfaces_reflection() throws Exception {
 		String javaVersion = System.getProperty("java.version");
 		int index = javaVersion.indexOf('.');
@@ -655,6 +665,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"  interface J:@C(" + (v < 14 ? "value=" : "") + "i)");
 	}
 
+	@Test
 	public void test016_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -686,6 +697,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test017_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -712,6 +724,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test018_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -739,6 +752,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test019_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -769,6 +783,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test020_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -796,6 +811,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test021_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -823,6 +839,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test022_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -850,6 +867,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test023_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -878,6 +896,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void test024_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -941,6 +960,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test025_classTypeParameterBound() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -964,6 +984,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test026_classTypeParameterBound() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1006,6 +1027,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test027_classTypeParameterBound_complex() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1065,6 +1087,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test028_methodTypeParameterBound() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1093,6 +1116,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test029_methodTypeParameterBound() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1139,6 +1163,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test030_methodTypeParameterBound() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1183,6 +1208,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test031_methodTypeParameterBound_complex() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1246,6 +1272,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test032_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1270,6 +1297,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test033_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1295,6 +1323,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test034_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1337,6 +1366,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test035_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1362,6 +1392,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test036_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1387,6 +1418,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test037_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1411,6 +1443,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test038_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1436,6 +1469,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test038a_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1482,6 +1516,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test039_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1526,6 +1561,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test040_field_complex() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1692,6 +1728,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test041_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1762,6 +1799,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test042_methodReturnType() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1804,6 +1842,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test043_methodReceiver() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1843,6 +1882,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test044_methodReceiver() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1884,6 +1924,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void test045_methodParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1917,6 +1958,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test046_methodParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -1950,6 +1992,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test047_methodParameterArray() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2000,6 +2043,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test048_throws() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2066,6 +2110,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void test049_codeblocks_localVariable() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2122,6 +2167,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test050_codeblocks_localVariable() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2195,6 +2241,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test051_codeblocks_resourceVariable() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2241,6 +2288,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test052_codeblocks_exceptionParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2284,6 +2332,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test053_codeblocks_exceptionParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2334,6 +2383,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test054_codeblocks_exceptionParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2380,6 +2430,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test055_codeblocks_exceptionParameterMultiCatch() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2435,6 +2486,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test056_codeblocks_instanceof() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2471,6 +2523,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test057_codeblocks_new() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2519,6 +2572,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test058_codeblocks_new2() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2551,6 +2605,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test057_codeblocks_new3_415821() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2581,6 +2636,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test057_codeblocks_new4_415821() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2610,6 +2666,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test059_codeblocks_new_newArray() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2658,6 +2715,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test060_codeblocks_new_multiNewArray() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2688,6 +2746,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test060a_codeblocks_new_newArrayWithInitializer() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2745,6 +2804,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test060b_codeblocks_new_multiNewArray() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2802,6 +2862,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test060c_codeblocks_new_multiNewArray() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2872,6 +2933,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test060d_codeblocks_new_arraysWithNestedTypes() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2915,6 +2977,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test060e_codeblocks_new_arraysWithNestedTypes() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2964,6 +3027,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test060f_codeblocks_new_arraysWithQualifiedNestedTypes() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3018,6 +3082,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"org.foo.bar.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test061_codeblocks_new_newArrayWithInitializer() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3066,6 +3131,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test062_codeblocks_newArray() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3114,6 +3180,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test062_codeblocks_newArrayWithInitializer() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3162,6 +3229,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test063_codeblocks_new_instanceof() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3234,6 +3302,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void test064_codeblocks_constructorReference() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3269,6 +3338,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void test065_codeblocks_methodReference() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3303,6 +3373,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test066_codeblocks_methodReference() throws Exception {
 		Runner runner = new Runner();
 		runner.testFiles =
@@ -3356,6 +3427,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test067_codeblocks_constructorReferenceTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3392,6 +3464,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test068_codeblocks_methodReferenceTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3427,6 +3500,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test069_codeblocks_cast() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3463,6 +3537,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test070_codeblocks_cast_complex() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3538,6 +3613,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test070a_codeblocks_castWithIntersectionCast() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3599,6 +3675,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test070b_codeblocks_castWithIntersectionCast() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3659,6 +3736,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test070c_codeblocks_castTwiceInExpression() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3715,6 +3793,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test070d_codeblocks_castDoubleIntersectionCastInExpression() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3776,6 +3855,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test071_codeblocks_constructorInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3827,6 +3907,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test072_codeblocks_constructorInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3899,6 +3980,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void test073_codeblocks_constructorInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3930,6 +4012,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test074_codeblocks_constructorInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3963,6 +4046,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test075_codeblocks_constructorInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -3994,6 +4078,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test076_codeblocks_methodInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4064,6 +4149,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test077_codeblocks_methodInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4096,6 +4182,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test078_codeblocks_methodInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4129,6 +4216,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test079_codeblocks_methodInvocationTypeArgument() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4162,6 +4250,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 
 
 	// Annotation should appear twice in this case
+	@Test
 	public void test080_multiuseAnnotations() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4191,6 +4280,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test081_multiuseAnnotations() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4219,6 +4309,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 	// When not annotated with any TYPE it assumes the Java7 set (i.e. not TYPE_USE/TYPE_PARAMETER)
+	@Test
 	public void test082_multiuseAnnotations() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -4253,6 +4344,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 	// as of https://bugs.openjdk.java.net/browse/JDK-8231435 no-@Target annotations are legal also in TYPE_USE/TYPE_PARAMETER position
+	@Test
 	public void test083_multiuseAnnotations() throws Exception {
 		Runner runner = new Runner();
 		runner.testFiles =
@@ -4322,6 +4414,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100_pqtr() throws Exception { // PQTR (ParameterizedQualifiedTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4346,6 +4439,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100a_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4371,6 +4465,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100b_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4396,6 +4491,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100c_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4420,6 +4516,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100d_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4460,6 +4557,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void test100e_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4484,6 +4582,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100f_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4523,6 +4622,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100g_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4562,6 +4662,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100h_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4595,6 +4696,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100i_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4623,6 +4725,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100j_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4656,6 +4759,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test100k_pqtr() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -4694,6 +4798,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test101a_qtr() throws Exception { // QTR (QualifiedTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4723,6 +4828,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 
+	@Test
 	public void test101b_qtr() throws Exception { // QTR (QualifiedTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4747,6 +4853,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test101c_qtr() throws Exception { // QTR (QualifiedTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4786,6 +4893,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test102a_str() throws Exception { // STR (SingleTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4810,6 +4918,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test102b_str() throws Exception { // STR (SingleTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4834,6 +4943,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test103a_atr() throws Exception { // ATR (ArrayTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4859,6 +4969,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test103b_atr() throws Exception { // ATR (ArrayTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4883,6 +4994,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test103c_atr() throws Exception { // ATR (ArrayTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4908,6 +5020,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test103d_atr() throws Exception { // ATR (ArrayTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4933,6 +5046,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test103e_atr() throws Exception { // ATR (ArrayTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -4963,6 +5077,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test104a_pstr() throws Exception { // PSTR (ParameterizedSingleTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -5002,6 +5117,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test104b_pstr() throws Exception { // PSTR (ParameterizedSingleTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -5036,6 +5152,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test105a_aqtr() throws Exception { // AQTR (ArrayQualifiedTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -5071,6 +5188,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test105b_aqtr() throws Exception { // AQTR (ArrayQualifiedTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -5115,6 +5233,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test106a_wtr() throws Exception { // WTR (WildcardTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -5144,6 +5263,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test106b_wtr() throws Exception { // WTR (WildcardTypeReference)
 		this.runConformTest(
 				new String[] {
@@ -5173,6 +5293,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409244, [1.8][compiler] Type annotations on redundant casts dropped.
+	@Test
 	public void testAnnotatedRedundantCast() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -5215,6 +5336,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409244, [1.8][compiler] Type annotations on redundant casts dropped.
+	@Test
 	public void testAnnotatedRedundantCast2() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -5250,6 +5372,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test055a_codeblocks_exceptionParameterNestedType() throws Exception {
  		this.runConformTest(
  			new String[] {
@@ -5296,6 +5419,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
  	}
 
+	@Test
 	public void test055b_codeblocks_exceptionParameterMultiCatchNestedType() throws Exception {
  		this.runConformTest(
  			new String[] {
@@ -5356,6 +5480,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
  		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
  	}
 
+	@Test
 	public void test055c_codeblocks_exceptionParameterMultiCatch() throws Exception {
  		this.runConformTest(
  			new String[] {
@@ -5409,6 +5534,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
  		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
  	}
 
+	@Test
 	public void test055d_codeblocks_exceptionParameterMultiCatch() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -5484,6 +5610,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test055e_codeblocks_exceptionParameterMultiCatch() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -5559,6 +5686,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test055f_codeblocks_exceptionParameterComplex() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -5637,6 +5765,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void testBug415911() {
 		runNegativeTest(
 			new String[] {
@@ -5663,6 +5792,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 
+	@Test
 	public void testBug426616() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -5781,6 +5911,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void testBug426616a() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -5879,6 +6010,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void testTypeVariable() {
 		runNegativeTest(
 			new String[] {
@@ -5895,6 +6027,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660, [1.8][compiler] Incorrect parsing of Annotations with array dimensions in arguments
+	@Test
 	public void test417660() {
 		this.runConformTest(
 				new String[] {
@@ -5923,6 +6056,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660, [1.8][compiler] Incorrect parsing of Annotations with array dimensions in arguments
+	@Test
 	public void test417660b() {
 		this.runConformTest(
 				new String[] {
@@ -5950,6 +6084,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"1234");
 	}
 
+	@Test
 	public void testAnnotatedExtendedDimensions() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -6073,6 +6208,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	@Test
 	public void testPQTRArray() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -6124,6 +6260,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	@Test
 	public void testPQTRArray2() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -6192,6 +6329,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	@Test
 	public void testConstructorResult() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -6251,6 +6389,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutForY, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	@Test
 	public void test418347() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -6278,6 +6417,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	@Test
 	public void test418347a() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -6316,6 +6456,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	@Test
 	public void test418347b() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -6347,6 +6488,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419331, [1.8][compiler] Weird error on forward reference to type annotations from type parameter declarations
+	@Test
 	public void testForwardReference() {
 		this.runNegativeTest(
 			false /* skipJavac */,
@@ -6382,6 +6524,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"The type TC is deprecated\n" +
 			"----------\n");
 	}
+	@Test
 	public void testHybridTargets() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -6452,6 +6595,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testHybridTargets2() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -6547,6 +6691,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testDeprecated() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -6600,6 +6745,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421148, [1.8][compiler] Verify error with annotated casts and unused locals.
+	@Test
 	public void test421148() {
 
 		Map customOptions = getCompilerOptions();
@@ -6621,6 +6767,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421620,  [1.8][compiler] wrong compile error with TYPE_USE annotation on exception
+	@Test
 	public void test421620() {
 
 		Map customOptions = getCompilerOptions();
@@ -6692,6 +6839,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"OK",
 			customOptions);
 	}
+	@Test
 	public void testBug485386() {
 		String javaVersion = System.getProperty("java.version");
 		int index = javaVersion.indexOf('.');
@@ -6737,6 +6885,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			},
 			"@TestAnn1(" + (v < 14 ? "value=" : "") + decorateAnnotationValueLiteral("1") + ")");
 	}
+	@Test
 	public void testBug492322readFromClass() {
 		runConformTest(
 			new String[] {
@@ -6807,6 +6956,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				new String(methods3[0].parameters[0].annotatedDebugName()));
 	}
 
+	@Test
 	public void testBug492322readFromClassWithGenericBase() {
 		runConformTest(
 			new String[] {
@@ -6876,6 +7026,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		assertEquals("Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Class<@C1 Object @C2 []> @B2 []>.@A5 Middle3.@A6 GenericInner<@B3 String> @A7 [] @A8 []",
 				new String(methods3[0].parameters[0].annotatedDebugName()));
 	}
+	@Test
 	public void testBug492322WithOldBinary() {
 			// bug492322-compiled-with-4.6.jar contains classes compiled with eclipse 4.6:
 			/*-
@@ -6950,6 +7101,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					new String(methods3[0].parameters[0].annotatedDebugName()));
 	}
 
+	@Test
 	public void testBug594561_ParameterizedTypeAnnotations() {
 		runConformTest(new String[] {
 			"p/C.java",
@@ -6973,6 +7125,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1096
 	// ECJ out of sync with JLS 9.6.4.1
+	@Test
 	public void testGH1096() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -7005,6 +7158,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=568240
 	// Method's annotation attribute is compiled as annotation on return type
+	@Test
 	public void testBug568240() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -7057,6 +7211,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=566803
 	// field.getAnnotatedType().getAnnotations() broken in the latest ECJ version
+	@Test
 	public void testBug566803() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -7121,6 +7276,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			},
 			"0 @X.TestAnnFirst()");
 		}
+	@Test
 	public void testGH3932_1() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -7176,6 +7332,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			+ "      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "B.class", "B", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testGH4396_1() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -7241,6 +7398,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			+ "        )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "TestInterface.class", "TestInterface", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	@Test
 	public void testGH4396_2() throws Exception {
 		this.runConformTest(
 			new String[] {

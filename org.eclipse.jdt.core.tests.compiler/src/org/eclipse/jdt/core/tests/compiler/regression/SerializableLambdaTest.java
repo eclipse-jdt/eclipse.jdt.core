@@ -25,7 +25,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IBootstrapMethodsEntry;
@@ -38,6 +37,8 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry2;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.BootstrapMethodsAttribute;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SerializableLambdaTest extends AbstractRegressionTest {
@@ -47,14 +48,8 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 //		TESTS_NAMES = new String[] { "testTypeVariable" };
 	}
 
-	public static Class testClass() {
-		return SerializableLambdaTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-	}
-	public SerializableLambdaTest(String testName){
-		super(testName);
+	public SerializableLambdaTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
 	// Enables the tests to run individually
@@ -112,6 +107,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	/**
 	 * Verifies that after deserializing it is usable, also that the bootstrap methods attribute indicates use of altMetafactory
 	 */
+	@Test
 	public void test001_simple() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -148,6 +144,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	/**
 	 * Sanity test, non serializable should have bootstrap methods attribute reference to metafactory.
 	 */
+	@Test
 	public void test002_simpleNonSerializable() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -178,6 +175,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	/**
 	 * Basic test that deserializeLambda can cope with two lambda expressions.
 	 */
+	@Test
 	public void test003_twoSerializedLambdas() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -221,6 +219,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test004_lambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -261,6 +260,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test005_capturingVariableLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -303,6 +303,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// differing types, not just int
+	@Test
 	public void test006_capturingVariableLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -389,6 +390,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test008_capturingTwoVariableLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -432,6 +434,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test009_capturingTwoSlotVariablesLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -470,6 +473,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test010_VarargsLambdaExpression() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -548,6 +552,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test012_intersectionCast() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -586,6 +591,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test013_intersectionCast() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -630,6 +636,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test014_intersectionCastAndNotSerializable() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -669,6 +676,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test015_serializableViaIntersectionCast() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -714,6 +722,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// SAM type not first in intersection cast
+	@Test
 	public void test016_bug424211() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -742,6 +751,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// Now SAM type first
+	@Test
 	public void test017_bug424211() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -770,6 +780,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// Not Serializable but a regular marker interface
+	@Test
 	public void test018_bug424211() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -801,6 +812,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// Now SAM type not first and serialization occurring
+	@Test
 	public void test019_bug424211() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -833,6 +845,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test020_lambdaNames() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -862,6 +875,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	@Test
 	public void test021_lambdaNamesVariants() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -919,6 +933,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Test
 	public void test022_nestedLambdas() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -957,6 +972,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test023_lambdasInOtherPlaces_Field() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -992,6 +1008,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test024_lambdasInOtherPlaces_MethodParameter() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1026,6 +1043,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput,data);
 	}
 
+	@Test
 	public void test025_lambdasWithGenericInferencing() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1060,6 +1078,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
+	@Test
 	public void test026_lambdasInOtherPlaces_Clinit() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1105,6 +1124,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449467 - [1.8][compiler] Invalid lambda deserialization with anonymous class
+	@Test
 	public void test449467() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1164,6 +1184,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 
+	@Test
 	public void test449467_2() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1224,6 +1245,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428552,  [1.8][compiler][codegen] Serialization does not work for method references
+	@Test
 	public void test428552() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1252,6 +1274,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428642
+	@Test
 	public void test428642() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1288,6 +1311,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 
+	@Test
 	public void test428642_2() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1333,6 +1357,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112, [1.8][compiler] Exception when compiling Serializable array constructor reference
+	@Test
 	public void test429112() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1367,6 +1392,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439889 - [1.8][compiler] [lambda] Deserializing lambda fails with IllegalArgumentException: "Invalid lambda deserialization"
+	@Test
 	public void test439889() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1406,6 +1432,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 
+	@Test
 	public void test439889_2() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1445,6 +1472,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 
+	@Test
 	public void testNestedLambdas_442416() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1494,6 +1522,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 
+	@Test
 	public void testBindingThis_442418() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1536,6 +1565,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 
+	@Test
 	public void testbug479119() {
 		this.runConformTest(
 			new String[]{
@@ -1604,6 +1634,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		checkExpected(expectedOutput, bootstrapEntries);
 	}
 
+	@Test
 	public void testbug479119a() {
 		this.runConformTest(
 			new String[]{
@@ -1671,6 +1702,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	// Serializable reference expressions that share the same name
+	@Test
 	public void testbug479119b() {
 		this.runConformTest(
 			new String[]{
@@ -1723,6 +1755,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug479119_comment20() {
 		this.runConformTest(
 			new String[]{
@@ -1790,6 +1823,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug485333() {
 		this.runConformTest(
 			new String[]{
@@ -1842,6 +1876,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug494487() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -2021,6 +2056,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		},
 		options);
 	}
+	@Test
 	public void testbug497879() {
 		this.runConformTest(
 			new String[]{
@@ -2068,6 +2104,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug497879a() {
 		this.runConformTest(
 			new String[]{
@@ -2118,6 +2155,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug497879b() {
 		this.runConformTest(
 			new String[]{
@@ -2167,6 +2205,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug503118() {
 		this.runConformTest(
 			new String[]{
@@ -2208,6 +2247,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug507011() {
 		this.runConformTest(
 			new String[]{
@@ -2235,6 +2275,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug509782() {
 		this.runConformTest(
 			new String[]{
@@ -2273,6 +2314,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	@Test
 	public void testbug566155() {
 		// method reference must be compiled as an implicit lambda expression
 		// else it cannot be serialized correctly
@@ -2304,6 +2346,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printLambdaMethods(OUTPUT_DIR + File.separator + "OuterClass.class");
 		checkExpected(expectedOutput,data);
 	}
+	@Test
 	public void testbugGH155() {
 		// before resolution, $deserializeLambda$ expects java.lang.Object return type
 		// while SerializedLambda advertises java.lang.Comparable return type

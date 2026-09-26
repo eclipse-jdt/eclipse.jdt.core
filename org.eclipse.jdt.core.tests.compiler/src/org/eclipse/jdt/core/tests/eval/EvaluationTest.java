@@ -50,19 +50,10 @@ import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
-import org.junit.AfterClass;
 import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class EvaluationTest extends AbstractCompilerTest implements StopableTestCase {
-
-	/**
-	 * Setup shared by all tests of one class and of the same compliance level.
-	 * Instantiated on demand in the constructor.
-	 * Taken down either in the first constructor for a new compliance level or in
-	 * {@link #tearDownClass()}.
-	 */
-	static EvaluationSetup evaluationSetup;
 
 	public class Requestor implements IRequestor {
 		public int resultIndex = -1;
@@ -133,15 +124,15 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	public EvaluationTest(Compliance compliance, TestInfo info) {
 		super(compliance, info);
 		long level = CompilerOptions.versionToJdkLevel(compliance.displayName());
-		if (evaluationSetup == null || evaluationSetup.complianceLevel!= level) {
-			if (evaluationSetup != null)
-				evaluationSetup.tearDown();
-			evaluationSetup = newEvaluationSetup(level);
+		if (testSetup == null || testSetup.complianceLevel!= level) {
+			if (testSetup != null)
+				testSetup.tearDown();
+			testSetup = newTestSetup(null, level);
 		}
 	}
 
-	protected EvaluationSetup newEvaluationSetup(long level) {
-		return new EvaluationSetup(level);
+	protected EvaluationSetup newTestSetup(String testName, long level) {
+		return new EvaluationSetup(testName, level);
 	}
 
 	/**
@@ -507,7 +498,6 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 
 	@Override
 	public void initialize(CompilerTestSetup setUp) {
-		evaluationSetup.setUp();
 		super.initialize(setUp);
 		EvaluationSetup evalSetUp = (EvaluationSetup)setUp;
 		this.context = evalSetUp.context;
@@ -519,16 +509,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		initialize(evaluationSetup);
 		assertNotNull("Evaluation context is null, probably VM connection error", this.context);
-	}
-
-	@AfterClass
-	static void tearDownClass() {
-		if (evaluationSetup != null) {
-			evaluationSetup.tearDown();
-			evaluationSetup = null;
-		}
 	}
 
 	/**

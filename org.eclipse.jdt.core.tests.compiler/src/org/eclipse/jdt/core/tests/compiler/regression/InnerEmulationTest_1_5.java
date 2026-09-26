@@ -15,7 +15,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import junit.framework.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "rawtypes" })
 public class InnerEmulationTest_1_5 extends AbstractRegressionTest {
@@ -24,13 +25,11 @@ static {
 //		TESTS_NUMBERS = new int[] { 13 };
 //		TESTS_RANGE = new int[] { 144, -1 };
 }
-public InnerEmulationTest_1_5(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+public InnerEmulationTest_1_5(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test1() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -47,6 +46,7 @@ public void test1() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test2() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -64,6 +64,7 @@ public void test2() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test3() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -81,6 +82,7 @@ public void test3() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test4() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -95,6 +97,7 @@ public void test4() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test5() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -112,6 +115,7 @@ public void test5() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test6() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -129,6 +133,7 @@ public void test6() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test7() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -145,6 +150,7 @@ public void test7() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test8() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -166,6 +172,7 @@ public void test8() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test9() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -188,6 +195,7 @@ public void test9() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test10() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -215,6 +223,7 @@ public void test10() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test11() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
@@ -250,6 +259,7 @@ public void test11() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test12() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -267,6 +277,7 @@ public void test12() throws Exception {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
+@Test
 public void test13() throws Exception {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -292,6 +303,7 @@ public void test13() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343713
 // [compiler] bogus line number in constructor of inner class in 1.5 compliance
+@Test
 public void test14() throws Exception {
 	runConformTest(new String[] {
 		"LineNumberBug.java",
@@ -325,6 +337,7 @@ public void test14() throws Exception {
 		"        [pc: 17, line: 5]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "LineNumberBug$Inner.class", "LineNumberBug$Inner", expectedOutput);
 }
+@Test
 public void testBug546362() throws Exception {
 	runConformTest(new String[] {
 		"Schema.java",

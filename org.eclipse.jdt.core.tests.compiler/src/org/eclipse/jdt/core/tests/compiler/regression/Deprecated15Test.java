@@ -18,20 +18,19 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Deprecated15Test extends AbstractRegressionTest {
-public Deprecated15Test(String name) {
-	super(name);
+public Deprecated15Test(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
-}
+@Test
 public void test001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
@@ -118,6 +117,7 @@ public void test001() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // guard variant for DeprecatedTest#test015 using an annotation
+@Test
 public void test002() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -169,6 +169,7 @@ public void test002() {
 // shows that Member2 is properly tagged as deprecated (use the debugger, since
 // we do not report deprecation in the unit where the deprecated type is
 // declared anyway)
+@Test
 public void test003() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -198,6 +199,7 @@ public void test003() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191909
+@Test
 public void test004() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -234,6 +236,7 @@ public void test004() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // Bug 354536 - compiling package-info.java still depends on the order of compilation units
+@Test
 public void test005() {
 	Runner runner = new Runner();
 	runner.customOptions = new HashMap();
@@ -261,6 +264,7 @@ public void test005() {
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
+@Test
 public void test006() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -290,6 +294,7 @@ public void test006() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+@Test
 public void testGH4562() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -370,6 +375,7 @@ public void testGH4562() {
 		""";
 	runner.runWarningTest();
 }
+@Test
 public void testDeprecatedReferenceNestedInDeprecated() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -413,6 +419,7 @@ public void testDeprecatedReferenceNestedInDeprecated() {
 		}
 		"""};
 }
+@Test
 public void testGH4563_cu() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -483,6 +490,7 @@ public void testGH4563_cu() {
 		""";
 	runner.runWarningTest();
 }
+@Test
 public void testGH4563_class() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -511,6 +519,7 @@ public void testGH4563_class() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testMissingDeprecation() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -556,6 +565,7 @@ public void testMissingDeprecation() {
 	runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+@Test
 public void testMissingDeprecation_error() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -600,6 +610,7 @@ public void testMissingDeprecation_error() {
 	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testMissingDeprecation_ignore() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -619,6 +630,7 @@ public void testMissingDeprecation_ignore() {
 	};
 	runner.runConformTest();
 }
+@Test
 public void testAnnotationElement() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
@@ -668,6 +680,7 @@ public void testAnnotationElement() {
 		""";
 	runner.runWarningTest();
 }
+@Test
 public void testAnnotationElement_repeatable() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {

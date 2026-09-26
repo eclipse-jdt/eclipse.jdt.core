@@ -39,12 +39,12 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 
 	VirtualMachine vm;
 
-	public DebugEvaluationSetup(long complianceLevel) {
-		super(complianceLevel);
+	public DebugEvaluationSetup(String testName, long complianceLevel) {
+		super(testName, complianceLevel);
 	}
 
 	@Override
-	protected void setUp() {
+	public void setUp() {
 		if (this.context == null) {
 			// Launch VM in evaluation mode
 			try (ServerSocket evalServer = new ServerSocket(0)) {

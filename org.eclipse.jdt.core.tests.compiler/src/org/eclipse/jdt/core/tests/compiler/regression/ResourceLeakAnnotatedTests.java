@@ -15,11 +15,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class ResourceLeakAnnotatedTests extends ResourceLeakTests {
 
@@ -31,13 +31,8 @@ static {
 // marker field that influences the call to buildTestsList():
 public static final int INHERITED_DEPTH = 1;
 
-public ResourceLeakAnnotatedTests(String name) {
-	super(name);
-}
-public static Test suite() {
-	TestSuite suite = new TestSuite(ResourceLeakAnnotatedTests.class.getName());
-	buildMinimalComplianceTestSuite(FIRST_SUPPORTED_JAVA_VERSION, 1, suite, ResourceLeakAnnotatedTests.class);
-	return suite;
+public ResourceLeakAnnotatedTests(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -218,6 +213,7 @@ String getBug561334_log() {
 			""";
 }
 
+@Test
 public void testBug411098_comment19_annotated() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -244,6 +240,7 @@ public void testBug411098_comment19_annotated() {
 		null);
 }
 
+@Test
 public void testBug440282_annotated() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -332,6 +329,7 @@ public void testBug440282_annotated() {
 		null);
 }
 
+@Test
 public void testOwningField_NOK1() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -383,6 +381,7 @@ public void testOwningField_NOK1() {
 		null);
 }
 
+@Test
 public void testOwningField_NOK2() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -425,6 +424,7 @@ public void testOwningField_NOK2() {
 		null);
 }
 
+@Test
 public void testOwningField_binaryField_lazyInit() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -487,6 +487,7 @@ public void testOwningField_binaryField_lazyInit() {
 		false);
 }
 
+@Test
 public void testOwningField_binaryField_lazyInit2() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -550,6 +551,7 @@ public void testOwningField_binaryField_lazyInit2() {
 		false);
 }
 
+@Test
 public void testOwningField_OK() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -578,6 +580,7 @@ public void testOwningField_OK() {
 		null);
 }
 
+@Test
 public void testSharedField() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportInsufficientResourceManagement, CompilerOptions.WARNING);
@@ -623,6 +626,7 @@ public void testSharedField() {
 		);
 }
 
+@Test
 public void testOwning_receiving_parameter() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return; // t-w-r with pre-declared local available since 9
@@ -654,6 +658,7 @@ public void testOwning_receiving_parameter() {
 		null);
 }
 
+@Test
 public void testOwning_sending() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return; // t-w-r with pre-declared local available since 9
@@ -716,6 +721,7 @@ public void testOwning_sending() {
 		""",
 		null);
 }
+@Test
 public void testOwning_sending_toBinary() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return; // t-w-r with pre-declared local available since 9
@@ -786,6 +792,7 @@ public void testOwning_sending_toBinary() {
 		false);
 }
 
+@Test
 public void testOwning_receiving_from_call() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -844,6 +851,7 @@ public void testOwning_receiving_from_call() {
 		null);
 
 }
+@Test
 public void testOwning_receiving_from_binaryCall() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -916,6 +924,7 @@ public void testOwning_receiving_from_binaryCall() {
 		false);
 
 }
+@Test
 public void testOwning_return() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -957,6 +966,7 @@ public void testOwning_return() {
 		""",
 		null);
 }
+@Test
 public void testUnannotated_return() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -992,6 +1002,7 @@ public void testUnannotated_return() {
 		""",
 		null);
 }
+@Test
 public void testNotOwning_return() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1048,6 +1059,7 @@ public void testNotOwning_return() {
 		""",
 		null);
 }
+@Test
 public void testNotOwningCloseableClass() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1072,6 +1084,7 @@ public void testNotOwningCloseableClass() {
 		"",
 		null);
 }
+@Test
 public void testNotOwningCloseableClass_binary() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1102,6 +1115,7 @@ public void testNotOwningCloseableClass_binary() {
 			null,
 			false);
 }
+@Test
 public void testInheritance() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1159,6 +1173,7 @@ public void testInheritance() {
 		""",
 		null);
 }
+@Test
 public void testCustomWrapperResource() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1211,6 +1226,7 @@ public void testCustomWrapperResource() {
 		""",
 		null);
 }
+@Test
 public void testCustomWrapperResource_binary() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1261,6 +1277,7 @@ public void testCustomWrapperResource_binary() {
 		false);
 
 }
+@Test
 public void testSubclassingWrapperResource() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1309,6 +1326,7 @@ public void testSubclassingWrapperResource() {
 		""",
 		null);
 }
+@Test
 public void testWrappingTwoResources() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1333,6 +1351,7 @@ public void testWrappingTwoResources() {
 		"",
 		null);
 }
+@Test
 public void testConsumingMethod_nok() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1359,6 +1378,7 @@ public void testConsumingMethod_nok() {
 		""",
 		null);
 }
+@Test
 public void testConsumingMethodUse() {
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -1386,6 +1406,7 @@ public void testConsumingMethodUse() {
 		""",
 		null);
 }
+@Test
 public void testConsumingMethodUse_binary() {
 	runLeakTestWithAnnotations(
 			new String[] {
@@ -1426,6 +1447,7 @@ public void testConsumingMethodUse_binary() {
 			null,
 			false);
 }
+@Test
 public void testGH2207_2() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1469,6 +1491,7 @@ public void testGH2207_2() {
 		""",
 		options);
 }
+@Test
 public void testGH2207_3() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1508,6 +1531,7 @@ public void testGH2207_3() {
 		""",
 		options);
 }
+@Test
 public void testGH2207_4() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1547,6 +1571,7 @@ public void testGH2207_4() {
 		""",
 		options);
 }
+@Test
 public void testGH2161_staticBlock() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1607,6 +1632,7 @@ public void testGH2161_staticBlock() {
 		""",
 		options);
 }
+@Test
 public void testGH2161_initializers() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1655,6 +1681,7 @@ public void testGH2161_initializers() {
 		""",
 		options);
 }
+@Test
 public void testGH2635() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1717,6 +1744,7 @@ public void testGH2635() {
 		"",
 		options);
 }
+@Test
 public void testGH3278_OK() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1770,6 +1798,7 @@ public void testGH3278_OK() {
 		"----------\n",
 		options);
 }
+@Test
 public void testGH3278_missingAnnotations() {
 	runLeakTestWithAnnotations(new String[] {
 			"annotated/TestNotOwning.java",
@@ -1844,6 +1873,7 @@ public void testGH3278_missingAnnotations() {
 		options,
 		false);
 }
+@Test
 public void testGH4899() {
 	runLeakTestWithAnnotations(new String[] {
 			"X.java",

@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 public class ManifestAnalyzerTest extends AbstractRegressionTest {
 
@@ -27,9 +29,10 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 
 	ManifestAnalyzer manifestAnalyzer = new ManifestAnalyzer();
 
-	public ManifestAnalyzerTest(String name) {
-		super(name);
+	public ManifestAnalyzerTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
+	@Test
 	public void testWithOneJar() throws IOException {
 		String testWithOneJar = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + "\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithOneJar);
@@ -43,6 +46,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 			this.manifestAnalyzer.analyzeManifestContents(stream);
 		}
 	}
+	@Test
 	public void testWithOneJarWithWiteSpace() throws IOException {
 		String testWithOneJarWithWiteSpace = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + WHITESPACE + "\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithOneJarWithWiteSpace);
@@ -51,6 +55,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(FIRST_JAR, jars.get(0));
 	}
 
+	@Test
 	public void testWithSecondJarOnNextLine() throws IOException {
 		String testWithSecondJarOnNextLine = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + "\n"+ WHITESPACE + WHITESPACE +"secondJar.jar\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithSecondJarOnNextLine);
@@ -60,6 +65,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(SECOND_JAR, jars.get(1));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLine() throws IOException {
 		String testWithSecondJarOnTwoLine = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + WHITESPACE + "second\n" + WHITESPACE + "Jar.jar\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithSecondJarOnTwoLine);
@@ -69,6 +75,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(SECOND_JAR, jars.get(1));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLine2() throws IOException {
 		String testWithSecondJarOnTwoLine = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + WHITESPACE + "second\n" + WHITESPACE + WHITESPACE + "Jar.jar\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithSecondJarOnTwoLine);
@@ -79,6 +86,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals("Jar.jar", jars.get(2));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLine3() throws IOException {
 		String testWithSecondJarOnTwoLine = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + WHITESPACE + "second\n" + "Jar.jar\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithSecondJarOnTwoLine);
@@ -88,6 +96,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals("second", jars.get(1));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLine4() throws IOException {
 		String testWithSecondJarOnTwoLine = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + "\n" + "second\n" + WHITESPACE + "Jar.jar\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithSecondJarOnTwoLine);
@@ -96,6 +105,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(FIRST_JAR, jars.get(0));
 	}
 
+	@Test
 	public void testWithSecondJarOnNextLine5() throws IOException {
 		String testWithSecondJarOnNextLine = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + "\n"+ WHITESPACE + "secondJar.jar\nBuild-Reference: Version toto";
 		analyzeManifestContents(testWithSecondJarOnNextLine);
@@ -104,6 +114,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(FIRST_JAR + SECOND_JAR, jars.get(0));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLineEndedWithEOF() throws IOException {
 		String testWithSecondJarOnTwoLineEndedWithEOF = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + " second\n Jar.jar";
 		analyzeManifestContents(testWithSecondJarOnTwoLineEndedWithEOF);
@@ -112,6 +123,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(FIRST_JAR, jars.get(0));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLineEndedWithEOF2() throws IOException {
 		String testWithSecondJarOnTwoLineEndedWithEOF = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + " second\n Jar.jar\n";
 		analyzeManifestContents(testWithSecondJarOnTwoLineEndedWithEOF);
@@ -121,6 +133,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(SECOND_JAR, jars.get(1));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLineEndedWithWhiteSpaceEOF() throws IOException {
 		String testWithSecondJarOnTwoLineEndedWithWhiteSpaceEOF = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + " second\n Jar.jar ";
 		analyzeManifestContents(testWithSecondJarOnTwoLineEndedWithWhiteSpaceEOF);
@@ -130,6 +143,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(SECOND_JAR, jars.get(1));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLineEndedWithWhiteSpaceNewLineEOF() throws IOException {
 		String testWithSecondJarOnTwoLineEndedWithWhiteSpaceNewLineEOF = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + " second\n Jar.jar \n";
 		analyzeManifestContents(testWithSecondJarOnTwoLineEndedWithWhiteSpaceNewLineEOF);
@@ -139,6 +153,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(SECOND_JAR, jars.get(1));
 	}
 
+	@Test
 	public void testWithSecondJarOnTwoLineEndedWithNewLineEOF() throws IOException {
 		String testWithSecondJarOnTwoLineEndedWithNewLineEOF = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.6.5\nCreated-By: 1.5.0_14-b03 (Sun Microsystems Inc.)\nClass-Path: " + FIRST_JAR + " second\n Jar.jar\n";
 		analyzeManifestContents(testWithSecondJarOnTwoLineEndedWithNewLineEOF);
@@ -148,6 +163,7 @@ public class ManifestAnalyzerTest extends AbstractRegressionTest {
 		assertEquals(SECOND_JAR, jars.get(1));
 	}
 
+	@Test
 	public void testWithOneJarUsingUTF8Name() throws IOException {
 		try (InputStream inputStream = ManifestAnalyzerTest.class.getResourceAsStream("MANIFEST.MF")) {
 			this.manifestAnalyzer.analyzeManifestContents(inputStream);

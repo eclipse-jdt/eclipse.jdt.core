@@ -14,9 +14,10 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class FlowAnalysisTest8 extends AbstractNullAnnotationTest {
@@ -29,16 +30,8 @@ static {
 //	TESTS_RANGE = new int[] { 1, 2049 };
 }
 
-public FlowAnalysisTest8(String name) {
-	super(name);
-}
-
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
-
-public static Class testClass() {
-	return FlowAnalysisTest8.class;
+public FlowAnalysisTest8(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 
 @Override
@@ -49,6 +42,7 @@ protected Map getCompilerOptions() {
 }
 
 // Lambda with elided args inherits null contract from the super method
+@Test
 public void testLambda_01() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -80,6 +74,7 @@ public void testLambda_01() {
 }
 
 // Lambda with declared args violates null contract of super
+@Test
 public void testLambda_02() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -113,6 +108,7 @@ public void testLambda_02() {
 }
 
 // Lambda with declared args inherits / modifies contract of super
+@Test
 public void testLambda_03() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -160,6 +156,7 @@ public void testLambda_03() {
 }
 
 // Lambda with declared args has illegal @NonNull an primitive argument
+@Test
 public void testLambda_04() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -187,6 +184,7 @@ public void testLambda_04() {
 }
 
 // Lambda inherits null contract and has block with return statement
+@Test
 public void testLambda_05() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -215,6 +213,7 @@ public void testLambda_05() {
 		"----------\n");
 }
 // Lambda has no descriptor (overriding method from Object), don't bail out with NPE during analysis
+@Test
 public void testLambda_05a() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTest(
@@ -247,6 +246,7 @@ public void testLambda_05a() {
 // Test flows with ReferenceExpression regarding:
 // - definite assignment
 // - unused local
+@Test
 public void testReferenceExpression1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
@@ -295,6 +295,7 @@ public void testReferenceExpression1() {
 		"----------\n",
 		null/*libs*/, true/*flush*/, options);
 }
+@Test
 public void testReferenceExpression_null_1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
@@ -324,6 +325,7 @@ public void testReferenceExpression_null_1() {
 		"----------\n",
 		null/*libs*/, true/*flush*/, options);
 }
+@Test
 public void testReferenceExpression_nullAnnotation_1() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -354,6 +356,7 @@ public void testReferenceExpression_nullAnnotation_1() {
 		"Null type mismatch at method return type: Method descriptor I.foo(Object) promises '@NonNull String' but referenced method provides '@Nullable String'\n" +
 		"----------\n");
 }
+@Test
 public void testReferenceExpression_nullAnnotation_2() {
 	runWarningTestWithLibs(
 		true, /* skipJavac */
@@ -380,6 +383,7 @@ public void testReferenceExpression_nullAnnotation_2() {
 		"Null type safety at method return type: Method descriptor I.foo(Object) promises \'@NonNull String\' but referenced method provides \'String\'\n" +
 		"----------\n");
 }
+@Test
 public void testReferenceExpression_nullAnnotation_3() {
 	runNegativeTest(
 		new String[] {
@@ -414,6 +418,7 @@ public void testReferenceExpression_nullAnnotation_3() {
 		true /*flush*/,
 		getCompilerOptions());
 }
+@Test
 public void testBug535308a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -447,6 +452,7 @@ public void testBug535308a() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug535308b() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -481,6 +487,7 @@ public void testBug535308b() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug535308c() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -515,6 +522,7 @@ public void testBug535308c() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug535308d() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -549,6 +557,7 @@ public void testBug535308d() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug535308e() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -583,6 +592,7 @@ public void testBug535308e() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+@Test
 public void testBug474080() {
 	runNegativeTest(
 		new String[] {

@@ -14,9 +14,13 @@
 
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_21)
 public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 
 	static {
@@ -25,16 +29,11 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "test26"};
 	}
 
-	public static Class<?> testClass() {
-		return JEP441SnippetsTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_21);
-	}
-	public JEP441SnippetsTest(String testName){
-		super(testName);
+	public JEP441SnippetsTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 
+	@Test
 	public void test01() {
 		runConformTest(
 				new String[] {
@@ -75,6 +74,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 				"X X");
 	}
 
+	@Test
 	public void test02() {
 		runConformTest(
 				new String[] {
@@ -106,6 +106,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 				"Great");
 	}
 
+	@Test
 	public void test03() {
 		runConformTest(
 				new String[] {
@@ -207,6 +208,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 				"Sorry?");
 	}
 
+	@Test
 	public void test04() {
 		runConformTest(
 			new String[] {
@@ -260,6 +262,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"It's a tarot");
 	}
 
+	@Test
 	public void test05() {
 		runConformTest(
 			new String[] {
@@ -305,6 +308,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"It's a tarot");
 	}
 
+	@Test
 	public void test06() {
 		runConformTest(
 			new String[] {
@@ -354,6 +358,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"Tails");
 	}
 
+	@Test
 	public void test07() {
 		runNegativeTest(
 			new String[] {
@@ -388,6 +393,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test08() {
 		runConformTest(
 			new String[] {
@@ -416,6 +422,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"Bad word!");
 	}
 
+	@Test
 	public void test09() {
 		runConformTest(
 			new String[] {
@@ -455,6 +462,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"Something else");
 	}
 
+	@Test
 	public void test10() {
 		runConformTest(
 			new String[] {
@@ -485,6 +493,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"A sequence of length 5");
 	}
 
+	@Test
 	public void test11() {
 		runNegativeTest(
 			new String[] {
@@ -519,6 +528,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test12() {
 		runNegativeTest(
 			new String[] {
@@ -553,6 +563,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test13() {
 		runConformTest(
 			new String[] {
@@ -582,6 +593,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"A guarded string: Hello");
 	}
 
+	@Test
 	public void test14() {
 		runNegativeTest(
 			new String[] {
@@ -623,6 +635,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test15() {
 		runNegativeTest(
 			new String[] {
@@ -656,6 +669,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test16() {
 		runNegativeTest(
 			new String[] {
@@ -704,6 +718,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test17() {
 		runNegativeTest(
 			new String[] {
@@ -775,6 +790,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test18() {
 		runConformTest(
 			new String[] {
@@ -804,6 +820,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"All the remaining integers");
 	}
 
+	@Test
 	public void test19() {
 		runNegativeTest(
 			new String[] {
@@ -846,6 +863,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test20() {
 		runNegativeTest(
 			new String[] {
@@ -906,6 +924,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test21() {
 		runNegativeTest(
 			new String[] {
@@ -946,6 +965,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test22() {
 		runConformTest(
 			new String[] {
@@ -977,6 +997,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"1\n2\n3");
 	}
 
+	@Test
 	public void test23() {
 		runNegativeTest(
 			new String[] {
@@ -1012,6 +1033,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test24() {
 		runNegativeTest(
 			new String[] {
@@ -1052,6 +1074,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test25() {
 		runNegativeTest(
 			new String[] {
@@ -1086,6 +1109,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test26() {
 		if (this.complianceLevel < ClassFileConstants.JDK22) // multi pattern case labels used
 			return;
@@ -1215,6 +1239,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@Test
 	public void test27() {
 		runConformTest(
 			new String[] {
@@ -1279,6 +1304,7 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"null!\nnull|default\nOK!");
 	}
 
+	@Test
 	public void test28() {
 		runConformTest(
 			new String[] {

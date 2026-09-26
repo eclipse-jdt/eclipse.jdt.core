@@ -15,13 +15,17 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(AbstractCompilerTest.F_16)
 public class PreviewFeatureTest extends AbstractRegressionTest9 {
 
 	static {
@@ -30,14 +34,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "test006"};
 	}
 
-	public static Class<?> testClass() {
-		return PreviewFeatureTest.class;
-	}
-	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
-	}
-	public PreviewFeatureTest(String testName){
-		super(testName);
+	public PreviewFeatureTest(Compliance compliance, TestInfo info){
+		super(compliance, info);
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
@@ -104,6 +102,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=No
 	 */
+	@Test
 	public void test001() {
 		if (this.complianceLevel >= ClassFileConstants.JDK17) {
 			return;
@@ -180,6 +179,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=yes
 	 */
+	@Test
 	public void test002() {
 		if (this.complianceLevel >= ClassFileConstants.JDK17) {
 			return;
@@ -241,6 +241,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=true, SuppressWarning=No
 	 */
+	@Test
 	public void test003() {
 		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
 			return;
@@ -292,6 +293,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=true, SuppressWarning=Yes
 	 */
+	@Test
 	public void test004() {
 		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
 			return;
@@ -326,6 +328,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			options.put(CompilerOptions.OPTION_EnablePreviews, old);
 		}
 	}
+	@Test
 	public void test005() {
 		if (this.complianceLevel < ClassFileConstants.JDK16)
 			return;
@@ -345,6 +348,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=No, Parameterized Type
 	 */
+	@Test
 	public void test006() {
 		if (this.complianceLevel >= ClassFileConstants.JDK17) {
 			return;
@@ -395,6 +399,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5156
 	// Preview API usage must honor OPTION_ReportPreviewFeatures instead of always
 	// being reported as a warning.
+	@Test
 	public void testGHIssue5156() {
 		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel()) {
 			return;

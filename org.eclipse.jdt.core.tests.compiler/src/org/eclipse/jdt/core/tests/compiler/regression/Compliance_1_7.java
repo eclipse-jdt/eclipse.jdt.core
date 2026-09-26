@@ -16,17 +16,15 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Compliance_1_7 extends AbstractComparableTest {
 
-public Compliance_1_7(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
+public Compliance_1_7(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 static {
 // Names of tests to run: can be "testBugXXXX" or "BugXXXX")
@@ -37,6 +35,7 @@ static {
 //		TESTS_RANGE = new int[] { 85, -1 };
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=283225
+@Test
 public void test1() {
 	this.runConformTest(
 		new String[] {
@@ -59,6 +58,7 @@ public void test1() {
 		}
 		assertTrue("did not indexed the reference to SafeVarargs", check);
 }
+@Test
 public void test2() {
 	this.runConformTest(
 		new String[] {
@@ -80,6 +80,7 @@ public void test2() {
 }
 // Project with 1.7 compliance compiled against JRE 7, 8
 // regular case
+@Test
 public void testBug390889_a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
@@ -111,6 +112,7 @@ public void testBug390889_a() {
 }
 // Project with 1.7 compliance compiled against JRE 8
 // default method implements a regular abstract interface method
+@Test
 public void testBug390889_b() {
 	runConformTest(
 			new String[] {
@@ -143,6 +145,7 @@ public void testBug390889_b() {
 }
 // Project with 1.7 compliance compiled against JRE 7, 8
 // assert that different forms of method invocation do not produce different result (as javac does)
+@Test
 public void testBug390889_c() {
 	runConformTest(
 			new String[] {
