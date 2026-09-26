@@ -57,6 +57,8 @@ public class ReferenceOfFieldOfThis extends SingleNameReference {
     	this.fieldReference.bits |= this.bits & (ASTNode.IsStrictlyAssigned | ASTNode.IsCompoundAssigned);
     	TypeBinding type = this.fieldReference.resolveType(scope);
     	this.binding = this.fieldReference.binding;
+    	if (this.binding.isShadowedByProxy())
+    		this.binding = this.binding.getShadowingProxy();
     	this.resolvedType = this.fieldReference.resolvedType;
     	this.constant = this.fieldReference.optimizedBooleanConstant();
     	this.bits &= ~ASTNode.RestrictiveFlagMASK;

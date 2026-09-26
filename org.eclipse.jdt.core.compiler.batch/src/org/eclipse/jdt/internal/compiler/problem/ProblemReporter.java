@@ -7105,7 +7105,7 @@ private int nodeSourceStart(Binding field, ASTNode node, int index) {
 		return (int) (fieldReference.nameSourcePosition >> 32);
 	} else 	if (node instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) node;
-		if (ref.binding == field) {
+		if (ref.binding == field || (ref.binding instanceof LarvalProxyBinding larvalProxy && larvalProxy.getShadowedBinding() == field)) {
 			if (index == 0) {
 				return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1] >> 32);
 			} else {
@@ -8901,6 +8901,10 @@ public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
 		nodeSourceEnd(field, location));
 }
 public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location, Scope scope) {
+	if (binding instanceof LarvalProxyBinding larvalProxy) {
+		uninitializedBlankFinalField(larvalProxy.getShadowedBinding(), location);
+		return;
+	}
 	binding.markAsUninitializedIn(scope);
 	String[] arguments = new String[] {new String(binding.readableName())};
 	this.handle(

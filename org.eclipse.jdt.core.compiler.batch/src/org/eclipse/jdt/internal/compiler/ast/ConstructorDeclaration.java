@@ -548,7 +548,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 
 		this.scope.enterEarlyConstructionContext();
 
-		this.prologueResolutionContext.larvalProxies().ifPresent(map -> map.values().forEach(codeStream::addVariable));
+		this.prologueResolutionContext.larvalProxies().ifPresent(map -> map.values().forEach(codeStream::addProxy));
 
 		// generate statements
 		if (this.statements != null) {

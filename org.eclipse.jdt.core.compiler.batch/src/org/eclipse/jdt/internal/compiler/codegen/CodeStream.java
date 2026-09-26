@@ -278,6 +278,32 @@ public void addVariable(LocalVariableBinding localBinding) {
 	/* do nothing */
 }
 
+public void addProxy(LocalVariableBinding proxy) {
+	switch (proxy.type.id) {
+		case TypeIds.T_boolean :
+		case TypeIds.T_char :
+		case TypeIds.T_byte :
+		case TypeIds.T_short :
+		case TypeIds.T_int :
+			iconst_0();
+			break;
+		case TypeIds.T_long :
+			lconst_0();
+			break;
+		case TypeIds.T_float :
+			fconst_0();
+			break;
+		case TypeIds.T_double :
+			dconst_0();
+			break;
+		default:
+			aconst_null();
+			break;
+	}
+	store(proxy, false);
+	addVariable(proxy);
+}
+
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
 	if (this.visibleLocalsCount >= this.visibleLocals.length)
 		System.arraycopy(this.visibleLocals, 0, this.visibleLocals = new LocalVariableBinding[this.visibleLocalsCount * 2], 0, this.visibleLocalsCount);

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -28,11 +29,13 @@ public final class PrologueResolutionContext {
 
     void enter() {
     	this.scope.enterEarlyConstructionContext();
-        Set<FieldBinding> fieldReferences = new PrologueFieldReferencesCollector().collect(this.constructorDeclaration);
-        if (fieldReferences != null) {
-            fieldReferences.forEach(this::synthesizeLarvalProxy);
-        }
-        this.scope.enclosingSourceType().setProxies(this.proxies);
+    	if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.scope.compilerOptions())) {
+	        Set<FieldBinding> fieldReferences = new PrologueFieldReferencesCollector().collect(this.constructorDeclaration);
+	        if (fieldReferences != null) {
+	            fieldReferences.forEach(this::synthesizeLarvalProxy);
+	        }
+	        this.scope.enclosingSourceType().setProxies(this.proxies);
+    	}
     }
 
     Optional<Map<FieldBinding, LocalVariableBinding>> larvalProxies() {
