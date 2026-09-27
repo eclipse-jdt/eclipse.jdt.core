@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.util;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -226,19 +225,10 @@ public class AbstractCompilerTest extends TestCase {
 				}
 			}
 			TestSuite suite = new TestSuite(testClass.getName());
-			// FIXME: test inheritance for JUnit5?
-			int inheritedDepth = 0;
-			try {
-				Field depthField = testClass.getDeclaredField("INHERITED_DEPTH");
-				if (depthField != null)
-					inheritedDepth = depthField.getInt(null);
-			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-				// ignore
-			}
-			List tests = buildTestsList(testClass, inheritedDepth, ORDERING);
-			for (int index=0, size=tests.size(); index<size; index++) {
-				suite.addTest((Test)tests.get(index));
-			}
+//			List tests = buildTestsList(testClass, inheritedDepth, ORDERING);
+//			for (int index=0, size=tests.size(); index<size; index++) {
+//				suite.addTest((Test)tests.get(index));
+//			}
 			complianceSuite.addTest(suite);
 		}
 		return complianceSuite;

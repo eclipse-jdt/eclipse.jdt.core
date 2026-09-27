@@ -120,9 +120,6 @@ String cancenNonNullByDefault() {
 			: "    @NonNullByDefault({})\n";
 }
 
-/**
- * @deprecated
- */
 @Override
 protected void setUp() throws Exception {
 	super.setUp();

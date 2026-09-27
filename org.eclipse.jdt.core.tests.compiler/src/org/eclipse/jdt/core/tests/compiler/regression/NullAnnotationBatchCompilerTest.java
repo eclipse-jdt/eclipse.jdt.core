@@ -1073,8 +1073,13 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 		runTestBug571055(false, true);
 	}
 	private void runTestBug571055(boolean inheritAnnotations, boolean dedicatedAnnotationPath) throws IOException {
+		// flush now, rather then after creating .eea files
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+
 		String annots_dir = Util.getOutputDirectory() + File.separator + "annots";
 		String annots_api = annots_dir + File.separator + "api";
+		String annots_impl = annots_dir + File.separator + "impl";
 		new File(annots_api).mkdirs();
 		Util.createFile(
 				annots_api + File.separator + "Foo.eea",
@@ -1084,7 +1089,6 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 				" (L1java/lang/String;)L0java/lang/String;\n");
 		if (!inheritAnnotations) {
 			// 'manually' establish consistency:
-			String annots_impl = annots_dir + File.separator + "impl";
 			new File(annots_impl).mkdirs();
 			Util.createFile(
 					annots_impl + File.separator + "FooImpl.eea",
@@ -1155,7 +1159,13 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 				"Potential null pointer access: The variable result may be null at this location\n" +
 				"----------\n" +
 				"2 problems (1 error, 1 warning)\n";
-		this.runNegativeTest(testFiles, commandLine, "", expectedCompilerMessage, false);
+		try {
+			this.runNegativeTest(testFiles, commandLine, "", expectedCompilerMessage, false);
+		} finally {
+			File toDelete = new File(annots_impl + File.separator + "FooImpl.eea");
+			if (toDelete.exists())
+				toDelete.delete();
+		}
 	}
 
 	@Test

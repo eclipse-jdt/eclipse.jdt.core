@@ -28,9 +28,6 @@ static {
 //	TESTS_NAMES = new String[] { "test056l" };
 }
 
-// marker field that influences the call to buildTestsList():
-public static final int INHERITED_DEPTH = 1;
-
 public ResourceLeakAnnotatedTests(Compliance compliance, TestInfo info) {
 	super(compliance, info);
 }

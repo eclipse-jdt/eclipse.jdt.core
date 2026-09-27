@@ -26,10 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public class Compliance_1_3 extends AbstractRegressionTest {
 boolean docSupport = false;
 
-@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public Compliance_1_3(Compliance compliance, TestInfo info) {
 	super(compliance, info);
 }

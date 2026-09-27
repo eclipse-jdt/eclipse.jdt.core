@@ -19,9 +19,6 @@ import org.junit.jupiter.api.TestInfo;
 /** Run tests from the super class with (legacy) declaration annotations. */
 public class NullDeclarationAnnotationTest extends NullAnnotationTest {
 
-	// marker field that influences the call to buildTestsList():
-	public static final int INHERITED_DEPTH = 1;
-
 	public NullDeclarationAnnotationTest(Compliance compliance, TestInfo info) {
 		super(compliance, info);
 	}
@@ -38,9 +35,6 @@ public class NullDeclarationAnnotationTest extends NullAnnotationTest {
 		return true;
 	}
 
-	/**
-	 * @deprecated
-	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
