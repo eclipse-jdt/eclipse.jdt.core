@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Map;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -24,7 +23,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.junit.jupiter.api.TestInfo;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class AbstractNullAnnotationTest extends AbstractComparableTest {
@@ -91,15 +89,6 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			this.LIBS = new String[len+1];
 			System.arraycopy(defaultLibs, 0, this.LIBS, 0, len);
 			this.LIBS[len] = getAnnotationLibPath();
-
-			Bundle[] bundles = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundles();
-			File bundleFile = Arrays.stream(bundles)
-					.filter(b -> "org.eclipse.jdt.annotation".equals(b.getSymbolicName())) //
-					.findFirst().flatMap(FileLocator::getBundleFileLocation).orElseThrow();
-			if (bundleFile.isDirectory())
-				this.LIBS[len] = bundleFile.getPath()+"/bin";
-			else
-				this.LIBS[len] = bundleFile.getPath();
 		}
 	}
 

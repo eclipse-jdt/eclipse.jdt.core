@@ -82,6 +82,7 @@ import org.junit.platform.suite.api.Suite;
 	AssignmentTest_1_5.class,
 	InnerClass15Test.class,
 	NullAnnotationTest.class,
+	NullDeclarationAnnotationTest.class,
 	XLargeTest2.class,
 	StackMapAttributeTest.class,
 	Compliance_1_6.class,

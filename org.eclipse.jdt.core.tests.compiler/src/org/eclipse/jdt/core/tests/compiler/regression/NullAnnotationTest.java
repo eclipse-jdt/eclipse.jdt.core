@@ -12123,7 +12123,7 @@ public void testIssue3971_6() {
 			"1. WARNING in R2.java (at line 6)\n" +
 			"	this.s = s;\n" +
 			"	         ^\n" +
-			"Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'\n" +
+			nullTypeSafety()+ "The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'\n" +
 			"----------\n",
 			this.LIBS,
 			false/*shouldFlush*/);
@@ -12231,18 +12231,22 @@ public void testIssue3971_8() {
 			"----------\n" +
 			"2. WARNING in R.java (at line 6)\n" +
 			"	void m(@NonNull String n) {\n" +
-			"	       ^^^^^^^^^^^^^^^\n" +
+			(useDeclarationAnnotations() ?
+			"	       ^^^^^^^^^^^^^^^^^\n"
+			:
+			"	       ^^^^^^^^^^^^^^^\n"
+			)+
 			"The nullness annotation is redundant with a default that applies to this location\n" +
 			"----------\n" +
 			"3. ERROR in R.java (at line 7)\n" +
 			"	@NonNull Integer a = i;\n" +
 			"	                     ^\n" +
-			"Null type mismatch (type annotations): required '@NonNull Integer' but this expression has type '@Nullable Integer'\n" +
+			mismatch_NonNull_Nullable("Integer") +
 			"----------\n" +
 			"4. ERROR in R.java (at line 8)\n" +
 			"	@NonNull Integer b = i();\n" +
 			"	                     ^^^\n" +
-			"Null type mismatch (type annotations): required '@NonNull Integer' but this expression has type '@Nullable Integer'\n" +
+			mismatch_NonNull_Nullable("Integer") +
 			"----------\n",
 			this.LIBS,
 			false/*shouldFlush*/);
