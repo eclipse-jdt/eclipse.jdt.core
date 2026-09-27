@@ -7,13 +7,27 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Require-Bundle: org.eclipse.jdt.core;bundle-version="[3.40.0,4.0.0)",
- org.junit,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.test.performance,
  org.eclipse.jdt.core.tests.compiler
 Export-Package: org.eclipse.jdt.compiler.tool.tests
-Import-Package: org.eclipse.jdt.internal.compiler.tool
+Import-Package: org.eclipse.jdt.internal.compiler.tool,
+ org.junit.jupiter.api;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.api.extension;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.migrationsupport;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.migrationsupport.conditions;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.migrationsupport.rules;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.params;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.params.aggregator;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.params.converter;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.params.provider;version="[5.14.0,6.0.0)",
+ org.junit.jupiter.params.support;version="[5.14.0,6.0.0)",
+ org.junit.platform.engine;version="[1.14.0,2.0.0)",
+ org.junit.platform.launcher;version="[1.14.0,2.0.0)",
+ org.junit.platform.suite.api;version="[1.14.0,2.0.0)",
+ org.junit.platform.suite.commons;status=INTERNAL;version="[1.14.0,2.0.0)",
+ org.junit.platform.suite.engine;status=INTERNAL;version="[1.14.0,2.0.0)"
 Eclipse-BundleShape: dir
 Bundle-ClassPath: .
 Automatic-Module-Name: org.eclipse.jdt.compiler.tool.tests

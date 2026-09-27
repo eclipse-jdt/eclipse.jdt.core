@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -33,31 +37,29 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-import junit.framework.TestCase;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MultiReleaseJarCompilerToolTest extends TestCase {
+public class MultiReleaseJarCompilerToolTest {
 	private Path testDirectory;
 
-	@Override
+	@BeforeEach
 	protected void setUp() throws Exception {
-		super.setUp();
 		this.testDirectory = Files.createTempDirectory("jdt-mrjar-manifest-test");
 	}
 
-	@Override
+	@AfterEach
 	protected void tearDown() throws Exception {
-		try {
-			Util.delete(this.testDirectory.toFile());
-		} finally {
-			super.tearDown();
-		}
+		Util.delete(this.testDirectory.toFile());
 	}
 
+	@Test
 	public void testMissingMultiReleaseManifestHeaderMatchesJavac() throws Exception {
 		JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
-		assertNotNull("No system Java compiler available", javac);
+		assertNotNull(javac, "No system Java compiler available");
 
 		Path jar = createJarWithoutMultiReleaseHeader(javac);
 		Path source = this.testDirectory.resolve("consumer-src/X.java");
@@ -76,13 +78,13 @@ public class MultiReleaseJarCompilerToolTest extends TestCase {
 
 		String ecjValue = readValue(ecjOutput);
 		String javacValue = readValue(javacOutput);
-		assertEquals("Unexpected javac output", "root", javacValue);
+		assertEquals("root", javacValue, "Unexpected javac output");
 		assertEquals(
+				javacValue,
+				ecjValue,
 				"Compiler outputs differ for a JAR without Multi-Release: true\n" +
 				"javac output: " + javacValue + "\n" +
-				"ECJ output: " + ecjValue,
-				javacValue,
-				ecjValue);
+				"ECJ output: " + ecjValue);
 	}
 
 	private Path createJarWithoutMultiReleaseHeader(JavaCompiler javac) throws IOException {
@@ -132,7 +134,7 @@ public class MultiReleaseJarCompilerToolTest extends TestCase {
 			}
 			Iterable<? extends JavaFileObject> units = fileManager.getJavaFileObjects(source.toFile());
 			boolean success = compiler.getTask(null, fileManager, diagnostics, options, null, units).call();
-			assertTrue(compilerName + " compilation failed:\n" + diagnosticsToString(diagnostics), success);
+			assertTrue(success, compilerName + " compilation failed:\n" + diagnosticsToString(diagnostics));
 		}
 	}
 

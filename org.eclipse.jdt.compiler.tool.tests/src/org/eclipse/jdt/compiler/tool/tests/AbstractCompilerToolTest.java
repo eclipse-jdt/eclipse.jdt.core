@@ -28,10 +28,11 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractBatchCompilerTest;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+import org.junit.jupiter.api.TestInfo;
 
 public class AbstractCompilerToolTest extends AbstractBatchCompilerTest {
-	public AbstractCompilerToolTest(String name) {
-		super(null, null);
+	public AbstractCompilerToolTest(Compliance compliance, TestInfo info) {
+		super(compliance, info);
 	}
 	static class CompilerInvocationTestsArguments {
 		StandardJavaFileManager standardJavaFileManager;

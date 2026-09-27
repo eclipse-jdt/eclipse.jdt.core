@@ -38,23 +38,24 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public class CompilerInvocationTests extends AbstractCompilerToolTest {
 	static {
 //		TESTS_NAMES = new String[] { "test019_sourcepath_without_destination" };
 //		TESTS_NUMBERS = new int[] { 5 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 	}
-public CompilerInvocationTests(String name) {
-	super(name);
-}
-public static Test suite() {
-	return buildUniqueComplianceTestSuite(CompilerInvocationTests.class, CompilerOptions.getFirstSupportedJdkLevel());
+public CompilerInvocationTests(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
 public static Class<CompilerInvocationTests> testClass() {
 	return CompilerInvocationTests.class;
@@ -352,6 +353,7 @@ protected void compareFileLocations(String[] expected, Iterator<? extends File> 
 	assertFalse("Incorrect no of files in path", actual.hasNext());
 }
 // most possibly basic test
+@Test
 public void test001_basic() {
 	runTest(
 		true /* shouldCompileOK */,
@@ -373,6 +375,7 @@ public void test001_basic() {
 }
 // exploring -d / FileManager interaction
 // -d changes CLASS_OUTPUT location
+@Test
 public void test002_dash_d_option() {
 	if (JAVAC_COMPILER == null) {
 		System.out.println("No system java compiler available");
@@ -400,6 +403,7 @@ public void test002_dash_d_option() {
 }
 // exploring -d / FileManager interaction
 // -d changes CLASS_OUTPUT location (OUTPUT_DIR subdirectory)
+@Test
 public void test003_dash_d_option() {
 	if (JAVAC_COMPILER == null) {
 		System.out.println("No system java compiler available");
@@ -429,6 +433,7 @@ public void test003_dash_d_option() {
 // exploring -d / FileManager interaction
 // ecj uses the output location from the javac standard Java file manager if it
 // is set
+@Test
 public void test004_no_dash_d_option() throws IOException {
 	if (JAVAC_COMPILER == null) {
 		System.out.println("No system java compiler available");
@@ -461,6 +466,7 @@ public void test004_no_dash_d_option() throws IOException {
 // exploring -d / FileManager interaction
 // ecj does not call setLocation on standard Java file managers; it uses
 // handleOption instead; javac does the same
+@Test
 public void test005_dash_d_option_custom_file_manager() {
 	if (JAVAC_COMPILER == null) {
 		System.out.println("No system java compiler available");
@@ -502,6 +508,7 @@ public void test005_dash_d_option_custom_file_manager() {
 }
 // exploring -d / FileManager interaction
 // ecj calls getLocation on a non-javac standard Java file manager
+@Test
 public void test006_no_dash_d_option_custom_file_manager() throws IOException {
 	if (JAVAC_COMPILER == null) {
 		System.out.println("No system java compiler available");
@@ -538,6 +545,7 @@ public void test006_no_dash_d_option_custom_file_manager() throws IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
 // options consumption - compare with javac and ensure the consumption mechanism
 // behaves the same on an option that is supported by both compilers
+@Test
 public void test007_options_consumption() throws IOException {
 	List<String> remainingAsList = Arrays.asList("output", "remainder");
 	StandardJavaFileManager ecjStandardJavaFileManager =
@@ -557,6 +565,7 @@ public void test007_options_consumption() throws IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
 // options consumption - check consumption rate on supported zero-args options
+@Test
 public void test008_options_consumption() throws IOException {
 	final String REMAINDER = "remainder";
 	List<String> remainingAsList = Arrays.asList("output", REMAINDER);
@@ -580,6 +589,7 @@ public void test008_options_consumption() throws IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
 // options consumption - check consumption rate on supported one-arg options
+@Test
 public void test009_options_consumption() throws IOException {
 	final String REMAINDER = "remainder";
 	List<String> remainingAsList = Arrays.asList("utf-8", REMAINDER);
@@ -601,6 +611,7 @@ public void test009_options_consumption() throws IOException {
 // based upon the behavior of the command-line javac for the same level, we
 // would expect an error to be raised in some fashion here, hence we make the
 // tests fail when RUN_JAVAC is on
+@Test
 public void test010_inappropriate_encoding_diagnosis() throws IOException {
 	List<String> buggyEncoding = Arrays.asList("dummy");
 	boolean passed = true;
@@ -625,6 +636,7 @@ public void test010_inappropriate_encoding_diagnosis() throws IOException {
 		assertFalse("does not catch inappropriate -encoding option", passed);
 	}
 }
+@Test
 public void test011_inappropriate_encoding_diagnosis() {
 	List<String> options = Arrays.asList("-d", OUTPUT_DIR, "-encoding", "dummy");
 	boolean passed = true;
@@ -665,6 +677,7 @@ public void test011_inappropriate_encoding_diagnosis() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=188796
 // files access must happen through the user-specified file manager
 // simplest source read case
+@Test
 public void test012_files_access_read() throws IOException {
 	if (JAVAC_COMPILER == null) {
 		System.out.println("No system java compiler available");
@@ -808,6 +821,7 @@ public void _test014_files_access_read() throws IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=188796
 // files access must happen through the user-specified file manager
 // class file accessed for write
+@Test
 public void test015_files_access_write() throws IOException {
 	GetJavaFileForOutputDetector customJavaFileManager =
 		new GetJavaFileForOutputDetector(
@@ -845,6 +859,7 @@ public void test015_files_access_write() throws IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=188796
 // files access must happen through the user-specified file manager
 // class file accessed for write
+@Test
 public void test016_files_access_write() throws IOException {
 	GetJavaFileForOutputDetector customJavaFileManager =
 		new GetJavaFileForOutputDetector(
@@ -885,6 +900,7 @@ public void test016_files_access_write() throws IOException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
+@Test
 public void test017_sourcepath_without_destination() throws IOException {
 	runTest(
 		true /* shouldCompileOK */,
@@ -941,6 +957,7 @@ public void _test018_sourcepath_with_destination() throws IOException {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
+@Test
 public void test019_sourcepath_without_destination() throws IOException {
 	String sourceDirectoryName = OUTPUT_DIR + "/src2";
 	File sourceFolder = new File(sourceDirectoryName);
@@ -1009,6 +1026,7 @@ public void _test020_sourcepath_with_destination() throws IOException {
 		});
 }
 // most basic output test
+@Test
 public void test021_output_streams() throws IOException {
 	ByteArrayOutputStream
 			outBuffer = new ByteArrayOutputStream(),
@@ -1027,6 +1045,7 @@ public void test021_output_streams() throws IOException {
 	assertTrue(errBuffer.toString().isEmpty());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236814
+@Test
 public void test022_output_streams() throws IOException {
 	ByteArrayOutputStream
 	outBuffer = new ByteArrayOutputStream(),
@@ -1078,6 +1097,7 @@ public void _test023_output_streams() throws IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=577550
 // check that an empty iterable for the 'classes' argument doesn't result in an exception
+@Test
 public void test024_bug577550_test_empty_classes_argument() {
 	// create a source file to compile
 	StandardJavaFileManager javacJavaFileManager = JAVAC_COMPILER.getStandardFileManager(null, null, null);
@@ -1109,6 +1129,7 @@ public void test024_bug577550_test_empty_classes_argument() {
 					.getJavaFileObjectsFromFiles(Arrays.asList(new File(OUTPUT_DIR + File.separator + "X.java"))))
 			.call());
 }
+@Test
 public void test025_extdirs_1() {
 	runTest(
 		true /* shouldCompileOK */,
@@ -1129,6 +1150,7 @@ public void test025_extdirs_1() {
 			"X.class"
 		});
 }
+@Test
 public void test025_extdirs_2() {
 	String trace = null;
 	try {

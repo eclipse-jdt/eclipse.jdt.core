@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2021 IBM Corporation and others.
+ * Copyright (c) 2006, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,22 +13,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-/**
- * Helper class to run all the compiler tool tests
- */
-public class AllCompilerToolTests extends TestCase {
-	// run all tests
-	public static Test suite() {
-		TestSuite suite = new TestSuite();
-		suite.addTestSuite(CompilerToolTests.class);
-		suite.addTestSuite(CompilerToolJava9Tests.class);
-		suite.addTest(CompilerInvocationTests.suite());
-		suite.addTestSuite(InMemoryCompilationTest.class);
-		suite.addTestSuite(MultiReleaseJarCompilerToolTest.class);
-		return suite;
-	}
-}
+@Suite
+@SelectClasses({
+	CompilerToolTests.class,
+	CompilerToolJava9Tests.class,
+	CompilerInvocationTests.class,
+	InMemoryCompilationTest.class,
+	MultiReleaseJarCompilerToolTest.class
+})
+public class AllCompilerToolTests { }

@@ -13,6 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -49,7 +55,6 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.compiler.tool.tests.AbstractCompilerToolTest.CompilerInvocationDiagnosticListener;
@@ -57,11 +62,14 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CompilerToolJava9Tests extends TestCase {
+@TestMethodOrder(MethodOrderer.MethodName.class)
+public class CompilerToolJava9Tests {
 	private static final boolean DEBUG = false;
 	private static final String RESOURCES_DIR = "resources";
 	private JavaCompiler[] compilers;
@@ -77,10 +85,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	private static File _tmpGenDir;
 
 	private static String modules_directory;
-	public CompilerToolJava9Tests(String name) {
-		super(name);
-	}
-	@Override
+	@BeforeEach
 	protected void setUp() throws Exception {
 		this.isJREBelow9 = SourceVersion.latest().compareTo(SourceVersion.RELEASE_8) <= 0;
 		if (isJREBelow9)
@@ -97,17 +102,16 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 		this.compilerNames[0] = "System compiler";
 		this.compilers[0] = ToolProvider.getSystemJavaCompiler();
-		assertNotNull("System compiler unavailable", this.compilers[0]);
-		assertNotNull("Eclipse compiler unavailable", this.compilers[1]);
+		assertNotNull(this.compilers[0], "System compiler unavailable");
+		assertNotNull(this.compilers[1], "Eclipse compiler unavailable");
 		initializeLocations();
 	}
-	@Override
+	@AfterEach
 	protected void tearDown() throws Exception {
 		if (isJREBelow9) {
 			return;
 		}
 		deleteTree(new File(_tmpFolder));
-		super.tearDown();
 	}
 	protected void initializeLocations() throws IOException {
 		Path tempDirectory = Files.createTempDirectory("eclipse-temp");
@@ -116,27 +120,28 @@ public class CompilerToolJava9Tests extends TestCase {
 		_tmpBinDir = new File(_tmpBinFolderName);
 		deleteTree(_tmpBinDir); // remove existing contents
 		Files.createDirectories(_tmpBinDir.toPath());
-		assertTrue("couldn't mkdirs " + _tmpBinFolderName, _tmpBinDir.exists());
+		assertTrue(_tmpBinDir.exists(), "couldn't mkdirs " + _tmpBinFolderName);
 
 		_tmpGenFolderName = _tmpFolder + File.separator + "gen-src";
 		_tmpGenDir = new File(_tmpGenFolderName);
 		deleteTree(_tmpGenDir); // remove existing contents
 		Files.createDirectories(_tmpGenDir.toPath());
-		assertTrue("couldn't mkdirs " + _tmpGenFolderName, _tmpGenDir.exists());
+		assertTrue(_tmpGenDir.exists(), "couldn't mkdirs " + _tmpGenFolderName);
 
 		_tmpSrcFolderName = _tmpFolder + File.separator + "src";
 		_tmpSrcDir = new File(_tmpSrcFolderName);
 		deleteTree(_tmpSrcDir); // remove existing contents
 		Files.createDirectories(_tmpSrcDir.toPath());
-		assertTrue("couldn't mkdirs " + _tmpSrcFolderName, _tmpSrcDir.exists());
+		assertTrue(_tmpSrcDir.exists(), "couldn't mkdirs " + _tmpSrcFolderName);
 
 		modules_directory = getPluginDirectoryPath() + File.separator + RESOURCES_DIR + File.separator + "module_locations";
 
 		Path moduleInfo = Paths.get(modules_directory, "source", "SimpleModules", "module.one", "module-info.java");
-		assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
+		assertTrue(Files.isReadable(moduleInfo), "File should exist: " + moduleInfo);
 		moduleInfo = Paths.get(modules_directory, "source", "SimpleModules", "module.two", "module-info.java");
-		assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
+		assertTrue(Files.isReadable(moduleInfo), "File should exist: " + moduleInfo);
 	}
+	@Test
 	public void testGetLocationForModule1() {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -145,7 +150,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 			try {
 	            Location location = manager.getLocationForModule(StandardLocation.SYSTEM_MODULES, "java.base");
-	            assertNotNull(cName + ": Location should not be null", location);
+	            assertNotNull(location, cName + ": Location should not be null");
 	        } catch (UnsupportedOperationException ex) {
 	            fail(cName + ": Should support getLocationForModule()");
 	        }
@@ -155,6 +160,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 
 	}
+	@Test
 	public void testSupportedCompilerVersions() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -168,14 +174,16 @@ public class CompilerToolJava9Tests extends TestCase {
 					continue;
 				}
 
-				assertTrue("source version " + sourceVersion + " should be supported"
-						+ "by compiler " + compiler.getClass().getName(), sourceVersions.contains(sourceVersion));
+				assertTrue(sourceVersions.contains(sourceVersion),
+						"source version " + sourceVersion + " should be supported"
+								+ "by compiler " + compiler.getClass().getName());
 			}
 			//	specifically test the last known - 9
 			Object obj = SourceVersion.valueOf("RELEASE_9");
-			assertTrue("source version 9 should be supported", sourceVersions.contains(obj));
+			assertTrue(sourceVersions.contains(obj), "source version 9 should be supported");
 		}
 	}
+	@Test
 	public void testGetLocationForModule2() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -189,14 +197,15 @@ public class CompilerToolJava9Tests extends TestCase {
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.two");
 				Path moduleInfo = path.resolve("module.two" + File.separator + "module-info.java");
-				assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
-				assertNotNull(cName + ": module path location should not be null for path " + path, location);
+				assertTrue(Files.isReadable(moduleInfo), "File should exist: " + moduleInfo);
+				assertNotNull(location, cName + ": module path location should not be null for path " + path);
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
 		}
 	}
 	// Incomplete tests - fails both with Javac and ECJ
+	@Test
 	public void testGetLocationForModule3() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -210,8 +219,8 @@ public class CompilerToolJava9Tests extends TestCase {
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.one");
 				Path moduleInfo = path.resolve("module.one" + File.separator + "module-info.java");
-				assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
-				assertNotNull(cName + ": module path location should not be null for path " + path, location);
+				assertTrue(Files.isReadable(moduleInfo), "File should exist: " + moduleInfo);
+				assertNotNull(location, cName + ": module path location should not be null for path " + path);
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
@@ -252,6 +261,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			}
 		};
 	}
+	@Test
 	public void testOptionRelease1() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -283,37 +293,38 @@ public class CompilerToolJava9Tests extends TestCase {
 				@Override
 				public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 					JavaFileObject source = diagnostic.getSource();
-					assertNotNull("No source", source);
+					assertNotNull(source, "No source");
 					super.report(diagnostic);
 				}
 			};
 	 		CompilationTask task = compiler.getTask(printWriter, getFileManager(manager), listener, options, null, units);
 	 		// check the classpath location
-	 		assertTrue("Has no location CLASS_OUPUT", getFileManager(manager).hasLocation(StandardLocation.CLASS_OUTPUT));
+	 		assertTrue(getFileManager(manager).hasLocation(StandardLocation.CLASS_OUTPUT), "Has no location CLASS_OUPUT");
 			Boolean result = task.call();
 			printWriter.flush();
 			printWriter.close();
 	 		if (!result.booleanValue()) {
 	 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-	 	 		assertTrue("Compilation failed ", false);
+	 	 		assertTrue(false, "Compilation failed ");
 	 		}
 	 		ClassFileReader reader = null;
 	 		try {
 				reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
 			} catch (ClassFormatException e) {
-				assertTrue("Should not happen", false);
+				assertTrue(false, "Should not happen");
 			} catch (IOException e) {
-				assertTrue("Should not happen", false);
+				assertTrue(false, "Should not happen");
 			}
-			assertNotNull("No reader", reader);
+			assertNotNull(reader, "No reader");
 			// This needs fix. This test case by design will produce different output every compiler version.
-	 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+	 		assertEquals(ClassFileConstants.JDK1_8, reader.getVersion(), "Wrong value");
 			// check that the .class file exist for X
-			assertTrue("delete failed", inputFile.delete());
+			assertTrue(inputFile.delete(), "delete failed");
 		};
 		cons.accept(standardManager);
 		cons.accept(getFileManager(standardManager));
 	}
+	@Test
 	public void testOptionRelease2() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -346,37 +357,38 @@ public class CompilerToolJava9Tests extends TestCase {
 				@Override
 				public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 					JavaFileObject source = diagnostic.getSource();
-					assertNotNull("No source", source);
+					assertNotNull(source, "No source");
 					super.report(diagnostic);
 				}
 			};
 	 		CompilationTask task = compiler.getTask(printWriter, getFileManager(manager), listener, options, null, units);
 	 		// check the classpath location
-	 		assertTrue("Has no location CLASS_OUPUT", getFileManager(manager).hasLocation(StandardLocation.CLASS_OUTPUT));
+	 		assertTrue(getFileManager(manager).hasLocation(StandardLocation.CLASS_OUTPUT), "Has no location CLASS_OUPUT");
 			Boolean result = task.call();
 			printWriter.flush();
 			printWriter.close();
 	 		if (!result.booleanValue()) {
 	 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-	 	 		assertTrue("Compilation failed ", false);
+	 	 		assertTrue(false, "Compilation failed ");
 	 		}
 	 		ClassFileReader reader = null;
 	 		try {
 				reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
 			} catch (ClassFormatException e) {
-				assertTrue("Should not happen", false);
+				assertTrue(false, "Should not happen");
 			} catch (IOException e) {
-				assertTrue("Should not happen", false);
+				assertTrue(false, "Should not happen");
 			}
-			assertNotNull("No reader", reader);
+			assertNotNull(reader, "No reader");
 			// This needs fix. This test case by design will produce different output every compiler version.
-	 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+	 		assertEquals(ClassFileConstants.JDK1_8, reader.getVersion(), "Wrong value");
 			// check that the .class file exist for X
-			assertTrue("delete failed", inputFile.delete());
+			assertTrue(inputFile.delete(), "delete failed");
 		};
 		cons.accept(standardManager);
 		cons.accept(getFileManager(standardManager));
 	}
+	@Test
 	public void testOptionRelease3() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -427,6 +439,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		cons.accept(standardManager);
 		cons.accept(getFileManager(standardManager));
 	}
+	@Test
 	public void testOptionRelease4() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -467,7 +480,7 @@ public class CompilerToolJava9Tests extends TestCase {
 				@Override
 				public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 					JavaFileObject source = diagnostic.getSource();
-					assertNotNull("No source", source);
+					assertNotNull(source, "No source");
 					super.report(diagnostic);
 				}
 			};
@@ -479,19 +492,19 @@ public class CompilerToolJava9Tests extends TestCase {
 			printWriter.close();
 	 		if (!result.booleanValue()) {
 	 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-	 	 		assertTrue("Compilation failed ", false);
+	 	 		assertTrue(false, "Compilation failed ");
 	 		}
 	 		ClassFileReader reader = null;
 	 		try {
 				reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), false);
 			} catch (ClassFormatException e) {
-				assertTrue("Should not happen", false);
+				assertTrue(false, "Should not happen");
 			} catch (IOException e) {
-				assertTrue("Should not happen", false);
+				assertTrue(false, "Should not happen");
 			}
-			assertNotNull("No reader", reader);
+			assertNotNull(reader, "No reader");
 			// This needs fix. This test case by design will produce different output every compiler version.
-	 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+	 		assertEquals(ClassFileConstants.JDK1_8, reader.getVersion(), "Wrong value");
 	 		// check that the correct call was generated: must return a Buffer, not a ByteBuffer
 	 		boolean found = false;
 	 		int[] offsets = reader.getConstantPoolOffsets();
@@ -504,18 +517,19 @@ public class CompilerToolJava9Tests extends TestCase {
 	 				char[] typeName = extractType(offsets, reader, i);
 	 				if ("java/nio/ByteBuffer.flip".equals(fullName)) {
 	 					found = true;
-	 					assertEquals(fullName + "()Ljava/nio/Buffer;", fullName + new String(typeName));
+	 					assertEquals(fullName + new String(typeName), fullName + "()Ljava/nio/Buffer;");
 	 					break;
 	 				}
 	 			}
 	 		}
-	 		assertTrue("No call to ByteBuffer.flip()", found);
+	 		assertTrue(found, "No call to ByteBuffer.flip()");
 			// check that the .class file exist for X
-			assertTrue("delete failed", inputFile.delete());
+			assertTrue(inputFile.delete(), "delete failed");
 		};
 		cons.accept(standardManager);
 		cons.accept(getFileManager(standardManager));
 	}
+	@Test
 	public void testOptionRelease5() throws IOException {
 		if (this.isJREBelow12) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -553,12 +567,13 @@ public class CompilerToolJava9Tests extends TestCase {
 			printWriter.close();
 			if (result.booleanValue()) {
 				System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
-				assertTrue("Compilation did not fail as expected", false);
+				assertTrue(false, "Compilation did not fail as expected");
 			}
 		};
 		cons.accept(standardManager);
 		cons.accept(getFileManager(standardManager));
 	}
+	@Test
 	public void testOptionRelease6() throws IOException {
 		if (this.isJREBelow12) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -596,7 +611,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			printWriter.close();
 			if (!result.booleanValue()) {
 				System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-				assertTrue("Compilation failed", false);
+				assertTrue(false, "Compilation failed");
 			}
 		};
 		cons.accept(standardManager);
@@ -618,6 +633,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 3)];
 		return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 	}
+	@Test
 	public void testClassOutputLocationForModule_1() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -631,13 +647,14 @@ public class CompilerToolJava9Tests extends TestCase {
 			manager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(_tmpBinDir));
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.CLASS_OUTPUT, "module.two");
-				assertNotNull(cName + ":module path location should not be null", location);
-				assertTrue("should be output location", location.isOutputLocation());
+				assertNotNull(location, cName + ":module path location should not be null");
+				assertTrue(location.isOutputLocation(), "should be output location");
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
 		}
 	}
+	@Test
 	public void testClassOutputLocationForModule_2() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -653,8 +670,8 @@ public class CompilerToolJava9Tests extends TestCase {
 			manager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(_tmpBinDir));
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.CLASS_OUTPUT, "module.one");
-				assertTrue("should be output location", location.isOutputLocation());
-				assertNotNull(cName + ":module path location should not be null", location);
+				assertTrue(location.isOutputLocation(), "should be output location");
+				assertNotNull(location, cName + ":module path location should not be null");
 				Iterable<? extends Path> locationAsPaths = manager.getLocationAsPaths(location);
 				int count = 0;
 				boolean found = false;
@@ -664,11 +681,11 @@ public class CompilerToolJava9Tests extends TestCase {
 					}
 					count++;
 				}
-				assertEquals("incorrect no of output locations", 1, count);
-				assertTrue("output location for module.two not found", found);
+				assertEquals(1, count, "incorrect no of output locations");
+				assertTrue(found, "output location for module.two not found");
 				location = manager.getLocationForModule(StandardLocation.CLASS_OUTPUT, "module.two");
-				assertTrue("should be output location", location.isOutputLocation());
-				assertNotNull(cName + ":module path location should not be null", location);
+				assertTrue(location.isOutputLocation(), "should be output location");
+				assertNotNull(location, cName + ":module path location should not be null");
 				locationAsPaths = manager.getLocationAsPaths(location);
 				count = 0;
 				found = false;
@@ -678,8 +695,8 @@ public class CompilerToolJava9Tests extends TestCase {
 					}
 					count++;
 				}
-				assertEquals("incorrect no of output locations", 1, count);
-				assertTrue("output location for module.two not found", found);
+				assertEquals(1, count, "incorrect no of output locations");
+				assertTrue(found, "output location for module.two not found");
 
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
@@ -688,6 +705,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	}
 	// Test that non-module folders inside module-path are not considered 
 	// to be automatic modules.
+	@Test
 	public void testBug565748() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -715,7 +733,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			@Override
 			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 				JavaFileObject source = diagnostic.getSource();
-				assertNotNull("No source", source);
+				assertNotNull(source, "No source");
 				super.report(diagnostic);
 			}
 		};
@@ -726,7 +744,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		printWriter.close();
  		if (!result.booleanValue()) {
  			System.err.println("Compilation failed unexpectedly: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
+ 	 		assertTrue(false, "Compilation failed ");
  		}
  
  		// Try using the same outut as module-path and compile the new module (mod.test)
@@ -753,7 +771,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			@Override
 			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 				JavaFileObject source = diagnostic.getSource();
-				assertNotNull("No source", source);
+				assertNotNull(source, "No source");
 				super.report(diagnostic);
 			}
 		};
@@ -763,7 +781,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		printWriter.close();
  		if (!result.booleanValue()) {
  			System.err.println("Compilation failed unexpectedly: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
+ 	 		assertTrue(false, "Compilation failed ");
  		}
  
  		// Delete the module-info.class from the previously compiled modules
@@ -799,7 +817,7 @@ public class CompilerToolJava9Tests extends TestCase {
  			@Override
  			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
  				JavaFileObject source = diagnostic.getSource();
- 				assertNotNull("No source", source);
+ 				assertNotNull(source, "No source");
  				super.report(diagnostic);
  			}
  		};
@@ -809,9 +827,10 @@ public class CompilerToolJava9Tests extends TestCase {
  		printWriter.close();
  		if (result.booleanValue()) {
  			System.err.println("Compilation should fail: " + stringWriter.getBuffer().toString());
- 			assertTrue("Compilation did not fail ", false);
+ 			assertTrue(false, "Compilation did not fail ");
  		}
 	}
+	@Test
 	public void testBug566749() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -850,9 +869,10 @@ public class CompilerToolJava9Tests extends TestCase {
 		printWriter.close();
  		if (result.booleanValue()) {
  			System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation did not fail as expected ", false);
+ 	 		assertTrue(false, "Compilation did not fail as expected ");
  		}
 	}
+	@Test
 	public void testBug574097() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
@@ -895,9 +915,10 @@ public class CompilerToolJava9Tests extends TestCase {
 		printWriter.close();
  		if (result.booleanValue()) {
  			System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation did not fail as expected ", false);
+ 	 		assertTrue(false, "Compilation did not fail as expected ");
  		}
 	}
+	@Test
 	public void testBug569833() throws IOException {
 		if (this.isJREBelow9) return;
 		// Class before module descriptor in the source list
@@ -907,33 +928,42 @@ public class CompilerToolJava9Tests extends TestCase {
 		b.compile();
 		assertFalse(b.listener().hasDiagnostic());
 	}
+	@Test
 	public void testGetJavaFileObjects() {
 		if (this.isJREBelow9) return;
 	}
+	@Test
 	public void testGetJavaFileObjects2() {
 		if (this.isJREBelow9) return;
 	}
+	@Test
 	public void testSetLocationAsPaths() {
 		if (this.isJREBelow9) return;
 	}
+	@Test
 	public void testContains() {
 		if (this.isJREBelow9) return;
 	}
+	@Test
 	public void testGetServiceLoader() {
 		if (this.isJREBelow9) return;
 	}
+	@Test
 	public void testInferModuleName() {
 		if (this.isJREBelow9) return;
 	}
+	@Test
 	public void testListLocationsForModules() {
 		if (this.isJREBelow9) return;
 	}
+	@Test
 	public void testAsPath() {
 		if (this.isJREBelow9) return;
 	}
 
 	/*-- Code for testing bug 533830 --*/
 
+	@Test
 	public void testBug533830_1() throws IOException {
 		if (this.isJREBelow9) return;
 
@@ -955,7 +985,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 
 		//-- We must now also have a diagnostic
-		assertTrue("The diagnostic listener did not receive an error for the illegal option", b.listener().hasDiagnostic("option -source is not supported when --release is used"));
+		assertTrue(b.listener().hasDiagnostic("option -source is not supported when --release is used"), "The diagnostic listener did not receive an error for the illegal option");
 	}
 	
 	/**
@@ -991,6 +1021,7 @@ public class CompilerToolJava9Tests extends TestCase {
 					);
 		}
 	}
+	@Test
 	public void testGH958() throws Exception {
 		File classOutput = new File(_tmpFolder);
 		JavaCompiler compiler = new EclipseCompiler();
@@ -1017,6 +1048,7 @@ public class CompilerToolJava9Tests extends TestCase {
 
 		assertTrue(task.call());
 	}
+	@Test
 	public void testGH958_2modules() throws Exception {
 		File classOutput = new File(_tmpFolder);
 		JavaCompiler compiler = new EclipseCompiler();

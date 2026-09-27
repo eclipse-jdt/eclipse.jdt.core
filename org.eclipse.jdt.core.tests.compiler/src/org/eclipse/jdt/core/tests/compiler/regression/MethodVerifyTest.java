@@ -14140,6 +14140,7 @@ public void testIssue4601() {
 // A class that merely inherits an interface default method with a covariant return
 // (SortedMap.reversed()) must NOT get its own synthetic bridge method: the bridge is
 // already generated into the declaring interface and is inherited along with it.
+@Test
 public void testIssue5389() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK21) return; // SequencedMap / reversed() only exist since 21
 	this.runConformTest(

@@ -511,20 +511,6 @@ public static List buildTestsList(Class evaluationTestClass) {
 /**
  * Build a list of methods to run for a test suite.
  * <br>
- * Differ from {@link #buildTestsList(Class)} in the fact that one
- * can specify level of recursion in hierarchy to find additional tests.
- *
- * @param evaluationTestClass the test suite class
- * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
- * @return a {@link List list} of {@link Test tests}.
- */
-public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
-	return buildTestsList(evaluationTestClass, inheritedDepth, ORDERING);
-}
-
-/**
- * Build a list of methods to run for a test suite.
- * <br>
  * This list may be ordered in different ways using {@link #ORDERING}.
  * <br>
  * Example
@@ -709,37 +695,6 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
 		}
 	}
 	return tests;
-}
-
-/**
- * Build a test suite with all tests computed from public methods starting with "test"
- * found in the given test class.
- * Test suite name is the name of the given test class.
- *
- * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
- *
- * @return a {@link Test test suite}
- */
-public static Test buildTestSuite(Class evaluationTestClass) {
-	return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
-}
-
-/**
- * Build a test suite with all tests computed from public methods starting with "test"
- * found in the given test class.
- * Test suite name is the given name.
- *
- * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
- *
- * @return a test suite ({@link Test})
- */
-public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
-	TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
-	List tests = buildTestsList(evaluationTestClass);
-	for (int index=0, size=tests.size(); index<size; index++) {
-		suite.addTest((Test)tests.get(index));
-	}
-	return suite;
 }
 
 private static File createMemLogFile() {

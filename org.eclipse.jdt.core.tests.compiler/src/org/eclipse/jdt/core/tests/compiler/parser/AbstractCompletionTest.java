@@ -40,10 +40,6 @@ public abstract class AbstractCompletionTest extends AbstractCompilerTest {
 
 	public final static String NONE = "<NONE>";
 	public final static String NULL = "null";
-@Deprecated
-public AbstractCompletionTest(String testName){
-	super(testName);
-}
 public AbstractCompletionTest(Compliance compliance, TestInfo info) {
 	super(compliance, info);
 }

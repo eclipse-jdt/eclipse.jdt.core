@@ -14,18 +14,20 @@
 package org.eclipse.jdt.core.tests.compiler.unicode;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public class Unicode1_8Test extends AbstractRegressionTest {
-public Unicode1_8Test(String name) {
-	super(name);
+public Unicode1_8Test(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
+@Test
 public void test426214() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
@@ -41,6 +43,7 @@ public void test426214() {
 		"",
 		options);
 }
+@Test
 public void test426214_4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
@@ -60,8 +63,5 @@ public void test426214_4() {
 		null,
 		true,
 		options);
-}
-public static Class testClass() {
-	return Unicode1_8Test.class;
 }
 }

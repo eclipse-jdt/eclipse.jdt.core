@@ -249,39 +249,6 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	/**
-	 * Build a regression test setup suite for a minimal compliance and a test suite to run.
-	 * Returned test suite has only one child: {@link RegressionTestSetup} test suite.
-	 * Name of returned suite is the name of given test suite class.
-	 * The test suite will be run iff the compliance is at least the specified one.
-	 *
-	 * @param minimalCompliance The unqie compliance level used for this test suite.
-	 * @param evaluationTestClass The test suite to run.
-	 * @return built test suite (see {@link TestSuite}
-	 */
-	public static Test buildMinimalComplianceTestSuite(Class evaluationTestClass, int minimalCompliance) {
-		TestSuite suite = new TestSuite(evaluationTestClass.getName());
-		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		for (int[] map : complianceTestLevelMapping) {
-			if ((complianceLevels & map[0]) != 0) {
-				long complianceLevelForJavaVersion = ClassFileConstants.getComplianceLevelForJavaVersion(map[1]);
-				checkCompliance(evaluationTestClass, minimalCompliance, suite, complianceLevels, map[0], map[1], getVersionString(complianceLevelForJavaVersion));
-			}
-		}
-		return suite;
-	}
-	protected static void checkCompliance(Class evaluationTestClass, int minimalCompliance, TestSuite suite,
-			int complianceLevels, int abstractCompilerTestCompliance, int classFileConstantsVersion, String release) {
-		int lev = complianceLevels & abstractCompilerTestCompliance;
-		if (lev != 0) {
-			if (lev < minimalCompliance) {
-				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance " + release + "!");
-			} else {
-				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(classFileConstantsVersion)));
-			}
-		}
-	}
-
-	/**
 	 * Build a regression test setup suite for a compliance and a test suite to run.
 	 * Returned test suite has only one child: {@link RegressionTestSetup} test suite.
 	 * Name of returned suite is the name of given test suite class.
@@ -527,29 +494,6 @@ public class AbstractCompilerTest extends TestCase {
 		testClasses.add(clazz);
 		return suite(clazz.getName(), RegressionTestSetup.class, testClasses);
 	}
-
-	public static Test buildTestSuite(Class evaluationTestClass) {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-			return buildTestSuite(evaluationTestClass, highestComplianceLevels());
-		}
-		return setupSuite(evaluationTestClass);
-	}
-
-	public static Test buildTestSuite(Class evaluationTestClass, long complianceLevel) {
-		TestSuite suite =  null; // new RegressionTestSetup(complianceLevel);
-		List tests = buildTestsList(evaluationTestClass);
-		for (int index=0, size=tests.size(); index<size; index++) {
-			suite.addTest((Test)tests.get(index));
-		}
-		String className = evaluationTestClass.getName();
-		Integer testsNb;
-		int newTestsNb = suite.countTestCases();
-		if ((testsNb = (Integer) TESTS_COUNTERS.get(className)) != null)
-			newTestsNb += testsNb.intValue();
-		TESTS_COUNTERS.put(className, Integer.valueOf(newTestsNb));
-		return suite;
-	}
-
 
 	public static boolean isJRELevel(int compliance) {
 		return (AbstractCompilerTest.getPossibleComplianceLevels() & compliance) != 0;

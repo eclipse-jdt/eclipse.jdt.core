@@ -14,17 +14,19 @@
 package org.eclipse.jdt.core.tests.compiler.unicode;
 
 import java.util.Map;
-import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
+@MinimalCompliance(value=AbstractCompilerTest.F_13, singleVersion=true)
 public class Unicode12_1Test extends AbstractRegressionTest {
-public Unicode12_1Test(String name) {
-	super(name);
+public Unicode12_1Test(Compliance compliance, TestInfo info) {
+	super(compliance, info);
 }
-public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_13);
-}
+@Test
 public void test1() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
@@ -38,6 +40,7 @@ public void test1() {
 		"",
 		options);
 }
+@Test
 public void test2() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
@@ -57,8 +60,5 @@ public void test2() {
 		null,
 		true,
 		options);
-}
-public static Class<Unicode12_1Test> testClass() {
-	return Unicode12_1Test.class;
 }
 }

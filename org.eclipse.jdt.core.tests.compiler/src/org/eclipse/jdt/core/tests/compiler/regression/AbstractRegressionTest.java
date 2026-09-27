@@ -38,8 +38,6 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -1416,58 +1414,6 @@ protected static class JavacTestOptions {
 	}
 	public AbstractRegressionTest(Compliance compliance, TestInfo info) {
 		super(compliance, info);
-	}
-
-	/* argument 'inheritedDepth' is not exposed in original API, therefore these helpers are copied below with this arg added */
-	protected static void buildMinimalComplianceTestSuite(int minimalCompliance, int inheritedDepth, TestSuite suite, Class<?> evaluationTestClass) {
-		int complianceLevels = getPossibleComplianceLevels();
-		for (int[] map : complianceTestLevelMapping) {
-			if ((complianceLevels & map[0]) != 0) {
-				long complianceLevelForJavaVersion = ClassFileConstants.getComplianceLevelForJavaVersion(map[1]);
-				checkCompliance(evaluationTestClass, minimalCompliance, suite, complianceLevels, inheritedDepth, map[0], map[1], getVersionString(complianceLevelForJavaVersion));
-			}
-		}
-	}
-	protected static void checkCompliance(Class<?> evaluationTestClass, int minimalCompliance, TestSuite suite, int complianceLevels, int inheritedDepth,
-			int abstractCompilerTestCompliance, int classFileConstantsVersion, String release) {
-		int lev = complianceLevels & abstractCompilerTestCompliance;
-		if (lev != 0) {
-			if (lev < minimalCompliance) {
-				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance " + release + "!");
-			} else {
-				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(classFileConstantsVersion), inheritedDepth));
-			}
-		}
-	}
-	public static Test buildUniqueComplianceTestSuite(Class<?> evaluationTestClass, long uniqueCompliance, int inheritedDepth) {
-		long highestLevel = highestComplianceLevels();
-		if (highestLevel < uniqueCompliance) {
-			String complianceString;
-			if (highestLevel == ClassFileConstants.JDK10)
-				complianceString = "10";
-			else if (highestLevel == ClassFileConstants.JDK9)
-				complianceString = "9";
-			else if (highestLevel <= CompilerOptions.getFirstSupportedJdkLevel())
-				complianceString = CompilerOptions.getFirstSupportedJavaVersion();
-			else {
-				highestLevel = ClassFileConstants.getLatestJDKLevel();
-				if (highestLevel > 0) {
-					complianceString = CompilerOptions.versionFromJdkLevel(highestLevel);
-				} else {
-					complianceString = "unknown";
-				}
-
-			}
-
-			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+complianceString+"!");
-			return new TestSuite();
-		}
-		TestSuite complianceSuite =null; // new RegressionTestSetup(uniqueCompliance);
-		List<Test> tests = buildTestsList(evaluationTestClass, inheritedDepth);
-		for (int index=0, size=tests.size(); index<size; index++) {
-			complianceSuite.addTest(tests.get(index));
-		}
-		return complianceSuite;
 	}
 
 	protected boolean checkPreviewAllowed() {

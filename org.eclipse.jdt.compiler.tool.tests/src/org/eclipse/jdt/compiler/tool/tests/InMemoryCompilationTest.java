@@ -14,6 +14,9 @@
 
 package org.eclipse.jdt.compiler.tool.tests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,11 +47,10 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
-import junit.framework.TestCase;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class InMemoryCompilationTest extends TestCase {
+public class InMemoryCompilationTest {
 	@Test
 	public void testInMemoryCompilationStaticMethod()
 			throws ReflectiveOperationException, IllegalArgumentException, SecurityException {

@@ -16,6 +16,12 @@
 package org.eclipse.jdt.compiler.tool.tests;
 
 import static org.eclipse.jdt.core.tests.compiler.regression.AbstractBatchCompilerTest.OUTPUT_DIR_PLACEHOLDER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +49,6 @@ import javax.lang.model.SourceVersion;
 import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject.Kind;
-import junit.framework.TestCase;
 import org.eclipse.jdt.compiler.tool.tests.AbstractCompilerToolTest.CompilerInvocationDiagnosticListener;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -51,13 +56,12 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class CompilerToolTests extends TestCase {
+public class CompilerToolTests {
 	private static final boolean DEBUG = false;
-
-	public CompilerToolTests(String name) {
-		super(name);
-	}
 
 	private JavaCompiler compiler;
 	static final String[] ONE_ARG_OPTIONS = {
@@ -135,7 +139,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 	}
 
-	@Override
+	@BeforeEach
 	protected void setUp() throws Exception {
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class, EclipseCompiler.class.getClassLoader());
 //		int compilerCounter = 0;
@@ -145,27 +149,29 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				compiler = javaCompiler;
 			}
 		}
-//		assertEquals("Only one compiler available", 1, compilerCounter);
+//		assertEquals(1, compilerCounter, "Only one compiler available");
 	}
 
-	@Override
+	@AfterEach
 	protected void tearDown() throws Exception {
 		compiler = null;
 	}
 
+	@Test
 	public void testCheckOptions() {
-		assertNotNull("No compiler found", compiler);
+		assertNotNull(compiler, "No compiler found");
 		for (String option : ONE_ARG_OPTIONS) {
-			assertEquals(option + " requires 1 argument", 1, compiler.isSupportedOption(option));
+			assertEquals(1, compiler.isSupportedOption(option), option + " requires 1 argument");
 		}
 		for (String option : ZERO_ARG_OPTIONS) {
-			assertEquals(option + " requires no argument", 0, compiler.isSupportedOption(option));
+			assertEquals(0, compiler.isSupportedOption(option), option + " requires no argument");
 		}
 		for (String option : FAKE_ZERO_ARG_OPTIONS) {
-			assertEquals(option + " requires no argument", 0, compiler.isSupportedOption(option));
+			assertEquals(0, compiler.isSupportedOption(option), option + " requires no argument");
 		}
 	}
 
+	@Test
 	public void testCompilerOneClassWithSystemCompiler() {
 		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 		if (systemCompiler == null) {
@@ -240,21 +246,22 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		options.add("-d");
 		options.add(tmpFolder);
  		CompilationTask task = systemCompiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
- 		assertTrue("Has location CLASS_OUPUT ", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+ 		assertTrue(forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT), "Has location CLASS_OUPUT ");
 		Boolean result = task.call();
 
  		if (!result.booleanValue()) {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
+ 	 		assertTrue(false, "Compilation failed ");
  		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 	}
 
 	/*
 	 * Run the system compiler using the Eclipse java file manager
 	 * TODO need to investigate why rt.jar gets removed from the PLATFORM_CLASSPATH location
 	 */
+	@Test
 	public void testCompilerOneClassWithSystemCompiler2() {
 		// System compiler
 		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
@@ -361,12 +368,13 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 
 		if (!result.booleanValue()) {
 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-			assertTrue("Compilation failed ", false);
+			assertTrue(false, "Compilation failed ");
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 	}
 
+	@Test
 	public void testCompilerOneClassWithEclipseCompiler() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -437,29 +445,30 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		options.add(tmpFolder);
  		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		// check the classpath location
- 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+ 		assertTrue(forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT), "Has no location CLASS_OUPUT");
 		Boolean result = task.call();
 		printWriter.flush();
 		printWriter.close();
  		if (!result.booleanValue()) {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
+ 	 		assertTrue(false, "Compilation failed ");
  		}
  		ClassFileReader reader = null;
  		try {
 			reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
 		} catch (ClassFormatException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		} catch (IOException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		}
-		assertNotNull("No reader", reader);
+		assertNotNull(reader, "No reader");
 		// This needs fix. This test case by design will produce different output every compiler version.
- 		assertEquals("Wrong value", ClassFileConstants.getLatestJDKLevel(), reader.getVersion()); // TODO: Fix this for JDK11
+ 		assertEquals(ClassFileConstants.getLatestJDKLevel(), reader.getVersion(), "Wrong value"); // TODO: Fix this for JDK11
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 	}
 
+	@Test
 	public void testCompilerOneClassWithEclipseCompiler2() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -515,13 +524,13 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		options.add("-" + CompilerOptions.getFirstSupportedJavaVersion());
  		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		// check the classpath location
- 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+ 		assertTrue(forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT), "Has no location CLASS_OUPUT");
 		Boolean result = task.call();
 		printWriter.flush();
 		printWriter.close();
 		if (!result.booleanValue()) {
 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-			assertTrue("Compilation failed ", false);
+			assertTrue(false, "Compilation failed ");
 		}
 		File outputFile = new File(tmpFolder, "p/X.class");
 		assertTrue(outputFile.exists());
@@ -529,29 +538,30 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		try {
 			reader = ClassFileReader.read(outputFile);
 		} catch (ClassFormatException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		} catch (IOException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		}
-		assertNotNull("No reader", reader);
-		assertEquals("Not a 1.8 .class file", ClassFileConstants.JDK1_8, reader.getVersion());
+		assertNotNull(reader, "No reader");
+		assertEquals(ClassFileConstants.JDK1_8, reader.getVersion(), "Not a 1.8 .class file");
 
 		stringWriter = new StringWriter();
 		printWriter = new PrintWriter(stringWriter);
 		task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
 		// check the classpath location
-		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+		assertTrue(forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT), "Has no location CLASS_OUPUT");
 		result = task.call();
 		printWriter.flush();
 		printWriter.close();
 		if (!result.booleanValue()) {
 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-			assertTrue("Compilation failed ", false);
+			assertTrue(false, "Compilation failed ");
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 	}
 
+	@Test
 	public void testCompilerOneClassWithEclipseCompiler3() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -607,26 +617,27 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		options.add(tmpFolder);
  		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
  		// check the classpath location
- 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+ 		assertTrue(forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT), "Has no location CLASS_OUPUT");
 		Boolean result = task.call();
 		printWriter.flush();
 		printWriter.close();
  		if (!result.booleanValue()) {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
+ 	 		assertTrue(false, "Compilation failed ");
  		}
 
 		try {
 			task.call();
-			assertTrue("Should not get there", false);
+			assertTrue(false, "Should not get there");
 		} catch (IllegalStateException e) {
 			// ignore: expected
 		}
 
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 	}
 
+	@Test
 	public void testCompilerOneClassWithEclipseCompiler4() throws IOException {
 		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 		if (systemCompiler == null) {
@@ -672,13 +683,14 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		printWriter.close();
 		if (!result.booleanValue()) {
 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-			assertTrue("Compilation failed ", false);
+			assertTrue(false, "Compilation failed ");
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 		manager.close();
 	}
 
+	@Test
 	public void testCompilerOneClassWithEclipseCompiler5() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -721,12 +733,13 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertFalse(errBuffer.toString().isEmpty());
 		assertTrue(compilerInvocationDiagnosticListener.kind != CompilerInvocationDiagnosticListener.NONE);
 		if (!result.booleanValue()) {
-			assertFalse("Compilation did not fail", false);
+			assertFalse(false, "Compilation did not fail");
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 	}
 
+	@Test
 	public void testCompilerOneClassWithEclipseCompiler6() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File packageFolder = new File(tmpFolder, "p");
@@ -770,7 +783,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			@Override
 			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 				JavaFileObject source = diagnostic.getSource();
-				assertNotNull("No source", source);
+				assertNotNull(source, "No source");
 				super.report(diagnostic);
 			}
 		};
@@ -782,13 +795,14 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertFalse(errBuffer.toString().isEmpty());
 		assertTrue(compilerInvocationDiagnosticListener.kind != CompilerInvocationDiagnosticListener.NONE);
 		if (!result.booleanValue()) {
-			assertFalse("Compilation did not fail", false);
+			assertFalse(false, "Compilation did not fail");
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
-		assertTrue("delete failed", packageFolder.delete());
+		assertTrue(inputFile.delete(), "delete failed");
+		assertTrue(packageFolder.delete(), "delete failed");
 	}
 
+	@Test
 	public void testCompilerOneClassWithEclipseCompiler7() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -828,7 +842,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			@Override
 			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 				JavaFileObject source = diagnostic.getSource();
-				assertNotNull("No source", source);
+				assertNotNull(source, "No source");
 				super.report(diagnostic);
 			}
 		};
@@ -840,16 +854,17 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertFalse(errBuffer.toString().isEmpty());
 		assertTrue(compilerInvocationDiagnosticListener.kind != CompilerInvocationDiagnosticListener.NONE);
 		if (!result.booleanValue()) {
-			assertFalse("Compilation did not fail", false);
+			assertFalse(false, "Compilation did not fail");
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		assertTrue(inputFile.delete(), "delete failed");
 	}
 
 	private PrintWriter ignoreOutput() {
 		return new PrintWriter(new StringWriter());
 	}
 
+	@Test
 	public void testCompilerOneModuleWithEclipseCompiler() {
 		String tmpFolder = System.getProperty("java.io.tmpdir") + "/src/java";
 		File tempDir= new File(tmpFolder + "/bar");
@@ -943,34 +958,35 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		options.add(tmpFolder + "/target/classes");
  		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		// check the classpath location
- 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+ 		assertTrue(forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT), "Has no location CLASS_OUPUT");
 		Boolean result = task.call();
 		printWriter.flush();
 		printWriter.close();
  		if (!result.booleanValue()) {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
+ 	 		assertTrue(false, "Compilation failed ");
  		}
  		try {
 			ClassFileReader.read(new File(tmpFolder + "/target/classes", "module-info.class"), true);
 		} catch (ClassFormatException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		} catch (IOException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		}
  		try {
 			ClassFileReader.read(new File(tmpFolder + "/target/classes", "bar/Library.class"), true);
 		} catch (ClassFormatException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		} catch (IOException e) {
-			assertTrue("Should not happen", false);
+			assertTrue(false, "Should not happen");
 		}
 		// check that the .class file exist for module-info.class and library.class
-		assertTrue("delete failed", inputFile1.delete());
-		assertTrue("delete failed", inputFile2.delete());
+		assertTrue(inputFile1.delete(), "delete failed");
+		assertTrue(inputFile2.delete(), "delete failed");
 	}
 
 	// Test that JavaFileManager#inferBinaryName returns null for invalid file
+	@Test
 	public void testInferBinaryName() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File dir = new File(tmpFolder, "src" + System.currentTimeMillis());
@@ -1010,13 +1026,14 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			}
 			String inferredName = fileManager.inferBinaryName(sourceLoc, invalid);
 			fileManager.close();
-			assertNull("Should return null for invalid file", inferredName);
+			assertNull(inferredName, "Should return null for invalid file");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		assertTrue("delete failed", inputFile.delete());
-		assertTrue("delete failed", dir.delete());
+		assertTrue(inputFile.delete(), "delete failed");
+		assertTrue(dir.delete(), "delete failed");
 	}
+	@Test
 	public void testFileManager() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File dir = new File(tmpFolder, "src" + System.currentTimeMillis());
@@ -1063,7 +1080,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				int lastIndexOf = name.lastIndexOf('/');
 				builder.append(name.substring(lastIndexOf + 1));
 			}
-			assertEquals("Wrong contents", "X.java", String.valueOf(builder));
+			assertEquals("X.java", String.valueOf(builder), "Wrong contents");
 
 			List<File> files = new ArrayList<>();
 			files.add(dir);
@@ -1079,9 +1096,10 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			e.printStackTrace();
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
-		assertTrue("delete failed", dir.delete());
+		assertTrue(inputFile.delete(), "delete failed");
+		assertTrue(dir.delete(), "delete failed");
 	}
+	@Test
 	public void testFileManager2() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File dir = new File(tmpFolder, "src" + System.currentTimeMillis());
@@ -1149,19 +1167,20 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				names.add(name.substring(lastIndexOf + 1));
 			}
 			Collections.sort(names);
-			assertEquals("Wrong contents", "[X.java, X2.java]", names.toString());
+			assertEquals("[X.java, X2.java]", names.toString(), "Wrong contents");
 			fileManager.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile2.delete());
-		assertTrue("delete failed", dir2.delete());
-		assertTrue("delete failed", inputFile.delete());
-		assertTrue("delete failed", dir.delete());
+		assertTrue(inputFile2.delete(), "delete failed");
+		assertTrue(dir2.delete(), "delete failed");
+		assertTrue(inputFile.delete(), "delete failed");
+		assertTrue(dir.delete(), "delete failed");
 	}
 
 
+	@Test
 	public void testCompilerUnusedVariable() throws Exception {
 		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, "NoWarn.java");
@@ -1211,8 +1230,9 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		printWriter.close();
 
 		//passing in the directory to no warn should ignore the path - resulting in no warnings.
-		assertEquals("Expected no warnings to be generated.", "", stringWriter.toString());
+		assertEquals("", stringWriter.toString(), "Expected no warnings to be generated.");
 	}
+	@Test
 	public void testCompilerUnusedVariable2() throws Exception {
 		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).toPath().normalize().toAbsolutePath().toString();
 		File inputFile = new File(tmpFolder, "NoWarn.java");
@@ -1266,7 +1286,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		printWriter.close();
 
 		//passing in the directory to no warn should ignore the path - resulting in no warnings.
-		assertEquals("No error should be reported", 0, errors.size());
+		assertEquals(0, errors.size(), "No error should be reported");
 	}
 
 	private void suppressTest(String fileName, String source, String expectedDiagnostics, String expectedOutput) throws Exception {
@@ -1318,17 +1338,18 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		printWriter.flush();
 		printWriter.close();
 
-		assertEquals("Unexpected diagnostics:", expectedDiagnostics,
+		assertEquals(expectedDiagnostics,
 				errors.stream()
 				.map(d -> d.getKind().toString() + ' ' + 
 						d.getLineNumber() + ": " + d.getMessage(Locale.getDefault()))
-				.collect(Collectors.joining("\n")));
+				.collect(Collectors.joining("\n")),
+				"Unexpected diagnostics:");
 
 		
 		String expected = expectedOutput.replaceAll(OUTPUT_DIR_PLACEHOLDER, normalized(tmpFolder));
 		String actual = normalized(stringWriter.toString());
 		
-		assertEquals("Unexpected output:", expected, actual);
+		assertEquals(expected, actual, "Unexpected output:");
 	}
 
 	private static String normalized(String s) {
@@ -1357,6 +1378,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	    return buffer.toString();
 	}
 	
+	@Test
 	public void testCompilerSimpleSuppressWarnings() throws Exception {
 		suppressTest("p/SuppressTest.java", 
 				"package p;\n" +
@@ -1369,6 +1391,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				"", "");
 	}
 
+	@Test
 	public void testCompilerNestedSuppressWarnings() throws Exception {
 		suppressTest("p/SuppressTest.java", 
 				"package p;\n" +
@@ -1383,6 +1406,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				"", "");
 	}
 
+	@Test
 	public void testCompilerUnrelatedSuppressWarnings() throws Exception {
 		suppressTest("p/SuppressTest.java", 
 				"package p;\n" +
@@ -1407,6 +1431,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	/**
 	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/954
 	 */
+	@Test
 	public void testModuleCannotBeResolvedErrorMessageGh955() throws Exception {
 		suppressTest(
 				"module-info.java",
@@ -1428,12 +1453,14 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				);
 	}
 
+	@Test
 	public void testSupportedCompilerVersions() throws IOException {
 		Set<SourceVersion> sourceVersions = compiler.getSourceVersions();
 		SourceVersion[] values = SourceVersion.values();
 		for (SourceVersion sourceVersion : values) {
-			assertTrue("source version " + sourceVersion + " should be supported"
-					+ "by compiler " + compiler.getClass().getName(), sourceVersions.contains(sourceVersion));
+			assertTrue(sourceVersions.contains(sourceVersion),
+					"source version " + sourceVersion + " should be supported"
+					+ "by compiler " + compiler.getClass().getName());
 		}
 	}
 
@@ -1442,6 +1469,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	 * happen on case insensitive file systems.
 	 * @throws IOException  If I/O failure
 	 */
+	@Test
 	public void testCompilerOneClassWithPackageCollision() throws IOException {
 
 		final String tempDir = System.getProperty("java.io.tmpdir");
@@ -1476,7 +1504,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				compilationUnits
 			);
 
-		assertTrue("Compilation 1 failed", task1.call());
+		assertTrue(task1.call(), "Compilation 1 failed");
 
 		// ********************************************************************************
 		// 					Compile second source file with classpath
@@ -1519,7 +1547,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				compilationUnits
 			);
 
-		assertTrue("Compilation 2 failed", task2.call());
+		assertTrue(task2.call(), "Compilation 2 failed");
 
 		// ********************************************************************************
 		// 										Cleanup
@@ -1530,9 +1558,9 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			.map(Path::toFile)
 			.forEach(File::delete);
 
-		assertTrue("Delete failed", Files.deleteIfExists(tempPath.resolve("Foo.class")));
-		assertFalse("Delete failed", Files.exists(sourceFile1));
-		assertTrue("Delete failed", Files.deleteIfExists(sourceFile2));
+		assertTrue(Files.deleteIfExists(tempPath.resolve("Foo.class")), "Delete failed");
+		assertFalse(Files.exists(sourceFile1), "Delete failed");
+		assertTrue(Files.deleteIfExists(sourceFile2), "Delete failed");
 	}
 
 	/**
@@ -1566,6 +1594,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	/*
 	 * Clean up the compiler
 	 */
+	@Test
 	public void testCleanUp() {
 		compiler = null;
 	}
