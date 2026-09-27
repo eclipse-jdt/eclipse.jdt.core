@@ -198,7 +198,14 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 			if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) {
 				// Error: not 'left-hand operand of a simple assignment expression'
 				if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
-					scope.problemReporter().fieldReadInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+					boolean complain = true;
+					if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions())) {
+						FieldDeclaration sourceField = fieldBinding.sourceField();
+						if (sourceField == null || sourceField.initialization == null)
+							complain = false;
+					}
+					if (complain)
+						scope.problemReporter().fieldReadInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
 				}
 				// otherwise we leave it to later phase to detect if required enclosing instance is available
 				return;

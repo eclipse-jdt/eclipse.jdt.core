@@ -56,21 +56,17 @@ public class ReferenceOfFieldOfThis extends SingleNameReference {
     public TypeBinding resolveType(BlockScope scope) {
     	this.fieldReference.bits |= this.bits & (ASTNode.IsStrictlyAssigned | ASTNode.IsCompoundAssigned);
     	TypeBinding type = this.fieldReference.resolveType(scope);
+    	this.bits &= ~ASTNode.RestrictiveFlagMASK;
     	this.binding = this.fieldReference.binding;
-    	if (this.binding.isShadowedByProxy())
+    	if (this.binding.isShadowedByProxy()) {
     		this.binding = this.binding.getShadowingProxy();
+        	this.bits |= Binding.LOCAL;
+    	} else {
+        	this.bits |= Binding.FIELD;
+    	}
     	this.resolvedType = this.fieldReference.resolvedType;
     	this.constant = this.fieldReference.optimizedBooleanConstant();
-    	this.bits &= ~ASTNode.RestrictiveFlagMASK;
-    	this.bits |= Binding.FIELD;
     	this.actualReceiverType = this.fieldReference.actualReceiverType;
     	return type;
     }
-
-//    @Override
-//	public void generateReceiver(CodeStream codeStream) {
-//    	int pc = codeStream.position;
-//    	codeStream.aload_0();
-//    	codeStream.recordPositionsFrom(pc, this.sourceStart);
-//    }
 }

@@ -577,7 +577,10 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 	}
 
 	public boolean isThis() {
+		return false;
+	}
 
+	public boolean isQualifiedThis() {
 		return false;
 	}
 

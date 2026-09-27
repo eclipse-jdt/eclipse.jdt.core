@@ -158,6 +158,11 @@ public class QualifiedThisReference extends ThisReference {
 	}
 
 	@Override
+	public boolean isQualifiedThis() {
+		return true;
+	}
+
+	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		return this.qualification.print(0, output).append(".this"); //$NON-NLS-1$

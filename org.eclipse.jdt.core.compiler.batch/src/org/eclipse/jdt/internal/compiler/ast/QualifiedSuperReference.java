@@ -47,6 +47,11 @@ public boolean isThis() {
 }
 
 @Override
+public boolean isQualifiedThis() {
+	return false;
+}
+
+@Override
 public StringBuilder printExpression(int indent, StringBuilder output) {
 	return this.qualification.print(0, output).append(".super"); //$NON-NLS-1$
 }

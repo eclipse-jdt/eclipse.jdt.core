@@ -4026,7 +4026,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		fr.receiver = tos;
 		//field reference begins at the receiver
 		fr.sourceStart = fr.receiver.sourceStart;
-		if (tos instanceof ThisReference thisReference && thisReference.toString().equals("this")) { //$NON-NLS-1$
+		if (tos instanceof ThisReference thisReference && thisReference.isThis() && !thisReference.isQualifiedThis()) {
 			ReferenceOfFieldOfThis referenceOfFieldOfThis = new ReferenceOfFieldOfThis(source, pos, fr);
 			this.expressionStack[this.expressionPtr] = referenceOfFieldOfThis;
 		} else {

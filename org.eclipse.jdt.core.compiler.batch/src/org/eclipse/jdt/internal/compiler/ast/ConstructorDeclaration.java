@@ -212,6 +212,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			this.scope.enterEarlyConstructionContext();
 			// nullity, owning and mark as assigned
 			analyseArguments(this.scope, flowInfo, initializerFlowContext, arguments(true), this.binding);
+			final FlowInfo currentFlowInfo = flowInfo;
+			this.prologueResolutionContext.larvalProxies()
+					.ifPresent(map -> map.values().stream()
+							.filter(f -> !f.isFinal() && !f.isBlankFinal())
+								.forEach(currentFlowInfo::markAsDefinitelyAssigned));
 			complaintLevel = (classReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			flowInfo.setReachMode(classReachMode);
 		} else {

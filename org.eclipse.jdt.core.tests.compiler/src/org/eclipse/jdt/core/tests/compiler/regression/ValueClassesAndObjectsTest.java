@@ -1596,4 +1596,160 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				    		""" }, "x = 42, y = 47");
 	}
 
+	public void testTooEagerReadOfFinalField() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    final int i = 42;
+						    final double d;
+						    X() {
+						        System.out.println("i = " + i);
+						        System.out.println("d = " + d); // flow analysis not done due to resolve error in previous line
+						        super();
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"----------\n" +
+						"1. ERROR in X.java (at line 5)\n" +
+						"	System.out.println(\"i = \" + i);\n" +
+						"	                            ^\n" +
+						"Cannot read field i in an early construction context\n" +
+						"----------\n");
+	}
+
+	public void testTooEagerReadOfBlankFinalField() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    final double d;
+						    X() {
+						        System.out.println("d = " + d);
+						        super();
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"----------\n" +
+						"1. ERROR in X.java (at line 4)\n" +
+						"	System.out.println(\"d = \" + d);\n" +
+						"	                            ^\n" +
+						"The blank final field d may not have been initialized\n" +
+						"----------\n");
+	}
+	public void testDefaultInitializationsInEarlyReads() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    boolean b;
+						    char c;
+						    byte by;
+						    short s;
+						    int i;
+						    long l;
+						    float f;
+						    double d;
+						    String string;
+						    X() {
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + l);
+						        System.out.println("f = " + f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						        super();
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"b = false\n" +
+						"c = \u0000\n" +
+						"by = 0\n" +
+						"s = 0\n" +
+						"i = 0\n" +
+						"l = 0\n" +
+						"f = 0.0\n" +
+						"d = 0.0\n" +
+						"string = null");
+	}
+
+	public void testDefaultInitializationsInEarlyReadsThroughThis() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    boolean b;
+						    char c;
+						    byte by;
+						    short s;
+						    int i;
+						    long l;
+						    float f;
+						    double d;
+						    String string;
+						    X() {
+						        c = 'A';
+						        this.i = 42;
+						        s = 99;
+						        this.f = 134.456f;
+						        d = 456.789;
+						        this.l = 9876543;
+						        string = "Hello world";
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + this.c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + this.l);
+						        System.out.println("f = " + this.f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						        super();
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + this.c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + this.l);
+						        System.out.println("f = " + this.f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+						"b = false\n" +
+						"c = A\n" +
+						"by = 0\n" +
+						"s = 99\n" +
+						"i = 42\n" +
+						"l = 9876543\n" +
+						"f = 134.456\n" +
+						"d = 456.789\n" +
+						"string = Hello world\n" +
+						"b = false\n" +
+						"c = A\n" +
+						"by = 0\n" +
+						"s = 99\n" +
+						"i = 42\n" +
+						"l = 9876543\n" +
+						"f = 134.456\n" +
+						"d = 456.789\n" +
+						"string = Hello world");
+	}
+
  }
