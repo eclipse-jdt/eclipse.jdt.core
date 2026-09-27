@@ -884,6 +884,14 @@ public final boolean isImplementing() {
 	return (this.modifiers & ExtraCompilerModifiers.AccImplementing) != 0;
 }
 
+/* Answer true if the receiver is the compile-time declaration of a method reference
+ * in the same compilation unit, i.e. it implements the functional interface method.
+ * Only set for source methods
+*/
+public final boolean isUsedAsMethodReference() {
+	return (this.extendedTagBits & ExtendedTagBits.IsUsedAsMethodReference) != 0;
+}
+
 /*
  * Answer true if the receiver is a "public static void main(String[])" method
  */
