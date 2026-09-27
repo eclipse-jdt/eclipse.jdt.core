@@ -70,12 +70,8 @@ public class AbstractCompilerTest extends TestCase {
 	// specifying "-Drun.javac=enabled" unconditionally enables comparison with javac for all tests:
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	// specifying "-Drun.javac=optin" (case insensitive) enables comparison with javac for tests that set runJavacOptIn to true
-	public static final boolean RUN_JAVAC_OPT_IN = propertyMatches("run.javac", "optin");
-	public static final boolean ONLY_RUN_JAVA_OPT_IN = propertyMatches("run.javac", "optinonly");
-	private static boolean propertyMatches(String name, String prefix) {
-		String prop = System.getProperty(name);
-		return prop != null && prop.toLowerCase().startsWith(prefix);
-	}
+	public static final boolean RUN_JAVAC_OPT_IN = "optin".equalsIgnoreCase(System.getProperty("run.javac"));
+	public static boolean ONLY_RUN_JAVA_OPT_IN = false;
 	protected boolean runJavacOptIn = false;
 
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
@@ -140,7 +136,7 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_27, ClassFileConstants.MAJOR_VERSION_27},
 	};
 
-	protected record Compliance(String displayName) {
+	protected record Compliance(String displayName, long complianceLevel) {
 		@Override
 		public final String toString() {
 			return "compliance "+this.displayName;
@@ -159,7 +155,7 @@ public class AbstractCompilerTest extends TestCase {
 				if ((allPossibleLevels & level) != 0) {
 					if (isApplicable(level, minimalCompliance, selectedSome)) {
 						long complianceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_1_8+v);
-						selectedComplianceLevels.add(new Compliance(CompilerOptions.versionFromJdkLevel(complianceLevel)));
+						selectedComplianceLevels.add(new Compliance(CompilerOptions.versionFromJdkLevel(complianceLevel), complianceLevel));
 						selectedSome = true;
 					}
 				}
@@ -515,7 +511,7 @@ public class AbstractCompilerTest extends TestCase {
 
 	public AbstractCompilerTest(Compliance compliance, TestInfo testInfo) {
 		super(stripDisplayName(testInfo.getDisplayName()));
-		this.complianceLevel = CompilerOptions.versionToJdkLevel(compliance.displayName());
+		this.complianceLevel = compliance.complianceLevel;
 		if (testSetup == null || testSetup.complianceLevel!= this.complianceLevel) {
 			if (testSetup != null)
 				testSetup.tearDown();

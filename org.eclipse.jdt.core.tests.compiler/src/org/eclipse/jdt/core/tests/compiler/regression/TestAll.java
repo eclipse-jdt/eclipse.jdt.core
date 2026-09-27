@@ -17,6 +17,8 @@ import org.eclipse.jdt.core.tests.compiler.unicode.*;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
+import org.eclipse.jdt.core.tests.junit5.extension.TestCase;
+import org.junit.platform.suite.api.BeforeSuite;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
@@ -213,4 +215,10 @@ import org.junit.platform.suite.api.Suite;
 	Jsr14Test.class,
 	PrintRunJavacStats.class // the very last test to capture statistics of all tests
 })
-public class TestAll { }
+public class TestAll {
+	@BeforeSuite
+	public static void clearFilters() {
+		// disable forgotten subsets tests
+		TestCase.DISABLE_FILTERS = true;
+	}
+}

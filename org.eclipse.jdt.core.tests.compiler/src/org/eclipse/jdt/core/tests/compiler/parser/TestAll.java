@@ -104,7 +104,7 @@ import org.junit.platform.suite.api.Suite;
 public class TestAll {
 	@BeforeSuite
 	public static void clearFilters() {
-		// diable forgotten subsets tests
+		// disable forgotten subsets tests
 		TestCase.DISABLE_FILTERS = true;
 	}
 }
