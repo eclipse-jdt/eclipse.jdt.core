@@ -112,6 +112,7 @@ public class FactoryLoaderTests extends APTTestBase {
 		LoaderTestAnnotationProcessor.clearLoaded();
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
+		assertTrue(AnnotationProcessorFactoryLoader.getLoader().hasAggregatingProcessor(jproj));
 		assertTrue(LoaderTestAnnotationProcessor.isLoaded());
 
 		// Verify that we were able to run the ColorAnnotationProcessor successfully
@@ -125,6 +126,7 @@ public class FactoryLoaderTests extends APTTestBase {
 		LoaderTestAnnotationProcessor.clearLoaded();
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
+		assertFalse(AnnotationProcessorFactoryLoader.getLoader().hasAggregatingProcessor(jproj));
 		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
 
 		// add _extJar to the factory list as a class-path-relative jar, and rebuild.

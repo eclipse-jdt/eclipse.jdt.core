@@ -81,6 +81,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 	 * to be stored as a thread local, or elsewhere entirely.
 	 */
 	private HashSet<IFile> _java6GeneratedFiles = null;
+	private Set<IProject> _projectsWithSourceChanges = Collections.emptySet();
 
 	public static AptCompilationParticipant getInstance() {
 		return INSTANCE;
@@ -301,16 +302,25 @@ public class AptCompilationParticipant extends CompilationParticipant
 
 	@Override
 	public int aboutToBuild(IJavaProject project) {
+		int buildKind = CompilationParticipant.READY_FOR_BUILD;
 		if (AptConfig.isEnabled(project)) {
 			// setup the classpath and make sure the generated source folder is on disk.
 			AptPlugin.getAptProject(project).compilationStarted();
+			if (_projectsWithSourceChanges.remove(project.getProject())
+					&& AnnotationProcessorFactoryLoader.getLoader().hasAggregatingProcessor(project)) {
+				buildKind = CompilationParticipant.NEEDS_FULL_BUILD;
+			}
 		}
 		_buildRound = 0; // reset
 		// Note that for each project build, we blow away the last project's processed files.
 		_processedFiles = new HashMap<>();
 		_java6GeneratedFiles = new HashSet<>();
 		// TODO: (wharley) if the factory path is different we need a full build
-		return CompilationParticipant.READY_FOR_BUILD;
+		return buildKind;
+	}
+
+	public void setProjectsWithSourceChanges(Set<IProject> projects) {
+		_projectsWithSourceChanges = new HashSet<>(projects);
 	}
 
 	/**
