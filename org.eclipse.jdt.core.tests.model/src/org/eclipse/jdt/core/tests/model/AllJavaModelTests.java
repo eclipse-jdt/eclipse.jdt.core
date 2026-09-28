@@ -228,6 +228,7 @@ private static Class[] getAllTestClasses() {
 
 		// Class file tests
 		ClassFileTests.class,
+		ClassFileBufferPublicationTests.class,
 
 		// Java-like extensions tests
 		JavaLikeExtensionsTests.class,

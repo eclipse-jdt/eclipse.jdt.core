@@ -269,7 +269,6 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 			IBuffer buffer = BufferManager.createBuffer(this);
 			if (buffer == null) return null;
 			BufferManager bufManager = getBufferManager();
-			bufManager.addBuffer(buffer);
 
 			// set the buffer source
 			if (buffer.getCharacters() == null){
@@ -278,6 +277,9 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 
 			// listen to buffer changes
 			buffer.addBufferChangedListener(this);
+
+			// Publish only after the contents and close listener are initialized.
+			bufManager.addBuffer(buffer);
 
 			// do the source mapping
 			mapper.mapSource((NamedMember) getModule(), contents, null);
@@ -288,10 +290,12 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 			IBuffer buffer = BufferManager.createNullBuffer(this);
 			if (buffer == null) return null;
 			BufferManager bufManager = getBufferManager();
-			bufManager.addBuffer(buffer);
 
 			// listen to buffer changes
 			buffer.addBufferChangedListener(this);
+
+			// Publish only after the close listener is installed.
+			bufManager.addBuffer(buffer);
 			return buffer;
 		}
 	}

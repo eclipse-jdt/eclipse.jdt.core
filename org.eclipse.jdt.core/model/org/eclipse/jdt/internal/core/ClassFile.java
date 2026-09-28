@@ -471,7 +471,6 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info, IClassFile buff
 		IBuffer buffer = BufferManager.createBuffer(bufferOwner);
 		if (buffer == null) return null;
 		BufferManager bufManager = getBufferManager();
-		bufManager.addBuffer(buffer);
 
 		// set the buffer source
 		if (buffer.getCharacters() == null){
@@ -480,6 +479,9 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info, IClassFile buff
 
 		// listen to buffer changes
 		buffer.addBufferChangedListener(this);
+
+		// Publish only after the contents and close listener are initialized.
+		bufManager.addBuffer(buffer);
 
 		// do the source mapping
 		mapper.mapSource((NamedMember) getOuterMostEnclosingType(), contents, info);
@@ -490,10 +492,12 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info, IClassFile buff
 		IBuffer buffer = BufferManager.createNullBuffer(bufferOwner);
 		if (buffer == null) return null;
 		BufferManager bufManager = getBufferManager();
-		bufManager.addBuffer(buffer);
 
 		// listen to buffer changes
 		buffer.addBufferChangedListener(this);
+
+		// Publish only after the close listener is installed.
+		bufManager.addBuffer(buffer);
 		return buffer;
 	}
 }
