@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -664,7 +664,7 @@ public void test033() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 public void test034() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.complianceLevel < ClassFileConstants.JDK23)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -683,7 +683,7 @@ public void test034() {
 
 }
 public void test035() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.complianceLevel < ClassFileConstants.JDK23)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -702,7 +702,7 @@ public void test035() {
 
 }
 public void test036() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.complianceLevel < ClassFileConstants.JDK23)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
@@ -721,7 +721,7 @@ public void test036() {
 
 }
 public void test037() {
-	if(this.complianceLevel < ClassFileConstants.JDK18)
+	if(this.complianceLevel < ClassFileConstants.JDK23)
 		return;
 	String source = "package javadoc;\n" +
 		"///\n" +
