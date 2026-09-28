@@ -33,13 +33,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
-import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.test.OrderedTestSuite;
@@ -226,10 +224,7 @@ public class TestCase extends PerformanceTestCase {
 	protected boolean abortOnFailure = true;
 
 	// static variables for subsets tests
-	public static String TESTS_PREFIX = null; // prefix of test names to perform
 	public static String[] TESTS_NAMES = null; // list of test names to perform
-	public static int[] TESTS_NUMBERS = null; // list of test numbers to perform
-	public static int[] TESTS_RANGE = null; // range of test numbers to perform
 	public static boolean DISABLE_FILTERS = false;
 
 	public TestCase(String name) {
@@ -333,101 +328,6 @@ public static void assertStringEquals(String message, String expected, String ac
 }
 
 /**
- * Same method as {@link #assertEquals(Object, Object)} if the flag
- * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is caught
- * and its message is only displayed in the console hence producing no JUnit failure.
- */
-protected void assumeEquals(String expected, String actual) {
-	assumeEquals(null, expected, actual);
-}
-/**
- * Same method as {@link #assertEquals(String, Object, Object)} if the flag
- * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is caught
- * and its message is only displayed in the console hence producing no JUnit failure.
- */
-protected void assumeEquals(String msg, String expected, String actual) {
-	try {
-		assertStringEquals(msg, expected, actual, false);
-	} catch (ComparisonFailure cf) {
-		System.out.println("Failure while running test "+Performance.getDefault().getDefaultScenarioId(this)+"!!!");
-		System.out.println("Actual output is:");
-		System.out.println(Util.displayString(cf.getActual(), 2));
-		System.out.println();
-		System.out.println("Expected output is:");
-		System.out.println(Util.displayString(cf.getExpected(), 2));
-		System.out.println();
-		if (this.abortOnFailure) {
-			throw cf;
-		}
-	} catch (AssertionFailedError afe) {
-		if (this.abortOnFailure) {
-			throw afe;
-		}
-		printAssertionFailure(afe);
-	}
-}
-
-/**
- * Same method as {@link #assertEquals(String, int, int)} if the flag
- * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is caught
- * and its message is only displayed in the console hence producing no JUnit failure.
- */
-protected void assumeEquals(String msg, int expected, int actual) {
-	try {
-		Assertions.assertEquals(expected, actual, msg);
-	} catch (AssertionFailedError afe) {
-		if (this.abortOnFailure) {
-			throw afe;
-		}
-		printAssertionFailure(afe);
-	}
-}
-
-/**
- * Same method as {@link #assertEquals(String, long, long)} if the flag
- * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is caught
- * and its message is only displayed in the console hence producing no JUnit failure.
- */
-protected void assumeEquals(String msg, long expected, long actual) {
-	try {
-		Assertions.assertEquals(expected, actual, msg);
-	} catch (AssertionFailedError afe) {
-		if (this.abortOnFailure) {
-			throw afe;
-		}
-		printAssertionFailure(afe);
-	}
-}
-
-/**
- * Same method as {@link #assertTrue(String, boolean)} if the flag
- * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is caught
- * and its message is only displayed in the console hence producing no JUnit failure.
- */
-protected void assumeTrue(String msg, boolean cond) {
-	try {
-		assertTrue(msg, cond);
-	} catch (AssertionFailedError afe) {
-		if (this.abortOnFailure) {
-			throw afe;
-		}
-		printAssertionFailure(afe);
-	}
-}
-
-private void printAssertionFailure(AssertionFailedError afe) {
-	System.out.println("\n!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!");
-	System.out.println("Caught assertion failure while running test "+getName()+":");
-	System.out.println("	"+afe.getMessage());
-	System.out.println("--------------------------------------------------------------------------------\n");
-}
-
-/**
  * Build a list of methods to run for a test suite.
  * There's no recursion in given class hierarchy, methods are only
  * public method starting with "test" of it.
@@ -436,23 +336,7 @@ private void printAssertionFailure(AssertionFailedError afe) {
  * <p>>
  * 1) TESTS* static variables:
  * <ul>
- * <li>{@link #TESTS_PREFIX}: only methods starting with this prefix (after "test" of course)
- * 		will be put in test suite.
- * </li>
  * <li>{@link #TESTS_NAMES}: only methods with these names will be put in test suite.
- * </li>
- * <li>{@link #TESTS_NUMBERS}: only methods including these numbers will be put in test suite.<br>
- * 	For example, <code>TESTS_NUMBERS = new int[] { 10, 100, 125678 };</code> will put
- * 	<code>test010()</code>, <code>test100()</code> and <code>testBug125678()</code>
- * 	methods in test suite.
- * </li>
- * <li>{@link #TESTS_RANGE}: only methods which numbers are between first and second value
- * 	of this int array will be put in the suite.
- * 	For example: <code>TESTS_RANGE = new int[] { 10, 12 };</code> will put
- * 	<code>test010()</code>, <code>test011()</code> and <code>test012()</code>
- * 	methods in test suite.<br>
- * 	Note that -1 will clean min or max value, for example <code>TESTS_RANGE = new int[] { 10, -1 };</code>
- * 	will put all methods after <code>test010()</code> in the test suite.
  * </li>
  * </ul>
  * <p>
@@ -596,66 +480,28 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
 					continue;
 				}
 
-				// no prefix, no subsets => add method
-				if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_RANGE == null) {
+				// no subsets => add method
+				if (TESTS_NAMES == null) {
 					if (!testNames.contains(methName)) {
 						testNames.add(methName);
 					}
 					continue nextMethod;
 				}
 
-				// no prefix or method matches prefix
-				if (TESTS_PREFIX == null || methName.startsWith(TESTS_PREFIX)) {
-					int numStart = TESTS_PREFIX==null ? methodPrefixLength : TESTS_PREFIX.length();
-					// tests names subset
-					if (TESTS_NAMES != null) {
-						for (int i = 0, imax= TESTS_NAMES.length; i<imax; i++) {
-							if (methName.indexOf(TESTS_NAMES[i]) >= 0) {
-								if (!testNames.contains(methName)) {
-									testNames.add(methName);
-								}
-								continue nextMethod;
+				// tests names subset
+				if (TESTS_NAMES != null) {
+					for (int i = 0, imax= TESTS_NAMES.length; i<imax; i++) {
+						if (methName.indexOf(TESTS_NAMES[i]) >= 0) {
+							if (!testNames.contains(methName)) {
+								testNames.add(methName);
 							}
+							continue nextMethod;
 						}
 					}
-					// look for test number
-					int length = methName.length();
-					if (numStart < length) {
-						// get test number
-						while (numStart<length && !Character.isDigit(methName.charAt(numStart))) numStart++; // skip to first digit
-						while (numStart<length && methName.charAt(numStart) == '0') numStart++; // skip to first non-nul digit
-						int n = numStart;
-						while (n<length && Character.isDigit(methName.charAt(n))) n++; // skip to next non-digit
-						if (n>numStart && n <= length) {
-							try {
-								int num = Integer.parseInt(methName.substring(numStart, n));
-								// tests numbers subset
-								if (TESTS_NUMBERS != null && !testNames.contains(methName)) {
-									for (int i = 0; i < TESTS_NUMBERS.length; i++) {
-										if (TESTS_NUMBERS[i] == num) {
-											testNames.add(methName);
-											continue nextMethod;
-										}
-									}
-								}
-								// tests range subset
-								if (TESTS_RANGE != null && TESTS_RANGE.length == 2 && !testNames.contains(methName)) {
-									if ((TESTS_RANGE[0]==-1 || num>=TESTS_RANGE[0]) && (TESTS_RANGE[1]==-1 || num<=TESTS_RANGE[1])) {
-										testNames.add(methName);
-										continue nextMethod;
-									}
-								}
-							} catch (NumberFormatException e) {
-								System.out.println("Method "+methods[m]+" has an invalid number format: "+e.getMessage());
-							}
-						}
-					}
-
+				} else {
 					// no subset, add all tests
-					if (TESTS_NAMES==null && TESTS_NUMBERS==null && TESTS_RANGE==null) {
-						if (!testNames.contains(methName)) {
-							testNames.add(methName);
-						}
+					if (!testNames.contains(methName)) {
+						testNames.add(methName);
 					}
 				}
 			}
@@ -782,11 +628,6 @@ private static boolean verifyLogDir(File logDir) {
 	return false;
 }
 
-public void assertPerformance() {
-	// make it public to avoid compiler warning about synthetic access
-	super.assertPerformance();
-}
-
 protected void runGarbageCollection() {
 	int iterations = 0;
 	long delta=0, free=0;
@@ -808,10 +649,6 @@ protected void runGarbageCollection() {
 			// do nothing
 		}
 	}
-}
-
-public void commitMeasurements() {
-	super.commitMeasurements();
 }
 
 /**
@@ -926,15 +763,6 @@ public static Test setUpTest(Test test) throws Exception {
 	return test;
 }
 
-public void startMeasuring() {
-	// make it public to avoid compiler warning about synthetic access
-	super.startMeasuring();
-}
-public void stopMeasuring() {
-	// make it public to avoid compiler warning about synthetic access
-	super.stopMeasuring();
-}
-
 @AfterEach
 protected void tearDown() throws Exception {
 	super.tearDown();
@@ -971,46 +799,5 @@ protected void tearDown() throws Exception {
 			stream.close();
 		}
 	}
-}
-
-static public void assertSame(int expected, int actual) {
-	assertSame(null, expected, actual);
-}
-static public void assertSame(String message, int expected, int actual) {
-	if (expected == actual)
-		return;
-	failNotSame(message, expected, actual);
-}
-static public void failNotSame(String message, int expected, int actual) {
-	StringBuilder formatted= new StringBuilder();
-	if (message != null) {
-		formatted.append(message).append(' ');
-	}
-	formatted.append("expected same:<").append(expected).append("> was not:<").append(actual).append(">");
-	fail(String.valueOf(formatted));
-}
-protected void runTest() throws Throwable {
-	try {
-//		super.runTest();
-	} finally {
-		// clear interrupt status.
-		Thread.interrupted();
-	}
-}
-
-public static void resetForgottenFilters(List<Class<?>> testClasses) {
-	for (Class<?> clazz : testClasses) {
-		try {
-			Class.forName(clazz.getName(), true, clazz.getClassLoader()); // force initialization
-		} catch (ClassNotFoundException e) {
-			// "cannot happen"
-		}
-	}
-	// Reset forgotten subsets tests
-	TESTS_PREFIX = null;
-	TESTS_NAMES = null;
-	TESTS_NUMBERS= null;
-	TESTS_RANGE = null;
-	RUN_ONLY_ID = null;
 }
 }
