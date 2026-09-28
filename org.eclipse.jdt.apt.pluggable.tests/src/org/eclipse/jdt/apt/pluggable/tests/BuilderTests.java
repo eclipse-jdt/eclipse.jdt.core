@@ -17,12 +17,19 @@
 
 package org.eclipse.jdt.apt.pluggable.tests;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.AggregatingProcessor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug341298Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug468893Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug510118Processor;
@@ -32,6 +39,7 @@ import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue565Proc
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue4446Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
 
@@ -88,6 +96,90 @@ public class BuilderTests extends TestBase
 		// should include Foo and FinalRoundGen.
 		assertEquals(2, TestFinalRoundProc.getNumRounds());
 		expectingUniqueCompiledClasses(new String[] {"t.Foo", "g.FinalRoundGen"});
+	}
+
+	public void testAggregatingProcessorReceivesAllAnnotatedSourcesDuringIncrementalBuild() throws Exception {
+		AggregatingProcessor.setEnabled(true);
+		AggregatingProcessor.resetProcessingRounds();
+		try {
+			IJavaProject javaProject = createJavaProject(_projectName);
+			disableJava5Factories(javaProject);
+			IProject project = javaProject.getProject();
+			IPath root = project.getFullPath().append("src");
+			env.addClass(root, "test", "Aggregate",
+					"package test;\n" +
+					"public @interface Aggregate {}\n");
+			env.addClass(root, "test", "First",
+					"package test;\n" +
+					"@Aggregate public class First {}\n");
+			AptConfig.setEnabled(javaProject, true);
+
+			fullBuild();
+			expectingNoProblems();
+			assertAggregatedTypes(project, "test.First");
+
+			env.addClass(root, "test", "Second",
+					"package test;\n" +
+					"@Aggregate public class Second {}\n");
+			incrementalBuild();
+			expectingNoProblems();
+			assertAggregatedTypes(project, "test.First", "test.Second");
+
+			int processingRounds = AggregatingProcessor.getProcessingRounds();
+			incrementalBuild();
+			expectingNoProblems();
+			assertEquals("A no-op incremental build must not rerun an aggregating processor", processingRounds,
+					AggregatingProcessor.getProcessingRounds());
+
+			env.removeClass(root.append("test"), "Second");
+			incrementalBuild();
+			expectingNoProblems();
+			assertAggregatedTypes(project, "test.First");
+
+			env.removeClass(root.append("test"), "First");
+			env.addClass(root, "test", "Renamed",
+					"package test;\n" +
+					"@Aggregate public class Renamed {}\n");
+			incrementalBuild();
+			expectingNoProblems();
+			assertAggregatedTypes(project, "test.Renamed");
+		} finally {
+			AggregatingProcessor.setEnabled(false);
+		}
+	}
+
+	public void testAggregatingFullBuildRequestIsConsumed() throws Exception {
+		AggregatingProcessor.setEnabled(true);
+		try {
+			IJavaProject javaProject = createJavaProject(_projectName);
+			disableJava5Factories(javaProject);
+			AptConfig.setEnabled(javaProject, true);
+			var participant = AptCompilationParticipant.getInstance();
+			participant.setProjectsWithSourceChanges(Set.of(javaProject.getProject()));
+
+			try {
+				assertEquals(CompilationParticipant.NEEDS_FULL_BUILD, participant.aboutToBuild(javaProject));
+				assertEquals(CompilationParticipant.READY_FOR_BUILD, participant.aboutToBuild(javaProject));
+			} finally {
+				participant.buildFinished(javaProject);
+			}
+		} finally {
+			AggregatingProcessor.setEnabled(false);
+		}
+	}
+
+	private void assertAggregatedTypes(IProject project, String... types) throws CoreException, IOException {
+		IFile generated = project.getFile(".apt_generated/generated/AggregatedTypes.java");
+		assertTrue("Aggregate source was not generated", generated.exists());
+		String source;
+		try (var contents = generated.getContents()) {
+			source = new String(contents.readAllBytes(), StandardCharsets.UTF_8);
+		}
+		for (String type : types) {
+			assertTrue("Missing aggregated type " + type + " in:\n" + source, source.contains("\"" + type + "\""));
+		}
+		assertEquals("Unexpected number of aggregated types in:\n" + source, types.length,
+				source.lines().filter(line -> line.trim().startsWith("\"test.")).count());
 	}
 
 	/**
