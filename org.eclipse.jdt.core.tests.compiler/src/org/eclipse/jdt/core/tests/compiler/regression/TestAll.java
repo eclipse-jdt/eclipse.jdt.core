@@ -147,6 +147,7 @@ public static Test suite() {
 	standardTests.add(ClassFileReaderTest_1_8.class);
 	standardTests.add(RepeatableAnnotationTest.class);
 	standardTests.add(GenericsRegressionTest_1_8.class);
+	standardTests.add(InferenceScalabilityTest.class);
 	standardTests.add(Unicode1_8Test.class);
 	standardTests.add(LambdaShapeTests.class);
 	standardTests.add(StringConcatTest.class);
