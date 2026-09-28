@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.Map;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.eclipse.jdt.core.tests.util.ExactCompliance;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
+@ExactCompliance(value=AbstractCompilerTest.F_1_8)
 public class Compliance_1_4 extends AbstractRegressionTest {
 boolean docSupport = false;
 

@@ -148,11 +148,12 @@ public class AbstractCompilerTest extends TestCase {
 			int allPossibleLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 			selectedComplianceLevels = new ArrayList<>();
 			MinimalCompliance minimalCompliance = info.getTestClass().get().getAnnotation(MinimalCompliance.class);
+			ExactCompliance exactCompliance = info.getTestClass().get().getAnnotation(ExactCompliance.class);
 			boolean selectedSome = false;
 			for (int v=0; v < AbstractCompilerTest.NUM_VERSIONS; v++) {
 				int level = AbstractCompilerTest.F_1_8 << v;
 				if ((allPossibleLevels & level) != 0) {
-					if (isApplicable(level, minimalCompliance, selectedSome)) {
+					if (isApplicable(level, minimalCompliance, exactCompliance, selectedSome)) {
 						long complianceLevel = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_1_8+v);
 						selectedComplianceLevels.add(new Compliance(CompilerOptions.versionFromJdkLevel(complianceLevel), complianceLevel));
 						selectedSome = true;
@@ -163,12 +164,14 @@ public class AbstractCompilerTest extends TestCase {
 		return selectedComplianceLevels;
 	}
 
-	private static boolean isApplicable(int level, MinimalCompliance minCompliance, boolean selectedSome) {
+	private static boolean isApplicable(int level, MinimalCompliance minCompliance, ExactCompliance exactCompliance, boolean selectedSome) {
 		try {
 			if (minCompliance != null) {
 				if (minCompliance.singleVersion() && selectedSome)
 					return false;
 				return level >= minCompliance.value();
+			} else if (exactCompliance != null) {
+				return exactCompliance.value() == level;
 			}
 		} catch (SecurityException e) {
 			// ignore, use default below

@@ -15,13 +15,13 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.MinimalCompliance;
+import org.eclipse.jdt.core.tests.util.ExactCompliance;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
+@ExactCompliance(value=AbstractCompilerTest.F_1_8)
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };

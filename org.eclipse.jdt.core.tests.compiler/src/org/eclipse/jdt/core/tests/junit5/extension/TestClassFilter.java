@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.junit5.extension;
 import java.util.Optional;
 import org.eclipse.jdt.core.tests.compiler.regression.RunJavac;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.ExactCompliance;
 import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
@@ -34,11 +35,16 @@ public class TestClassFilter implements ExecutionCondition {
 					return ConditionEvaluationResult.disabled("Not opting in for run.javac mode");
 				}
 				if (AbstractCompilerTest.class.isAssignableFrom(testClass)) {
+					int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 					// run only tests with compatible compliances
 					MinimalCompliance minimalCompliance = testClass.getAnnotation(MinimalCompliance.class);
 					if (minimalCompliance != null) {
-						int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 						if (possibleComplianceLevels < minimalCompliance.value())
+							return ConditionEvaluationResult.disabled("No applicable compliance level enabled");
+					}
+					ExactCompliance exactCompliance = testClass.getAnnotation(ExactCompliance.class);
+					if (exactCompliance != null) {
+						if ((possibleComplianceLevels & exactCompliance.value()) == 0)
 							return ConditionEvaluationResult.disabled("No applicable compliance level enabled");
 					}
 				}
