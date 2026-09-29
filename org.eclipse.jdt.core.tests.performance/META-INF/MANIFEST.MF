@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="[3.20.100,4.0.0)",
  org.eclipse.jdt.core.tests.model;bundle-version="[3.12.300,4.0.0)",
  org.junit;bundle-version="3.8.1",
  org.eclipse.test.performance;bundle-version="[3.20.0,4.0.0)",
+ org.eclipse.test;bundle-version="[3.6.600,4.0.0)",
  org.eclipse.text;bundle-version="[3.13.0,4.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Eclipse-BundleShape: dir

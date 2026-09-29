@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.compiler.util;
 
 import java.io.File;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import junit.framework.TestCase;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.junit.Test;
 

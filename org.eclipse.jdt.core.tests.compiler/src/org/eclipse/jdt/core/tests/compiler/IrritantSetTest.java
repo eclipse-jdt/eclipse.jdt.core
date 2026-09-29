@@ -14,8 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 
 public class IrritantSetTest extends TestCase {

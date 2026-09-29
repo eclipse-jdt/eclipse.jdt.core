@@ -16,7 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.util;
 import static org.eclipse.jdt.internal.compiler.util.HashtableOfObject.MAX_ARRAY_SIZE;
 import static org.eclipse.jdt.internal.compiler.util.HashtableOfObject.calculateNewSize;
 
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import junit.framework.TestCase;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.junit.Test;
 

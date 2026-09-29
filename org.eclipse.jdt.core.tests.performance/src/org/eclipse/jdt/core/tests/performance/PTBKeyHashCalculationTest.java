@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.performance.util.TestCase;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.test.performance.Dimension;
 
