@@ -7755,7 +7755,7 @@ public void testBug446442_6b() {
 		"		return x;\n" +
 		"	};\n" +
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Contradictory null annotations: function type was inferred as \'ArrayList<@NonNull @Nullable Integer> (ArrayList<@Nullable @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" +
+		"Contradictory null annotations: function type was inferred as \'ArrayList<@Nullable @NonNull Integer> (ArrayList<@Nullable @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" +
 		"----------\n" +
 		"5. ERROR in Test.java (at line 17)\n" +
 		"	x.add(null);\n" +
@@ -20313,6 +20313,88 @@ public void testGH5249_inheritedBuilders() {
 				}
 				public interface GenericBuilder<T> {
 					T build();
+				}
+				public interface ChildBuilder extends ParentBuilder, GenericBuilder<Child> {}
+				public interface ReversedChildBuilder extends GenericBuilder<Child>, ParentBuilder {}
+			}
+			""",
+			"Test.java",
+			client
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(false, new String[] { "Test.java", client }, getCompilerOptions(), "");
+}
+public void testGH5249_inheritedBuilders_variation1() {
+	String client = """
+		import org.eclipse.jdt.annotation.*;
+		public class Test {
+			Builders.@NonNull Child build(Builders.ChildBuilder builder) {
+				return builder.build();
+			}
+			Builders.Child buildReversed(Builders.ReversedChildBuilder builder) {
+				return builder.build();
+			}
+		}
+		""";
+	runConformTestWithLibs(new String[] {
+			"Builders.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class Builders {
+				public static class Parent {}
+				public static class Child extends Parent {}
+				public interface ParentBuilder {
+					@NonNull Parent build();
+				}
+				public interface GenericBuilder<T> {
+					T build();
+				}
+				public interface ChildBuilder extends ParentBuilder, GenericBuilder<Child> {}
+				public interface ReversedChildBuilder extends GenericBuilder<Child>, ParentBuilder {}
+			}
+			""",
+			"Test.java",
+			client
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(false, new String[] { "Test.java", client }, getCompilerOptions(),
+			// TODO: ideally we would avoid this info.
+			// To that end we might remember that `@NonNull` was inferred from overload resolution, not via generics.
+			"""
+			----------
+			1. INFO in Test.java (at line 4)
+				return builder.build();
+				       ^^^^^^^^^^^^^^^
+			Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Builders.GenericBuilder<Builders.Child>'. Type 'Builders.GenericBuilder<T>' doesn't seem to be designed with null type annotations in mind
+			----------
+			""");
+}
+public void testGH5249_inheritedBuilders_variation2() {
+	String client = """
+		import org.eclipse.jdt.annotation.*;
+		public class Test {
+			Builders.@NonNull Child build(Builders.ChildBuilder builder) {
+				return builder.build();
+			}
+			Builders.Child buildReversed(Builders.ReversedChildBuilder builder) {
+				return builder.build();
+			}
+		}
+		""";
+	runConformTestWithLibs(new String[] {
+			"Builders.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class Builders {
+				public static class Parent {}
+				public static class Child extends Parent {}
+				public interface ParentBuilder {
+					Parent build();
+				}
+				public interface GenericBuilder<T> {
+					@NonNull T build();
 				}
 				public interface ChildBuilder extends ParentBuilder, GenericBuilder<Child> {}
 				public interface ReversedChildBuilder extends GenericBuilder<Child>, ParentBuilder {}

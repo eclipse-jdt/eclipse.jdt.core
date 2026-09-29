@@ -778,10 +778,11 @@ public class NullAnnotationMatching {
 	}
 
 	public static TypeBinding strongerType(TypeBinding type1, TypeBinding type2, LookupEnvironment environment) {
-		if (!TypeBinding.equalsEquals(type1, type2)) return type1; // don't change the unannotated type
-		if ((type1.tagBits & TagBits.AnnotationNonNull) != 0)
-			return mergeTypeAnnotations(type1, type2, true, environment);
-		return mergeTypeAnnotations(type2, type1, true, environment); // don't bother to distinguish unannotated vs. @Nullable, since both can accept null
+		if (type1 == type2) //$IDENTITY-COMPARISON$
+			return type1;
+		if (((type1.tagBits | type2.tagBits) & TagBits.HasNullTypeAnnotation) != 0)
+			return mergeTypeAnnotations(type1, type2, false, environment);
+		return type1;
 	}
 
 	public static TypeBinding[] weakerTypes(TypeBinding[] parameters1, TypeBinding[] parameters2, LookupEnvironment environment) {
@@ -800,10 +801,10 @@ public class NullAnnotationMatching {
 		}
 		return newParameters;
 	}
-	private static TypeBinding mergeTypeAnnotations(TypeBinding type, TypeBinding otherType, boolean top, LookupEnvironment environment) {
+	private static TypeBinding mergeTypeAnnotations(TypeBinding type, TypeBinding otherType, boolean skipAnnotatingTop, LookupEnvironment environment) {
 		TypeBinding mainType = type;
-		if (!top) {
-			// for all but the top level type superimpose other's type annotation onto type
+		if (!skipAnnotatingTop) {
+			// superimpose other's type annotation onto type, unless requested to skip this step
 			AnnotationBinding[] otherAnnotations = otherType.getTypeAnnotations();
 			if (otherAnnotations != Binding.NO_ANNOTATIONS)
 				mainType = environment.createAnnotatedType(type, otherAnnotations);
