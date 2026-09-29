@@ -1360,6 +1360,7 @@ public void test034() throws Exception {
 	}
 }
 // javac incorrectly accepts it
+@RunAlways
 public void test035() {
 	String[] sources = {
 			"Test231.java",
@@ -1382,7 +1383,7 @@ public void test035() {
 			"{\n" +
 			"}\n"
 		};
-	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) {
 		runNegativeTest(sources,
 			"----------\n" +
 			"1. ERROR in Test231.java (at line 9)\n" +
@@ -3011,6 +3012,7 @@ public void test461706a() {
 		"----------\n";
 	runner.runWarningTest();
 }
+@RunAlways
 public void testAnonymous_bug520727() {
 	String[] source = {
 		"O.java",
@@ -3023,7 +3025,7 @@ public void testAnonymous_bug520727() {
 		"	};\n" +
 		"}\n"
 	};
-	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) {
 		runNegativeTest(source,
 				"----------\n" +
 				"1. ERROR in O.java (at line 5)\n" +
@@ -3183,8 +3185,9 @@ public void test472466() {
 	runner.runWarningTest();
 }
 
+@RunAlways
 public void testBug561167() {
-	if (this.complianceLevel < ClassFileConstants.JDK10)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10)
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
@@ -3222,8 +3225,9 @@ public void testBug561167() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=572534
 // ClassCastException LocalTypeBinding cannot be cast to ParameterizedTypeBinding in inferDiamondConstructor
+@RunAlways
 public void testBug572534() {
-	if (this.complianceLevel > ClassFileConstants.JDK1_8) {
+	if (this.fetchComplianceLevel() > ClassFileConstants.JDK1_8) {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);

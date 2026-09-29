@@ -2034,6 +2034,7 @@ public void testBug560531_002() {
 			},
 		"0");
 }
+@RunAlways
 public void testBug560569_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2062,7 +2063,7 @@ public void testBug560569_001() throws Exception {
 		},
 	 "true");
 	String expectedOutput =
-			(this.complianceLevel < ClassFileConstants.JDK9) ?
+			(this.fetchComplianceLevel() < ClassFileConstants.JDK9) ?
 				"  0 : # 69 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
 				"	Method arguments:\n" +
 				"		#1 Car\n" +
@@ -2118,8 +2119,9 @@ public void testBug560496_001() throws Exception {
 			"public final int hashCode();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@RunAlways
 public void testBug560496_002() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK17)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 		return; // strictfp = nop
 	runConformTest(
 		new String[] {
@@ -2136,8 +2138,9 @@ public void testBug560496_002() throws Exception {
 			"public final int hashCode();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@RunAlways
 public void testBug560797_001() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK17)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 		return; // strictfp = nop
 	runConformTest(
 		new String[] {
@@ -2154,8 +2157,9 @@ public void testBug560797_001() throws Exception {
 			"public int x();\n";
 	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@RunAlways
 public void testBug560797_002() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK17)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 		return; // strictfp = nop
 	runConformTest(
 		new String[] {
@@ -7126,8 +7130,9 @@ public void testBug564672b_049() {
 		options
 	);
 }
+@RunAlways
 public void testBug565388_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK17) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7142,8 +7147,9 @@ public void testBug565388_001() {
 		null,
 		true);
 }
+@RunAlways
 public void testBug565388_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK17) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7856,8 +7862,9 @@ public void testBug566554_04() {
 		"Type mismatch: cannot convert from Margin to int\n" +
 		"----------\n");
 }
+@RunAlways
 public void testBug567731_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK17)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 		return;
 	this.runNegativeTest(
 		new String[] {
@@ -7883,8 +7890,9 @@ public void testBug567731_001() {
 		null,
 		true);
 }
+@RunAlways
 public void testBug567731_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK17)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 		return;
 	this.runNegativeTest(
 		new String[] {
@@ -7910,15 +7918,16 @@ public void testBug567731_002() {
 		null,
 		true);
 }
+@RunAlways
 public void testBug566846_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK24)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK24)
 		return;
 	runNegativeTest(
 			new String[] {
 				"X.java",
 				"public record X;\n"
 			},
-			(this.complianceLevel < ClassFileConstants.JDK25 ?
+			(this.fetchComplianceLevel() < ClassFileConstants.JDK25 ?
 					"----------\n"
 					+ "1. ERROR in X.java (at line 1)\n"
 					+ "	public record X;\n"
@@ -7939,8 +7948,9 @@ public void testBug566846_1() {
 			null,
 			true);
 }
+@RunAlways
 public void testBug566846_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK24)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK24)
 		return;
 	runNegativeTest(
 			new String[] {
@@ -7949,7 +7959,7 @@ public void testBug566846_2() {
 				+ "} \n"
 				+ "record R1;\n"
 			},
-			(this.complianceLevel < ClassFileConstants.JDK25 ?
+			(this.fetchComplianceLevel() < ClassFileConstants.JDK25 ?
 					"----------\n"
 					+ "1. ERROR in X.java (at line 1)\n"
 					+ "	public class X {\n"
@@ -8452,15 +8462,16 @@ public void testBugLazyCanon_006() throws IOException, ClassFormatException {
 	"100");
 }
 // Disabled waiting for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3347
+@RunAlways
 public void testBug571765_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK24)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK24)
 		return;
 	this.runNegativeTest(
 			new String[] {
 					"module-info.java",
 					"public record R() {}\n",
 				},
-			(this.complianceLevel < ClassFileConstants.JDK25 ?
+			(this.fetchComplianceLevel() < ClassFileConstants.JDK25 ?
 				"----------\n"
 				+ "1. ERROR in module-info.java (at line 1)\n"
 				+ "	public record R() {}\n"
@@ -9701,8 +9712,9 @@ public void testGH3891() {
 		----------
 		""");
 }
+@RunAlways
 public void testGH3891_preview() {
-	if (this.complianceLevel < ClassFileConstants.JDK27) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK27) return;
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
@@ -10177,8 +10189,9 @@ public void testSafeVarargs() {
 			"Ok!");
 
 }
+@RunAlways
 public void testUnderscoreName() {
-	if (this.complianceLevel < ClassFileConstants.JDK21)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 		return;
 
 	runNegativeTest(
@@ -10189,7 +10202,7 @@ public void testUnderscoreName() {
 					}
 					"""
 			},
-			this.complianceLevel < ClassFileConstants.JDK22 ?
+			this.fetchComplianceLevel() < ClassFileConstants.JDK22 ?
 					"----------\n" +
 					"1. ERROR in X.java (at line 1)\n" +
 					"	public record X (int _) {\n" +

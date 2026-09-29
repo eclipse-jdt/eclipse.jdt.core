@@ -35,7 +35,7 @@ public JSR335ClassFileTest(String name) {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	this.versionString = AbstractCompilerTest.getVersionString(this.complianceLevel);
+	this.versionString = AbstractCompilerTest.getVersionString(this.complianceLevel());
 }
 
 /*
@@ -1085,6 +1085,7 @@ public void test008() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@RunAlways
 public void test009() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1107,7 +1108,7 @@ public void test009() throws Exception {
 	"SUCCESS"
 	);
 
-	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK9 ?
+	String expectedOutput = this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"// Compiled from X.java (" + this.versionString + ", super bit)\n" +
 			"public class X {\n" +
 			"  Constant pool:\n" +
@@ -1343,6 +1344,7 @@ public void test009() throws Exception {
 				"}";
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@RunAlways
 public void test010() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1369,7 +1371,7 @@ public void test010() throws Exception {
 	"SUCCESS"
 	);
 
-	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK9 ?
+	String expectedOutput = this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"// Compiled from X.java (" + this.versionString + ", super bit)\n" +
 			"public class X {\n" +
 			"  Constant pool:\n" +
@@ -1640,6 +1642,7 @@ public void test010() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+@RunAlways
 public void test011() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -1666,7 +1669,7 @@ public void test011() throws Exception {
 	"SUCCESS"
 	);
 
-	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK9 ?
+	String expectedOutput = this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"// Compiled from X.java (" + this.versionString + ", super bit)\n" +
 			"public class X {\n" +
 			"  Constant pool:\n" +
@@ -3290,6 +3293,7 @@ public void test430015a() throws IOException, ClassFormatException {
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
+@RunAlways
 public void test430035() throws IOException, ClassFormatException {
 	this.runConformTest(
 			new String[] {
@@ -3318,7 +3322,7 @@ public void test430035() throws IOException, ClassFormatException {
 			"m(bridge method(j))\n" +
 			"m(bridge method(i))");
 
-		String expectedOutput = this.complianceLevel < ClassFileConstants.JDK9 ?
+		String expectedOutput = this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 				"// Compiled from X.java (" + this.versionString + ", super bit)\n" +
 				"public class X {\n" +
 				"  Constant pool:\n" +

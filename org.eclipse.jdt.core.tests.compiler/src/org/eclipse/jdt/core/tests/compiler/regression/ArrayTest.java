@@ -554,8 +554,9 @@ public void test019() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4789
 // Internal compiler error caused by AssertionError: array store with invalid types
+@RunAlways
 public void testIssue4789() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runConformTest(
 		new String[] {

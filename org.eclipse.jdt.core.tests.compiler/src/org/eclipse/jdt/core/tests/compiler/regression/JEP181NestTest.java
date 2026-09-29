@@ -37,7 +37,7 @@ public JEP181NestTest(String name) {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	this.versionString = AbstractCompilerTest.getVersionString(this.complianceLevel);
+	this.versionString = AbstractCompilerTest.getVersionString(this.complianceLevel());
 }
 
 /*
@@ -383,6 +383,7 @@ public void testBug535918_001a() throws Exception {
 		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //testing the inner private static field access from enclosing type
+@RunAlways
 public void testBug535918_001b() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -420,7 +421,7 @@ public void testBug535918_001b() throws Exception {
 	String expectedPartialOutput = "getstatic pack1.X$Y.priv_int";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedPartialOutput =
-			(this.complianceLevel < ClassFileConstants.JDK9 ?
+			(this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 					"Nest Members:\n" +
 					"   #50 pack1/X$Y\n"
 				:
@@ -508,6 +509,7 @@ public void testBug535918_002() throws Exception {
 }
 
 // sibling access: private static field
+@RunAlways
 public void testBug535918_003a() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -541,7 +543,7 @@ public void testBug535918_003a() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+	String partialOutput = (this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z"
@@ -558,6 +560,7 @@ public void testBug535918_003a() throws Exception {
 	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //sibling access: private instance field
+@RunAlways
 public void testBug535918_003b() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -592,7 +595,7 @@ public void testBug535918_003b() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+	String partialOutput = (this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z"
@@ -610,6 +613,7 @@ public void testBug535918_003b() throws Exception {
 }
 //sibling access: private instance field via Allocation Expression Field reference
 // note: internally this follows a different code path
+@RunAlways
 public void testBug535918_003c() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -643,7 +647,7 @@ public void testBug535918_003c() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+	String partialOutput = (this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z"
@@ -661,6 +665,7 @@ public void testBug535918_003c() throws Exception {
 }
 //sibling and super: private static field access of a super-type is accessed from a sub-type with
 //both super-type and sub-type being nestmates.
+@RunAlways
 public void testBug535918_003d() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -694,7 +699,7 @@ public void testBug535918_003d() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+	String partialOutput = (this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z"
@@ -712,6 +717,7 @@ public void testBug535918_003d() throws Exception {
 }
 //sibling and super: private instance field of a super-type is accessed from a sub-type with
 //both super-type and sub-type being nestmates.
+@RunAlways
 public void testBug535918_003e() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -746,7 +752,7 @@ public void testBug535918_003e() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+	String partialOutput = (this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z"
@@ -764,6 +770,7 @@ public void testBug535918_003e() throws Exception {
 }
 //sibling and super with super keyword: private instance field of a super-type is accessed from a sub-type
 // user keyword super with both super-type and sub-type being nestmates.
+@RunAlways
 public void testBug535918_003f() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -797,7 +804,7 @@ public void testBug535918_003f() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+	String partialOutput = (this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z"

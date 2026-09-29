@@ -11801,7 +11801,7 @@ public void test0178_Method() {
 			"full ast");
 }
 public void testBug576272() {
-	if (this.complianceLevel < ClassFileConstants.JDK17)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 		return;
 	String str =
 		"""

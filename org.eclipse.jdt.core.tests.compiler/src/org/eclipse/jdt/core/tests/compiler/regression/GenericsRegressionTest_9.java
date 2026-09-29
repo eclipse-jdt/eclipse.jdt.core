@@ -44,8 +44,9 @@ public static Test suite() {
 }
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5193
+@RunAlways
 public void testGH5193() {
-	if (this.complianceLevel < ClassFileConstants.JDK10)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10)
 		return; // uses 'var'
 	runNegativeTest(
 		new String[] {
@@ -648,8 +649,9 @@ public void testBug521815a() {
 			"The type Inner is ambiguous\n" +
 			"----------\n");
 }
+@RunAlways
 public void testBug521815b() {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+	if (this.fetchComplianceLevel() <= ClassFileConstants.JDK1_8) {
 		return;
 	}
 	Runner runner = new Runner();
@@ -1329,8 +1331,9 @@ public void testGH4039() {
 	runner.runConformTest();
 }
 
+@RunAlways
 public void testGH4003() {
-	if (this.complianceLevel < ClassFileConstants.JDK10)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10)
 		return; // uses 'var'
 	runConformTest(new String[] {
 		"EclipseCompilerBugReproducer.java",
@@ -1629,8 +1632,9 @@ public void testGH4402() {
 		},
 		"");
 }
+@RunAlways
 public void testGH4346() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return; // uses records
 	runConformTest(new String[] {
 			"X.java",
@@ -2020,8 +2024,9 @@ public void testGH4604() {
 			"""
 		});
 }
+@RunAlways
 public void testGH4699_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10) return; // uses 'var'
 	runConformTest(new String[] {
 			"EclipseBug.java",
 			"""
@@ -2042,8 +2047,9 @@ public void testGH4699_1() {
 			"""
 		});
 }
+@RunAlways
 public void testGH4699_full() {
-	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10) return; // uses 'var'
 	runConformTest(new String[] {
 			"EclipseBug.java",
 			"""
@@ -2177,8 +2183,9 @@ public void testGH5052() {
 		},
 		"map.consume");
 }
+@RunAlways
 public void testGH5028() {
-	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10) return; // uses 'var'
 	runConformTest(new String[] {
 			"InferredGenerics.java",
 			"""
@@ -2241,8 +2248,9 @@ public void testListRewrite() {
 		----------
 		""");
 }
+@RunAlways
 public void testGH4774() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK16) return; // uses records
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16) return; // uses records
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"Test.java",
@@ -2471,8 +2479,9 @@ public void testGH4893() throws Exception  {
 		"""
 	});
 }
+@RunAlways
 public void testJDK8375572() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return;
 	Runner runner = new Runner();
 	runner.testFiles = new String[] { "MethodRefStuck3.java",

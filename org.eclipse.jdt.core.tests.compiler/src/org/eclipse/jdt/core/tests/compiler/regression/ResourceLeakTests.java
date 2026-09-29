@@ -5559,8 +5559,9 @@ public void testBug541705() {
 	};
 	runner.runConformTest();
 }
+@RunAlways
 public void testBug541705b() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return; // variable used in t-w-r
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return; // variable used in t-w-r
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
@@ -5588,8 +5589,9 @@ public void testBug541705b() {
 	};
 	runner.runConformTest();
 }
+@RunAlways
 public void testBug542707_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) // switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) // switch expression
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5639,8 +5641,9 @@ public void testBug542707_001() {
 		"----------\n",
 		options);
 }
+@RunAlways
 public void testBug542707_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return; // uses switch expression
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5707,8 +5710,9 @@ public void testBug542707_002() {
 		"----------\n",
 		options);
 }
+@RunAlways
 public void testBug542707_003() {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;  // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -6590,8 +6594,9 @@ public void testBug560076() {
 		"The type SQLiteDatabase must implement the inherited abstract method Closeable.close()\n" +
 		"----------\n");
 }
+@RunAlways
 public void testBug499037_001_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6625,8 +6630,9 @@ public void testBug499037_001_since_9() {
 		"",
 		options);
 }
+@RunAlways
 public void testBug499037_002_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6660,8 +6666,9 @@ public void testBug499037_002_since_9() {
 		"",
 		options);
 }
+@RunAlways
 public void testBug499037_003_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6692,8 +6699,9 @@ public void testBug499037_003_since_9() {
 		"",
 		options);
 }
+@RunAlways
 public void testBug499037_004_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6732,8 +6740,9 @@ public void testBug499037_004_since_9() {
 		"",
 		options);
 }
+@RunAlways
 public void testBug499037_005_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6768,8 +6777,9 @@ public void testBug499037_005_since_9() {
 		options);
 }
 // non-empty finally block - takes a different route
+@RunAlways
 public void testBug499037_006_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6806,8 +6816,9 @@ public void testBug499037_006_since_9() {
 		"----------\n",
 		options);
 }
+@RunAlways
 public void testBug499037_007_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6841,8 +6852,9 @@ public void testBug499037_007_since_9() {
 		"",
 		options);
 }
+@RunAlways
 public void testBug499037_008_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6880,8 +6892,9 @@ public void testBug499037_008_since_9() {
 		"----------\n",
 		options);
 }
+@RunAlways
 public void testBug499037_009_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -6921,8 +6934,9 @@ public void testBug499037_009_since_9() {
 		"----------\n",
 		options);
 }
+@RunAlways
 public void testBug499037_010_since_9() {
-	if (this.complianceLevel < ClassFileConstants.JDK9) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -7246,8 +7260,9 @@ String getBug561334_log() {
 	----------
 	""";
 }
+@RunAlways
 public void testGH3328() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return;
 	runConformTest(
 		new String[] {
 			"org/example/ExampleService.java",
@@ -7336,8 +7351,9 @@ public void testGH3328() {
 			"""
 		});
 }
+@RunAlways
 public void testGH3328_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return;
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return;
 	runConformTest(
 		new String[] {
 			"org/example/ExampleService.java",

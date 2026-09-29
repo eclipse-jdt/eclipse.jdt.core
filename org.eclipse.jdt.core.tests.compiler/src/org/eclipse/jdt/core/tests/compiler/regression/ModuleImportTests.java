@@ -800,6 +800,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"modifier static not allowed here");
 	}
 
+	@RunAlways
 	public void testIllegalModifierRequiresJavaBase_3() throws IOException, ClassFormatException {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
@@ -813,7 +814,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 		verifyClassFile("version 25 : 69.0", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
-				this.complianceLevel < ClassFileConstants.JDK25); // Skipped for javac < 25 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
+				this.fetchComplianceLevel() < ClassFileConstants.JDK25); // Skipped for javac < 25 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
 	public void testIllegalModifierRequiresJavaBase_3_24() throws IOException, ClassFormatException {

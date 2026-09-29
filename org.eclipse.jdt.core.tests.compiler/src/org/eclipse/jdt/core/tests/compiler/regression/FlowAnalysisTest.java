@@ -52,7 +52,7 @@ public static Test suite() {
 }
 
 private boolean checkSwitchAllowedLevel() {
-	return this.complianceLevel >= ClassFileConstants.JDK14;
+	return this.complianceLevel() >= ClassFileConstants.JDK14;
 }
 public void test001() {
 	this.runNegativeTest(new String[] {
@@ -1037,6 +1037,7 @@ public void test031() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+@RunAlways
 public void test032() {
 	this.runNegativeTest(
 		new String[] {
@@ -1058,7 +1059,7 @@ public void test032() {
 			"	}\n" +
 			"}\n", // =================
 		},
-		JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false) ?
+		JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.fetchComplianceLevel(), false) ?
 		""
 		:
 		"----------\n" +

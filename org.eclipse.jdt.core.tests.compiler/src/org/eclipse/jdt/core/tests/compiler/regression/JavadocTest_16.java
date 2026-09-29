@@ -106,8 +106,9 @@ protected void setUp() throws Exception {
 }
 
 
+@RunAlways
 public void testInlineReturn1() {
-	if(this.complianceLevel < ClassFileConstants.JDK16) {
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		return;
 	}
 	this.runConformTest(
@@ -124,8 +125,9 @@ public void testInlineReturn1() {
 		}
 	);
 }
+@RunAlways
 public void testInlineReturn2() {
-	if(this.complianceLevel < ClassFileConstants.JDK16) {
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		return;
 	}
 	this.runConformTest(
@@ -142,8 +144,9 @@ public void testInlineReturn2() {
 		}
 	);
 }
+@RunAlways
 public void testInlineReturn3() {
-	if(this.complianceLevel < ClassFileConstants.JDK16) {
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		return;
 	}
 	this.runConformTest(
@@ -162,8 +165,9 @@ public void testInlineReturn3() {
 		}
 	);
 }
+@RunAlways
 public void testInlineReturn4() {
-	if(this.complianceLevel < ClassFileConstants.JDK16) {
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		return;
 	}
 	this.runConformTest(
@@ -182,8 +186,9 @@ public void testInlineReturn4() {
 		}
 	);
 }
+@RunAlways
 public void testInlineReturn_broken1() {
-	if(this.complianceLevel < ClassFileConstants.JDK16) {
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		return;
 	}
 	this.runNegativeTest(
@@ -211,8 +216,9 @@ public void testInlineReturn_broken1() {
 	);
 }
 
+@RunAlways
 public void testInlineReturn_broken2() {
-	if(this.complianceLevel < ClassFileConstants.JDK16) {
+	if(this.fetchComplianceLevel() < ClassFileConstants.JDK16) {
 		return;
 	}
 	this.runNegativeTest(

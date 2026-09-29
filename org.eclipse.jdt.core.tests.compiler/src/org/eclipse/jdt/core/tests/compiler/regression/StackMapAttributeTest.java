@@ -889,6 +889,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
+	@RunAlways
 	public void test009() throws Exception {
 		this.runConformTest(
 				new String[] {
@@ -920,7 +921,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					ClassFileBytesDisassembler.DETAILED);
 
 			String expectedOutput =
-					this.complianceLevel < ClassFileConstants.JDK9 ?
+					this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 				"  // Method descriptor #8 ()V\n" +
 				"  // Stack: 4, Locals: 2\n" +
 				"  X();\n" +

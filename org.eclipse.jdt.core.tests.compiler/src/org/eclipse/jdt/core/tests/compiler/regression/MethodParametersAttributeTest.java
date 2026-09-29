@@ -38,7 +38,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.versionString = AbstractCompilerTest.getVersionString(this.complianceLevel);
+		this.versionString = AbstractCompilerTest.getVersionString(this.complianceLevel());
 	}
 	@SuppressWarnings("rawtypes")
 	public static Class testClass() {

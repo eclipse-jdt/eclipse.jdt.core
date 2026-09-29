@@ -222,6 +222,7 @@ public void test009() {
 	},
 	"SUCCESS");
 }
+@RunAlways
 public void test010() {
 	String newMessage =
 			"----------\n" +
@@ -290,7 +291,7 @@ public void test010() {
 		"	}	\n" +
 		"}\n",
 	},
-	this.complianceLevel >= ClassFileConstants.JDK21 ? java21Plus : newMessage);
+	this.fetchComplianceLevel() >= ClassFileConstants.JDK21 ? java21Plus : newMessage);
 }
 public void test011() {
 	this.runConformTest(new String[] {
@@ -2493,9 +2494,10 @@ public void test526911() {
 	};
 	this.runConformTest(sourceFiles, "1 11");
 }
+@RunAlways
 public void test526911a() {
 	// target 1.8, run with 9, should work fine
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
@@ -2634,8 +2636,9 @@ public void testBug533475() {
 			"}\n"
 		});
 }
+@RunAlways
 public void testBug545518() {
-	if (this.complianceLevel >= ClassFileConstants.JDK12)
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK12)
 		return;
 	String message =
 			"----------\n" +
@@ -2708,8 +2711,9 @@ public void testBug576093b() {
 			},
 			"Success");
 }
+@RunAlways
 public void testBug443576_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK11) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK11) {
 		return;
 	}
 	Map options = getCompilerOptions();
@@ -2751,8 +2755,9 @@ public void testBug443576_1() {
 	options);
 }
 // Same as above, but keep swap the return and break statements
+@RunAlways
 public void testBug443576_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK11) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK11) {
 		return;
 	}
 	Map options = getCompilerOptions();
@@ -2793,8 +2798,9 @@ public void testBug443576_2() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1782
 // [Follow up of #1773] For classic string switch, emitted code wastes two local variable slots
+@RunAlways
 public void testGHI1782() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return;
 
 	this.runConformTest(new String[] {
@@ -2863,8 +2869,9 @@ public void testGHI1782() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2190
 // [Enhanced switch] Case null disallowed when switching on arrays
+@RunAlways
 public void testIssue2190() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK21)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 		return;
 
 	this.runConformTest(new String[] {
@@ -2892,8 +2899,9 @@ public void testIssue2190() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
 // [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+@RunAlways
 public void testIssue1777() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK21)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 		return;
 
 	this.runNegativeTest(new String[] {
@@ -2934,8 +2942,9 @@ public void testIssue1777() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
 // [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+@RunAlways
 public void testIssue1777_2() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK21)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 		return;
 
 	this.runConformTest(new String[] {
@@ -2971,8 +2980,9 @@ public void testIssue1777_2() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1777
 // [Enhanced switch] Compiler fails to complain about non-exhaustive switch
+@RunAlways
 public void testIssue1777_3() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK21)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 		return;
 
 	this.runConformTest(new String[] {
@@ -3007,8 +3017,9 @@ public void testIssue1777_3() throws Exception {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3274
 // [Enhanced Switch] Compiler tolerates pure expressions in switch rule expressions in a switch statement
+@RunAlways
 public void testIssue3274() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 
 	this.runNegativeTest(new String[] {
@@ -3042,8 +3053,9 @@ public void testIssue3274() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3276
 // [Switch Expression] Verify error since at least 4.18 on switch expression with instance creation in switch block
+@RunAlways
 public void testIssue3276() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 
 	this.runConformTest(new String[] {
@@ -3072,8 +3084,9 @@ public void testIssue3276() throws Exception {
 	"42");
 }
 
+@RunAlways
 public void testNonConstantCase() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 	this.runNegativeTest(new String[] {
 		"X.java",
@@ -3101,8 +3114,9 @@ public void testNonConstantCase() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
 // Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+@RunAlways
 public void testIssue3376() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 
 	this.runConformTest(new String[] {
@@ -3155,8 +3169,9 @@ public void testIssue3376() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3376
 // Incorrect control flow analysis causes statement subsequent to a switch statement to be flagged unreachable under some circumstances
+@RunAlways
 public void testIssue3376_2() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return;
 
 	this.runNegativeTest(new String[] {
@@ -3186,8 +3201,9 @@ public void testIssue3376_2() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
 // [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+@RunAlways
 public void testIssue3379() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return; // uses switch rules.
 	String [] sources = new String[] {
 			"X.java",
@@ -3204,7 +3220,7 @@ public void testIssue3379() throws Exception {
 			""",
 		};
 
-	if (this.complianceLevel < ClassFileConstants.JDK21) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21) {
 		this.runNegativeTest(sources,
 		"----------\n" +
 		"1. ERROR in X.java (at line 5)\n" +
@@ -3219,8 +3235,9 @@ public void testIssue3379() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
 // [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+@RunAlways
 public void testIssue3379_2() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return; // uses switch rules.
 	String [] sources = new String[] {
 			"X.java",
@@ -3237,7 +3254,7 @@ public void testIssue3379_2() throws Exception {
 			""",
 		};
 
-	if (this.complianceLevel < ClassFileConstants.JDK21) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21) {
 		this.runNegativeTest(sources,
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
@@ -3257,8 +3274,9 @@ public void testIssue3379_2() throws Exception {
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3379
 // [Enhanced Switch] Wrong error message: Cannot switch on a value of type Integer... at levels that don't support enhanced switch
+@RunAlways
 public void testIssue3379_3() throws Exception {
-	if (this.complianceLevel < ClassFileConstants.JDK14)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 		return; // uses switch rules.
 
 	String [] sources = new String[] {
@@ -3276,7 +3294,7 @@ public void testIssue3379_3() throws Exception {
 			""",
 		};
 
-	if (this.complianceLevel < ClassFileConstants.JDK21) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK21) {
 		this.runNegativeTest(sources,
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +

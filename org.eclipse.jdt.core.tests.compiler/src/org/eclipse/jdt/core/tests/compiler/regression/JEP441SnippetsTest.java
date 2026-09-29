@@ -1086,8 +1086,9 @@ public class JEP441SnippetsTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
+	@RunAlways
 	public void test26() {
-		if (this.complianceLevel < ClassFileConstants.JDK22) // multi pattern case labels used
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK22) // multi pattern case labels used
 			return;
 		runNegativeTest(
 			new String[] {

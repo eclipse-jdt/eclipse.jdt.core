@@ -3224,8 +3224,9 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}"
 		});
 	}
+	@RunAlways
 	public void testBug520874a() {
-		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+		if (this.fetchComplianceLevel() <= ClassFileConstants.JDK1_8) {
 			return;
 		}
 		runNegativeTest(
@@ -3256,8 +3257,9 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The type Inner is not visible\n" +
 				"----------\n");
 	}
+	@RunAlways
 	public void testBug520874b() {
-		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+		if (this.fetchComplianceLevel() <= ClassFileConstants.JDK1_8) {
 			return;
 		}
 		runNegativeTest(
@@ -3279,8 +3281,9 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The type Inner is not visible\n" +
 				"----------\n");
 	}
+	@RunAlways
 	public void testBug520874c() {
-		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+		if (this.fetchComplianceLevel() <= ClassFileConstants.JDK1_8) {
 			return;
 		}
 		runNegativeTest(
@@ -3321,8 +3324,9 @@ public class StaticImportTest extends AbstractComparableTest {
 				"Inner cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@RunAlways
 	public void testBug520874d() {
-		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+		if (this.fetchComplianceLevel() <= ClassFileConstants.JDK1_8) {
 			return;
 		}
 		runNegativeTest(
@@ -3353,8 +3357,9 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The import p.Bar.Inner is never used\n" +
 				"----------\n");
 	}
+	@RunAlways
 	public void testBug520874e() {
-		if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+		if (this.fetchComplianceLevel() <= ClassFileConstants.JDK1_8) {
 			return;
 		}
 		runNegativeTest(

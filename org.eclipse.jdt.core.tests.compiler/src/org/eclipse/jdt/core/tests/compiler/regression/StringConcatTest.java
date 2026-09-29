@@ -59,7 +59,7 @@ public class StringConcatTest extends AbstractComparableTest {
 		}
 	}
 	private void verifyClassFile(String expectedOutput, String classFileName, int mode, boolean positive) throws IOException, ClassFormatException {
-		if (this.complianceLevel < ClassFileConstants.JDK9)
+		if (this.complianceLevel() < ClassFileConstants.JDK9)
 			return;
 		String result = getClassFileContents(classFileName, mode);
 		verifyOutput(result, expectedOutput, positive);

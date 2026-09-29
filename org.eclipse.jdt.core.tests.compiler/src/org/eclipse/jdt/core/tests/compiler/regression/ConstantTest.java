@@ -328,6 +328,7 @@ public void test008() {
  * null is not a constant
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26138
  */
+@RunAlways
 public void test009() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -356,7 +357,7 @@ public void test009() throws Exception {
 			"\n",
 			ClassFileBytesDisassembler.DETAILED);
 	String substring1 = "StringBuilder";
-	String substring2 = this.complianceLevel < ClassFileConstants.JDK9 ?
+	String substring2 = this.fetchComplianceLevel() < ClassFileConstants.JDK9 ?
 								"    21  new java.lang." + substring1 + " [32]\n"
 								+ "    24  dup\n"
 								+ "    25  ldc <String \"[\"> [34]\n"
@@ -474,7 +475,7 @@ public void test009() throws Exception {
 			"        [pc: 38, pc: 72] local: b index: 1 type: boolean\n" +
 			"        [pc: 48, pc: 72] local: s index: 2 type: java.lang.String\n" +
 			"        [pc: 63, pc: 72] local: s2 index: 3 type: java.lang.String\n";
-	if (this.complianceLevel >= ClassFileConstants.JDK9) {
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK9) {
 		int index = actualOutput.indexOf(expectedOutput9OrLater);
 		if (index == -1 || expectedOutput9OrLater.length() == 0) {
 			System.out.println(Util.displayString(actualOutput, 2));
@@ -669,8 +670,9 @@ public void test019() {
 
 // http://bugs.eclipse.org/bugs/show_bug.cgi?id=154822
 // null is not a constant - again
+@RunAlways
 public void test020() {
-	if (this.complianceLevel >= ClassFileConstants.JDK16) {
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK16) {
 		return;
 	}
 	this.runNegativeTest(
@@ -1154,8 +1156,9 @@ public void testBug566332_04() {
 			"case expressions must be constant expressions\n" +
 			"----------\n");
 }
+@RunAlways
 public void testBug569498() {
-	if (this.complianceLevel < ClassFileConstants.JDK11) {
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK11) {
 		return;
 	}
 	this.runNegativeTest(

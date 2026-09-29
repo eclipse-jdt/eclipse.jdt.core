@@ -67,8 +67,9 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			},
 			"Hello World!");
 	}
+	@RunAlways
 	public void test002() {
-		String expectedDiagnostics = this.complianceLevel < ClassFileConstants.JDK20 ?
+		String expectedDiagnostics = this.fetchComplianceLevel() < ClassFileConstants.JDK20 ?
 				"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +
 				"	if (obj instanceof (String s)) {\n" +
@@ -102,9 +103,10 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			},
 			expectedDiagnostics);
 	}
+	@RunAlways
 	public void test003() {
 
-		String expectedDiagnostics = this.complianceLevel < ClassFileConstants.JDK20 ?
+		String expectedDiagnostics = this.fetchComplianceLevel() < ClassFileConstants.JDK20 ?
 				"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +
 				"	if (obj instanceof ((String s))) {\n" +
@@ -187,6 +189,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	@RunAlways
 	public void test009() {
 		runNegativeTest(
 			new String[] {
@@ -202,7 +205,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 			},
-			this.complianceLevel < ClassFileConstants.JDK21 ?
+			this.fetchComplianceLevel() < ClassFileConstants.JDK21 ?
 
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
@@ -665,8 +668,9 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
+	@RunAlways
 	public void testIssue3222() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		runConformTest(
 			new String[] {
@@ -694,8 +698,9 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
+	@RunAlways
 	public void testIssue3222_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		runConformTest(
 			new String[] {
@@ -723,8 +728,9 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3222
 	// [Patterns][Ternary] Pattern binding variable not recognized in poly conditional operator expression
+	@RunAlways
 	public void testIssue3222_3() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		runConformTest(
 			new String[] {

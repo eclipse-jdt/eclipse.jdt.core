@@ -1210,8 +1210,9 @@ public void test572873b() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1507
 // Errors when referencing a var inside lambda
+@RunAlways
 public void testIssue1507() {
-	if (this.complianceLevel < ClassFileConstants.JDK10)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK10)
 		return;
 	this.runNegativeTest(
 			new String[] {
@@ -1297,8 +1298,9 @@ public void testGH3831() {
 			"""
 	});
 }
+@RunAlways
 public void testGH3851() {
-	if (this.complianceLevel < ClassFileConstants.JDK16)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 		return; // uses 'record'
 	runConformTest(new String[] {
 			"X.java",

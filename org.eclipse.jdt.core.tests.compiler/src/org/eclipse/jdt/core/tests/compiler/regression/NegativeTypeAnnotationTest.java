@@ -4495,8 +4495,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2554
 	// [sealed types] ECJ should not accept type annotations on permitted types
+	@RunAlways
 	public void testIssue2554() throws Exception {
-		if (this.complianceLevel < ClassFileConstants.JDK17)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK17)
 			return;
 		this.runNegativeTest(
 				new String[] {

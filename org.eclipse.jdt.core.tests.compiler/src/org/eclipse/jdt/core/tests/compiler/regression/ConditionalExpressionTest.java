@@ -527,8 +527,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2677
 	// JDT Core throws ClassCastException: NullTypeBinding cannot be cast to class ArrayBinding
+	@RunAlways
 	public void testIssue2677() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -547,8 +548,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2677
 	// JDT Core throws ClassCastException: NullTypeBinding cannot be cast to class ArrayBinding
+	@RunAlways
 	public void testIssue2677_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -567,8 +569,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3042
 	// java.util.EmptyStackException: null when invoking a static method on a null string literal in a ternary operator
+	@RunAlways
 	public void testIssue3042() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -594,8 +597,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				"Bar!\nBar!");
 	}
 
+	@RunAlways
 	public void testIssue3042_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -625,8 +629,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				"Bar!\nNPE!");
 	}
 
+	@RunAlways
 	public void testIssue3042_3() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {

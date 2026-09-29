@@ -623,8 +623,9 @@ public void testSharedField() {
 		);
 }
 
+@RunAlways
 public void testOwning_receiving_parameter() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return; // t-w-r with pre-declared local available since 9
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -654,8 +655,9 @@ public void testOwning_receiving_parameter() {
 		null);
 }
 
+@RunAlways
 public void testOwning_sending() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return; // t-w-r with pre-declared local available since 9
 	runLeakTestWithAnnotations(
 		new String[] {
@@ -716,8 +718,9 @@ public void testOwning_sending() {
 		""",
 		null);
 }
+@RunAlways
 public void testOwning_sending_toBinary() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK9)
 		return; // t-w-r with pre-declared local available since 9
 	runLeakTestWithAnnotations(
 		new String[] {

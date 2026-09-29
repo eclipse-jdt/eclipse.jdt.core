@@ -85,31 +85,31 @@ public void runComplianceParserTest(
 		String expected20ProblemLog,
 		String expected22ProblemLog
 		){
-		if(this.complianceLevel == ClassFileConstants.JDK1_8) {
+		if(this.complianceLevel() == ClassFileConstants.JDK1_8) {
 			this.runNegativeTest(testFiles, expected1_8ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK9) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK9) {
 			this.runNegativeTest(testFiles, expected9ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK10) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK10) {
 			this.runNegativeTest(testFiles, expected10ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK11) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK11) {
 			this.runNegativeTest(testFiles, expected11ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK12) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK12) {
 			this.runNegativeTest(testFiles, expected12ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK13) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK13) {
 			this.runNegativeTest(testFiles, expected13ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK14) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK14) {
 			this.runNegativeTest(testFiles, expected14ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK15) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK15) {
 			this.runNegativeTest(testFiles, expected15ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK16) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK16) {
 			this.runNegativeTest(testFiles, expected16ProblemLog);
-		} else if (this.complianceLevel == ClassFileConstants.JDK17) {
+		} else if (this.complianceLevel() == ClassFileConstants.JDK17) {
 			this.runNegativeTest(testFiles, expected17ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK18) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK18) {
 			this.runNegativeTest(testFiles, expected18ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK19) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK19) {
 			this.runNegativeTest(testFiles, expected19ProblemLog);
-		} else if(this.complianceLevel == ClassFileConstants.JDK20) {
+		} else if(this.complianceLevel() == ClassFileConstants.JDK20) {
 			this.runNegativeTest(testFiles, expected20ProblemLog);
 		} else {
 			this.runNegativeTest(testFiles, expected22ProblemLog);
@@ -665,15 +665,15 @@ public void testPatternsInCase() {
 			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
 			"----------\n";
 
-	if (this.complianceLevel < ClassFileConstants.JDK14) { // before multi case
+	if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) { // before multi case
 		runNegativeTest(
 				testFiles,
 				expectedProblemLogFrom7_13);
-	} else if (this.complianceLevel < ClassFileConstants.JDK16) { // before type patterns
+	} else if (this.fetchComplianceLevel() < ClassFileConstants.JDK16) { // before type patterns
 			runNegativeTest(
 					testFiles,
 					expectedProblemLogFrom14_15);
-	} else if (this.complianceLevel < ClassFileConstants.JDK21) { // before case patterns
+	} else if (this.fetchComplianceLevel() < ClassFileConstants.JDK21) { // before case patterns
 		runNegativeTest(
 				testFiles,
 				expectedProblemLogFrom16_20);
@@ -2198,7 +2198,7 @@ public void test0042() {
 		"}\n"
 	};
 
-	String problemLog = this.complianceLevel >= ClassFileConstants.JDK25 ?
+	String problemLog = this.fetchComplianceLevel() >= ClassFileConstants.JDK25 ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
@@ -2255,7 +2255,7 @@ public void test0042() {
 			blah cannot be resolved to a variable
 			----------
 			""" +
-			(this.complianceLevel < ClassFileConstants.JDK16 ?
+			(this.fetchComplianceLevel() < ClassFileConstants.JDK16 ?
 			"""
 			4. ERROR in X.java (at line 14)
 				public static void main(String[] args) {
@@ -2718,7 +2718,7 @@ public void test0052() {
 		testFiles,
 		expected13ProblemLog,
 		expected14ProblemLog,
-		(this.complianceLevel < ClassFileConstants.JDK16 ? expected15ProblemLog : expectedJ16ProblemLog)
+		(this.fetchComplianceLevel() < ClassFileConstants.JDK16 ? expected15ProblemLog : expectedJ16ProblemLog)
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=42243
@@ -2951,7 +2951,7 @@ public void testBug399781() {
 		"}\n",
 	};
 	String problemLog = null;
-	if (this.complianceLevel == ClassFileConstants.JDK1_8) {
+	if (this.fetchComplianceLevel() == ClassFileConstants.JDK1_8) {
 		problemLog = """
 					----------
 					1. WARNING in X.java (at line 2)
@@ -2990,7 +2990,7 @@ public void testBug399781() {
 					The parameter _ is hiding a field from type X
 					----------
 					""";
-	} else if (this.complianceLevel < ClassFileConstants.JDK22) {
+	} else if (this.fetchComplianceLevel() < ClassFileConstants.JDK22) {
 		problemLog = """
 					----------
 					1. ERROR in X.java (at line 2)
@@ -3049,7 +3049,7 @@ public void testBug399781() {
 				----------
 				""";
 	}
-//	(this.complianceLevel < ClassFileConstants.JDK22) ? "" : "";
+//	(this.complianceLevel() < ClassFileConstants.JDK22) ? "" : "";
 	runNegativeTest(testFiles, problemLog);
 }
 
@@ -3136,7 +3136,7 @@ public void testBug440285() {
 		"----------\n");
 }
 public void testBug531714_001() {
-	if (this.complianceLevel >= ClassFileConstants.JDK12)
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK12)
 		return;
 	String[] testFiles = 			new String[] {
 			"X.java",
@@ -3193,7 +3193,7 @@ public void testBug531714_001() {
 	);
 }
 public void testBug531714_002() {
-	if (this.complianceLevel >= ClassFileConstants.JDK12)
+	if (this.fetchComplianceLevel() >= ClassFileConstants.JDK12)
 		return;
 	String[] testFiles = new String[] {
 			"X.java",
@@ -3336,14 +3336,14 @@ public void testIssue2008() {
 					Syntax error on token "_", Identifier expected
 					----------\n""";
 
-	if(this.complianceLevel == ClassFileConstants.JDK1_8) {
+	if(this.fetchComplianceLevel() == ClassFileConstants.JDK1_8) {
 		runConformTest(
 				true,
 				testFiles,
 				expected1_8ProblemLog,
 				"OK", null,
 				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-	} else if(this.complianceLevel < ClassFileConstants.JDK22) {
+	} else if(this.fetchComplianceLevel() < ClassFileConstants.JDK22) {
 		runNegativeTest(
 				testFiles,
 				expected9to20ProblemLog);

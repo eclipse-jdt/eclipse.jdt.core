@@ -1057,8 +1057,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant with illegal qualified enum constant
 	 */
+	@RunAlways
 	public void testBug544073_032() {
-		if (this.complianceLevel >= ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() >= ClassFileConstants.JDK21)
 			return;
 		String[] testFiles = new String[] {
 				"X.java",
@@ -2284,8 +2285,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2323
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression
+	@RunAlways
 	public void testIssue2323() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -4766,8 +4768,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	}
 
+	@RunAlways
 	public void testBug562129() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) return;
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14) return;
 		runNegativeTest(
 			new String[] {
 				"SwitchExpressionError.java",
@@ -6449,8 +6452,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1727
 	// Internal compiler error: java.util.EmptyStackException
+	@RunAlways
 	public void testGHI1727() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6531,8 +6535,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
 	// NPE in switch with Enum
+	@RunAlways
 	public void testGHI1767() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6602,8 +6607,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
 	// NPE in switch with Enum
+	@RunAlways
 	public void testGHI1767_minimal() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6628,8 +6634,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@RunAlways
 	public void testGHI1820() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6658,8 +6665,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@RunAlways
 	public void testGHI1820_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -6694,8 +6702,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@RunAlways
 	public void testGHI1820_3() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6720,8 +6729,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@RunAlways
 	public void testGHI1820_4() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6750,8 +6760,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
 	// [switch] Switch expression fails with instanceof + ternary operator combo
+	@RunAlways
 	public void testGHI1820_5() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6783,8 +6794,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/377
 	// [switch-expression] Invalid compiler error with switch expression
+	@RunAlways
 	public void testGH377() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6824,8 +6836,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
 	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	@RunAlways
 	public void testIssue2231() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6856,8 +6869,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
 	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	@RunAlways
 	public void testIssue2231_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6888,8 +6902,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@RunAlways
 	public void testIssue2228() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6931,8 +6946,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@RunAlways
 	public void testIssue2228_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -6973,8 +6989,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@RunAlways
 	public void testIssue2228_3() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7012,8 +7029,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@RunAlways
 	public void testIssue2228_4() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7041,8 +7059,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@RunAlways
 	public void testIssue2228_5() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7085,8 +7104,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
 	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	@RunAlways
 	public void testIssue2228_6() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7124,8 +7144,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2233
 	// [Switch-Expression] Assertion failure while compiling enum class that uses switch expression with try block
+	@RunAlways
 	public void testIssue2233() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK16)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7156,8 +7177,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2322
 	// [Switch Expression] Internal compiler error: java.util.EmptyStackException at java.base/java.util.Stack.peek
+	@RunAlways
 	public void testIssue2322() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7187,8 +7209,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	@RunAlways
 	public void testIssue2335() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7234,8 +7257,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	@RunAlways
 	public void testIssue2335_min() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7266,8 +7290,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
 	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	@RunAlways
 	public void testIssue2335_other() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7293,8 +7318,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2349
 	// [Switch Expression] Verify error at runtime with switch expression and exception handling inside lambda expression
+	@RunAlways
 	public void testIssue2349() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7319,8 +7345,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
 	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	@RunAlways
 	public void testIssue2360() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7360,8 +7387,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
 	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	@RunAlways
 	public void testIssue2360_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7392,8 +7420,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2363
 	// [Switch Expressions] Compiler crashes with Switch expressions mixed with exception handling
+	@RunAlways
 	public void testIssue2363() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7420,8 +7449,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2366
 	// [Switch Expression] Assertion fails when IDE is launched with JVM option -ea
+	@RunAlways
 	public void testIssue2366() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7462,8 +7492,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7498,8 +7529,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7534,8 +7566,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_3() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7570,8 +7603,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_4() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7602,8 +7636,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_5() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7634,8 +7669,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_6() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7667,8 +7703,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_7() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7691,7 +7728,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				}
 				"""
 				},
-				this.complianceLevel < ClassFileConstants.JDK21 ?
+				this.fetchComplianceLevel() < ClassFileConstants.JDK21 ?
 				"----------\n"
 				+ "1. ERROR in X.java (at line 7)\n"
 				+ "	switch (null) {\n"
@@ -7712,8 +7749,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_8() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7741,8 +7779,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
+	@RunAlways
 	public void testIssue2382_9() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7765,7 +7804,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				}
 				"""
 				},
-				this.complianceLevel < ClassFileConstants.JDK21 ?
+				this.fetchComplianceLevel() < ClassFileConstants.JDK21 ?
 				"----------\n"
 				+ "1. ERROR in X.java (at line 7)\n"
 				+ "	switch (foo()) {\n"
@@ -7791,8 +7830,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2387
 	// [Switch Expression] Empty Stack exception compiling switch expression with exception handling
+	@RunAlways
 	public void testIssue2387() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -7824,8 +7864,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2423
 	// [Switch-expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression with exception handling
+	@RunAlways
 	public void testIssue2423() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7855,8 +7896,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2447
 	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	@RunAlways
 	public void testIssue2447() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7888,8 +7930,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2451
 	// Internal compiler error: java.lang.AssertionError: Anomalous/Inconsistent operand stack!
+	@RunAlways
 	public void testIssue2451() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7931,8 +7974,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2453
 	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	@RunAlways
 	public void testIssue2453() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7958,8 +8002,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2455
 	// [Switch-expressions] java.lang.VerifyError: Bad type on operand stack
+	@RunAlways
 	public void testIssue2455() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -7988,8 +8033,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2485
 	// Empty stack error compiling project with broken classpath
+	@RunAlways
 	public void testIssue2485() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -8016,8 +8062,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2476
 	// [Switch expressions] java.lang.VerifyError: Bad type on operand stack
+	@RunAlways
 	public void testIssue2476() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runConformTest(
 				new String[] {
@@ -8048,8 +8095,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 
 	// test mixing of -> and : in the same switch
+	@RunAlways
 	public void testMixingCaseStyles() {
-		if (this.complianceLevel < ClassFileConstants.JDK14)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK14)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -8379,8 +8427,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3554
 	// [Switch Expressions] ArrayIndexOutOfBoundsException in Scope.leastContainingInvocation for sealed class and switch
+	@RunAlways
 	public void testIssue3554() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runNegativeTest(
 				new String[] {
@@ -8547,8 +8596,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4397
 	// [Switch expression] Compiling causes an ArrayIndexOutOfBoundsException
+	@RunAlways
 	public void testIssue4397() {
-		if (this.complianceLevel < ClassFileConstants.JDK21)
+		if (this.fetchComplianceLevel() < ClassFileConstants.JDK21)
 			return;
 		this.runConformTest(
 				new String[] {

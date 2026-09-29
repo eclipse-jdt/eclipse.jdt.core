@@ -79,9 +79,10 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 
 	// default methods with various modifiers, negative cases
+	@RunAlways
 	public void testModifiers1a() {
-		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
-		String op = this.complianceLevel < ClassFileConstants.JDK17 ?
+		String infMod = this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? " private," : "";
+		String op = this.fetchComplianceLevel() < ClassFileConstants.JDK17 ?
 		"----------\n" +
 		"1. ERROR in I.java (at line 5)\n" +
 		"	public default synchronized void foo2() { System.exit(0); }\n" +
@@ -145,6 +146,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// default methods with various modifiers, simple syntax error blows the parser
+	@RunAlways
 	public void testModifiers1b() {
 		runNegativeTest(
 		new String[] {
@@ -175,7 +177,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"	^^^^^^^\n" +
 			"Syntax error, insert \";\" to complete MethodDeclaration\n" +
 			"----------\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK17 ?
+			(this.fetchComplianceLevel() >= ClassFileConstants.JDK17 ?
 					"4. WARNING in I.java (at line 7)\n" +
 					"	default public strictfp void foo4() {}\n" +
 					"	               ^^^^^^^^\n" +
@@ -190,9 +192,10 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// regular interface with illegal modifiers
+	@RunAlways
 	public void testModifiers2() {
-		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
-		String op = this.complianceLevel < ClassFileConstants.JDK17 ?
+		String infMod = this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? " private," : "";
+		String op = this.fetchComplianceLevel() < ClassFileConstants.JDK17 ?
 		"----------\n" +
 		"1. ERROR in I.java (at line 5)\n" +
 		"	public synchronized void foo2();\n" +
@@ -286,8 +289,9 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// default & regular methods with modifiers that are illegal even for default methods
+	@RunAlways
 	public void testModifiers3() {
-		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
+		String infMod = this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? " private," : "";
 		runNegativeTest(
 		new String[] {
 			"I.java",
@@ -2231,15 +2235,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
     }
 
     // test for different error messages in modifiers.
+	@RunAlways
 	public void test400977() {
-		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
-		String extra = this.complianceLevel >= ClassFileConstants.JDK17 ?
+		String infMod = this.fetchComplianceLevel() >= ClassFileConstants.JDK9 ? " private," : "";
+		String extra = this.fetchComplianceLevel() >= ClassFileConstants.JDK17 ?
 				"----------\n" +
 				"2. WARNING in I.java (at line 3)\n" +
 				"	public abstract default strictfp final void bar();}\n" +
 				"	                        ^^^^^^^^\n" +
 				"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" : "";
-		int offset = this.complianceLevel >= ClassFileConstants.JDK17 ? 1 : 0;
+		int offset = this.fetchComplianceLevel() >= ClassFileConstants.JDK17 ? 1 : 0;
 		runNegativeTest(
 		new String[] {
 			"I.java",
