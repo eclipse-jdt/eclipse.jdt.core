@@ -466,41 +466,36 @@ protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws Java
 /** Loads the buffer via SourceMapper, and maps it in SourceMapper */
 private IBuffer mapSource(SourceMapper mapper, IBinaryType info, IClassFile bufferOwner) {
 	char[] contents = mapper.findSource(getType(), info);
-	if (contents != null) {
-		// create buffer
-		IBuffer buffer = BufferManager.createBuffer(bufferOwner);
-		if (buffer == null) return null;
-		BufferManager bufManager = getBufferManager();
-
-		// set the buffer source
-		if (buffer.getCharacters() == null){
-			buffer.setContents(contents);
+	IBuffer buffer = contents != null
+			? BufferManager.createBuffer(bufferOwner)
+			: BufferManager.createNullBuffer(bufferOwner);
+	if (buffer == null) return null;
+	BufferManager bufManager = getBufferManager();
+	IBuffer existingBuffer;
+	// Recheck the shared owner's key before publishing a competing buffer.
+	synchronized (bufManager) {
+		existingBuffer = bufManager.getBuffer(bufferOwner);
+		if (existingBuffer == null) {
+			if (contents != null && buffer.getCharacters() == null) {
+				buffer.setContents(contents);
+			}
+			// Cached buffers must already have their contents and close listener.
+			buffer.addBufferChangedListener(this);
+			bufManager.addBuffer(buffer);
 		}
-
-		// listen to buffer changes
-		buffer.addBufferChangedListener(this);
-
-		// Publish only after the contents and close listener are initialized.
-		bufManager.addBuffer(buffer);
-
-		// do the source mapping
-		mapper.mapSource((NamedMember) getOuterMostEnclosingType(), contents, info);
-
-		return buffer;
-	} else {
-		// create buffer
-		IBuffer buffer = BufferManager.createNullBuffer(bufferOwner);
-		if (buffer == null) return null;
-		BufferManager bufManager = getBufferManager();
-
-		// listen to buffer changes
-		buffer.addBufferChangedListener(this);
-
-		// Publish only after the close listener is installed.
-		bufManager.addBuffer(buffer);
-		return buffer;
 	}
+	if (existingBuffer != null) {
+		// No listener was installed on this unpublished candidate.
+		buffer.close();
+		return existingBuffer;
+	}
+	if (contents != null) {
+		// Keep source mapping and Java-model access outside the manager lock.
+		mapper.mapSource((NamedMember) getOuterMostEnclosingType(), contents, info);
+	}
+	return buffer;
 }
+
 /* package */ static String simpleName(char[] className) {
 	if (className == null)
 		return null;
