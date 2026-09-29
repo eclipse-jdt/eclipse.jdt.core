@@ -63,6 +63,7 @@ public class DerivedSourceSearchParticipantRegistry implements IRegistryEventLis
 	}
 
 	/** Must be called while holding {@code synchronized(this)}. */
+	@SuppressWarnings("unused")
 	private void load() {
 		IConfigurationElement[] elements = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor(EXTENSION_POINT_ID);

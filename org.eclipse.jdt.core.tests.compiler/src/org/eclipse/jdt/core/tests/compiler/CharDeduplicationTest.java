@@ -110,6 +110,7 @@ public class CharDeduplicationTest extends TestCase {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		CharDeduplicationTest test=new CharDeduplicationTest("");
 		System.out.println("min= ~"+ LongStream.range(0, 20).map(t->test.runPerformanceTest()).min().getAsLong()/1_000_000_000d);
@@ -155,6 +156,7 @@ public class CharDeduplicationTest extends TestCase {
 		testDeduplicationTableSize();
 	}
 
+	@SuppressWarnings("unused")
 	public void testMultithreaded() throws Exception {
 		int nThreads = 8;
 		List<FutureTask<Object>> tasks = IntStream.range(0, nThreads * 2).mapToObj(i -> new FutureTask<>(() -> {

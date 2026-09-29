@@ -84,6 +84,7 @@ static Set<String> getModuleNames(final ClasspathJrt jrt) {
 	return null;
 }
 
+@SuppressWarnings("unused")
 public static void loadModules(final ClasspathJrt jrt) {
 	String jrtKey = jrt.getKey();
 	if (jrtKey == null) {

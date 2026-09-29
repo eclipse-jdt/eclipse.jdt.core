@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 /**
  * Tests the Java search engine accross multiple projects.
  */
+@SuppressWarnings("unused")
 public class JavaSearchScopeTests extends ModifyingResourceTests implements IJavaSearchConstants {
 	private Queue<Throwable> exceptions = new ConcurrentLinkedQueue<>();
 	private ILogListener expectNoErrorLogging = (status, plugin) -> {

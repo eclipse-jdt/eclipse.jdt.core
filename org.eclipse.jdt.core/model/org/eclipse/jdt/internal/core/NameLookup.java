@@ -1387,6 +1387,7 @@ public class NameLookup implements SuffixConstants {
 	public void seekModuleReferences(String name, IJavaElementRequestor requestor, IJavaProject javaProject) {
 		seekModule(name.toCharArray(), true /* prefix */, requestor, JavaProject.NO_RELEASE);
 	}
+	@SuppressWarnings("unused")
 	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor, int release) {
 		long start = -1;
 		if (VERBOSE)

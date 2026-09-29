@@ -70,6 +70,7 @@ public class ModuleSourcePathManager {
 	interface IPrefixMatcherCharArray {
 		boolean matches(char[] prefix, char[] name);
 	}
+	@SuppressWarnings("unused")
 	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor) throws JavaModelException {
 		if (name == null)
 			return;
