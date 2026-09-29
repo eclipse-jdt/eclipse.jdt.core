@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2020 GK Software AG and others.
+ * Copyright (c) 2013, 2026 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.function.BiPredicate;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -778,36 +779,54 @@ public class NullAnnotationMatching {
 	}
 
 	public static TypeBinding strongerType(TypeBinding type1, TypeBinding type2, LookupEnvironment environment) {
-		if (type1 == type2) //$IDENTITY-COMPARISON$
-			return type1;
-		if (((type1.tagBits | type2.tagBits) & TagBits.HasNullTypeAnnotation) != 0)
-			return mergeTypeAnnotations(type1, type2, false, environment);
-		return type1;
+		return mergeTypeAnnotations(type1, type2, true, environment,
+				(bits1, bits2) -> {
+					if (bits1 == bits2)
+						return false;
+					if ((bits2 & TagBits.AnnotationNonNull) != 0)
+						return true;
+					if ((bits1 & TagBits.AnnotationNullable) != 0)
+						return true;
+					return false;
+				});
 	}
 
 	public static TypeBinding[] weakerTypes(TypeBinding[] parameters1, TypeBinding[] parameters2, LookupEnvironment environment) {
 		TypeBinding[] newParameters = new TypeBinding[parameters1.length];
 		for (int i = 0; i < newParameters.length; i++) {
-			long tagBits1 = parameters1[i].tagBits;
-			long tagBits2 = parameters2[i].tagBits;
-			if ((tagBits1 & TagBits.AnnotationNullable) != 0)
-				newParameters[i] = mergeTypeAnnotations(parameters1[i], parameters2[i], true, environment);		// @Nullable must be preserved
-			else if ((tagBits2 & TagBits.AnnotationNullable) != 0)
-				newParameters[i] = mergeTypeAnnotations(parameters2[i], parameters1[i], true, environment);		// @Nullable must be preserved
-			else if ((tagBits1 & TagBits.AnnotationNonNull) == 0)
-				newParameters[i] = mergeTypeAnnotations(parameters1[i], parameters2[i], true, environment);		// unannotated must be preserved
-			else
-				newParameters[i] = mergeTypeAnnotations(parameters2[i], parameters1[i], true, environment);		// either unannotated, or both are @NonNull
+			newParameters[i] = mergeTypeAnnotations(parameters1[i], parameters2[i], true, environment,
+					(bits1, bits2) -> {
+						if (bits1 == bits2)
+							return false;
+						if (bits2 == TagBits.AnnotationNullable)
+							return true;
+						if (bits1 == TagBits.AnnotationNonNull)
+							return true;
+						return false;
+					});
 		}
 		return newParameters;
 	}
-	private static TypeBinding mergeTypeAnnotations(TypeBinding type, TypeBinding otherType, boolean skipAnnotatingTop, LookupEnvironment environment) {
+
+	private static TypeBinding mergeTypeAnnotations(TypeBinding type, TypeBinding otherType, boolean isTop, LookupEnvironment environment,
+			BiPredicate<Long,Long> shouldReplace)
+	{
+		if (type == otherType || ((type.tagBits | otherType.tagBits) & TagBits.HasNullTypeAnnotation) == 0) //$IDENTITY-COMPARISON$
+			return type; // nothing to be gained
 		TypeBinding mainType = type;
-		if (!skipAnnotatingTop) {
-			// superimpose other's type annotation onto type, unless requested to skip this step
+		if (isTop) {
+			if (shouldReplace.test(type.tagBits&TagBits.AnnotationNullMASK, otherType.tagBits&TagBits.AnnotationNullMASK)) {
+				// replace:
+				mainType = mainType.withoutToplevelNullAnnotation();
+				AnnotationBinding[] otherAnnotations = otherType.getTypeAnnotations();
+				if (otherAnnotations != Binding.NO_ANNOTATIONS)
+					mainType = environment.createAnnotatedType(mainType, otherAnnotations);
+			}
+		} else {
+			// merge:
 			AnnotationBinding[] otherAnnotations = otherType.getTypeAnnotations();
 			if (otherAnnotations != Binding.NO_ANNOTATIONS)
-				mainType = environment.createAnnotatedType(type, otherAnnotations);
+				mainType = environment.createAnnotatedType(mainType, otherAnnotations);
 		}
 		if (mainType.isParameterizedType() && otherType.isParameterizedType()) {
 			ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) type, otherPTB = (ParameterizedTypeBinding) otherType;
@@ -815,7 +834,7 @@ public class NullAnnotationMatching {
 			TypeBinding[] otherTypeArguments = otherPTB.arguments;
 			TypeBinding[] newTypeArguments = new TypeBinding[typeArguments.length];
 			for (int i = 0; i < typeArguments.length; i++) {
-				newTypeArguments[i] = mergeTypeAnnotations(typeArguments[i], otherTypeArguments[i], false, environment);
+				newTypeArguments[i] = mergeTypeAnnotations(typeArguments[i], otherTypeArguments[i], false, environment, shouldReplace);
 			}
 			return environment.createParameterizedType(ptb.genericType(), newTypeArguments, ptb.enclosingType());
 		}
