@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 /**
  * Instances of this class and subclasses encapsulate state and behavior that is
  * shared among all tests of one test class at exactly one compliance level.
@@ -26,13 +28,16 @@ public class CompilerTestSetup {
 	private String testName;
 	public final long complianceLevel;
 
-	public CompilerTestSetup(String testName, long complianceLevel) {
-		this.testName = testName;
+	public CompilerTestSetup(long complianceLevel) {
 		this.complianceLevel = complianceLevel;
 	}
 
+	public void setTestName(String testName) {
+		this.testName = testName;
+	}
+
 	public String getName() {
-		return this.testName;
+		return this.testName+'['+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+']';
 	}
 
 	public void setUp() {

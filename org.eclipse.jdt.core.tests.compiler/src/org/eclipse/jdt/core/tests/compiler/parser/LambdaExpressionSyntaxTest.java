@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.io.File;
 import java.io.IOException;
-import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
@@ -27,10 +26,6 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 
 	public static Class testClass() {
 		return LambdaExpressionSyntaxTest.class;
-	}
-	@Override
-	public void initialize(CompilerTestSetup setUp) {
-		super.initialize(setUp);
 	}
 
 	public LambdaExpressionSyntaxTest(Compliance compliance, TestInfo info){

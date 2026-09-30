@@ -39,8 +39,8 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 
 	VirtualMachine vm;
 
-	public DebugEvaluationSetup(String testName, long complianceLevel) {
-		super(testName, complianceLevel);
+	public DebugEvaluationSetup(long complianceLevel) {
+		super(complianceLevel);
 	}
 
 	@Override

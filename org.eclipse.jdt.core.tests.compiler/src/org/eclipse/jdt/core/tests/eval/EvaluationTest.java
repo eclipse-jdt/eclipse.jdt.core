@@ -17,6 +17,7 @@ import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -50,6 +51,7 @@ import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -117,22 +119,25 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	INameEnvironment env;
 	LocalVirtualMachine launchedVM;
 	TargetInterface target;
+	private static Map<String,EvaluationSetup> evaluationTestSetups = new HashMap<>();
 
 	/**
 	 * Creates a new EvaluationTest.
 	 */
 	public EvaluationTest(Compliance compliance, TestInfo info) {
 		super(compliance, info);
-		long level = CompilerOptions.versionToJdkLevel(compliance.displayName());
-		if (testSetup == null || testSetup.complianceLevel!= level) {
-			if (testSetup != null)
-				testSetup.tearDown();
-			testSetup = newTestSetup(null, level);
-		}
+	}
+	@Override
+	protected EvaluationSetup getOrCreateTestSetup(Compliance compliance) {
+		return evaluationTestSetups.computeIfAbsent(compliance.displayName(), name -> new EvaluationSetup(compliance.complianceLevel()));
 	}
 
-	protected EvaluationSetup newTestSetup(String testName, long level) {
-		return new EvaluationSetup(testName, level);
+	@AfterAll
+	public static void tearDownTestSetups() {
+		for (EvaluationSetup evaluationSetup : evaluationTestSetups.values()) {
+			evaluationSetup.tearDown();
+		}
+		evaluationTestSetups.clear();
 	}
 
 	/**

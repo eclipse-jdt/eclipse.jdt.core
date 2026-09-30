@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -33,11 +32,6 @@ import org.junit.jupiter.api.TestInfo;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @MinimalCompliance(AbstractCompilerTest.F_10)
 public class JEP286Test extends AbstractRegressionTest {
-
-@Override
-public void initialize(CompilerTestSetup setUp) {
-	super.initialize(setUp);
-}
 
 public JEP286Test(Compliance compliance, TestInfo info){
 	super(compliance, info);

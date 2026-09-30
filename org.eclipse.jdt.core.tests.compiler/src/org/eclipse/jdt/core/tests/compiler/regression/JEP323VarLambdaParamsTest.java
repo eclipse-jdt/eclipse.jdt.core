@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.util.Map;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.junit.jupiter.api.Test;
@@ -28,10 +27,6 @@ public class JEP323VarLambdaParamsTest extends AbstractRegressionTest {
 
 public static Class testClass() {
 	return JEP323VarLambdaParamsTest.class;
-}
-@Override
-public void initialize(CompilerTestSetup setUp) {
-	super.initialize(setUp);
 }
 public JEP323VarLambdaParamsTest(Compliance compliance, TestInfo info){
 	super(compliance, info);

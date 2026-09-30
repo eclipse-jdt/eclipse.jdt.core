@@ -24,8 +24,8 @@ public class RegressionTestSetup extends CompilerTestSetup {
 	TestVerifier verifier = new TestVerifier(true);
 	INameEnvironment javaClassLib;
 
-	public RegressionTestSetup(String testName, long complianceLevel) {
-		super(testName, complianceLevel);
+	public RegressionTestSetup(long complianceLevel) {
+		super(complianceLevel);
 	}
 
 	@Override

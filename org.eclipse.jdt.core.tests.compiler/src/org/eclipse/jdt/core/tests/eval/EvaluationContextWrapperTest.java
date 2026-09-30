@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.eval.InstallException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -56,6 +57,8 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 
 	private IJavaProject project;
 
+	private static Map<String,DebugEvaluationSetup> debugEvaluationTestSetups = new HashMap<>();
+
 	static {
 //		TESTS_NAMES = new String[] { "testBug573589_StaticImport" };
 	}
@@ -64,8 +67,8 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		super(compliance, info);
 	}
 	@Override
-	protected EvaluationSetup newTestSetup(String testName, long level) {
-		return new DebugEvaluationSetup(testName, level);
+	protected DebugEvaluationSetup getOrCreateTestSetup(Compliance compliance) {
+		return debugEvaluationTestSetups.computeIfAbsent(compliance.displayName(), name -> new DebugEvaluationSetup(compliance.complianceLevel()));
 	}
 
 	@Override
@@ -80,6 +83,14 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		delete(this.project);
 		this.project = null;
 		super.tearDown();
+	}
+
+	@AfterAll
+	public static void tearDownTestSetups() {
+		for (EvaluationSetup evaluationSetup : debugEvaluationTestSetups.values()) {
+			evaluationSetup.tearDown();
+		}
+		debugEvaluationTestSetups.clear();
 	}
 
 	@Test

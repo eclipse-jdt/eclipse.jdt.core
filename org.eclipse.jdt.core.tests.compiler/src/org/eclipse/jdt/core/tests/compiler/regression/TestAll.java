@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
 import org.eclipse.jdt.core.tests.junit5.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.junit.platform.suite.api.AfterSuite;
 import org.junit.platform.suite.api.BeforeSuite;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
@@ -221,5 +223,9 @@ public class TestAll {
 	public static void clearFilters() {
 		// disable forgotten subsets tests
 		TestCase.DISABLE_FILTERS = true;
+	}
+	@AfterSuite
+	public static void tearDownTestSetups() {
+		AbstractCompilerTest.tearDownTestSetups();
 	}
 }

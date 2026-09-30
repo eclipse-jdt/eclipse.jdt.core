@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
-import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -24,10 +23,6 @@ public class JEP286ReservedWordTest extends AbstractRegressionTest {
 
 public static Class testClass() {
 	return JEP286ReservedWordTest.class;
-}
-@Override
-public void initialize(CompilerTestSetup setUp) {
-	super.initialize(setUp);
 }
 
 public JEP286ReservedWordTest(Compliance compliance, TestInfo info){

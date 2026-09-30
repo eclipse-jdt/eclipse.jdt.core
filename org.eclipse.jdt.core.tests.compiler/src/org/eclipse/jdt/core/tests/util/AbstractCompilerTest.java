@@ -80,13 +80,15 @@ public class AbstractCompilerTest extends TestCase {
 	public static List<Compliance >selectedComplianceLevels = null;
 
 	/**
-	 * Setup shared by all tests of one class and of the same compliance level.
+	 * Setups shared by all tests of the same compliance level across all subclasses.
 	 * Instantiated on demand in the constructor.
 	 * Taken down either in the first constructor for a new compliance level or in
 	 * {@link #tearDownClass()}.
 	 */
-	protected static CompilerTestSetup testSetup;
+	protected static Map<String,CompilerTestSetup> testSetups = new HashMap<>();
 
+	// current per-instance test setup
+	protected CompilerTestSetup testSetup;
 
 	protected long complianceLevel;
 	protected boolean enableAPT = false;
@@ -505,19 +507,20 @@ public class AbstractCompilerTest extends TestCase {
 	public AbstractCompilerTest(Compliance compliance, TestInfo testInfo) {
 		super(stripDisplayName(testInfo.getDisplayName()));
 		this.complianceLevel = compliance.complianceLevel;
-		if (testSetup == null || testSetup.complianceLevel!= this.complianceLevel) {
-			if (testSetup != null)
-				testSetup.tearDown();
-			testSetup = newTestSetup(testInfo.getTestClass().get().getName() + '[' + compliance.displayName() + ']', this.complianceLevel);
-		}
+		this.testSetup = getOrCreateTestSetup(compliance);
+		this.testSetup.setTestName(this.fName);
+		this.testSetup.setUp();
+	}
+	protected CompilerTestSetup getOrCreateTestSetup(Compliance compliance) {
+		return testSetups.computeIfAbsent(compliance.displayName, name -> newTestSetup(this.complianceLevel));
 	}
 	static String stripDisplayName(String name) {
 		int open = name.indexOf("()");
 		return open == -1 ? name : name.substring(0, open);
 	}
 
-	protected CompilerTestSetup newTestSetup(String testName, long level) {
-		return new CompilerTestSetup(testName, level);
+	protected CompilerTestSetup newTestSetup(long level) {
+		return new CompilerTestSetup(level);
 	}
 
 	protected Map getCompilerOptions() {
@@ -572,20 +575,17 @@ public class AbstractCompilerTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		initialize(testSetup);
+		initialize(this.testSetup);
 	}
 
 	public void initialize(CompilerTestSetup setUp) {
-		testSetup.setUp();
 		this.complianceLevel = setUp.complianceLevel;
 		this.enableAPT = System.getProperty("enableAPT") != null;
 	}
 
-	@AfterAll
-	static void tearDownClass() {
-		if (testSetup != null) {
-			testSetup.tearDown();
-			testSetup = null;
+	public static void tearDownTestSetups() {
+		for (CompilerTestSetup compilerTestSetup : testSetups.values()) {
+			compilerTestSetup.tearDown();
 		}
 	}
 

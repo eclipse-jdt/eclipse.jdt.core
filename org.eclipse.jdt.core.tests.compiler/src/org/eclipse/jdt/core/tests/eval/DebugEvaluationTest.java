@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.InstallException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
@@ -70,12 +72,22 @@ public class DebugEvaluationTest extends EvaluationTest {
 	public JDIStackFrame jdiStackFrame;
 	VirtualMachine jdiVM;
 
+	private static Map<String,DebugEvaluationSetup> debugEvaluationTestSetups = new HashMap<>();
+
 	public DebugEvaluationTest(Compliance compliance, TestInfo info) {
 		super(compliance, info);
 	}
 	@Override
-	protected EvaluationSetup newTestSetup(String testName, long level) {
-		return new DebugEvaluationSetup(testName, level);
+	protected DebugEvaluationSetup getOrCreateTestSetup(Compliance compliance) {
+		return debugEvaluationTestSetups.computeIfAbsent(compliance.displayName(), name -> new DebugEvaluationSetup(compliance.complianceLevel()));
+	}
+
+	@AfterAll
+	public static void tearDownTestSetups() {
+		for (EvaluationSetup evaluationSetup : debugEvaluationTestSetups.values()) {
+			evaluationSetup.tearDown();
+		}
+		debugEvaluationTestSetups.clear();
 	}
 
 	public void compileAndDeploy(String source, String className) {

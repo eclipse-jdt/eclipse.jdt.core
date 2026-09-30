@@ -1404,9 +1404,14 @@ protected static class JavacTestOptions {
 	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 
 	protected String[] classpaths;
-	protected boolean createdVerifier;
 	protected INameEnvironment javaClassLib;
+	/**
+	 * The TestVerifier is normally injected from the testSetup.
+	 * If a fresh one us used, we set {@link #createdVerifier}
+	 * to signal that {@link #tearDown()} should shut down the verifier.
+	 */
 	protected TestVerifier verifier;
+	protected boolean createdVerifier;
 	protected boolean shouldSwallowCaptureId;
 	@Deprecated
 	public AbstractRegressionTest(String name) {
@@ -1414,6 +1419,10 @@ protected static class JavacTestOptions {
 	}
 	public AbstractRegressionTest(Compliance compliance, TestInfo info) {
 		super(compliance, info);
+	}
+	@Override
+	protected CompilerTestSetup getOrCreateTestSetup(Compliance compliance) {
+		return testSetups.computeIfAbsent(compliance.displayName(), name -> new RegressionTestSetup(compliance.complianceLevel()));
 	}
 
 	protected boolean checkPreviewAllowed() {
@@ -1692,7 +1701,7 @@ protected static class JavacTestOptions {
 		if (className.endsWith(PACKAGE_INFO_NAME)) return;
 
 		if (vmArguments != null) {
-			if (this.verifier != null) {
+			if (this.verifier != null && this.createdVerifier) {
 				this.verifier.shutDown();
 			}
 			this.verifier = new TestVerifier(false);
@@ -1885,11 +1894,6 @@ protected static class JavacTestOptions {
 	// overridden in AbstractRegressionTests9
 	protected CompilationUnit[] getCompilationUnits(String[] testFiles) {
 		return Util.compilationUnits(testFiles);
-	}
-
-	@Override
-	protected RegressionTestSetup newTestSetup(String testName, long level) {
-		return new RegressionTestSetup(testName, level);
 	}
 
 	@Override
@@ -3653,7 +3657,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			if (!className.endsWith(PACKAGE_INFO_NAME) && !className.endsWith(MODULE_INFO_NAME)) {
 
 				if (vmArguments != null) {
-					if (this.verifier != null) {
+					if (this.verifier != null && this.createdVerifier) {
 						this.verifier.shutDown();
 					}
 					this.verifier = new TestVerifier(false);

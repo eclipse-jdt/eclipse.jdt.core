@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -43,10 +42,6 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
-	}
-	@Override
-	public void initialize(CompilerTestSetup setUp) {
-		super.initialize(setUp);
 	}
 
 	static final class LocationPrinterVisitor extends ASTVisitor {
