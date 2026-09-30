@@ -94,6 +94,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean markdown = false;
 	protected boolean lineStarted = false;
 	protected boolean inlineTagStarted = false;
+	protected boolean parsingMarkdownLink = false;
 	protected boolean inlineReturn= false;
 	protected int inlineReturnStart= -1;
 	protected int inlineReturnOpenBraces= 0;
@@ -3715,7 +3716,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	protected boolean readMarkdownEscapedToken(TerminalToken expectedToken) throws InvalidInputException {
-		if (!this.markdown || (this.tagValue != TAG_LINK_VALUE && this.tagValue != TAG_LINKPLAIN_VALUE))
+		if (!this.markdown || !this.parsingMarkdownLink || (this.tagValue != TAG_LINK_VALUE && this.tagValue != TAG_LINKPLAIN_VALUE))
 			return readToken() == expectedToken;
 		if (this.currentTokenType == TokenNameInvalid) {
 			this.tokenPreviousPosition = this.scanner.currentPosition;

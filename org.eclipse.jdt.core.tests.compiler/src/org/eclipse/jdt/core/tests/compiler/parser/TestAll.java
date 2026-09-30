@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -100,11 +100,11 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_19, ClassFileConstants.JDK19, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_21, ClassFileConstants.JDK21, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_22, ClassFileConstants.JDK22, (list) -> {addJava16Tests(list);}));
-	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_23, ClassFileConstants.JDK23, (list) -> {addJava16Tests(list);}));
-	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_24, ClassFileConstants.JDK24, (list) -> {addJava16Tests(list);}));
-	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_25, ClassFileConstants.JDK25, (list) -> {addJava16Tests(list);}));
-	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_26, ClassFileConstants.JDK26, (list) -> {addJava16Tests(list);}));
-	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_27, ClassFileConstants.JDK27, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_23, ClassFileConstants.JDK23, (list) -> {addJava23Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_24, ClassFileConstants.JDK24, (list) -> {addJava23Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_25, ClassFileConstants.JDK25, (list) -> {addJava23Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_26, ClassFileConstants.JDK26, (list) -> {addJava23Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_27, ClassFileConstants.JDK27, (list) -> {addJava23Tests(list);}));
 
 	for (TestsAddition testVersionMap : testAdditionsList) {
 		if ((possibleComplianceLevels & testVersionMap.complianceTestLevel) != 0) {
@@ -127,6 +127,11 @@ private static void resetForgottenFilters() {
 	TestCase.RUN_ONLY_ID = null;
 }
 
+private static void addJava23Tests(ArrayList tests_23) {
+	addJava16Tests(tests_23);
+	tests_23.add(MarkdownCompletionParserTest.class);
+	tests_23.add(SelectionMarkdownTest.class);
+}
 private static void addJava16Tests(ArrayList tests_16) {
 	addJava1_8Tests(tests_16);
 	tests_16.add(PatternMatchingSelectionTest.class);
