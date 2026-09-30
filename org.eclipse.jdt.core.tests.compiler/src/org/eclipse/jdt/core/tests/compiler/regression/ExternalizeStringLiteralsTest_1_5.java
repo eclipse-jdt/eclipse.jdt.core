@@ -14,6 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -26,6 +28,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 7 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8, singleVersion=true)
 public ExternalizeStringLiteralsTest_1_5(Compliance compliance, TestInfo info) {
 	super(compliance, info);
 }

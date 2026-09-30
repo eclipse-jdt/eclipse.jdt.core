@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-@MinimalCompliance(AbstractCompilerTest.F_16)
+@MinimalCompliance(value=AbstractCompilerTest.F_16,singleVersion=true)
 public class JavadocTestForRecord extends JavadocTest {
 
 	static {

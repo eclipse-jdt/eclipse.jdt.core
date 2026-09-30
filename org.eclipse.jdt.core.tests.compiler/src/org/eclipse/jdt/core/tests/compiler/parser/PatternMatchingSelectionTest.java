@@ -23,8 +23,7 @@ import org.junit.jupiter.api.TestInfo;
 @MinimalCompliance(AbstractCompilerTest.F_16)
 public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	static {
-		//		TESTS_NUMBERS = new int[] { 1 };
-				TESTS_NAMES = new String[] { "test005" };
+//				TESTS_NAMES = new String[] { "test001" };
 	}
 
 	public PatternMatchingSelectionTest(Compliance compliance, TestInfo info) {

@@ -16,12 +16,15 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Map;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.MinimalCompliance;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@MinimalCompliance(value=AbstractCompilerTest.F_1_8,singleVersion=true)
 public class ConcurrentBatchCompilerTest extends AbstractBatchCompilerTest {
 
 	public ConcurrentBatchCompilerTest(Compliance compliance, TestInfo info) {

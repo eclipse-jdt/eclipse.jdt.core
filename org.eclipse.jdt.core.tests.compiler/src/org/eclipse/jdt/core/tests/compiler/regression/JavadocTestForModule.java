@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-@MinimalCompliance(AbstractCompilerTest.F_9)
+@MinimalCompliance(value=AbstractCompilerTest.F_9,singleVersion=true)
 public class JavadocTestForModule extends AbstractBatchCompilerTest {
 
 	static {

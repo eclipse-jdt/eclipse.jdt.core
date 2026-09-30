@@ -23,7 +23,7 @@ import org.junit.jupiter.api.TestInfo;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-@MinimalCompliance(AbstractCompilerTest.F_16)
+@MinimalCompliance(value=AbstractCompilerTest.F_16,singleVersion=true)
 public class JavadocTest_16 extends JavadocTest {
 
 	String docCommentSupport = CompilerOptions.ENABLED;

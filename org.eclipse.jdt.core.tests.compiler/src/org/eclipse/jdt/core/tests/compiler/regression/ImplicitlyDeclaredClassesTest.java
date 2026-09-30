@@ -339,6 +339,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	@Test
 	public void testGH3137a1() {
 		runConformTest(new String[] {
 				"X.java",
@@ -351,6 +352,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		"Hello1\n" +
 		"Hello2");
 	}
+	@Test
 	public void testGH3137a2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -372,6 +374,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		"The method println(String) is undefined for the type X\n" +
 		"----------\n");
 	}
+	@Test
 	public void testGH3137b1() {
 		runConformTest(new String[] {
 				"X.java",
@@ -387,6 +390,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		VMARGS,
 		JavacTestOptions.SKIP);
 	}
+	@Test
 	public void testGH3137b2() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -404,6 +408,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		"The method readln(String) is undefined for the type X\n" +
 		"----------\n");
 	}
+	@Test
 	public void testGH3714() {
 		runConformTest(new String[] {
 				"Main.java",
@@ -422,6 +427,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5135
 	// Implicitly declared class main.java warns about main() looking like a constructor
+	@Test
 	public void testGH5135() {
 		runConformTest(new String[] {
 				"main.java",
@@ -434,6 +440,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5135
 	// Verify that the constructor-name warning is still reported for regular compilation units
+	@Test
 	public void testGH5135_regularClass() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
