@@ -245,6 +245,7 @@ public class CharArrayMapperTest extends TestCase {
 			{ 49980, 37792479 }, { 49990, 37792489 } };
 
 	/* calculate hashCollisions used above: */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		int N = 100000000;
 		HashMap<Integer, List<Integer>> hashCollisions_ = new HashMap<>();

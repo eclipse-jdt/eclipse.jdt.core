@@ -85,6 +85,7 @@ private static final ForkJoinWorkerThreadFactory SEARCH_THREAD_FACTORY = new For
 
 private static final ForkJoinPool SEARCH_POOL = createExecutor(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
 
+@SuppressWarnings("unused")
 private static ForkJoinPool createExecutor(int threadCount) {
 	return new ForkJoinPool(threadCount, SEARCH_THREAD_FACTORY, /* UncaughtExceptionHandler */ null, //
 			/* asyncMode */ false, //

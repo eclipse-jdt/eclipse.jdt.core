@@ -22,17 +22,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /** Tests the real options cache without creating projects, editors or builders. */
 public class OptionCacheTests extends TestCase {
@@ -98,6 +96,7 @@ public class OptionCacheTests extends TestCase {
 		assertEquals(JavaCore.INSERT, JavaCore.getOptions().get(KEY));
 	}
 
+	@SuppressWarnings("unused")
 	public void testCacheIsReused() throws Exception {
 		AtomicInteger reads = new AtomicInteger();
 		Thread testThread = Thread.currentThread();
@@ -153,7 +152,7 @@ public class OptionCacheTests extends TestCase {
 	private enum Update {
 		SET_OPTIONS, PREFERENCE, REPEATED_INVALIDATION, RESET
 	}
-
+	@SuppressWarnings("unused")
 	private void assertLaterReadIsCurrent(Update update) throws Exception {
 		String expected = JavaCore.getDefaultOptions().get(KEY);
 		assertNotNull(expected);
@@ -313,6 +312,7 @@ public class OptionCacheTests extends TestCase {
 	 * preference implementation's locks. No production manager or preference
 	 * values are mocked. Reflection is confined to installing this read barrier.
 	 */
+	@SuppressWarnings("unused")
 	private static final class PreferenceReads implements AutoCloseable {
 		private final IEclipsePreferences[] lookup;
 		private final IEclipsePreferences[] original;

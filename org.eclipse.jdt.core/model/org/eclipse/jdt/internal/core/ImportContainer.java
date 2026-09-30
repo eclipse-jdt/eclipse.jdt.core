@@ -70,7 +70,7 @@ protected char getHandleMementoDelimiter() {
  */
 @Override
 public ImportDeclaration getImport(String importName) {
-	int index = importName.indexOf(".*"); ///$NON-NLS-1$
+	int index = importName.indexOf(".*"); //$NON-NLS-1$
 	boolean isOnDemand = index != -1;
 	if (isOnDemand) {
 		importName = importName.substring(0, index);

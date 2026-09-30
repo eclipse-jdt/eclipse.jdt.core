@@ -2968,6 +2968,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/** for tracing only **/
 	private final ThreadLocal<Instant> lastWarning = new ThreadLocal<>();
 
+	@SuppressWarnings("unused")
 	private void traceZipAccessWarning(IPath path) {
 		Instant now = Instant.now();
 		Deque<Instant> lastAcesses = this.lastAccessByPath.get().compute(path,
@@ -4861,6 +4862,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// Also use a custom ForkJoinWorkerThreadFactory, to prevent issues with a
 		// potential SecurityManager, since the threads created by it get no permissions.
 		// See related problem in eclipse-platform https://github.com/eclipse-platform/eclipse.platform/issues/294
+		@SuppressWarnings("resource")
 		ForkJoinPool forkJoinPool = new ForkJoinPool(parallelism, //
 				pool -> new ForkJoinWorkerThread(pool) {
 					// anonymous subclass to access protected constructor

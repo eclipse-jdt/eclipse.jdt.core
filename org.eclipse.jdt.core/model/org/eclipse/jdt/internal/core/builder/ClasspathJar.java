@@ -79,6 +79,7 @@ protected static void addToPackageSet(Set<String> packageSet, String fileName, b
 	}
 }
 
+@SuppressWarnings("unused")
 private Set<String> getCachedPackageNames() {
 	PackageCacheEntry entry = packageCache.compute(this.zipFilename, (zipFileName, cacheEntry) -> {
 		if(cacheEntry != null && cacheEntry.zipFile.get() == this.zipFile) {

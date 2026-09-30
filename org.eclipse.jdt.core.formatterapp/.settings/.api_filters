@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core.formatterapp" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="930086955">
+            <message_arguments>
+                <message_argument value="1.2.400"/>
+                <message_argument value="1.2.300"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/jdt/core/formatterapp/CodeFormatterApplicationWrapper.java" type="org.eclipse.jdt.core.formatterapp.CodeFormatterApplicationWrapper">
         <filter comment="See bug 543363" id="572522506">
             <message_arguments>

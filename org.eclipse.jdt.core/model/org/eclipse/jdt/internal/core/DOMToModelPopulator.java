@@ -62,6 +62,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 		this.unitInfo = unitInfo;
 	}
 
+	@SuppressWarnings("unused")
 	private void addAsChild(JavaElementInfo parentInfo, IJavaElement childElement) {
 		if (childElement instanceof SourceRefElement element) {
 			while (Stream.of(parentInfo.getChildren())
