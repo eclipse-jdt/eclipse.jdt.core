@@ -2902,23 +2902,23 @@ void setSourceStart(int sourceStart);
 	/** @since 3.45 */
 	int CyclicStructureNonNullByDefault = Internal + 2104;
 
-	/** @since 3.47
+	/** @since 3.46
 	 * @noreference preview feature error */
 	int IllegalValueInstanceSynchronization = PreviewRelated + 2105;
 
-	/** @since 3.47
+	/** @since 3.46
 	 * @noreference preview feature error */
 	int ValueClassExtendsIdentityClass = PreviewRelated + 2106;
 
-	/** @since 3.47
+	/** @since 3.46
 	 * @noreference preview feature error */
 	int IllegalSynchronizedInstanceMethod = PreviewRelated + 2107;
 
-	/** @since 3.47
+	/** @since 3.46
 	 * @noreference preview feature error */
 	int FinalizeMethodUselessInValueClass = PreviewRelated + 2108;
 
-	/** @since 3.47
+	/** @since 3.46
 	 * @noreference preview feature error */
 	int UninitializedStrictInitField = PreviewRelated + 2109;
 }
