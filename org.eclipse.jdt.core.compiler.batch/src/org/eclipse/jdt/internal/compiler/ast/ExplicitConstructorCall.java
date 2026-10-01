@@ -498,6 +498,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		} finally {
 			methodScope.isConstructorCall = false;
 			methodScope.leaveEarlyConstructionContext();
+			if (methodScope.referenceContext instanceof ConstructorDeclaration constructor)
+				constructor.computePrologueLocalsSize();
 		}
 	}
 
