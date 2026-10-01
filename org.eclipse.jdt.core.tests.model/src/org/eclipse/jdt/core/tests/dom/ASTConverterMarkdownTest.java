@@ -2416,6 +2416,68 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 
+	/**
+	 * Verifies that a multi-line {@code {@code ...} } tag inside a "///" markdown
+	 * comment is parsed into exactly 3 fragments of the comment's main description
+	 * tag - leading text, the {@code @code} tag itself, and trailing text - and that
+	 * the {@code @code} tag's own span ends with its closing '}', which must not
+	 * also appear as part of the trailing text.
+	 * <p>
+	 * {@code codeTagTrailingSpace} and {@code closeBraceTrailingSpace} let callers
+	 * append a trailing space to the "{@code" line and/or the lone "}" line
+	 * respectively, to isolate which one (if either) triggers the corruption.
+	 */
+	private void verifyMultiLineCodeTagFragments(String codeTagTrailingSpace, String closeBraceTrailingSpace) throws JavaModelException {
+		String source = "/// Here's some code {@code" + codeTagTrailingSpace + "\n"
+				+ "///     List<String> list = List.of(\"Hello World!\");\n"
+				+ "/// }" + closeBraceTrailingSpace + "\n"
+				+ "/// that does something.\n"
+				+ "public class Markdown{}\n";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (!this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			return;
+		}
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		TypeDeclaration typedeclaration = (TypeDeclaration) compilUnit.types().get(0);
+		Javadoc javadoc = typedeclaration.getJavadoc();
+		List<TagElement> tags = javadoc.tags();
+		List<ASTNode> frags = tags.get(0).fragments();
+
+		assertEquals("Fragment 1 should be the @code TagElement", ASTNode.TAG_ELEMENT, frags.get(1).getNodeType());
+		TagElement codeTag = (TagElement) frags.get(1);
+		assertEquals("The @code tag's own span should end with its closing '}'", '}', source.charAt(codeTag.getStartPosition() + codeTag.getLength() - 1));
+
+		// The actual code content inside {@code ...} must be intact, regardless of
+		// whatever corruption happens to the fragments *after* the tag.
+		List<?> innerFrags = codeTag.fragments();
+		String innerText = innerFrags.stream().map(Object::toString).collect(java.util.stream.Collectors.joining()).strip();
+		assertEquals("Content inside {@code ...} must be intact", "List<String> list = List.of(\"Hello World!\");", innerText);
+
+		assertEquals("Expected 3 fragments: leading text, the @code tag, and trailing text", 3, frags.size());
+		assertEquals("Trailing text must not include the @code tag's closing '}'", "that does something.", frags.get(2).toString().strip());
+	}
+
+	/** Control case: no trailing space on either line. Expected to pass. */
+	public void testGH3681_multiLineCodeTag_noTrailingSpace() throws JavaModelException {
+		verifyMultiLineCodeTagFragments("", "");
+	}
+
+	/** Trailing space after "{@code" only. */
+	public void testGH3681_multiLineCodeTag_trailingSpaceAfterOpenTag() throws JavaModelException {
+		verifyMultiLineCodeTagFragments(" ", "");
+	}
+
+	/** Trailing space after the lone closing "}" only. */
+	public void testGH3681_multiLineCodeTag_trailingSpaceAfterCloseBrace() throws JavaModelException {
+		verifyMultiLineCodeTagFragments("", " ");
+	}
+
+	/** Trailing space after both lines - matches the eclipse.jdt.ls hover bug report verbatim. */
+	public void testGH3681_multiLineCodeTag_trailingSpaceAfterBoth() throws JavaModelException {
+		verifyMultiLineCodeTagFragments(" ", " ");
+	}
+
 	public void testIncorrectTagWhenMarkdownEndsWithMarkdownTag4786() throws JavaModelException {
 		String source = """
 				/// **Bold**
