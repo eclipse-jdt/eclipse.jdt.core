@@ -15251,6 +15251,7 @@ public void testGH2575() throws CoreException, IOException {
 	}
 }
 
+@SuppressWarnings("unused")
 public void testBug547051_nonModular() throws Exception {
 	try {
 		IJavaProject project = createJavaProject("P");
@@ -15274,6 +15275,7 @@ public void testBug547051_nonModular() throws Exception {
 	}
 }
 
+@SuppressWarnings("unused")
 public void testBug547051_nonModular2() throws Exception {
 	try {
 		IJavaProject project = createJavaProject("P");
@@ -15296,6 +15298,7 @@ public void testBug547051_nonModular2() throws Exception {
 		deleteProject("P");
 	}
 }
+@SuppressWarnings("unused")
 public void testBug547051_nonModular3() throws Exception {
 	try {
 		IJavaProject project = createJavaProject("P");

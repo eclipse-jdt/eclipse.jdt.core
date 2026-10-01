@@ -13711,4 +13711,41 @@ public void testIssue4601() {
 		"Name clash: The method getTraceToSource(SomeFile) of type AbstractTraceForURIProvider<SomeFile,Trace> has the same erasure as getTraceToSource(PlatformResource) of type IPlatformSpecificTraceProvider<PlatformResource,Trace> but does not override it\n" +
 		"----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5389
+// A class that merely inherits an interface default method with a covariant return
+// (SortedMap.reversed()) must NOT get its own synthetic bridge method: the bridge is
+// already generated into the declaring interface and is inherited along with it.
+public void testIssue5389() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK21) return; // SequencedMap / reversed() only exist since 21
+	this.runConformTest(
+		new String[] {
+			"MyMap.java",
+			"""
+			import java.util.AbstractMap;
+			import java.util.Comparator;
+			import java.util.SortedMap;
+			import java.util.Set;
+
+			public class MyMap<K, V> extends AbstractMap<K, V> implements SortedMap<K, V> {
+			    public Comparator<? super K> comparator() { return null; }
+			    public SortedMap<K, V> subMap(K fromKey, K toKey) { return null; }
+			    public SortedMap<K, V> headMap(K toKey) { return null; }
+			    public SortedMap<K, V> tailMap(K fromKey) { return null; }
+			    public K firstKey() { return null; }
+			    public K lastKey() { return null; }
+			    public Set<Entry<K, V>> entrySet() { return null; }
+			}
+			"""
+		},
+		"");
+
+	File f = new File(OUTPUT_DIR + File.separator + "MyMap.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	if (result.indexOf("reversed()") != -1) {
+		System.out.println(Util.displayString(result, 3));
+		fail("MyMap should not declare a synthetic bridge method for reversed()");
+	}
+}
 }

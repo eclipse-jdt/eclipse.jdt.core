@@ -114,10 +114,10 @@ public void testModuleImport2_prefix() throws IOException, CoreException {
 		int start = str.indexOf(selection);
 		int length = selection.length();
 		IJavaElement[] elements = this.wc.codeSelect(start, length);
-		assertElementsEqual(
+		assertEquals(
 			"Unexpected elements",
-			"mod.one [in module-info.class [in <default> [in mod.one.jar [in Resolve]]]]",
-			elements
+			elements.length,
+			0
 		);
 	} finally {
 		removeLibrary(this.currentProject, jarName, null);

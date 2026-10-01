@@ -4697,6 +4697,7 @@ public void testBug545293() throws Exception {
 	}
 }
 
+@SuppressWarnings("unused")
 public void testBug547051_modular() throws Exception {
 	try {
 		IJavaProject project = createJava9Project("P");
@@ -4718,6 +4719,7 @@ public void testBug547051_modular() throws Exception {
 	}
 }
 
+@SuppressWarnings("unused")
 public void testBug547051_modular2() throws Exception {
 	if (!isJRE9) {
 		return;
@@ -4741,6 +4743,7 @@ public void testBug547051_modular2() throws Exception {
 		deleteProject("P");
 	}
 }
+@SuppressWarnings("unused")
 public void testBug547051_modular3() throws Exception {
 	if(!isJRE9) {
 		return;

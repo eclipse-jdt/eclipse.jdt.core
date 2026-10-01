@@ -2442,6 +2442,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		project.open(null);
 	}
 
+	@SuppressWarnings("unused")
 	protected IProject createProject(String projectName) throws CoreException {
 		assertFalse(isWorkspaceRuleAlreadyInUse(getWorkspaceRoot()));
 		final IProject project = getProject(projectName);

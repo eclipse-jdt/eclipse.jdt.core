@@ -604,9 +604,14 @@ public class JavadocParser extends AbstractCommentParser {
 		int eofBkup = this.scanner.eofPosition;
 		this.scanner.resetTo(start, Math.max(this.javadocEnd, this.index));
 		this.tagValue = TAG_LINK_VALUE;
+		this.parsingMarkdownLink = true;
 		if (!valid)
 			valid = parseReference(true);
 		this.tagValue = NO_TAG_VALUE;
+
+		// Reset flag immediately after parsing is complete to prevent state leakage to the rest of the comment
+		this.parsingMarkdownLink = false;
+
 		this.scanner.eofPosition = eofBkup;
 		this.markdownHelper.resetLineStart();
 		return valid;

@@ -778,11 +778,15 @@ class DocCommentParser extends AbstractCommentParser {
 		this.inlineTagStarted = true;
 		this.inlineTagStart = previousPosition;
 		this.tagValue = TAG_LINK_VALUE;
+		this.parsingMarkdownLink = true;
 		int indexBkup = this.index;
 		if (refFlag)
 			valid = parseURLReference(this.scanner.startPosition - 1, false);
 		else
 			valid = parseReference(true);
+
+		// Reset flag immediately after parsing is complete to prevent state leakage to the rest of the comment
+		this.parsingMarkdownLink = false;
 		this.index = indexBkup;
 		// This creates a two level structure. The @link tag is added to
 		// another tag element, which gets added to the astStack

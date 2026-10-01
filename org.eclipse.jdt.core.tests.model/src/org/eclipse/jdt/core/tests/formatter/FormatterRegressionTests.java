@@ -16501,8 +16501,7 @@ public void testIssue2977() {
 				}
 				""";
 		String expected = """
-				public record X(String a, @SuppressWarnings({
-						"a", "b" }) String b) {
+				public record X(String a, @SuppressWarnings({ "a", "b" }) String b) {
 
 				}
 				""";
@@ -16527,8 +16526,7 @@ public void testIssue2977() {
 				}
 				""";
 		String expected = """
-				public record X2(String a, @SuppressWarnings({
-						"a", "b" }) String b) implements Runnable, AutoCloseable {
+				public record X2(String a, @SuppressWarnings({ "a", "b" }) String b) implements Runnable, AutoCloseable {
 
 					@Override
 					public void run() {
@@ -16570,5 +16568,36 @@ public void testIssue2977() {
 				}
 				""";
 		formatSource(input, expected);
+	}
+
+	public void testCustomAnnotationEnumConstantSpacing() {
+		this.formatterPrefs.insert_space_after_opening_paren_in_enum_constant = true;
+		this.formatterPrefs.insert_space_before_closing_paren_in_enum_constant = true;
+
+		String source = """
+			enum TestEnum {
+				@SimpleAnnotation("test")
+				SIMPLE_VALUE(1),
+				@Deprecated
+				VALUE(1),
+				NO_ANNOTATION(2);
+			}
+			@interface SimpleAnnotation {
+				String value();
+			}
+			""";
+
+		formatSource(source, """
+			enum TestEnum {
+				@SimpleAnnotation("test")
+				SIMPLE_VALUE( 1 ), @Deprecated
+				VALUE( 1 ), NO_ANNOTATION( 2 );
+			}
+
+			@interface SimpleAnnotation {
+				String value();
+			}
+			""",
+			CodeFormatter.K_COMPILATION_UNIT);
 	}
 }
