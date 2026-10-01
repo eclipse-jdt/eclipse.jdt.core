@@ -2427,14 +2427,14 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 	 * append a trailing space to the "{@code" line and/or the lone "}" line
 	 * respectively, to isolate which one (if either) triggers the corruption.
 	 */
-	private void verifyMultiLineCodeTagFragments(String codeTagTrailingSpace, String closeBraceTrailingSpace) throws JavaModelException {
+	private void verifyMultiLineCodeTagFragments(String clazName, String codeTagTrailingSpace, String closeBraceTrailingSpace) throws JavaModelException {
 		String source = "/// Here's some code {@code" + codeTagTrailingSpace + "\n"
 				+ "///     List<String> list = List.of(\"Hello World!\");\n"
 				+ "/// }" + closeBraceTrailingSpace + "\n"
 				+ "/// that does something.\n"
-				+ "public class Markdown{}\n";
+				+ "public class " + clazName + "{}\n";
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/" + clazName + ".java", source, null);
 		if (!this.docCommentSupport.equals(JavaCore.ENABLED)) {
 			return;
 		}
@@ -2460,22 +2460,22 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 
 	/** Control case: no trailing space on either line. Expected to pass. */
 	public void testGH3681_multiLineCodeTag_noTrailingSpace() throws JavaModelException {
-		verifyMultiLineCodeTagFragments("", "");
+		verifyMultiLineCodeTagFragments("Markdown1", "", "");
 	}
 
 	/** Trailing space after "{@code" only. */
 	public void testGH3681_multiLineCodeTag_trailingSpaceAfterOpenTag() throws JavaModelException {
-		verifyMultiLineCodeTagFragments(" ", "");
+		verifyMultiLineCodeTagFragments("Markdown2", " ", "");
 	}
 
 	/** Trailing space after the lone closing "}" only. */
 	public void testGH3681_multiLineCodeTag_trailingSpaceAfterCloseBrace() throws JavaModelException {
-		verifyMultiLineCodeTagFragments("", " ");
+		verifyMultiLineCodeTagFragments("Markdown3", "", " ");
 	}
 
 	/** Trailing space after both lines - matches the eclipse.jdt.ls hover bug report verbatim. */
 	public void testGH3681_multiLineCodeTag_trailingSpaceAfterBoth() throws JavaModelException {
-		verifyMultiLineCodeTagFragments(" ", " ");
+		verifyMultiLineCodeTagFragments("Markdown4", " ", " ");
 	}
 
 	public void testIncorrectTagWhenMarkdownEndsWithMarkdownTag4786() throws JavaModelException {

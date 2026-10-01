@@ -343,7 +343,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (isFormatterParser && !ScannerHelper.isWhitespace(previousChar)) {
 								textEndPosition = previousPosition;
 							}
-							if (this.textStart != -1 && this.textStart < textEndPosition) {
+							if (this.textStart != -1 && this.textStart < textEndPosition
+									&& !(this.markdown && isAllWhitespace(this.textStart, textEndPosition))) {
 								pushText(annotationAtSymbolHandling ? this.textStart - 1 : this.textStart, textEndPosition);
 							}
 						}
@@ -3358,6 +3359,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			typeRef = reference;
 		}
 		return typeRef;
+	}
+
+	private boolean isAllWhitespace(int start, int end) {
+		for (int i = start; i < end; i++) {
+			if (!ScannerHelper.isWhitespace(this.source[i])) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private boolean containsNewLine(String str) {
