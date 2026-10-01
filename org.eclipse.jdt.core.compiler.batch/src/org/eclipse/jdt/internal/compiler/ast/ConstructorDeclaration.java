@@ -84,6 +84,8 @@ public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
 }
 
+private int prologueLocalSlotSize; // extra slots to offset initializer scope by to prevent aliasing with constructor locals.
+
 FlowInfo getPrologueFlowInfo() {
 	if (this.prologueInfo == null) // may be null when `this.ignoreFurtherInvestigation` is true; epilogue analysis will be skipped too.
 		return null;
@@ -500,7 +502,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 
 		MethodScope initializerScope = declaringType.initializerScope;
-		initializerScope.computeLocalVariablePositions(argSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
+		initializerScope.computeLocalVariablePositions(argSlotSize + this.prologueLocalSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
 
 		codeStream.pushPatternAccessTrapScope(this.scope);
 		boolean needFieldInitializations = this.constructorCall == null || this.constructorCall.accessMode != ExplicitConstructorCall.This;
@@ -825,5 +827,23 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 @Override
 public TypeParameter[] typeParameters() {
     return this.typeParameters;
+}
+
+public void computePrologueLocalsSize() {
+   this.prologueLocalSlotSize = 0;
+   for (LocalVariableBinding local : this.scope.locals) {
+       if (local == null || local.isParameter()) // accounted for elsewhere in argSlotSize
+           continue;
+       switch(local.type.id) {
+           case TypeIds.T_long :
+           case TypeIds.T_double :
+               this.prologueLocalSlotSize += 2;
+               break;
+           default :
+               this.prologueLocalSlotSize++;
+               break;
+       }
+   }
+   // we can ignore subscopes because super()/this() has to be in constructor's main scope
 }
 }
