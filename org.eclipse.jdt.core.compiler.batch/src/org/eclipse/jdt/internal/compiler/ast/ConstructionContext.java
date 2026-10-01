@@ -23,8 +23,8 @@ import static org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration.
 import static org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding.UNUSED;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -112,7 +112,6 @@ public final class ConstructionContext {
 
     public void leaveFieldsResolution() {
     	this.constructionScope.leaveEarlyConstructionContext();
-    	uninstallProxies();
     }
 
     public void enterFieldAnalysis(FlowInfo flowInfo) {
@@ -149,9 +148,9 @@ public final class ConstructionContext {
     	 */
     	this.proxies = this.typeDeclaration.initializerScope.proxies;
     	if (this.proxies != null)
-    		this.proxies = new HashMap<>(this.proxies);
+    		this.proxies = new LinkedHashMap<>(this.proxies);
     	else
-    		this.proxies = new HashMap<>();
+    		this.proxies = new LinkedHashMap<>();
 
 		Set<FieldBinding> readFields = new PrologueFieldReadReferencesCollector().collect(this.constructorDeclaration);
 		if (readFields != null) {
@@ -224,7 +223,7 @@ public final class ConstructionContext {
 						*/
 						if (!initializer.fallsThrough)
 							currentFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
-						break;
+						continue;
 					}
 					initializer.bits |= ASTNode.HasBeenAnalysed;
 					this.typeDeclaration.initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
@@ -332,8 +331,8 @@ public final class ConstructionContext {
 
     private LocalVariableBinding synthesizeLarvalProxy(FieldBinding field) {
         if (this.proxies == null)
-            this.proxies = new HashMap<>();
-        LarvalProxyBinding proxy = new LarvalProxyBinding(field, this.constructionScope);
+            this.proxies = new LinkedHashMap<>();
+        LarvalProxyBinding proxy = new LarvalProxyBinding(field);
         this.constructionScope.addLocalVariable(proxy);
         this.proxies.put(field, proxy);
         return proxy;
@@ -341,8 +340,8 @@ public final class ConstructionContext {
 
     private final class PrologueFieldReadReferencesCollector extends ASTVisitor {
 
-    	private final Set<FieldBinding> readFields = new HashSet<>();
-    	private final Set<FieldBinding> thusFarDeclaredFields = new HashSet<>();
+    	private final Set<FieldBinding> readFields = new LinkedHashSet<>();
+    	private final Set<FieldBinding> thusFarDeclaredFields = new LinkedHashSet<>();
         private ReferenceContext referenceContext;
 
         Set<FieldBinding> collect(TypeDeclaration type) {

@@ -3755,4 +3755,136 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			false,
 			options);
 	}
+
+	public void _testAliasingWithInnerScopes() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+			    int a = 1;
+			    int b = a + 1;        // initializer reads a → proxy for a is created and imported
+
+			    X(int p) {
+			        if (p > 0) {
+			            int t = p + 40;   // nested-block local: may get a's proxy slot
+			            System.out.println(t);
+			        }
+			        super();              // flushProxies: putfield a ← slot (47?)
+			    }
+
+			    public static void main(String[] args) {
+			        X x = new X(7);
+			        System.out.println(x.a + " " + x.b);
+			    }
+			}
+			"""
+		}, "1");
+	}
+
+	public void testDeadCodeAfterSecondThrowingInitializerBlock_AllConstructors() {
+		Map<String, String> options = getCompilerOptions(true);
+		options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public value class X {
+					int f = 1;
+
+					{
+						System.out.println("first");
+					}
+
+					{
+						if (true)
+							throw new RuntimeException("boom");
+					}
+
+					X() {
+						super();
+						System.out.println("ctor0");
+					}
+
+					X(int i) {
+						super();
+						System.out.println("ctor1");
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public value class X {\n" +
+			"	       ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 15)\n" +
+			"	System.out.println(\"ctor0\");\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 20)\n" +
+			"	System.out.println(\"ctor1\");\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n",
+			null,
+			false,
+			options);
+	}
+
+	public void testValueClassECC_Negative_duplicateBlankFinalAssignment() {
+	    runNegativeTest(new String[] {
+	        "X.java",
+	        """
+	        public value class X {
+	            final int f;
+
+	            X() {
+	                f = 1;
+	                f = 2;
+	                System.out.println(f);
+	                super();
+	            }
+
+	            public static void main(String[] args) {
+	                new X();
+	            }
+	        }
+	        """
+	    },
+		"----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	public value class X {\n" +
+		"	       ^^^^^\n" +
+		"You are using a preview language feature that may or may not be supported in a future release\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	f = 2;\n" +
+		"	^\n" +
+		"The final field f may already have been assigned\n" +
+		"----------\n");
+	}
+
+	public void testValueClassECC_Conform_importedInitializerProxyRead() {
+	    runConformTest(new String[] {
+	        "X.java",
+	        """
+	        public value class X {
+	            int a = 1;
+	            int b = a + 1; // initializer reads a, so the constructor imports a proxy for a
+
+	            X() {
+	                System.out.println(this.a);
+	                super();
+	            }
+
+	            public static void main(String[] args) {
+	                new X();
+	            }
+	        }
+	        """
+	    }, "1");
+	}
  }

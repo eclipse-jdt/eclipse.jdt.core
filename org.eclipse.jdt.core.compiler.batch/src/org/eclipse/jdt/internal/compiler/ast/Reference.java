@@ -206,13 +206,10 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 				if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
 					boolean complain = true;
 					/* In general in the right context, we expect the field to have been swapped with the proxy local already
-					   Two exceptions are: When a wrapped ThisReference is resolved as a FieldReference: we want to tolerate these
-					   Secondly, when we have meandered into a lambda/local class from the prologue. FieldBinding will still say it is larval
-					   but it should not be swapped with proxy, we should report an error instead
+					   An exception is when a wrapped ThisReference is resolved as a FieldReference: we want to tolerate these
 				    */
 					if (fieldBinding.needsProxyLocal()) {
-						if (scope.getProxy(fieldBinding) instanceof LarvalProxyBinding proxy && proxy.declaringScope == scope.methodScope())
-							complain = false;
+						complain = false;
 					}
 					if (complain)
 						scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);

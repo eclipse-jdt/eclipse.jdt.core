@@ -33,12 +33,11 @@ public class LarvalProxyBinding extends LocalVariableBinding {
 
 	private FieldBinding larvalField;
 
-	public LarvalProxyBinding(FieldBinding field, BlockScope declaringScope) {
+	public LarvalProxyBinding(FieldBinding field) {
 		super(CharOperation.concat(field.name, "'".toCharArray()),  //$NON-NLS-1$
 				field.type,
 				field.modifiers & (ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal),
 				false);
-		this.declaringScope = declaringScope;
 		this.setConstant(Constant.NotAConstant);
         this.useFlag = LocalVariableBinding.UNUSED; // see VCAOT.testPrematureProxy
 		this.larvalField = field;

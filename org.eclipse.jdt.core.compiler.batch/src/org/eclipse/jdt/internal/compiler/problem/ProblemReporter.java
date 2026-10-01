@@ -2160,6 +2160,10 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, ASTNode
 		nodeSourceEnd(field, location));
 }
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
+	if (local instanceof LarvalProxyBinding proxy) {
+		duplicateInitializationOfBlankFinalField(proxy.getLarvalField(), location);
+		return;
+	}
 	int problemId = local.isPatternVariable() ? IProblem.PatternVariableRedefined : IProblem.DuplicateFinalLocalInitialization;
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
