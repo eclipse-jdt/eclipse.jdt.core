@@ -756,6 +756,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/*
 	 * This method caches a list of good and bad Javadoc locations in the current eclipse session.
 	 */
+	@SuppressWarnings("unused")
 	protected void validateAndCache(URL baseLoc, FileNotFoundException e) throws JavaModelException {
 		String url = baseLoc.toString();
 		if (validURLs != null && validURLs.contains(url)) return;

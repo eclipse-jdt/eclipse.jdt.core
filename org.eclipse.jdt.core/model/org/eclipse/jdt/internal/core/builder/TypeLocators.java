@@ -141,6 +141,7 @@ public class TypeLocators {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	void recordLocatorForType(String qualifiedTypeName, String typeLocator, int release) {
 		this.knownPackageNames = null;
 		int start = typeLocator.indexOf(qualifiedTypeName, 0);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -114,6 +114,7 @@ public class CompletionJavadocParser extends JavadocParser {
 		this.docComment = new CompletionJavadoc(this.javadocStart, this.javadocEnd);
 		this.docComment.isMarkdown = this.markdown;
 		this.firstTagPosition = 1; // bug 429340: completion parser needs to parse the whole comment
+		this.parsingSnippet = false;
 		return super.commentParse();
 	}
 
@@ -717,6 +718,12 @@ public class CompletionJavadocParser extends JavadocParser {
 	protected boolean parseSnippet() throws InvalidInputException {
 		this.parsingSnippet = true;
 		return super.parseSnippet();
+	}
+
+	@Override
+	protected boolean parseSnippetForMarkdown() throws InvalidInputException {
+		this.parsingSnippet = true;
+		return super.parseSnippetForMarkdown();
 	}
 
 	@Override

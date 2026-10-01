@@ -2609,6 +2609,7 @@ public void test012_compiler_problems_tuning() {
 			fail("could not access members");
 		}
 	}
+	@SuppressWarnings("unused")
 	public void testuniqueIDs() throws IllegalArgumentException, IllegalAccessException {
 		Field[] fields = IProblem.class.getFields();
 		Map<Integer,List<String>> id2names = new HashMap<>();

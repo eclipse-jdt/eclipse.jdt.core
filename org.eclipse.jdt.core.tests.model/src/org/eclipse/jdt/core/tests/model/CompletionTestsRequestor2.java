@@ -54,7 +54,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 
 	public boolean debug = false;
 
+	@SuppressWarnings("unused")
 	private Predicate<CompletionProposal> proposalFilter = x -> true;
+	@SuppressWarnings("unused")
 	private Predicate<String> typeProposalFilter = x -> false;
 
 	public CompletionTestsRequestor2() {

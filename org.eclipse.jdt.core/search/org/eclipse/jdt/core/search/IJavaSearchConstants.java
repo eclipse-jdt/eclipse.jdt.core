@@ -577,6 +577,6 @@ public interface IJavaSearchConstants {
 	 * in searches involving modules
 	 * @since 3.14
 	 */
-	char[] ALL_UNNAMED = "ALL-UNNAMED".toCharArray(); ////$NON-NLS-1$
+	char[] ALL_UNNAMED = "ALL-UNNAMED".toCharArray(); //$NON-NLS-1$
 
 }

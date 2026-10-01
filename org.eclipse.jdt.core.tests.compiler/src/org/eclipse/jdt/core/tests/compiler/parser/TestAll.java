@@ -132,6 +132,11 @@ private static void resetForgottenFilters() {
 	TestCase.RUN_ONLY_ID = null;
 }
 
+private static void addJava23Tests(ArrayList tests_23) {
+	addJava16Tests(tests_23);
+	tests_23.add(MarkdownCompletionParserTest.class);
+	tests_23.add(SelectionMarkdownTest.class);
+}
 private static void addJava16Tests(ArrayList tests_16) {
 	addJava1_8Tests(tests_16);
 	tests_16.add(PatternMatchingSelectionTest.class);

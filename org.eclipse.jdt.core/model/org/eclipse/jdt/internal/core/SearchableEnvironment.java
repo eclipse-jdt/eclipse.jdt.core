@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -303,12 +303,23 @@ public class SearchableEnvironment
 	/**
 	 * Find the modules that start with the given prefix.
 	 * A valid prefix is a qualified name separated by periods
-	 * (ex. java.util).
-	 * The packages found are passed to:
+	 * (ex. java.xml).
+	 * The modules found are passed to:
 	 *    ISearchRequestor.acceptModule(char[][] moduleName)
 	 */
 	public void findModules(char[] prefix, ISearchRequestor requestor, IJavaProject javaProject) {
 		this.nameLookup.seekModule(prefix, true, new SearchableEnvironmentRequestor(requestor), this.release);
+	}
+
+	/**
+	 * Find the module with the given name.
+	 * A valid qualified name separated by periods
+	 * (ex. java.base).
+	 * The module found is passed to:
+	 *    ISearchRequestor.acceptModule(char[][] moduleName)
+	 */
+	public void findModule(char[] name, ISearchRequestor requestor, IJavaProject javaProject) {
+		this.nameLookup.seekModule(name, false, new SearchableEnvironmentRequestor(requestor), this.release);
 	}
 
 	@Override

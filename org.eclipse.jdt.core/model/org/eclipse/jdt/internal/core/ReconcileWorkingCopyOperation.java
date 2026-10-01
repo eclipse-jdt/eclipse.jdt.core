@@ -174,6 +174,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	 * Makes the given working copy consistent, computes the delta and computes an AST if needed.
 	 * Returns the AST.
 	 */
+	@SuppressWarnings("unused")
 	public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(CompilationUnit workingCopy) throws JavaModelException {
 		if (!workingCopy.isConsistent()) {
 			// make working copy consistent

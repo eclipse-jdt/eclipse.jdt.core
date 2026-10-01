@@ -4449,5 +4449,31 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"----------\n";
         runner.runNegativeTest();
     }
+
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5454
+    // [Flexible constructors] Initializer block local aliases prologue local leading to incorrect output
+    public void testIssue5454() {
+       runConformTest(new String[] {
+           "X.java",
+           """
+           public class X {
+               {
+                   int x = 99;
+                   System.out.println(x);
+               }
+               X() {
+                   int x = 42;
+                   System.out.println(x);
+                   super();
+                   System.out.println(x);
+               }
+
+               public static void main(String[] args) {
+                   new X();
+               }
+           }
+           """
+       }, "42\n99\n42");
+   }
 }
 

@@ -1143,8 +1143,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 			int length	= entries.length;
 			if (length > 0) {
-				String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
-				String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 				for (int i = 0; i < length; i++) {
 					IClasspathEntry entry = entries[i];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
@@ -1176,8 +1174,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							if (allPkgFragmentsCache != null && allPkgFragmentsCache.containsKey(pkgName))
 								return root.getPackageFragment(pkgName);
 
-							if (pkgName.length != 0 && JavaConventions.validatePackageName(Util.packageName(pkgPath, sourceLevel, complianceLevel), sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR) {
-								return null;
+							if (pkgName.length != 0) {
+								String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+								String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+								if (JavaConventions.validatePackageName(Util.packageName(pkgPath, sourceLevel, complianceLevel), sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR) {
+									return null;
+								}
 							}
 							return root.getPackageFragment(pkgName);
 						}
@@ -2966,6 +2968,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/** for tracing only **/
 	private final ThreadLocal<Instant> lastWarning = new ThreadLocal<>();
 
+	@SuppressWarnings("unused")
 	private void traceZipAccessWarning(IPath path) {
 		Instant now = Instant.now();
 		Deque<Instant> lastAcesses = this.lastAccessByPath.get().compute(path,
@@ -4859,6 +4862,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// Also use a custom ForkJoinWorkerThreadFactory, to prevent issues with a
 		// potential SecurityManager, since the threads created by it get no permissions.
 		// See related problem in eclipse-platform https://github.com/eclipse-platform/eclipse.platform/issues/294
+		@SuppressWarnings("resource")
 		ForkJoinPool forkJoinPool = new ForkJoinPool(parallelism, //
 				pool -> new ForkJoinWorkerThread(pool) {
 					// anonymous subclass to access protected constructor

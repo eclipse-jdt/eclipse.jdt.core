@@ -31,7 +31,7 @@ public interface IIndexConstants {
 	char[] MODULE_DECL= "moduleDecl".toCharArray(); //$NON-NLS-1$
 	char[] MODULE_REF= "moduleRef".toCharArray(); //$NON-NLS-1$
 	char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
-	char[] MODULE_INFO = "module-info".toCharArray(); ////$NON-NLS-1$
+	char[] MODULE_INFO = "module-info".toCharArray(); //$NON-NLS-1$
 	char[][] COUNTS=
 		new char[][] { new char[] {'/', '0'}, new char[] {'/', '1'}, new char[] {'/', '2'}, new char[] {'/', '3'}, new char[] {'/', '4'},
 			new char[] {'/', '5'}, new char[] {'/', '6'}, new char[] {'/', '7'}, new char[] {'/', '8'}, new char[] {'/', '9'}

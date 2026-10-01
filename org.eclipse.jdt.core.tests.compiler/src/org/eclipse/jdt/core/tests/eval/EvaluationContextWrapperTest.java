@@ -297,6 +297,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		prj.setRawClasspath(addToClasspath(prj.getRawClasspath(), entry), null);
 	}
 
+	@SuppressWarnings("unused")
 	private void addLibrary(IJavaProject prj, String path, String sourcePath) throws Exception {
 		IClasspathEntry entry = JavaCore.newLibraryEntry(new Path(path), Optional.ofNullable(sourcePath).map(Path::new).orElse(null),
 				Optional.ofNullable(sourcePath).map(p -> new Path(path)).orElse(null));
