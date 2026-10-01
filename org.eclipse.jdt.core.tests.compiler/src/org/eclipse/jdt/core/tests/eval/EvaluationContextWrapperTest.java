@@ -45,7 +45,6 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.eval.InstallException;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -68,7 +67,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 	}
 	@Override
 	protected DebugEvaluationSetup getOrCreateTestSetup(Compliance compliance) {
-		return debugEvaluationTestSetups.computeIfAbsent(compliance.displayName(), name -> new DebugEvaluationSetup(compliance.complianceLevel()));
+		return debugEvaluationTestSetups.computeIfAbsent(compliance.displayName(), _ -> new DebugEvaluationSetup(compliance.complianceLevel()));
 	}
 
 	@Override
@@ -85,7 +84,6 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		super.tearDown();
 	}
 
-	@AfterAll
 	public static void tearDownTestSetups() {
 		for (EvaluationSetup evaluationSetup : debugEvaluationTestSetups.values()) {
 			evaluationSetup.tearDown();

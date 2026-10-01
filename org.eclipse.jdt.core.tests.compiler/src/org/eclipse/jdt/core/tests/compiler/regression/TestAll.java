@@ -227,5 +227,6 @@ public class TestAll {
 	@AfterSuite
 	public static void tearDownTestSetups() {
 		AbstractCompilerTest.tearDownTestSetups();
+		AbstractRegressionTest.tearDownTestSetups();
 	}
 }

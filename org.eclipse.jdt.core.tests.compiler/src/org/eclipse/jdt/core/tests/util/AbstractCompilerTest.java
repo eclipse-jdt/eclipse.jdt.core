@@ -26,6 +26,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
+import org.eclipse.jdt.core.tests.compiler.regression.TestAll;
 import org.eclipse.jdt.core.tests.junit5.extension.TestCase;
 import org.eclipse.jdt.core.tests.junit5.extension.TestClassFilter;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -82,8 +83,7 @@ public class AbstractCompilerTest extends TestCase {
 	/**
 	 * Setups shared by all tests of the same compliance level across all subclasses.
 	 * Instantiated on demand in the constructor.
-	 * Taken down either in the first constructor for a new compliance level or in
-	 * {@link #tearDownClass()}.
+	 * Taken down from {@link TestAll#tearDownTestSetups()}
 	 */
 	protected static Map<String,CompilerTestSetup> testSetups = new HashMap<>();
 
@@ -512,7 +512,7 @@ public class AbstractCompilerTest extends TestCase {
 		this.testSetup.setUp();
 	}
 	protected CompilerTestSetup getOrCreateTestSetup(Compliance compliance) {
-		return testSetups.computeIfAbsent(compliance.displayName, name -> newTestSetup(this.complianceLevel));
+		return testSetups.computeIfAbsent(compliance.displayName, _ -> newTestSetup(this.complianceLevel));
 	}
 	static String stripDisplayName(String name) {
 		int open = name.indexOf("()");

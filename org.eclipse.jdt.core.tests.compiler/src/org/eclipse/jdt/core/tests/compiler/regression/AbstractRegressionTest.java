@@ -1413,6 +1413,8 @@ protected static class JavacTestOptions {
 	protected TestVerifier verifier;
 	protected boolean createdVerifier;
 	protected boolean shouldSwallowCaptureId;
+	protected static Map<String,CompilerTestSetup> regressionTestSetups = new HashMap<>();
+
 	@Deprecated
 	public AbstractRegressionTest(String name) {
 		super(name);
@@ -1422,7 +1424,7 @@ protected static class JavacTestOptions {
 	}
 	@Override
 	protected CompilerTestSetup getOrCreateTestSetup(Compliance compliance) {
-		return testSetups.computeIfAbsent(compliance.displayName(), name -> new RegressionTestSetup(compliance.complianceLevel()));
+		return regressionTestSetups.computeIfAbsent(compliance.displayName(), name -> new RegressionTestSetup(compliance.complianceLevel()));
 	}
 
 	protected boolean checkPreviewAllowed() {
@@ -4268,6 +4270,13 @@ protected void runNegativeTest(
 		}
 		this.runJavacOptIn = false;
 	}
+
+	public static void tearDownTestSetups() {
+		for (CompilerTestSetup compilerTestSetup : regressionTestSetups.values()) {
+			compilerTestSetup.tearDown();
+		}
+	}
+
 	/**
 	 * Returns the OS path to the directory that contains this plugin.
 	 */

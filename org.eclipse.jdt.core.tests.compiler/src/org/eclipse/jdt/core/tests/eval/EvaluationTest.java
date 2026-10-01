@@ -51,7 +51,6 @@ import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInfo;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -129,10 +128,9 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	}
 	@Override
 	protected EvaluationSetup getOrCreateTestSetup(Compliance compliance) {
-		return evaluationTestSetups.computeIfAbsent(compliance.displayName(), name -> new EvaluationSetup(compliance.complianceLevel()));
+		return evaluationTestSetups.computeIfAbsent(compliance.displayName(), _ -> new EvaluationSetup(compliance.complianceLevel()));
 	}
 
-	@AfterAll
 	public static void tearDownTestSetups() {
 		for (EvaluationSetup evaluationSetup : evaluationTestSetups.values()) {
 			evaluationSetup.tearDown();

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
+import org.junit.platform.suite.api.AfterSuite;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 /**
@@ -29,4 +30,11 @@ import org.junit.platform.suite.api.Suite;
 	DebugEvaluationTest.class,
 	EvaluationContextWrapperTest.class
 })
-public class TestAll  { }
+public class TestAll  {
+	@AfterSuite
+	static void tearDownTestSetups() {
+		EvaluationTest.tearDownTestSetups();
+		EvaluationContextWrapperTest.tearDownTestSetups();
+		DebugEvaluationTest.tearDownTestSetups();
+	}
+}
