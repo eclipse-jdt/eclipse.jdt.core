@@ -206,9 +206,8 @@ public final class ConstructionContext {
                 continue;
             if (field.isRecordComponent() && this.constructorDeclaration.isCompactConstructor())
                 continue;
-            if (field.isBlankFinal()) {
+            if (field.isBlankFinal())
             	this.constructionScope.problemReporter().uninitializedStrictInitField(field, this.constructorCall);
-            }
         }
 
         FlowInfo currentFlowInfo = flowInfo;

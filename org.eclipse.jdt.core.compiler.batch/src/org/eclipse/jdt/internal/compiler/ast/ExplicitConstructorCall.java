@@ -119,8 +119,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
-			if (this.constructor != null)
-				flowInfo = this.constructor.constructionContext.leavePrologueAnalysis(flowInfo, flowContext);
+			flowInfo = this.constructor.constructionContext.leavePrologueAnalysis(flowInfo, flowContext);
 		}
 		return flowInfo;
 	}
@@ -136,7 +135,6 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		if ((this.bits & ASTNode.IsReachable) == 0) {
 			return;
 		}
-		this.constructor = (ConstructorDeclaration) currentScope.referenceContext();
 		try {
 			((MethodScope) currentScope).isConstructorCall = true;
 
@@ -170,6 +168,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					targetType,
 					this);
 			}
+			MethodBinding callee = codegenBinding;
 			if (this.syntheticAccessor != null) {
 				// synthetic accessor got some extra arguments appended to its signature, which need values
 				for (int i = 0,
@@ -178,10 +177,9 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					i++) {
 					codeStream.aconst_null();
 				}
-				this.constructor.constructionContext.leavePrologueGeneration(codeStream, this.syntheticAccessor, this.typeArguments);
-			} else {
-				this.constructor.constructionContext.leavePrologueGeneration(codeStream, codegenBinding, this.typeArguments);
+				callee = this.syntheticAccessor;
 			}
+			this.constructor.constructionContext.leavePrologueGeneration(codeStream, callee, this.typeArguments);
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
