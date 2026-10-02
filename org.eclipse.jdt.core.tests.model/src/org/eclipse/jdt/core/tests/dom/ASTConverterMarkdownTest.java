@@ -2417,15 +2417,16 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * Verifies that a multi-line {@code {@code ...} } tag inside a "///" markdown
-	 * comment is parsed into exactly 3 fragments of the comment's main description
-	 * tag - leading text, the {@code @code} tag itself, and trailing text - and that
-	 * the {@code @code} tag's own span ends with its closing '}', which must not
-	 * also appear as part of the trailing text.
+	 * Verifies that a multi-line inline code tag inside a "///" markdown comment
+	 * is parsed into exactly 3 fragments of the comment's main description tag -
+	 * leading text, the inline code tag itself, and trailing text - and that the
+	 * inline code tag's own span ends with its closing brace, which must not also
+	 * appear as part of the trailing text.
 	 * <p>
-	 * {@code codeTagTrailingSpace} and {@code closeBraceTrailingSpace} let callers
-	 * append a trailing space to the "{@code" line and/or the lone "}" line
-	 * respectively, to isolate which one (if either) triggers the corruption.
+	 * codeTagTrailingSpace and closeBraceTrailingSpace let callers append a
+	 * trailing space to the line that opens the inline code tag and/or the line
+	 * with the lone closing brace, respectively, to isolate which one (if either)
+	 * triggers the corruption.
 	 */
 	private void verifyMultiLineCodeTagFragments(String clazName, String codeTagTrailingSpace, String closeBraceTrailingSpace) throws JavaModelException {
 		String source = "/// Here's some code {@code" + codeTagTrailingSpace + "\n"
@@ -2463,7 +2464,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		verifyMultiLineCodeTagFragments("Markdown1", "", "");
 	}
 
-	/** Trailing space after "{@code" only. */
+	/** Trailing space right after the tag name, before the closing brace. */
 	public void testGH3681_multiLineCodeTag_trailingSpaceAfterOpenTag() throws JavaModelException {
 		verifyMultiLineCodeTagFragments("Markdown2", " ", "");
 	}
