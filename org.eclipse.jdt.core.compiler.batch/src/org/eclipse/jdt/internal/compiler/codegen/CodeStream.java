@@ -284,30 +284,28 @@ public void addVariable(LocalVariableBinding localBinding) {
 }
 
 public void addProxy(LarvalProxyBinding proxy) {
-	if (!proxy.getLarvalField().declaringClass.isValueClass() || proxy.isBlankFinal()) { // skip wasteful VM defaults for initialized value fields.
-		switch (proxy.type.id) {
-			case TypeIds.T_boolean:
-			case TypeIds.T_char:
-			case TypeIds.T_byte:
-			case TypeIds.T_short:
-			case TypeIds.T_int:
-				iconst_0();
-				break;
-			case TypeIds.T_long:
-				lconst_0();
-				break;
-			case TypeIds.T_float:
-				fconst_0();
-				break;
-			case TypeIds.T_double:
-				dconst_0();
-				break;
-			default:
-				aconst_null();
-				break;
-		}
-		store(proxy, false);
+	switch (proxy.type.id) {
+		case TypeIds.T_boolean:
+		case TypeIds.T_char:
+		case TypeIds.T_byte:
+		case TypeIds.T_short:
+		case TypeIds.T_int:
+			iconst_0();
+			break;
+		case TypeIds.T_long:
+			lconst_0();
+			break;
+		case TypeIds.T_float:
+			fconst_0();
+			break;
+		case TypeIds.T_double:
+			dconst_0();
+			break;
+		default:
+			aconst_null();
+			break;
 	}
+	store(proxy, false);
 	addVariable(proxy);
 }
 
