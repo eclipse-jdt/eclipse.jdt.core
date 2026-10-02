@@ -475,7 +475,7 @@ public LocalVariableBinding findVariable(char[] variableName) {
  */
 public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite, boolean needResolve, boolean needProxyLocal) {
 	Binding binding = getBinding(compoundName, mask, invocationSite, needResolve);
-	if (!needProxyLocal || !binding.needsProxyLocal())
+	if (!needProxyLocal || !binding.hasProxyLocal())
 		return binding;
 	return getProxy((FieldBinding) binding);
 }

@@ -334,6 +334,15 @@ public ReferenceBinding getDeclaringClass() {
 	return this.declaringClass;
 }
 
+public Binding getProxy() {
+	if (this.declaringClass instanceof SourceTypeBinding sourceType) {
+		MethodScope proxyScope;
+		if (sourceType.scope != null && (proxyScope = sourceType.scope.referenceContext.initializerScope) != null)
+			return proxyScope.getProxy(this);
+	}
+	return null; // binary type ?
+}
+
 /* Answer true if the receiver has default visibility
 */
 public final boolean isDefault() {

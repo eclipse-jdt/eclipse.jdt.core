@@ -34,6 +34,7 @@ import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LarvalProxyBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -1458,14 +1459,23 @@ protected void markAsDefinitelyAssigned(int position) {
 
 @Override
 public void markAsDefinitelyAssigned(FieldBinding field) {
-	if (this != DEAD_END)
+	if (this != DEAD_END) {
 		markAsDefinitelyAssigned(field.id);
+		if (field.hasProxyLocal()) {
+			LocalVariableBinding local = (LocalVariableBinding) field.getProxy();
+			if (local != null)
+				markAsDefinitelyAssigned(local.id + this.maxFieldCount);
+		}
+	}
 }
 
 @Override
 public void markAsDefinitelyAssigned(LocalVariableBinding local) {
-	if (this != DEAD_END)
+	if (this != DEAD_END) {
 		markAsDefinitelyAssigned(local.id + this.maxFieldCount);
+		if (local instanceof LarvalProxyBinding proxy)
+			markAsDefinitelyAssigned(proxy.getLarvalField().id);
+	}
 }
 
 @Override

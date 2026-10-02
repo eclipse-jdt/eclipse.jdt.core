@@ -2039,7 +2039,7 @@ public abstract class Scope {
 	 */
 	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve, boolean needProxyLocal) {
 		Binding binding = getBinding(name, mask, invocationSite, needResolve);
-		if (!needProxyLocal || !binding.needsProxyLocal())
+		if (!needProxyLocal || !binding.hasProxyLocal())
 			return binding;
 		return getProxy((FieldBinding) binding); // only one that answers true to isLarval()
 	}

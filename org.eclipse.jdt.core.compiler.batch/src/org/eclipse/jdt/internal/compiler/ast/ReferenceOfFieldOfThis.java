@@ -75,7 +75,7 @@ public class ReferenceOfFieldOfThis extends SingleNameReference {
     	TypeBinding type = this.fieldReference.resolveType(scope);
     	this.bits &= ~ASTNode.RestrictiveFlagMASK;
     	this.binding = this.fieldReference.binding;
-    	if (this.binding != null && this.binding.needsProxyLocal())
+    	if (this.binding != null && this.binding.hasProxyLocal())
     		this.binding = scope.getProxy((FieldBinding) this.binding);
     	if (this.binding instanceof LocalVariableBinding) // don't assume a swap; scope changes would inhibit substitution.
     		this.bits |= Binding.LOCAL;

@@ -232,7 +232,7 @@ public abstract class Binding {
 	 *  of which the receiver field is a member is still under early construction.
 	 *  Such fields may not be read using getfield and will have to managed via proxy locals.
 	 */
-	public boolean needsProxyLocal() {
+	public boolean hasProxyLocal() {
 		return (this.tagBits & TagBits.NeedsProxyLocal) != 0;
 	}
 }

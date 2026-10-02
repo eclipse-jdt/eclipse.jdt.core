@@ -256,7 +256,7 @@ public final class ConstructionContext {
 			for (FieldDeclaration field : fields) {
 				if (field.isStatic() || field instanceof Initializer)
 					continue;
-				if (field.initialization == null || !field.binding.needsProxyLocal()) {
+				if (field.initialization == null || !field.binding.hasProxyLocal()) {
 					field.generateCode(this.typeDeclaration.initializerScope, codeStream);
 				} else {
 					field.initialization.generateCode(this.typeDeclaration.initializerScope, codeStream, true);

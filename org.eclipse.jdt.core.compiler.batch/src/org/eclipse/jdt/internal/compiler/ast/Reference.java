@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Reference extends Expression  {
@@ -196,9 +197,16 @@ private boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBind
 		return false;
 	if (field.isStatic())
 		return false;
-	ConstructorDeclaration constructor = scope.methodScope().referenceContext instanceof ConstructorDeclaration c ? c : null;
-	if (constructor == null || !constructor.invokesSuper())
+	ReferenceContext referenceContext = scope.methodScope().referenceContext;
+	if (referenceContext instanceof ConstructorDeclaration constructor) {
+		if (!constructor.invokesSuper())
+			return false;
+	} else if (referenceContext instanceof TypeDeclaration type) {
+		if (!type.isValueClass() || TypeBinding.notEquals(field.declaringClass, type.binding))
+			return false;
+	} else {
 		return false;
+	}
 	if (TypeBinding.notEquals(field.declaringClass, scope.enclosingReceiverType()))
 		return false;
 	if (!field.declaringClass.isValueClass() && field.sourceField() != null /* !records */ && field.sourceField().initialization != null)
