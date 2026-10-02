@@ -317,6 +317,7 @@ protected void consumeConstructorDeclaration() {
 		return;
 	}
 	ConstructorDeclaration cd = (ConstructorDeclaration) this.astStack[this.astPtr];
+	cd.bits |= ASTNode.CodeGenerationSkipped;
 	this.requestor.exitConstructor(this.endStatementPosition, cd.declarationSourceEnd);
 }
 /*
@@ -1588,6 +1589,12 @@ protected int resumeOnSyntaxError() {
 @Override
 public boolean requireReferenceOfFieldOfThis(Expression tos) {
 	return false; // no code generation path
+}
+
+@Override
+public void consumeTypeDeclaration(TypeDeclaration typeDecl) {
+	super.consumeTypeDeclaration(typeDecl);
+	typeDecl.bits |= ASTNode.CodeGenerationSkipped;
 }
 
 /*
