@@ -389,6 +389,28 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 			}
 		}
 	}
+	if (this.referenceContext instanceof ConstructorDeclaration) {
+		/* Field proxy locals are synthesized and injected into the constructor scope such that
+		   they immediately abut and are sandwiched between arguments and locals. We lay them
+		   out (only) here on behalf of (only) the constructor, having imported any from initialization
+		   scope into constructor's main scope and collated them with constructor's own proxies.
+	    */
+		while (ilocal < maxLocals) {
+			LocalVariableBinding local = this.locals[ilocal];
+			if (local == null || !local.isFieldProxy())
+				break; // done with proxies
+
+			local.resolvedPosition = this.offset;
+
+			this.offset++;
+			if (local.type.id == TypeBinding.LONG.id || local.type.id == TypeBinding.DOUBLE.id)
+				this.offset++;
+
+			if (this.offset > 0xFF) // no more than 255 words of arguments
+				problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
+			ilocal++;
+		}
+	}
 	this.computeLocalVariablePositions(ilocal, this.offset, codeStream);
 }
 
@@ -777,6 +799,7 @@ public Binding getProxy(FieldBinding field) {
 	LarvalProxyBinding proxy = this.proxies != null ? this.proxies.get(field) : null;
 	if (proxy != null) {
 		proxy.useFlag = LocalVariableBinding.USED;
+		proxy.constant = field.constant; // at proxy creation time, field's constness was not known
 		return proxy;
 	}
 	return field;

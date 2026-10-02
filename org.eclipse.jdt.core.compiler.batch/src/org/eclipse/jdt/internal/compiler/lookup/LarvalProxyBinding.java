@@ -38,7 +38,7 @@ public class LarvalProxyBinding extends LocalVariableBinding {
 				field.type,
 				field.modifiers & (ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal),
 				false);
-		this.setConstant(Constant.NotAConstant);
+		this.setConstant(Constant.NotAConstant);    // for now, field is not resolved yet, we will update status upon look up.
         this.useFlag = LocalVariableBinding.UNUSED; // see VCAOT.testPrematureProxy
 		this.larvalField = field;
 	}

@@ -4007,7 +4007,7 @@ protected void consumeExpressionStatement() {
 	pushOnAstStack(expression);
 }
 
-private boolean isReferenceOfFieldOfThis(Expression tos) {
+private boolean isReferenceOfFieldOfThis(Expression tos) { // intentionally excludes Qualified this references happening outside of a constructor.
 	if (!tos.isThis())
 		return false;
 	if (tos instanceof QualifiedThisReference qtr) {
@@ -4019,10 +4019,8 @@ private boolean isReferenceOfFieldOfThis(Expression tos) {
 				className = declaringClass.name;
 				break;
 			}
-			if (this.astStack[i] instanceof AbstractMethodDeclaration method) {
-				className = method.selector;
-				break;
-			}
+			if (this.astStack[i] instanceof MethodDeclaration)
+				return false;
 		}
 		if (className == null && this.referenceContext instanceof ConstructorDeclaration constructor) // came in to build body after diet parse
 			className = constructor.selector;

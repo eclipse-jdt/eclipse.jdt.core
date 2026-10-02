@@ -3254,35 +3254,55 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			"X.java",
 			"""
 			class ProblemReporter {
-			    public void record() {
-			    }
+				public void record() {
+				}
 			}
 
 			interface ISourceElementRequestor {
-			    void acceptProblem(String problem);
+				void acceptProblem(String problem);
 			}
 
 			public class X {
-			    ISourceElementRequestor requestor;
-			    ProblemReporter problemReporter;
+				ISourceElementRequestor requestor;
+				ProblemReporter problemReporter;
 
-			    public X() {
-			        this.requestor = p -> System.out.println(p);
-			        this.problemReporter = new ProblemReporter() {
-			            @Override
-			            public void record() {
-			                X.this.requestor.acceptProblem("No Problem");
-			            }
-			        };
-			    }
+				public X() {
+					this.requestor = p -> System.out.println(p);
+					this.problemReporter = new ProblemReporter() {
+						@Override
+						public void record() {
+							X.this.requestor.acceptProblem("No Problem : 1");
+						}
+					};
+					X.this.requestor.acceptProblem("ReferenceOfFieldOfThis"); // only for this we should build a ReferenceOfFieldOfThis
+				}
 
-			    public static void main(String[] args) {
-			       new X().problemReporter.record();
-			    }
+				public String toString() {
+					return "Some X";
+				}
+
+				void foo() {
+					X.this.requestor.acceptProblem("No Problem : 3");
+				}
+
+				void X() {
+					X.this.requestor.acceptProblem("No Problem : 2");
+				}
+
+				public static void main(String[] args) {
+					new X().problemReporter.record();
+					new X().X();
+					new X().foo();
+				}
 			}
 			"""
 		},
-		"No Problem");
+		"ReferenceOfFieldOfThis\n" +
+		"No Problem : 1\n" +
+		"ReferenceOfFieldOfThis\n" +
+		"No Problem : 2\n" +
+		"ReferenceOfFieldOfThis\n" +
+		"No Problem : 3");
 	}
 
 	public void testThrowInValueInitBlock() {

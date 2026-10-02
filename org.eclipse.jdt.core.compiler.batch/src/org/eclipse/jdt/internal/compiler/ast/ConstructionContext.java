@@ -96,7 +96,6 @@ public final class ConstructionContext {
     }
 
     private boolean isNop() {
-    	this.constructionScope.enterEarlyConstructionContext();
     	return (this.constructorDeclaration != null && !this.constructorDeclaration.invokesSuper())
     			    || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.constructionScope.compilerOptions());
     }
@@ -125,10 +124,11 @@ public final class ConstructionContext {
     }
 
     public void enterPrologueResolution() {
+    	this.constructionScope.enterEarlyConstructionContext();
     	if (isNop())
     		return;
 
-    	/* ****************  This is tricky! Let me say that again!! This is tricky!!! Pay careful attention!!!! ****************
+    	/* ****************  This is tricky!  ****************
 
     	   A proxy that was written to in field initialization must carry over its value into constructor prologue. A Constructor
     	   cannot start minting fresh proxies for those very same fields for which a proxy was created in fields resolution, but
@@ -136,21 +136,21 @@ public final class ConstructionContext {
     	   other scope. The two scopes have no nesting relationship, in fact they are disjoint but proxies added to the initializer
     	   scope need to be live in constructor prologue.
 
-    	   What we do is to "import" the proxies from the initializer scope - these are not added to the constructor scope but can
-    	   serve as proxies for field references inside the constructor because the proxy substitution is orthogonal to the core
-    	   lookups inside scopes.
+    	   What we do is to replicate the proxies from the initializer scope and add them to the constructor scope, so they
+    	   live in two methods scopes at the same time. A first.
 
-    	   A final piece of the puzzle is to ensure that the way the initializer locals (including proxies) are laid out, they don't
-    	   overlap with any constructor locals (including arguments, synthetics, proxies, and locals) that may be live inside the
-    	   prologue.
+    	   A final piece of the puzzle is to ensure that when the initializer and constructor locals are laid out, proxies get laid out
+    	   once only - on behalf of the constructor since that is a strict superset.
 
-    	   See uses of ConstructorDeclaration.prologueLocalSlotSize
-    	 */
-    	this.proxies = this.typeDeclaration.initializerScope.proxies;
-    	if (this.proxies != null)
-    		this.proxies = new LinkedHashMap<>(this.proxies);
-    	else
-    		this.proxies = new LinkedHashMap<>();
+    	   See ConstructorDeclaration.internalGenerateCode(ClassScope, ClassFile). See also uses of ConstructorDeclaration.prologueLocalSlotSize
+    	*/
+    	this.proxies = new LinkedHashMap<>();
+    	if (this.typeDeclaration.initializerScope.proxies != null) {
+    	    this.typeDeclaration.initializerScope.proxies.forEach((field, proxy) -> {
+    	    	this.constructionScope.addLocalVariable(proxy);
+    	        this.proxies.put(field, proxy);
+    	    });
+    	}
 
 		Set<FieldBinding> readFields = new PrologueFieldReadReferencesCollector().collect(this.constructorDeclaration);
 		if (readFields != null) {
@@ -169,6 +169,7 @@ public final class ConstructionContext {
     }
 
     public void enterPrologueAnalysis(FlowInfo flowInfo) {
+    	this.constructionScope.enterEarlyConstructionContext();
     	if (isNop())
     		return;
     	/* For identity classes, a proxy never represents a field with initialization. Consequently a blank final should not be marked DA
@@ -243,6 +244,7 @@ public final class ConstructionContext {
     }
 
     public void enterPrologueGeneration(CodeStream codeStream) {
+    	this.constructionScope.enterEarlyConstructionContext();
     	if (isNop())
     		return;
 
