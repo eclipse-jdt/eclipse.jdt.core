@@ -8,11 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -187,12 +182,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 				int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
 				for (int i = 0; i < otherMax; i++)
 					reportDeclaration(qNameRef.otherBindings[i], locator, declPattern.knownFields);
-			} else if (reference instanceof SingleNameReference singleNameReference) {
-				Binding binding = singleNameReference.binding;
-				if (binding instanceof LarvalProxyBinding proxy)
-					binding = proxy.getLarvalField();
-				if (binding instanceof FieldBinding field)
-					reportDeclaration(field, locator, declPattern.knownFields);
+			} else if (reference instanceof SingleNameReference ) {
+				if(((SingleNameReference) reference).binding instanceof FieldBinding) {
+					reportDeclaration((FieldBinding)((SingleNameReference) reference).binding, locator, declPattern.knownFields);
+				}
 			}
 		}
 	} else if (reference instanceof ImportReference) {
@@ -364,8 +357,6 @@ public int resolveLevel(ASTNode possiblelMatchingNode) {
 }
 @Override
 public int resolveLevel(Binding binding) {
-	if (binding instanceof LarvalProxyBinding proxy)
-		binding = proxy.getLarvalField();
 	if (binding == null) return INACCURATE_MATCH;
 	if( binding instanceof LocalVariableBinding) {
 		// for matching the component in constructor of a record

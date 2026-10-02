@@ -10341,6 +10341,9 @@ public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Compila
 	}
 	return parsedUnit;
 }
+public void consumeTypeDeclaration(TypeDeclaration typeDecl) {
+	// for listeners.
+}
 protected void dispatchDeclarationInto(int length) {
 	/* they are length on this.astStack that should go into
 	   methods fields constructors lists of the typeDecl
@@ -10376,6 +10379,7 @@ protected void dispatchDeclarationInto(int length) {
 
 	//arrays creation
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	consumeTypeDeclaration(typeDecl);
 	if (size1 != 0) {
 		typeDecl.fields = new FieldDeclaration[size1];
 	}
@@ -10442,6 +10446,7 @@ protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 	int[] flag = new int[length + 1]; //plus one -- see <HERE>
 	int size1 = 0, size2 = 0, size3 = 0;
 	TypeDeclaration enumDeclaration = (TypeDeclaration) this.astStack[this.astPtr - length];
+	consumeTypeDeclaration(enumDeclaration);
 	boolean hasAbstractMethods = false;
 	int enumConstantsCounter = 0;
 	for (int i = length - 1; i >= 0; i--) {

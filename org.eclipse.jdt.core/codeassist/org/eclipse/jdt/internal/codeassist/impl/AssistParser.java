@@ -2180,11 +2180,6 @@ protected void prepareForHeaders() {
 	}
 }
 
-@Override
-public boolean requireReferenceOfFieldOfThis(Expression tos) {
-	return false; // no code generation involved, so no need
-}
-
 public boolean requireExtendedRecovery() {
 	return lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0;
 }
@@ -2586,4 +2581,23 @@ protected ASTNode wrapWithExplicitConstructorCallIfNeeded(ASTNode ast) {
 		return ast;
 	}
 }
+
+@Override
+public boolean requireReferenceOfFieldOfThis(Expression tos) {
+	return false; // no code generation involved, so no need
+}
+
+@Override
+protected void consumeConstructorDeclaration() {
+	super.consumeConstructorDeclaration();
+	ConstructorDeclaration cd = (ConstructorDeclaration) this.astStack[this.astPtr];
+	cd.bits |= ASTNode.CodeGenerationSkipped;
+}
+
+@Override
+public void consumeTypeDeclaration(TypeDeclaration typeDecl) {
+	super.consumeTypeDeclaration(typeDecl);
+	typeDecl.bits |= ASTNode.CodeGenerationSkipped;
+}
+
 }

@@ -94,7 +94,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 	public final static int Bit20 = 0x80000;			// contains syntax errors (method declaration, type declaration, field declarations, initializer), typeref: <> name ref: lambda capture)
 	public final static int Bit21 = 0x100000;			// for all declarations that can contain type references that have type annotations | insideExpressionStatement
 	public final static int Bit22 = 0x200000;			// parenthesis count (expression) | used (import reference) shadows outer local (local declarations)
-	public final static int Bit23 = 0x400000;			// parenthesis count (expression) | second or later declarator in declaration (local declarations)
+	public final static int Bit23 = 0x400000;			// parenthesis count (expression) | second or later declarator in declaration (local declarations) codegen will be skipped (type_decl, constructor_decl)
 	public final static int Bit24 = 0x800000;			// parenthesis count (expression)
 	public final static int Bit25 = 0x1000000;		// parenthesis count (expression)
 	public final static int Bit26 = 0x2000000;		// parenthesis count (expression)
@@ -247,6 +247,7 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 	public static final int IsDefaultConstructor = Bit8;
 	public static final int ShouldInitializeStrictly = Bit9;
 	public static final int IsCanonicalConstructor = Bit10; // record declaration
+	public static final int CodeGenerationSkipped = Bit23; // ConstructorDeclaration Or TypeDeclaration will never be lowered to class file.
 
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;
