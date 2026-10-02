@@ -2033,24 +2033,9 @@ public abstract class Scope {
 		return methodScope != null ? methodScope.getProxy(larvalField) : larvalField;
 	}
 
-	/* API
-	 *
-	 *	Answer the binding that corresponds to the argument name.
-	 *	flag is a mask of the following values VARIABLE (= FIELD or LOCAL), TYPE, PACKAGE.
-	 *	Only bindings corresponding to the mask can be answered.
-	 *
-	 *	For example, getBinding("foo", VARIABLE, site) will answer
-	 *	the binding for the field or local named "foo" (or an error binding if none exists).
-	 *	If a type named "foo" exists, it will not be detected (and an error binding will be answered)
-	 *
-	 *	The VARIABLE mask has precedence over the TYPE mask.
-	 *
-	 *	If the VARIABLE mask is not set, neither fields nor locals will be looked for.
-	 *
-	 *	InvocationSite implements:
-	 *		isSuperAccess(); this is used to determine if the discovered field is visible.
-	 *
-	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
+	/*
+	 * Wraps the getBinding call and also provides extra-constitutional, perhaps out of scope mapping to proxy local
+	 * for fields in early construction context.
 	 */
 	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve, boolean needProxyLocal) {
 		Binding binding = getBinding(name, mask, invocationSite, needResolve);

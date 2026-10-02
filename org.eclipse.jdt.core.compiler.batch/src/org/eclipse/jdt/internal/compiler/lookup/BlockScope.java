@@ -469,36 +469,9 @@ public LocalVariableBinding findVariable(char[] variableName) {
 	return null;
 }
 
-/* API
- * flag is a mask of the following values VARIABLE (= FIELD or LOCAL), TYPE.
- * Only bindings corresponding to the mask will be answered.
- *
- *	if the VARIABLE mask is set then
- *		If the first name provided is a field (or local) then the field (or local) is answered
- *		Otherwise, package names and type names are consumed until a field is found.
- *		In this case, the field is answered.
- *
- *	if the TYPE mask is set,
- *		package names and type names are consumed until the end of the input.
- *		Only if all of the input is consumed is the type answered
- *
- *	All other conditions are errors, and a problem binding is returned.
- *
- *	NOTE: If a problem binding is returned, senders should extract the compound name
- *	from the binding & not assume the problem applies to the entire compoundName.
- *
- *	The VARIABLE mask has precedence over the TYPE mask.
- *
- *	InvocationSite implements
- *		isSuperAccess(); this is used to determine if the discovered field is visible.
- *		setFieldIndex(int); this is used to record the number of names that were consumed.
- *
- *	For example, getBinding({"foo","y","q", VARIABLE, site) will answer
- *	the binding for the field or local named "foo" (or an error binding if none exists).
- *	In addition, setFieldIndex(1) will be sent to the invocation site.
- *	If a type named "foo" exists, it will not be detected (and an error binding will be answered)
- *
- *	IMPORTANT NOTE: This method is written under the assumption that compoundName is longer than length 1.
+/*
+ * Wraps the getBinding call and also provides extra-constitutional, perhaps out of scope mapping to proxy local
+ * for fields in early construction context.
  */
 public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite, boolean needResolve, boolean needProxyLocal) {
 	Binding binding = getBinding(compoundName, mask, invocationSite, needResolve);
