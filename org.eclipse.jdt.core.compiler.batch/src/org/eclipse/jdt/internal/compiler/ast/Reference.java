@@ -191,6 +191,21 @@ void reportOnlyUselesslyReadPrivateField(BlockScope currentScope, FieldBinding f
 	}
 }
 
+private boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBinding field) {
+	if (!JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()))
+		return false;
+	if (field.isStatic())
+		return false;
+	ConstructorDeclaration constructor = scope.methodScope().referenceContext instanceof ConstructorDeclaration c ? c : null;
+	if (constructor == null || !constructor.invokesSuper())
+		return false;
+	if (TypeBinding.notEquals(field.declaringClass, scope.enclosingReceiverType()))
+		return false;
+	if (!field.declaringClass.isValueClass() && field.sourceField() != null /* !records */ && field.sourceField().initialization != null)
+		return false;
+	return true;
+}
+
 protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char[] token, FieldBinding fieldBinding, TypeBinding actualReceiverType) {
 	if (actualReceiverType != null) {
 		if (scope.isInsideEarlyConstructionContext(actualReceiverType, false)) {
@@ -204,14 +219,7 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 			if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) {
 				// Error: not 'left-hand operand of a simple assignment expression'
 				if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
-					boolean complain = true;
-					/* In general in the right context, we expect the field to have been swapped with the proxy local already
-					   An exception is when a wrapped ThisReference is resolved as a FieldReference: we want to tolerate these
-				    */
-					if (fieldBinding.needsProxyLocal()) {
-						complain = false;
-					}
-					if (complain)
+					if (!validEarlyConstructionFieldReference(scope, fieldBinding))
 						scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
 				}
 				// otherwise we leave it to later phase to detect if required enclosing instance is available
