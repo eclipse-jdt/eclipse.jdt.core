@@ -3957,4 +3957,40 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 	    "The field 'c' must be initialized before chaining to the super class constructor\n" +
 	    "----------\n");
 	}
+
+public void testValueCompactConstructorAssignmentWithProxyBypass() {
+    runNegativeTest(new String[] {
+        "Point.java",
+        """
+        public value record Point(int x, int y) {
+            public Point {
+                this.x = 10;           // explicit assignment in compact constructor
+                int read = this.x;     // read forces proxy creation
+                this.y = 20;           // second assignment
+            }
+        }
+        """
+    },
+	"----------\n" +
+	"1. WARNING in Point.java (at line 1)\n" +
+	"	public value record Point(int x, int y) {\n" +
+	"	       ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in Point.java (at line 3)\n" +
+	"	this.x = 10;           // explicit assignment in compact constructor\n" +
+	"	^^^^^^\n" +
+	"Illegal explicit assignment of a final field x in compact constructor\n" +
+	"----------\n" +
+	"3. ERROR in Point.java (at line 4)\n" +
+	"	int read = this.x;     // read forces proxy creation\n" +
+	"	                ^\n" +
+	"The blank final field x may not have been initialized\n" +
+	"----------\n" +
+	"4. ERROR in Point.java (at line 5)\n" +
+	"	this.y = 20;           // second assignment\n" +
+	"	^^^^^^\n" +
+	"Illegal explicit assignment of a final field y in compact constructor\n" +
+	"----------\n");
+}
  }

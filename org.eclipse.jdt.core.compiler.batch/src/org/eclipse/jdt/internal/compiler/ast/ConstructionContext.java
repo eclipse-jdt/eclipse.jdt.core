@@ -77,9 +77,9 @@ public final class ConstructionContext {
         this.constructorCall = null;
     }
 
-    private boolean isNop() {
-    	return (this.constructorDeclaration != null && !this.constructorDeclaration.invokesSuper())
-    			    || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.constructionScope.compilerOptions());
+    private boolean isNop() { // Early construction context field reads are illegal in the scenarios below, so we don't have to bend over backwards.
+    	return ((this.constructorDeclaration != null && (!this.constructorDeclaration.invokesSuper() || this.constructorDeclaration.isCompactConstructor()))
+    			    || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.constructionScope.compilerOptions()));
     }
 
     public void enterFieldsResolution() {
