@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -28,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Reference extends Expression  {
@@ -186,6 +192,28 @@ void reportOnlyUselesslyReadPrivateField(BlockScope currentScope, FieldBinding f
 	}
 }
 
+private boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBinding field) {
+	if (!JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()))
+		return false;
+	if (field.isStatic())
+		return false;
+	ReferenceContext referenceContext = scope.methodScope().referenceContext;
+	if (referenceContext instanceof ConstructorDeclaration constructor) {
+		if (!constructor.invokesSuper())
+			return false;
+	} else if (referenceContext instanceof TypeDeclaration type) {
+		if (!type.isValueClass() || TypeBinding.notEquals(field.declaringClass, type.binding))
+			return false;
+	} else {
+		return false;
+	}
+	if (TypeBinding.notEquals(field.declaringClass, scope.enclosingReceiverType()))
+		return false;
+	if (!field.declaringClass.isValueClass() && field.sourceField() != null /* !records */ && field.sourceField().initialization != null)
+		return false;
+	return true;
+}
+
 protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char[] token, FieldBinding fieldBinding, TypeBinding actualReceiverType) {
 	if (actualReceiverType != null) {
 		if (scope.isInsideEarlyConstructionContext(actualReceiverType, false)) {
@@ -195,10 +223,12 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 			// - If the expression name appears in an early construction context of C (8.8.7.1),
 			// 		then it is the left-hand operand of a simple assignment expression (15.26),
 			//		and the declaration of the named variable lacks an initializer.
+			ConstructorDeclaration constructor = scope.methodScope().referenceContext instanceof ConstructorDeclaration c ? c : null;
 			if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) {
 				// Error: not 'left-hand operand of a simple assignment expression'
 				if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
-					scope.problemReporter().fieldReadInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+					if (!validEarlyConstructionFieldReference(scope, fieldBinding))
+						scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
 				}
 				// otherwise we leave it to later phase to detect if required enclosing instance is available
 				return;
@@ -207,6 +237,12 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 				scope.problemReporter().superFieldAssignInEarlyConstructionContext(this, fieldBinding);
 				return;
 			} else {
+				if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions())) {
+					if (constructor != null && !constructor.invokesSuper()) {
+						scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+						return;
+					}
+				}
 				if (scope.methodScope().isLambdaScope()) {
 					scope.problemReporter().fieldAssignInEarlyConstructionContextInLambda(this, fieldBinding);
 					return;

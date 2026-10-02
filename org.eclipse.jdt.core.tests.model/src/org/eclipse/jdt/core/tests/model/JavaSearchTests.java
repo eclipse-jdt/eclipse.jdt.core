@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 215139
@@ -4772,5 +4776,126 @@ private static IMethod findMethod(IJavaProject project, String typeFqn, String m
 	}
 	assertNotNull("Failed to find method: " + methodName + ", in type: " + typeFqn, testMethod);
 	return testMethod;
+}
+public void testFieldReferenceInEarlyConstructionContext() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject(
+			"P5433", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "28");
+		project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		createFile("/P5433/src/X.java",
+			"""
+			public class X {
+				int fobserved;
+				X() {
+					int observed = this.fobserved;
+					int k = fobserved;
+					super();
+				}
+			}
+			""");
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit("/P5433/src/X.java");
+		IField field = unit.getType("X").getField("fobserved");
+		assertTrue("Field fixture was not created", field.exists());
+
+		this.resultCollector.showAccuracy(true);
+		search(field, REFERENCES,
+			SearchEngine.createJavaSearchScope(new IJavaElement[] {unit}),
+			this.resultCollector);
+		assertSearchResults("src/X.java X() [fobserved] EXACT_MATCH\n" +
+				"src/X.java X() [fobserved] EXACT_MATCH", this.resultCollector);
+	} finally {
+		deleteProject("P5433");
+	}
+}
+public void testUnqualifiedEarlyFieldReferenceSearch() throws CoreException, IOException {
+	try {
+		setUpJCLClasspathVariables("28", false);
+
+		IJavaProject project = createJavaProject(
+			"P5433Search",
+			new String[] {"src"},
+			new String[] {"CONVERTER_JCL_28_LIB"},
+			"bin",
+			"28");
+		project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+		createFile("/P5433Search/src/X.java",
+			"""
+			public class X {
+				int f;
+
+				X() {
+					int observed = f;
+					super();
+				}
+			}
+			""");
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit("/P5433Search/src/X.java");
+		IField field = unit.getType("X").getField("f");
+		assertTrue("Field fixture was not created", field.exists());
+
+		this.resultCollector.showAccuracy(true);
+		search(
+			field,
+			REFERENCES,
+			SearchEngine.createJavaSearchScope(new IJavaElement[] { unit }),
+			this.resultCollector);
+
+		assertSearchResults(
+			"src/X.java X() [f] EXACT_MATCH",
+			this.resultCollector);
+	} finally {
+		deleteProject("P5433Search");
+	}
+}
+public void testSearchDeclarationsOfAccessedFieldsWithEarlyReadProxy() throws CoreException, IOException {
+	try {
+		setUpJCLClasspathVariables("28", false);
+
+		IJavaProject project = createJavaProject(
+			"P5433AccessedFields",
+			new String[] {"src"},
+			new String[] {"CONVERTER_JCL_28_LIB"},
+			"bin",
+			"28");
+		project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+		createFile("/P5433AccessedFields/src/X.java",
+			"""
+			public class X {
+				int f;
+
+				X() {
+					int observed = f;
+					super();
+				}
+			}
+			""");
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit("/P5433AccessedFields/src/X.java");
+		IMethod constructor = unit.getType("X").getMethod("X", new String[0]);
+		assertTrue("Constructor fixture was not created", constructor.exists());
+
+		searchDeclarationsOfAccessedFields(constructor, this.resultCollector);
+
+		assertSearchResults(
+			"src/X.java X.f [f]",
+			this.resultCollector);
+	} finally {
+		deleteProject("P5433AccessedFields");
+	}
 }
 }

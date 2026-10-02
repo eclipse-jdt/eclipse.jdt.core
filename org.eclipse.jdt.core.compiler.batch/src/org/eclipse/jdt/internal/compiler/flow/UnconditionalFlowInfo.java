@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -30,6 +34,7 @@ import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LarvalProxyBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -935,7 +940,7 @@ public boolean isDefinitelyAssigned(FieldBinding field) {
 @Override
 public boolean isDefinitelyAssigned(LocalVariableBinding local) {
 	// do not want to complain in unreachable code if local declared in reachable code
-	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0 && (local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0) {
+	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0 && local.declaration != null && (local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0) {
 		return true;
 	}
 	return isDefinitelyAssigned(local.id + this.maxFieldCount);
@@ -1454,14 +1459,23 @@ protected void markAsDefinitelyAssigned(int position) {
 
 @Override
 public void markAsDefinitelyAssigned(FieldBinding field) {
-	if (this != DEAD_END)
+	if (this != DEAD_END) {
 		markAsDefinitelyAssigned(field.id);
+		if (field.hasProxyLocal()) {
+			LocalVariableBinding local = (LocalVariableBinding) field.getProxy();
+			if (local != null && local.id >= 0)
+				markAsDefinitelyAssigned(local.id + this.maxFieldCount);
+		}
+	}
 }
 
 @Override
 public void markAsDefinitelyAssigned(LocalVariableBinding local) {
-	if (this != DEAD_END)
+	if (this != DEAD_END) {
 		markAsDefinitelyAssigned(local.id + this.maxFieldCount);
+		if (local instanceof LarvalProxyBinding proxy)
+			markAsDefinitelyAssigned(proxy.getLarvalField().id);
+	}
 }
 
 @Override

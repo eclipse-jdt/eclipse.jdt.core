@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2020,6 +2025,23 @@ public abstract class Scope {
 
 	public boolean resolvingGuardExpression() {
 		return false;
+	}
+
+
+	public Binding getProxy(FieldBinding larvalField) {
+		MethodScope methodScope = methodScope();
+		return methodScope != null ? methodScope.getProxy(larvalField) : larvalField;
+	}
+
+	/*
+	 * Wraps the getBinding call and also provides extra-constitutional, perhaps out of scope mapping to proxy local
+	 * for fields in early construction context.
+	 */
+	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve, boolean needProxyLocal) {
+		Binding binding = getBinding(name, mask, invocationSite, needResolve);
+		if (!needProxyLocal || !binding.hasProxyLocal())
+			return binding;
+		return getProxy((FieldBinding) binding); // only one that answers true to isLarval()
 	}
 
 	/* API
@@ -5068,6 +5090,11 @@ public abstract class Scope {
 			}
 		} while ((current = current.parent) != null);
 		return null;
+	}
+
+	public void switchContext(ReferenceContext newContext) { // if newContext matches receiver, then we are back from rendezvous/detour
+		if (this.parent != null)
+			this.parent.switchContext(newContext); // any one in ancestry who cares should have the buck stop with them
 	}
 
 	/**

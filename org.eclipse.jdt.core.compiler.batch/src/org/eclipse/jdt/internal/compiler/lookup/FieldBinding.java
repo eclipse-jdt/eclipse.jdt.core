@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -330,6 +334,15 @@ public ReferenceBinding getDeclaringClass() {
 	return this.declaringClass;
 }
 
+public Binding getProxy() {
+	if (this.declaringClass instanceof SourceTypeBinding sourceType) {
+		MethodScope proxyScope;
+		if (sourceType.scope != null && (proxyScope = sourceType.scope.referenceContext.initializerScope) != null)
+			return proxyScope.getProxy(this);
+	}
+	return null; // binary type ?
+}
+
 /* Answer true if the receiver has default visibility
 */
 public final boolean isDefault() {
@@ -363,6 +376,11 @@ public final boolean isProtected() {
 public final boolean isSynthetic() {
 	return (this.modifiers & ClassFileConstants.AccSynthetic) != 0;
 }
+
+public final boolean isStrictlyInitialized() {
+	return (this.modifiers & ClassFileConstants.AccStrictInit) != 0;
+}
+
 /* Answer true if the receiver is a transient field
 */
 

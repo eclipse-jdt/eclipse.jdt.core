@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -37,6 +41,9 @@ public class Initializer extends FieldDeclaration {
 	public int lastVisibleFieldID;
 	public int bodyStart;
 	public int bodyEnd;
+
+	// A naked throw is an error, but `if (true) throw` is accepted, but control does not fall through.
+	public boolean fallsThrough = true; // Updated only for value classes
 
 	private MethodBinding methodBinding;
 
@@ -131,11 +138,13 @@ public class Initializer extends FieldDeclaration {
 
 		FieldBinding previousField = scope.initializedField;
 		int previousFieldID = scope.lastVisibleFieldID;
+		ReferenceBinding declaringType = scope.enclosingSourceType();
+		if (declaringType.isValueClass() && !isStatic())
+			scope.leaveEarlyConstructionContext();
 		try {
 			scope.initializedField = null;
 			scope.lastVisibleFieldID = this.lastVisibleFieldID;
 			if (isStatic()) {
-				ReferenceBinding declaringType = scope.enclosingSourceType();
 				if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK16) {
 					if (declaringType.isNestedType() && !declaringType.isStatic())
 						scope.problemReporter().innerTypesCannotDeclareStaticInitializers(
@@ -143,13 +152,15 @@ public class Initializer extends FieldDeclaration {
 							this);
 				}
 			} else {
-				if (scope.enclosingSourceType().isRecord())
+				if (declaringType.isRecord())
 					scope.problemReporter().instanceInitializerBlockIllegalInRecord(this);
 			}
 			if (this.block != null) this.block.resolve(scope);
 		} finally {
 		    scope.initializedField = previousField;
 			scope.lastVisibleFieldID = previousFieldID;
+			if (declaringType.isValueClass() && !isStatic())
+				scope.enterEarlyConstructionContext();
 		}
 	}
 

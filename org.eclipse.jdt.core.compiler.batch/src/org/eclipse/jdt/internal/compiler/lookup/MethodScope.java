@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -72,6 +72,8 @@ public class MethodScope extends BlockScope {
 
 	// inner-emulation
 	public SyntheticArgumentBinding[] extraSyntheticArguments;
+
+	public Map<FieldBinding, LarvalProxyBinding> proxies;
 
 	// remember suppressed warning re missing 'default:' to give hints on possibly related flow problems
 	public boolean hasMissingSwitchDefault; // TODO(stephan): combine flags to a bitset?
@@ -387,6 +389,18 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 			if (this.offset > 0xFF) { // no more than 255 words of arguments
 				problemReporter().noMoreAvailableSpaceForArgument(argument, (ASTNode)this.referenceContext);
 			}
+		}
+	}
+	// sneak in field proxy locals before other local variables.
+	if (this.referenceContext instanceof ConstructorDeclaration constructor && this.proxies != null) {
+		for (LarvalProxyBinding proxy : this.proxies.values()) {
+			proxy.resolvedPosition = this.offset;
+			this.offset++;
+			if (proxy.type.id == TypeBinding.LONG.id || proxy.type.id == TypeBinding.DOUBLE.id)
+				this.offset++;
+
+			if (this.offset > 0xFF) // no more than 255 words of arguments
+				problemReporter().noMoreAvailableSpaceForArgument(proxy, constructor);
 		}
 	}
 	this.computeLocalVariablePositions(ilocal, this.offset, codeStream);
@@ -763,6 +777,61 @@ public void detectAPILeaks(ASTNode typeNode, TypeBinding type) {
 			}
 		};
 		typeNode.traverse(visitor, this);
+	}
+}
+
+public void setProxies(Map<FieldBinding, LarvalProxyBinding> proxies) {
+	this.proxies = proxies;
+}
+
+@Override
+public void enterEarlyConstructionContext() {
+	if (this.proxies != null)
+		this.proxies.keySet().forEach(field -> field.tagBits |= TagBits.NeedsProxyLocal);
+	super.enterEarlyConstructionContext();
+}
+
+@Override
+public void leaveEarlyConstructionContext() {
+	if (this.proxies != null)
+		this.proxies.keySet().forEach(field -> field.tagBits &= ~TagBits.NeedsProxyLocal);
+	super.leaveEarlyConstructionContext();
+}
+
+@Override
+public Binding getProxy(FieldBinding field) {
+	LarvalProxyBinding proxy = this.proxies != null ? this.proxies.get(field) : null;
+	if (proxy != null) {
+		proxy.useFlag = LocalVariableBinding.USED;
+		proxy.constant = field.constant; // at proxy creation time, field's constness was not known
+		return proxy;
+	}
+	return field;
+}
+
+public int getProxyLocalVariablesSlotSize() {
+	int slotSize = 0;
+	if (this.proxies != null) {
+		for (LarvalProxyBinding proxy : this.proxies.values()) {
+			slotSize++;
+			if (proxy.type.id ==  TypeIds.T_long  || proxy.type.id ==  TypeIds.T_double)
+				slotSize++;
+		}
+	}
+	return slotSize;
+}
+
+@Override
+public void switchContext(ReferenceContext newContext) {
+	if (this.proxies == null)
+		return;
+	// We are in a proxy holding method context - i.e constructor or instance fields initializer scope.
+	// Strictly speaking, this flipping of bits is not necessary for correctness, just for sanitary/hygiene purposes.
+	if (classScope().insideEarlyConstructionContext) {
+		if (this.referenceContext != newContext)
+			this.proxies.keySet().forEach(field -> field.tagBits &= ~TagBits.NeedsProxyLocal); // meandering off to a lambda or local class
+		else
+			this.proxies.keySet().forEach(field -> field.tagBits |= TagBits.NeedsProxyLocal);  // back in Kansas
 	}
 }
 }

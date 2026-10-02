@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -1006,7 +1011,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// the TC is Flag_Type Flag_LocalField and Flag_TypeLocalField
 	this.actualReceiverType = scope.enclosingReceiverType();
 	this.constant = Constant.NotAConstant;
-	if ((this.binding = scope.getBinding(this.tokens, this.bits & ASTNode.RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
+	if ((this.binding = scope.getBinding(this.tokens, this.bits & ASTNode.RestrictiveFlagMASK, this, true /*resolve*/, true /* prefer larval proxy */)).isValidBinding()) {
 		switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 			case Binding.VARIABLE : //============only variable===========
 			case Binding.TYPE | Binding.VARIABLE :
@@ -1076,7 +1081,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					} else {
 						boolean inStaticContext = scope.methodScope().isStatic;
 						if (scope.isInsideEarlyConstructionContext(fieldBinding.declaringClass, false))
-							scope.problemReporter().fieldReadInEarlyConstructionContext(this.tokens[0], this.sourceStart, (int) (this.sourcePositions[0]>>>32));
+							scope.problemReporter().fieldReferenceInEarlyConstructionContext(this.tokens[0], this.sourceStart, (int) (this.sourcePositions[0]>>>32));
 						if (this.indexOfFirstFieldBinding == 1) {
 							if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 								scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);

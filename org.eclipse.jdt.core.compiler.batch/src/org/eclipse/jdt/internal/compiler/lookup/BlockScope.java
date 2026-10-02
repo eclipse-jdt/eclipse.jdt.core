@@ -197,6 +197,8 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 		return false;
 	if (methodScope.isLambdaScope() || methodScope.isInsideValueClassInitializer())
 		return false;
+	if (!binding.isStatic() && methodScope.referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor())
+		return false;
 	return methodScope.isInsideInitializer() // inside initializer
 			|| ((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod(); // inside constructor or clinit
 }
@@ -460,6 +462,17 @@ public LocalVariableBinding findVariable(char[] variableName) {
 			return local;
 	}
 	return null;
+}
+
+/*
+ * Wraps the getBinding call and also provides extra-constitutional, perhaps out of scope mapping to proxy local
+ * for fields in early construction context.
+ */
+public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite, boolean needResolve, boolean needProxyLocal) {
+	Binding binding = getBinding(compoundName, mask, invocationSite, needResolve);
+	if (!needProxyLocal || !binding.hasProxyLocal())
+		return binding;
+	return getProxy((FieldBinding) binding);
 }
 
 /* API

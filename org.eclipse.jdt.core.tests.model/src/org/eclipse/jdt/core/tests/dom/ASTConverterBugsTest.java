@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1656,5 +1660,303 @@ public void testBug478_originalReproducer_structuralWalk() throws Exception {
 	assertNotNull("binding for qualifier Style in initializer (was FAILED)", initQualifierBinding);
 	assertTrue("qualifier Style binds to TYPE in initializer",
 			initQualifierBinding.getKind() == IBinding.TYPE);
+}
+
+public void testEarlyFieldReadResolvesToDeclaredField() throws Exception {
+	setUpJCLClasspathVariables("28", false);
+	try {
+		IJavaProject project = createJavaProject(
+				"P5433DOM", new String[] {"src"},
+				new String[] {"CONVERTER_JCL_28_LIB"}, "bin", "28");
+		project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+		createFile("/P5433DOM/src/X.java", """
+				public class X {
+				    int f;
+				    X() {
+				        f = 7;
+				        int early = f;
+				        super();
+				        int late = f;
+				    }
+				}
+				""");
+
+		ICompilationUnit source = getCompilationUnit("/P5433DOM/src/X.java");
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setSource(source);
+		parser.setProject(project);
+		parser.setCompilerOptions(project.getOptions(true));
+		parser.setResolveBindings(true);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+
+		for (IProblem problem : unit.getProblems()) {
+			assertFalse("Unexpected compilation error: " + problem, problem.isError());
+		}
+
+		TypeDeclaration type = (TypeDeclaration) unit.types().get(0);
+		FieldDeclaration declaration = (FieldDeclaration) type.bodyDeclarations().get(0);
+		IVariableBinding field = ((VariableDeclarationFragment)
+				declaration.fragments().get(0)).resolveBinding();
+
+		MethodDeclaration constructor = (MethodDeclaration) type.bodyDeclarations().get(1);
+		List<?> statements = constructor.getBody().statements();
+		VariableDeclarationStatement earlyStatement =
+				(VariableDeclarationStatement) statements.get(1);
+		VariableDeclarationStatement lateStatement =
+				(VariableDeclarationStatement) statements.get(3);
+
+		SimpleName earlyRead = (SimpleName) ((VariableDeclarationFragment)
+				earlyStatement.fragments().get(0)).getInitializer();
+		SimpleName lateRead = (SimpleName) ((VariableDeclarationFragment)
+				lateStatement.fragments().get(0)).getInitializer();
+
+		assertNotNull("Field declaration has no binding", field);
+		IVariableBinding lateBinding = (IVariableBinding) lateRead.resolveBinding();
+		assertNotNull("Late read has no binding", lateBinding);
+		assertTrue("Late read should resolve to a field", lateBinding.isField());
+		assertEquals(field.getKey(), lateBinding.getKey());
+
+		IVariableBinding earlyBinding = (IVariableBinding) earlyRead.resolveBinding();
+		assertNotNull("Early read has no binding", earlyBinding);
+		assertTrue("Early source reference should resolve to the field, not a proxy local",
+				earlyBinding.isField());
+		assertEquals("Early and late reads must resolve to the same declared field",
+				field.getKey(), earlyBinding.getKey());
+	} finally {
+		deleteProject("P5433DOM");
+	}
+}
+//---- helpers ----
+private int earlyRefProjectCounter = 0;
+
+private IProblem[] parseWithBindings28(boolean preview, String source) throws Exception {
+	String projectName = "P5433Early" + (this.earlyRefProjectCounter++);
+	setUpJCLClasspathVariables("28", false);
+	try {
+		IJavaProject project = createJavaProject(projectName, new String[] {"src"},
+				new String[] {"CONVERTER_JCL_28_LIB"}, "bin", "28");
+		project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_28);
+		project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES,
+				preview ? JavaCore.ENABLED : JavaCore.DISABLED);
+		project.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+		createFile("/" + projectName + "/src/X.java", source);
+
+		ICompilationUnit unit = getCompilationUnit("/" + projectName + "/src/X.java");
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setSource(unit);
+		parser.setProject(project);
+		parser.setCompilerOptions(project.getOptions(true));
+		parser.setResolveBindings(true);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		return cu.getProblems();
+	} finally {
+		deleteProject(projectName);
+	}
+}
+
+/** Asserts that FieldReferenceInEarlyConstructionContext is reported on exactly the given lines. */
+private void assertEarlyFieldRefLines(String message, IProblem[] problems, int... expectedLines) {
+	java.util.ArrayList<Integer> actual = new java.util.ArrayList<>();
+	for (IProblem p : problems) {
+		if (p.getID() == IProblem.FieldReferenceInEarlyConstructionContext)
+			actual.add(p.getSourceLineNumber());
+	}
+	java.util.Collections.sort(actual);
+	java.util.ArrayList<Integer> expected = new java.util.ArrayList<>();
+	for (int l : expectedLines) expected.add(l);
+	assertEquals(message + " - lines with early field reference errors", expected, actual);
+}
+
+private void assertNoErrors(String message, IProblem[] problems) {
+	for (IProblem p : problems)
+		assertFalse(message + " - unexpected error: " + p, p.isError());
+}
+
+//---- branch: !STRICTLY_INITIALIZED_FIELDS.isSupported ----
+public void testEarlyFieldRef_previewDisabled() throws Exception {
+	IProblem[] problems = parseWithBindings28(false, """
+			public class X {
+			    int f;
+			    X() {
+			        f = 1;
+			        int y = f;
+			        int z = this.f;
+			        super();
+			    }
+			}
+			""");
+	assertEarlyFieldRefLines("preview disabled", problems, 5, 6);
+}
+
+//---- branch: constructor == null (lambda / local class) ----
+public void testEarlyFieldRef_lambdaAndLocalClass() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			//
+			public class X {
+			    int f;
+			    X() {
+			        f = 1;
+			        Supplier<Integer> a = () -> f;
+			        Supplier<Integer> b = () -> this.f;
+			        super();
+			    }
+			}
+			interface Supplier<T> {
+				T get();
+			}
+			""");
+	assertEarlyFieldRefLines("lambda", problems, 6, 7);
+
+	problems = parseWithBindings28(true, """
+			public class X {
+			    int f;
+			    X() {
+			        f = 1;
+			        class L {
+			            int get() { return f; }
+			        }
+			        super();
+			    }
+			}
+			""");
+	assertEarlyFieldRefLines("local class", problems, 6);
+}
+
+//---- branch: constructor == null, value class field initializer ----
+public void testEarlyFieldRef_valueClassFieldInitializer() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			public value class X {
+			    int a = 1;
+			    int b = a + 1;
+			    int c = this.a + 1;
+			    X() { super(); }
+			}
+			""");
+	assertEarlyFieldRefLines("value class field initializers", problems /* none expected */);
+	assertNoErrors("value class field initializers", problems);
+}
+
+//---- branch: !constructor.invokesSuper() ----
+public void testEarlyFieldRef_thisChaining() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			public class X {
+			    int f;
+			    X() {
+			        int y = f;
+			        int z = this.f;
+			        this(f);
+			    }
+			    X(int i) { f = i; }
+			}
+			""");
+	assertEarlyFieldRefLines("this() chaining, identity", problems, 4, 5, 6);
+
+	problems = parseWithBindings28(true, """
+			public value class X {
+			    int f = 1;
+			    X() {
+			        int y = f;
+			        int z = this.f;
+			        this(f);
+			    }
+			    X(int i) { super(); }
+			}
+			""");
+	assertEarlyFieldRefLines("this() chaining, value class", problems, 4, 5, 6);
+}
+
+//---- branch: declaringClass != enclosingReceiverType ----
+public void testEarlyFieldRef_inheritedField() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			class S { int i; }
+			public class X extends S {
+			    X() {
+			        int a = i;
+			        int b = this.i;
+			        super();
+			    }
+			}
+			""");
+	assertEarlyFieldRefLines("inherited field", problems, 4, 5);
+}
+
+//---- branch: identity class, field with initializer ----
+public void testEarlyFieldRef_identityFieldWithInitializer() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			public class X {
+			    int f = 5;
+			    X() {
+			        int y = f;
+			        int z = this.f;
+			        super();
+			    }
+			}
+			""");
+	assertEarlyFieldRefLines("identity field with initializer", problems, 4, 5);
+}
+
+//---- branch: returns true (legal), plus static guard ----
+public void testEarlyFieldRef_legalReads() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			public class X {
+			    int f;
+			    static int s = 3;
+			    X() {
+			        f = 1;
+			        int a = f;
+			        int b = this.f;
+			        int c = X.this.f;
+			        int d = s;
+			        super();
+			    }
+			}
+			""");
+	assertEarlyFieldRefLines("legal reads, identity", problems /* none expected */);
+	assertNoErrors("legal reads, identity", problems);
+}
+
+public void testEarlyFieldRef_valueClassLegalReads() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			public value class X {
+			    int f = 5;
+			    int g;
+			    X() {
+			        g = 1;
+			        int a = f;
+			        int b = this.f;
+			        int c = g;
+			        int d = this.g;
+			        super();
+			    }
+			}
+			""");
+	assertEarlyFieldRefLines("legal reads, value class", problems /* none expected */);
+	assertNoErrors("legal reads, value class", problems);
+}
+
+//Enclosing instance is fully constructed, so its fields are not larval: reads are legal and
+//must not hit the declaringClass != enclosingReceiverType rejection.
+public void testEarlyFieldRef_outerFieldLegal() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			public class X {
+			    int o;
+			    class In {
+			        In() {
+			            int a = o;
+			            int b = X.this.o;
+			            super();
+			        }
+			    }
+			}
+			""");
+	assertEarlyFieldRefLines("outer field", problems /* none expected */);
+	assertNoErrors("outer field", problems);
 }
 }

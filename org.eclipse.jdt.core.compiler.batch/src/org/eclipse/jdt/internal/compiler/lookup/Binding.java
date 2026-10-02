@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -223,5 +227,12 @@ public abstract class Binding {
 	}
 	public void setAnnotations(AnnotationBinding[] annotations, boolean forceStore) {
 		// Left to subtypes.
+	}
+	/** Applicable only for fields at this time, indicates whether the instance
+	 *  of which the receiver field is a member is still under early construction.
+	 *  Such fields may not be read using getfield and will have to managed via proxy locals.
+	 */
+	public boolean hasProxyLocal() {
+		return (this.tagBits & TagBits.NeedsProxyLocal) != 0;
 	}
 }

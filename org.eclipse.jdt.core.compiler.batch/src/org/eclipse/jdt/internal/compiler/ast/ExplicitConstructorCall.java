@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -38,7 +43,6 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION
 import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
@@ -60,6 +64,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 
 	// TODO Remove once DOMParser is activated
 	public int typeArgumentsSourceStart;
+	private ConstructorDeclaration constructor;
 
 	public ExplicitConstructorCall(int accessMode) {
 		this.accessMode = accessMode;
@@ -112,11 +117,11 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 			manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo);
-			return flowInfo;
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
-			currentScope.leaveEarlyConstructionContext();
+			flowInfo = this.constructor.constructionContext.leavePrologueAnalysis(flowInfo, flowContext);
 		}
+		return flowInfo;
 	}
 
 	/**
@@ -163,6 +168,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					targetType,
 					this);
 			}
+			MethodBinding callee = codegenBinding;
 			if (this.syntheticAccessor != null) {
 				// synthetic accessor got some extra arguments appended to its signature, which need values
 				for (int i = 0,
@@ -171,14 +177,12 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					i++) {
 					codeStream.aconst_null();
 				}
-				codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
-			} else {
-				codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
+				callee = this.syntheticAccessor;
 			}
+			this.constructor.constructionContext.leavePrologueGeneration(codeStream, callee, this.typeArguments);
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
-			currentScope.leaveEarlyConstructionContext();
 		}
 	}
 
@@ -284,6 +288,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	public void resolve(BlockScope scope) {
 
 		MethodScope methodScope = scope.methodScope();
+		this.constructor = methodScope.referenceContext instanceof ConstructorDeclaration cd ? cd : null;
 		try {
 			AbstractMethodDeclaration methodDeclaration = methodScope.referenceMethod();
 			if ((scope.enclosingSourceType().isRecord()
@@ -497,9 +502,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 		} finally {
 			methodScope.isConstructorCall = false;
-			methodScope.leaveEarlyConstructionContext();
-			if (methodScope.referenceContext instanceof ConstructorDeclaration constructor)
-				constructor.computePrologueLocalsSize();
+			if (this.constructor != null)
+				this.constructor.constructionContext.leavePrologueResolution();
 		}
 	}
 

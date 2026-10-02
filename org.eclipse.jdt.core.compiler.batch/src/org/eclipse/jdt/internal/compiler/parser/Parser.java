@@ -4006,15 +4006,42 @@ protected void consumeExpressionStatement() {
 	expression.bits |= ASTNode.InsideExpressionStatement;
 	pushOnAstStack(expression);
 }
+
+public boolean requireReferenceOfFieldOfThis(Expression tos) { // intentionally excludes Qualified this references happening outside of a constructor.
+	if (!tos.isThis())
+		return false;
+	if (tos instanceof QualifiedThisReference qtr) {
+		char [] className = null;
+		for (int i = this.astPtr; i >=0; i--) {
+			if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
+				if (declaringClass.declarationSourceEnd > 0)
+					continue; // skip preceding member types
+				className = declaringClass.name;
+				break;
+			}
+			if (this.astStack[i] instanceof MethodDeclaration)
+				return false;
+		}
+		if (className == null && this.referenceContext instanceof ConstructorDeclaration constructor) // came in to build body after diet parse
+			className = constructor.selector;
+
+		if (className != null) {
+			char[][] qualifier = qtr.qualification.getTypeName();
+			return CharOperation.equals(qualifier[qualifier.length - 1], className);
+		}
+		return false;
+	}
+	return true;
+}
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	// FieldAccess ::= Primary '.' 'Identifier'
 	// FieldAccess ::= 'super' '.' 'Identifier'
 
-	FieldReference fr =
-		new FieldReference(
-			this.identifierStack[this.identifierPtr],
-			this.identifierPositionStack[this.identifierPtr--]);
+	char [] source = this.identifierStack[this.identifierPtr];
+	long pos = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
+
+	FieldReference fr = new FieldReference(source, pos);
 	if (isSuperAccess) {
 		//considers the fieldReference beginning at the 'super' ....
 		fr.sourceStart = this.intStack[this.intPtr--];
@@ -4022,10 +4049,16 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		pushOnExpressionStack(fr);
 	} else {
 		//optimize push/pop
-		fr.receiver = this.expressionStack[this.expressionPtr];
+		Expression tos = this.expressionStack[this.expressionPtr];
+		fr.receiver = tos;
 		//field reference begins at the receiver
 		fr.sourceStart = fr.receiver.sourceStart;
-		this.expressionStack[this.expressionPtr] = fr;
+		if (requireReferenceOfFieldOfThis(tos)) {
+			ReferenceOfFieldOfThis referenceOfFieldOfThis = new ReferenceOfFieldOfThis(source, pos, fr);
+			this.expressionStack[this.expressionPtr] = referenceOfFieldOfThis;
+		} else {
+			this.expressionStack[this.expressionPtr] = fr;
+		}
 	}
 }
 protected void consumeFieldDeclaration() {
@@ -6401,12 +6434,8 @@ protected void consumeResourceAsThis() {
 	pushOnAstStack(ref);
 }
 protected void consumeResourceAsFieldAccess() {
-	// Resource ::= FieldAccess
-	FieldReference ref = (FieldReference) this.expressionStack[this.expressionPtr--];
-	//NameReference ref = getUnspecifiedReference(true);
-	//ref.bits |= ASTNode.IsCapturedOuterLocal;
-	pushOnAstStack(ref);
- }
+	pushOnAstStack(this.expressionStack[this.expressionPtr--]);
+}
 protected void consumeResourceAsLocalVariableDeclaration() {
 	// Resource ::= Type PushModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
 	// Resource ::= Modifiers Type PushRealModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization

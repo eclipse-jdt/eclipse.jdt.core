@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -496,6 +501,12 @@ private char[][] getThisFieldTokens(int nestingCount) {
 			// front to tail: outermost is last:
 			result[result.length-nestingCount] = this.token;
 		}
+	} else if (this.receiver instanceof ReferenceOfFieldOfThis referenceOfFieldOfThis) {
+		// found an inner-most this-reference, start building the token array:
+		result = new char[nestingCount + 1][];
+		// fill it front to tail while traveling back out:
+		result[0] = referenceOfFieldOfThis.token;
+		result[1] = this.token;
 	}
 	return result;
 }

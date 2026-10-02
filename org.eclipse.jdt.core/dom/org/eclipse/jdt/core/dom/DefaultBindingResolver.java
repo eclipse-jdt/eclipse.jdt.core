@@ -8,7 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
-
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -442,6 +445,8 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding) {
+		if (variableBinding instanceof LarvalProxyBinding proxy)
+			variableBinding = proxy.getLarvalField(); //  clients don't want to see proxies
 		if (variableBinding != null) {
 			if (variableBinding.isValidBinding()) {
 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding variableType = variableBinding.type;

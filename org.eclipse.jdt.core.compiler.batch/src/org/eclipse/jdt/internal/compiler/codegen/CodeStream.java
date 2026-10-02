@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -276,6 +281,34 @@ public void addLabel(BranchLabel aLabel) {
 
 public void addVariable(LocalVariableBinding localBinding) {
 	/* do nothing */
+}
+
+public void addProxy(LarvalProxyBinding proxy) {
+	if (!proxy.getLarvalField().declaringClass.isValueClass() || proxy.isBlankFinal()) { // skip wasteful VM defaults for initialized value fields.
+		switch (proxy.type.id) {
+			case TypeIds.T_boolean:
+			case TypeIds.T_char:
+			case TypeIds.T_byte:
+			case TypeIds.T_short:
+			case TypeIds.T_int:
+				iconst_0();
+				break;
+			case TypeIds.T_long:
+				lconst_0();
+				break;
+			case TypeIds.T_float:
+				fconst_0();
+				break;
+			case TypeIds.T_double:
+				dconst_0();
+				break;
+			default:
+				aconst_null();
+				break;
+		}
+		store(proxy, false);
+	}
+	addVariable(proxy);
 }
 
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {

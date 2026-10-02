@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -106,7 +111,7 @@ public interface TagBits {
 	long BeginAnnotationCheck = ASTNode.Bit32L;
 	long EndAnnotationCheck = ASTNode.Bit33L;
 
-	// currently unused: ASTNode.Bit35L
+	long NeedsProxyLocal = ASTNode.Bit35L; // for field bindings - set if/when field is of a larval instance (early construction context, `this` is still uninitialized)
 
 	// standard annotations
 	// 9-bits for targets
