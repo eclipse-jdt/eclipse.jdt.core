@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1580,6 +1584,12 @@ protected void resetModifiers() {
 protected int resumeOnSyntaxError() {
 	return HALT;
 }
+
+@Override
+public boolean requireReferenceOfFieldOfThis(Expression tos) {
+	return false; // no code generation path
+}
+
 /*
  * Answer a char array representation of the type name formatted like:
  * - type name + dimensions

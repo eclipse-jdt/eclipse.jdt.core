@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -423,11 +419,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	// FieldAccess ::= Primary '.' 'Identifier'
 	// FieldAccess ::= 'super' '.' 'Identifier'
 	super.consumeFieldAccess(isSuperAccess);
-	FieldReference fr;
-	if (this.expressionStack[this.expressionPtr] instanceof FieldReference fieldReference)
-		fr = fieldReference;
-	else
-		fr = ((ReferenceOfFieldOfThis) this.expressionStack[this.expressionPtr]).fieldReference();
+	FieldReference fr = (FieldReference) this.expressionStack[this.expressionPtr];
 	if (this.reportReferenceInfo) {
 		this.requestor.acceptFieldReference(fr.token, fr.sourceStart);
 	}

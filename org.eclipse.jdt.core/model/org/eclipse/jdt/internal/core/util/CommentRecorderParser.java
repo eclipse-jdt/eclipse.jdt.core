@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,6 +19,7 @@ package org.eclipse.jdt.internal.core.util;
 
 import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -297,6 +302,12 @@ public class CommentRecorderParser extends Parser {
 			}
 		}
 	}
+
+	@Override
+	public boolean requireReferenceOfFieldOfThis(Expression tos) {
+		return false; // no code generation involved, so no need
+	}
+
 	/* (non-Javadoc)
 	 * Save all source comments currently stored before flushing them.
 	 * this.scanner.commentPtr is expected *not* yet being reset before calling this method.

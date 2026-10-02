@@ -4007,7 +4007,7 @@ protected void consumeExpressionStatement() {
 	pushOnAstStack(expression);
 }
 
-private boolean isReferenceOfFieldOfThis(Expression tos) { // intentionally excludes Qualified this references happening outside of a constructor.
+public boolean requireReferenceOfFieldOfThis(Expression tos) { // intentionally excludes Qualified this references happening outside of a constructor.
 	if (!tos.isThis())
 		return false;
 	if (tos instanceof QualifiedThisReference qtr) {
@@ -4053,7 +4053,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		fr.receiver = tos;
 		//field reference begins at the receiver
 		fr.sourceStart = fr.receiver.sourceStart;
-		if (isReferenceOfFieldOfThis(tos)) {
+		if (requireReferenceOfFieldOfThis(tos)) {
 			ReferenceOfFieldOfThis referenceOfFieldOfThis = new ReferenceOfFieldOfThis(source, pos, fr);
 			this.expressionStack[this.expressionPtr] = referenceOfFieldOfThis;
 		} else {
