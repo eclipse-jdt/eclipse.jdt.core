@@ -3907,4 +3907,24 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 	        """
 	    }, "1");
 	}
+
+	public void testValueRecord() {
+	    runConformTest(new String[] {
+	        "Point.java",
+	        """
+			public value record Point(int x, int y) {
+				public Point(int x, int y) {
+					this.y = y;
+					this.x = this.y;
+				}
+
+				public static void main(String[] args) {
+					System.out.println(new Point(512, 1024));
+				}
+			}
+	        """
+	    }, "Point[x=1024, y=1024]");
+	}
+
+
  }

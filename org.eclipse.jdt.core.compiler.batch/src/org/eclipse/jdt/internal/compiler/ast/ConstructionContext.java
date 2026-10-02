@@ -391,7 +391,7 @@ public final class ConstructionContext {
 			if (b instanceof FieldBinding field
                     && !field.isStatic()
                     && TypeBinding.equalsEquals(field.declaringClass, ConstructionContext.this.sourceType)
-                    && (field.sourceField().initialization == null || field.declaringClass.isValueClass())) {
+                    && (field.declaringClass.isValueClass() || field.sourceField() == null /* records */ || field.sourceField().initialization == null)) {
 				if (this.referenceContext instanceof ConstructorDeclaration || this.thusFarDeclaredFields.contains(field)) // don't put up a proxy for illegal forward reference.
 					this.readFields.add(field);
             }
