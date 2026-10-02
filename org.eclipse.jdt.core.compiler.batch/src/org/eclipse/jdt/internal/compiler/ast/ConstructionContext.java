@@ -20,7 +20,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ASTNode.IsReachable;
 import static org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration.FIELD;
-import static org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding.UNUSED;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -78,23 +77,6 @@ public final class ConstructionContext {
         this.constructorCall = null;
     }
 
-    private void installProxies() {
-		if (this.proxies != null) {
-			this.proxies.keySet().forEach(field -> field.tagBits |= TagBits.NeedsProxyLocal);
-			this.constructionScope.setProxies(this.proxies);
-		}
-	}
-
-    private void uninstallProxies() {
-    	if (this.proxies != null) {
-    		this.proxies.entrySet().removeIf(entry -> {
-    		    entry.getKey().tagBits &= ~TagBits.NeedsProxyLocal;
-    		    return entry.getValue().useFlag == UNUSED;
-    		});
-    		this.constructionScope.setProxies(null);
-		}
-    }
-
     private boolean isNop() {
     	return (this.constructorDeclaration != null && !this.constructorDeclaration.invokesSuper())
     			    || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.constructionScope.compilerOptions());
@@ -105,8 +87,7 @@ public final class ConstructionContext {
     	Set<FieldBinding> readFields = new PrologueFieldReadReferencesCollector().collect(this.typeDeclaration);
 		if (readFields != null)
 			readFields.forEach(this::synthesizeLarvalProxy);
-
-		installProxies();
+		this.constructionScope.setProxies(this.proxies);
     }
 
     public void leaveFieldsResolution() {
@@ -115,12 +96,12 @@ public final class ConstructionContext {
 
     public void enterFieldAnalysis(FlowInfo flowInfo) {
     	this.constructionScope.enterEarlyConstructionContext();
-    	installProxies();
+    	if (this.proxies != null)
+    		this.proxies.values().forEach(proxy -> proxy.id = this.constructionScope.outerMostMethodScope().analysisIndex++);
     }
 
     public void leaveFieldAnalysis(FlowInfo flowInfo, FlowContext flowContext) {
     	this.constructionScope.leaveEarlyConstructionContext();
-    	uninstallProxies();
     }
 
     public void enterPrologueResolution() {
@@ -128,27 +109,11 @@ public final class ConstructionContext {
     	if (isNop())
     		return;
 
-    	/* ****************  This is tricky!  ****************
-
-    	   A proxy that was written to in field initialization must carry over its value into constructor prologue. A Constructor
-    	   cannot start minting fresh proxies for those very same fields for which a proxy was created in fields resolution, but
-    	   it may additionally create proxies for field reads seen exclusively in its prologue. A proxy thus exists in one or the
-    	   other scope. The two scopes have no nesting relationship, in fact they are disjoint but proxies added to the initializer
-    	   scope need to be live in constructor prologue.
-
-    	   What we do is to replicate the proxies from the initializer scope and add them to the constructor scope, so they
-    	   live in two methods scopes at the same time. A first.
-
-    	   A final piece of the puzzle is to ensure that when the initializer and constructor locals are laid out, proxies get laid out
-    	   once only - on behalf of the constructor since that is a strict superset.
-
-    	   See ConstructorDeclaration.internalGenerateCode(ClassScope, ClassFile). See also uses of ConstructorDeclaration.prologueLocalSlotSize
-    	*/
     	this.proxies = new LinkedHashMap<>();
     	if (this.typeDeclaration.initializerScope.proxies != null) {
     	    this.typeDeclaration.initializerScope.proxies.forEach((field, proxy) -> {
-    	    	this.constructionScope.addLocalVariable(proxy);
-    	        this.proxies.put(field, proxy);
+    	    	field.tagBits |= TagBits.NeedsProxyLocal;
+    	    	this.proxies.put(field, proxy);
     	    });
     	}
 
@@ -159,13 +124,12 @@ public final class ConstructionContext {
 		            .forEach(this::synthesizeLarvalProxy);
 		}
 
-		installProxies();
+		this.constructionScope.setProxies(this.proxies);
     }
 
     public void leavePrologueResolution() {
     	this.constructionScope.leaveEarlyConstructionContext();
     	this.constructorDeclaration.computePrologueLocalsSize();
-		uninstallProxies();
     }
 
     public void enterPrologueAnalysis(FlowInfo flowInfo) {
@@ -177,11 +141,11 @@ public final class ConstructionContext {
     	   For value classes, a proxy will be created even for fields with initialization. The proxies should start out DA if the field is DA
     	*/
     	if (this.proxies != null) {
-    	    this.proxies.entrySet().stream()
-    	        .filter(entry -> !entry.getKey().isFinal()
-    	                || (entry.getKey().declaringClass.isValueClass() && flowInfo.isDefinitelyAssigned(entry.getKey())))
-    	        .map(Map.Entry::getValue)
-    	        .forEach(flowInfo::markAsDefinitelyAssigned);
+    	    this.proxies.forEach((field, proxy) -> {
+    	    	proxy.id = this.constructionScope.outerMostMethodScope().analysisIndex++;
+    	    	if (!field.isFinal() || this.sourceType.isValueClass() && flowInfo.isDefinitelyAssigned(field))
+    	    		flowInfo.markAsDefinitelyAssigned(proxy);
+    	    });
     	}
     }
 
@@ -247,7 +211,6 @@ public final class ConstructionContext {
     	if (isNop())
     		return;
 
-		installProxies();
 		if (this.proxies != null)
 			this.proxies.values().forEach(codeStream::addProxy);
 		// For value classes, field initializations are generated *before* any prologue in the body of the constructor
@@ -268,7 +231,6 @@ public final class ConstructionContext {
 
     public void leavePrologueGeneration(CodeStream codeStream, MethodBinding link, TypeReference [] typeArguments) {
     	this.constructionScope.leaveEarlyConstructionContext();
-		uninstallProxies();
 		if (this.constructorDeclaration.invokesSuper())
 			flushProxies(codeStream);
 		if (this.constructorDeclaration.isCompactConstructor() && this.typeDeclaration.isValueClass())
@@ -296,7 +258,6 @@ public final class ConstructionContext {
     public void leaveEpilogueGeneration(CodeStream codeStream, boolean needReturn) {
 
     	this.constructionScope.leaveEarlyConstructionContext();
-		uninstallProxies(); // just in case prologue throws and ECC is unreachable
 
 		if (!needReturn)
 			return;
@@ -334,7 +295,7 @@ public final class ConstructionContext {
         if (this.proxies == null)
             this.proxies = new LinkedHashMap<>();
         LarvalProxyBinding proxy = new LarvalProxyBinding(field);
-        this.constructionScope.addLocalVariable(proxy);
+        field.tagBits |= TagBits.NeedsProxyLocal;
         this.proxies.put(field, proxy);
         return proxy;
     }

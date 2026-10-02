@@ -41,6 +41,7 @@ public class LarvalProxyBinding extends LocalVariableBinding {
 		this.setConstant(Constant.NotAConstant);    // for now, field is not resolved yet, we will update status upon look up.
         this.useFlag = LocalVariableBinding.UNUSED; // see VCAOT.testPrematureProxy
 		this.larvalField = field;
+		this.id = -1; // analysis id will be assigned at prologue analysis time.
 	}
 
 	public FieldBinding getLarvalField() {

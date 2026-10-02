@@ -1463,7 +1463,7 @@ public void markAsDefinitelyAssigned(FieldBinding field) {
 		markAsDefinitelyAssigned(field.id);
 		if (field.hasProxyLocal()) {
 			LocalVariableBinding local = (LocalVariableBinding) field.getProxy();
-			if (local != null)
+			if (local != null && local.id >= 0)
 				markAsDefinitelyAssigned(local.id + this.maxFieldCount);
 		}
 	}

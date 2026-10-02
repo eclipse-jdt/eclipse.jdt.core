@@ -3921,5 +3921,40 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 	    }, "Point[x=1024, y=1024]");
 	}
 
-
+	public void testSharedProxyIdCollisionAcrossConstructors() {
+	    runNegativeTest(new String[] {
+	        "X.java",
+	        """
+	        public value class X {
+	        	int a = 1;
+	        	int b = a + 1;
+	        	int c;
+	        	X() {
+	        		System.out.println(c);
+	        		super();
+	        	}
+	        	X(int p) {
+	        		c = p;
+	        		super();
+	        	}
+	        }
+	        """
+	    },
+	    "----------\n" +
+	    "1. WARNING in X.java (at line 1)\n" +
+	    "	public value class X {\n" +
+	    "	       ^^^^^\n" +
+	    "You are using a preview language feature that may or may not be supported in a future release\n" +
+	    "----------\n" +
+	    "2. ERROR in X.java (at line 6)\n" +
+	    "	System.out.println(c);\n" +
+	    "	                   ^\n" +
+	    "The blank final field c may not have been initialized\n" +
+	    "----------\n" +
+	    "3. ERROR in X.java (at line 7)\n" +
+	    "	super();\n" +
+	    "	^^^^^^^^\n" +
+	    "The field 'c' must be initialized before chaining to the super class constructor\n" +
+	    "----------\n");
+	}
  }

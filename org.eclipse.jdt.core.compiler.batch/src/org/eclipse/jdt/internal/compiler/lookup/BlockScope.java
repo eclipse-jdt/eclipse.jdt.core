@@ -309,11 +309,6 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 			// consider variable first
 			LocalVariableBinding local = this.locals[ilocal]; // if no local at all, will be locals[ilocal]==null
 
-			if (local.isFieldProxy()) { // these are already laid out on behalf of constructor
-				hasMoreVariables = ++ilocal < maxLocals;
-				continue;
-			}
-
 			// check if variable is actually used, and may force it to be preserved
 			boolean generateCurrentLocalVar = (local.useFlag > LocalVariableBinding.UNUSED && local.constant() == Constant.NotAConstant);
 

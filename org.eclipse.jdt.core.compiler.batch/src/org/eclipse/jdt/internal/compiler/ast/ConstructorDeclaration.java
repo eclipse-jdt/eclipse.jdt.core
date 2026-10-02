@@ -514,6 +514,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			}
 		}
 
+		argSlotSize += this.scope.getProxyLocalVariablesSlotSize();
 		MethodScope initializerScope = declaringType.initializerScope;
 		initializerScope.computeLocalVariablePositions(argSlotSize + this.prologueLocalSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
 
@@ -820,18 +821,19 @@ public TypeParameter[] typeParameters() {
 }
 
 public void computePrologueLocalsSize() {
-	this.prologueLocalSlotSize = 0;
-	for (LocalVariableBinding local : this.scope.locals) {
-		if (local == null || local.isParameter()) // accounted for elsewhere in argSlotSize
-			continue;
-		switch(local.type.id) {
-			case TypeIds.T_long :
-			case TypeIds.T_double :
-				this.prologueLocalSlotSize += 2;
-				break;
-			default :
-				this.prologueLocalSlotSize++;
-				break;
+	if (this.prologueLocalSlotSize == 0) { // Guard against re-entry in corner cases
+		for (LocalVariableBinding local : this.scope.locals) {
+			if (local == null || local.isParameter()) // accounted for elsewhere in argSlotSize
+				continue;
+			switch(local.type.id) {
+				case TypeIds.T_long :
+				case TypeIds.T_double :
+					this.prologueLocalSlotSize += 2;
+					break;
+				default :
+					this.prologueLocalSlotSize++;
+					break;
+			}
 		}
 	}
 	// we can ignore subscopes because super()/this() has to be in constructor's main scope

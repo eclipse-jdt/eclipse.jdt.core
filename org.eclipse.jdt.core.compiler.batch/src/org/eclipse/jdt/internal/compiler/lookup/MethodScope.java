@@ -73,6 +73,8 @@ public class MethodScope extends BlockScope {
 	// inner-emulation
 	public SyntheticArgumentBinding[] extraSyntheticArguments;
 
+	public Map<FieldBinding, LarvalProxyBinding> proxies;
+
 	// remember suppressed warning re missing 'default:' to give hints on possibly related flow problems
 	public boolean hasMissingSwitchDefault; // TODO(stephan): combine flags to a bitset?
 
@@ -389,26 +391,16 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 			}
 		}
 	}
-	if (this.referenceContext instanceof ConstructorDeclaration) {
-		/* Field proxy locals are synthesized and injected into the constructor scope such that
-		   they immediately abut and are sandwiched between arguments and locals. We lay them
-		   out (only) here on behalf of (only) the constructor, having imported any from initialization
-		   scope into constructor's main scope and collated them with constructor's own proxies.
-	    */
-		while (ilocal < maxLocals) {
-			LocalVariableBinding local = this.locals[ilocal];
-			if (local == null || !local.isFieldProxy())
-				break; // done with proxies
-
-			local.resolvedPosition = this.offset;
-
+	// sneak in field proxy locals before other local variables.
+	if (this.referenceContext instanceof ConstructorDeclaration constructor && this.proxies != null) {
+		for (LarvalProxyBinding proxy : this.proxies.values()) {
+			proxy.resolvedPosition = this.offset;
 			this.offset++;
-			if (local.type.id == TypeBinding.LONG.id || local.type.id == TypeBinding.DOUBLE.id)
+			if (proxy.type.id == TypeBinding.LONG.id || proxy.type.id == TypeBinding.DOUBLE.id)
 				this.offset++;
 
 			if (this.offset > 0xFF) // no more than 255 words of arguments
-				problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
-			ilocal++;
+				problemReporter().noMoreAvailableSpaceForArgument(proxy, constructor);
 		}
 	}
 	this.computeLocalVariablePositions(ilocal, this.offset, codeStream);
@@ -788,10 +780,22 @@ public void detectAPILeaks(ASTNode typeNode, TypeBinding type) {
 	}
 }
 
-public Map<FieldBinding, LarvalProxyBinding> proxies;
-
-public void setProxies(Map<FieldBinding, LarvalProxyBinding> proxies) { // for registering and de-registering, null map in the latter case.
+public void setProxies(Map<FieldBinding, LarvalProxyBinding> proxies) {
 	this.proxies = proxies;
+}
+
+@Override
+public void enterEarlyConstructionContext() {
+	if (this.proxies != null)
+		this.proxies.keySet().forEach(field -> field.tagBits |= TagBits.NeedsProxyLocal);
+	super.enterEarlyConstructionContext();
+}
+
+@Override
+public void leaveEarlyConstructionContext() {
+	if (this.proxies != null)
+		this.proxies.keySet().forEach(field -> field.tagBits &= ~TagBits.NeedsProxyLocal);
+	super.leaveEarlyConstructionContext();
 }
 
 @Override
@@ -804,6 +808,19 @@ public Binding getProxy(FieldBinding field) {
 	}
 	return field;
 }
+
+public int getProxyLocalVariablesSlotSize() {
+	int slotSize = 0;
+	if (this.proxies != null) {
+		for (LarvalProxyBinding proxy : this.proxies.values()) {
+			slotSize++;
+			if (proxy.type.id ==  TypeIds.T_long  || proxy.type.id ==  TypeIds.T_double)
+				slotSize++;
+		}
+	}
+	return slotSize;
+}
+
 @Override
 public void switchContext(ReferenceContext newContext) {
 	if (this.proxies == null)
