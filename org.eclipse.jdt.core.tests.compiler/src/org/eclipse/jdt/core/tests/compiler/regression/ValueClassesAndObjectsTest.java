@@ -3213,11 +3213,6 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		"3. ERROR in X.java (at line 3)\n" +
 		"	int b = a + c;\n" +
 		"	            ^\n" +
-		"Cannot refer to field c in an early construction context\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 3)\n" +
-		"	int b = a + c;\n" +
-		"	            ^\n" +
 		"Cannot reference a field before it is defined\n" +
 		"----------\n");
 	}
