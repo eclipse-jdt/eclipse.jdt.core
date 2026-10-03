@@ -222,7 +222,10 @@ class CompilationUnitResolver extends Compiler {
 		// Need to reparse the entire source of the compilation unit so as to get source positions
 		// (case of processing a source that was not known by beginToCompile (e.g. when asking to createBinding))
 		SourceTypeElementInfo sourceType = (SourceTypeElementInfo) sourceTypes[0];
+		var previousBinding = this.lookupEnvironment.module;
+		this.lookupEnvironment.module = packageBinding.enclosingModule;
 		accept((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) sourceType.getHandle().getCompilationUnit(), accessRestriction);
+		this.lookupEnvironment.module = previousBinding;
 	}
 
 	@Override
