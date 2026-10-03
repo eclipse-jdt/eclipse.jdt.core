@@ -58,6 +58,10 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 	}
 	@Override
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			return super.findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly);
+		}
 		if (!isPackage(qualifiedPackageName, moduleName))
 			return null; // most common case
 
@@ -147,6 +151,11 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 	}
 	@Override
 	public void loadModules() {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			super.loadModules();
+			return;
+		}
 		// Modules below level 9 are not dealt with here. Leave it to ClasspathJrt
 		if (this.jdklevel <= ClassFileConstants.JDK1_8) {
 			super.loadModules();
@@ -219,6 +228,10 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 	}
 	@Override
 	public IModule getModule(char[] moduleName) {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			return super.getModule(moduleName);
+		}
 		// Modules below level 9 are not dealt with here. Leave it to ClasspathJrt
 		if (this.jdklevel <= ClassFileConstants.JDK1_8) {
 			return super.getModule(moduleName);
@@ -261,6 +274,10 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 	}
 	@Override
 	public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+		// The current release uses the JRT filtered by ct.sym's system-modules.
+		if (this.currentReleaseModules != null) {
+			return super.getModulesDeclaringPackage(qualifiedPackageName, moduleName);
+		}
 		if (this.jdklevel >= ClassFileConstants.JDK9) {
 			// Delegate to the boss, even if it means inaccurate error reporting at times
 			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.jrtFileSystem, qualifiedPackageName, moduleName);
