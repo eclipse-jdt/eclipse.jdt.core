@@ -80,14 +80,25 @@ public final class ConstructionContext {
     private boolean isNop() { // Early construction context field reads are illegal in the scenarios below, so we don't have to bend over backwards.
 
     	/* We are ENTIRELY dealing with a code generation concern here, so don't sweat if this client will not proceed to code generation. */
-    	if (this.typeDeclaration != null && (this.typeDeclaration.bits & ASTNode.CodeGenerationSkipped) != 0)
+    	CompilationUnitDeclaration unit = this.constructionScope.referenceCompilationUnit();
+    	if ((unit.bits & ASTNode.SkipFieldProxification) != 0)
     		return true;
 
-    	if (this.constructorDeclaration != null && (this.constructorDeclaration.bits & ASTNode.CodeGenerationSkipped) != 0)
+    	if (this.typeDeclaration != null && (this.typeDeclaration.bits & ASTNode.SkipFieldProxification) != 0) // not needed ?
     		return true;
 
-    	return ((this.constructorDeclaration != null && (!this.constructorDeclaration.invokesSuper() || this.constructorDeclaration.isCompactConstructor()))
-    			    || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.constructionScope.compilerOptions()));
+    	if (this.constructorDeclaration != null) {
+    		if ((this.constructorDeclaration.bits & ASTNode.SkipFieldProxification) != 0) // not needed ?
+    			return true;
+    		if (!this.constructorDeclaration.invokesSuper())
+    			return true;
+    		if (this.constructorDeclaration.isCompactConstructor()) // can't touch this for read/write
+    			return true;
+    		if (this.constructorCall.isImplicitSuper() && this.constructorCall == this.constructorDeclaration.statements[0])
+    			return true;
+    	}
+
+    	return !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.constructionScope.compilerOptions());
     }
 
     public void enterFieldsResolution() {

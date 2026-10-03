@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contributions for
@@ -808,7 +812,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 
 		// type checking
-		unit.resolve();
+		unit.resolve(isTheCompiler() ? this.options.ignoreMethodBodies : true); // skip field proxification ?
 
 		long analyzeStart = System.currentTimeMillis();
 		this.stats.resolveTime += analyzeStart - resolveStart;
@@ -972,7 +976,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 				}
 				// type checking
-				unit.resolve();
+				unit.resolve(isTheCompiler() ? !generateCode : true); // should skip field proxification ?
 
 				// flow analysis
 				if (analyzeCode) unit.analyseCode();
@@ -1020,5 +1024,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			verifyMethods,
 			analyzeCode,
 			generateCode);
+	}
+
+	public boolean isTheCompiler() {
+		return true;
 	}
 }

@@ -18,6 +18,7 @@
 
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -62,6 +63,14 @@ public class ReferenceOfFieldOfThis extends SingleNameReference {
     @Override
     public boolean isEquivalent(Reference reference) {
     	return reference.isEquivalent(this.fieldReference); // switch receiver to ensure both sides get unwrapped as needed
+    }
+
+    @Override
+    public void traverse(ASTVisitor visitor, BlockScope scope) {
+    	if (visitor.visit(this, scope)) {
+    		this.fieldReference.traverse(visitor, scope);
+    	}
+    	visitor.endVisit(this, scope);
     }
 
     /* We resolve the underlying field reference and copy over relevant state, rather than resolve this as a SingleNameReference.

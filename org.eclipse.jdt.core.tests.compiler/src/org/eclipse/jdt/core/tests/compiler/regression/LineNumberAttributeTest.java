@@ -8,11 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -127,9 +122,7 @@ public void test001() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=173800
-// With ReferenceOfFieldOfThis this.x becomes atomic ASTwise and we lose the ability to step from this. to x
-// if they are split across lines - this is fixable, but not worth bending over backwards to address silly formatting.
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173800
 public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -198,6 +191,7 @@ public void test002() throws Exception {
 		"        [pc: 0, pc: 23] -> 26 when : java.lang.NullPointerException\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 18]\n" +
+		"        [pc: 1, line: 19]\n" +
 		"        [pc: 4, line: 20]\n" +
 		"        [pc: 7, line: 21]\n" +
 		"        [pc: 10, line: 22]\n" +
