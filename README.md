@@ -23,6 +23,7 @@ If you do not provide the implementation yourself (or pay someone to do it for y
 If it is a serious bug, other people than you might care enough to provide a fix.
 
 [![Create Eclipse Development Environment for JDT Core](https://download.eclipse.org/oomph/www/setups/svg/JDT_Core.svg)](
+[![GetMerged Scorecard](https://getmerged.abhishekco.de/api/badge/eclipse-jdt/eclipse.jdt.core)](https://getmerged.abhishekco.de/eclipse-jdt/eclipse.jdt.core)
 https://www.eclipse.org/setups/installer/?url=https://raw.githubusercontent.com/eclipse-jdt/eclipse.jdt.core/master/org.eclipse.jdt.core.setup/JdtCoreConfiguration.setup&show=true
 "Click to open Eclipse-Installer Auto Launch or drag into your running installer")
 
