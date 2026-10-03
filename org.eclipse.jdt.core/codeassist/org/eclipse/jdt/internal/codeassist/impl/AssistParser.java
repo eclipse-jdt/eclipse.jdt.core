@@ -2591,13 +2591,13 @@ public boolean requireReferenceOfFieldOfThis(Expression tos) {
 protected void consumeConstructorDeclaration() {
 	super.consumeConstructorDeclaration();
 	ConstructorDeclaration cd = (ConstructorDeclaration) this.astStack[this.astPtr];
-	cd.bits |= ASTNode.CodeGenerationSkipped;
+	cd.bits |= ASTNode.SkipFieldProxification;
 }
 
 @Override
 public void consumeTypeDeclaration(TypeDeclaration typeDecl) {
 	super.consumeTypeDeclaration(typeDecl);
-	typeDecl.bits |= ASTNode.CodeGenerationSkipped;
+	typeDecl.bits |= ASTNode.SkipFieldProxification;
 }
 
 }
