@@ -1487,6 +1487,52 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.runWarningTest();
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5141
+	public void testIssue5141() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNullByDefault;
+
+				@NonNullByDefault
+				public class X {
+
+					int test1(String s) {
+						var s2 = s.strip();
+						if (s == null || s2 == null) {
+							return 0;
+						}
+						return -1;
+					}
+
+					int test2(String s) {
+						var s2 = s.strip();
+						if (s != null || s2 == null) {
+							return 0;
+						}
+						return -1;
+					}
+				}
+				"""
+		};
+		runner.expectedCompilerLog =
+				"""
+				----------
+				1. ERROR in X.java (at line 15)
+					if (s != null || s2 == null) {
+					    ^
+				Redundant null check: The variable s cannot be null at this location
+				----------
+				2. WARNING in X.java (at line 18)
+					return -1;
+					^^^^^^^^^^
+				Dead code
+				----------
+				""";
+		runner.runNegativeTest();
+	}
+
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5369
 	// [Null][Records] Nullness tracking broken inside compact constructors
 	public void testIssue5369() {
