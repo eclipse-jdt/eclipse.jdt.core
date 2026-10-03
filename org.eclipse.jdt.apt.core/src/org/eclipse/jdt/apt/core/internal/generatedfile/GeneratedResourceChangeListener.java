@@ -27,9 +27,11 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
@@ -49,6 +51,8 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 	// workspace lock
 	private final Set<IResource> deletedResources =
 		Collections.synchronizedSet(new HashSet<IResource>());
+	private final Set<IProject> projectsWithSourceChanges =
+		Collections.synchronizedSet(new HashSet<IProject>());
 
 	public GeneratedResourceChangeListener(){}
 
@@ -78,6 +82,10 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		}
 		else if ( event.getType() == IResourceChangeEvent.PRE_BUILD )
 		{
+			synchronized (projectsWithSourceChanges) {
+				AptCompilationParticipant.getInstance().setProjectsWithSourceChanges(projectsWithSourceChanges);
+				projectsWithSourceChanges.clear();
+			}
 			try
 			{
 				if( AptPlugin.DEBUG_GFM )
@@ -118,6 +126,36 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		}
 	}
 
+	private void recordSourceChange(IResourceDelta delta) throws CoreException {
+		IResource resource = delta.getResource();
+		if (!(resource instanceof IFile) || !resource.getName().endsWith(".java")) { //$NON-NLS-1$
+			return;
+		}
+		if (delta.getKind() == IResourceDelta.CHANGED
+				&& (delta.getFlags() & (IResourceDelta.CONTENT | IResourceDelta.ENCODING | IResourceDelta.MOVED_FROM
+						| IResourceDelta.MOVED_TO | IResourceDelta.REPLACED)) == 0) {
+			return;
+		}
+
+		IProject project = resource.getProject();
+		IJavaProject javaProject = JavaCore.create(project);
+		if (!project.isOpen() || !javaProject.exists()) {
+			return;
+		}
+		var resourcePath = resource.getFullPath();
+		var generatedSourcePath = project.getFullPath().append(AptConfig.getGenSrcDir(javaProject));
+		var generatedTestSourcePath = project.getFullPath().append(AptConfig.getGenTestSrcDir(javaProject));
+		if (generatedSourcePath.isPrefixOf(resourcePath) || generatedTestSourcePath.isPrefixOf(resourcePath)) {
+			return;
+		}
+		for (IClasspathEntry entry : javaProject.getRawClasspath()) {
+			if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && entry.getPath().isPrefixOf(resourcePath)) {
+				projectsWithSourceChanges.add(project);
+				return;
+			}
+		}
+	}
+
 	private void addGeneratedSrcFolderTo(final Set<IProject> projs, boolean isTestCode){
 
 		for(IProject proj : projs ){
@@ -139,6 +177,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 
 		@Override
 		public boolean visit(IResourceDelta delta) throws CoreException {
+			recordSourceChange(delta);
 			if( delta.getKind() == IResourceDelta.REMOVED ){
 				if (AptPlugin.DEBUG_GFM) {
 					AptPlugin.trace("generated resource post-change listener adding to deletedResources:" +  //$NON-NLS-1$

@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
@@ -91,6 +92,7 @@ public class FactoryLoaderTests extends APTTestBase {
 		LoaderTestAnnotationProcessor.clearLoaded();
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
+		assertTrue(AnnotationProcessorFactoryLoader.getLoader().hasAggregatingProcessor(jproj));
 		assertTrue(LoaderTestAnnotationProcessor.isLoaded());
 
 		// Verify that we were able to run the ColorAnnotationProcessor successfully
@@ -104,6 +106,7 @@ public class FactoryLoaderTests extends APTTestBase {
 		LoaderTestAnnotationProcessor.clearLoaded();
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
+		assertFalse(AnnotationProcessorFactoryLoader.getLoader().hasAggregatingProcessor(jproj));
 		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
 
 		// add _extJar to the factory list as a class-path-relative jar, and rebuild.

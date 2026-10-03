@@ -33,6 +33,7 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
  */
 public abstract class JarFactoryContainer extends FactoryContainer
 {
+	private static final String GRADLE_INCREMENTAL_PROCESSORS = "META-INF/gradle/incremental.annotation.processors"; //$NON-NLS-1$
 
 	/**
 	 * @return a java.io.File.  The file is not guaranteed to exist.
@@ -96,6 +97,32 @@ public abstract class JarFactoryContainer extends FactoryContainer
         return classNames;
     }
 
+	public boolean isAggregatingProcessor(String processorName) {
+		try (JarFile jarFile = new JarFile(getJarFile())) {
+			JarEntry descriptor = jarFile.getJarEntry(GRADLE_INCREMENTAL_PROCESSORS);
+			if (descriptor == null) {
+				return false;
+			}
+			try (var reader = new BufferedReader(
+					new InputStreamReader(jarFile.getInputStream(descriptor), StandardCharsets.UTF_8))) {
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					int comment = line.indexOf('#');
+					if (comment >= 0) {
+						line = line.substring(0, comment);
+					}
+					String[] fields = line.trim().split(",", 2); //$NON-NLS-1$
+					if (fields.length == 2 && processorName.equals(fields[0].trim())
+							&& "aggregating".equalsIgnoreCase(fields[1].trim())) { //$NON-NLS-1$
+						return true;
+					}
+				}
+			}
+		} catch (IOException e) {
+			AptPlugin.log(e, Messages.AnnotationProcessorFactoryLoader_ioError + getJarFile().getAbsolutePath());
+		}
+		return false;
+	}
+
     /**
      * Read service classnames from a service provider definition.
      * @param is an input stream corresponding to a Sun-style service provider
@@ -132,4 +159,3 @@ public abstract class JarFactoryContainer extends FactoryContainer
     };
 
 }
-
