@@ -1959,4 +1959,24 @@ public void testEarlyFieldRef_outerFieldLegal() throws Exception {
 	assertEarlyFieldRefLines("outer field", problems /* none expected */);
 	assertNoErrors("outer field", problems);
 }
+public void testEarlyFieldRef_withLegalLegalQNR() throws Exception {
+	IProblem[] problems = parseWithBindings28(true, """
+			public class X {
+				Y y;
+				class Y {
+					int f;
+				}
+				X() {
+					y.f = 10;
+					super();
+				}
+
+				public static void main(String[] args) {
+					System.out.println("Hello");
+				}
+			}
+			""");
+	assertEarlyFieldRefLines("outer field", problems /* none expected */);
+	assertNoErrors("outer field", problems);
+}
 }
