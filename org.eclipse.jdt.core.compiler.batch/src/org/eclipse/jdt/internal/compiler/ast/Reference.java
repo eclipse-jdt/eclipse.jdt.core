@@ -192,7 +192,7 @@ void reportOnlyUselesslyReadPrivateField(BlockScope currentScope, FieldBinding f
 	}
 }
 
-private boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBinding field) {
+protected boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBinding field) {
 	if (!JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()))
 		return false;
 	if (field.isStatic())
