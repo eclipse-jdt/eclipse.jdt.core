@@ -4410,6 +4410,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"	^^^^^^^^^^^^^^^^^^^^\n" +
 				"Dead code\n" +
 				"----------\n";
+        runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
         runner.runNegativeTest();
     }
 
@@ -4447,6 +4448,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"	^^^^^^^^^^^^^^^^^^^^\n" +
 				"Dead code\n" +
 				"----------\n";
+        runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
         runner.runNegativeTest();
     }
 
