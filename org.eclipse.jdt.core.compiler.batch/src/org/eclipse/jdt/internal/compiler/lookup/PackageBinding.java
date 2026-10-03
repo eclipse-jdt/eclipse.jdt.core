@@ -473,4 +473,18 @@ public void addWrappingSplitPackageBinding(SplitPackageBinding splitPackageBindi
 	}
 	this.wrappingSplitPackageBindings.add(splitPackageBinding);
 }
+
+@Override
+public boolean isJSpecifyNullMarked() {
+	long bits = this.extendedTagBits & ExtendedTagBits.JSpecifyNullMarkAnnotated;
+	if (bits == ExtendedTagBits.IsJSpecifyNullMarked) {
+		return true;
+	} else if (bits == ExtendedTagBits.IsJSpecifyNullUnmarked) {
+		return false;
+	} else if (this.enclosingModule != null) {
+		return this.enclosingModule.isJSpecifyNullMarked();
+	} else {
+		return false;
+	}
+}
 }
