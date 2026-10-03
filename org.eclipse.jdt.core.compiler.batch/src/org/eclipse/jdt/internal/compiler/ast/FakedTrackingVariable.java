@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2024 GK Software SE and others.
+ * Copyright (c) 2011, 2026 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -334,7 +334,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				closeTracker.currentAssignment = location;
 			}
 			if (closeTracker != null) {
-				if (messageSend.binding != null && ((messageSend.binding.tagBits & TagBits.AnnotationNotOwning) == 0))
+				// @NotOwning never takes ownership. An unannotated type variable is only
+				// potentially owned; a real resource contract (including @Owning) is definite.
+				if (messageSend.binding != null
+						&& (messageSend.binding.tagBits & TagBits.AnnotationNotOwning) == 0
+						&& !isUnannotatedUnconstrainedGenericReturn(messageSend.binding))
 					closeTracker.owningState = OWNED;
 			}
 		} else if (rhs instanceof CastExpression cast) {
@@ -521,20 +525,36 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return flowInfo;
 		} else { // regular resource
 			FakedTrackingVariable tracker = acquisition.closeTracker;
-			if (scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
+			boolean useAnnotations = scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+			// A discarded, unannotated type variable is not a resource factory merely because
+			// substitution made it a closeable. Explicit @Owning/@NotOwning, resource-bounded
+			// type variables and java.nio.file.Files keep their existing contracts.
+			boolean unconstrainedGeneric = !isBlacklistedMethod(acquisition)
+					&& isUnannotatedUnconstrainedGenericReturn(acquisition.binding);
+			if (useAnnotations) {
 				checkMethodForMissingAnnotation(acquisition, scope);
 				long owningTagBits = acquisition.binding.tagBits & TagBits.AnnotationOwningMASK;
-				int initialNullStatus = (owningTagBits == TagBits.AnnotationNotOwning) ? FlowInfo.NON_NULL : FlowInfo.NULL;
+				if (unconstrainedGeneric && tracker == null) {
+					// do not invent a definite owned unassigned resource for a discarded result
+					return flowInfo;
+				}
+				int initialNullStatus = (owningTagBits == TagBits.AnnotationNotOwning)
+						? FlowInfo.NON_NULL
+						: (unconstrainedGeneric ? FlowInfo.POTENTIALLY_NULL : FlowInfo.NULL);
 				if (tracker == null) {
 					acquisition.closeTracker =
 							tracker = new FakedTrackingVariable(scope, acquisition, flowInfo, initialNullStatus); // no local available, closeable is unassigned
 					tracker.owningState = owningStateFromTagBits(owningTagBits, OWNED_PER_DEFAULT);
 				} else {
 					flowInfo.markNullStatus(tracker.binding, initialNullStatus);
+					if (unconstrainedGeneric && tracker.owningState == OWNED)
+						tracker.owningState = 0; // captured result stays potentially owned
 				}
 				tracker.acquisition = acquisition;
 				return flowInfo;
 			}
+			if (unconstrainedGeneric && tracker == null)
+				return flowInfo;
 			if (tracker != null) {
 				// pre-connected tracker means: directly assigning the acquisition to a local, forget special treatment:
 				// (in the unannotated case the pre-connected tracker has no valuable information)
@@ -995,6 +1015,22 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return newTracker;
 	}
 
+	/**
+	 * {@code true} when {@code binding} carries neither {@code @Owning} nor {@code @NotOwning}
+	 * and {@link MethodBinding#original()}'s return type is a type variable whose bounds are not closeable.
+	 */
+	private static boolean isUnannotatedUnconstrainedGenericReturn(MethodBinding binding) {
+		if (binding == null || !binding.isValidBinding())
+			return false;
+		if ((binding.tagBits & TagBits.AnnotationOwningMASK) != 0)
+			return false;
+		TypeBinding declaredReturn = binding.original().returnType;
+		if (declaredReturn == null || !(declaredReturn.isTypeVariable() || declaredReturn.isCapture()))
+			return false;
+		// hasTypeBit initializes a type variable from its superclass and superinterfaces
+		return !declaredReturn.hasTypeBit(TypeIds.BitAutoCloseable | TypeIds.BitCloseable);
+	}
+
 	private static boolean isBlacklistedMethod(Expression expression) {
 		if (expression instanceof MessageSend) {
 			MethodBinding method = ((MessageSend) expression).binding;
@@ -1009,8 +1045,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	protected static int getNullStatusFromMessageSend(Expression expression, Scope scope) {
 		if (expression instanceof MessageSend message) {
 			checkMethodForMissingAnnotation(message, scope);
-			if ((((MessageSend) expression).binding.tagBits & TagBits.AnnotationNotOwning) != 0)
+			if ((message.binding.tagBits & TagBits.AnnotationNotOwning) != 0)
 				return FlowInfo.NON_NULL;
+			// Unannotated unconstrained type variable: potential responsibility when captured.
+			if (isUnannotatedUnconstrainedGenericReturn(message.binding))
+				return FlowInfo.POTENTIALLY_NULL;
 			return FlowInfo.NULL; // per default assume responsibility to close
 		}
 		return 0;
