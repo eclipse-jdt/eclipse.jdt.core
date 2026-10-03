@@ -14,9 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.io.IOException;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
@@ -43,6 +43,16 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	public ModuleDeclarationSyntaxTest(String testName){
 		super(testName, null, null);
 	}
+	private CompilerOptions compilerOptions() {
+		CompilerOptions options = new CompilerOptions();
+		Map<String, String> map  = options.getMap();
+		map.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+		map.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
+		map.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
+		map.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
+		options.set(map);
+		return options;
+	}
 	public void test0001() throws IOException {
 		String source =
 				"module com.greetings {\n" +
@@ -50,10 +60,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		String expectedUnitToString =
 				"module com.greetings {\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0002() throws IOException {
@@ -65,10 +72,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module com.greetings {\n" +
 				"  requires org.astro;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0003() throws IOException {
@@ -80,10 +84,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module org.astro {\n" +
 				"  exports org.astro;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0004() throws IOException {
@@ -95,10 +96,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module org.astro {\n" +
 				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0005() throws IOException {
@@ -114,10 +112,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  exports com.socket.spi;\n" +
 				"  uses com.socket.spi.NetworkSocketProvider;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0006() throws IOException {
@@ -132,10 +127,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  requires com.socket;\n" +
 				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0007() throws IOException {
@@ -151,10 +143,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"	                       ^\n" +
 				"Syntax error on token \".\", with expected\n" +
 				"----------\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), expectedErrorString, "module-info", null, null, options);
 	}
 	public void test0008() throws IOException {
@@ -176,10 +165,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				----------
 				""";
 
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0009() throws IOException {
@@ -206,10 +192,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				Syntax error on token "}", delete this token
 				----------
 				""";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0010() throws IOException {
@@ -224,10 +207,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"	         ^^^^^^^\n"+
 				"Syntax error on token \"private\", delete this token\n" +
 				 "----------\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0011() throws IOException {
@@ -254,10 +234,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				Syntax error on token "}", delete this token
 				----------
 				""";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0012() throws IOException {
@@ -272,10 +249,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"	                         ^^^^^^^\n"+
 				"Syntax error on tokens, delete these tokens\n" +
 				 "----------\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0013() throws IOException {
@@ -290,10 +264,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"	     ^^^^^^^\n"+
 				"Syntax error, type annotations are illegal here\n" +
 				 "----------\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0014() throws IOException {
@@ -313,10 +284,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"	                                      ^^^^^^^\n"+
 				"Syntax error, type annotations are illegal here\n" +
 				 "----------\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0015() throws IOException {
@@ -328,10 +296,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module com.greetings {\n" +
 				"  requires transitive org.astro;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0016() throws IOException {
@@ -343,10 +308,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module com.greetings {\n" +
 				"  requires static org.astro;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0017() throws IOException {
@@ -358,10 +320,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module com.greetings {\n" +
 				"  requires transitive static org.astro;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0018() throws IOException {
@@ -378,10 +337,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  requires com.socket;\n" +
 				"  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0019() throws IOException {
@@ -398,10 +354,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  requires com.socket;\n" +
 				"  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0020() throws IOException {
@@ -413,10 +366,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"open module com.greetings {\n" +
 				"  requires transitive static org.astro;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0021() throws IOException {
@@ -431,10 +381,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  requires com.socket;\n" +
 				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0022() throws IOException {
@@ -446,10 +393,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module org.astro {\n" +
 				"  opens org.astro;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0023() throws IOException {
@@ -461,10 +405,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module org.astro {\n" +
 				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0024() throws IOException {
@@ -480,10 +421,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0025() throws IOException {
@@ -501,10 +439,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0026() throws IOException {
@@ -522,10 +457,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 
@@ -544,10 +476,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 
@@ -560,10 +489,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"module module.test {\n" +
 				"  provides X with Y;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void testbug488541() throws IOException {
@@ -581,10 +507,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  uses module;\n" +
 				"  provides uses with to;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void testbug488541a() throws IOException {
@@ -612,10 +535,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 			"  uses module;\n" +
 			"  provides uses with to;\n" +
 			"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void testbug488541b() throws IOException {
@@ -633,10 +553,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"  uses module;\n" +
 				"  provides uses with to, open, module;\n" +
 				"}\n";
-		CompilerOptions options = new CompilerOptions(getCompilerOptions());
-		options.complianceLevel = ClassFileConstants.JDK9;
-		options.sourceLevel = ClassFileConstants.JDK9;
-		options.targetJDK = ClassFileConstants.JDK9;
+		CompilerOptions options = compilerOptions();
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 
