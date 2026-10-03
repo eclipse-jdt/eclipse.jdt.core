@@ -6615,6 +6615,12 @@ public class CompletionParser extends AssistParser {
 							element = element.parent;
 						}
 					}
+				} else if (method.statements != null) {
+					// "double" recovery; base parser recovered statements and assist parser recovered the assist node
+					Statement[] newStatements = new Statement[method.statements.length + 1];
+					System.arraycopy(method.statements, 0, newStatements, 0, method.statements.length);
+					newStatements[method.statements.length] = statement;
+					method.statements = newStatements;
 				}
 			}
 			if (this.assistNode != null && !(this.assistNode instanceof CompletionOnKeyword) // no useful context
