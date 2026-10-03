@@ -2008,6 +2008,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		boolean valid = true;
 		boolean markdownSnippetIsValid = false;
 		int closingBracePosition = -1;
+		int openBraces = 0;
 		if (!parsingJava23Plus) {
 			throw Scanner.invalidInput();
 		}
@@ -2066,7 +2067,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								else break;
 							}
 							lineContent = lineContent.substring(0, lineContentEnd);
-							if (lineContent.stripLeading().startsWith("}")) { //$NON-NLS-1$
+							if (lineContent.stripLeading().startsWith("}") && openBraces == 0) { //$NON-NLS-1$
 								markdownSnippetIsValid = true;
 								// Record the position of '}' so commentParse() can see it
 								int tokenStart = this.scanner.getCurrentTokenStartPosition();
@@ -2076,6 +2077,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								break;
 							}
 							markdownSnippetIsValid = true;
+							// Update brace depth for content lines so nested '}' are not mistaken for the snippet terminator
+							openBraces = updateBraceDepth(openBraces, lineContent);
 							int contentStart = this.scanner.getCurrentTokenStartPosition() + slashPos + 3;
 							int contentEnd = contentStart + lineContentEnd;
 							processMarkdownSnippetLine(lineContent, contentStart, contentEnd, snippetTag);
@@ -2105,7 +2108,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									continue;
 								}
 								String lineContent = rawLine.substring(slashPos + 3);
-								if (lineContent.stripLeading().startsWith("}")) { //$NON-NLS-1$
+								if (lineContent.stripLeading().startsWith("}") && openBraces == 0) { //$NON-NLS-1$
 									markdownSnippetIsValid = true;
 									// Record the position of '}' so commentParse() can see it
 									closingBracePosition = lineStart + slashPos + 3
@@ -2114,6 +2117,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									break;
 								}
 								markdownSnippetIsValid = true;
+								// Update brace depth for content lines so nested '}' are not mistaken for the snippet terminator
+								openBraces = updateBraceDepth(openBraces, lineContent);
 								processMarkdownSnippetLine(lineContent,
 										lineStart + slashPos + 3,
 										lineStart + rawLine.length(),
@@ -2215,6 +2220,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				break;
 		}
 		return filePath;
+	}
+
+	private static int updateBraceDepth(int depth, String line) {
+	    for (int i = 0; i < line.length(); i++) {
+	        char ch = line.charAt(i);
+	        if (ch == '{') depth++;
+	        else if (ch == '}') depth--;
+	    }
+	    return depth;
 	}
 
 	private boolean readFileWithRegions(int start, String regionName, Path filePath, Object snippetTag) throws IOException {

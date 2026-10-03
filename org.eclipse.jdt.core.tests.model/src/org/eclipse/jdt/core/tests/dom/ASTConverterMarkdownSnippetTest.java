@@ -613,7 +613,6 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 		}
 	}
 
-	// this is an invalid test, should be corrected later(https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5075)
 	public void testJavadocIncorrectlyParsingAnnotationInlineTag5055() throws JavaModelException {
 		String source = """
 				/// Example showing formatter bug with {@code @} in snippet blocks.
@@ -635,7 +634,13 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 			assertEquals("Wrong number of comments", 1, size);
 			Javadoc javadoc = (Javadoc) unitComments.get(0);
 			TagElement snippetTag = getSnippetTag(javadoc);
-			assertFalse("Wrong number of elements", snippetTag.fragments().size() == 5);
+			List<TextElement> frags = snippetTag.fragments();
+			assertTrue("Wrong number of elements", frags.size() == 5);
+			assertEquals("Incorrect first fragment", " 	@MyAnnotation" + this.newline, frags.get(0).getText());
+			assertEquals("Incorrect second fragment", "		public class Example {" + this.newline, frags.get(1).getText());
+			assertEquals("Incorrect third fragment", "			@AnotherAnnotation" + this.newline, frags.get(2).getText());
+			assertEquals("Incorrect fourth fragment", "			private String field;" + this.newline, frags.get(3).getText());
+			assertEquals("Incorrect fifth fragment", "		}" + this.newline, frags.get(4).getText());
 		}
 	}
 
@@ -759,6 +764,34 @@ public class ASTConverterMarkdownSnippetTest extends ConverterTestSetup {
 			assertEquals("Incorrect TagProperty string_value", "foo", replaceRegexTagProperty.get(0).getStringValue());
 			assertEquals("Incorrect TagProperty name", "replacement", replaceRegexTagProperty.get(1).getName());
 			assertEquals("Incorrect TagProperty string_value", "baz", replaceRegexTagProperty.get(1).getStringValue());
+		}
+	}
+
+	public void testSnippetMarkdownNestedBraces5075() throws JavaModelException {
+		String source = """
+				/// {@snippet :
+				///		public class Example {
+				///			private String field;
+				///		}
+				/// 	void foo();
+				/// }
+				public class Markdown {}
+			""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_26/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Javadoc javadoc = (Javadoc) unitComments.get(0);
+			TagElement snippetTag = getSnippetTag(javadoc);
+			assertNotNull("Snippet tag should not be null", snippetTag);
+			List<TextElement> frags = snippetTag.fragments();
+			assertEquals("Wrong number of fragments", 4, frags.size());
+			assertEquals("Incorrect first fragment", "		public class Example {" + this.newline, frags.get(0).getText());
+			assertEquals("Incorrect second fragment", "			private String field;" + this.newline, frags.get(1).getText());
+			assertEquals("Incorrect third fragment", "		}" + this.newline, frags.get(2).getText());
+			assertEquals("Incorrect fourth fragment", " 	void foo();" + this.newline, frags.get(3).getText());
 		}
 	}
 }
