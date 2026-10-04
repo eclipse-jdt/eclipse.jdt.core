@@ -192,10 +192,16 @@ void reportOnlyUselesslyReadPrivateField(BlockScope currentScope, FieldBinding f
 	}
 }
 
+public boolean isReferenceOfFieldOfThis() {
+	return false;
+}
+
 protected boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBinding field) {
 	if (!JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()))
 		return false;
 	if (field.isStatic())
+		return false;
+	if (isReferenceOfFieldOfThis())
 		return false;
 	ReferenceContext referenceContext = scope.methodScope().referenceContext;
 	if (referenceContext instanceof ConstructorDeclaration constructor) {

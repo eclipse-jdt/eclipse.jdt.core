@@ -73,6 +73,11 @@ public class ReferenceOfFieldOfThis extends SingleNameReference {
     	visitor.endVisit(this, scope);
     }
 
+    @Override
+    public boolean isReferenceOfFieldOfThis() {
+    	return true;
+    }
+
     /* We resolve the underlying field reference and copy over relevant state, rather than resolve this as a SingleNameReference.
      * The reason is two folds. All semantics constraints validation continue to happen as before without having to be replicated.
      * This also allows us to expose the wrapped (resolved) FieldReference to clients who don't care about early construction context.

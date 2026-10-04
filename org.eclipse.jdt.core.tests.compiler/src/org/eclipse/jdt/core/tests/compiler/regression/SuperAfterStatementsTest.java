@@ -269,7 +269,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					class A {
 					    int i;
 					    A() {
-					        this.i++;                   // OK
+					        this.i++;                   // Error
 					        this.hashCode();            // Error
 					        System.out.print(this);     // Error
 					        super();
@@ -277,41 +277,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	this.hashCode();            // Error\n" +
-				"	^^^^\n" +
-				"Cannot use 'this' in an early construction context\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	System.out.print(this);     // Error\n" +
-				"	                 ^^^^\n" +
-				"Cannot use 'this' in an early construction context\n" +
-				"----------\n");
-	}
-
-	// any unqualified this expression is disallowed in a pre-construction context:
-	public void test006_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				class A {
-				    int i;
-				    A() {
-				        this.i++;                   // Error
-				        this.hashCode();            // Error
-				        System.out.print(this);     // Error
-				        super();
-				    }
-				}
-			"""
-			};
-		runner.expectedCompilerLog =
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	this.i++;                   // Error\n" +
@@ -327,8 +292,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"	System.out.print(this);     // Error\n" +
 				"	                 ^^^^\n" +
 				"Cannot use 'this' in an early construction context\n" +
-				"----------\n";
-		runner.runNegativeTest();
+				"----------\n");
 	}
 	// any field access, method invocation, or method reference
 	// qualified by super is disallowed in a pre-construction context:
@@ -530,22 +494,26 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	//an expression involving this does not refer to the current instance but,
 	// rather, to the enclosing instance of an inner class:
 	public void test009_NOK() {
-		runConformTest(new String[] {
+		runNegativeTest(new String[] {
 			"B.java",
 				"""
 					class B {
 					    class C {
 					        int c;
 					        C() {
-					            C.this.c++;
+					            C.this.c++;             // Error - same instance
 					            super();
 					        }
 					    }
-					    void main() {}
 					}
 				"""
 			},
-			"");
+			"----------\n" +
+			"1. ERROR in B.java (at line 5)\n" +
+			"	C.this.c++;             // Error - same instance\n" +
+			"	^^^^^^^^\n" +
+			"Cannot refer to field c in an early construction context\n" +
+			"----------\n");
 	}
 	public void test009_NOK_without_preview() {
 		Runner runner = new Runner();
@@ -4719,7 +4687,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
     }
 
 	public void testDeeplyQualifiedThis() {
-		runConformTest(new String[] {
+		runNegativeTest(new String[] {
 			"X.java",
 			"""
 			public class X {
@@ -4727,8 +4695,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					 class Z {
 						 int i;
 						 Z() {
-							 X.Y.Z.this.i = 10;
-							 System.out.println(Y.Z.this.i);
+							 X.Y.Z.this.i = 10; // OK
+							 System.out.println(Y.Z.this.i); // Error
 							 super();
 							 System.out.println(Y.Z.this.i);
 						 }
@@ -4739,7 +4707,13 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				}
 			}
 			"""
-		}, "10\n10");
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	System.out.println(Y.Z.this.i); // Error\n" +
+		"	                   ^^^^^^^^^^\n" +
+		"Cannot refer to field i in an early construction context\n" +
+		"----------\n");
 	}
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5454
