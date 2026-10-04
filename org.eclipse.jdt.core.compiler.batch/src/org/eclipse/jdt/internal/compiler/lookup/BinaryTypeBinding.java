@@ -348,11 +348,11 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.sourceName = binaryType.getSourceName();
 	this.modifiers = binaryType.getModifiers();
 
-	if (this.isValueClass() && JavaFeature.VALUE_CLASSES_AND_OBJECTS.isPreview() && !this.environment.globalOptions.enablePreviewFeatures) {
+	if (this.environment.globalOptions.enablePreviewFeatures && JavaFeature.VALUE_CLASSES_AND_OBJECTS.isPreview()) {
 		String name = new String(binaryType.getName());
 		for (int i = 0; i < this.valhallaMigratedClasses.length; i++) {
 			if (this.valhallaMigratedClasses[i].equals(name)) {
-				this.modifiers |= ClassFileConstants.AccIdentity;
+				this.modifiers &= ~ClassFileConstants.AccIdentity;
 				break;
 			}
 		}
