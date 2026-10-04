@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Timo Kinnunen - Contributions for bug 377373 - [subwords] known limitations with JDT 3.8
@@ -9414,6 +9418,14 @@ public final class CompletionEngine
 			if (completingInPreamble(method))
 				continue next;
 			if (method.isSynthetic()) continue next;
+
+			if (receiverType.isValueClass() && method.declaringClass.id == scope.getJavaLangObject().id) {
+				char [] selector = method.selector;
+				if (CharOperation.equals(selector, "wait".toCharArray()) //$NON-NLS-1$
+						|| CharOperation.equals(selector, "notify".toCharArray()) //$NON-NLS-1$
+						|| CharOperation.equals(selector, "notifyAll".toCharArray())) //$NON-NLS-1$
+					continue;
+			}
 
 			if (method.isDefaultAbstract())	continue next;
 
