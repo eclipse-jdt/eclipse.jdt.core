@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for Bug 343713 - [compiler] bogus line number in constructor of inner class in 1.5 compliance
@@ -162,7 +166,7 @@ public void test8() throws Exception {
 		"    [inner class info: #21 java/util/Map$Entry, outer class info: #23 java/util/Map\n" +
 		"     inner name: #25 Entry, accessflags: 1545 public abstract static],\n" +
 		"    [inner class info: #26 p/A$B, outer class info: #28 p/A\n" +
-		"     inner name: #30 B, accessflags: 8 static]\n";
+		"     inner name: #30 B, accessflags: 40 static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
@@ -184,7 +188,7 @@ public void test9() throws Exception {
 		"    [inner class info: #25 java/util/Map$Entry, outer class info: #27 java/util/Map\n" +
 		"     inner name: #29 Entry, accessflags: 1545 public abstract static],\n" +
 		"    [inner class info: #30 p/A$B, outer class info: #32 p/A\n" +
-		"     inner name: #34 B, accessflags: 8 static]\n";
+		"     inner name: #34 B, accessflags: 40 static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
@@ -211,7 +215,7 @@ public void test10() throws Exception {
 		"    [inner class info: #30 p/A$B, outer class info: #32 p/A\n" +
 		"     inner name: #34 B, accessflags: 1544 abstract static],\n" +
 		"    [inner class info: #35 p/C$D, outer class info: #37 p/C\n" +
-		"     inner name: #39 D, accessflags: 8 static]\n";
+		"     inner name: #39 D, accessflags: 40 static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
@@ -242,11 +246,11 @@ public void test11() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #35 X$SelfType, outer class info: #1 X\n" +
-		"     inner name: #37 SelfType, accessflags: 1032 abstract static],\n" +
+		"     inner name: #37 SelfType, accessflags: 1064 abstract static],\n" +
 		"    [inner class info: #38 X$SubType, outer class info: #1 X\n" +
-		"     inner name: #40 SubType, accessflags: 8 static],\n" +
+		"     inner name: #40 SubType, accessflags: 40 static],\n" +
 		"    [inner class info: #41 X$SuperType, outer class info: #1 X\n" +
-		"     inner name: #43 SuperType, accessflags: 8 static]\n";
+		"     inner name: #43 SuperType, accessflags: 40 static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
@@ -287,7 +291,7 @@ public void test13() throws Exception {
 		"    [inner class info: #5 p/A$B, outer class info: #19 p/A\n" +
 		"     inner name: #21 B, accessflags: 1544 abstract static],\n" +
 		"    [inner class info: #3 p/C$D, outer class info: #22 p/C\n" +
-		"     inner name: #24 D, accessflags: 8 static]\n";
+		"     inner name: #24 D, accessflags: 40 static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343713

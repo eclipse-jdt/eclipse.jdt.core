@@ -4264,7 +4264,7 @@ public void test123() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #1 X$Z, outer class info: #32 X\n" +
-			"     inner name: #34 Z, accessflags: 8 static]\n" +
+			"     inner name: #34 Z, accessflags: 40 static]\n" +
 			nestHost +
 			"}";
 
@@ -4396,7 +4396,7 @@ public void test125() throws Exception {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" +
-				"     inner name: #44 Local, accessflags: 0 default]\n" +
+				"     inner name: #44 Local, accessflags: 32 default]\n" +
 				(isMinimumCompliant(ClassFileConstants.JDK11) ?
 				"  Enclosing Method: #39  #41 X.foo(Ljava/lang/String;)V\n" +
 				"\n" +
@@ -4966,7 +4966,7 @@ public void test141() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #3 p/A$B, outer class info: #17 p/A\n" +
-		"     inner name: #19 B, accessflags: 9 public static]\n";
+		"     inner name: #19 B, accessflags: 41 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -4991,7 +4991,7 @@ public void test142() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #16 p/A$B, outer class info: #18 p/A\n" +
-		"     inner name: #31 B, accessflags: 1 public]\n";
+		"     inner name: #31 B, accessflags: 33 public]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5012,7 +5012,7 @@ public void test143() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #16 A$B, outer class info: #21 A\n" +
-		"     inner name: #23 B, accessflags: 1 public]\n";
+		"     inner name: #23 B, accessflags: 33 public]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5033,7 +5033,7 @@ public void test144() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #17 A$B, outer class info: #25 A\n" +
-		"     inner name: #27 B, accessflags: 9 public static]\n";
+		"     inner name: #27 B, accessflags: 41 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5051,7 +5051,7 @@ public void test145() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #19 A$B, outer class info: #21 A\n" +
-		"     inner name: #23 B, accessflags: 9 public static]\n";
+		"     inner name: #23 B, accessflags: 41 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5071,7 +5071,7 @@ public void test146() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #21 A$B, outer class info: #23 A\n" +
-		"     inner name: #25 B, accessflags: 9 public static]\n";
+		"     inner name: #25 B, accessflags: 41 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5091,7 +5091,7 @@ public void test147() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #19 A$B, outer class info: #21 A\n" +
-		"     inner name: #23 B, accessflags: 9 public static]\n";
+		"     inner name: #23 B, accessflags: 41 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5110,7 +5110,7 @@ public void test148() throws Exception {
 	String expectedOutput =
 		"  Inner classes:\n" +
 		"    [inner class info: #16 A$B, outer class info: #21 A\n" +
-		"     inner name: #23 B, accessflags: 9 public static]\n";
+		"     inner name: #23 B, accessflags: 41 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171749
@@ -5158,9 +5158,9 @@ public void test149() throws Exception {
 		"    [inner class info: #39 A$Foo7, outer class info: #44 A\n" +
 		"     inner name: #53 Foo7, accessflags: 1545 public abstract static],\n" +
 		"    [inner class info: #25 X$1, outer class info: #0\n" +
-		"     inner name: #0, accessflags: 0 default],\n" +
+		"     inner name: #0, accessflags: 32 default],\n" +
 		"    [inner class info: #54 X$Foo6, outer class info: #1 X\n" +
-		"     inner name: #56 Foo6, accessflags: 9 public static]\n";
+		"     inner name: #56 Foo6, accessflags: 41 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210422

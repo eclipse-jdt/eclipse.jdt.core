@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -878,7 +882,7 @@ public class IncrementalTests18 extends BuilderTests {
 				"    [inner class info: #1 BatchingLock$IFlushOperation, outer class info: #10 BatchingLock\n" +
 				"     inner name: #12 IFlushOperation, accessflags: 1545 public abstract static],\n" +
 				"    [inner class info: #13 BatchingLock$ThreadInfo, outer class info: #10 BatchingLock\n" +
-				"     inner name: #15 ThreadInfo, accessflags: 9 public static]\n" +
+				"     inner name: #15 ThreadInfo, accessflags: 41 public static]\n" +
 				"}";
 
 		if (!actualOutput.equals(expectedOutput)) {

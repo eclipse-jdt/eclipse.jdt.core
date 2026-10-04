@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * Copyright (c) 2019, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -6,6 +6,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -11223,7 +11227,7 @@ public void testIssue4551_2() throws Exception {
 					    AccessMode accessMode() default AccessMode.AUTO;
 					    RequiredMode requiredMode() default RequiredMode.AUTO;
 					    boolean hidden() default false;
-					    // … many more elements …
+					    // â€¦ many more elements â€¦
 					}
 
 					@Target({ANNOTATION_TYPE, FIELD, METHOD, PARAMETER})
@@ -11235,7 +11239,7 @@ public void testIssue4551_2() throws Exception {
 					    String defaultValue() default "";
 					   // Access access() default Access.AUTO;
 					    String namespace() default "";
-					    // …
+					    // â€¦
 					}
 					""",
 	            },
@@ -11555,11 +11559,11 @@ public void testIssue4616_fuller() throws Exception {
 					"\n" +
 					"  Inner classes:\n" +
 					"    [inner class info: #96 java/lang/invoke/MethodHandles$Lookup, outer class info: #98 java/lang/invoke/MethodHandles\n" +
-					"     inner name: #100 Lookup, accessflags: 25 public static final],\n" +
+					"     inner name: #100 Lookup, accessflags: 57 public static final],\n" +
 					"    [inner class info: #101 test/Broken$UpsertEnvironmentDto, outer class info: #1 test/Broken\n" +
-					"     inner name: #103 UpsertEnvironmentDto, accessflags: 25 public static final],\n" +
+					"     inner name: #103 UpsertEnvironmentDto, accessflags: 57 public static final],\n" +
 					"    [inner class info: #104 test/Schema$RequiredMode, outer class info: #106 test/Schema\n" +
-					"     inner name: #108 RequiredMode, accessflags: 16409 public static final]\n" +
+					"     inner name: #108 RequiredMode, accessflags: 16441 public static final]\n" +
 					"\n" +
 					"Nest Members:\n" +
 					"   #101 test/Broken$UpsertEnvironmentDto\n" +

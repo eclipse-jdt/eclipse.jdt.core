@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -3441,9 +3445,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (int i = 0; i < numberOfInnerClasses; i++) {
 			ReferenceBinding innerClass = innerClasses[i];
 			int accessFlags = innerClass.getAccessFlags();
-			// https://download.java.net/java/early_access/jdk28/docs/specs/value-objects-jvms.html requires inner class attribute to mention AccIdentity,
-			// but javac doesn't do so ATM. We will likewise not for now.
-			accessFlags &= ~ClassFileConstants.AccIdentity;
 			int innerClassIndex = this.constantPool.literalIndexForType(innerClass.constantPoolName());
 			// inner class index
 			this.contents[localContentsOffset++] = (byte) (innerClassIndex >> 8);

@@ -1,2 +1,3 @@
 # To force a version qualifier update, add the bug here
+https://github.com/eclipse-jdt/eclipse.jdt.core/pull/5471
 

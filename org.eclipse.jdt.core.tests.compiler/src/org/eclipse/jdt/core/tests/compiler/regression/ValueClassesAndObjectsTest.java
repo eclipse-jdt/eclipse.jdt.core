@@ -3690,7 +3690,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5327
 	// javac 28b16 seems to have started to set this bit.
-	public void _testValueFieldInitializerProxyCreationResumesAfterAnonymousClassDetour() {
+	public void testValueFieldInitializerProxyCreationResumesAfterAnonymousClassDetour() {
 		runConformTest(new String[] {
 			"X.java",
 			"""
