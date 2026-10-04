@@ -104,7 +104,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_19, ClassFileConstants.JDK19, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_21, ClassFileConstants.JDK21, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_22, ClassFileConstants.JDK22, (list) -> {addJava16Tests(list);}));
-	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_23, ClassFileConstants.JDK23, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_23, ClassFileConstants.JDK23, (list) -> {addJava16Tests(list);addJava23Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_24, ClassFileConstants.JDK24, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_25, ClassFileConstants.JDK25, (list) -> {addJava16Tests(list);}));
 	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_26, ClassFileConstants.JDK26, (list) -> {addJava16Tests(list);}));
