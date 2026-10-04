@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * Copyright (c) 2013, 2018 Jesper Steen Moller, IBM and others.
  *
  * This program and the accompanying materials
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Jesper Steen Moller - initial API and implementation
@@ -140,7 +144,7 @@ public void test001() throws Exception {
 		"\n" +
 		"  Inner classes:\n" +
 		"    [inner class info: #41 java/lang/invoke/MethodHandles$Lookup, outer class info: #43 java/lang/invoke/MethodHandles\n" +
-		"     inner name: #45 Lookup, accessflags: 25 public static final]\n" +
+		"     inner name: #45 Lookup, accessflags: 57 public static final]\n" +
 		"Bootstrap methods:\n" +
 		"  0 : # 31 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 		"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -248,7 +252,7 @@ public void test002() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #42 java/lang/invoke/MethodHandles$Lookup, outer class info: #44 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #46 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #46 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 31 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup" +
 			";Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -356,7 +360,7 @@ public void test003() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #41 java/lang/invoke/MethodHandles$Lookup, outer class info: #43 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #45 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #45 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 31 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -484,7 +488,7 @@ public void test004() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #52 java/lang/invoke/MethodHandles$Lookup, outer class info: #54 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #56 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #56 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 41 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
 			"	Method arguments:\n" +
@@ -593,7 +597,7 @@ public void test005() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #41 java/lang/invoke/MethodHandles$Lookup, outer class info: #43 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #45 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #45 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 32 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -713,7 +717,7 @@ public void test006() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #46 java/lang/invoke/MethodHandles$Lookup, outer class info: #48 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #50 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #50 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 34 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -837,7 +841,7 @@ public void test007() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #53 java/lang/invoke/MethodHandles$Lookup, outer class info: #55 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #57 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #57 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 46 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -959,7 +963,7 @@ public void test007a() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #53 java/lang/invoke/MethodHandles$Lookup, outer class info: #55 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #57 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #57 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 46 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -1072,7 +1076,7 @@ public void test008() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #45 java/lang/invoke/MethodHandles$Lookup, outer class info: #47 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #49 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #49 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 37 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -1221,7 +1225,7 @@ public void test009() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #65 java/lang/invoke/MethodHandles$Lookup, outer class info: #67 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #69 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #69 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 57 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -1330,7 +1334,7 @@ public void test009() throws Exception {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #57 java/lang/invoke/MethodHandles$Lookup, outer class info: #59 java/lang/invoke/MethodHandles\n" +
-				"     inner name: #61 Lookup, accessflags: 25 public static final]\n" +
+				"     inner name: #61 Lookup, accessflags: 57 public static final]\n" +
 				"Bootstrap methods:\n" +
 				"  0 : # 41 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
 				"	Method arguments:\n" +
@@ -1498,7 +1502,7 @@ public void test010() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #70 java/lang/invoke/MethodHandles$Lookup, outer class info: #72 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #74 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #74 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 61 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -1626,7 +1630,7 @@ public void test010() throws Exception {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #66 java/lang/invoke/MethodHandles$Lookup, outer class info: #68 java/lang/invoke/MethodHandles\n" +
-				"     inner name: #70 Lookup, accessflags: 25 public static final]\n" +
+				"     inner name: #70 Lookup, accessflags: 57 public static final]\n" +
 				"Bootstrap methods:\n" +
 				"  0 : # 49 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
 				"	Method arguments:\n" +
@@ -1795,7 +1799,7 @@ public void test011() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #70 java/lang/invoke/MethodHandles$Lookup, outer class info: #72 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #74 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #74 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 61 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -1923,7 +1927,7 @@ public void test011() throws Exception {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #66 java/lang/invoke/MethodHandles$Lookup, outer class info: #68 java/lang/invoke/MethodHandles\n" +
-				"     inner name: #70 Lookup, accessflags: 25 public static final]\n" +
+				"     inner name: #70 Lookup, accessflags: 57 public static final]\n" +
 				"Bootstrap methods:\n" +
 				"  0 : # 49 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
 				"	Method arguments:\n" +
@@ -2088,7 +2092,7 @@ public void test012() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #51 java/lang/invoke/MethodHandles$Lookup, outer class info: #53 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #55 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #55 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 43 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -2225,7 +2229,7 @@ public void test013() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #47 java/lang/invoke/MethodHandles$Lookup, outer class info: #49 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #51 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #51 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 40 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" +
 			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -2425,7 +2429,7 @@ public void test014() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #62 java/lang/invoke/MethodHandles$Lookup, outer class info: #64 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #66 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #66 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 50 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
 			"Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" +
@@ -2659,7 +2663,7 @@ public void test015() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #93 java/lang/invoke/MethodHandles$Lookup, outer class info: #95 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #97 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #97 Lookup, accessflags: 57 public static final]\n" +
 			"Bootstrap methods:\n" +
 			"  0 : # 85 invokestatic java/lang/invoke/LambdaMetafactory.altMetafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
 			"	Method arguments:\n" +
@@ -2842,9 +2846,9 @@ public void test016() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #1 X$1Y, outer class info: #0\n" +
-			"     inner name: #71 Y, accessflags: 0 default],\n" +
+			"     inner name: #71 Y, accessflags: 32 default],\n" +
 			"    [inner class info: #72 java/lang/invoke/MethodHandles$Lookup, outer class info: #74 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #76 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #76 Lookup, accessflags: 57 public static final]\n" +
 			"  Enclosing Method: #53  #55 X.foo()V\n" +
 			nestHost +
 			"Bootstrap methods:\n" +
@@ -3029,9 +3033,9 @@ public void test017() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #1 X$1Y, outer class info: #0\n" +
-			"     inner name: #71 Y, accessflags: 0 default],\n" +
+			"     inner name: #71 Y, accessflags: 32 default],\n" +
 			"    [inner class info: #72 java/lang/invoke/MethodHandles$Lookup, outer class info: #74 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #76 Lookup, accessflags: 25 public static final]\n" +
+			"     inner name: #76 Lookup, accessflags: 57 public static final]\n" +
 			"  Enclosing Method: #53  #55 X.foo()V\n" +
 			nestHost +
 			"Bootstrap methods:\n" +
@@ -3511,7 +3515,7 @@ public void test430035() throws IOException, ClassFormatException {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #109 java/lang/invoke/MethodHandles$Lookup, outer class info: #111 java/lang/invoke/MethodHandles\n" +
-				"     inner name: #113 Lookup, accessflags: 25 public static final]\n" +
+				"     inner name: #113 Lookup, accessflags: 57 public static final]\n" +
 				"Bootstrap methods:\n" +
 				"  0 : # 98 invokestatic java/lang/invoke/LambdaMetafactory.altMetafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
 				"	Method arguments:\n" +
@@ -3703,7 +3707,7 @@ public void test430035() throws IOException, ClassFormatException {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #104 java/lang/invoke/MethodHandles$Lookup, outer class info: #106 java/lang/invoke/MethodHandles\n" +
-				"     inner name: #108 Lookup, accessflags: 25 public static final]\n" +
+				"     inner name: #108 Lookup, accessflags: 57 public static final]\n" +
 				"Bootstrap methods:\n" +
 				"  0 : # 85 invokestatic java/lang/invoke/LambdaMetafactory.altMetafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
 				"	Method arguments:\n" +

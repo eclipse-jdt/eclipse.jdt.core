@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Jesper Steen Moeller - initial API and implementation
  *			bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
@@ -457,9 +461,9 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #20 ParameterNames$1, outer class info: #0\n" +
-				"     inner name: #0, accessflags: 0 default],\n" +
+				"     inner name: #0, accessflags: 32 default],\n" +
 				"    [inner class info: #29 ParameterNames$1Local, outer class info: #0\n" +
-				"     inner name: #41 Local, accessflags: 0 default]\n" +
+				"     inner name: #41 Local, accessflags: 32 default]\n" +
 				nestMembers +
 				"}";
 
@@ -537,7 +541,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #1 ParameterNames$1, outer class info: #0\n" +
-			"     inner name: #0, accessflags: 0 default]\n" +
+			"     inner name: #0, accessflags: 32 default]\n" +
 			"  Enclosing Method: #36  #38 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" +
 			nestHost +
 			"}"	;

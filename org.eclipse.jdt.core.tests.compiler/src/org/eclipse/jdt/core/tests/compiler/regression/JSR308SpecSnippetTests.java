@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -2468,7 +2472,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #24 pkg/Clazz$Inner, outer class info: #1 pkg/Clazz\n" +
-				"     inner name: #26 Inner, accessflags: 1 public]\n" +
+				"     inner name: #26 Inner, accessflags: 33 public]\n" +
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "pkg" + File.separator + "Clazz.class", "pkg.Clazz", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}

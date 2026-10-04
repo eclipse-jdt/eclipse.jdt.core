@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -4014,9 +4018,9 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"\n" +
     			"  Inner classes:\n" +
     			"    [inner class info: #54 Test$Type, outer class info: #1 Test\n" +
-    			"     inner name: #56 Type, accessflags: 9736 abstract static],\n" +
+    			"     inner name: #56 Type, accessflags: 9768 abstract static],\n" +
     			"    [inner class info: #57 Test$Var, outer class info: #1 Test\n" +
-    			"     inner name: #59 Var, accessflags: 9736 abstract static]\n" +
+    			"     inner name: #59 Var, accessflags: 9768 abstract static]\n" +
     			"\n" +
     			"Nest Members:\n" +
     			"   #54 Test$Type,\n" +

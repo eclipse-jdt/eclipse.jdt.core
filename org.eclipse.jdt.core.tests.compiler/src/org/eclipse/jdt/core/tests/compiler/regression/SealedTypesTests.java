@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * Copyright (c) 2020, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -6,6 +6,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -4665,7 +4669,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		String expectedOutput =
 			"  Inner classes:\n" +
 			"    [inner class info: #33 Outer$Inner, outer class info: #36 Outer\n" +
-			"     inner name: #38 Inner, accessflags: 16 final]\n" +
+			"     inner name: #38 Inner, accessflags: 48 final]\n" +
 			"\n" +
 			"PermittedSubclasses:\n" +
 			"   #33 Outer$Inner\n" +
@@ -5098,9 +5102,9 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		expectedOutput =
 				"  Inner classes:\n" +
 				"    [inner class info: #3 Y$E, outer class info: #20 Y\n" +
-				"     inner name: #22 E, accessflags: 17416 abstract static],\n" +
+				"     inner name: #22 E, accessflags: 17448 abstract static],\n" +
 				"    [inner class info: #1 Y$E$1, outer class info: #0\n" +
-				"     inner name: #0, accessflags: 16400 final]\n" +
+				"     inner name: #0, accessflags: 16432 final]\n" +
 				"  Enclosing Method: #3  #0 Y$E\n";
 		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -6459,7 +6463,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2709
 	// [Sealed types] Disjointness behavior difference vis a vis javac
 	/* A class named C is disjoint from an interface named I if (i) it is not the case that C <: I, and (ii) one of the following cases applies:
-	– C is freely extensible (§8.1.1.2), and I is sealed, and C is disjoint from all of the permitted direct subclasses and subinterfaces of I.
+	â€“ C is freely extensible (Â§8.1.1.2), and I is sealed, and C is disjoint from all of the permitted direct subclasses and subinterfaces of I.
 	*/
 	public void testIssue2709() {
 		runNegativeTest(
