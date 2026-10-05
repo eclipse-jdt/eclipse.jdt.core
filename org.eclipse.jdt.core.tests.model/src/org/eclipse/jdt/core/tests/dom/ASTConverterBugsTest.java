@@ -1803,6 +1803,8 @@ public void testEarlyFieldRef_lambdaAndLocalClass() throws Exception {
 			    int f;
 			    X() {
 			        f = 1;
+			        int k = this.f;
+			        int j = X.this.f;
 			        Supplier<Integer> a = () -> f;
 			        Supplier<Integer> b = () -> this.f;
 			        super();
@@ -1812,7 +1814,7 @@ public void testEarlyFieldRef_lambdaAndLocalClass() throws Exception {
 				T get();
 			}
 			""");
-	assertEarlyFieldRefLines("lambda", problems, 6, 7);
+	assertEarlyFieldRefLines("lambda", problems, 6, 7, 8, 9);
 
 	problems = parseWithBindings28(true, """
 			public class X {
@@ -1835,7 +1837,7 @@ public void testEarlyFieldRef_valueClassFieldInitializer() throws Exception {
 			public value class X {
 			    int a = 1;
 			    int b = a + 1;
-			    int c = this.a + 1;
+			    int c = a + 1;
 			    X() { super(); }
 			}
 			""");
@@ -1911,8 +1913,8 @@ public void testEarlyFieldRef_legalReads() throws Exception {
 			    X() {
 			        f = 1;
 			        int a = f;
-			        int b = this.f;
-			        int c = X.this.f;
+			        int b = f;
+			        int c = f;
 			        int d = s;
 			        super();
 			    }
@@ -1930,9 +1932,9 @@ public void testEarlyFieldRef_valueClassLegalReads() throws Exception {
 			    X() {
 			        g = 1;
 			        int a = f;
-			        int b = this.f;
+			        int b = f;
 			        int c = g;
-			        int d = this.g;
+			        int d = g;
 			        super();
 			    }
 			}
