@@ -1421,6 +1421,7 @@ boolean implementsMethod(MethodBinding method) {
 /**
  * Answer true if the receiver is an abstract type
 */
+@Override
 public final boolean isAbstract() {
 	return (this.modifiers & ClassFileConstants.AccAbstract) != 0;
 }

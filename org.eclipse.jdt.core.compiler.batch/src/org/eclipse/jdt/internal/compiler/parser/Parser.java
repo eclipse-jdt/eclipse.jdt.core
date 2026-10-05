@@ -2563,6 +2563,9 @@ private void consumeClassOrRecordHeaderName1(boolean isRecord) {
 
 	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
 	typeDecl.modifiers = this.intStack[this.intPtr--];
+	if ((typeDecl.modifiers & (ClassFileConstants.AccAbstract | ExtraCompilerModifiers.AccValue)) == ExtraCompilerModifiers.AccValue)
+		typeDecl.modifiers |= ClassFileConstants.AccFinal;
+
 	if (typeDecl.modifiersSourceStart >= 0) {
 		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
 	}

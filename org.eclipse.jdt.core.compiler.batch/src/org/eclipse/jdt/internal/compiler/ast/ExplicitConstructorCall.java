@@ -294,7 +294,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			if ((scope.enclosingSourceType().isRecord()
 					&& methodDeclaration != null && methodDeclaration.binding != null)) {
 				if (methodDeclaration.binding.isCanonicalConstructor()) {
-					if (!forbidConstructorChainingInCanonicalConstructor(methodDeclaration, scope))
+					if (illegalConstructorChainingInCanonicalConstructor(methodDeclaration, scope)) // complained, bail out.
 						return;
 				} else if (this.accessMode != This) {
 					ASTNode location = isImplicitSuper() ? methodScope.referenceMethod() : this;
@@ -507,20 +507,22 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		}
 	}
 
-	private boolean forbidConstructorChainingInCanonicalConstructor(AbstractMethodDeclaration methodDecl, BlockScope scope) {
-
+	private boolean illegalConstructorChainingInCanonicalConstructor(AbstractMethodDeclaration methodDecl, BlockScope scope) {
 		if (methodDecl.binding == null || methodDecl.binding.declaringClass == null
 				|| !methodDecl.binding.declaringClass.isRecord())
-			return true;
+			return false;
 		boolean isInsideCCD = methodDecl.isCompactConstructor();
 		if (this.accessMode != ExplicitConstructorCall.ImplicitSuper) {
 			if (isInsideCCD)
 				scope.problemReporter().compactConstructorHasExplicitConstructorCall(this);
-			else
+			else {
+				if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()))
+					return false; // a super is allowed to demarcate epilogue
 				scope.problemReporter().canonicalConstructorHasExplicitConstructorCall(this);
-			return false;
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 	@Override
 	public void setActualReceiverType(ReferenceBinding receiverType) {

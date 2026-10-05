@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@RunJavac
 @PreviewTest
 public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 	static {
@@ -28,12 +29,15 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testIssue3536" };
 	}
+
 	public static Class<?> testClass() {
 		return ValueClassesAndObjectsTest.class;
 	}
+
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_28);
 	}
+
 	public ValueClassesAndObjectsTest(String testName) {
 		super(testName);
 	}
@@ -78,18 +82,6 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("28");
 		runner.vmArguments = VMARGS;
 		runner.runWarningTest();
-	}
-
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
 	}
 
 	@Override
@@ -1142,10 +1134,8 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				            this.y = y;
 				        }
 
-				        // Forces retention of the outer instance reference by javac, if return X.this; is used as opposed to return null;
 				        X outer() {
-				            return null;
-				           //  return X.this;
+				           return X.this;
 				        }
 
 				        public String toString() {
@@ -1276,12 +1266,6 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5324
     // Implement strict/safe construction rules for record classes
     public void testIssue5324() {
-    	Map<String, String> options = getCompilerOptions(true);
-    	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_28);
-    	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_28);
-    	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_28);
-    	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-
     	runNegativeTest(
     		new String[] {
     			"X.java",
@@ -1314,10 +1298,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			"	nullCheck(edges, this);\n" +
 			"	                 ^^^^\n" +
 			"Cannot use \'this\' in an early construction context\n" +
-			"----------\n",
-    		null,
-    		false,
-    		options);
+			"----------\n");
     }
 
     // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5324
@@ -1597,15 +1578,15 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			        compound = 4;
 			        compound += object.field;       // reads old compound and object
 			        increment = 2;
-			        this.increment++;               // reads old increment
+			        increment++;               // reads old increment
 			        constructorArgument = 5;
 			        qualifiedRoot = new Box();
 			        qualifiedRoot.field = 7;
 			        blankFinal = 11;
 			        int localOnly = 6;
 
-			        System.out.println("pre=" + directRead + "," + this.assigned
-			            + "," + this.rhsRead + "," + array[index] + ","
+			        System.out.println("pre=" + directRead + "," + assigned
+			            + "," + rhsRead + "," + array[index] + ","
 			            + object.field + "," + compound + "," + increment
 			            + "," + blankFinal + "," + staticField + "," + localOnly);
 			        super(constructorArgument + qualifiedRoot.field + blankFinal);
@@ -1626,7 +1607,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			}
 			"""
 		},
-		"pre=1,9,3,10,10,14,3,11,17,6\n" +
+		"pre=1,9,9,10,10,14,3,11,17,6\n" +
 		"super=23\n" +
 		"after=1,14,11");
 	}
@@ -1744,12 +1725,12 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 						        this.l = 9876543;
 						        string = "Hello world";
 						        System.out.println("b = " + b);
-						        System.out.println("c = " + this.c);
+						        System.out.println("c = " + c);
 						        System.out.println("by = " + by);
 						        System.out.println("s = " + s);
 						        System.out.println("i = " + i);
-						        System.out.println("l = " + this.l);
-						        System.out.println("f = " + this.f);
+						        System.out.println("l = " + l);
+						        System.out.println("f = " + f);
 						        System.out.println("d = " + d);
 						        System.out.println("string = " + string);
 						        super();
@@ -1785,6 +1766,72 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 						"f = 134.456\n" +
 						"d = 456.789\n" +
 						"string = Hello world");
+	}
+
+	// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5475
+	public void testDefaultInitializationsInEarlyReadsThroughThis_negative() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    boolean b;
+						    char c;
+						    byte by;
+						    short s;
+						    int i;
+						    long l;
+						    float f;
+						    double d;
+						    String string;
+						    X() {
+						        c = 'A';
+						        this.i = 42;
+						        s = 99;
+						        this.f = 134.456f;
+						        d = 456.789;
+						        this.l = 9876543;
+						        string = "Hello world";
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + this.c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + this.l);
+						        System.out.println("f = " + this.f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						        super();
+						        System.out.println("b = " + b);
+						        System.out.println("c = " + this.c);
+						        System.out.println("by = " + by);
+						        System.out.println("s = " + s);
+						        System.out.println("i = " + i);
+						        System.out.println("l = " + this.l);
+						        System.out.println("f = " + this.f);
+						        System.out.println("d = " + d);
+						        System.out.println("string = " + string);
+						    }
+						    void main() {
+						    }
+						}
+			    		""" },
+				"----------\n" +
+				"1. ERROR in X.java (at line 20)\n" +
+				"	System.out.println(\"c = \" + this.c);\n" +
+				"	                            ^^^^^^\n" +
+				"Cannot refer to field c in an early construction context\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 24)\n" +
+				"	System.out.println(\"l = \" + this.l);\n" +
+				"	                            ^^^^^^\n" +
+				"Cannot refer to field l in an early construction context\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 25)\n" +
+				"	System.out.println(\"f = \" + this.f);\n" +
+				"	                            ^^^^^^\n" +
+				"Cannot refer to field f in an early construction context\n" +
+				"----------\n");
 	}
 
 	public void testFieldAssignmentInSuperCallIsPreserved() {
@@ -1944,26 +1991,6 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			"epilogue");
 	}
 
-	// Initializer value is readable (this-qualified) in a super-chaining prologue
-	public void testValueClassECC_Conform_02() {
-		runConformTest(new String[] {
-			"X.java",
-			"""
-			public value class X {
-				int f = 42;
-				X() {
-					System.out.println(this.f);
-					super();
-				}
-				public static void main(String[] args) {
-					new X();
-				}
-			}
-			"""
-			},
-			"42");
-	}
-
 	// Field initializers execute before any prologue statement
 	public void testValueClassECC_Conform_03() {
 		runConformTest(new String[] {
@@ -2043,7 +2070,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				int y;
 				X() {
 					y = x * 2;
-					System.out.println(this.y);
+					System.out.println(y);
 					super();
 				}
 				public static void main(String[] args) {
@@ -2310,7 +2337,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			public value class X {
 				int f = 1;
 				X(int f) {
-					System.out.println(f + " " + this.f);
+					System.out.println(f);
 					super();
 				}
 				public static void main(String[] args) {
@@ -2319,7 +2346,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			}
 			"""
 			},
-			"2 1");
+			"2");
 	}
 
 	// Initialized field read repeatedly (loop) in prologue
@@ -2485,8 +2512,8 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	this.f += 2;\n" +
-			"	     ^\n" +
-			"The final field X.f cannot be assigned\n" +
+			"	^^^^^^\n" +
+			"Cannot refer to field f in an early construction context\n" +
 			"----------\n");
 	}
 
@@ -3484,8 +3511,8 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		}, "10");
 	}
 
-	public void testECC_legal_read_of_this_field() {
-		runConformTest(new String[] {
+	public void testECC_illegal_read_of_this_field() {
+		runNegativeTest(new String[] {
 			"X.java",
 			"""
 			public class X {
@@ -3503,7 +3530,13 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				}
 			}
 			""",
-		}, "42");
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	int y = this.x;\n" +
+		"	        ^^^^^^\n" +
+		"Cannot refer to field x in an early construction context\n" +
+		"----------\n");
 	}
 
 	public void testECC_legal_read_in_expression_and_assignment() {
@@ -3891,7 +3924,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 	            int b = a + 1; // initializer reads a, so the constructor imports a proxy for a
 
 	            X() {
-	                System.out.println(this.a);
+	                System.out.println(a);
 	                super();
 	            }
 
@@ -3903,8 +3936,8 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 	    }, "1");
 	}
 
-	public void testValueRecord() {
-	    runConformTest(new String[] {
+	public void testValueRecordNegative() {
+	    runNegativeTest(new String[] {
 	        "Point.java",
 	        """
 			public value record Point(int x, int y) {
@@ -3918,7 +3951,18 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				}
 			}
 	        """
-	    }, "Point[x=1024, y=1024]");
+	    },
+		"----------\n" +
+		"1. WARNING in Point.java (at line 1)\n" +
+		"	public value record Point(int x, int y) {\n" +
+		"	       ^^^^^\n" +
+		"You are using a preview language feature that may or may not be supported in a future release\n" +
+		"----------\n" +
+		"2. ERROR in Point.java (at line 4)\n" +
+		"	this.x = this.y;\n" +
+		"	         ^^^^^^\n" +
+		"Cannot refer to field y in an early construction context\n" +
+		"----------\n");
 	}
 
 	public void testSharedProxyIdCollisionAcrossConstructors() {
@@ -3977,20 +4021,350 @@ public void testValueCompactConstructorAssignmentWithProxyBypass() {
 	"	       ^^^^^\n" +
 	"You are using a preview language feature that may or may not be supported in a future release\n" +
 	"----------\n" +
-	"2. ERROR in Point.java (at line 3)\n" +
-	"	this.x = 10;           // explicit assignment in compact constructor\n" +
-	"	^^^^^^\n" +
-	"Illegal explicit assignment of a final field x in compact constructor\n" +
-	"----------\n" +
-	"3. ERROR in Point.java (at line 4)\n" +
+	"2. ERROR in Point.java (at line 4)\n" +
 	"	int read = this.x;     // read forces proxy creation\n" +
-	"	                ^\n" +
-	"The blank final field x may not have been initialized\n" +
-	"----------\n" +
-	"4. ERROR in Point.java (at line 5)\n" +
-	"	this.y = 20;           // second assignment\n" +
-	"	^^^^^^\n" +
-	"Illegal explicit assignment of a final field y in compact constructor\n" +
+	"	           ^^^^^^\n" +
+	"Cannot refer to field x in an early construction context\n" +
 	"----------\n");
 }
- }
+
+public void testSealedConcreteValueClass() {
+    runNegativeTest(new String[] {
+        "X.java",
+        """
+		public sealed value class X permits K { // error - sealed does not go with final
+		    public static void main(String[] args) {
+		        int p = 56789768;
+
+		        Integer a = p;
+		        Integer b = p;
+
+		        System.out.println(a.equals(b));
+		        System.out.println(a == b);
+		    }
+		}
+
+		final class K extends X {}
+
+
+		value class V {}
+		class S extends V {} // error
+
+		abstract sealed value class AV permits CPV {}
+		value class CPV extends AV {}
+        """
+    },
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	public sealed value class X permits K { // error - sealed does not go with final\n" +
+	"	              ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 1)\n" +
+	"	public sealed value class X permits K { // error - sealed does not go with final\n" +
+	"	                          ^\n" +
+	"The type X may have only one modifier out of sealed, non-sealed, and final\n" +
+	"----------\n" +
+	"3. WARNING in X.java (at line 16)\n" +
+	"	value class V {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"4. ERROR in X.java (at line 17)\n" +
+	"	class S extends V {} // error\n" +
+	"	                ^\n" +
+	"The type S cannot subclass the final class V\n" +
+	"----------\n" +
+	"5. WARNING in X.java (at line 19)\n" +
+	"	abstract sealed value class AV permits CPV {}\n" +
+	"	                ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"6. WARNING in X.java (at line 20)\n" +
+	"	value class CPV extends AV {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n");
+}
+
+public void testSuperCallInNormalCanonicalConstructor() {
+    runConformTest(new String[] {
+        "Point.java",
+        """
+		public record Point (int x, int y) {
+		    public Point (int x, int y) {
+		        this.x = x;
+		        this.y = x;
+		        super();
+		        System.out.println(this.x + this.y);
+		    }
+		    public static void main(String [] args) {
+		        new Point(1023, 1);
+		    }
+		}
+        """
+    }, "2046");
+}
+
+public void testSuperCallInNormalCanonicalConstructorNegative() {
+    runNegativeTest(new String[] {
+        "Point.java",
+        """
+		public record Point (int x, int y) {
+		    public Point (int x, int y) {
+		        super();
+		        System.out.println(this.x + this.y);
+		    }
+		    public static void main(String [] args) {
+		        new Point(1023, 1);
+		    }
+		}
+        """
+    },
+	"----------\n" +
+	"1. ERROR in Point.java (at line 3)\n" +
+	"	super();\n" +
+	"	^^^^^^^^\n" +
+	"The field \'x\' must be initialized before chaining to the super class constructor\n" +
+	"----------\n" +
+	"2. ERROR in Point.java (at line 3)\n" +
+	"	super();\n" +
+	"	^^^^^^^^\n" +
+	"The field \'y\' must be initialized before chaining to the super class constructor\n" +
+	"----------\n");
+}
+public void testSuperCallInCompactCanonicalConstructor() {
+    runNegativeTest(new String[] {
+        "Point.java",
+        """
+		public record Point (int x, int y) {
+		    public Point  {
+		        System.out.println(x + y);
+		        super();
+		        System.out.println(this.x + this.y);
+		    }
+		    public static void main(String [] args) {
+		        new Point(1023, 1);
+		    }
+		}
+        """
+    },
+	"----------\n" +
+	"1. ERROR in Point.java (at line 4)\n" +
+	"	super();\n" +
+	"	^^^^^^^^\n" +
+	"The body of a compact constructor must not contain an explicit constructor call\n" +
+    		"----------\n");
+}
+
+// ===== JLS 14.19: Synchronization on value class types =====
+// "The type of Expression must be a reference type, and must not be a final value class type,
+// or a type variable or intersection type bounded by a final value class type"
+
+// Negative: Synchronize on direct final value class instance
+public void testSynchronizeOnDirectFinalValueClass() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		value class FinalValue {
+		    int x = 42;
+		}
+
+		public class X {
+		    public static void main(String[] args) {
+		        FinalValue fv = new FinalValue();
+		        synchronized (fv) {
+		            System.out.println("Should not reach");
+		        }
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	value class FinalValue {\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 8)\n" +
+	"	synchronized (fv) {\n" +
+	"	              ^^\n" +
+	"Illegal attempt to synchronize on an instance of a value class\n" +
+	"----------\n");
+}
+
+// Negative: Synchronize on type variable bounded by final value class
+public void testSynchronizeOnTypeVarBoundedByFinalValue() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		value class FinalValue {}
+
+		public class X {
+		    <T extends FinalValue> void test(T t) {
+		        synchronized (t) {
+		            System.out.println("Should not compile");
+		        }
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	value class FinalValue {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. WARNING in X.java (at line 4)\n" +
+	"	<T extends FinalValue> void test(T t) {\n" +
+	"	           ^^^^^^^^^^\n" +
+	"The type parameter T should not be bounded by the final type FinalValue. Final types cannot be further extended\n" +
+	"----------\n" +
+	"3. ERROR in X.java (at line 5)\n" +
+	"	synchronized (t) {\n" +
+	"	              ^\n" +
+	"Illegal attempt to synchronize on an instance of a value class\n" +
+	"----------\n");
+}
+
+// Negative: Synchronize on type variable with intersection bound (FinalValue & Marker)
+public void testSynchronizeOnTypeVarWithFinalValueIntersection() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		value class FinalValue {}
+		interface Marker {}
+
+		public class X {
+		    <T extends FinalValue & Marker> void test(T t) {
+		        synchronized (t) {
+		            System.out.println("Should not compile");
+		        }
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	value class FinalValue {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. WARNING in X.java (at line 5)\n" +
+	"	<T extends FinalValue & Marker> void test(T t) {\n" +
+	"	           ^^^^^^^^^^\n" +
+	"The type parameter T should not be bounded by the final type FinalValue. Final types cannot be further extended\n" +
+	"----------\n" +
+	"3. ERROR in X.java (at line 6)\n" +
+	"	synchronized (t) {\n" +
+	"	              ^\n" +
+	"Illegal attempt to synchronize on an instance of a value class\n" +
+	"----------\n");
+}
+
+// Conform: Synchronize on abstract value class type
+public void testSynchronizeOnAbstractValueClass() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		abstract value class AbstractValue {
+		    int x = 42;
+		}
+
+		public class X {
+		    public static void main(String[] args) {
+		        System.out.println("Ok");
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Conform: Synchronize on identity class extending abstract value class
+public void testSynchronizeOnIdentityExtendingAbstractValue() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		abstract value class AbstractValue {}
+		class Identity extends AbstractValue {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        Identity id = new Identity();
+		        synchronized (id) {
+		            System.out.println("Ok");
+		        }
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Conform: Synchronize on final identity class (control)
+public void testSynchronizeOnFinalIdentityClass() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		final class Identity {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        Identity id = new Identity();
+		        synchronized (id) {
+		            System.out.println("Ok");
+		        }
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Conform: Synchronize on value class array
+public void testSynchronizeOnValueClassArray() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		value class ValueClass {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        ValueClass[] arr = new ValueClass[10];
+		        synchronized (arr) {
+		            System.out.println("Ok");
+		        }
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Runtime: Abstract-value-typed reference to concrete value throws IdentityException
+public void testSynchronizeAbstractValueReferenceThrowsAtRuntime() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		abstract value class AbstractValue {}
+		value class ConcreteValue extends AbstractValue {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        AbstractValue av = new ConcreteValue();
+		        try {
+		            synchronized (av) {
+		                System.out.println("Should not reach");
+		            }
+		        } catch (IdentityException e) {
+		            System.out.println("Caught IdentityException");
+		        }
+		    }
+		}
+		"""
+	},
+	"Caught IdentityException");
+}
+
+}

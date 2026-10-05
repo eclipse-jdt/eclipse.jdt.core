@@ -488,6 +488,11 @@ public boolean isEquivalent(Reference reference) {
 	}
 }
 
+@Override
+public boolean isReferenceOfFieldOfThis() {
+	return this.receiver.isThis() || this.receiver.isQualifiedThis();
+}
+
 private char[][] getThisFieldTokens(int nestingCount) {
 	char[][] result = null;
 	if (this.receiver.isThis() && ! (this.receiver instanceof QualifiedThisReference)) {
