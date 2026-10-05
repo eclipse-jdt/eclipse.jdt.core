@@ -4154,4 +4154,214 @@ public void testSuperCallInCompactCanonicalConstructor() {
     		"----------\n");
 }
 
+// ===== JLS 14.19: Synchronization on value class types =====
+// "The type of Expression must be a reference type, and must not be a final value class type,
+// or a type variable or intersection type bounded by a final value class type"
+
+// Negative: Synchronize on direct final value class instance
+public void testSynchronizeOnDirectFinalValueClass() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		value class FinalValue {
+		    int x = 42;
+		}
+
+		public class X {
+		    public static void main(String[] args) {
+		        FinalValue fv = new FinalValue();
+		        synchronized (fv) {
+		            System.out.println("Should not reach");
+		        }
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	value class FinalValue {\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 8)\n" +
+	"	synchronized (fv) {\n" +
+	"	              ^^\n" +
+	"Illegal attempt to synchronize on an instance of a value class\n" +
+	"----------\n");
+}
+
+// Negative: Synchronize on type variable bounded by final value class
+public void testSynchronizeOnTypeVarBoundedByFinalValue() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		value class FinalValue {}
+
+		public class X {
+		    <T extends FinalValue> void test(T t) {
+		        synchronized (t) {
+		            System.out.println("Should not compile");
+		        }
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	value class FinalValue {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. WARNING in X.java (at line 4)\n" +
+	"	<T extends FinalValue> void test(T t) {\n" +
+	"	           ^^^^^^^^^^\n" +
+	"The type parameter T should not be bounded by the final type FinalValue. Final types cannot be further extended\n" +
+	"----------\n" +
+	"3. ERROR in X.java (at line 5)\n" +
+	"	synchronized (t) {\n" +
+	"	              ^\n" +
+	"Illegal attempt to synchronize on an instance of a value class\n" +
+	"----------\n");
+}
+
+// Negative: Synchronize on type variable with intersection bound (FinalValue & Marker)
+public void testSynchronizeOnTypeVarWithFinalValueIntersection() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		value class FinalValue {}
+		interface Marker {}
+
+		public class X {
+		    <T extends FinalValue & Marker> void test(T t) {
+		        synchronized (t) {
+		            System.out.println("Should not compile");
+		        }
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	value class FinalValue {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. WARNING in X.java (at line 5)\n" +
+	"	<T extends FinalValue & Marker> void test(T t) {\n" +
+	"	           ^^^^^^^^^^\n" +
+	"The type parameter T should not be bounded by the final type FinalValue. Final types cannot be further extended\n" +
+	"----------\n" +
+	"3. ERROR in X.java (at line 6)\n" +
+	"	synchronized (t) {\n" +
+	"	              ^\n" +
+	"Illegal attempt to synchronize on an instance of a value class\n" +
+	"----------\n");
+}
+
+// Conform: Synchronize on abstract value class type
+public void testSynchronizeOnAbstractValueClass() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		abstract value class AbstractValue {
+		    int x = 42;
+		}
+
+		public class X {
+		    public static void main(String[] args) {
+		        System.out.println("Ok");
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Conform: Synchronize on identity class extending abstract value class
+public void testSynchronizeOnIdentityExtendingAbstractValue() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		abstract value class AbstractValue {}
+		class Identity extends AbstractValue {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        Identity id = new Identity();
+		        synchronized (id) {
+		            System.out.println("Ok");
+		        }
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Conform: Synchronize on final identity class (control)
+public void testSynchronizeOnFinalIdentityClass() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		final class Identity {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        Identity id = new Identity();
+		        synchronized (id) {
+		            System.out.println("Ok");
+		        }
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Conform: Synchronize on value class array
+public void testSynchronizeOnValueClassArray() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		value class ValueClass {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        ValueClass[] arr = new ValueClass[10];
+		        synchronized (arr) {
+		            System.out.println("Ok");
+		        }
+		    }
+		}
+		"""
+	},
+	"Ok");
+}
+
+// Runtime: Abstract-value-typed reference to concrete value throws IdentityException
+public void testSynchronizeAbstractValueReferenceThrowsAtRuntime() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		abstract value class AbstractValue {}
+		value class ConcreteValue extends AbstractValue {}
+
+		public class X {
+		    public static void main(String[] args) {
+		        AbstractValue av = new ConcreteValue();
+		        try {
+		            synchronized (av) {
+		                System.out.println("Should not reach");
+		            }
+		        } catch (IdentityException e) {
+		            System.out.println("Caught IdentityException");
+		        }
+		    }
+		}
+		"""
+	},
+	"Caught IdentityException");
+}
+
 }

@@ -701,6 +701,9 @@ public TypeBinding unboxedType() {
 	};
 }
 
+public boolean isAbstract() {
+	return false;
+}
 /**
  *  Returns true if parameterized type AND not of the form {@code List<?>}
  */
