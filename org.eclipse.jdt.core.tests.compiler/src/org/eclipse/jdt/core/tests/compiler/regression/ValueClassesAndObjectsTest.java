@@ -4084,4 +4084,74 @@ public void testSealedConcreteValueClass() {
 	"----------\n");
 }
 
+public void testSuperCallInNormalCanonicalConstructor() {
+    runConformTest(new String[] {
+        "Point.java",
+        """
+		public record Point (int x, int y) {
+		    public Point (int x, int y) {
+		        this.x = x;
+		        this.y = x;
+		        super();
+		        System.out.println(this.x + this.y);
+		    }
+		    public static void main(String [] args) {
+		        new Point(1023, 1);
+		    }
+		}
+        """
+    }, "2046");
+}
+
+public void testSuperCallInNormalCanonicalConstructorNegative() {
+    runNegativeTest(new String[] {
+        "Point.java",
+        """
+		public record Point (int x, int y) {
+		    public Point (int x, int y) {
+		        super();
+		        System.out.println(this.x + this.y);
+		    }
+		    public static void main(String [] args) {
+		        new Point(1023, 1);
+		    }
+		}
+        """
+    },
+	"----------\n" +
+	"1. ERROR in Point.java (at line 3)\n" +
+	"	super();\n" +
+	"	^^^^^^^^\n" +
+	"The field \'x\' must be initialized before chaining to the super class constructor\n" +
+	"----------\n" +
+	"2. ERROR in Point.java (at line 3)\n" +
+	"	super();\n" +
+	"	^^^^^^^^\n" +
+	"The field \'y\' must be initialized before chaining to the super class constructor\n" +
+	"----------\n");
+}
+public void testSuperCallInCompactCanonicalConstructor() {
+    runNegativeTest(new String[] {
+        "Point.java",
+        """
+		public record Point (int x, int y) {
+		    public Point  {
+		        System.out.println(x + y);
+		        super();
+		        System.out.println(this.x + this.y);
+		    }
+		    public static void main(String [] args) {
+		        new Point(1023, 1);
+		    }
+		}
+        """
+    },
+	"----------\n" +
+	"1. ERROR in Point.java (at line 4)\n" +
+	"	super();\n" +
+	"	^^^^^^^^\n" +
+	"The body of a compact constructor must not contain an explicit constructor call\n" +
+    		"----------\n");
+}
+
 }
