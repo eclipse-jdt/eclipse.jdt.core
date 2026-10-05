@@ -29,12 +29,15 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testIssue3536" };
 	}
+
 	public static Class<?> testClass() {
 		return ValueClassesAndObjectsTest.class;
 	}
+
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_28);
 	}
+
 	public ValueClassesAndObjectsTest(String testName) {
 		super(testName);
 	}
