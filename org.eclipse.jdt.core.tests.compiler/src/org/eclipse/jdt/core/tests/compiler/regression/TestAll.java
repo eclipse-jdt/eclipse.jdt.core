@@ -273,6 +273,7 @@ public static Test suite() {
 			PrimitiveInPatternsTest.class,
 			PrimitiveInPatternsTestSH.class,
 			ValueClassesAndObjectsTest.class,
+			CopilotGeneratedJep401Tests.class,
 		}
 	};
 	assert sinceTests.length == AbstractCompilerTest.NUM_VERSIONS - 1 : "sinceTests should be aligned with NUM_VERSIONS";
