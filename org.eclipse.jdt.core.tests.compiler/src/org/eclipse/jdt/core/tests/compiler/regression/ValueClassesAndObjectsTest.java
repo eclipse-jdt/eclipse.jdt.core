@@ -4024,4 +4024,64 @@ public void testValueCompactConstructorAssignmentWithProxyBypass() {
 	"Cannot refer to field x in an early construction context\n" +
 	"----------\n");
 }
- }
+
+public void testSealedConcreteValueClass() {
+    runNegativeTest(new String[] {
+        "X.java",
+        """
+		public sealed value class X permits K { // error - sealed does not go with final
+		    public static void main(String[] args) {
+		        int p = 56789768;
+
+		        Integer a = p;
+		        Integer b = p;
+
+		        System.out.println(a.equals(b));
+		        System.out.println(a == b);
+		    }
+		}
+
+		final class K extends X {}
+
+
+		value class V {}
+		class S extends V {} // error
+
+		abstract sealed value class AV permits CPV {}
+		value class CPV extends AV {}
+        """
+    },
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	public sealed value class X permits K { // error - sealed does not go with final\n" +
+	"	              ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 1)\n" +
+	"	public sealed value class X permits K { // error - sealed does not go with final\n" +
+	"	                          ^\n" +
+	"The type X may have only one modifier out of sealed, non-sealed, and final\n" +
+	"----------\n" +
+	"3. WARNING in X.java (at line 16)\n" +
+	"	value class V {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"4. ERROR in X.java (at line 17)\n" +
+	"	class S extends V {} // error\n" +
+	"	                ^\n" +
+	"The type S cannot subclass the final class V\n" +
+	"----------\n" +
+	"5. WARNING in X.java (at line 19)\n" +
+	"	abstract sealed value class AV permits CPV {}\n" +
+	"	                ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"6. WARNING in X.java (at line 20)\n" +
+	"	value class CPV extends AV {}\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n");
+}
+
+}
