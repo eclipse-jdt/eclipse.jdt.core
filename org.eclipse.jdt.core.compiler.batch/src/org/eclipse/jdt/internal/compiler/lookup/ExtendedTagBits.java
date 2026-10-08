@@ -32,6 +32,8 @@ public interface ExtendedTagBits {
 
 	int HasMissingOwningAnnotation = ASTNode.Bit2; // method/ctor or field
 
+	int IsUsedAsMethodReference = ASTNode.Bit5; // source method referenced by a method reference in its own compilation unit
+
 	int AnnotationResolved = ASTNode.Bit6;
 	int DeprecatedAnnotationResolved = ASTNode.Bit7;
 	int NullDefaultAnnotationResolved = ASTNode.Bit8; // package, type, method or variable

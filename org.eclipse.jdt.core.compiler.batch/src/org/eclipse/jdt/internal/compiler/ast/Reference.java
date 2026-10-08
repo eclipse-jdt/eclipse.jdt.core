@@ -256,6 +256,9 @@ static void reportOnlyUselesslyReadLocal(BlockScope currentScope, LocalVariableB
 			} else if (method.isOverriding()) {
 				shouldReport &= currentScope.compilerOptions().reportUnusedParameterWhenOverridingConcrete;
 			}
+			if (method.isUsedAsMethodReference()) {
+				shouldReport &= currentScope.compilerOptions().reportUnusedParameterWhenImplementingAbstract;
+			}
 
 			if (shouldReport) {
 				// report the case of an argument that is unread except through a special operator
