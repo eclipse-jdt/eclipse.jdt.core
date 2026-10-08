@@ -254,7 +254,7 @@ public final class ConstructionContext {
     	this.constructionScope.leaveEarlyConstructionContext();
 		if (this.constructorDeclaration.invokesSuper())
 			flushProxies(codeStream);
-		if (this.constructorDeclaration.isCompactConstructor() && this.typeDeclaration.isValueClass())
+		if (this.constructorDeclaration.isCompactConstructor() && (this.constructorDeclaration.bits & ASTNode.ShouldInitializeStrictly) != 0)
 			flushRecordComponents(codeStream);
 		codeStream.invoke(Opcodes.OPC_invokespecial, link, null /* default declaringClass */, typeArguments);
  		enterEpilogueGeneration(codeStream);
@@ -286,7 +286,7 @@ public final class ConstructionContext {
 		if (this.constructorCall != null && (this.constructorCall.bits & ASTNode.IsReachable) == 0)
 			return;
 
-		if (this.constructorDeclaration.isCompactConstructor() && !this.typeDeclaration.isValueClass())
+		if (this.constructorDeclaration.isCompactConstructor() && (this.constructorDeclaration.bits & ASTNode.ShouldInitializeStrictly) == 0)
 			flushRecordComponents(codeStream);
 		codeStream.return_();
     }
