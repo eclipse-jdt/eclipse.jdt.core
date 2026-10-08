@@ -4367,4 +4367,27 @@ public void testSynchronizeAbstractValueReferenceThrowsAtRuntime() {
 	"Caught IdentityException");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5491
+// [BETA_JAVA28][Enable-preview] VerifyError with a simple record and compact constructor
+public void testIssue5491() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		record Point(int x, int y) {
+			public Point {
+			}
+		}
+
+		public class X {
+			public static void main(String argv[]) {
+				Point point1 = new Point(5, 10);
+				Point point2 = new Point(5, 10);
+				System.out.println(point1.equals(point2));
+			}
+		}
+		"""
+	},
+	"true");
+}
+
 }
