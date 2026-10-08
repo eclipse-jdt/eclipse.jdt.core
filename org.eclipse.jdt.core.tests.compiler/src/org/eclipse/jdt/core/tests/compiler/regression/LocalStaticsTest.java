@@ -1631,13 +1631,14 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				},
 			"");
 			String expectedOutput =
-					"  // Method descriptor #17 ()V\n"
+					"  // Method descriptor #20 ()V\n"
 					+ "  // Stack: 1, Locals: 0\n"
 					+ "  static {};\n"
-					+ "    0  invokestatic Test.getString() : java.lang.String [18]\n"
-					+ "    3  putstatic Test$1.value : java.lang.String [22]\n"
+					+ "    0  invokestatic Test.getString() : java.lang.String [21]\n"
+					+ "    3  putstatic Test$1.value : java.lang.String [25]\n"
 					+ "    6  return";
 			String content = getClassfileContent("Test$1.class");
+			System.out.println(content);
 			assertTrue("Expected code not found", content.indexOf(expectedOutput) != -1);
 			expectedOutput = "  static {};";
 			content = getClassfileContent("Test$2.class");
