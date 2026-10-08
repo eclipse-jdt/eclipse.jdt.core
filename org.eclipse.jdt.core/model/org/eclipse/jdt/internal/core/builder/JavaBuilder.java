@@ -857,27 +857,32 @@ private boolean isWorthBuilding() throws CoreException {
 
 /*
  * Instruct the build manager that this project is involved in a cycle and
- * needs to propagate structural changes to the other projects in the cycle.
+ * needs to propagate structural changes to the projects depending on it,
+ * either in the cycle or outside of it, which were already built.
  */
 void mustPropagateStructuralChanges() {
-	LinkedHashSet<IPath> cycleParticipants = new LinkedHashSet<>(3);
-	this.javaProject.updateCycleParticipants(new ArrayList<>(), cycleParticipants, new HashMap<>(), this.workspaceRoot, new HashSet<>(3), null);
-	IPath currentPath = this.javaProject.getPath();
+	Set<IProject> dependents = new LinkedHashSet<>();
+	collectDependents(this.currentProject, dependents);
 	Set<IProject> toRebuild = new HashSet<>();
-	for (IPath participantPath : cycleParticipants) {
-		if (participantPath != currentPath) {
-			IProject project = this.workspaceRoot.getProject(participantPath.segment(0));
-			if (hasBeenBuilt(project)) {
-				if (DEBUG) {
-					trace("JavaBuilder: Requesting another build iteration since cycle participant " + project.getName() //$NON-NLS-1$
-						+ " has not yet seen some structural changes"); //$NON-NLS-1$
-				}
-				toRebuild.add(project);
+	for (IProject project : dependents) {
+		if (!project.equals(this.currentProject) && hasBeenBuilt(project)) {
+			if (DEBUG) {
+				trace("JavaBuilder: Requesting another build iteration since dependent project " + project.getName() //$NON-NLS-1$
+					+ " has not yet seen some structural changes"); //$NON-NLS-1$
 			}
+			toRebuild.add(project);
 		}
 	}
 	if (!toRebuild.isEmpty()) {
 		requestProjectsRebuild(toRebuild);
+	}
+}
+
+private static void collectDependents(IProject project, Set<IProject> dependents) {
+	for (IProject dependent : project.getReferencingProjects()) {
+		if (JavaProject.hasJavaNature(dependent) && dependents.add(dependent)) {
+			collectDependents(dependent, dependents);
+		}
 	}
 }
 
