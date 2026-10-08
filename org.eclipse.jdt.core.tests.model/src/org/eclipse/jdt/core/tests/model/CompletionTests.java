@@ -22243,7 +22243,7 @@ public void testBug343342() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	requestor.allowAllRequiredProposals();
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "case xy*/";
+	String completeBehind = "case xy";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
