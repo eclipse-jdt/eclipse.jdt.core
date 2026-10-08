@@ -11128,4 +11128,43 @@ public void testBug508834_comment0() {
 		});
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5305
+	public void testGH5305() {
+		if (this.complianceLevel < ClassFileConstants.JDK9) {
+			return;
+		}
+		runConformTest(
+			new String[] {
+				"TestClass.java",
+				"""
+				public class TestClass {
+					public static void main(String[] args) {
+						@SuppressWarnings("unchecked")
+						ArgumentCaptor<AuthorizeHttpRequestsConfigurer<String>.AuthorizationManagerRequestMatcherRegistry> arg = ArgumentCaptor
+								.forClass(AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry.class);
+						System.out.println(arg);
+					}
+				}
+
+				class ArgumentCaptor<T> {
+					@SuppressWarnings("unused")
+					private final Class<? extends T> clazz;
+
+					private ArgumentCaptor(Class<? extends T> clazz) {
+						this.clazz = clazz;
+					}
+
+					public static <U, S extends U> ArgumentCaptor<U> forClass(Class<S> clazz) {
+						return new ArgumentCaptor<>(clazz);
+					}
+				}
+
+				class AuthorizeHttpRequestsConfigurer<T> {
+					public final class AuthorizationManagerRequestMatcherRegistry {
+					}
+				}
+				"""
+		});
+	}
+
 }
