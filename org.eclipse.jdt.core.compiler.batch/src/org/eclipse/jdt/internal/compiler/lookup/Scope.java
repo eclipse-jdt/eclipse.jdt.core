@@ -3422,6 +3422,18 @@ public abstract class Scope {
 						if (!insideTypeAnnotation) {
 							// 6.5.5.1 - member types have precedence over top-level type in same unit
 							ReferenceBinding memberType = findMemberType(name, sourceType);
+							if (memberType != null
+									&& !(memberType.isValidBinding() && TypeBinding.equalsEquals(memberType.enclosingType(), sourceType))) {
+								// A type variable shadows an inherited member type of the same name,
+								// while a member type declared by the class itself takes precedence over
+								// the type variable. According to JDK-8193583.
+								TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
+								if (typeVariable != null) {
+									if (insideStaticContext)
+										return new ProblemReferenceBinding(new char[][]{name}, typeVariable, ProblemReasons.NonStaticReferenceInStaticContext);
+									return typeVariable;
+								}
+							}
 							if (memberType != null) { // skip it if we did not find anything
 								if (memberType.problemId() == ProblemReasons.Ambiguous) {
 									if (foundType == null || foundType.problemId() == ProblemReasons.NotVisible)

@@ -50243,6 +50243,35 @@ public void testBugBug571785_001() {
 		});
 }
 
+// https://github.com/redhat-developer/vscode-java/issues/3816
+public void testTypeVariableShadowsInheritedMemberType() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface BinaryExpr {\n" +
+			"	interface Op { }\n" +
+			"	Op getOperator();\n" +
+			"}\n" +
+			"abstract class AbstractBinaryExpr<Op extends BinaryExpr.Op> implements BinaryExpr {\n" +
+			"	private final Op op;\n" +
+			"	public AbstractBinaryExpr(Op op) { this.op = op; }\n" +
+			"	@Override public Op getOperator() { return this.op; }\n" +
+			"}\n" +
+			"final class ArithExpr extends AbstractBinaryExpr<ArithExpr.Op> {\n" +
+			"	enum Op implements BinaryExpr.Op { ADD, SUB }\n" +
+			"	public ArithExpr(Op op) { super(op); }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		ArithExpr e = new ArithExpr(ArithExpr.Op.ADD);\n" +
+			"		ArithExpr.Op o = e.getOperator();\n" + // must be substituted to ArithExpr.Op, not resolved to BinaryExpr.Op
+			"		System.out.print(o == ArithExpr.Op.ADD ? \"SUCCESS\" : \"FAIL\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
+
 protected void assertCompileTimes(final List<Duration> shortTimes, final double factor, final List<Duration> longTimes) {
 	final double shortTimesAverage = minExcludingBoundaries(shortTimes);
 	final double longTimesAverage = minExcludingBoundaries(longTimes);
