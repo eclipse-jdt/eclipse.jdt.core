@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.processing.Processor;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -119,6 +120,7 @@ import org.eclipse.jdt.core.JavaCore;
  * important to maintain consistency across the various cache objects.
  */
 public class AnnotationProcessorFactoryLoader {
+	private static final String GRADLE_AGGREGATING_OPTION = "org.gradle.annotation.processing.aggregating"; //$NON-NLS-1$
 
 	/** Loader instance -- holds all workspace and project data */
 	private static AnnotationProcessorFactoryLoader LOADER;
@@ -136,6 +138,8 @@ public class AnnotationProcessorFactoryLoader {
 	// Guarded by cacheMutex
 	private final Map<IJavaProject, Map<IServiceFactory, FactoryPath.Attributes>> _project2Java6Factories =
 		new HashMap<>();
+
+	private final Map<IJavaProject, Boolean> _project2HasAggregatingProcessor = new HashMap<>();
 
 	// Caches the iterative classloaders so that iterative processors
 	// are not reloaded on every batch build, unlike batch processors
@@ -331,6 +335,7 @@ public class AnnotationProcessorFactoryLoader {
 
         	_project2Java5Factories.clear();
         	_project2Java6Factories.clear();
+			_project2HasAggregatingProcessor.clear();
         	_iterativeLoaders.clear();
         	_container2Project.clear();
         	_batchLoaders.clear();
@@ -467,6 +472,38 @@ public class AnnotationProcessorFactoryLoader {
     		return Collections.emptyMap();
     	}
     }
+
+	public boolean hasAggregatingProcessor(IJavaProject project) {
+		synchronized (cacheMutex) {
+			Boolean cached = _project2HasAggregatingProcessor.get(project);
+			if (cached != null) {
+				return cached;
+			}
+		}
+
+		boolean aggregating = false;
+		for (IServiceFactory factory : getJava6FactoriesAndAttributesForProject(project).keySet()) {
+			if (factory instanceof ClassServiceFactory classFactory && classFactory.isAggregating()) {
+				aggregating = true;
+				break;
+			}
+			try {
+				Object instance = factory.newInstance();
+				if (instance instanceof Processor processor
+						&& processor.getSupportedOptions().contains(GRADLE_AGGREGATING_OPTION)) {
+					aggregating = true;
+					break;
+				}
+			} catch (CoreException | RuntimeException | LinkageError e) {
+				AptPlugin.log(e, "Unable to determine incremental annotation processor type for " + factory); //$NON-NLS-1$
+			}
+		}
+
+		synchronized (cacheMutex) {
+			_project2HasAggregatingProcessor.put(project, aggregating);
+		}
+		return aggregating;
+	}
 
     /**
      * Convenience method: get the key set of the map returned by
@@ -637,7 +674,9 @@ public class AnnotationProcessorFactoryLoader {
 					Class<?> clazz;
 					try {
 						clazz = classLoader.loadClass(factoryName);
-						factory = new ClassServiceFactory(clazz);
+						boolean aggregating = fc instanceof JarFactoryContainer jar
+								&& jar.isAggregatingProcessor(factoryName);
+						factory = new ClassServiceFactory(clazz, aggregating);
 					} catch (ClassNotFoundException | ClassFormatError e) {
 						AptPlugin.trace("Unable to load annotation processor " + factoryName, e); //$NON-NLS-1$
 						failureHandler.addFailedFactory(factoryName);
@@ -696,6 +735,7 @@ public class AnnotationProcessorFactoryLoader {
     	synchronized (cacheMutex) {
 			_project2Java5Factories.remove(jproj);
 			_project2Java6Factories.remove(jproj);
+			_project2HasAggregatingProcessor.remove(jproj);
 			c = _iterativeLoaders.remove(jproj);
 			cl = _batchLoaders.remove(jproj);
     	}
