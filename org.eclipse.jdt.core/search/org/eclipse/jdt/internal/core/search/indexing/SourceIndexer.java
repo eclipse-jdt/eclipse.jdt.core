@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -186,7 +187,11 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				this.basicParser = new Parser(problemReporter, false);
 				this.basicParser.reportOnlyOneSyntaxError = true;
 				this.basicParser.scanner.taskTags = null;
-				this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
+				// Resolve the document in the module of its project, like the units it refers to:
+				// as a unit of the unnamed module, it would not see the types of the module.
+				ICompilationUnit unit = new BasicCompilationUnit(this.compilationUnit.getContents(), null,
+						new String(this.compilationUnit.getFileName()), javaProject);
+				this.cud = this.basicParser.parse(unit, new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit));
 				// Use a non model name environment to avoid locks, monitors and such.
 				INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
 				this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);

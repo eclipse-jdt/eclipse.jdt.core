@@ -5176,5 +5176,94 @@ private void doTestModuleJarOnContainerSearchBugGh5361(String name, IClasspathAt
 		deleteProject(p3Name);
 	}
 }
+/**
+ * The lambda expressions of a modular project are found, whether their functional interface is declared in the
+ * same package, in another package of the module, or in a module that it requires.
+ *
+ * @see "https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5498"
+ */
+public void testGH5498() throws Exception {
+	try {
+		IJavaProject required = createJava9Project("required", "17");
+		createFolder("/required/src/api");
+		createFile("/required/src/module-info.java",
+				"""
+				module required {
+					exports api;
+				}
+				""");
+		createFile("/required/src/api/Required.java",
+				"""
+				package api;
+				public interface Required {
+					void required(String s);
+				}
+				""");
+		IJavaProject project = createJava9Project("P", "17");
+		addClasspathEntry(project, JavaCore.newProjectEntry(required.getPath(), null, false,
+				new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") }, false));
+		createFolder("/P/src/p");
+		createFolder("/P/src/internal");
+		createFile("/P/src/module-info.java",
+				"""
+				module m {
+					requires required;
+					exports p;
+				}
+				""");
+		createFile("/P/src/p/SamePackage.java",
+				"""
+				package p;
+				public interface SamePackage {
+					int samePackage();
+				}
+				""");
+		createFile("/P/src/internal/OtherPackage.java",
+				"""
+				package internal;
+				public interface OtherPackage {
+					void otherPackage(int i);
+				}
+				""");
+		createFile("/P/src/p/X.java",
+				"""
+				package p;
+				import api.Required;
+				import internal.OtherPackage;
+				public class X {
+					SamePackage field = () -> 42;
+					void test() {
+						OtherPackage other = i -> {};
+						Required required = s -> other.otherPackage(s.length());
+					}
+				}
+				""");
+		waitUntilIndexesReady();
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project, required });
+
+		IMethod method = project.findType("p.SamePackage").getMethod("samePackage", new String[0]);
+		search(method, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+		assertSearchResults(
+				"src/p/SamePackage.java int p.SamePackage.samePackage() [samePackage] EXACT_MATCH\n" +
+				"src/p/X.java int p.X.field:<lambda #1>.samePackage() [() ->] EXACT_MATCH");
+
+		this.resultCollector.clear();
+		method = project.findType("internal.OtherPackage").getMethod("otherPackage", new String[] { "I" });
+		search(method, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+		assertSearchResults(
+				"src/internal/OtherPackage.java void internal.OtherPackage.otherPackage(int) [otherPackage] EXACT_MATCH\n" +
+				"src/p/X.java void void p.X.test():<lambda #1>.otherPackage(int) [i ->] EXACT_MATCH");
+
+		this.resultCollector.clear();
+		method = required.findType("api.Required").getMethod("required", new String[] { "QString;" });
+		search(method, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+		assertSearchResults(
+				"src/p/X.java void void p.X.test():<lambda #1>.required(java.lang.String) [s ->] EXACT_MATCH\n" +
+				"src/api/Required.java void api.Required.required(String) [required] EXACT_MATCH");
+	} finally {
+		deleteProject("P");
+		deleteProject("required");
+	}
+}
 // Add more tests here
 }
