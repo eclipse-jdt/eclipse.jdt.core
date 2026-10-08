@@ -24,9 +24,11 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.search.SearchDocument;
@@ -186,7 +188,8 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				this.basicParser = new Parser(problemReporter, false);
 				this.basicParser.reportOnlyOneSyntaxError = true;
 				this.basicParser.scanner.taskTags = null;
-				this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
+				ICompilationUnit unit = inModuleOf(javaProject, this.compilationUnit);
+				this.cud = this.basicParser.parse(unit, new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit));
 				// Use a non model name environment to avoid locks, monitors and such.
 				INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
 				this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
@@ -201,6 +204,24 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				}
 			}
 		}
+	}
+
+	/**
+	 * The units that the document refers to are found in the module of their project. The document is to be resolved
+	 * in its module too: as a unit of the unnamed module, it would not see the types of the module.
+	 */
+	private static ICompilationUnit inModuleOf(JavaProject javaProject, CompilationUnit unit) throws JavaModelException {
+		IModuleDescription module = javaProject.getModuleDescription();
+		if (module == null) {
+			return unit;
+		}
+		char[] moduleName = module.getElementName().toCharArray();
+		return new CompilationUnit(unit.getContents(), unit.getFileName()) {
+			@Override
+			public char[] getModuleName() {
+				return moduleName;
+			}
+		};
 	}
 
 	private void resolveDocumentDomImpl(org.eclipse.jdt.internal.core.CompilationUnit unit) {
