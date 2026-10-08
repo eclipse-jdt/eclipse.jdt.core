@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -149,6 +149,23 @@ public class JavaSearchImplicitTypeDeclarationTests extends JavaSearchTests {
 			search("abc", METHOD, ALL_OCCURRENCES, EXACT_RULE);
 			assertSearchResults("src/X.java void X.main() [abc()] EXACT_MATCH\n" +
 					"src/X.java void X.abc() [abc] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testNoSpuriousClinitMatchForImplicitClassWithStaticField() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", """
+				static final int FOO = 42;
+				void main() {
+				}
+				""");
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			search("main", METHOD, ALL_OCCURRENCES, EXACT_RULE, getJavaSearchWorkingCopiesScope());
+			assertSearchResults("src/X.java void X.main() [main] EXACT_MATCH");
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
