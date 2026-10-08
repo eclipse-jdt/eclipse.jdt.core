@@ -1607,24 +1607,73 @@ public class InferenceContext18 {
 		// "An inference variable α depends on the resolution of an inference variable β if there exists
 		//  an inference variable γ such that α depends on the resolution of γ and γ depends on the resolution of β. "
 		// compute the transitive closure by fix point computation:
+		computeTransitiveClosure(dependsOn);
+		return dependsOn;
+	}
+
+	/**
+	 * Compute the transitive closure of the given dependency relation, in place.
+	 * <p>
+	 * Performance (see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5441): a straight-forward
+	 * fix point computation using {@code Set.addAll()} degrades cubically with the number of inference
+	 * variables, because each round re-attempts (and re-hashes) all the dependencies that are already
+	 * known. Here the membership of each dependency set is mirrored into a {@link BitSet} over dense
+	 * inference variable indices, so that the dominating question "does α already know all dependencies
+	 * of γ?" is answered by a few word operations instead of one hash lookup per element.
+	 * </p>
+	 */
+	private static void computeTransitiveClosure(Map<InferenceVariable, Set<InferenceVariable>> dependsOn) {
+		// assign a dense index to every inference variable occurring as a key or as a dependency:
+		Map<InferenceVariable, Integer> indexOf = new HashMap<>();
+		List<InferenceVariable> nodes = new ArrayList<>(dependsOn.size());
+		for (Entry<InferenceVariable, Set<InferenceVariable>> entry : dependsOn.entrySet()) {
+			indexOf.computeIfAbsent(entry.getKey(), iv -> { nodes.add(iv); return nodes.size() - 1; });
+			for (InferenceVariable dep : entry.getValue())
+				indexOf.computeIfAbsent(dep, iv -> { nodes.add(iv); return nodes.size() - 1; });
+		}
+		int numNodes = nodes.size();
+		@SuppressWarnings("unchecked")
+		Set<InferenceVariable>[] sets = new Set[numNodes]; // sets[i] == dependsOn.get(nodes.get(i)), or null
+		BitSet[] bits = new BitSet[numNodes]; // membership of sets[i], expressed via indices
+		for (int i = 0; i < numNodes; i++) {
+			Set<InferenceVariable> deps = dependsOn.get(nodes.get(i));
+			if (deps == null)
+				continue; // this ivar has no dependencies recorded (it only occurs as a dependency of others)
+			sets[i] = deps;
+			BitSet members = new BitSet(numNodes);
+			for (InferenceVariable dep : deps)
+				members.set(indexOf.get(dep).intValue());
+			bits[i] = members;
+		}
+		BitSet missing = new BitSet(numNodes); // scratch
 		boolean hasChange;
 		do {
 			hasChange = false;
-			for (Entry<InferenceVariable, Set<InferenceVariable>> deps : dependsOn.entrySet()) {
-				InferenceVariable alpha = deps.getKey();
-				Set<InferenceVariable> gammas = deps.getValue();
-				Set<InferenceVariable> gammasCopy = new HashSet<>(gammas); // stable while gammas may be modified
-				for (InferenceVariable gamma : gammasCopy) {
-					if (TypeBinding.equalsEquals(alpha, gamma)) continue;
-					Set<InferenceVariable> betas = dependsOn.get(gamma);
-					if (betas != null) {
-						// α depends on γ & γ depends on β => α depends on β
-						hasChange |= gammas.addAll(betas);
-					}
+			for (int alpha = 0; alpha < numNodes; alpha++) {
+				BitSet alphaDeps = bits[alpha];
+				if (alphaDeps == null)
+					continue;
+				BitSet gammas = (BitSet) alphaDeps.clone(); // stable while alphaDeps may be modified
+				for (int gamma = gammas.nextSetBit(0); gamma >= 0; gamma = gammas.nextSetBit(gamma + 1)) {
+					if (gamma == alpha)
+						continue;
+					BitSet betas = bits[gamma];
+					if (betas == null)
+						continue;
+					// α depends on γ & γ depends on β => α depends on β
+					missing.clear();
+					missing.or(betas);
+					missing.andNot(alphaDeps);
+					if (missing.isEmpty())
+						continue; // nothing new, this is the common case
+					Set<InferenceVariable> alphaSet = sets[alpha];
+					for (int beta = missing.nextSetBit(0); beta >= 0; beta = missing.nextSetBit(beta + 1))
+						alphaSet.add(nodes.get(beta));
+					alphaDeps.or(missing);
+					hasChange = true;
 				}
 			}
 		} while (hasChange);
-		return dependsOn;
 	}
 
 	private ConstraintFormula pickFromCycle(Set<ConstraintFormula> c, Map<InferenceVariable, Set<InferenceVariable>> ivarDependencies) {
