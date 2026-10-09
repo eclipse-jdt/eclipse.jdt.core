@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -30,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @RunJavac
 public class PreviewFlagTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 27");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 28");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
@@ -43,7 +44,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 		return PreviewFlagTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_28);
+		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK28);
 	}
 	public PreviewFlagTest(String testName) {
 		super(testName);
