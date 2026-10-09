@@ -748,4 +748,23 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				+ "ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList<TT;>;, (Ljava.util.Collection<+TT;>;)V, ArrayList, (c), 84}",
 				requestor.getResults());
 	}
+
+	public void testIssue5505() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/foo/bar/Foo.java",
+				"""
+				package foo.bar;
+				@SuppressWarnings(value = )
+				public class Foo {
+				}
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String source = this.workingCopies[0].getSource();
+		String completeBehind = "value = ";
+		int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, new NullProgressMonitor());
+		assertResults("Foo[TYPE_REF]{Foo, foo.bar, Lfoo.bar.Foo;, null, null, 52}", requestor.getResults());
+	}
 }
