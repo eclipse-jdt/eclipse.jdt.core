@@ -560,10 +560,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					if (this.index >= this.javadocEnd) end = invalidInlineTagLineEnd;
 					this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
 				}
-				if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
-					pushText(this.textStart, textEndPosition);
+				int endPos = (!this.markdown && this.javadocTextEnd > 0 && textEndPosition > this.javadocTextEnd) ? this.javadocTextEnd : textEndPosition;
+				if (this.lineStarted && this.textStart != -1 && this.textStart < endPos) {
+					pushText(this.textStart, endPos);
 				}
-				refreshInlineTagPosition((this.markdown && this.tagValue == TAG_SNIPPET_VALUE) ? textEndPosition - 2 : textEndPosition);
+				refreshInlineTagPosition((this.markdown && this.tagValue == TAG_SNIPPET_VALUE) ? endPos - 2 : endPos);
 				setInlineTagStarted(false);
 			} else if (this.lineStarted && this.textStart != -1 && this.textStart <= textEndPosition && (this.textStart < this.starPosition || this.starPosition == lastStarPosition || this.markdown)) {
 				if (!(invalidInlineTagLineEnd > 0 && nextCharacter == '}' && this.markdown && this.index == this.javadocEnd))
@@ -1718,7 +1719,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		int openBraces = 1;
 		boolean parsingJava18Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK18 : false;
 		boolean valid = true;
-		boolean markdownSnippetIsValid = false;
 		if (!parsingJava18Plus) {
 			throw Scanner.invalidInput();
 		}
@@ -1842,6 +1842,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				if (openBraces == 0) {
 					break;
 				}
+				if (!this.markdown && this.index >= this.javadocTextEnd) {
+					break;
+				}
 				previousPosition = this.index;
 				token = readTokenSafely();
 				if (token == TerminalToken.TokenNameEOF) {
@@ -1955,6 +1958,30 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							this.snippetInlineTagStarted = true;
 						}
 						break;
+					case TokenNameStringLiteral:
+						if (!this.lineStarted || this.textStart == -1) {
+							this.textStart = previousPosition;
+						}
+						this.lineStarted = true;
+						textEndPosition = this.index;
+						int stringStart = this.scanner.getCurrentTokenStartPosition();
+						char[] stringChar = this.scanner.getCurrentTokenSource();
+						for (int i = 0; i < stringChar.length; i++) {
+							if (stringChar[i] == '{') {
+								openBraces++;
+							} else if (stringChar[i] == '}' && --openBraces == 0) {
+								int bracePosition = stringStart + i;
+								lastRBracePosition = bracePosition + 1;
+								if (this.textStart != -1 && this.textStart < bracePosition
+										&& !new String(this.source, this.textStart, bracePosition - this.textStart).isBlank()) {
+									pushSnippetText(this.source, this.textStart, bracePosition, false, snippetTag);
+									this.nonRegionTagCount = 0;
+									this.inlineTagCount = 0;
+								}
+								break;
+							}
+						}
+						break;
 					default:
 						if (!this.lineStarted || this.textStart == -1) {
 							this.textStart = previousPosition;
@@ -1982,21 +2009,19 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		if (!valid) {
 			retVal =  false;
 		} else if (openBraces == 0) {
-			this.scanner.currentPosition = lastRBracePosition-1;
-			this.index = lastRBracePosition-1;
 			retVal = true;
 		}
-		if (retVal == false && openBraces == 0) {
+		if (openBraces == 0 && lastRBracePosition > 0) {
 			this.scanner.currentPosition = lastRBracePosition - 1;
 			this.index = lastRBracePosition - 1;
+		} else if (!this.markdown && this.index > this.javadocTextEnd) {
+			this.scanner.currentPosition = this.javadocTextEnd;
+			this.index = this.javadocTextEnd;
 		}
 		if (snippetTag != null) {
-			if (this.markdown) {
-				this.setSnippetIsValid(snippetTag, markdownSnippetIsValid);
-			} else {
-				this.setSnippetIsValid(snippetTag, retVal);
-			}
+			this.setSnippetIsValid(snippetTag, retVal);
 		}
+
 		return retVal;
 	}
 
