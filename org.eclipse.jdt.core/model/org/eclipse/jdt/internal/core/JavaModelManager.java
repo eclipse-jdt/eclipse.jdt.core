@@ -1408,6 +1408,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			}
 			ClasspathChange classpathChange = addClasspathChange ? addClasspathChange() : null;
+			IndexManager manager = getIndexManager();
+			if (manager != null) {
+				// not all changes are followed by a request to index, e.g. when the entries are only reordered
+				manager.sourceEnvironmentChanged();
+			}
 
 			synchronized (this) {
 				if (referencedEntries != null)	this.referencedEntries = referencedEntries;

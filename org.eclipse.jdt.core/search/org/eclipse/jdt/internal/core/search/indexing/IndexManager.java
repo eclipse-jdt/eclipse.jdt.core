@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
@@ -69,6 +71,7 @@ import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.index.IndexQualifier;
 import org.eclipse.jdt.internal.core.index.MetaIndex;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery.QueryCategory;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
@@ -104,6 +107,14 @@ public class IndexManager extends JobManager implements IIndexConstants {
 
 	/* need to save ? */
 	private volatile boolean needToSave;
+
+	/** The environment that the last resolved document used and released, see {@link SourceIndexerEnvironment} */
+	final AtomicReference<SourceIndexerEnvironment> sourceIndexerEnvironment = new AtomicReference<>();
+	/**
+	 * Counts what may change the result of resolving a source: the requests, but those to save what is indexed, as
+	 * a request follows a change to a resource, and the changes that {@link #sourceEnvironmentChanged()} is told.
+	 */
+	final AtomicInteger changeCount = new AtomicInteger();
 	private IPath javaPluginLocation = null;
 
 	/**
@@ -683,8 +694,13 @@ public void indexDocument(SearchDocument searchDocument, SearchParticipant searc
 public void indexResolvedDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) {
 	searchParticipant.resolveDocument(searchDocument);
 	ReadWriteMonitor monitor = index.monitor;
-	if (monitor == null)
-		return; // index got deleted since acquired
+	if (monitor == null) {
+		// index got deleted since acquired
+		if (searchParticipant instanceof JavaSearchParticipant javaSearchParticipant) {
+			javaSearchParticipant.discardResolvedDocument();
+		}
+		return;
+	}
 	try {
 		monitor.enterWrite(); // ask permission to write
 		searchDocument.setIndex(index);
@@ -829,10 +845,25 @@ protected synchronized void moveToNextJob() {
 	super.moveToNextJob();
 }
 /**
+ * To be called when what sources are resolved with has changed, and no request follows: the contents of a buffer, as
+ * sources are resolved with the contents of the working copies, or a classpath, of which the order alone may change.
+ */
+public void sourceEnvironmentChanged() {
+	this.changeCount.incrementAndGet();
+}
+@Override
+public synchronized void request(IJob job) {
+	if (!(job instanceof SaveIndex || job instanceof MetaIndexUpdateRequest)) {
+		this.changeCount.incrementAndGet();
+	}
+	super.request(job);
+}
+/**
  * No more job awaiting.
  */
 @Override
 protected void notifyIdle(long idlingMilliSeconds){
+	this.sourceIndexerEnvironment.set(null);
 	if (idlingMilliSeconds > INDEX_MANAGER_NOTIFY_IDLE_WAIT && this.needToSave) saveIndexes();
 }
 /**
