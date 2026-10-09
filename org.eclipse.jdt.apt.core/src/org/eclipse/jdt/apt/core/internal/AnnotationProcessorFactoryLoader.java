@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.stream.Stream;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -124,6 +129,13 @@ public class AnnotationProcessorFactoryLoader {
 	private static AnnotationProcessorFactoryLoader LOADER;
 
 	private static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
+
+	/**
+	 * System property to set to "false" to load the jars of the factory path from their
+	 * original location, rather than from a private copy. The jars are then locked on
+	 * Windows. This is meant for processors that locate files relative to their own jar.
+	 */
+	public static final String COPY_FACTORY_JARS_PROPERTY = "org.eclipse.jdt.apt.core.copy_factory_jars"; //$NON-NLS-1$
 
 	private static final Object cacheMutex = new Object();
 
@@ -309,6 +321,16 @@ public class AnnotationProcessorFactoryLoader {
     	return LOADER;
     }
 
+    /**
+     * Called when the plugin stops: closes the class loaders, so that the private copies
+     * of the factory path jars are deleted.
+     */
+    public static synchronized void shutdown() {
+    	if ( LOADER != null ) {
+    		LOADER.closeClassLoaders();
+    	}
+    }
+
 	private void registerListener() {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
 			new ResourceListener(),
@@ -323,6 +345,19 @@ public class AnnotationProcessorFactoryLoader {
      */
     public void resetAll() {
     	removeAptBuildProblemMarkers( null );
+    	closeClassLoaders();
+
+    	// Validate all projects
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (IProject proj : root.getProjects()) {
+			verifyFactoryPath(JavaCore.create(proj));
+		}
+    }
+
+    /**
+     * Clears all the caches and closes the iterative and batch classloaders.
+     */
+    private void closeClassLoaders() {
     	Set<ClassLoader> toClose = new HashSet<>();
 
     	synchronized (cacheMutex) {
@@ -340,12 +375,6 @@ public class AnnotationProcessorFactoryLoader {
     	for (ClassLoader cl : toClose) {
     		tryToCloseClassLoader(cl);
     	}
-
-    	// Validate all projects
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		for (IProject proj : root.getProjects()) {
-			verifyFactoryPath(JavaCore.create(proj));
-		}
     }
 
     /**
@@ -549,9 +578,20 @@ public class AnnotationProcessorFactoryLoader {
 		ClassLoader iterativeClassLoader;
 		synchronized (cacheMutex) {
 			iterativeClassLoader = _iterativeLoaders.get(project);
-			if (iterativeClassLoader == null) {
-				iterativeClassLoader = _createIterativeClassLoader(containers);
-				_iterativeLoaders.put(project, iterativeClassLoader);
+		}
+		if (iterativeClassLoader == null) {
+			// Creating a classloader copies jars: don't do it while holding the mutex
+			ClassLoader created = _createIterativeClassLoader(containers);
+			synchronized (cacheMutex) {
+				iterativeClassLoader = _iterativeLoaders.get(project);
+				if (iterativeClassLoader == null) {
+					iterativeClassLoader = created;
+					_iterativeLoaders.put(project, created);
+				}
+			}
+			if (iterativeClassLoader != created) {
+				// another thread was faster
+				tryToCloseClassLoader(created);
 			}
 		}
 
@@ -840,18 +880,33 @@ public class AnnotationProcessorFactoryLoader {
 			}
 		}
 
-		ClassLoader result = null;
-		// Try to use the iterative CL as parent, so we can resolve classes within it
-		synchronized (cacheMutex) {
-			ClassLoader parentCL = _iterativeLoaders.get(p);
-			if (parentCL == null) {
-				parentCL = getParentClassLoader();
-			}
+		if ( fileList.isEmpty() ) {
+			return null;
+		}
 
-			if ( fileList.size() > 0 ) {
-				result = createClassLoader( fileList, parentCL);
-				_batchLoaders.put(p, result);
+		// Try to use the iterative CL as parent, so we can resolve classes within it
+		ClassLoader parentCL;
+		synchronized (cacheMutex) {
+			parentCL = _iterativeLoaders.get(p);
+		}
+		if (parentCL == null) {
+			parentCL = getParentClassLoader();
+		}
+
+		// Creating a classloader copies jars: don't do it while holding the mutex
+		ClassLoader created = createClassLoader( fileList, parentCL);
+		ClassLoader result;
+		synchronized (cacheMutex) {
+			// A batch classloader is only cached here if another thread is loading the
+			// factories of this project at the same time: both must use the same one.
+			result = _batchLoaders.get(p);
+			if (result == null) {
+				result = created;
+				_batchLoaders.put(p, created);
 			}
+		}
+		if (result != created) {
+			tryToCloseClassLoader(created);
 		}
 		return result;
 	}
@@ -875,8 +930,63 @@ public class AnnotationProcessorFactoryLoader {
 		};
 	}
 
-	private static ClassLoader createClassLoader(List<File> files, ClassLoader parentCL) {
+	/**
+	 * Creates a class loader for the given factory path entries. Jars are loaded from
+	 * private copies, which are deleted when the returned class loader is closed,
+	 * unless {@link #COPY_FACTORY_JARS_PROPERTY} is set to "false".
+	 * Public for testing purposes.
+	 */
+	public static ClassLoader createClassLoader(List<File> files, ClassLoader parentCL) {
 		//return new JarClassLoader(files, parentCL);
+		// Load private copies of the jars, so that the original files are not locked
+		// (on Windows) for as long as the class loader is cached.
+		if ("false".equalsIgnoreCase(System.getProperty(COPY_FACTORY_JARS_PROPERTY))) { //$NON-NLS-1$
+			return new URLClassLoader(toURLs(files), parentCL);
+		}
+		java.nio.file.Path copyDir = null;
+		List<File> loadedFiles = files;
+		try {
+			copyDir = Files.createTempDirectory("jdt-apt-"); //$NON-NLS-1$
+			// Safety net for the copies that are not deleted by close(). Files are deleted
+			// on exit in the reverse order of their registration: the directory comes last.
+			copyDir.toFile().deleteOnExit();
+			List<File> copies = new ArrayList<>(files.size());
+			for (int i=0;i<files.size();i++) {
+				File file = files.get(i);
+				if (file.isFile() && !hasManifestClassPath(file)) {
+					// prefix with the index: jars from different folders may have the same name
+					File copy = copyDir.resolve(i + "_" + file.getName()).toFile(); //$NON-NLS-1$
+					Files.copy(file.toPath(), copy.toPath());
+					copy.deleteOnExit();
+					copies.add(copy);
+				} else {
+					copies.add(file);
+				}
+			}
+			loadedFiles = copies;
+		} catch (IOException | RuntimeException e) {
+			AptPlugin.log(e, "Unable to copy the factory path, the original files will be locked"); //$NON-NLS-1$
+			deleteRecursively(copyDir);
+			copyDir = null;
+		}
+		URL[] urlArray = toURLs(loadedFiles);
+		if (copyDir == null) {
+			return new URLClassLoader(urlArray, parentCL);
+		}
+		final java.nio.file.Path dirToDelete = copyDir;
+		return new URLClassLoader(urlArray, parentCL) {
+			@Override
+			public void close() throws IOException {
+				try {
+					super.close();
+				} finally {
+					deleteRecursively(dirToDelete);
+				}
+			}
+		};
+	}
+
+	private static URL[] toURLs(List<File> files) {
 		List<URL> urls = new ArrayList<>(files.size());
 		for (int i=0;i<files.size();i++) {
 			try {
@@ -886,8 +996,40 @@ public class AnnotationProcessorFactoryLoader {
 				// ignore
 			}
 		}
-		URL[] urlArray = urls.toArray(new URL[urls.size()]);
-		return new URLClassLoader(urlArray, parentCL);
+		return urls.toArray(new URL[urls.size()]);
+	}
+
+	/**
+	 * Returns whether the manifest of the given jar has a Class-Path. Its entries are
+	 * relative to the location of the jar, so they would not be found from a copy.
+	 */
+	private static boolean hasManifestClassPath(File file) {
+		try (JarFile jar = new JarFile(file)) {
+			Manifest manifest = jar.getManifest();
+			return manifest != null && manifest.getMainAttributes().getValue(java.util.jar.Attributes.Name.CLASS_PATH) != null;
+		} catch (IOException e) {
+			// not a readable jar: nothing can be loaded from it anyway
+			return false;
+		}
+	}
+
+	private static void deleteRecursively(java.nio.file.Path dir) {
+		if (dir == null) {
+			return;
+		}
+		try (Stream<java.nio.file.Path> paths = Files.walk(dir)) {
+			paths.sorted(Comparator.reverseOrder()).forEach(p -> {
+				try {
+					Files.delete(p);
+				} catch (IOException e) {
+					// leftovers are deleted on exit
+					AptPlugin.trace("Unable to delete " + p, e); //$NON-NLS-1$
+				}
+			});
+		} catch (IOException e) {
+			// leftovers are deleted on exit
+			AptPlugin.trace("Unable to delete " + dir, e); //$NON-NLS-1$
+		}
 	}
 
 	private static void tryToCloseClassLoader(ClassLoader classLoader) {
