@@ -1718,7 +1718,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		int openBraces = 1;
 		boolean parsingJava18Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK18 : false;
 		boolean valid = true;
-		boolean markdownSnippetIsValid = false;
 		if (!parsingJava18Plus) {
 			throw Scanner.invalidInput();
 		}
@@ -1955,6 +1954,16 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							this.snippetInlineTagStarted = true;
 						}
 						break;
+					case TokenNameStringLiteral:
+						char[] stringChar = this.scanner.getCurrentTokenSource();
+						for (char elm : stringChar) {
+							if ( elm == '{') {
+								openBraces++;
+							} else if(elm == '}') {
+								openBraces--;
+							}
+						}
+						break;
 					default:
 						if (!this.lineStarted || this.textStart == -1) {
 							this.textStart = previousPosition;
@@ -1991,12 +2000,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.index = lastRBracePosition - 1;
 		}
 		if (snippetTag != null) {
-			if (this.markdown) {
-				this.setSnippetIsValid(snippetTag, markdownSnippetIsValid);
-			} else {
-				this.setSnippetIsValid(snippetTag, retVal);
-			}
+			this.setSnippetIsValid(snippetTag, retVal);
 		}
+
 		return retVal;
 	}
 
