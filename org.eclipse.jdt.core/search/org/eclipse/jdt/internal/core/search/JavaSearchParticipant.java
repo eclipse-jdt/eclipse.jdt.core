@@ -116,6 +116,18 @@ public class JavaSearchParticipant extends SearchParticipant implements IParalle
 		}
 	}
 
+	/**
+	 * To be called in place of {@link #indexResolvedDocument(SearchDocument, IPath)} when a resolved document cannot
+	 * be indexed: releases what was retained to index it.
+	 */
+	public void discardResolvedDocument() {
+		SourceIndexer indexer = this.sourceIndexer;
+		if (indexer != null) {
+			this.sourceIndexer = null;
+			indexer.releaseResolvedDocument();
+		}
+	}
+
 	@Override
 	public void resolveDocument(SearchDocument document) {
 		String documentPath = document.getPath();

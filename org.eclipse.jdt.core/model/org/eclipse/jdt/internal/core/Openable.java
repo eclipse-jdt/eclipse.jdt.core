@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.codeassist.ICompletionEngine;
 import org.eclipse.jdt.internal.codeassist.ICompletionEngineProvider;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
@@ -52,6 +53,10 @@ protected Openable(JavaElement parent) {
  */
 @Override
 public void bufferChanged(BufferChangedEvent event) {
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	if (indexManager != null) {
+		indexManager.sourceEnvironmentChanged();
+	}
 	if (event.getBuffer().isClosed()) {
 		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 		getBufferManager().removeBuffer(event.getBuffer());
