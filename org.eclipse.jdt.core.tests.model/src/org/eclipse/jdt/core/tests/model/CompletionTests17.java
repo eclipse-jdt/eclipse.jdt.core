@@ -750,6 +750,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 	}
 
 	public void testIssue5505() throws JavaModelException {
+		waitForAutoBuild();
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/foo/bar/Foo.java",
