@@ -126,6 +126,9 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		// deletes the private copies of the factory path jars
+		AnnotationProcessorFactoryLoader.shutdown();
+
 		super.stop(context);
 
 		// unregister debug options listener
