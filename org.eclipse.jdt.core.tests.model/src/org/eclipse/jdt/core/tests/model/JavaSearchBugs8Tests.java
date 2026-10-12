@@ -5041,6 +5041,34 @@ public void testBug574194() throws CoreException {
 		"src/X.java void X.def() [abc (int f , char t)] EXACT_MATCH"
 	);
 }
+/**
+ * Searching references of a varargs method must not fail when the varargs type of a matched invocation is inferred as an intersection type,
+ * see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5508
+ */
+public void testIssue5508() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"import java.util.List;\n" +
+		"interface I {}\n" +
+		"interface J {}\n" +
+		"class A implements I, J {}\n" +
+		"class B implements I, J {}\n" +
+		"public class X {\n" +
+		"	public <T> List<T> asList(T... a) {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"	void test() {\n" +
+		"		asList(new A(), new B());\n" +
+		"	}\n" +
+		"}\n"
+		);
+	IMethod method = this.workingCopies[0].getType("X").getMethod("asList", new String[] { "[QT;" });
+	assertTrue("method should exist", method.exists());
+	search(method, REFERENCES, ERASURE_RULE);
+	assertSearchResults(
+		"src/X.java void X.test() [asList(new A(), new B())] EXACT_MATCH"
+	);
+}
 // Add new tests in JavaSearchBugs8Tests
 }
 
