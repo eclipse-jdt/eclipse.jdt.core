@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,8 +19,11 @@ package org.eclipse.jdt.internal.compiler.codegen;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -29,6 +36,7 @@ public class StackMapFrame {
 	public static final int FULL_FRAME = 4;
 	public static final int SAME_LOCALS_1_STACK_ITEMS = 5;
 	public static final int SAME_LOCALS_1_STACK_ITEMS_EXTENDED = 6;
+	public static final int EARLY_LARVAL = 246;
 
 	public int pc;
 	public int numberOfStackItems;
@@ -38,6 +46,8 @@ public class StackMapFrame {
 	public VerificationTypeInfo[] stackItems;
 	private int numberOfDifferentLocals = -1;
 	public int tagBits;
+
+	public Set<Integer> uninitializedStrictFields = Collections.emptySet();
 
 	/* Should the `next` frame (i.e., frame starting at the next bci after the last instruction of `this` frame)
 	   start out congruent to `this` ? If `this` completes abruptly and there are no forward references to `next`
@@ -125,6 +135,10 @@ public class StackMapFrame {
 		} else if (!this.adoptStackShape) {
 			result.stackItems = UNKNOWN_STACK_ITEMS;
 		}
+
+		if (this.uninitializedStrictFields.size() > 0)
+			result.uninitializedStrictFields = new LinkedHashSet<>(this.uninitializedStrictFields);
+
 		return result;
 	}
 
@@ -413,6 +427,19 @@ public class StackMapFrame {
 		} else if (this.stackItems == UNKNOWN_STACK_ITEMS) {
 			this.stackItems = Arrays.copyOf(frame.stackItems, this.numberOfStackItems = frame.numberOfStackItems);
 		}
+
+		if (!frame.uninitializedStrictFields.isEmpty() && !this.uninitializedStrictFields.equals(frame.uninitializedStrictFields)) {
+			/* We should never reach this condition! At the moment, all strict fields are also final fields. DA/DU status cannot differ on
+			   a final field at a merge point as otherwise earlier stages of the pipeline would have rejected the program. So rather than
+			   "merge" as we do here, perhaps we should throw an assertion failure. But in a distant future, when a non-final field qualifies
+			   to be a strict field, we would be ready.
+			*/
+			if (this.uninitializedStrictFields.isEmpty())
+				this.uninitializedStrictFields = new LinkedHashSet<>(frame.uninitializedStrictFields);
+			else
+				this.uninitializedStrictFields.addAll(frame.uninitializedStrictFields);
+		}
+
 		return this;
 	}
 }

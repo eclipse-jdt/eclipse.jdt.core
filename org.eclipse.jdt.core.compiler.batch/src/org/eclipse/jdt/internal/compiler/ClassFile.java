@@ -5191,6 +5191,25 @@ public class ClassFile implements TypeConstants, TypeIds {
 					// select next frame
 					prevFrame = currentFrame;
 					currentFrame = realFrames.get(j);
+
+					// Wrap current frame with early larval as needed.
+					if (methodBinding != null && methodBinding.isConstructor() && currentFrame.locals[0].tag == VerificationTypeInfo.ITEM_UNINITIALIZED_THIS) {
+						if (!currentFrame.uninitializedStrictFields.equals(prevFrame.uninitializedStrictFields)) {
+							int uninitializedStrictFields = currentFrame.uninitializedStrictFields.size();
+							int additionalBytes = 1 + 2 + 2 * uninitializedStrictFields;
+							if (localContentsOffset + additionalBytes >= this.contents.length) {
+								resizeContents(additionalBytes);
+							}
+							this.contents[localContentsOffset++] = (byte) StackMapFrame.EARLY_LARVAL;
+							this.contents[localContentsOffset++] = (byte) (uninitializedStrictFields >> 8);
+							this.contents[localContentsOffset++] = (byte) uninitializedStrictFields;
+							for (int nameAndTypeIndex : currentFrame.uninitializedStrictFields) {
+								this.contents[localContentsOffset++] = (byte) (nameAndTypeIndex >> 8);
+								this.contents[localContentsOffset++] = (byte) nameAndTypeIndex;
+							}
+						}
+					}
+
 					// generate current frame
 					// need to find differences between the current frame and the previous frame
 					int offsetDelta = currentFrame.getOffsetDelta(prevFrame);
@@ -5912,6 +5931,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 						}
 					}
 				}
+				Set<Integer> strictFields = Arrays.stream(methodBinding.declaringClass.fields())
+					    										.filter(f -> (f.modifiers & ClassFileConstants.AccStrictInit) != 0 && !f.isStatic())
+					    										.map(f -> this.codeStream.constantPool.literalIndexForNameAndType(f.name, f.type.signature()))
+					    										.collect(Collectors.toCollection(LinkedHashSet::new));
+				if (strictFields.size() > 0)
+					frame.uninitializedStrictFields = strictFields;
 			} else {
 				if (methodBinding instanceof SyntheticMethodBinding smb && smb.purpose == SyntheticMethodBinding.DeserializeLambda) {
 					// For the branching complexities in the generated $deserializeLambda$ we need the local variable
@@ -7165,6 +7190,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 					pc += 3;
 					break;
 				case Opcodes.OPC_putfield:
+					if (frame.uninitializedStrictFields.size() > 0) {
+						if (frame.stackItems[frame.numberOfStackItems - 2].tag == VerificationTypeInfo.ITEM_UNINITIALIZED_THIS) {
+							index = u2At(bytecodes, 1, pc);
+							nameAndTypeIndex = u2At(poolContents, 3, constantPoolOffsets[index]);
+							frame.uninitializedStrictFields.remove(Integer.valueOf(nameAndTypeIndex));
+							if (frame.uninitializedStrictFields.isEmpty())
+								frame.uninitializedStrictFields = Collections.emptySet();
+						}
+					}
 					frame.numberOfStackItems -= 2;
 					pc += 3;
 					break;
