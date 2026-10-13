@@ -27,6 +27,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -220,7 +221,7 @@ protected boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBi
 	return true;
 }
 
-protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char[] token, FieldBinding fieldBinding, TypeBinding actualReceiverType) {
+protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char[] token, FieldBinding fieldBinding, TypeBinding actualReceiverType, boolean thisQualified) {
 	if (actualReceiverType != null) {
 		if (scope.isInsideEarlyConstructionContext(actualReceiverType, false)) {
 			// §6.5.6.1 (JEP 513):
@@ -243,11 +244,12 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 				scope.problemReporter().superFieldAssignInEarlyConstructionContext(this, fieldBinding);
 				return;
 			} else {
-				if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions())) {
-					if (constructor != null && !constructor.invokesSuper()) {
-						scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
-						return;
-					}
+				boolean illegalEarlyWrite = (thisQualified && fieldBinding.isStatic() && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK28)
+					                 || (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()) && constructor != null && !constructor.invokesSuper());
+
+				if (illegalEarlyWrite) {
+					scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+					return;
 				}
 				if (scope.methodScope().isLambdaScope()) {
 					scope.problemReporter().fieldAssignInEarlyConstructionContextInLambda(this, fieldBinding);

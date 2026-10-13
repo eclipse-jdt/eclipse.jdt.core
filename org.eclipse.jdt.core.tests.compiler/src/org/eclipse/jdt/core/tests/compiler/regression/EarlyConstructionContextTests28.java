@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -27,21 +28,21 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  */
 @RunJavac
 @PreviewTest
-public class SuperAfterStatementsTests28 extends AbstractRegressionTestCommon {
+public class EarlyConstructionContextTests28 extends AbstractRegressionTestCommon {
 
 	static {
-//		TESTS_NAMES = new String[] { "test008" };
+//		TESTS_NAMES = new String[] { "testStaticFieldAccessThroughThis" };
 	}
 
 	public static Class<?> testClass() {
-		return SuperAfterStatementsTests28.class;
+		return EarlyConstructionContextTests28.class;
 	}
 
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_28);
 	}
 
-	public SuperAfterStatementsTests28(String testName) {
+	public EarlyConstructionContextTests28(String testName) {
 		super(testName);
 	}
 
@@ -56,6 +57,13 @@ public class SuperAfterStatementsTests28 extends AbstractRegressionTestCommon {
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
+	}
+
+	class Runner extends AbstractRegressionTest.Runner {
+		public Runner() {
+			super();
+			this.customOptions = getCompilerOptions();
+		}
 	}
 
 	@Override
@@ -241,5 +249,76 @@ public class SuperAfterStatementsTests28 extends AbstractRegressionTestCommon {
 		"	^^^^^^\n" +
 		"Cannot refer to field i in an early construction context\n" +
 		"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5514
+	// [28] ECJ accepts assignment of static field via 'this' before super()
+	public void testStaticFieldAccessThroughThis() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				class Parent1 {}
+				public class X {
+				    static int x = -1;
+				}
+				class Child1 extends Parent1 {
+				    static int f;
+				    Child1(int i) {
+				        this.f = i; // Javac rejects this
+				        f = i; // Ok.
+				        super();
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	this.f = i; // Javac rejects this\n" +
+			"	^^^^^^\n" +
+			"Cannot refer to field f in an early construction context\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" +
+			"	this.f = i; // Javac rejects this\n" +
+			"	     ^\n" +
+			"The static field Child1.f should be accessed in a static way\n" +
+			"----------\n");
+	}
+
+	public void testStaticFieldAccessThroughThis_without_preview() {
+		Runner runner = new Runner();
+		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
+		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
+		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
+		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
+		runner.testFiles = new String[] {
+				"X.java",
+				"""
+				class Parent1 {}
+				public class X {
+				    static int x = -1;
+				}
+				class Child1 extends Parent1 {
+				    static int f;
+				    Child1(int i) {
+				        this.f = i; // Javac rejects this
+				        f = i; // Ok.
+				        super();
+				    }
+				}
+				"""
+			};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	this.f = i; // Javac rejects this\n" +
+				"	^^^^^^\n" +
+				"Cannot refer to field f in an early construction context\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 8)\n" +
+				"	this.f = i; // Javac rejects this\n" +
+				"	     ^\n" +
+				"The static field Child1.f should be accessed in a static way\n" +
+				"----------\n";
+		runner.runNegativeTest();
 	}
 }

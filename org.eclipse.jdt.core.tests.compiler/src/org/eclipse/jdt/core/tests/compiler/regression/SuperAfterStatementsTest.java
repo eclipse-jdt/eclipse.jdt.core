@@ -4511,5 +4511,31 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""
 		}, "42\n99\n42");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5514
+	// [28] ECJ accepts assignment of static field via 'this' before super()
+	public void testStaticFieldAccessThroughThis() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				class Parent1 {}
+				public class X {
+				    static int x = -1;
+				    public void main() {
+				        System.out.println("Ok!");
+				    }
+				}
+				class Child1 extends Parent1 {
+				    static int f;
+				    Child1(int i) {
+				        this.f = i; // Ok prior to JDK28
+				        f = i; // Ok.
+				        super();
+				    }
+				}
+				"""
+			},
+			"Ok!");
+	}
 }
 
