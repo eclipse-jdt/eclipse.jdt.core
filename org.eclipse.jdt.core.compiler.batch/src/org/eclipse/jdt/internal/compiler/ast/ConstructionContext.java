@@ -370,7 +370,8 @@ public final class ConstructionContext {
         }
 
         private boolean trackInstanceFieldGets(Binding b) {
-			if (b instanceof FieldBinding field
+			FieldBinding field = b instanceof FieldBinding f ? f.original() : null;
+			if (field != null
                     && !field.isStatic()
                     && TypeBinding.equalsEquals(field.declaringClass, ConstructionContext.this.sourceType)
                     && (field.declaringClass.isValueClass() || field.sourceField() == null /* records */ || field.sourceField().initialization == null)) {

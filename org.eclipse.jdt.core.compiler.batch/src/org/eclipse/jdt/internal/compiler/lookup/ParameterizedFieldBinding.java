@@ -65,4 +65,9 @@ public FieldBinding original() {
 public void setConstant(Constant constant) {
 	this.originalField.setConstant(constant);
 }
+
+@Override
+public boolean hasProxyLocal() {
+	return this.originalField.hasProxyLocal();
+}
 }
