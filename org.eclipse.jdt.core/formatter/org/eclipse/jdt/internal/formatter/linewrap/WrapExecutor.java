@@ -755,7 +755,7 @@ public class WrapExecutor {
 
 	void setIndent(Token token, int indent) {
 		token.setIndent(indent);
-
+		boolean isNewLineOption = this.options.put_text_block_quotes_on_new_line;
 		List<Token> structure = token.getInternalStructure();
 		if (token.tokenType == TokenNameTextBlock && structure != null) {
 			int lineIndent;
@@ -765,7 +765,11 @@ public class WrapExecutor {
 			} else if (indentOption == Alignment.M_INDENT_DEFAULT) {
 				lineIndent = this.options.continuation_indentation * this.options.indentation_size;
 			} else if (indentOption == Alignment.M_INDENT_ON_COLUMN) {
-				lineIndent = this.tm.toIndent(this.tm.getPositionInLine(this.tm.indexOf(token)), true) - indent;
+				int potentialIndent = this.tm.toIndent(this.tm.getPositionInLine(this.tm.indexOf(token)), true) - indent;
+				if (isNewLineOption) {
+					token.setIndent(indent + this.options.indentation_size);
+				}
+				lineIndent = potentialIndent;
 			} else {
 				lineIndent = 0;
 			}
