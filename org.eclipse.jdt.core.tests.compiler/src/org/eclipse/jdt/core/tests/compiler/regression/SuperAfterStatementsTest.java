@@ -40,7 +40,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		return SuperAfterStatementsTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_28);
+		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
 	public SuperAfterStatementsTest(String testName) {
 		super(testName);
@@ -49,11 +49,9 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_28);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_28);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_28);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
 		return defaultOptions;
 	}
 
@@ -417,41 +415,13 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					class A {
 					    int i;
 					    A() {
-					        i++;
+					        i++;                        // Error
 					        hashCode();                 // Error
 					        super();
 					    }
 					}
 				"""
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	hashCode();                 // Error\n" +
-			"	^^^^^^^^^^\n" +
-			"Cannot invoke method hashCode() in an early construction context\n" +
-			"----------\n");
-	}
-	public void test008_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				class A {
-				    int i;
-				    A() {
-				        i++;                        // Error
-				        hashCode();                 // Error
-				        super();
-				    }
-				}
-			"""
-			};
-		runner.expectedCompilerLog =
-
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	i++;                        // Error\n" +
@@ -462,8 +432,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	hashCode();                 // Error\n" +
 			"	^^^^^^^^^^\n" +
 			"Cannot invoke method hashCode() in an early construction context\n" +
-			"----------\n";
-		runner.runNegativeTest();
+			"----------\n");
 	}
 	public void test008_OK() {
 		// early construction context of outer
@@ -514,35 +483,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	^^^^^^^^\n" +
 			"Cannot refer to field c in an early construction context\n" +
 			"----------\n");
-	}
-	public void test009_NOK_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"B.java",
-				"""
-				class B {
-				    class C {
-				        int c;
-				        C() {
-				            C.this.c++;             // Error - same instance
-				            super();
-				        }
-				    }
-				}
-			"""
-			};
-		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in B.java (at line 5)\n" +
-			"	C.this.c++;             // Error - same instance\n" +
-			"	^^^^^^^^\n" +
-			"Cannot refer to field c in an early construction context\n" +
-			"----------\n";
-		runner.runNegativeTest();
 	}
 	public void test009_OK() {
 		runConformTest(new String[] {
@@ -2638,7 +2578,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					"""
 				},
 				"");
-		verifyClassFile("version 28 : 72.0, super bit)", "X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void testFieldAssignment_OK() throws Exception {
@@ -3055,48 +2995,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	this(fin1 = 10);\n" +
-			"	     ^^^^\n" +
-			"Cannot refer to field fin1 in an early construction context\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The final field fin1 may already have been assigned\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	fin2 = 11;\n" +
+			"	^^^^\n" +
+			"The final field fin2 may already have been assigned\n" +
 			"----------\n");
-	}
-
-	public void testGH3748a_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				public class X {
-					final int fin1, fin2;
-					{
-						fin1 = 0;
-						fin2 = 1;
-					}
-					X() {
-						int abc = 0; // Commenting out this line brings out the error
-						this(fin1 = 10);
-						fin2 = 11;
-					}
-					X(int x) {}
-				}
-			"""
-			};
-		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	this(fin1 = 10);\n" +
-				"	^^^^^^^^^^^^^^^^\n" +
-				"The final field fin1 may already have been assigned\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 10)\n" +
-				"	fin2 = 11;\n" +
-				"	^^^^\n" +
-				"The final field fin2 may already have been assigned\n" +
-				"----------\n";
-		runner.runNegativeTest();
 	}
 
 	public void testGH3748b() {
@@ -3121,47 +3027,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	this(fin1 = 10);\n" +
-			"	     ^^^^\n" +
-			"Cannot refer to field fin1 in an early construction context\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The final field fin1 may already have been assigned\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	fin2 = 11;\n" +
+			"	^^^^\n" +
+			"The final field fin2 may already have been assigned\n" +
 			"----------\n");
-	}
-	public void testGH3748b_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				public class X {
-					final int fin1;
-					final int fin2;
-					{
-						fin1 = 0;
-						fin2 = 1;
-					}
-					X() {
-						this(fin1 = 10);
-						fin2 = 11;
-					}
-					X(int x) {}
-				}
-				"""
-			};
-		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	this(fin1 = 10);\n" +
-				"	^^^^^^^^^^^^^^^^\n" +
-				"The final field fin1 may already have been assigned\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 10)\n" +
-				"	fin2 = 11;\n" +
-				"	^^^^\n" +
-				"The final field fin2 may already have been assigned\n" +
-				"----------\n";
-		runner.runNegativeTest();
 	}
 	public void testGH3687c() {
 		runNegativeTest(new String[] {
@@ -3470,49 +3343,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			}
 			"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	this.i = 1;\n" +
-		"	^^^^^^\n" +
-		"Cannot refer to field i in an early construction context\n" +
-		"----------\n");
-	}
-	public void testGH4449a_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				public class X {
-
-				  final int i;
-
-				  public X() {
-				    this.i = 1;
-				    this(2);
-				    System.out.print(this.i);
-				  }
-
-				  public X(int i) {
-				    this.i = i;
-				  }
-
-				}
-				"""
-			};
-		runner.expectedCompilerLog =
-				"""
-				----------
-				1. ERROR in X.java (at line 7)
-					this(2);
-					^^^^^^^^
-				The final field i may already have been assigned
-				----------
-				""";
-		runner.runNegativeTest();
+		"""
+		----------
+		1. ERROR in X.java (at line 7)
+			this(2);
+			^^^^^^^^
+		The final field i may already have been assigned
+		----------
+		""");
 	}
 	public void testGH4449b() {
 		runNegativeTest(new String[] {
@@ -3535,49 +3373,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			}
 			"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	this.i = 1;\n" +
-		"	^^^^^^\n" +
-		"Cannot refer to field i in an early construction context\n" +
-		"----------\n");
-	}
-	public void testGH4449b_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				public class X {
-
-				  final int i;
-				  public X(Integer o) { this(o.intValue()); }
-				  public X() {
-				    this.i = 1;
-				    this(2);
-				    System.out.print(this.i);
-				  }
-
-				  public X(int i) {
-				    this.i = i;
-				  }
-
-				}
-				"""
-			};
-		runner.expectedCompilerLog =
-				"""
-				----------
-				1. ERROR in X.java (at line 7)
-					this(2);
-					^^^^^^^^
-				The final field i may already have been assigned
-				----------
-				""";
-		runner.runNegativeTest();
+		"""
+		----------
+		1. ERROR in X.java (at line 7)
+			this(2);
+			^^^^^^^^
+		The final field i may already have been assigned
+		----------
+		""");
 	}
 	public void testGH4449c() {
 		runNegativeTest(new String[] {
@@ -3600,49 +3403,14 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			}
 			"""
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	this.i = 1;\n" +
-		"	^^^^^^\n" +
-		"Cannot refer to field i in an early construction context\n" +
-		"----------\n");
-	}
-	public void testGH4449c_without_preview() {
-		Runner runner = new Runner();
-		runner.customOptions.put(CompilerOptions.OPTION_Source, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_Compliance, "28");
-		runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, "28");
-		runner.javacTestOptions = JavacTestOptions.forRelease(JavaCore.VERSION_28);
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				public class X {
-
-				  final int i;
-				  public X(Integer o) { this.i = o.intValue(); }
-				  public X() {
-				    this.i = 1;
-				    this(2);
-				    System.out.print(this.i);
-				  }
-
-				  public X(int i) {
-				    this.i = i;
-				  }
-
-				}
-				"""
-			};
-		runner.expectedCompilerLog =
-				"""
-				----------
-				1. ERROR in X.java (at line 7)
-					this(2);
-					^^^^^^^^
-				The final field i may already have been assigned
-				----------
-				""";
-		runner.runNegativeTest();
+		"""
+		----------
+		1. ERROR in X.java (at line 7)
+			this(2);
+			^^^^^^^^
+		The final field i may already have been assigned
+		----------
+		""");
 	}
 	public void testGH4449d() {
 		runNegativeTest(new String[] {

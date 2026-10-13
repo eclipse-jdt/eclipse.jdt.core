@@ -8,6 +8,10 @@
 *
 * SPDX-License-Identifier: EPL-2.0
 *
+* This is an implementation of an early-draft specification developed under the Java
+* Community Process (JCP) and is made available for testing and evaluation purposes
+* only. The code is not compatible with any specification of the JCP.
+*
 * Contributors:
 *     Srikanth Sankaran - initial implementation
 *******************************************************************************/
@@ -25,6 +29,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.NullAnnotationTests21;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternProjectTest;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.RecordsRestrictedClassTest;
+import org.eclipse.jdt.core.tests.compiler.regression.RecordsWithStrictFieldsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SealedTypesTests;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest22;
@@ -58,6 +63,7 @@ public class RunVariousRecordsTest extends TestCase {
 				NullAnnotationTests21.class,
 				ComplianceDiagnoseTest.class,
 				RecordElementsTests.class,
+				RecordsWithStrictFieldsTest.class,
 		};
 	}
 
