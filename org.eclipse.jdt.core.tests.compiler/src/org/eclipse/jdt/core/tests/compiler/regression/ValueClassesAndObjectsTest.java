@@ -3804,7 +3804,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			options);
 	}
 
-	public void _testAliasingWithInnerScopes() {
+	public void testAliasingWithInnerScopes() {
 		runConformTest(new String[] {
 			"X.java",
 			"""
@@ -3826,7 +3826,9 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 			    }
 			}
 			"""
-		}, "1");
+		},
+		"47\n" +
+		"1 2");
 	}
 
 	public void testDeadCodeAfterSecondThrowingInitializerBlock_AllConstructors() {
@@ -4388,6 +4390,239 @@ public void testIssue5491() {
 		"""
 	},
 	"true");
+}
+
+public void testStrictInit_JoinFrameWithEmptyUnsetSet() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+			int f;
+			int k;
+			X(boolean b) {
+				if (b)
+					f = 1;
+				else
+					f = 2;
+				k = 14;
+				super();
+			}
+			public static void main(String[] args) {
+				System.out.println(new X(true).f + " " + new X(false).f);
+			}
+		}
+		"""
+	},
+	"1 2");
+}
+
+public void testStrictInit_FirstFrameAfterPutfield() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+			int f;
+			int g;
+			X(boolean b, int v) {
+				f = v;
+				if (b)
+					g = 1;
+				else
+					g = 2;
+				super();
+			}
+			public static void main(String[] args) {
+				X x1 = new X(true, 10);
+				X x2 = new X(false, 20);
+				System.out.println(x1.f + " " + x1.g + " " + x2.f + " " + x2.g);
+			}
+		}
+		"""
+	},
+	"10 1 20 2");
+}
+
+public void _testStrictInit_HandlerFrameMergesUnsetFields() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+			int f;
+			static int compute(int v) {
+				if (v < 0)
+					throw new IllegalArgumentException("neg");
+				return v;
+			}
+			X(int v) {
+				try {
+					compute(v);        // throws with f unset
+					f = v;
+					compute(v - 10);   // throws with f set
+				} catch (IllegalArgumentException e) {
+					throw new IllegalStateException("caught " + e.getMessage());
+				}
+				super();
+			}
+			public static void main(String[] args) {
+				System.out.println(new X(20).f);
+				try {
+					new X(5);
+				} catch (IllegalStateException e) {
+					System.out.println(e.getMessage());
+				}
+				try {
+					new X(-1);
+				} catch (IllegalStateException e) {
+					System.out.println(e.getMessage());
+				}
+			}
+		}
+		"""
+	},
+	"20\n" +
+	"caught neg\n" +
+	"caught neg");
+}
+
+public void testCatchBlock() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+		    int f;
+		    int g;
+		    X(int v) {
+		        f = v;                 // putfield f: no frame position here
+		        try {                  // try-range start is just after putfield f
+		            compute(v);
+		            g = v;
+		        } catch (IllegalArgumentException e) {
+		            g = 0;
+		        }
+		        super();
+		    }
+		    static void compute(int v) {
+		        if (v < 0) throw new IllegalArgumentException();
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	public value class X {\n" +
+	"	       ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 10)\n" +
+	"	g = 0;\n" +
+	"	^\n" +
+	"The final field g may already have been assigned\n" +
+	"----------\n");
+}
+
+public void testCatchBlock_2() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+		    int f;
+		    int g;
+		    X(int v) {
+		        f = v;                 // putfield f: no frame position here
+		        try {                  // try-range start is just after putfield f
+		            compute(v);
+		            g = v;
+		        } catch (IllegalArgumentException e) {
+
+		        }
+		        super();
+		    }
+		    static void compute(int v) {
+		        if (v < 0) throw new IllegalArgumentException();
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 1)\n" +
+	"	public value class X {\n" +
+	"	       ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 12)\n" +
+	"	super();\n" +
+	"	^^^^^^^^\n" +
+	"The field \'g\' must be initialized before chaining to the super class constructor\n" +
+	"----------\n");
+}
+
+public void _testStrictInit_HandlerFrameAfterPutfieldBeforeTry() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+			int f;
+			int g;
+			X(int v) {
+				f = v;                 // handler state must be {g}, not {f, g}
+				try {
+					compute(v);
+					g = v;             // instruction before the handler has {}
+				} catch (IllegalArgumentException e) {
+					throw new IllegalStateException("caught");
+				}
+				super();
+			}
+			static void compute(int v) {
+				if (v < 0) throw new IllegalArgumentException();
+			}
+			public static void main(String[] args) {
+				System.out.println(new X(3).f + " " + new X(3).g);
+				try {
+					new X(-1);
+				} catch (IllegalStateException e) {
+					System.out.println(e.getMessage());
+				}
+			}
+		}
+		"""
+	},
+	"3 3\n" +
+	"caught");
+}
+
+public void testStrictInit_NoEarlyLarvalFrameAfterSuper() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+			int f;
+			int g;
+			X(boolean b) {
+				f = 1;
+				g = 2;            // last strict putfield; no frame before super()
+				super();
+				if (b)            // frames here: 'this' is initialized, set is {}
+					System.out.println("a");
+				else
+					System.out.println("b");
+				for (int i = 0; i < 2; i++)   // more frames after super()
+					System.out.print(i);
+				System.out.println();
+			}
+			public static void main(String[] args) {
+				X x1 = new X(true);
+				X x2 = new X(false);
+				System.out.println(x1.f + " " + x1.g + " " + x2.f + " " + x2.g);
+			}
+		}
+		"""
+	},
+	"a\n" +
+	"01\n" +
+	"b\n" +
+	"01\n" +
+	"1 2 1 2");
 }
 
 }
