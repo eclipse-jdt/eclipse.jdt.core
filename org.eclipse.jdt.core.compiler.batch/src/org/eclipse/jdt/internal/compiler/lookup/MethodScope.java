@@ -800,10 +800,10 @@ public void leaveEarlyConstructionContext() {
 
 @Override
 public Binding getProxy(FieldBinding field) {
-	LarvalProxyBinding proxy = this.proxies != null ? this.proxies.get(field) : null;
+	LarvalProxyBinding proxy = this.proxies != null ? this.proxies.get(field.original()) : null;
 	if (proxy != null) {
 		proxy.useFlag = LocalVariableBinding.USED;
-		proxy.constant = field.constant; // at proxy creation time, field's constness was not known
+		proxy.constant = field.constant(); // at proxy creation time, field's constness was not known
 		return proxy;
 	}
 	return field;

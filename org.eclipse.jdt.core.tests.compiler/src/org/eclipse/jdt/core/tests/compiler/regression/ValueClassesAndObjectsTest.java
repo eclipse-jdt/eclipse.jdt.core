@@ -4625,4 +4625,147 @@ public void testStrictInit_NoEarlyLarvalFrameAfterSuper() {
 	"1 2 1 2");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5512
+// VerifyError when field of inferred type read in value class constructor before super()
+public void testIssue5512() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		class ClassA {
+		    public int i;
+		    ClassA(int i) { this.i = i; }
+		}
+		value class Test<T extends ClassA> {
+		    @SuppressWarnings("unchecked")
+		    public T field = (T) new ClassA(42);
+		    Test(T t) {
+		        T local = field; // read of generic field in early construction context
+		        System.out.print(local.i + " ");
+		        super();
+		        System.out.println(field.i);
+		    }
+		}
+		public class X {
+		    public static void main(String[] argv) {
+		        new Test<ClassA>(new ClassA(0));
+		    }
+		}
+		"""
+	},
+	"42 42");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5512
+// Generic field read from another field's initializer (not from a constructor)
+public void testIssue5512_2() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		class ClassA {
+		    public int i;
+		    ClassA(int i) { this.i = i; }
+		}
+		value class Test<T extends ClassA> {
+		    @SuppressWarnings("unchecked")
+		    T a = (T) new ClassA(7);
+		    T b = a; // initializer reads earlier generic field: must use the proxy
+		    Test() { super(); }
+		    public String toString() { return a.i + " " + b.i; }
+		}
+		public class X {
+		    public static void main(String[] argv) {
+		        System.out.println(new Test<ClassA>());
+		    }
+		}
+		"""
+	},
+	"7 7");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5512
+// Write, then read, of a generic field before super()
+public void testIssue5512_3() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		class ClassA {
+		    public int i;
+		    ClassA(int i) { this.i = i; }
+		}
+		value class Test<T extends ClassA> {
+		    T field;
+		    Test(T t) {
+		        field = t;
+		        T x = field; // read after write in early construction context
+		        System.out.print(x.i + " ");
+		        super();
+		        System.out.println(field.i);
+		    }
+		}
+		public class X {
+		    public static void main(String[] argv) {
+		        new Test<ClassA>(new ClassA(3));
+		    }
+		}
+		"""
+	},
+	"3 3");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5512
+// Qualified access (field.i) to a generic field before super() - QualifiedNameReference path
+public void testIssue5512_4() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		class ClassA {
+		    public int i;
+		    ClassA(int i) { this.i = i; }
+		}
+		value class Test<T extends ClassA> {
+		    @SuppressWarnings("unchecked")
+		    T field = (T) new ClassA(11);
+		    Test() {
+		        int v = field.i;
+		        System.out.print(v + " ");
+		        super();
+		        System.out.println(field.i);
+		    }
+		}
+		public class X {
+		    public static void main(String[] argv) {
+		        new Test<ClassA>();
+		    }
+		}
+		"""
+	},
+	"11 11");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5512
+// this-qualified write (FieldReference, allowed per #5475) of a generic field before super(),
+// followed by an unqualified read that must see the same proxy
+public void testIssue5512_5() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		class ClassA {
+		    public int i;
+		    ClassA(int i) { this.i = i; }
+		}
+		value class Test<T extends ClassA> {
+		    T field;
+		    Test(T t) {
+		        this.field = t;
+		        T x = field;
+		        System.out.print(x.i + " ");
+		        super();
+		        System.out.println(this.field.i);
+		    }
+		}
+		public class X {
+		    public static void main(String[] argv) {
+		        new Test<ClassA>(new ClassA(9));
+		    }
+		}
+		"""
+	},
+	"9 9");
+}
 }
