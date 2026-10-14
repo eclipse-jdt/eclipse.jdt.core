@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -292,6 +296,12 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		} else if ("26".equals(compliance)) {
 			requiredComplianceFlag = ClassFileConstants.JDK26;
 			compilerVersion = CompilerOptions.VERSION_26;
+		} else if ("27".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK27;
+			compilerVersion = CompilerOptions.VERSION_27;
+		} else if ("28".equals(compliance)) {
+			requiredComplianceFlag = ClassFileConstants.JDK28;
+			compilerVersion = CompilerOptions.VERSION_28;
 		} else {
 			throw new UnsupportedOperationException("Test framework doesn't support compliance level: " + compliance);
 		}

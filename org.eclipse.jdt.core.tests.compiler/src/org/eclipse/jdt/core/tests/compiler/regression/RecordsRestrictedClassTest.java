@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * Copyright (c) 2019, 2025 IBM Corporation and others.
+ * Copyright (c) 2019, 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11227,7 +11227,7 @@ public void testIssue4551_2() throws Exception {
 					    AccessMode accessMode() default AccessMode.AUTO;
 					    RequiredMode requiredMode() default RequiredMode.AUTO;
 					    boolean hidden() default false;
-					    // â€¦ many more elements â€¦
+					    // … many more elements …
 					}
 
 					@Target({ANNOTATION_TYPE, FIELD, METHOD, PARAMETER})
@@ -11239,7 +11239,7 @@ public void testIssue4551_2() throws Exception {
 					    String defaultValue() default "";
 					   // Access access() default Access.AUTO;
 					    String namespace() default "";
-					    // â€¦
+					    // …
 					}
 					""",
 	            },
