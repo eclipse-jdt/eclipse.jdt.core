@@ -2259,4 +2259,300 @@ public class RecordsWithStrictFieldsTest extends AbstractRegressionTestCommon {
 				"      )";
 		verifyClassFile(expectedOutput, "test/Record.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+
+	// ===== Moved from ValueClassesAndObjectsTest: identity records with strict fields =====
+
+	public void testStrictlyInitializedRecordClass() {
+		runConformTest(new String [] {
+				"Point.java",
+				"""
+				import java.lang.reflect.Field;
+
+				public record Point(int x, int y) {
+
+				    public Point(int x, int y) {
+				        System.out.println(x);
+				        System.out.println(y);
+				        this.x = x;
+				        this.y = y;
+				    }
+
+				    public static void main(String[] args) {
+				        Point p1 = new Point(1024, 1024);
+				        System.out.println(p1);
+				        Point p2 = new Point(512, 512);
+				        System.out.println(p2);
+				        System.out.println(p1 == p2);
+
+				        for (Field field : Point.class.getDeclaredFields()) {
+
+				            String fieldName = field.getName();
+				            String fieldType = field.getType().getSimpleName();
+
+				            int modifiersBitmask = field.getModifiers();
+
+				            System.out.print("Name: " + fieldName);
+				            System.out.print(" (" + fieldType + ")");
+				            if ((modifiersBitmask & 0x800) != 0)
+				                System.out.println(" is strictly initialized");
+				        }
+				    }
+				}
+				"""},
+				"1024\n" +
+				"1024\n" +
+				"Point[x=1024, y=1024]\n" +
+				"512\n" +
+				"512\n" +
+				"Point[x=512, y=512]\n" +
+				"false\n" +
+				"Name: x (int) is strictly initialized\n" +
+				"Name: y (int) is strictly initialized");
+	}
+
+	// Same snippet as above but with preview turned off for both compiler and runtime
+	public void testLooselyInitializedRecordClass() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			import java.lang.reflect.Field;
+
+			public class X {
+
+			    public record Point(int x, int y) {
+
+			        public Point(int x, int y) {
+			            System.out.println(x);
+			            System.out.println(y);
+			            this.x = x;
+			            this.y = y;
+			        }
+			     }
+
+			    public static void main(String[] args) {
+			        Point p1 = new Point(1024, 1024);
+			        System.out.println(p1);
+			        Point p2 = new Point(512, 512);
+			        System.out.println(p2);
+			        System.out.println(p1 == p2);
+
+			        for (Field field : Point.class.getDeclaredFields()) {
+
+			            String fieldName = field.getName();
+			            String fieldType = field.getType().getSimpleName();
+
+			            int modifiersBitmask = field.getModifiers();
+
+			            System.out.print("Name: " + fieldName);
+			            System.out.print(" (" + fieldType + ")");
+			            if ((modifiersBitmask & 0x800) != 0)
+			                System.out.println(" is strictly initialized");
+			            else
+			                System.out.println(" is loosely initialized");
+			        }
+			    }
+			}
+			"""
+			},
+			"1024\n" +
+			"1024\n" +
+			"Point[x=1024, y=1024]\n" +
+			"512\n" +
+			"512\n" +
+			"Point[x=512, y=512]\n" +
+			"false\n" +
+			"Name: x (int) is loosely initialized\n" +
+			"Name: y (int) is loosely initialized",
+			getCompilerOptions(false), new String[] {}, new JavacTestOptions("-source 28"));
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5324
+	// Implement strict/safe construction rules for record classes
+	public void testIssue5324() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.List;
+
+				record Node(String label, List<Node> edges) {
+
+					static void nullCheck(Object arg, Object owner) {
+						if (arg == null) {
+							String msg = "null arg for " + owner.toString();
+							throw new IllegalArgumentException(msg);
+						}
+					}
+
+					public Node {
+						nullCheck(label, this);
+						nullCheck(edges, this);
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	nullCheck(label, this);\n" +
+			"	                 ^^^^\n" +
+			"Cannot use \'this\' in an early construction context\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	nullCheck(edges, this);\n" +
+			"	                 ^^^^\n" +
+			"Cannot use \'this\' in an early construction context\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5324
+	// Implement strict/safe construction rules for record classes
+	public void testIssue5324_2() {
+		Map<String, String> options = getCompilerOptions(false);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+
+		runConformTest(
+			new String[] {
+				"Node.java",
+				"""
+				import java.util.List;
+
+				public record Node(String label, List<Node> edges) {
+
+					static void nullCheck(Object arg, Object owner) {
+						if (arg == null) {
+							String msg = "null arg for " + owner.toString();
+							throw new IllegalArgumentException(msg);
+						}
+					}
+
+					public Node {
+						nullCheck(label, this);
+						nullCheck(edges, this);
+					}
+
+					public static void main(String[] args) {
+						System.out.println("Ok!");
+					}
+				}
+				"""
+			},
+			"Ok!",
+			options);
+	}
+
+	public void testIdentityRecordWithUninitializedComponent() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				record X(int value) {
+					public X(int value) {
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public X(int value) {\n" +
+			"	       ^^^^^^^^^^^^\n" +
+			"The field \'value\' must be initialized before chaining to the super class constructor\n" +
+			"----------\n");
+	}
+
+	public void testSuperCallInNormalCanonicalConstructor() {
+		runConformTest(new String[] {
+			"Point.java",
+			"""
+			public record Point (int x, int y) {
+			    public Point (int x, int y) {
+			        this.x = x;
+			        this.y = x;
+			        super();
+			        System.out.println(this.x + this.y);
+			    }
+			    public static void main(String [] args) {
+			        new Point(1023, 1);
+			    }
+			}
+			"""
+		}, "2046");
+	}
+
+	public void testSuperCallInNormalCanonicalConstructorNegative() {
+		runNegativeTest(new String[] {
+			"Point.java",
+			"""
+			public record Point (int x, int y) {
+			    public Point (int x, int y) {
+			        super();
+			        System.out.println(this.x + this.y);
+			    }
+			    public static void main(String [] args) {
+			        new Point(1023, 1);
+			    }
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in Point.java (at line 3)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"The field \'x\' must be initialized before chaining to the super class constructor\n" +
+		"----------\n" +
+		"2. ERROR in Point.java (at line 3)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"The field \'y\' must be initialized before chaining to the super class constructor\n" +
+		"----------\n");
+	}
+
+	public void testSuperCallInCompactCanonicalConstructor() {
+		runNegativeTest(new String[] {
+			"Point.java",
+			"""
+			public record Point (int x, int y) {
+			    public Point  {
+			        System.out.println(x + y);
+			        super();
+			        System.out.println(this.x + this.y);
+			    }
+			    public static void main(String [] args) {
+			        new Point(1023, 1);
+			    }
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in Point.java (at line 4)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"The body of a compact constructor must not contain an explicit constructor call\n" +
+		"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5491
+	// [BETA_JAVA28][Enable-preview] VerifyError with a simple record and compact constructor
+	public void testIssue5491() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			record Point(int x, int y) {
+				public Point {
+				}
+			}
+
+			public class X {
+				public static void main(String argv[]) {
+					Point point1 = new Point(5, 10);
+					Point point2 = new Point(5, 10);
+					System.out.println(point1.equals(point2));
+				}
+			}
+			"""
+		},
+		"true");
+	}
 }
