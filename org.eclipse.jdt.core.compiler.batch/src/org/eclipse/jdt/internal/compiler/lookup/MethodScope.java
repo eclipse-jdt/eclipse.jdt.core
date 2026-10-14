@@ -571,8 +571,8 @@ public boolean isInsideInitializer() {
 	return (this.referenceContext instanceof TypeDeclaration);
 }
 
-public boolean isInsideValueClassInitializer() {
-	return this.referenceContext instanceof TypeDeclaration type && type.isValueClass();
+public boolean isInsideValueClassInitializerBlock() {
+	return !this.isStatic && this.referenceContext instanceof TypeDeclaration type && type.isValueClass() && !classScope().insideEarlyConstructionContext;
 }
 
 @Override

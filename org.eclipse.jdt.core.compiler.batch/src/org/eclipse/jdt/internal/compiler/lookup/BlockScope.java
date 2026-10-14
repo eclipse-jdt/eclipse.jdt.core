@@ -195,7 +195,7 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 	MethodScope methodScope = methodScope();
 	if (methodScope.isStatic != binding.isStatic())
 		return false;
-	if (methodScope.isLambdaScope() || methodScope.isInsideValueClassInitializer())
+	if (methodScope.isLambdaScope() || methodScope.isInsideValueClassInitializerBlock())
 		return false;
 	if (!binding.isStatic() && methodScope.referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor())
 		return false;
