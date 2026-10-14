@@ -3647,4 +3647,28 @@ public void testValueConstructorEmpty() {
 	"5");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5523
+// ECJ ignores a valid field assignment via another field initializer
+public void testIssue5523() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public value class X {
+		    int b;
+		    int a = b = 42;
+
+		    public X() {
+		        System.out.println("In ctor");
+		    }
+
+		    public static void main(String [] args) {
+		        X x = new X();
+		        System.out.println(x.a + " " + x.b);
+		    }
+		}
+		"""
+	},
+	"In ctor\n" +
+	"42 42");
+}
 }
