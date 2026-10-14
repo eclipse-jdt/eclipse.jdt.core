@@ -95,7 +95,7 @@ public final class ConstructionContext {
     		if (this.constructorDeclaration.isCompactConstructor()) // can't touch this for read/write
     			return true;
     		if (this.constructorCall.isImplicitSuper() && this.constructorCall == this.constructorDeclaration.statements[0])
-    			return true;
+    			return !this.sourceType.isValueClass(); // identity class with no prologue => nop
     	}
 
     	return !JavaFeature.FIELD_READS_IN_CONSTRUCTOR_PROLOGUE.isSupported(this.constructionScope.compilerOptions());
