@@ -516,7 +516,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			if (isInsideCCD)
 				scope.problemReporter().compactConstructorHasExplicitConstructorCall(this);
 			else {
-				if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()))
+				if (JavaFeature.FIELD_READS_IN_CONSTRUCTOR_PROLOGUE.isSupported(scope.compilerOptions()))
 					return false; // a super is allowed to demarcate epilogue
 				scope.problemReporter().canonicalConstructorHasExplicitConstructorCall(this);
 			}
