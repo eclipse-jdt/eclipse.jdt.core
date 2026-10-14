@@ -3607,4 +3607,44 @@ public void testIssue5512_5() {
 	},
 	"9 9");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5524
+// VerifyError when a value class lacks a constructor or if constructor is empty
+public void testValueConstructorAbsent() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		value class ValueType {
+		    int a1 = 5;
+		}
+		public class X {
+		    public static void main(String args[]) {
+		        System.out.println(new ValueType().a1);
+		    }
+		}
+		"""
+	},
+	"5");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5524
+// VerifyError when a value class lacks a constructor or if constructor is empty
+public void testValueConstructorEmpty() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		value class ValueType {
+		    int a1 = 5;
+		    ValueType() {}
+		}
+		public class X {
+		    public static void main(String args[]) {
+		        System.out.println(new ValueType().a1);
+		    }
+		}
+		"""
+	},
+	"5");
+}
+
 }
