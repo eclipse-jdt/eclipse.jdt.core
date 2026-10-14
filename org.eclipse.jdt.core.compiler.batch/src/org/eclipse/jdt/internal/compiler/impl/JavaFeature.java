@@ -127,6 +127,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.strictly_initialized_fields),
 			CharOperation.NO_CHAR_CHAR,
 			true),
+	FIELD_READS_IN_CONSTRUCTOR_PROLOGUE(ClassFileConstants.JDK28,
+			Messages.bind(Messages.field_reads_in_constructor_prologue),
+			CharOperation.NO_CHAR_CHAR,
+			true),
 	;
 
 	final long compliance;

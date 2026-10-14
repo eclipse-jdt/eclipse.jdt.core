@@ -137,6 +137,7 @@ public final class Messages {
 	public static String markdown_comments;
 	public static String value_classes_and_objects;
 	public static String strictly_initialized_fields;
+	public static String field_reads_in_constructor_prologue;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

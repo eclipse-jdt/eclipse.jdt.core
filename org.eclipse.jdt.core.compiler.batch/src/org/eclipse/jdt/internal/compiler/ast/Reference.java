@@ -198,7 +198,7 @@ public boolean isReferenceOfFieldOfThis() {
 }
 
 protected boolean validEarlyConstructionFieldReference(BlockScope scope, FieldBinding field) {
-	if (!JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()))
+	if (!JavaFeature.FIELD_READS_IN_CONSTRUCTOR_PROLOGUE.isSupported(scope.compilerOptions()))
 		return false;
 	if (field.isStatic())
 		return false;
@@ -245,7 +245,7 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 				return;
 			} else {
 				boolean illegalEarlyWrite = (thisQualified && fieldBinding.isStatic() && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK28)
-					                 || (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(scope.compilerOptions()) && constructor != null && !constructor.invokesSuper());
+					                 || (JavaFeature.FIELD_READS_IN_CONSTRUCTOR_PROLOGUE.isSupported(scope.compilerOptions()) && constructor != null && !constructor.invokesSuper());
 
 				if (illegalEarlyWrite) {
 					scope.problemReporter().fieldReferenceInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);

@@ -98,7 +98,7 @@ public final class ConstructionContext {
     			return true;
     	}
 
-    	return !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.constructionScope.compilerOptions());
+    	return !JavaFeature.FIELD_READS_IN_CONSTRUCTOR_PROLOGUE.isSupported(this.constructionScope.compilerOptions());
     }
 
     public void enterFieldsResolution() {
