@@ -19,12 +19,16 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -861,8 +865,7 @@ private boolean isWorthBuilding() throws CoreException {
  * either in the cycle or outside of it, which were already built.
  */
 void mustPropagateStructuralChanges() {
-	Set<IProject> dependents = new LinkedHashSet<>();
-	collectDependents(this.currentProject, dependents);
+	Set<IProject> dependents = collectDependents();
 	Set<IProject> toRebuild = new HashSet<>();
 	for (IProject project : dependents) {
 		if (!project.equals(this.currentProject) && hasBeenBuilt(project)) {
@@ -878,12 +881,45 @@ void mustPropagateStructuralChanges() {
 	}
 }
 
-private static void collectDependents(IProject project, Set<IProject> dependents) {
-	for (IProject dependent : project.getReferencingProjects()) {
-		if (JavaProject.hasJavaNature(dependent) && dependents.add(dependent)) {
-			collectDependents(dependent, dependents);
+/*
+ * Computes all Java projects which directly or indirectly depend on the current project.
+ * Uses the same input as cycle detection (see JavaProject#validateCycles()), i.e. the
+ * project entries of the resolved classpath, and not IProject#getReferencingProjects(),
+ * which would also include references recorded in .project / build configurations.
+ */
+private Set<IProject> collectDependents() {
+	IWorkspaceRoot root = this.currentProject.getWorkspace().getRoot();
+	// required project -> projects directly requiring it
+	Map<IProject, List<IProject>> directDependents = new HashMap<>();
+	for (IProject project : root.getProjects()) {
+		if (!JavaProject.hasJavaNature(project)) {
+			continue;
+		}
+		JavaProject jProject = (JavaProject) JavaCore.create(project);
+		try {
+			for (IClasspathEntry entry : jProject.getResolvedClasspath()) {
+				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					IProject required = root.getProject(entry.getPath().lastSegment());
+					directDependents.computeIfAbsent(required, _ -> new ArrayList<>()).add(project);
+				}
+			}
+		} catch (JavaModelException e) {
+			// ignore projects with unresolvable classpath, like cycle detection does
 		}
 	}
+
+	Set<IProject> dependents = new LinkedHashSet<>();
+	Deque<IProject> pending = new ArrayDeque<>();
+	pending.add(this.currentProject);
+	while (!pending.isEmpty()) {
+		IProject required = pending.poll();
+		for (IProject dependent : directDependents.getOrDefault(required, Collections.emptyList())) {
+			if (dependents.add(dependent)) {
+				pending.add(dependent);
+			}
+		}
+	}
+	return dependents;
 }
 
 private void printLocations(ClasspathLocation[] newLocations, ClasspathLocation[] oldLocations) {
