@@ -1176,6 +1176,23 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
 	return missingType;
 }
 
+/**
+ * Answers whether a type was not found in this environment or in the environment of a module, so that a missing
+ * type was created in place.
+ */
+public boolean hasMissingTypes() {
+	LookupEnvironment rootEnv = this.root;
+	if (rootEnv.missingTypes != null) {
+		return true;
+	}
+	for (ModuleBinding knownModule : rootEnv.knownModules.valueTable) {
+		if (knownModule != null && knownModule.environment.missingTypes != null) {
+			return true;
+		}
+	}
+	return false;
+}
+
 /*
  * 1. Connect the type hierarchy for the type bindings created for parsedUnits.
  * 2. Create the field bindings

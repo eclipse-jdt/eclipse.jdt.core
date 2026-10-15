@@ -72,6 +72,7 @@ private static Class[] getAllTestClasses() {
 		RunJavaSearchTests.class,
 
 		IndexManagerTests.class,
+		SourceIndexerResolveTests.class,
 
 		// Regex ReDoS protection in the search index
 		IndexReDoSTest.class,
