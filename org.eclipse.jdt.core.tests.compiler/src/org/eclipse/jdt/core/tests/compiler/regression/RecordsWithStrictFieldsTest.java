@@ -2555,4 +2555,146 @@ public class RecordsWithStrictFieldsTest extends AbstractRegressionTestCommon {
 		},
 		"true");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5532
+	// [28] Instantiation of local class inside compact constructor is broken
+	public void testIssue5532() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    static record Point(int x, int y) {
+				        Point {
+				            class LocalClass {
+				                LocalClass() {
+				                    super();
+				                }
+				                public String toString() {
+				                    return "Point.LocalClass instance";
+				                }
+				            }
+				            LocalClass local = new LocalClass(); // error
+				            System.out.println(local);
+				        }
+				    }
+
+				    public static void main(String [] args) {
+				    	new X.Point(512, 512);
+				    }
+				}
+				"""
+			},
+			"Point.LocalClass instance");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5532
+	// [28] Instantiation of local class inside compact constructor is broken
+	public void testIssue5532_2() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				     record Point(int x, int y) {
+				        Point {
+				            class LocalClass {
+				                LocalClass() {
+				                    super();
+				                }
+				                public String toString() {
+				                    return "Point.LocalClass instance";
+				                }
+				            }
+				            LocalClass local = new LocalClass(); // error
+				            System.out.println(local);
+				        }
+				    }
+
+				    public static void main(String [] args) {
+				    	new X.Point(512, 512);
+				    }
+				}
+				"""
+			},
+			"Point.LocalClass instance");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5532
+	// [28] Instantiation of local class inside compact constructor is broken
+	public void testIssue5532_without_preview() {
+		Map<String, String> options = getCompilerOptions(false);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    static record Point(int x, int y) {
+				        Point {
+				            class LocalClass {
+				                LocalClass() {
+				                    super();
+				                }
+				                public String toString() {
+				                    return "Point.LocalClass instance";
+				                }
+				            }
+				            LocalClass local = new LocalClass(); // error
+				            System.out.println(local);
+				        }
+				    }
+
+				    public static void main(String [] args) {
+				    	new X.Point(512, 512);
+				    }
+				}
+				"""
+			},
+			"Point.LocalClass instance",
+			options);
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5532
+	// [28] Instantiation of local class inside compact constructor is broken
+	public void testIssue5532_2_without_preview() {
+		Map<String, String> options = getCompilerOptions(false);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_28);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				     record Point(int x, int y) {
+				        Point {
+				            class LocalClass {
+				                LocalClass() {
+				                    super();
+				                }
+				                public String toString() {
+				                    return "Point.LocalClass instance";
+				                }
+				            }
+				            LocalClass local = new LocalClass(); // error
+				            System.out.println(local);
+				        }
+				    }
+
+				    public static void main(String [] args) {
+				    	new X.Point(512, 512);
+				    }
+				}
+				"""
+			},
+			"Point.LocalClass instance",
+			options);
+	}
 }
