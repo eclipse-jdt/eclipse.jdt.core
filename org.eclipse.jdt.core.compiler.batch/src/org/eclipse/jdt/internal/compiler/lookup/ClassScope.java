@@ -529,6 +529,7 @@ public class ClassScope extends Scope {
 		int modifiers = sourceType.modifiers;
 		CompilerOptions options = compilerOptions();
 		boolean is16Plus = options.sourceLevel >= ClassFileConstants.JDK16;
+		boolean isValueClassSupported =  JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(options);
 		boolean isSealedSupported = JavaFeature.SEALED_CLASSES.isSupported(options);
 		boolean hierarchySealed = (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 
@@ -787,7 +788,7 @@ public class ClassScope extends Scope {
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp
-						| ((is16Plus && this.parent instanceof ClassScope) ? ClassFileConstants.AccStatic : 0));
+						| ((is16Plus && this.parent instanceof ClassScope) || isValueClassSupported ? ClassFileConstants.AccStatic : 0));
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || hierarchySealed)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
