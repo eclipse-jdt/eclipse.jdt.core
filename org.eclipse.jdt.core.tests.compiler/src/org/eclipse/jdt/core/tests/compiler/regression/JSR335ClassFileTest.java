@@ -1,5 +1,5 @@
 ﻿/*******************************************************************************
- * Copyright (c) 2013, 2018 Jesper Steen Moller, IBM and others.
+ * Copyright (c) 2013, 2026 Jesper Steen Moller, IBM and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
