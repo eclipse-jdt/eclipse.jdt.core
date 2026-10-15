@@ -3671,4 +3671,38 @@ public void testIssue5523() {
 	"In ctor\n" +
 	"42 42");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5531
+//  ECJ rejects static modifier for a local abstract value type
+public void testIssue5531() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+		    static class Z {
+		        int foo() {
+		            abstract static value class ValueType {
+		                public int i = 42;
+		            }
+		            value class CV extends ValueType {
+		                CV() {
+		                    System.out.print("In CV ctor ");
+		                }
+
+		                public int foo() {
+		                    return i * 2;
+		                }
+		            }
+		            return new CV().foo();
+		        }
+		    }
+
+		    public static void main(String [] args) {
+		        System.out.println(new X.Z().foo());
+		    }
+		}
+		"""
+	},
+	"In CV ctor 84");
+}
 }
