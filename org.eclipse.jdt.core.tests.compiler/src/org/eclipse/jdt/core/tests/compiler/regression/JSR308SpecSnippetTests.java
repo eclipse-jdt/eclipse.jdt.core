@@ -2472,7 +2472,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #24 pkg/Clazz$Inner, outer class info: #1 pkg/Clazz\n" +
-				"     inner name: #26 Inner, accessflags: 33 public]\n" +
+				"     inner name: #26 Inner, accessflags: 1 public]\n" +
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "pkg" + File.separator + "Clazz.class", "pkg.Clazz", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}

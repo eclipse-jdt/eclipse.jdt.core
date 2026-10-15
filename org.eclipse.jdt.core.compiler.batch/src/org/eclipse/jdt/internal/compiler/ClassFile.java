@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.Excepti
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -3442,9 +3443,18 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) value;
 		this.contents[localContentsOffset++] = (byte) (numberOfInnerClasses >> 8);
 		this.contents[localContentsOffset++] = (byte) numberOfInnerClasses;
+		// ACC_IDENTITY (0x0020) in inner_class_access_flags is only defined for class files supporting value classes
+		// (JEP 401). For other class files this bit is reserved and must be zero (JVMS 4.7.6).
+		// Same as javac: while value classes are a preview feature, only emit it in preview class files,
+		// once the feature is final, emit it in all class files targeting the release that supports it.
+		boolean isPreviewClassFile = (this.targetJDK & ClassFileConstants.MINOR_VERSION_PREVIEW) == ClassFileConstants.MINOR_VERSION_PREVIEW;
+		boolean emitIdentityFlag = JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(this.targetJDK, isPreviewClassFile);
 		for (int i = 0; i < numberOfInnerClasses; i++) {
 			ReferenceBinding innerClass = innerClasses[i];
 			int accessFlags = innerClass.getAccessFlags();
+			if (!emitIdentityFlag) {
+				accessFlags &= ~ClassFileConstants.AccIdentity;
+			}
 			int innerClassIndex = this.constantPool.literalIndexForType(innerClass.constantPoolName());
 			// inner class index
 			this.contents[localContentsOffset++] = (byte) (innerClassIndex >> 8);

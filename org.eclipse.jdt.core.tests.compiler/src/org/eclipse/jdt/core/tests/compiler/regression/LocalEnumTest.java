@@ -4904,9 +4904,9 @@ public void test127() throws Exception {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #23 X$1Y, outer class info: #0\n" +
-			"     inner name: #52 Y, accessflags: 17448 abstract static],\n" +
+			"     inner name: #52 Y, accessflags: 17416 abstract static],\n" +
 			"    [inner class info: #53 java/lang/invoke/MethodHandles$Lookup, outer class info: #55 java/lang/invoke/MethodHandles\n" +
-			"     inner name: #57 Lookup, accessflags: 57 public static final]\n" +
+			"     inner name: #57 Lookup, accessflags: 25 public static final]\n" +
 			"\n" +
 			"Nest Members:\n" +
 			"   #23 X$1Y,\n" +
@@ -5034,7 +5034,7 @@ public void test129() throws Exception {
 		+ "\n"
 		+ "  Inner classes:\n"
 		+ "    [inner class info: #22 X$1Y, outer class info: #0\n"
-		+ "     inner name: #24 Y, accessflags: 16440 static final]\n"
+		+ "     inner name: #24 Y, accessflags: 16408 static final]\n"
 		+ "\n"
 		+ "Nest Members:\n"
 		+ "   #22 X$1Y\n"
@@ -5193,7 +5193,7 @@ public void test133() throws Exception {
 		+ "\n"
 		+ "  Inner classes:\n"
 		+ "    [inner class info: #21 X$1Y, outer class info: #0\n"
-		+ "     inner name: #23 Y, accessflags: 16440 static final]\n"
+		+ "     inner name: #23 Y, accessflags: 16408 static final]\n"
 		+ "\n"
 		+ "Nest Members:\n"
 		+ "   #21 X$1Y\n"

@@ -11559,11 +11559,11 @@ public void testIssue4616_fuller() throws Exception {
 					"\n" +
 					"  Inner classes:\n" +
 					"    [inner class info: #96 java/lang/invoke/MethodHandles$Lookup, outer class info: #98 java/lang/invoke/MethodHandles\n" +
-					"     inner name: #100 Lookup, accessflags: 57 public static final],\n" +
+					"     inner name: #100 Lookup, accessflags: 25 public static final],\n" +
 					"    [inner class info: #101 test/Broken$UpsertEnvironmentDto, outer class info: #1 test/Broken\n" +
-					"     inner name: #103 UpsertEnvironmentDto, accessflags: 57 public static final],\n" +
+					"     inner name: #103 UpsertEnvironmentDto, accessflags: 25 public static final],\n" +
 					"    [inner class info: #104 test/Schema$RequiredMode, outer class info: #106 test/Schema\n" +
-					"     inner name: #108 RequiredMode, accessflags: 16441 public static final]\n" +
+					"     inner name: #108 RequiredMode, accessflags: 16409 public static final]\n" +
 					"\n" +
 					"Nest Members:\n" +
 					"   #101 test/Broken$UpsertEnvironmentDto\n" +
