@@ -1121,6 +1121,8 @@ public abstract class Scope {
 	}
 
 	public ClassScope enclosingInstanceScope() {
+		if (this instanceof ClassScope classScope && classScope.referenceContext.isStatic())
+			return null;
 		Scope scope = this;
 		while (true) {
 			scope = scope.parent;
