@@ -302,10 +302,6 @@ public class LocalVariableBinding extends VariableBinding {
 		return ((this.tagBits & TagBits.IsArgument) != 0);
 	}
 
-	public boolean isFieldProxy() {
-		return false;
-	}
-
 	public boolean isCatchParameter() {
 		return false;
 	}
