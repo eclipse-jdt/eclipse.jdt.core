@@ -461,9 +461,9 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #20 ParameterNames$1, outer class info: #0\n" +
-				"     inner name: #0, accessflags: 32 default],\n" +
+				"     inner name: #0, accessflags: 0 default],\n" +
 				"    [inner class info: #29 ParameterNames$1Local, outer class info: #0\n" +
-				"     inner name: #41 Local, accessflags: 32 default]\n" +
+				"     inner name: #41 Local, accessflags: 0 default]\n" +
 				nestMembers +
 				"}";
 
@@ -541,7 +541,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"\n" +
 			"  Inner classes:\n" +
 			"    [inner class info: #1 ParameterNames$1, outer class info: #0\n" +
-			"     inner name: #0, accessflags: 32 default]\n" +
+			"     inner name: #0, accessflags: 0 default]\n" +
 			"  Enclosing Method: #36  #38 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" +
 			nestHost +
 			"}"	;

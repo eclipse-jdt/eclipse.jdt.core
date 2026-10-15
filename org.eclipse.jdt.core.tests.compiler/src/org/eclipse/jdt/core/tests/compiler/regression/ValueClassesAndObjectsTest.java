@@ -2681,6 +2681,36 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		}, "1");
 	}
 
+	// ACC_IDENTITY in inner_class_access_flags must only be emitted in preview class files (same as javac).
+	// In regular class files bit 0x0020 is reserved there and must be zero (JVMS 4.7.6).
+	public void testIdentityFlagInInnerClassesAttributeOnlyInPreviewClassFiles() throws Exception {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public value class X {
+			    static class A {}
+			    public static void main(String[] args) {
+			        new A();
+			        new Y.B();
+			        System.out.println("OK");
+			    }
+			}
+			""",
+			"Y.java",
+			"""
+			public class Y {
+			    static class B {}
+			}
+			"""
+		}, "OK");
+		// X uses preview features => preview class file => ACC_IDENTITY set for identity class A
+		verifyClassFile("// Compiled from X.java (version 28 : 72.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("A, accessflags: 40 static]", "X.class", ClassFileBytesDisassembler.SYSTEM);
+		// Y uses no preview features => regular class file => no ACC_IDENTITY in inner_class_access_flags
+		verifyClassFile("// Compiled from Y.java (version 28 : 72.0", "Y.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("B, accessflags: 8 static]", "Y.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+
 	public void testDeadCodeAfterThrowingInitializerBlock_AllConstructors_NoRepeatedInitializerAnalysis() {
 		Map<String, String> options = getCompilerOptions(true);
 		options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
