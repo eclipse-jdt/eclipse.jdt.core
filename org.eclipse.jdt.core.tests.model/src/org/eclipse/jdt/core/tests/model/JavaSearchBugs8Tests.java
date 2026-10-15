@@ -5069,6 +5069,33 @@ public void testIssue5508() throws CoreException {
 		"src/X.java void X.test() [asList(new A(), new B())] EXACT_MATCH"
 	);
 }
-// Add new tests in JavaSearchBugs8Tests
+public void testIssue5508a() throws CoreException {
+	// same code as testIssue5508, but search with a precise method pattern mentioning one of the intersecting types.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"import java.util.List;\n" +
+		"interface I {}\n" +
+		"interface J {}\n" +
+		"class A implements I, J {}\n" +
+		"class B implements I, J {}\n" +
+		"public class X {\n" +
+		"	public <T> List<T> asList(T... a) {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"	void test() {\n" +
+		"		asList(new A(), new B());\n" +
+		"	}\n" +
+		"}\n"
+		);
+	MethodPattern methodPattern = (MethodPattern) SearchPattern.createPattern("X.asList(J[])",
+																	IJavaSearchConstants.METHOD,
+																	IJavaSearchConstants.REFERENCES,
+																	SearchPattern.R_EQUIVALENT_MATCH);
+	methodPattern.varargs = true;
+	search(methodPattern, getJavaSearchScope(), this.resultCollector);
+	assertSearchResults(
+		"src/X.java void X.test() [asList(new A(), new B())] EXACT_MATCH"
+	);
+}
 }
 

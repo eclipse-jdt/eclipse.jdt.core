@@ -1044,7 +1044,7 @@ protected JavaSearchResultCollector resultCollector;
 		);
 	}
 	protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		new SearchEngine().search(
+		new SearchEngine(this.workingCopies).search(
 			searchPattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
