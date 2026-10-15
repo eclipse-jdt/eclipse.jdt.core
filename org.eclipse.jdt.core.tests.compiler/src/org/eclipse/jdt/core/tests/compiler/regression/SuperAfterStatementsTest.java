@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -4515,6 +4516,8 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5514
 	// [28] ECJ accepts assignment of static field via 'this' before super()
 	public void testStaticFieldAccessThroughThis() {
+		if (this.complianceLevel >= ClassFileConstants.JDK28) // tested in org.eclipse.jdt.core.tests.compiler.regression.EarlyConstructionContextTests28.testStaticFieldAccessThroughThis()
+            return;
 		runConformTest(new String[] {
 				"X.java",
 				"""

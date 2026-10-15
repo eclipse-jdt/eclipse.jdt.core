@@ -46,6 +46,7 @@ public class RunOnlyJava28Tests extends TestCase {
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
+			JavaSearchTests.class,
 			ComplianceDiagnoseTest.class,
 			CompilerInvocationTests.class,
 			ValueClassesAndObjectsTest.class,
@@ -55,7 +56,6 @@ public class RunOnlyJava28Tests extends TestCase {
 			CopilotGeneratedJep401Tests.class,
 			RecordsRestrictedClassTest.class,
 			CompletionTests28.class,
-			JavaSearchTests.class,
 			ASTConverterBugsTest.class,
 			IncrementalTests28.class,
 		};
