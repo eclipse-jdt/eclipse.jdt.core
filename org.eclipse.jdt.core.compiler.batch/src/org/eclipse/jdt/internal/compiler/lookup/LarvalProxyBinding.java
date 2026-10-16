@@ -47,9 +47,4 @@ public class LarvalProxyBinding extends LocalVariableBinding {
 	public FieldBinding getLarvalField() {
 		return this.larvalField;
 	}
-
-	@Override
-	public boolean isFieldProxy() {
-		return true;
-	}
 }
