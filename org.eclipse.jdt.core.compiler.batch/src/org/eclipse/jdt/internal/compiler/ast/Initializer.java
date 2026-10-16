@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -42,7 +42,8 @@ public class Initializer extends FieldDeclaration {
 	public int bodyStart;
 	public int bodyEnd;
 
-	// A naked throw is an error, but `if (true) throw` is accepted, but control does not fall through.
+	// A naked throw in an initializer block is an error, but conditional throw such as `if (true) throw` is accepted,
+	// however control does not fall through.
 	public boolean fallsThrough = true; // Updated only for value classes
 
 	private MethodBinding methodBinding;
