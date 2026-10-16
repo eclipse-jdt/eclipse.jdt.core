@@ -928,7 +928,7 @@ public class CommentsPreparator extends ASTVisitor {
 			int firstTokenIndex = this.ctm.findIndex(fragment.getStartPosition(), ANY, true);
 			int lastTokenIndex = this.ctm.findIndex(fragment.getStartPosition() + fragment.getLength() - 1, ANY, false);
 			Token firstToken = this.ctm.get(firstTokenIndex);
-			int slashPos = this.ctm.getSource().lastIndexOf('/', firstToken.originalStart);
+			int slashPos = this.ctm.getSource().lastIndexOf('/', firstToken.originalStart - 1);
 			int fragmentIndent = this.ctm.getLength(slashPos + 1, firstToken.originalStart - 1, tabStartShift, 4);
 			int indentDiff = fragmentIndent - srcIndent;
 			Matcher fenceMatcher = MARKDOWN_FENCE_PATTERN.matcher(this.ctm.toString(fragment).trim());
