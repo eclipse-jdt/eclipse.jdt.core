@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -283,6 +283,37 @@ public class ASTRewritingImplicitTypeDeclarationTest extends ASTRewritingTest{
 	        assertEqualString(preview, buf.toString());
 
 		}
+	}
+
+	public void test005() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", """
+				void main() {
+				}
+				""", false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		ImplicitTypeDeclaration implicitTypeDeclaration= findImplicitDeclaration(astRoot, "");
+
+		// set a javadoc on the ImplicitTypeDeclaration — exercises rewriteJavadoc(node, JAVADOC_PROPERTY)
+		Javadoc javadoc= ast.newJavadoc();
+		TagElement tag= ast.newTagElement();
+		TextElement text= ast.newTextElement();
+		text.setText("A doc comment.");
+		tag.fragments().add(text);
+		javadoc.tags().add(tag);
+		rewrite.set(implicitTypeDeclaration, ImplicitTypeDeclaration.JAVADOC_PROPERTY, javadoc, null);
+
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, """
+				/**
+				 * A doc comment.
+				 */
+				void main() {
+				}
+				""");
 	}
 
 }
