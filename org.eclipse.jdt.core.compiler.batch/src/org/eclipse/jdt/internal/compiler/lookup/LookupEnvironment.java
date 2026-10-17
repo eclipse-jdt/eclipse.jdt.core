@@ -466,8 +466,11 @@ private NameEnvironmentAnswer[] askForTypeFromModules(ModuleBinding clientModule
 {
 	if (clientModule != null && clientModule.nameForLookup().length == 0) {
 		NameEnvironmentAnswer answer = oracle.apply(clientModule);
-		if (answer != null)
+		if (answer != null) {
 			answer.moduleBinding = this.root.getModuleFromAnswer(answer);
+			if (answer.moduleName() != null && answer.moduleBinding == null)
+				return null; // type found in an "inexistent" module => inconsistent answer
+		}
 		return new NameEnvironmentAnswer[] { answer };
 	} else {
 		boolean found = false;
@@ -529,14 +532,13 @@ private ModuleBinding getModuleFromAnswer(NameEnvironmentAnswer answer) {
 			moduleBinding = this.knownModules.get(moduleName);
 			if (moduleBinding == null && this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 				IModule iModule = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModule(moduleName);
-				try {
-					this.typeRequestor.accept(iModule, this);
-					moduleBinding = this.knownModules.get(moduleName);
-				} catch (NullPointerException e) {
-					System.err.println("Bug 529367: moduleName: " + new String(moduleName) + "iModule null" +  //$NON-NLS-1$ //$NON-NLS-2$
-							(iModule == null ? "true" : "false")); //$NON-NLS-1$ //$NON-NLS-2$]
-					throw e;
+				if (iModule == null) {
+					// inconsistent answer, likely:
+					// * type found from ctsym in a module that is not present in the JRT
+					return null;
 				}
+				this.typeRequestor.accept(iModule, this);
+				moduleBinding = this.knownModules.get(moduleName);
 			}
 		}
 		return moduleBinding;
