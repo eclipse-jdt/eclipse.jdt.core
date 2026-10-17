@@ -22,6 +22,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(TracingSuite.class)
 @SuiteClasses({ RunFormatterTests.class, RunAllTests.class, AllJavaModelTests.class })
-@TracingOptions(stackDumpTimeoutSeconds = 60)
+// These headless tests have no UI to capture. Keep timeout thread dumps without requiring X11.
+@TracingOptions(stackDumpTimeoutSeconds = 60, maxScreenshotCount = 0)
 public class RunAllJdtModelTestsTracing {
 }
