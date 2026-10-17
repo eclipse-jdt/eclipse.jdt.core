@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -1099,6 +1099,10 @@ protected static class JavacTestOptions {
 		JavacHasABug(int mismatchType) {
 			super(mismatchType);
 		}
+		private JavacHasABug(String compilerOptions, int mismatchType) {
+			super(mismatchType);
+			setCompilerOptions(compilerOptions);
+		}
 //		private JavacHasABug(int mismatchType, int[] minorsFixed) {
 //			super(mismatchType);
 //			this.minorsFixed = minorsFixed;
@@ -1241,7 +1245,9 @@ protected static class JavacTestOptions {
 			JavacBug8375572 = // https://bugs.openjdk.org/browse/JDK-8375572
 					new JavacHasABug(MismatchType.JavacErrorsEclipseNone),
 			JavacBug8343286 = // https://bugs.openjdk.org/browse/JDK-8343286
-					new JavacHasABug(MismatchType.EclipseWarningsJavacNone, ClassFileConstants.JDK24, 0000);
+					new JavacHasABug(MismatchType.EclipseWarningsJavacNone, ClassFileConstants.JDK24, 0000),
+			JavacBug8394667 = // https://bugs.openjdk.org/browse/JDK-8394667
+					new JavacHasABug("--enable-preview -source 28", MismatchType.StandardOutputMismatch);
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
