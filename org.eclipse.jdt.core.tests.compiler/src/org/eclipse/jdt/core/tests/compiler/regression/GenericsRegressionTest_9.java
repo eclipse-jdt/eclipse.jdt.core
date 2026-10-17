@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2025 IBM Corporation.
+ * Copyright (c) 2016, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2580,6 +2580,25 @@ public void testIssue5214() {
 			+ "	                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 			+ "The method isRelevant(X.Child<X.A>) from the type X is never used locally\n"
 			+ "----------\n");
+}
+public void testIssue5426() {
+	runConformTest(new String[] {
+		"HasFooBarLists.java",
+		"""
+		import java.util.List;
+		import java.util.Optional;
+
+		public class HasFooBarLists<E> {
+			public HasFooBarLists() {
+				List.			 of(getFooList().get(0), getBarList().get(0)); // problematic
+				List.<Optional<?>>of(getFooList().get(0), getBarList().get(0)); // works fine
+			}
+
+			public List<? extends Optional<? super E>> getFooList() { return null; };
+			public List<? extends Optional<?>> getBarList() { return null; };
+		}
+		"""
+	});
 }
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
