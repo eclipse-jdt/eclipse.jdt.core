@@ -208,8 +208,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 					if (wildcard.boundKind == Wildcard.SUPER && wildcard.bound.id == TypeIds.T_JavaLangObject) {
 						capturedArguments[i] = wildcard.bound;
 					} else {
-						capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, start, end, cud, compilationUnitScope::nextCaptureID);
-						freshCaptures[i] = true;
+						CaptureBinding capture = this.environment.createCapturedWildcard(wildcard, contextType, start, end, cud, compilationUnitScope::nextCaptureID);
+						capturedArguments[i] = capture;
+						freshCaptures[i] = !capture.isBoundsInitialized();
 					}
 				} else {
 					capturedArguments[i] = argument;

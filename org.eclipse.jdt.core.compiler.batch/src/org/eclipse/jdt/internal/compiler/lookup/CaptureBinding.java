@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	public int start;
 	public int end;
 	public ASTNode cud; // to facilitate recaptures.
+	private boolean boundsInitialized;
 
 	TypeBinding pendingSubstitute; // for substitution of recursive captures, see https://bugs.eclipse.org/456924
 
@@ -92,6 +93,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		this.lowerBound = prototype.lowerBound;
 		this.tagBits |= (prototype.tagBits & TagBits.HasCapturedWildcard);
 		this.cud = prototype.cud;
+		this.boundsInitialized = prototype.boundsInitialized;
 	}
 
 	// Captures may get cloned and annotated during type inference.
@@ -158,11 +160,19 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 	}
 
+	/** Answer whether {@link #initializeBounds(Scope, ParameterizedTypeBinding)} has already been performed for this capture. */
+	public boolean isBoundsInitialized() {
+		return this.boundsInitialized;
+	}
+
 	/**
 	 * Initialize capture bounds using substituted supertypes e.g. given
 	 * {@code X<U, V extends X<U, V>>, capture(X<E,?>) = X<E,capture>,} where {@code capture extends X<E,capture>}
 	 */
 	public void initializeBounds(Scope scope, ParameterizedTypeBinding capturedParameterizedType) {
+		if (this.boundsInitialized)
+			return;
+		this.boundsInitialized = true;
 		TypeVariableBinding wildcardVariable = this.wildcard.typeVariable();
 		if (wildcardVariable == null) {
 			// error resilience when capturing Zork<?>
