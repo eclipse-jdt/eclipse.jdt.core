@@ -17,6 +17,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -56,13 +57,18 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 		return defaultOptions;
 	}
 
-	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		Map<String, String> customOptions = getCompilerOptions(true);
+	protected Runner getRunnerForPreview28() {
 		Runner runner = new Runner();
+		runner.vmArguments = VMARGS;
+		runner.javacTestOptions = JAVAC_OPTIONS;
+		runner.customOptions = getCompilerOptions(true);
+		return runner;
+	}
+
+	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+		Runner runner = getRunnerForPreview28();
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
-		runner.javacTestOptions = JAVAC_OPTIONS;
-		runner.customOptions = customOptions;
 		runner.expectedJavacOutputString = null;
 		runner.runNegativeTest();
 	}
@@ -3734,5 +3740,33 @@ public void testIssue5531() {
 		"""
 	},
 	"In CV ctor 84");
+}
+public void testIssue5530() {
+	Runner runner = getRunnerForPreview28();
+	runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+				public static void main(String argv[]) {
+					Y.ValueType v1 = new Y().new ValueType(-1);
+					Y.ValueType v2 = new Y().new ValueType(-1);
+					System.out.println(v1 == v2); // Should print false
+					System.out.println(v1.equals(v2)); // Should print false
+				}
+			}
+			class Y {
+				value class ValueType {
+					int i;
+					public ValueType(int i) {
+						this.i = i;
+						super();
+					}
+				}
+			}
+			"""
+		};
+	runner.expectedOutputString = "false\nfalse";
+	runner.javacTestOptions = JavacHasABug.JavacBug8394667;
+	runner.runConformTest();
 }
 }
