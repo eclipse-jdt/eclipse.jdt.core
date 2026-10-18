@@ -1500,8 +1500,12 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 	AnnotationBinding [] oldies = type.getTypeAnnotations();
 	final int oldLength = oldies == null ? 0 : oldies.length;
 	if (oldLength > 0) {
-		System.arraycopy(newbies, 0, newbies = new AnnotationBinding[newLength + oldLength], 0, newLength);
-		System.arraycopy(oldies, 0, newbies, newLength, oldLength);
+		if (type instanceof ArrayBinding array) {
+			newbies = mergeAnnotationsPerDimension(array.dimensions, oldies, newbies);
+		} else {
+			System.arraycopy(newbies, 0, newbies = new AnnotationBinding[newLength + oldLength], 0, newLength);
+			System.arraycopy(oldies, 0, newbies, newLength, oldLength);
+		}
 	}
 	if (this.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 		// filter duplicate null annotations
@@ -1531,6 +1535,23 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 			System.arraycopy(filtered, 0, newbies = new AnnotationBinding[count], 0, count);
 	}
 	return this.typeSystem.getAnnotatedType(type, new AnnotationBinding [][] { newbies });
+}
+
+private AnnotationBinding[] mergeAnnotationsPerDimension(int dimensions, AnnotationBinding[] oldies, AnnotationBinding[] newbies) {
+	List<AnnotationBinding> annotsPerDim = new ArrayList<>();
+	int newbieIdx = 0, oldieIdx = 0;
+	for (int dim = 0; dim < dimensions; dim++) {
+		for (; newbieIdx < newbies.length && newbies[newbieIdx] != null; newbieIdx++) {
+			annotsPerDim.add(newbies[newbieIdx]);
+		}
+		for (; oldieIdx < oldies.length && oldies[oldieIdx] != null; oldieIdx++) {
+			annotsPerDim.add(oldies[oldieIdx]);
+		}
+		annotsPerDim.add(null);
+		newbieIdx++;
+		oldieIdx++;
+	}
+	return annotsPerDim.toArray(AnnotationBinding[]::new);
 }
 
 // convenience:
