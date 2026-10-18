@@ -20482,4 +20482,47 @@ public void testGH5340() throws Exception {
 		getCompilerOptions(),
 		"");
 }
+public void testIssue5391() throws Exception {
+	runConformTestWithLibs(new String[] {
+			"Repro.java",
+			"""
+			import java.util.ArrayList;
+			import java.util.List;
+
+			public class Repro<T> {
+				class Node {}
+
+				void m(Node start) {
+					List<Node> list = new ArrayList<>();
+					list.add(start);
+				}
+			}
+			"""
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testIssue5391a() throws Exception {
+	runConformTestWithLibs(new String[] {
+			"Repro.java",
+			"""
+			import java.util.List;
+			import org.eclipse.jdt.annotation.*;
+
+			interface MyList<X> extends List<X> {
+				@Override
+				boolean add(@Nullable X x);
+			}
+			public class Repro<T> {
+				class Node {}
+
+				void m(Node start, MyList<Node> list) {
+					list.add(start);
+				}
+			}
+			"""
+		},
+		getCompilerOptions(),
+		"");
+}
 }
