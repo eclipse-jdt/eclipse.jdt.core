@@ -765,8 +765,12 @@ public class WrapExecutor {
 			} else if (indentOption == Alignment.M_INDENT_DEFAULT) {
 				lineIndent = this.options.continuation_indentation * this.options.indentation_size;
 			} else if (indentOption == Alignment.M_INDENT_ON_COLUMN) {
-				int potentialIndent = this.tm.toIndent(this.tm.getPositionInLine(this.tm.indexOf(token)), true) - indent;
-				if (isNewLineOption) {
+				int tokenIndex = this.tm.indexOf(token);
+				int potentialIndent = this.tm.toIndent(this.tm.getPositionInLine(tokenIndex), true) - indent;
+				// the first token of the statement, skipping lines that start with a wrapped token
+				Token statementStart = this.tm.get(this.tm.findFirstTokenInLine(tokenIndex, true, true));
+				if (isNewLineOption && statementStart.getIndent() == indent) {
+					// extra indent only when the text block is on the same level as the rest of the declaration
 					token.setIndent(indent + this.options.indentation_size);
 				}
 				lineIndent = potentialIndent;
