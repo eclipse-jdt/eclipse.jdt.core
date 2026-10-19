@@ -93,6 +93,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 
 	protected static long PREVIEW_FEATURE_CLASS_FILE_CONST = ClassFileConstants.JDK25;
 	protected static int PREVIEW_FEATURE_LEVEL = 25;
+	protected static final int WITHOUT_CONSTANT_POOL_INDEXES = 1 << 30;
 
 	// statistics for run.javac mode:
 	static int numRunJavacTests = 0;
@@ -1469,7 +1470,7 @@ protected static class JavacTestOptions {
 	}
 	/**
 	 * @deprecated Use the overload that accepts a mode and include
-	 *             {@link ClassFileBytesDisassembler#WITHOUT_CONSTANT_POOL_INDEXES}.
+	 *             {@link #WITHOUT_CONSTANT_POOL_INDEXES}.
 	 */
 	@Deprecated
 	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
@@ -1490,7 +1491,7 @@ protected static class JavacTestOptions {
 			File f = new File(directory, disassembledClassName + ".class");
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", mode);
+			String result = disassemble(disassembler, classFileBytes, mode);
 			int index = result.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
 				System.out.println(Util.displayString(result, 3));
@@ -1534,7 +1535,7 @@ protected static class JavacTestOptions {
 
 	/**
 	 * @deprecated Use the overload that accepts a mode and include
-	 *             {@link ClassFileBytesDisassembler#WITHOUT_CONSTANT_POOL_INDEXES}.
+	 *             {@link #WITHOUT_CONSTANT_POOL_INDEXES}.
 	 */
 	@Deprecated
 	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput) throws Exception {
@@ -1547,7 +1548,7 @@ protected static class JavacTestOptions {
 		}
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(classFile);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		String result = disassemble(disassembler, classFileBytes, mode);
 		int index = result.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
 			System.out.println(Util.displayString(result, 2));
@@ -1572,7 +1573,7 @@ protected static class JavacTestOptions {
 		File f = new File(classFileName);
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		String result = disassemble(disassembler, classFileBytes, mode);
 		if (expectedOutput != null) {
 			int index = result.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
@@ -1587,6 +1588,70 @@ protected static class JavacTestOptions {
 			int index = result.indexOf(unexpectedOutput);
 			assertTrue("Unexpected output found", index == -1);
 		}
+	}
+
+	protected static String disassemble(ClassFileBytesDisassembler disassembler, byte[] classFileBytes, int mode)
+			throws ClassFormatException {
+		boolean removeIndexes = (mode & WITHOUT_CONSTANT_POOL_INDEXES) != 0;
+		String result = disassembler.disassemble(classFileBytes, "\n", mode & ~WITHOUT_CONSTANT_POOL_INDEXES);
+		return removeIndexes ? removeConstantPoolIndexes(result) : result;
+	}
+
+	protected static String removeConstantPoolIndexes(String disassembly) {
+		StringBuilder result = new StringBuilder(disassembly.length());
+		boolean inString = false;
+		boolean inCharacter = false;
+		boolean escaped = false;
+		for (int i = 0; i < disassembly.length(); i++) {
+			char current = disassembly.charAt(i);
+			if (inString || inCharacter) {
+				result.append(current);
+				if (escaped) {
+					escaped = false;
+				} else if (current == '\\') {
+					escaped = true;
+				} else if (current == '"' && inString) {
+					inString = false;
+				} else if (current == '\'' && inCharacter) {
+					inCharacter = false;
+				}
+				continue;
+			}
+			if (current == '"') {
+				inString = true;
+				result.append(current);
+				continue;
+			}
+			if (current == '\'') {
+				inCharacter = true;
+				result.append(current);
+				continue;
+			}
+			if (current == '#' && i + 1 < disassembly.length() && Character.isDigit(disassembly.charAt(i + 1))) {
+				do {
+					i++;
+				} while (i + 1 < disassembly.length() && Character.isDigit(disassembly.charAt(i + 1)));
+				if (i + 1 < disassembly.length() && disassembly.charAt(i + 1) == ' ' && result.length() > 0 && result.charAt(result.length() - 1) == ' ') {
+					i++;
+				}
+				continue;
+			}
+			if (current == '[' && i + 1 < disassembly.length() && Character.isDigit(disassembly.charAt(i + 1))) {
+				int end = i + 2;
+				while (end < disassembly.length() && Character.isDigit(disassembly.charAt(end))) {
+					end++;
+				}
+				if (end < disassembly.length() && disassembly.charAt(end) == ']') {
+					if (result.length() > 0 && result.charAt(result.length() - 1) == ' ') {
+						result.setLength(result.length() - 1);
+					}
+					i = end;
+					continue;
+				}
+			}
+			result.append(current);
+		}
+		return result.toString();
 	}
 
 	protected void verifyNegativeClassFile(String unExpectedOutput, String classFileName, int mode)

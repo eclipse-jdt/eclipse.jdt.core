@@ -53,11 +53,13 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"  }\n" +
 			"}";
 		compileAndDeploy(source, "", "X", false);
-		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(EVAL_DIRECTORY, "X.class")))) {
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(inputStream, IClassFileReader.ALL);
-			assertNotNull(classFileReader);
-			int mode = ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.WITHOUT_CONSTANT_POOL_INDEXES;
-			String result = ToolFactory.createDefaultClassFileDisassembler().disassemble(classFileReader, "\n", mode);
+		try {
+			File classFile = new File(EVAL_DIRECTORY, "X.class");
+			byte[] classFileBytes = Util.getFileByteContent(classFile);
+			String result = disassemble(
+					ToolFactory.createDefaultClassFileBytesDisassembler(),
+					classFileBytes,
+					ClassFileBytesDisassembler.DETAILED | WITHOUT_CONSTANT_POOL_INDEXES);
 			assertTrue("String constants must not be changed", result.contains("#123 [456]"));
 			String resultWithoutStringConstant = result.replace("#123 [456]", "");
 			assertFalse("Constant pool indexes prefixed with # must be omitted", resultWithoutStringConstant.matches("(?s).*#\\d+.*"));

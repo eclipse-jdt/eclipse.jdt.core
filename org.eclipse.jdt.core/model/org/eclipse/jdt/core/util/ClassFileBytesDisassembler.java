@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2026 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -50,15 +50,6 @@ public abstract class ClassFileBytesDisassembler {
 	 * @since 3.2
 	 */
 	public final static int WORKING_COPY = 16;
-
-	/**
-	 * This mode omits constant pool indexes from the disassembled output. It can be
-	 * combined with the other modes and is useful for output that is compared in
-	 * tests, where constant pool indexes are an implementation detail.
-	 *
-	 * @since 3.48
-	 */
-	public final static int WITHOUT_CONSTANT_POOL_INDEXES = 32;
 
 	/**
 	 * Answers back the disassembled string of the classfile bytes using the default
