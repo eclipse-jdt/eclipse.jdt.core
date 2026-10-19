@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,32 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 
 	public ClassFileReaderTest_1_5(String name) {
 		super(name);
+	}
+
+	/**
+	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3916
+	 */
+	public void testDisassembleWithoutConstantPoolIndexes() throws Exception {
+		String source =
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    System.out.println(\"#123 [456]\");\n" +
+			"  }\n" +
+			"}";
+		compileAndDeploy(source, "", "X", false);
+		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(new File(EVAL_DIRECTORY, "X.class")))) {
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(inputStream, IClassFileReader.ALL);
+			assertNotNull(classFileReader);
+			int mode = ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.WITHOUT_CONSTANT_POOL_INDEXES;
+			String result = ToolFactory.createDefaultClassFileDisassembler().disassemble(classFileReader, "\n", mode);
+			assertTrue("String constants must not be changed", result.contains("#123 [456]"));
+			String resultWithoutStringConstant = result.replace("#123 [456]", "");
+			assertFalse("Constant pool indexes prefixed with # must be omitted", resultWithoutStringConstant.matches("(?s).*#\\d+.*"));
+			assertFalse("Constant pool indexes in brackets must be omitted", resultWithoutStringConstant.matches("(?s).*\\[\\d+\\].*"));
+		}
+		finally {
+			removeTempClass("X");
+		}
 	}
 
 	/**

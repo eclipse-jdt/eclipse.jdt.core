@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -217,6 +217,66 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private static void escapeChar(StringBuilder buffer, char c) {
 		org.eclipse.jdt.internal.compiler.util.Util.appendEscapedChar(buffer, c, false);
+	}
+
+	private static String removeConstantPoolIndexes(String disassembly) {
+		StringBuilder result = new StringBuilder(disassembly.length());
+		boolean inString = false;
+		boolean inCharacter = false;
+		boolean escaped = false;
+		for (int i = 0; i < disassembly.length(); i++) {
+			char current = disassembly.charAt(i);
+			if (inString || inCharacter) {
+				result.append(current);
+				if (escaped) {
+					escaped = false;
+				}
+				else if (current == '\\') {
+					escaped = true;
+				}
+				else if (current == '"' && inString) {
+					inString = false;
+				}
+				else if (current == '\'' && inCharacter) {
+					inCharacter = false;
+				}
+				continue;
+			}
+			if (current == '"') {
+				inString = true;
+				result.append(current);
+				continue;
+			}
+			if (current == '\'') {
+				inCharacter = true;
+				result.append(current);
+				continue;
+			}
+			if (current == '#' && i + 1 < disassembly.length() && Character.isDigit(disassembly.charAt(i + 1))) {
+				do {
+					i++;
+				} while (i + 1 < disassembly.length() && Character.isDigit(disassembly.charAt(i + 1)));
+				if (i + 1 < disassembly.length() && disassembly.charAt(i + 1) == ' ' && result.length() > 0 && result.charAt(result.length() - 1) == ' ') {
+					i++;
+				}
+				continue;
+			}
+			if (current == '[' && i + 1 < disassembly.length() && Character.isDigit(disassembly.charAt(i + 1))) {
+				int end = i + 2;
+				while (end < disassembly.length() && Character.isDigit(disassembly.charAt(end))) {
+					end++;
+				}
+				if (end < disassembly.length() && disassembly.charAt(end) == ']') {
+					if (result.length() > 0 && result.charAt(result.length() - 1) == ' ') {
+						result.setLength(result.length() - 1);
+					}
+					i = end;
+					continue;
+				}
+			}
+			result.append(current);
+		}
+		return result.toString();
 	}
 
 	static String decodeStringValue(String s) {
@@ -1264,7 +1324,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		writeNewLine(buffer, lineSeparator, 0);
 		buffer.append(Messages.disassembler_closetypedeclaration);
-		return buffer.toString();
+		String disassembly = buffer.toString();
+		if (checkMode(mode, WITHOUT_CONSTANT_POOL_INDEXES)) {
+			return removeConstantPoolIndexes(disassembly);
+		}
+		return disassembly;
 	}
 
 	private void disassembleModule(IModuleAttribute moduleAttribute, StringBuilder buffer, String lineSeparator, int tabNumber) {

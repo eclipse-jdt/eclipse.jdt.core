@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1467,6 +1467,11 @@ protected static class JavacTestOptions {
 	protected boolean checkPreviewAllowed() {
 		return this.complianceLevel == ClassFileConstants.getLatestJDKLevel();
 	}
+	/**
+	 * @deprecated Use the overload that accepts a mode and include
+	 *             {@link ClassFileBytesDisassembler#WITHOUT_CONSTANT_POOL_INDEXES}.
+	 */
+	@Deprecated
 	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -1527,6 +1532,11 @@ protected static class JavacTestOptions {
 		}
 	}
 
+	/**
+	 * @deprecated Use the overload that accepts a mode and include
+	 *             {@link ClassFileBytesDisassembler#WITHOUT_CONSTANT_POOL_INDEXES}.
+	 */
+	@Deprecated
 	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput) throws Exception {
 		this.checkDisassembledClassFile(fileName, className, expectedOutput, ClassFileBytesDisassembler.DETAILED);
 	}
