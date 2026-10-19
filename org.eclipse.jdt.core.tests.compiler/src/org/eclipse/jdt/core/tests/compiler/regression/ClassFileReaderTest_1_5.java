@@ -55,7 +55,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 		compileAndDeploy(source, "", "X", false);
 		try {
 			File classFile = new File(EVAL_DIRECTORY, "X.class");
-			byte[] classFileBytes = Util.getFileByteContent(classFile);
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(classFile);
 			String result = disassemble(
 					ToolFactory.createDefaultClassFileBytesDisassembler(),
 					classFileBytes,
