@@ -37,6 +37,9 @@ public class AllAptTests extends TestCase {
 		suite.addTestSuite(Java9ElementsTests.class);
 		suite.addTestSuite(Java11ElementsTests.class);
 		suite.addTestSuite(Java12ElementsTests.class);
+		suite.addTestSuite(Java22ElementsTests.class);
+		suite.addTestSuite(Java23ElementsTests.class);
+		suite.addTestSuite(Java25ElementsTests.class);
 		suite.addTestSuite(RecordElementsTests.class);
 		suite.addTestSuite(SealedTypeElementsTests.class);
 		suite.addTestSuite(AnnotationProcessorTests.class);

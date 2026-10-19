@@ -27,6 +27,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
@@ -109,12 +110,17 @@ public class Java25ElementProcessor extends BaseProcessor {
 	}
 
 	public void testAll() throws AssertionFailedError, IOException {
-		getTypeElement();
+		testGetTypeElement();
+		testAsType();
 	}
 
-	public void getTypeElement() throws IOException {
+	public void testGetTypeElement() throws IOException {
 		TypeElement typeElement = _elementUtils.getTypeElement("");
 		assertNull("type should be null", typeElement);
+	}
+	public void testAsType() {
+		TypeMirror type = _elementUtils.getPackageElement("java.lang").asType();
+		assertNotNull("type should not be null", type);
 	}
 	@Override
 	public void reportError(String msg) {
@@ -133,6 +139,11 @@ public class Java25ElementProcessor extends BaseProcessor {
 	}
 	public void assertNull(String msg, Object obj) {
 		if (obj != null) {
+			reportError(msg);
+		}
+	}
+	public void assertNotNull(String msg, Object obj) {
+		if (obj == null) {
 			reportError(msg);
 		}
 	}
