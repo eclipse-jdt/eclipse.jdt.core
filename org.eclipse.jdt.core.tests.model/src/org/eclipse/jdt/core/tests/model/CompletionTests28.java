@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 public class CompletionTests28 extends AbstractJavaModelCompletionTests {
 
@@ -33,17 +34,12 @@ public class CompletionTests28 extends AbstractJavaModelCompletionTests {
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(CompletionTests28.class);
+		return buildModelTestSuite(AbstractCompilerTest.F_28, CompletionTests28.class);
 	}
 
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-
-		assertEquals(
-				"Run this suite using JDK 28, since it uses the running JDK's library",
-				"28",
-				System.getProperty("java.specification.version"));
 
 		// Creates the project rather than copying workspace/Completion28.
 		this.completion28Project = createJava9Project("Completion28", "28");
