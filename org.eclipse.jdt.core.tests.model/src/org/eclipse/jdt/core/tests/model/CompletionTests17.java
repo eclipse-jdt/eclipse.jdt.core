@@ -748,4 +748,27 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				+ "ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList<TT;>;, (Ljava.util.Collection<+TT;>;)V, ArrayList, (c), 84}",
 				requestor.getResults());
 	}
+
+    public void testAnnotationStringAttributeValue() throws JavaModelException {
+               waitForAutoBuild();
+               this.workingCopies = new ICompilationUnit[1];
+               this.workingCopies[0] = getWorkingCopy(
+           			"/Completion/src/java/lang/SuppressWarnings.java",
+           			"""
+           			package java.lang;
+           			public @interface SuppressWarnings {
+           				String[] value();
+           			}
+           			@SuppressWarnings(value = Foo)
+                    class Foo {
+                    }
+           			""");
+               CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+               requestor.allowAllRequiredProposals();
+               String str = this.workingCopies[0].getSource();
+               String completeBehind = "value = Foo";
+               int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+               this.workingCopies[0].codeComplete(cursorLocation, requestor, new NullProgressMonitor());
+               assertResults("Foo[TYPE_REF]{Foo, java.lang, Ljava.lang.Foo;, null, null, 58}", requestor.getResults());
+       }
 }
