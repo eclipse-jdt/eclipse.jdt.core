@@ -69,6 +69,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 		allClasses.add(FormatterJSR335Tests.class);
 		allClasses.add(FormatterJSR308Tests.class);
 		allClasses.add(FormatterBugs18Tests.class);
+		allClasses.add(FormatterBugs25Tests.class);
 		allClasses.addAll(TEST_SUITES);
 
 		// Reset forgotten subsets of tests
