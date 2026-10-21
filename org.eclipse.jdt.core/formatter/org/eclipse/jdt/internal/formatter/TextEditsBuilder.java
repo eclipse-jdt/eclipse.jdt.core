@@ -221,8 +221,12 @@ public class TextEditsBuilder extends TokenTraverser {
 				if (!isMarkdown)
 					this.buffer.append(' ');
 				flushBuffer(i);
-				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == markerChar)
+				int markerCount = 1;
+				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == markerChar
+						&& (!isMarkdown || markerCount < 3)) {
 					i++;
+					markerCount++;
+				}
 				this.counter = i + 1;
 				c = this.source.charAt(i + 1);
 				if ((c != '\r' && c != '\n') || !emptyLine)
