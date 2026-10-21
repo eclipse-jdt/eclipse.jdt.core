@@ -201,7 +201,7 @@ public void cleanup() {
 @Override
 public boolean equals(Object o) {
 	if (this == o) return true;
-	if (!(o instanceof ClasspathJar)) return false;
+	if (o == null || getClass() != o.getClass()) return false;
 	ClasspathJar jar = (ClasspathJar) o;
 	if (this.accessRuleSet != jar.accessRuleSet)
 		if (this.accessRuleSet == null || !this.accessRuleSet.equals(jar.accessRuleSet))

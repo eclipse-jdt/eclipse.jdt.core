@@ -48,8 +48,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 
 	@Override
 	public boolean equals(Object o) {
-		return super.equals(o) && o instanceof ClasspathMultiReleaseJar jar
-				&& Util.equalOrNull(this.compliance, jar.compliance);
+		return super.equals(o) && Util.equalOrNull(this.compliance, ((ClasspathMultiReleaseJar) o).compliance);
 	}
 
 	@Override
