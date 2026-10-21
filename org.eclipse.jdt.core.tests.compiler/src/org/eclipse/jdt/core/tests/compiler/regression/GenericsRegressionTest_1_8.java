@@ -11127,5 +11127,710 @@ public void testBug508834_comment0() {
 				"""
 		});
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_direct() {
+		runConformTest(
+			new String[] {
+				"TDirect.java",
+				"""
+				public class TDirect {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						<F> W<F> f(Class<F> c) { return convert(this, c, V::g); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_assignment() {
+		runConformTest(
+			new String[] {
+				"TAssignment.java",
+				"""
+				public class TAssignment {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						<F> W<F> f(Class<F> c) { W<F> w = convert(this, c, V::g); return w; }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_nested() {
+		runConformTest(
+			new String[] {
+				"TNested.java",
+				"""
+				public class TNested {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static <T> T id(T t) { return t; }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						<F> W<F> f(Class<F> c) { return id(convert(this, c, V::g)); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_explicitTypeArgument() {
+		runConformTest(
+			new String[] {
+				"TExplicitTypeArgument.java",
+				"""
+				public class TExplicitTypeArgument {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						<F> W<F> f(Class<F> c) { return convert(this, c, V::<F>g); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_subclass() {
+		runConformTest(
+			new String[] {
+				"TSubclass.java",
+				"""
+				public class TSubclass {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						<F> W<F> f(Class<F> c) { return convert(new V2(), c, V::g); }
+					}
+					static class V2 extends V {}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_concreteTypeArgument() {
+		runConformTest(
+			new String[] {
+				"TConcreteTypeArgument.java",
+				"""
+				public class TConcreteTypeArgument {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						W<String> f(Class<String> c) { return convert(this, c, V::g); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(String.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_threeParameters() {
+		runConformTest(
+			new String[] {
+				"TThreeParameters.java",
+				"""
+				public class TThreeParameters {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					interface Op3<R, A, S, T> { R apply(A a, S s, T t); }
+					static <R, A, S, T> R c3(A a, S s, T t, Op3<R, A, S, T> op) { return op.apply(a, s, t); }
+					static class V extends P {
+						<F> W<F> g3(Class<F> c, String s) { return new W<>("g3"); }
+						<F> W<F> f(Class<F> c) { return c3(this, c, "", V::g3); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g3");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_parameterizedReceiver() {
+		runConformTest(
+			new String[] {
+				"TParameterizedReceiver.java",
+				"""
+				public class TParameterizedReceiver {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					static class G<T> extends P {
+						<F> W<F> h(Class<F> c) { return new W<>("h"); }
+					}
+					static <F> W<F> f(Class<F> c) { return c2(new G<String>(), c, G<String>::h); }
+					public static void main(String[] args) {
+						System.out.println(f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"h");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_inferredReceiverArguments() {
+		runConformTest(
+			new String[] {
+				"TInferredReceiverArguments.java",
+				"""
+				public class TInferredReceiverArguments {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					static class G<T> extends P {
+						<F> W<F> h(Class<F> c) { return new W<>("h"); }
+					}
+					static <F> W<F> f(Class<F> c) { return c2(new G<String>(), c, G::h); }
+					public static void main(String[] args) {
+						System.out.println(f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"h");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_overloadedTarget() {
+		runConformTest(
+			new String[] {
+				"TOverloadedTarget.java",
+				"""
+				public class TOverloadedTarget {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> og(Class<F> c) { return new W<>("og"); }
+						<F> W<F> og(String s) { return new W<>("og-string"); }
+						<F> W<F> f(Class<F> c) { return convert(this, c, V::og); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"og");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_varargsTarget() {
+		runConformTest(
+			new String[] {
+				"TVarargsTarget.java",
+				"""
+				public class TVarargsTarget {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						@SafeVarargs
+						final <F> W<F> vg(Class<F>... c) { return new W<>("vg" + c.length); }
+						<F> W<F> f(Class<F> c) { return c2(this, c, V::vg); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"vg1");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_wildcardFunctionType() {
+		runConformTest(
+			new String[] {
+				"TWildcardFunctionType.java",
+				"""
+				public class TWildcardFunctionType {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					static <R, A, S> R c2w(A a, S s, Op2<? extends R, ? super A, ? super S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						<F> W<F> f(Class<F> c) { return c2w(this, c, V::g); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_noArgumentTarget() {
+		runConformTest(
+			new String[] {
+				"TNoArgumentTarget.java",
+				"""
+				public class TNoArgumentTarget {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					interface Op1<R, A> { R apply(A a); }
+					static <R, A> R c1(A a, Op1<R, A> op) { return op.apply(a); }
+					static class V extends P {
+						<F> W<F> noarg() { return new W<>("noarg"); }
+						<F> W<F> f(Class<F> c) { return c1(this, V::noarg); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"noarg");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_staticTarget() {
+		runConformTest(
+			new String[] {
+				"TStaticTarget.java",
+				"""
+				public class TStaticTarget {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					interface Op1<R, A> { R apply(A a); }
+					static <R, A> R c1(A a, Op1<R, A> op) { return op.apply(a); }
+					static class V extends P {
+						static <F> W<F> sg(Class<F> c) { return new W<>("sg"); }
+						<F> W<F> f(Class<F> c) { return c1(c, V::sg); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"sg");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_boundReceiver() {
+		runConformTest(
+			new String[] {
+				"TBoundReceiver.java",
+				"""
+				public class TBoundReceiver {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					interface Op1<R, A> { R apply(A a); }
+					static <R, A> R c1(A a, Op1<R, A> op) { return op.apply(a); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+						<F> W<F> f(Class<F> c) { return c1(c, this::g); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_superReceiver() {
+		runConformTest(
+			new String[] {
+				"TSuperReceiver.java",
+				"""
+				public class TSuperReceiver {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					interface Op1<R, A> { R apply(A a); }
+					static <R, A> R c1(A a, Op1<R, A> op) { return op.apply(a); }
+					static class V extends P {
+						<F> W<F> f(Class<F> c) { return c1(c, super::pg); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"pg");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_overloadedInvocation() {
+		runConformTest(
+			new String[] {
+				"TOverloadedInvocation.java",
+				"""
+				public class TOverloadedInvocation {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static <R extends P, F> R ov(V v, Class<F> c, Ob2<R, V, Class<F>> op) { return op.apply(v, c); }
+					static <R extends P> R ov(V v, String s, Ob2<R, V, String> op) { return op.apply(v, s); }
+					static class V extends P {
+						static <F> W<F> m(V v, Class<F> c) { return new W<>("m-static"); }
+						<F> W<F> m(String s) { return new W<>("m-unbound"); }
+						<F> W<F> f(Class<F> c) { return ov(this, c, V::m); }
+						W<String> f2() { return ov(this, "s", V::m); }
+					}
+					public static void main(String[] args) {
+						System.out.println(new V().f(Integer.class).tag + " " + new V().f2().tag);
+					}
+				}
+				"""
+			},
+			"m-static m-unbound");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_rawReceiverArgument() {
+		runConformTest(
+			new String[] {
+				"TRawReceiverArgument.java",
+				"""
+				public class TRawReceiverArgument {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					static class G<T> extends P {
+						<F> W<F> h(Class<F> c) { return new W<>("h"); }
+					}
+					@SuppressWarnings({"rawtypes", "unchecked"})
+					static <F> W<F> f(Class<F> c) { G raw = new G<String>(); return c2(raw, c, G::h); }
+					public static void main(String[] args) {
+						System.out.println(f(Integer.class).tag);
+					}
+				}
+				"""
+			},
+			"h");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_wildcardReceiverArgument() {
+		runConformTest(
+			new String[] {
+				"TWildcardReceiverArgument.java",
+				"""
+				public class TWildcardReceiverArgument {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Op2<R, A, S> { R apply(A a, S s); }
+					static <R, A, S> R c2(A a, S s, Op2<R, A, S> op) { return op.apply(a, s); }
+					static class G<T> extends P {
+						<F> W<F> h(Class<F> c) { return new W<>("h"); }
+					}
+					static <F> W<F> f(Class<F> c, G<?> g) { return c2(g, c, G::h); }
+					public static void main(String[] args) {
+						System.out.println(f(Integer.class, new G<String>()).tag);
+					}
+				}
+				"""
+			},
+			"h");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	public void testGH5586_typeVariableReceiver() {
+		runConformTest(
+			new String[] {
+				"TTypeVariableReceiver.java",
+				"""
+				public class TTypeVariableReceiver {
+					static class P {
+						<F> W<F> pg(Class<F> c) { return new W<>("pg"); }
+					}
+					static class W<E> extends P {
+						final String tag;
+						W(String tag) { this.tag = tag; }
+					}
+					interface Ob2<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Ob2<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> g(Class<F> c) { return new W<>("g"); }
+					}
+					static <F, U extends V> W<F> f(Class<F> c, U u) { return convert(u, c, U::g); }
+					public static void main(String[] args) {
+						System.out.println(f(Integer.class, new V()).tag);
+					}
+				}
+				"""
+			},
+			"g");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	// errors must still be reported
+	public void testGH5586_negMissing() {
+		runNegativeTest(
+			new String[] {
+				"NegMissing.java",
+				"""
+				public class NegMissing {
+					static class P {}
+					static class W<E> extends P {}
+					interface Op<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Op<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> f(Class<F> c) { return convert(this, c, V::missing); }
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in NegMissing.java (at line 7)
+				<F> W<F> f(Class<F> c) { return convert(this, c, V::missing); }
+				                                ^^^^^^^
+			The method convert(A, S, NegMissing.Op<R,A,S>) in the type NegMissing is not applicable for the arguments (NegMissing.V, Class<F>, V::missing)
+			----------
+			2. ERROR in NegMissing.java (at line 7)
+				<F> W<F> f(Class<F> c) { return convert(this, c, V::missing); }
+				                                                 ^^^^^^^^^^
+			The type NegMissing.V does not define missing(A, S) that is applicable here
+			----------
+			""");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	// errors must still be reported
+	public void testGH5586_negWrongArity() {
+		runNegativeTest(
+			new String[] {
+				"NegWrongArity.java",
+				"""
+				public class NegWrongArity {
+					static class P {}
+					static class W<E> extends P {}
+					interface Op<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Op<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> f(Class<F> c) { return convert(this, c, V::g); }
+						<F> W<F> g(Class<F> c, int i) { return null; }
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in NegWrongArity.java (at line 7)
+				<F> W<F> f(Class<F> c) { return convert(this, c, V::g); }
+				                                ^^^^^^^
+			The method convert(A, S, NegWrongArity.Op<R,A,S>) in the type NegWrongArity is not applicable for the arguments (NegWrongArity.V, Class<F>, V::g)
+			----------
+			2. ERROR in NegWrongArity.java (at line 7)
+				<F> W<F> f(Class<F> c) { return convert(this, c, V::g); }
+				                                                 ^^^^
+			The type NegWrongArity.V does not define g(A, S) that is applicable here
+			----------
+			""");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	// errors must still be reported
+	public void testGH5586_negWrongReceiver() {
+		runNegativeTest(
+			new String[] {
+				"NegWrongReceiver.java",
+				"""
+				public class NegWrongReceiver {
+					static class P {}
+					static class W<E> extends P {}
+					interface Op<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Op<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						<F> W<F> f(Class<F> c) { return convert("s", c, V::g); }
+						<F> W<F> g(Class<F> c) { return null; }
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in NegWrongReceiver.java (at line 7)
+				<F> W<F> f(Class<F> c) { return convert("s", c, V::g); }
+				                                ^^^^^^^
+			The method convert(A, S, NegWrongReceiver.Op<R,A,S>) in the type NegWrongReceiver is not applicable for the arguments (String, Class<F>, V::g)
+			----------
+			2. ERROR in NegWrongReceiver.java (at line 7)
+				<F> W<F> f(Class<F> c) { return convert("s", c, V::g); }
+				                                                ^^^^
+			The type NegWrongReceiver.V does not define g(A, S) that is applicable here
+			----------
+			""");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5586
+	// errors must still be reported
+	public void testGH5586_negWrongResult() {
+		runNegativeTest(
+			new String[] {
+				"NegWrongResult.java",
+				"""
+				public class NegWrongResult {
+					static class P {}
+					static class W<E> extends P {}
+					interface Op<R extends P, A extends P, S> { R apply(A a, S s); }
+					static <R extends P, A extends P, S> R convert(A a, S s, Op<R, A, S> op) { return op.apply(a, s); }
+					static class V extends P {
+						W<String> f(Class<Integer> c) { return convert(this, c, V::g); }
+						<F> W<F> g(Class<F> c) { return null; }
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in NegWrongResult.java (at line 7)
+				W<String> f(Class<Integer> c) { return convert(this, c, V::g); }
+				                                       ^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from NegWrongResult.P to NegWrongResult.W<String>
+			----------
+			""");
+	}
 
 }

@@ -1072,6 +1072,14 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		return CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 
+	/**
+	 * Answer whether the compile-time declaration was found by the second search of 15.13.1,
+	 * i.e., whether the first parameter of the function type is the receiver of the invocation.
+	 */
+	public boolean receiverPrecedesParameters() {
+		return this.receiverPrecedesParameters;
+	}
+
 	@Override
 	public boolean isExactMethodReference() {
 		return this.exactMethodBinding != null;
