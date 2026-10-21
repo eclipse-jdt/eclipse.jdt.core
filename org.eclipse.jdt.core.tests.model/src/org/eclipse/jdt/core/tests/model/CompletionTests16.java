@@ -1404,4 +1404,25 @@ public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3278
+	// ClassCastException during content assist on annotation '@' inside a record parameter list declared within a class
+	public void testIssue3278_CompletionOnAnnotationInRecordInsideClass() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Outer.java",
+				"""
+				public class Outer {
+					record Inner(@SuppressW String name) {}
+				}
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@SuppressW";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		// Verify no ClassCastException was thrown during completion (regression for issue #3278)
+		assertEquals("", requestor.getProblem());
+	}
+
 }
