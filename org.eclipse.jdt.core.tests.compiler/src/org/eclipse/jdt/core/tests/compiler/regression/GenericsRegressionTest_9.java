@@ -2600,6 +2600,106 @@ public void testIssue5426() {
 		"""
 	});
 }
+public void testIssue5564() {
+	// ivars with only ivar bounds must not be resolved too early (cf. rankIVar())
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		import java.util.List;
+		import java.util.Map;
+		import java.util.function.Function;
+		import java.util.function.Supplier;
+
+		interface Publisher<T> {}
+
+		abstract class Mono<T> implements Publisher<T> {
+			static <T> Mono<T> just(T t) { return null; }
+			static <T> Mono<T> error(Throwable e) { return null; }
+			static <T> Mono<T> defer(Supplier<? extends Mono<? extends T>> supplier) { return null; }
+			abstract <R> Mono<R> flatMap(Function<? super T, ? extends Mono<? extends R>> mapper);
+			abstract <R> Mono<R> map(Function<? super T, ? extends R> mapper);
+		}
+
+		abstract class Flux<T> implements Publisher<T> {
+			static <T> Flux<T> fromIterable(Iterable<? extends T> it) { return null; }
+			static <T> Flux<T> just(T t) { return null; }
+			static <T> Flux<T> error(Throwable e) { return null; }
+			static <T> Flux<T> defer(Supplier<? extends Publisher<T>> supplier) { return null; }
+			abstract <V> Flux<V> concatMap(Function<? super T, ? extends Publisher<? extends V>> mapper);
+			abstract <K, V> Mono<Map<K, V>> collectMap(Function<? super T, ? extends K> k, Function<? super T, ? extends V> v);
+		}
+
+		public class X {
+			Mono<Integer> testMono(String value, boolean flag) {
+				return Mono.just(value).flatMap(v -> {
+					if (flag)
+						return Mono.just(v);
+					else
+						return Mono.defer(() -> Mono.error(new RuntimeException()));
+				}).map(String::length);
+			}
+			Mono<Map<String, String>> testFlux(List<String> items) {
+				return Flux.fromIterable(items).concatMap(item -> {
+					try {
+						return Flux.just(item);
+					} catch (RuntimeException e) {
+						return Flux.defer(() -> Flux.error(e));
+					}
+				}).collectMap(s -> s, s -> s);
+			}
+		}
+		"""
+	});
+}
+public void testIssue5564_variants() {
+	// shapes found by comparing ECJ with javac on generated Reactor-like code:
+	// nested generic calls returned from lambdas, with the result used by a chained call
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		import java.util.*;
+		import java.util.function.*;
+		interface Pub<T> {}
+		abstract class Mono<T> implements Pub<T> {
+			static <T> Mono<T> just(T t) { return null; }
+			static <T> Mono<T> error(Throwable e) { return null; }
+			static <T> Mono<T> empty() { return null; }
+			static <T> Mono<T> defer(Supplier<? extends Mono<? extends T>> s) { return null; }
+			static <T> Mono<T> fromSupplier(Supplier<? extends T> s) { return null; }
+			abstract <R> Mono<R> map(Function<? super T, ? extends R> f);
+			abstract <R> Mono<R> flatMap(Function<? super T, ? extends Mono<? extends R>> f);
+			abstract Mono<T> onErrorResume(Function<? super Throwable, ? extends Mono<? extends T>> f);
+			abstract Mono<T> switchIfEmpty(Mono<? extends T> alt);
+			abstract <R> Mono<R> then(Mono<R> next);
+			abstract <R> Mono<R> transform(Function<? super Mono<T>, ? extends Pub<R>> f);
+			abstract Mono<T> doOnNext(Consumer<? super T> c);
+			abstract <R> Mono<R> cast(Class<R> c);
+			abstract Mono<List<T>> collectList();
+		}
+		abstract class Flux<T> implements Pub<T> {
+			static <T> Flux<T> just(T t) { return null; }
+			static <T> Flux<T> error(Throwable e) { return null; }
+			static <T> Flux<T> defer(Supplier<? extends Pub<T>> s) { return null; }
+			static <T> Flux<T> fromIterable(Iterable<? extends T> it) { return null; }
+			abstract <V> Flux<V> concatMap(Function<? super T, ? extends Pub<? extends V>> f);
+			abstract <R> Flux<R> map(Function<? super T, ? extends R> f);
+			abstract <K, V> Mono<Map<K, V>> collectMap(Function<? super T, ? extends K> k, Function<? super T, ? extends V> v);
+			abstract Mono<List<T>> collectList();
+		}
+
+		public class X {
+			void t0() { Mono<Integer> r = Mono.just("a").flatMap(v1 -> { try { return Mono.just("a"); } catch (RuntimeException v2) { return Mono.defer(() -> Mono.error(v2)); } }).map(String::length); }
+			void t1() { Mono<List<Integer>> r = Flux.just(1).concatMap(v3 -> { try { return Flux.just(1); } catch (RuntimeException v4) { return Flux.defer(() -> Flux.error(v4)); } }).collectList(); }
+			void t2() { Mono<Integer> r = Mono.just(1).flatMap(v5 -> { try { return Mono.fromSupplier(() -> "a"); } catch (RuntimeException v6) { return Mono.defer(() -> Mono.error(v6)); } }).map(String::length); }
+			void t3(boolean b) { Mono<Double> r = Mono.just("a").flatMap(v7 -> { if (b) return Mono.defer(() -> Mono.error(new RuntimeException())); else return Mono.defer(() -> Mono.<Integer>empty()); }).map(Integer::doubleValue); }
+			void t4() { Mono<Integer> r = Mono.defer(() -> Mono.<String>empty().flatMap(v8 -> { try { return Mono.<Integer>empty(); } catch (RuntimeException v9) { return Mono.defer(() -> Mono.error(v9)); } }).doOnNext(v10 -> {})); }
+			void t5() { Mono<Integer> r = Mono.<Integer>empty().switchIfEmpty(Mono.just(1)).flatMap(v11 -> { try { return Mono.just("a"); } catch (RuntimeException v12) { return Mono.defer(() -> Mono.error(v12)); } }).map(String::length); }
+			void t6() { Mono<Double> r = Mono.just(1).flatMap(v13 -> { try { return Mono.just(1); } catch (RuntimeException v14) { return Mono.defer(() -> Mono.error(v14)); } }).onErrorResume(v15 -> Mono.fromSupplier(() -> 1)).map(Integer::doubleValue); }
+		}
+
+		"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }

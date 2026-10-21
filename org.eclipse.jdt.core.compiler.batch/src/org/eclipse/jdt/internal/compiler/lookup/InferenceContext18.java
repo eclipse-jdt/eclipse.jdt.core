@@ -1519,7 +1519,7 @@ public class InferenceContext18 {
 		// apply the ranking of ivars according to their bounds as explained in
 		// https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/message/GN6RTCGMME6I5JVLSFZRIR32XY6QKOI2/
 		Map<Integer, List<InferenceVariable>> byRank = variableSet.stream().collect(Collectors.groupingBy(tmpBoundSet::rankIVar));
-		for (int rank = 0; rank < 4; rank++) {
+		for (int rank = 0; rank < BoundSet.RANK_COUNT; rank++) {
 			List<InferenceVariable> ofRank = byRank.get(rank);
 			if (ofRank == null)
 				continue;

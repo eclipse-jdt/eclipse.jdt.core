@@ -1085,14 +1085,19 @@ class BoundSet {
 		return true;
 	}
 
+	/** Ranks returned by {@link #rankIVar(InferenceVariable)} are 0 .. {@code RANK_COUNT - 1}. */
+	static final int RANK_COUNT = 5;
+
 	public int rankIVar(InferenceVariable ivar) {
 		// implements the ranking of ivars according to their bounds as explained in
 		// https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/message/GN6RTCGMME6I5JVLSFZRIR32XY6QKOI2/
 		ThreeSets three = this.boundsPerVariable.get(ivar.prototype());
 		if (three != null) {
+			// like javac, ranks 1 and 2 only consider proper bounds (bounds with another ivar don't qualify):
 			if (three.sameBounds != null)
-				if (!three.sameBounds.isEmpty())
-					return 1;
+				for (TypeBound b : three.sameBounds)
+					if (b.right.isProperType(true))
+						return 1;
 			if (this.isRecordPatternInference) {
 				// workaround for not having inverse bounds of type SAME (see addBound(TypeBound, LookupEnvironment)):
 				for (ThreeSets dep3 : this.boundsPerVariable.values()) {
@@ -1105,10 +1110,13 @@ class BoundSet {
 				}
 			}
 			if (three.superBounds != null)
-				if (!three.superBounds.isEmpty())
+				for (TypeBound b : three.superBounds)
+					if (b.right.isProperType(true))
 						return 2;
+			if (three.superBounds != null && !three.superBounds.isEmpty())
+				return 3; // only ivar lower bounds, resolve before ivars without any lower/same bounds
 		}
-		return 3;
+		return RANK_COUNT - 1;
 	}
 
 	/**
