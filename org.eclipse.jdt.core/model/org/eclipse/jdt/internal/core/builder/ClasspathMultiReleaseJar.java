@@ -27,7 +27,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	private static final String META_INF_VERSIONS = Util.METAINF_VERSIONS;
 	private static final int META_INF_LENGTH = META_INF_VERSIONS.length();
 	private volatile List<String> supportedVersions;
-	private final String compliance;
+	final String compliance;
 
 	ClasspathMultiReleaseJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
 			boolean isOnModulePath, String compliance) {
