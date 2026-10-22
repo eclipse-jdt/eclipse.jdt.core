@@ -230,7 +230,6 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 			// - If the expression name appears in an early construction context of C (8.8.7.1),
 			// 		then it is the left-hand operand of a simple assignment expression (15.26),
 			//		and the declaration of the named variable lacks an initializer.
-			ConstructorDeclaration constructor = scope.methodScope().referenceContext instanceof ConstructorDeclaration c ? c : null;
 			if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) {
 				// Error: not 'left-hand operand of a simple assignment expression'
 				if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
@@ -244,6 +243,7 @@ protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char
 				scope.problemReporter().superFieldAssignInEarlyConstructionContext(this, fieldBinding);
 				return;
 			} else {
+				ConstructorDeclaration constructor = scope.methodScope().referenceContext instanceof ConstructorDeclaration c ? c : null;
 				boolean illegalEarlyWrite = (thisQualified && fieldBinding.isStatic() && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK28)
 					                 || (JavaFeature.FIELD_READS_IN_CONSTRUCTOR_PROLOGUE.isSupported(scope.compilerOptions()) && constructor != null && !constructor.invokesSuper());
 

@@ -1992,9 +1992,11 @@ public boolean isStrictlyInitialized() {
 	if (this.isValueClass())
 		return true;
 	CompilerOptions options;
-	if (!this.isRecord() || (options = this.scope.compilerOptions()) == null || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(options.sourceLevel, options.enablePreviewFeatures))
+	if (!this.isRecord() || (options = this.scope.compilerOptions()) == null || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(options))
 		return false;
-	return this.scope.referenceContext.compilationResult().usesPreview = true;
+	if (JavaFeature.STRICTLY_INITIALIZED_FIELDS.isPreview())
+		this.scope.referenceContext.compilationResult().usesPreview = true;
+	return true;
 }
 
 @Override

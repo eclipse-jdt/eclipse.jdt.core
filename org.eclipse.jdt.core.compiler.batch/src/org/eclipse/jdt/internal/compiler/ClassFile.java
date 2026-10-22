@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3443,10 +3443,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) value;
 		this.contents[localContentsOffset++] = (byte) (numberOfInnerClasses >> 8);
 		this.contents[localContentsOffset++] = (byte) numberOfInnerClasses;
-		// ACC_IDENTITY (0x0020) in inner_class_access_flags is only defined for class files supporting value classes
-		// (JEP 401). For other class files this bit is reserved and must be zero (JVMS 4.7.6).
-		// Same as javac: while value classes are a preview feature, only emit it in preview class files,
-		// once the feature is final, emit it in all class files targeting the release that supports it.
+		// if target JDK supports value classes, flag inner identity classes as such
+		// For prior class files this bit is reserved and must be zero (JVMS 4.7.6).
 		boolean isPreviewClassFile = (this.targetJDK & ClassFileConstants.MINOR_VERSION_PREVIEW) == ClassFileConstants.MINOR_VERSION_PREVIEW;
 		boolean emitIdentityFlag = JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(this.targetJDK, isPreviewClassFile);
 		for (int i = 0; i < numberOfInnerClasses; i++) {

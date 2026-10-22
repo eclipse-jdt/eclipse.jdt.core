@@ -91,7 +91,7 @@ public class ReferenceOfFieldOfThis extends SingleNameReference {
     	this.binding = this.fieldReference.binding;
     	if (this.binding != null && this.binding.hasProxyLocal())
     		this.binding = scope.getProxy((FieldBinding) this.binding);
-    	if (this.binding instanceof LocalVariableBinding) // don't assume a swap; scope changes would inhibit substitution.
+    	if (this.binding instanceof LocalVariableBinding)
     		this.bits |= Binding.LOCAL;
     	else
         	this.bits |= Binding.FIELD;
