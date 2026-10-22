@@ -2572,15 +2572,17 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		// Loop through all lambdas that share the same hashcode
 		// TODO: isn't doing this for just one of these enough because they all share
 		// the same name?
-		for (Object synthetic : synthetics) {
-			SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding)synthetic;
+		for (int k = 0, last = synthetics.size() - 1; k <= last; k++) {
+			SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) synthetics.get(k);
 			aload_1();
 			ldc(new String(syntheticMethodBinding.selector));
 			invokeStringEquals();
 			ifeq(nextOne);
 			loadInt(index);
 			istore_2();
-			goto_(label);
+			if (k < last) {
+				goto_(label); // the last one falls through to the jump below
+			}
 			nextOne.place();
 			nextOne = new BranchLabel(this);
 		}
@@ -2602,11 +2604,9 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		keys[j] = j;
 		sortedIndexes[j] = j;
 	}
-	System.arraycopy(keys,0,(localKeysCopy = new int[syntheticsCount]),0,syntheticsCount);
-	// TODO no need to sort here? They should all be in order
-	sort(localKeysCopy, 0, syntheticsCount-1, sortedIndexes);
-	// TODO need to use a tableswitch at some size threshold?
-	lookupswitch(defaultLabel, keys, sortedIndexes, switchLabels);
+	// The keys are exactly 0..syntheticsCount-1 in order (tableswitch relies on it): a tableswitch costs 4 bytes per
+	// case and a lookupswitch 8. syntheticsCount is at least 1: this method is only generated for serializable lambdas.
+	tableswitch(defaultLabel, 0, syntheticsCount - 1, keys, sortedIndexes, switchLabels);
 	hashcodeIterator = hashcodes.iterator();
 	int hashcodeIndex = 0;
 	while (hashcodeIterator.hasNext()) {
