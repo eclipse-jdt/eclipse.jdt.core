@@ -146,6 +146,39 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	}
 
 	/**
+	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5595
+	 * $deserializeLambda$ must stay below 64KB for as many serializable lambdas as javac accepts (449), and the first,
+	 * a middle and the last lambda must still be found when deserializing.
+	 */
+	public void testGH5595_manySerializableLambdas() throws Exception {
+		int count = 449;
+		StringBuilder source = new StringBuilder();
+		source.append("import java.io.*;\n");
+		source.append("public class X {\n");
+		source.append("    interface Foo extends Serializable { int m(String s); }\n");
+		for (int i = 1; i <= count; i++) {
+			source.append("    static Foo f" + i + "() { return s -> s.length() + " + i + "; }\n");
+		}
+		source.append("    static Foo roundTrip(Foo f) throws Exception {\n");
+		source.append("        util.Helper.write(f);\n");
+		source.append("        return (Foo) util.Helper.read();\n");
+		source.append("    }\n");
+		source.append("    public static void main(String[] args) throws Exception {\n");
+		source.append("        System.out.println(roundTrip(f1()).m(\"ab\") + \" \" + roundTrip(f220()).m(\"ab\") + \" \" + roundTrip(f" + count + "()).m(\"ab\"));\n");
+		source.append("    }\n");
+		source.append("}\n");
+		this.runConformTest(
+				new String[] {
+					"X.java", source.toString(),
+					"Helper.java", HELPER_CLASS,
+				},
+				"3 222 " + (count + 2),
+				null,
+				true,
+				new String [] { "-Ddummy" });
+	}
+
+	/**
 	 * Sanity test, non serializable should have bootstrap methods attribute reference to metafactory.
 	 */
 	public void test002_simpleNonSerializable() throws Exception {
