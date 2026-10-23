@@ -4723,6 +4723,9 @@ public abstract class Scope {
 						break nextSpecific; // duplicates thru substitution
 
 					if (!original.isAbstract()) {
+						if (original2.isAbstract() && original.declaringClass.isInterface()
+								&& MethodVerifier.doesMethodOverride(original2, original, environment()))
+							continue nextSpecific; // a subinterface made current abstract again, so it is not inherited (JLS 8.4.8)
 						if (original2.isAbstract() || original2.isDefaultMethod())
 							continue; // only compare current against other concrete methods
 
@@ -4764,6 +4767,8 @@ public abstract class Scope {
 							original2 = original.computeSubstitutedMethod(original2, environment());
 						if (original2 == null || !original.areParameterErasuresEqual(original2))
 							continue nextSpecific; // current does not override next
+						if (original2.isDefaultMethod() && MethodVerifier.doesMethodOverride(original2, original, environment()))
+							continue nextSpecific; // next overrides current from a subinterface, so current is not inherited (JLS 8.4.8)
 						if (TypeBinding.notEquals(original.returnType, original2.returnType)) {
 							if (next.original().typeVariables != Binding.NO_TYPE_VARIABLES) {
 								if (original.returnType.erasure().findSuperTypeOriginatingFrom(original2.returnType.erasure()) == null)
