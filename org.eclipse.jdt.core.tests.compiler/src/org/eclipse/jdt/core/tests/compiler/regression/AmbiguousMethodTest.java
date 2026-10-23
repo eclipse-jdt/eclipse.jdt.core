@@ -3944,4 +3944,118 @@ public void testBug466730() {
 			"}\n"
 	});
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5576
+// the order of the declarations must not matter when a generic method is inferred to have the parameters of a non-generic one
+public void testGH5576() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				static class J {}
+				interface Cmds1<K> {
+					void set(K key, J json);
+					<T> void set(K key, T value);
+				}
+				interface Cmds2<K> {
+					<T> void set(K key, T value);
+					void set(K key, J json);
+				}
+				static <K> void m(Cmds1<K> c, K key, J j) {
+					c.set(key, j);
+				}
+				static <K> void n(Cmds2<K> c, K key, J j) {
+					c.set(key, j);
+				}
+				public static void main(String... args) {
+					Cmds1<String> c1 = new Cmds1<String>() {
+						public void set(String key, J json) { System.out.print("json "); }
+						public <T> void set(String key, T value) { System.out.print("generic "); }
+					};
+					Cmds2<String> c2 = new Cmds2<String>() {
+						public void set(String key, J json) { System.out.print("json "); }
+						public <T> void set(String key, T value) { System.out.print("generic "); }
+					};
+					m(c1, "a", new J());
+					n(c2, "a", new J());
+					c1.set("a", "b");
+					c2.set("a", "b");
+				}
+			}
+			"""
+		},
+		"json json generic generic");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5576
+// methods that become duplicates by the substitution of the type variables of the receiver are still ambiguous
+public void testGH5576_duplicates() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				interface Foo<T> {
+					void m(T t);
+					void m(String s);
+					<U> void g(T t, U u);
+					<U> void g(String s, U u);
+				}
+				void a(Foo<String> f) { f.m("a"); }
+				void b(Foo<String> f) { f.g("a", "b"); }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 8)
+			void a(Foo<String> f) { f.m("a"); }
+			                          ^
+		The method m(String) is ambiguous for the type X.Foo<String>
+		----------
+		2. ERROR in X.java (at line 9)
+			void b(Foo<String> f) { f.g("a", "b"); }
+			                          ^
+		The method g(String, String) is ambiguous for the type X.Foo<String>
+		----------
+		""");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5576
+// same as above for a class, an inherited method, a type variable receiver and a raw receiver
+public void testGH5576_classes() {
+	runConformTest(
+		new String[] {
+			"Y.java",
+			"""
+			public class Y {
+				static class J {}
+				static class Base<K> {
+					public void set(K k, J j) { System.out.print("json "); }
+					public <T> void set(K k, T t) { System.out.print("generic "); }
+				}
+				static class Sub<K> extends Base<K> {
+					void run(K k, J j) {
+						set(k, j);
+						this.set(k, j);
+					}
+				}
+				static <K, T extends Base<K>> void typeVariable(T x, K k, J j) {
+					x.set(k, j);
+				}
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				static void raw(Base b, J j) {
+					b.set("", j);
+				}
+				public static void main(String... args) {
+					J j = new J();
+					new Sub<String>().run("", j);
+					typeVariable(new Base<String>(), "", j);
+					raw(new Base<String>(), j);
+					new Base<String>().set("", "text");
+				}
+			}
+			"""
+		},
+		"json json json json generic");
+}
 }

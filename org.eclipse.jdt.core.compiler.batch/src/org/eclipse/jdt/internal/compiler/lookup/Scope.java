@@ -1886,6 +1886,8 @@ public abstract class Scope {
 			if (candidate.hasSubstitutedParameters()) {
 				for (int j = i + 1; j < visiblesCount; j++) {
 					MethodBinding otherCandidate = candidates[j];
+					if (otherCandidate.isParameterizedGeneric())
+						otherCandidate = otherCandidate.shallowOriginal(); // compare declared parameters, not those inferred for this call
 					if (otherCandidate.hasSubstitutedParameters()) {
 						if (otherCandidate == candidate
 								|| (TypeBinding.equalsEquals(candidate.declaringClass, otherCandidate.declaringClass) && candidate.areParametersEqual(otherCandidate))) {
