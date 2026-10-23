@@ -16,6 +16,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -279,6 +280,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			TypeBinding[] pPrime = potentiallyApplicable.parameters;
 			int k = pPrime.length;
 			int offset = 0;
+			// same condition as the receiverPrecedesParameters flag (see ReferenceExpression.resolveExpressionExpecting(..)):
 			if (n == k+1) {
 				newConstraints.add(ConstraintTypeFormula.create(p[0], reference.lhs.resolvedType, COMPATIBLE));
 				offset = 1;
@@ -317,6 +319,12 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					argumentTypes = capturedFunctionType.parameters;
 				} else {
 					argumentTypes = functionType.parameters;
+				}
+				if (reference.receiverPrecedesParameters()) {
+					// 15.13.1: second search, the reference is treated as an invocation with argument expressions of types P2..Pn.
+					// The flag is that of the copy resolved against t (same one that provided potentiallyApplicable), and is only
+					// set if there is at least one function type parameter.
+					argumentTypes = Arrays.copyOfRange(argumentTypes, 1, argumentTypes.length);
 				}
 				SuspendedInferenceRecord prevInvocation = inferenceContext.enterPolyInvocation(reference, reference.createPseudoExpressions(argumentTypes));
 
