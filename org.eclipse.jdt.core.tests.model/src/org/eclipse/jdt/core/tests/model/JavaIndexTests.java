@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.eclipse.jdt.internal.core.index.DiskIndex;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class JavaIndexTests extends AbstractJavaSearchTests  {
@@ -55,6 +56,20 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 
 	public static Test suite() {
 		return buildModelTestSuite(JavaIndexTests.class);
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		JobManager.VERBOSE = true;
+		IndexManager.DEBUG = true;
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		JobManager.VERBOSE = false;
+		IndexManager.DEBUG = false;
+		super.tearDown();
 	}
 
 	// Test that the index file is really generated.

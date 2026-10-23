@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * Copyright (c) 2020, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,20 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public PatternMatching16Test(String testName){
 		super(testName);
+	}
+
+	/**
+	 * From compliance 27 on, the exhaustiveness diagnostics additionally spell out the case
+	 * patterns that are missing, so that the user can just add them. Below 27 the plain message
+	 * is reported.
+	 *
+	 * @param message the base diagnostic, e.g. "A switch expression should have a default case"
+	 * @param missingPatterns the comma separated patterns expected from compliance 27 on
+	 */
+	private String withMissingPatterns(String message, String missingPatterns) {
+		if (this.complianceLevel < ClassFileConstants.JDK27)
+			return message;
+		return message + ", or add the missing case patterns: " + missingPatterns;
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
@@ -4266,7 +4280,9 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				1. ERROR in X.java (at line 15)
 					return switch (a) {
 					               ^
-				A switch expression should have a default case
+				"""
+				+ withMissingPatterns("A switch expression should have a default case", "B _") + "\n"
+				+ """
 				----------
 				""",
 				false);

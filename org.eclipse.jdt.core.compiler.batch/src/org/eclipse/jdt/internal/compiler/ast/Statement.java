@@ -550,13 +550,6 @@ public boolean containsPatternVariable(boolean includeUnnamedOnes) {
 			 return !this.declaresVariable;
 		}
 
-		@Override
-		public boolean visit(RecordPattern recordPattern, BlockScope blockScope) {
-			if (recordPattern.patterns.length > 0)
-				this.declaresVariable = true;
-			return !this.declaresVariable;
-		}
-
 		public boolean containsPatternVariable() {
 			Statement.this.traverse(this, null);
 			return this.declaresVariable;

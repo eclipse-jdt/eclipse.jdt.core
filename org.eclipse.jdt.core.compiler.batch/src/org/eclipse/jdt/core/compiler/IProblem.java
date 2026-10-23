@@ -2908,23 +2908,44 @@ void setSourceStart(int sourceStart);
 	/** @since 3.45 */
 	int CyclicStructureNonNullByDefault = Internal + 2104;
 
-	/** @since 3.47 BETA_JAVA28
-	 * @noreference preview feature error */
-	int IllegalValueInstanceSynchronization = PreviewRelated + 2105;
+	/**
+	 * Variant of {@link #EnhancedSwitchMissingDefault} that additionally lists the record patterns
+	 * which are missing for the switch to be exhaustive. Reported from compliance 27 onwards.
+	 * @since 3.47
+	 */
+	int EnhancedSwitchMissingDefaultWithPatterns = PreviewRelated + 2105;
+
+	/**
+	 * Variant of {@link #MissingDefaultCase} that additionally lists the record patterns which are
+	 * missing for the switch to be exhaustive. Reported from compliance 27 onwards.
+	 * @since 3.47
+	 */
+	int MissingDefaultCaseWithPatterns = Internal + 2106;
+
+	/**
+	 * Variant of {@link #SwitchExpressionsYieldMissingDefaultCase} that additionally lists the record
+	 * patterns which are missing for the switch to be exhaustive. Reported from compliance 27 onwards.
+	 * @since 3.47
+	 */
+	int SwitchExpressionsYieldMissingDefaultCaseWithPatterns = Syntax + 2107;
 
 	/** @since 3.47 BETA_JAVA28
 	 * @noreference preview feature error */
-	int ValueClassExtendsIdentityClass = PreviewRelated + 2106;
+	int IllegalValueInstanceSynchronization = PreviewRelated + 2108;
 
 	/** @since 3.47 BETA_JAVA28
 	 * @noreference preview feature error */
-	int IllegalSynchronizedInstanceMethod = PreviewRelated + 2107;
+	int ValueClassExtendsIdentityClass = PreviewRelated + 2109;
 
 	/** @since 3.47 BETA_JAVA28
 	 * @noreference preview feature error */
-	int FinalizeMethodUselessInValueClass = PreviewRelated + 2108;
+	int IllegalSynchronizedInstanceMethod = PreviewRelated + 2110;
 
 	/** @since 3.47 BETA_JAVA28
 	 * @noreference preview feature error */
-	int UninitializedStrictInitField = PreviewRelated + 2109;
+	int FinalizeMethodUselessInValueClass = PreviewRelated + 2111;
+
+	/** @since 3.47 BETA_JAVA28
+	 * @noreference preview feature error */
+	int UninitializedStrictInitField = PreviewRelated + 2112;
 }
