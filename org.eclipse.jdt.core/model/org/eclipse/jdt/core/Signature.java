@@ -633,16 +633,9 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 	int checkpoint = buffer.length();
 	int innerTypeStart = -1;
 	boolean inAnonymousType = false;
-	int lastDot = 0;
-	int lastDollar = -1;
-	for (int i=p; i < string.length; i++) {
-		if (string[i] == C_DOT) {
-			lastDot = i;
-		}
-		if (string[i] == C_DOLLAR) {
-			lastDollar = i;
-		}
-	}
+	int[] result = getLastDotDollar(string);
+	int lastDot = result[0];
+	int lastDollar = result[1];
 	boolean isLastDollar = (string.length > 2 && lastDollar == string.length - 2) || lastDollar == (string.length - 1);
 
 	while (true) {

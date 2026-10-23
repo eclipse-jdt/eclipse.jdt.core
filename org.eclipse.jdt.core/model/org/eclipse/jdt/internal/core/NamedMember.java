@@ -221,7 +221,7 @@ public abstract class NamedMember extends Member {
 							continue;
 						}
 						boolean isPrevDollar = (i > 0) ? (chars[i - 1] == '$') : false;
-						boolean isNextDollar = (i + 1 < chars.length) ? (chars[i + 1] == '$') : false;
+						boolean isNextDollar = chars[i + 1] == '$';
 						if (chars[i] == '$' && !isNextDollar && !isPrevDollar) {
 							chars[i] = enclosingTypeSeparator;
 						}
