@@ -27,6 +27,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	private static final String META_INF_VERSIONS = Util.METAINF_VERSIONS;
 	private static final int META_INF_LENGTH = META_INF_VERSIONS.length();
 	private volatile List<String> supportedVersions;
+	final String compliance;
 
 	ClasspathMultiReleaseJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
 			boolean isOnModulePath, String compliance) {
@@ -43,6 +44,16 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	public ClasspathMultiReleaseJar(ZipFile zipFile, AccessRuleSet accessRuleSet, boolean isOnModulePath, String compliance) {
 		this(zipFile.getName(), 0, accessRuleSet, null, isOnModulePath, compliance);
 		this.zipFile = zipFile;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o) && Util.equalOrNull(this.compliance, ((ClasspathMultiReleaseJar) o).compliance);
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
 	}
 
 	@Override
