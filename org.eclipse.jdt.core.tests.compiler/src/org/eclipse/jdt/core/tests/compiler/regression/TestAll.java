@@ -150,6 +150,7 @@ public static Test suite() {
 	standardTests.add(Unicode1_8Test.class);
 	standardTests.add(LambdaShapeTests.class);
 	standardTests.add(StringConcatTest.class);
+	standardTests.add(SortedMapReversedBridgeTest.class);
 	standardTests.add(UseOfUnderscoreTest.class);
 	standardTests.add(DubiousOutcomeTest.class);
 
