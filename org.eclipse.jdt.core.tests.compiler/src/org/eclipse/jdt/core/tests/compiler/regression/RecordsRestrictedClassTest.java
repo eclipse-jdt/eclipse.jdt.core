@@ -12017,4 +12017,73 @@ public void testIssue5428_full() throws Exception {
 				"Matched: Y(B(42))\n" +
 				"Matched: Y(C(42))");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5428
+// [Switch Expression] Matching nested records always succeeds if inner record has no fields
+public void testIssue5428_additional() throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK21)
+		return;
+
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public class X {
+					    public sealed interface I {}
+
+					    public record A() implements I {}
+
+					    public record B(int i) implements I {}
+
+					    public record R(I abc) implements I {}
+
+					    public static String stringify(R xy) {
+					        return switch (xy) {
+					            case R(B(var _)) -> "R(B(int i))";
+					            default -> "Default";
+					        };
+					    }
+
+					    public static void main(String[] args) {
+					        String result = X.stringify(new R(new A()));
+					        if (!result.equals("Default"))
+					            System.out.println("Expected: " + "X(B(42))" + ", but got: " + result);
+					        else
+					            System.out.println("All well!");
+					    }
+					}
+					""",
+	            },
+				"All well!");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5604
+// [Enhanced switch] Incorrect Illegal fall-through from a case label pattern diagnostic from recent builds of ECJ
+public void testIssue5604() {
+	if (this.complianceLevel <= ClassFileConstants.JDK21)
+		return;
+	runConformTest(new String[] {
+			"X.java",
+			"""
+			record Record(Integer a) {}
+			public class X {
+			    int fod(Object param) {
+			        int i = switch (param) {
+			        case Record(Integer _):
+			        default:
+			            yield 42;
+			        };
+			        return i;
+			    }
+
+			    public static void main(String [] args) {
+			        System.out.println(new X().fod("Hello"));
+			    }
+			}
+			"""
+	},
+	"42");
+}
+
+}
+

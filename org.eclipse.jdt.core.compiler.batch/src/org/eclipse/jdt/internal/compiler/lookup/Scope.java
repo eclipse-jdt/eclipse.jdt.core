@@ -4117,7 +4117,7 @@ public abstract class Scope {
 						// ? super U
 					case Wildcard.SUPER :
 						// ? super U, ? super V
-						if (wildU.boundKind == Wildcard.SUPER) {
+						if (wildV.boundKind == Wildcard.SUPER) {
 							TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{wildU.bound,wildV.bound}, this, this.environment());
 							if (glb == null) return null;
 							return environment().createWildcard(genericType, rank, glb[0], null /*no extra bound*/, Wildcard.SUPER);	// TODO (philippe) need to capture entire bounds
