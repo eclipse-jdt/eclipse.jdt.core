@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 IBM Corporation and others.
+ * Copyright (c) 2022, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1400,5 +1400,34 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		assertEquals("Invalid snippet fragments", 6, frags.size());
 		assertEquals("Invalid content for first Element", " @MyAnnotation" + System.lineSeparator(), frags.get(0).getText());
 		assertEquals("Invalid content for third Element", "     @AnotherAnnotation" + System.lineSeparator(), frags.get(2).getText());
+	}
+
+	public void testJavadocSnippetInvalidParsing5480() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		String source = """
+				package javadoc;
+				public class X {
+					/**
+					 *  {@snippet :
+					 *  	System.out.println("{");
+					 *  	int x = 1;
+					 *  }
+					 */
+					public static void foo(Object o) {}
+				""";
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter_15_1/src/javadoc/X.java",
+			source
+		);
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet tag should not be null", snippetTag);
+		Object isValid = snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID);
+		assertNotNull("Snippet valid property should be set", isValid);
+		assertEquals("Snippet should be invalid", Boolean.FALSE, isValid);
 	}
 }
