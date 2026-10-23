@@ -3711,7 +3711,7 @@ public void testIssue5523() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5531
 //  ECJ rejects static modifier for a local abstract value type
 public void testIssue5531() {
-	runConformTest(new String[] {
+	runNegativeTest(new String[] {
 		"X.java",
 		"""
 		public class X {
@@ -3739,7 +3739,22 @@ public void testIssue5531() {
 		}
 		"""
 	},
-	"In CV ctor 84");
+	"----------\n" +
+	"1. WARNING in X.java (at line 4)\n" +
+	"	abstract static value class ValueType {\n" +
+	"	                ^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 4)\n" +
+	"	abstract static value class ValueType {\n" +
+	"	                            ^^^^^^^^^\n" +
+	"Illegal modifier for the local class ValueType; only abstract or final is permitted\n" +
+	"----------\n" +
+	"3. WARNING in X.java (at line 7)\n" +
+	"	value class CV extends ValueType {\n" +
+	"	^^^^^\n" +
+	"You are using a preview language feature that may or may not be supported in a future release\n" +
+	"----------\n");
 }
 public void testIssue5530() {
 	Runner runner = getRunnerForPreview28();
