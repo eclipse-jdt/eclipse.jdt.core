@@ -2611,7 +2611,7 @@ public void test015() throws Exception {
 			"     37  iconst_0\n" +
 			"     38  istore_2\n" +
 			"     39  iload_2\n" +
-			"     40  lookupswitch default: 135\n" +
+			"     40  tableswitch default: 135\n" +
 			"          case 0: 60\n" +
 			"     60  aload_0 [arg0]\n" +
 			"     61  invokevirtual java.lang.invoke.SerializedLambda.getImplMethodKind() : int [44]\n" +
