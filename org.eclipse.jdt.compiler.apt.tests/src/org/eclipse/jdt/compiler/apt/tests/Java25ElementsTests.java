@@ -29,11 +29,19 @@ public class Java25ElementsTests extends TestCase {
 
 	public void testGetTypeElement() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "25", "getTypeElement", null, false);
+		internalTestWithBinary(compiler, MODULE_PROC, "25", "testGetTypeElement", null, false);
 	}
 	public void testGetTypeElementJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "25", "getTypeElement", null, false);
+		internalTestWithBinary(compiler, MODULE_PROC, "25", "testGetTypeElement", null, false);
+	}
+	public void testAsType() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "25", "testAsType", null, false);
+	}
+	public void testAsTypeJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "25", "testAsType", null, false);
 	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, boolean processBinariesAgain) throws IOException {
 		if (!canRunJava25()) {
