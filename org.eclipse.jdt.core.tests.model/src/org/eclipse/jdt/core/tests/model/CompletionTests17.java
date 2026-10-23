@@ -46,6 +46,126 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 	public static Test suite() {
 		return buildModelTestSuite(CompletionTests17.class);
 	}
+	public void testOuterNestedLambdaCompletionInDynamicTemplates() throws JavaModelException {
+		assertNestedLambdaMemberCompletion("property -> property.", ")", "scaledFloat");
+	}
+
+	public void testInnerNestedLambdaCompletionInDynamicTemplates() throws JavaModelException {
+		assertNestedLambdaMemberCompletion(
+				"property -> property.scaledFloat(number -> number.",
+				"))",
+				"scalingFactor");
+	}
+
+	private void assertNestedLambdaMemberCompletion(
+			String expressionPrefix,
+			String expressionSuffix,
+			String expectedMethod)
+			throws JavaModelException {
+		for (int prefixLength = 0; prefixLength <= expectedMethod.length(); prefixLength++) {
+			String methodPrefix = expectedMethod.substring(0, prefixLength);
+			this.workingCopies = new ICompilationUnit[] {
+					getWorkingCopy(
+							"/Completion/src/EsInitconstant" + expectedMethod + prefixLength + ".java",
+							nestedLambdaSource(expressionPrefix + methodPrefix + expressionSuffix))
+			};
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String source = this.workingCopies[0].getSource();
+			String completeBehind = "/*complete*/" + expressionPrefix + methodPrefix;
+			int completionStart = source.indexOf(completeBehind);
+			assertTrue("Completion marker not found", completionStart >= 0);
+			int cursorLocation = completionStart + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertContains(
+					"Missing " + expectedMethod + " after prefix '" + methodPrefix + "'",
+					expectedMethod + "[METHOD_REF]",
+					requestor.getResults());
+			this.workingCopies[0].discardWorkingCopy();
+			this.workingCopies = null;
+		}
+	}
+
+	private String nestedLambdaSource(String completionExpression) {
+		return """
+				import java.util.List;
+				import java.util.Map;
+
+				interface ObjectBuilder<T> {
+					T build();
+				}
+				interface BuilderFunction<T, R> {
+					R apply(T value);
+				}
+				class TypeMapping {
+					static class Builder implements ObjectBuilder<TypeMapping> {
+						Builder properties(String name, BuilderFunction<Property.Builder, ObjectBuilder<Property>> fn) {
+							return this;
+						}
+						Builder dynamicTemplates(List<Map<String, DynamicTemplate>> templates) {
+							return this;
+						}
+						public TypeMapping build() {
+							return null;
+						}
+					}
+				}
+				class DynamicTemplate {
+					static class Builder implements ObjectBuilder<DynamicTemplate> {
+						Builder pathMatch(String value) {
+							return this;
+						}
+						Builder matchMappingType(String value) {
+							return this;
+						}
+						Builder mapping(BuilderFunction<Property.Builder, ObjectBuilder<Property>> fn) {
+							return this;
+						}
+						public DynamicTemplate build() {
+							return null;
+						}
+					}
+				}
+				class Property {
+					static class Builder implements ObjectBuilder<Property> {
+						ObjectBuilder<Property> keyword(BuilderFunction<Builder, ObjectBuilder<Property>> fn) {
+							return this;
+						}
+						ObjectBuilder<Property> scaledFloat(
+								BuilderFunction<ScaledFloatNumberProperty.Builder,
+								ObjectBuilder<ScaledFloatNumberProperty>> fn) {
+							return this;
+						}
+						public Property build() {
+							return null;
+						}
+					}
+				}
+				class ScaledFloatNumberProperty {
+					static class Builder implements ObjectBuilder<ScaledFloatNumberProperty> {
+						Builder scalingFactor(Double value) {
+							return this;
+						}
+						public ScaledFloatNumberProperty build() {
+							return null;
+						}
+					}
+				}
+				class EsInitconstant {
+					static final Object MAPPING = new TypeMapping.Builder()
+							.properties("title", property -> property.keyword(keyword -> keyword))
+							.dynamicTemplates(List.of(
+									Map.of(
+											"scaled_float",
+											new DynamicTemplate.Builder()
+													.pathMatch("*.score")
+													.matchMappingType("double")
+													.mapping(/*complete*/%s)
+													.build())))
+							.build();
+				}
+				""".formatted(completionExpression);
+	}
 	//content assist of a java lang class in case statement in switch pattern
 	public void test001() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
