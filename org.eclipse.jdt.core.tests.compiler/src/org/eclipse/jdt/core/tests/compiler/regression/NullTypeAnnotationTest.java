@@ -20569,10 +20569,10 @@ public void testIssue5387_tweaked() throws Exception {
 			interface EntityManager {
 			    <T> HibernateQuery<T> createNamedQuery(String name, Class<@Nullable T> resultClass);
 			}
-			interface HibernateEntityManager extends EntityManager, QueryProducer {}
-
-			interface Session extends EntityManager, HibernateEntityManager {
+			interface I2 {
 				<T> HibernateQuery<T> createNamedQuery(String name, Class<T> resultType);
+			}
+			interface Session extends EntityManager, I2 {
 			}
 			public class Repro {
 			    void test(Session session) {
@@ -20584,12 +20584,7 @@ public void testIssue5387_tweaked() throws Exception {
 		getCompilerOptions(),
 		"""
 		----------
-		1. ERROR in Repro.java (at line 14)
-			<T> HibernateQuery<T> createNamedQuery(String name, Class<T> resultType);
-			                                                    ^^^^^
-		Illegal redefinition of parameter resultType, inherited method from EntityManager declares this parameter as 'Class<@Nullable T>' (mismatching null constraints)
-		----------
-		2. INFO in Repro.java (at line 18)
+		1. INFO in Repro.java (at line 18)
 			HibernateQuery<Object[]> query = session.createNamedQuery("x", Object[].class);
 			                                                               ^^^^^^^^^^^^^^
 		Unsafe null type conversion (type annotations): The value of type 'Class<Object @NonNull[]>' is made accessible using the less-annotated type 'Class<Object @NonNull[]>'
@@ -20613,10 +20608,10 @@ public void testIssue5387_tweaked2() throws Exception {
 			interface EntityManager {
 			    <T> HibernateQuery<T> createNamedQuery(String name, Class<@Nullable T> resultClass);
 			}
-			interface HibernateEntityManager extends EntityManager, QueryProducer {}
-
-			interface Session extends EntityManager, HibernateEntityManager {
+			interface I2 {
 				<T> HibernateQuery<T> createNamedQuery(String name, Class<T> resultType);
+			}
+			interface Session extends EntityManager, I2 {
 			}
 			public class Repro {
 			    void test(Session session, Class<Object[]@NonNull[]> clazz) {
@@ -20628,12 +20623,7 @@ public void testIssue5387_tweaked2() throws Exception {
 		getCompilerOptions(),
 		"""
 		----------
-		1. ERROR in Repro.java (at line 14)
-			<T> HibernateQuery<T> createNamedQuery(String name, Class<T> resultType);
-			                                                    ^^^^^
-		Illegal redefinition of parameter resultType, inherited method from EntityManager declares this parameter as 'Class<@Nullable T>' (mismatching null constraints)
-		----------
-		2. WARNING in Repro.java (at line 18)
+		1. WARNING in Repro.java (at line 18)
 			HibernateQuery<Object[][]> query = session.createNamedQuery("x", clazz);
 			                                                                 ^^^^^
 		Null type safety (type annotations): The expression of type 'Class<Object [] @NonNull[]>' needs unchecked conversion to conform to 'Class<Object @Nullable[] @NonNull[]>'
