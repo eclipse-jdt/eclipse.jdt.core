@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1534,7 +1534,6 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 		case Binding.TYPE :
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
-		case Binding.INTERSECTION_TYPE18 :
 			switch (kind()) {
 				case Binding.GENERIC_TYPE :
 				case Binding.PARAMETERIZED_TYPE :
@@ -1543,6 +1542,8 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 						return false; // should have passed equivalence check
 										// above if same erasure
 			}
+			//$FALL-THROUGH$
+		case Binding.INTERSECTION_TYPE18 :
 			ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
 			if (otherReferenceType.isIntersectionType18()) {
 				ReferenceBinding[] intersectingTypes = ((IntersectionTypeBinding18)otherReferenceType).intersectingTypes;

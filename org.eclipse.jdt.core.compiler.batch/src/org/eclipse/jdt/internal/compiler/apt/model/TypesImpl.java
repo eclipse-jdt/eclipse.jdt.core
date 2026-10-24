@@ -18,22 +18,10 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.IntersectionType;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.NullType;
-import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.WildcardType;
+import javax.lang.model.type.*;
 import javax.lang.model.util.Types;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
@@ -480,20 +468,6 @@ public class TypesImpl implements Types {
             // package, method, import, etc.
             throw new IllegalArgumentException();
         }
-        if (b1 == b2) {
-            return true;
-        }
-        if (isSameIntersectionType((TypeBinding) b1, (TypeBinding) b2)) {
-            return true;
-        }
-        if (t2 instanceof IntersectionType intersectionType) {
-            for (TypeMirror bound : intersectionType.getBounds()) {
-                if (!isAssignable(t1, bound)) {
-                    return false;
-                }
-            }
-            return true;
-        }
         if (((TypeBinding)b1).isCompatibleWith((TypeBinding)b2)) {
             return true;
         }
@@ -533,176 +507,7 @@ public class TypesImpl implements Types {
         }
         TypeBinding type1 = ((TypeBinding) b1);
         TypeBinding type2 = ((TypeBinding) b2);
-        if (TypeBinding.equalsEquals(type1,  type2))
-        	return true;
-        if (IntersectionComparison.mayMentionIntersection(type1) || IntersectionComparison.mayMentionIntersection(type2)) {
-            IntersectionComparison comparison = new IntersectionComparison();
-            if (comparison.mentionsIntersection(type1) || comparison.mentionsIntersection(type2)) {
-                return comparison.isSameType(type1, type2);
-            }
-        }
-        return CharOperation.equals(type1.computeUniqueKey(), type2.computeUniqueKey());
-    }
-
-    /*
-     * The compiler compares intersection bindings by identity, which may differ for equal types (see IntersectionComparison).
-     */
-    private static boolean isSameIntersectionType(TypeBinding type1, TypeBinding type2) {
-        if (!IntersectionComparison.mayMentionIntersection(type1) && !IntersectionComparison.mayMentionIntersection(type2)) {
-            return false;
-        }
-        IntersectionComparison comparison = new IntersectionComparison();
-        return (comparison.mentionsIntersection(type1) || comparison.mentionsIntersection(type2)) && comparison.isSameType(type1, type2);
-    }
-
-    /*
-     * Compares types that contain intersections. The unique key of an intersection binding is the one of its erasure,
-     * so it cannot be used. Equivalent intersections share one binding, but bindings of equal types may still differ,
-     * e.g. type variables of a member of differently annotated parameterizations of a type, so compare the structure.
-     * Type arguments may be shared, so results are remembered by binding.
-     */
-    private static class IntersectionComparison {
-        private final Map<TypeBinding, Boolean> intersectionMentions = new IdentityHashMap<>();
-        private final Map<TypeBinding, Set<TypeBinding>> sameTypes = new IdentityHashMap<>();
-
-        /*
-         * Cheap check without traversing type arguments: false for the kinds of types that cannot embed an intersection,
-         * which are the ones compared most often, so that no comparison needs to be created for them.
-         */
-        static boolean mayMentionIntersection(TypeBinding type) {
-            if (type == null) {
-                return false;
-            }
-            switch (type.kind()) {
-                case Binding.INTERSECTION_TYPE18:
-                case Binding.PARAMETERIZED_TYPE:
-                case Binding.WILDCARD_TYPE:
-                    return true;
-                case Binding.ARRAY_TYPE:
-                    return mayMentionIntersection(type.leafComponentType());
-                case Binding.RAW_TYPE:
-                    return mayMentionIntersection(type.enclosingType());
-                case Binding.TYPE_PARAMETER:
-                    return ((TypeVariableBinding) type).declaringElement instanceof MethodBinding method
-                            && mayMentionIntersection(method.declaringClass);
-                default:
-                    return false;
-            }
-        }
-
-        boolean mentionsIntersection(TypeBinding type) {
-            if (type == null) {
-                return false;
-            }
-            Boolean result = this.intersectionMentions.get(type);
-            if (result == null) {
-                result = mentionsIntersection0(type);
-                this.intersectionMentions.put(type, result);
-            }
-            return result;
-        }
-
-        private boolean mentionsIntersection0(TypeBinding type) {
-            switch (type.kind()) {
-                case Binding.INTERSECTION_TYPE18:
-                    return true;
-                case Binding.ARRAY_TYPE:
-                    return mentionsIntersection(type.leafComponentType());
-                case Binding.PARAMETERIZED_TYPE:
-                    ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
-                    if (parameterizedType.arguments != null) {
-                        for (TypeBinding argument : parameterizedType.arguments) {
-                            if (mentionsIntersection(argument)) {
-                                return true;
-                            }
-                        }
-                    }
-                    return mentionsIntersection(parameterizedType.enclosingType());
-                case Binding.RAW_TYPE:
-                    return mentionsIntersection(type.enclosingType());
-                case Binding.WILDCARD_TYPE:
-                    return mentionsIntersection(((WildcardBinding) type).bound);
-                case Binding.TYPE_PARAMETER:
-                    // the unique key of a type variable of a generic method includes the parameterization of its declaring type
-                    return ((TypeVariableBinding) type).declaringElement instanceof MethodBinding method
-                            && mentionsIntersection(method.declaringClass);
-                default:
-                    return false;
-            }
-        }
-
-        boolean isSameType(TypeBinding type1, TypeBinding type2) {
-            if (TypeBinding.equalsEquals(type1, type2)) {
-                return true;
-            }
-            if (type1 == null || type2 == null) {
-                return false;
-            }
-            Set<TypeBinding> sameTypes1 = this.sameTypes.get(type1);
-            if (sameTypes1 != null && sameTypes1.contains(type2)) {
-                return true;
-            }
-            boolean result;
-            if (!mentionsIntersection(type1) && !mentionsIntersection(type2)) {
-                result = CharOperation.equals(type1.computeUniqueKey(), type2.computeUniqueKey());
-            } else if (type1.kind() != type2.kind()) {
-                result = false;
-            } else {
-                switch (type1.kind()) {
-                    case Binding.INTERSECTION_TYPE18:
-                        result = isSameTypes(type1.getIntersectingTypes(), type2.getIntersectingTypes());
-                        break;
-                    case Binding.ARRAY_TYPE:
-                        result = type1.dimensions() == type2.dimensions() && isSameType(type1.leafComponentType(), type2.leafComponentType());
-                        break;
-                    case Binding.PARAMETERIZED_TYPE:
-                        ParameterizedTypeBinding parameterizedType1 = (ParameterizedTypeBinding) type1;
-                        ParameterizedTypeBinding parameterizedType2 = (ParameterizedTypeBinding) type2;
-                        result = TypeBinding.equalsEquals(parameterizedType1.genericType(), parameterizedType2.genericType())
-                                && isSameTypes(parameterizedType1.arguments, parameterizedType2.arguments)
-                                && isSameType(parameterizedType1.enclosingType(), parameterizedType2.enclosingType());
-                        break;
-                    case Binding.RAW_TYPE:
-                        result = TypeBinding.equalsEquals(((RawTypeBinding) type1).genericType(), ((RawTypeBinding) type2).genericType())
-                                && isSameType(type1.enclosingType(), type2.enclosingType());
-                        break;
-                    case Binding.WILDCARD_TYPE:
-                        WildcardBinding wildcard1 = (WildcardBinding) type1;
-                        WildcardBinding wildcard2 = (WildcardBinding) type2;
-                        result = wildcard1.boundKind == wildcard2.boundKind && isSameType(wildcard1.bound, wildcard2.bound);
-                        break;
-                    case Binding.TYPE_PARAMETER:
-                        // type variables of a generic method are copied for each parameterization of its declaring type
-                        TypeVariableBinding variable1 = (TypeVariableBinding) type1;
-                        TypeVariableBinding variable2 = (TypeVariableBinding) type2;
-                        result = variable1.rank == variable2.rank
-                                && variable1.declaringElement instanceof MethodBinding method1
-                                && variable2.declaringElement instanceof MethodBinding method2
-                                && method1.original() == method2.original()
-                                && isSameType(method1.declaringClass, method2.declaringClass);
-                        break;
-                    default:
-                        result = false;
-                }
-            }
-            if (result) {
-                this.sameTypes.computeIfAbsent(type1, key -> Collections.newSetFromMap(new IdentityHashMap<>())).add(type2);
-            }
-            return result;
-        }
-
-        private boolean isSameTypes(TypeBinding[] types1, TypeBinding[] types2) {
-            int length = types1 == null ? 0 : types1.length;
-            if (length != (types2 == null ? 0 : types2.length)) {
-                return false;
-            }
-            for (int i = 0; i < length; i++) {
-                if (!isSameType(types1[i], types2[i])) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        return TypeBinding.equalsEquals(type1,  type2);
     }
 
     @Override
@@ -742,18 +547,6 @@ public class TypesImpl implements Types {
         if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
             // package, method, import, etc.
         	 throw new IllegalArgumentException();
-        }
-        if (isSameIntersectionType((TypeBinding) b1, (TypeBinding) b2)) {
-            return true;
-        }
-        if (t2 instanceof IntersectionType intersectionType) {
-            // JLS §4.10.2: a subtype of all components is a subtype of the intersection type
-            for (TypeMirror bound : intersectionType.getBounds()) {
-                if (!isSubtype(t1, bound)) {
-                    return false;
-                }
-            }
-            return true;
         }
         if (b1.kind() == Binding.BASE_TYPE || b2.kind() == Binding.BASE_TYPE) {
             if (b1.kind() != b2.kind()) {

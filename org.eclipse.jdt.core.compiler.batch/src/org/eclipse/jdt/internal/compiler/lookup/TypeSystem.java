@@ -471,7 +471,7 @@ public class TypeSystem {
 		return this.types[keyType.id];
 	}
 
-	private TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
+	TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
 		if (keyType == null || derivedType == null || keyType.id == TypeIds.NoId)
 			throw new IllegalStateException();
 

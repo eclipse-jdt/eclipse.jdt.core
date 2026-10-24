@@ -7225,7 +7225,7 @@ public void test443467() throws Exception {
 		true/*flush*/);
 }
 public void testBug445227() {
-	runConformTestWithLibs(
+	runNegativeTestWithLibs(
 		new String[] {
 			"Bar.java",
 			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
@@ -7249,6 +7249,11 @@ public void testBug445227() {
 		"	this((Iterable<E>) emptyList());\n" +
 		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Iterable<capture-Y#0-of X extends Bar.Foo<capture-Y#0-of X>> to Iterable<E>\n" +
+		"----------\n" +
+		"2. ERROR in Bar.java (at line 6)\n" +
+		"	this((Iterable<E>) emptyList());\n" +
+		"	                   ^^^^^^^^^^^\n" +
+		"Null constraint mismatch: The type \'@NonNull Y#0-X#0\' extends Bar.Foo<Y#0-X#0 extends Bar.Foo<Y#0-X#0>>\' is not a valid substitute for the type parameter \'X extends Bar.@NonNull Foo<X extends Bar.@NonNull Foo<X>>\'\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446715, [compiler] org.eclipse.jdt.internal.compiler.lookup.TypeSystem.cacheDerivedType
