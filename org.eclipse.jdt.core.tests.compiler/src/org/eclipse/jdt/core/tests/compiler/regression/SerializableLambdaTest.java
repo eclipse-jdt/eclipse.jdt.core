@@ -2353,6 +2353,95 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				},
 				"OK");
 	}
+	public void testIssue5611() throws Exception {
+		// "Aa" and "BB" have the same hash code. Deserialization must check the exact
+		// implementation method name for each candidate in such a bucket.
+		this.runConformTest(
+			new String[] {
+				"CollisionRoundTrip.java",
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"public class CollisionRoundTrip {\n" +
+				"    interface F extends Serializable {\n" +
+				"        int get();\n" +
+				"    }\n" +
+				"    public static int Aa() { return 1; }\n" +
+				"    public static int BB() { return 2; }\n" +
+				"    static F roundTrip(F value) throws Exception {\n" +
+				"        ByteArrayOutputStream bytes = new ByteArrayOutputStream();\n" +
+				"        try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {\n" +
+				"            out.writeObject(value);\n" +
+				"        }\n" +
+				"        try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {\n" +
+				"            return (F) in.readObject();\n" +
+				"        }\n" +
+				"    }\n" +
+				"    static void check(String name, int expected, F value) throws Exception {\n" +
+				"        int before = value.get();\n" +
+				"        int after = roundTrip(value).get();\n" +
+				"        System.out.println(name + \": \" + before + \" -> \" + after);\n" +
+				"        if (before != expected || after != expected) {\n" +
+				"            throw new AssertionError(name + \" changed from \" + expected + \" to \" + after);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        F a = CollisionRoundTrip::Aa;\n" +
+				"        F b = CollisionRoundTrip::BB;\n" +
+				"        check(\"Aa first\", 1, a);\n" +
+				"        check(\"BB second\", 2, b);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"Aa first: 1 -> 1\n" +
+			"BB second: 2 -> 2");
+	}
+	public void testIssue5611_reversed() throws Exception {
+		// Same as testIssue5611 but with BB as the first candidate in the bucket.
+		this.runConformTest(
+			new String[] {
+				"ReverseCollisionRoundTrip.java",
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"public class ReverseCollisionRoundTrip {\n" +
+				"    interface F extends Serializable {\n" +
+				"        int get();\n" +
+				"    }\n" +
+				"    public static int BB() { return 2; }\n" +
+				"    public static int Aa() { return 1; }\n" +
+				"    static F roundTrip(F value) throws Exception {\n" +
+				"        ByteArrayOutputStream bytes = new ByteArrayOutputStream();\n" +
+				"        try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {\n" +
+				"            out.writeObject(value);\n" +
+				"        }\n" +
+				"        try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {\n" +
+				"            return (F) in.readObject();\n" +
+				"        }\n" +
+				"    }\n" +
+				"    static void check(String name, int expected, F value) throws Exception {\n" +
+				"        int before = value.get();\n" +
+				"        int after = roundTrip(value).get();\n" +
+				"        System.out.println(name + \": \" + before + \" -> \" + after);\n" +
+				"        if (before != expected || after != expected) {\n" +
+				"            throw new AssertionError(name + \" changed from \" + expected + \" to \" + after);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        F b = ReverseCollisionRoundTrip::BB;\n" +
+				"        F a = ReverseCollisionRoundTrip::Aa;\n" +
+				"        check(\"BB first\", 2, b);\n" +
+				"        check(\"Aa second\", 1, a);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"BB first: 2 -> 2\n" +
+			"Aa second: 1 -> 1");
+	}
 	// ---
 
 	private void checkExpected(String expected, String actual) {
