@@ -2614,9 +2614,31 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		List synthetics = (List)hashcodesTosynthetics.get(hashcode);
 		switchLabels[hashcodeIndex++].place();
 		BranchLabel nextOne = synthetics.size() > 1 ? new BranchLabel(this) : errorLabel;
+		// The id identifies a hash bucket, so it can be shared by distinct method names.
+		// Only recheck exact names for such buckets to keep the bytecode small otherwise.
+		boolean hasDistinctNames = false;
+		for (int j = 0, count = synthetics.size(); j < count - 1 && !hasDistinctNames; j++) {
+			String name = new String(((SyntheticMethodBinding) synthetics.get(j)).selector);
+			for (int k = j + 1; k < count; k++) {
+				if (!name.equals(new String(((SyntheticMethodBinding) synthetics.get(k)).selector))) {
+					hasDistinctNames = true;
+					break;
+				}
+			}
+		}
 		// Loop through all lambdas that share the same hashcode
 		for (int j = 0, count = synthetics.size(); j < count; j++) {
 			SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) synthetics.get(j);
+			if (hasDistinctNames) {
+				// Compare ImplMethodName: the id alone cannot distinguish names in this bucket.
+				aload_0();
+				invoke(Opcodes.OPC_invokevirtual, 1, 1, ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName,
+						ConstantPool.GetImplMethodName, ConstantPool.GetImplMethodNameSignature,
+						getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
+				ldc(new String(syntheticMethodBinding.selector));
+				invokeObjectEquals();
+				ifeq(nextOne);
+			}
 			// Compare ImplMethodKind
 			aload_0();
 			FunctionalExpression funcEx = syntheticMethodBinding.lambda != null ? syntheticMethodBinding.lambda
