@@ -2700,6 +2700,58 @@ public void testIssue5564_variants() {
 		"""
 	});
 }
+public void testIssue5567() {
+	long start = System.currentTimeMillis();
+	runConformTest(new String[] {
+		"NestedFlatMapDepth8.java",
+		"""
+		import java.util.function.Function;
+
+		public class NestedFlatMapDepth8 {
+
+			interface Traversable<T> extends Iterable<T> {
+				<U> Traversable<U> map(Function<? super T, ? extends U> mapper);
+				<U> Traversable<U> flatMap(Function<? super T, ? extends Iterable<? extends U>> mapper);
+			}
+
+			interface Seq<T> extends Traversable<T> {
+				<U> Seq<U> map(Function<? super T, ? extends U> mapper);
+				@Override
+				<U> Seq<U> flatMap(Function<? super T, ? extends Iterable<? extends U>> mapper);
+			}
+
+			interface LinearSeq<T> extends Seq<T> {
+				<U> LinearSeq<U> map(Function<? super T, ? extends U> mapper);
+				@Override
+				<U> LinearSeq<U> flatMap(Function<? super T, ? extends Iterable<? extends U>> mapper);
+			}
+
+			interface Box<T> extends LinearSeq<T> {
+				<U> Box<U> map(Function<? super T, ? extends U> mapper);
+				@Override
+				<U> Box<U> flatMap(Function<? super T, ? extends Iterable<? extends U>> mapper);
+			}
+
+			interface Function8<T1, T2, T3, T4, T5, T6, T7, T8, R> {
+				R apply(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8);
+			}
+
+			static <T1, T2, T3, T4, T5, T6, T7, T8, R> Box<R> combine(Box<T1> ts1, Box<T2> ts2, Box<T3> ts3, Box<T4> ts4, Box<T5> ts5, Box<T6> ts6, Box<T7> ts7, Box<T8> ts8, Function8<T1, T2, T3, T4, T5, T6, T7, T8, R> f) {
+				return
+					ts1.flatMap(t1 ->
+					ts2.flatMap(t2 ->
+					ts3.flatMap(t3 ->
+					ts4.flatMap(t4 ->
+					ts5.flatMap(t5 ->
+					ts6.flatMap(t6 ->
+					ts7.flatMap(t7 ->
+					ts8.map(t8 -> f.apply(t1, t2, t3, t4, t5, t6, t7, t8)))))))));
+			}
+		}
+		"""
+	});
+	assertTrue("Test should take less than a second, certainly not a minute", System.currentTimeMillis() < (start + 60000));
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
