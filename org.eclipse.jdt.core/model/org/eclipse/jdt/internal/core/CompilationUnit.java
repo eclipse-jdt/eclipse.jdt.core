@@ -1358,7 +1358,9 @@ protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws Java
 			continue;
 		}
 		if (existingBuffer != null) {
-			buffer.close();
+			if (buffer != existingBuffer) {
+				buffer.close();
+			}
 			return existingBuffer;
 		}
 		return buffer;

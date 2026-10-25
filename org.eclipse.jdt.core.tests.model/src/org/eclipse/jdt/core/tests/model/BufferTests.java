@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
+import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.OpenableElementInfo;
@@ -245,6 +246,18 @@ public void testBecomeWorkingCopyWhileOpeningBuffer() throws Exception {
  * published while the primary buffer provider is still creating its buffer.
  */
 public void testBecomeWorkingCopyBeforeBufferPublication() throws Exception {
+	assertBecomeWorkingCopyBeforeBufferPublication(false);
+}
+
+/**
+ * A provider may return the same buffer to competing callers. The caller that
+ * finds it already cached must not close that shared working-copy buffer.
+ */
+public void testBecomeWorkingCopyBeforeBufferPublicationWithSharedBuffer() throws Exception {
+	assertBecomeWorkingCopyBeforeBufferPublication(true);
+}
+
+private void assertBecomeWorkingCopyBeforeBufferPublication(boolean shareBuffer) throws Exception {
 	String path = "P/x/y/LateBuffer.java";
 	String source = "package x.y; public class LateBuffer {}";
 	createFile(path, source);
@@ -285,10 +298,11 @@ public void testBecomeWorkingCopyBeforeBufferPublication() throws Exception {
 	reader.setDaemon(true);
 	WorkingCopyOwner previousProvider = DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider;
 	AtomicReference<IBuffer> providerBuffer = new AtomicReference<>();
+	IBuffer sharedBuffer = shareBuffer ? new TestBuffer(unit) : null;
 	WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 		@Override
 		public IBuffer createBuffer(ICompilationUnit workingCopy) {
-			IBuffer buffer = new TestBuffer(workingCopy);
+			IBuffer buffer = shareBuffer ? sharedBuffer : new TestBuffer(workingCopy);
 			providerBuffer.set(buffer);
 			if (Thread.currentThread() == testThread) {
 				// Let the old reader finish before this candidate can be published.
@@ -310,6 +324,10 @@ public void testBecomeWorkingCopyBeforeBufferPublication() throws Exception {
 		assertTrue("The ordinary CU did not start creating its buffer", creatingOrdinaryBuffer.await(10, TimeUnit.SECONDS));
 		unit.becomeWorkingCopy(null);
 		IBuffer buffer = opening.get(10, TimeUnit.SECONDS);
+		if (shareBuffer) {
+			assertFalse("The shared provider buffer must remain open", sharedBuffer.isClosed());
+			assertSame("The shared provider buffer must remain cached", sharedBuffer, BufferManager.getDefaultBufferManager().getBuffer(unit));
+		}
 		assertSame("A late ordinary buffer must not replace the provider's buffer", providerBuffer.get(), unit.getBuffer());
 		assertSame("Concurrent readers must see the working-copy buffer", unit.getBuffer(), buffer);
 		assertEquals("Unexpected initial source", source, buffer.getContents());
@@ -332,6 +350,90 @@ public void testBecomeWorkingCopyBeforeBufferPublication() throws Exception {
 	}
 }
 
+
+/**
+ * A delayed close event must not remove a replacement buffer for the same owner.
+ * Closing the current buffer must still remove it from the cache.
+ */
+public void testStaleCloseEventDoesNotRemoveReplacementBuffer() throws Exception {
+	class LocalBufferManager extends BufferManager {
+		void cache(IBuffer buffer) {
+			addBuffer(buffer);
+		}
+	}
+	LocalBufferManager bufferManager = new LocalBufferManager();
+	CountDownLatch oldCloseReceived = new CountDownLatch(1);
+	CountDownLatch finishOldClose = new CountDownLatch(1);
+	AtomicReference<IBuffer> delayedBuffer = new AtomicReference<>();
+	AtomicReference<Throwable> callbackFailure = new AtomicReference<>();
+	CompilationUnit unit = new CompilationUnit((PackageFragment) getPackageFragment("P", "", "x.y"), "StaleClose.java", DefaultWorkingCopyOwner.PRIMARY) {
+		@Override
+		protected BufferManager getBufferManager() {
+			return bufferManager;
+		}
+		@Override
+		public void bufferChanged(BufferChangedEvent event) {
+			try {
+				if (event.getBuffer() == delayedBuffer.get() && event.getBuffer().isClosed()) {
+					oldCloseReceived.countDown();
+					assertTrue("Timed out waiting to deliver the old close event", finishOldClose.await(10, TimeUnit.SECONDS));
+				}
+				super.bufferChanged(event);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				callbackFailure.compareAndSet(null, e);
+			} catch (Throwable e) {
+				// Buffer dispatches through SafeRunner, so surface callback failures in the test thread.
+				callbackFailure.compareAndSet(null, e);
+			}
+		}
+	};
+	// These real Core buffers need only a CU handle; no file or working-copy transition is needed.
+	IBuffer oldBuffer = BufferManager.createBuffer(unit);
+	IBuffer replacement = BufferManager.createBuffer(unit);
+	oldBuffer.setContents("package x.y; class StaleClose {}");
+	replacement.setContents("package x.y; class StaleClose { int changed; }");
+	delayedBuffer.set(oldBuffer);
+	oldBuffer.addBufferChangedListener(unit);
+	replacement.addBufferChangedListener(unit);
+	bufferManager.cache(oldBuffer);
+	FutureTask<Void> closing = new FutureTask<>(oldBuffer::close, null);
+	Thread closer = new Thread(closing, "Closing replaced compilation-unit buffer");
+	closer.setDaemon(true);
+	try {
+		assertSame("The old buffer must initially be cached", oldBuffer, bufferManager.getBuffer(unit));
+		closer.start();
+		assertTrue("The old buffer did not deliver its close event", oldCloseReceived.await(10, TimeUnit.SECONDS));
+		assertTrue("The old buffer must be closed before its event is delivered", oldBuffer.isClosed());
+		bufferManager.cache(replacement);
+		assertSame("The replacement must be cached before releasing the old event", replacement, bufferManager.getBuffer(unit));
+		finishOldClose.countDown();
+		closing.get(10, TimeUnit.SECONDS);
+		if (callbackFailure.get() != null) {
+			throw new AssertionError("The old buffer close callback failed", callbackFailure.get());
+		}
+		assertSame("A stale close event must not remove the replacement buffer", replacement, bufferManager.getBuffer(unit));
+		assertFalse("A stale close event must not close the replacement buffer", replacement.isClosed());
+
+		replacement.close();
+		if (callbackFailure.get() != null) {
+			throw new AssertionError("The current buffer close callback failed", callbackFailure.get());
+		}
+		assertTrue("The current buffer must be closed", replacement.isClosed());
+		assertNull("Closing the current buffer must remove it from the cache", bufferManager.getBuffer(unit));
+	} finally {
+		finishOldClose.countDown();
+		try {
+			closer.join(10_000);
+			assertFalse("The old buffer closer did not finish", closer.isAlive());
+		} finally {
+			oldBuffer.removeBufferChangedListener(unit);
+			replacement.removeBufferChangedListener(unit);
+			oldBuffer.close();
+			replacement.close();
+		}
+	}
+}
 
 /**
  * Tests getting the underlying resource of a buffer.
