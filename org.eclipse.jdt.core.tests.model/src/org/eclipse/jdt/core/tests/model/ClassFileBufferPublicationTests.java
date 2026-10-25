@@ -131,7 +131,9 @@ public class ClassFileBufferPublicationTests extends ModifyingResourceTests {
 				@Override
 				public IBuffer createBuffer(ICompilationUnit workingCopy) {
 					return new Buffer((IFile) workingCopy.getResource(), workingCopy, false) {
+						// Pause outside the buffer monitor; super synchronizes the actual registration.
 						@Override
+						@SuppressWarnings("sync-override")
 						public void addBufferChangedListener(IBufferChangedListener listener) {
 							if (pauseNextListener.compareAndSet(true, false)) {
 								// Pause before installing the model listener, independent of the cache publication method.
