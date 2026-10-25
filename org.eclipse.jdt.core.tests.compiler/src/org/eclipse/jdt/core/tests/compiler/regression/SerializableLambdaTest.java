@@ -2442,6 +2442,166 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 			"BB first: 2 -> 2\n" +
 			"Aa second: 1 -> 1");
 	}
+	public void testIssue5611_fourCollidingNames() throws Exception {
+		// "Aaa", "AbB", "BBa" and "BCB" all have the hash code 65569: the bucket holds four
+		// candidates and each of them must be selected by its exact name.
+		this.runConformTest(
+			new String[] {
+				"FourCollisionRoundTrip.java",
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"public class FourCollisionRoundTrip {\n" +
+				"    interface F extends Serializable {\n" +
+				"        int get();\n" +
+				"    }\n" +
+				"    public static int Aaa() { return 1; }\n" +
+				"    public static int AbB() { return 2; }\n" +
+				"    public static int BBa() { return 3; }\n" +
+				"    public static int BCB() { return 4; }\n" +
+				"    static F roundTrip(F value) throws Exception {\n" +
+				"        ByteArrayOutputStream bytes = new ByteArrayOutputStream();\n" +
+				"        try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {\n" +
+				"            out.writeObject(value);\n" +
+				"        }\n" +
+				"        try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {\n" +
+				"            return (F) in.readObject();\n" +
+				"        }\n" +
+				"    }\n" +
+				"    static void check(String name, int expected, F value) throws Exception {\n" +
+				"        int before = value.get();\n" +
+				"        int after = roundTrip(value).get();\n" +
+				"        System.out.println(name + \": \" + before + \" -> \" + after);\n" +
+				"        if (before != expected || after != expected) {\n" +
+				"            throw new AssertionError(name + \" changed from \" + expected + \" to \" + after);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        F a = FourCollisionRoundTrip::Aaa;\n" +
+				"        F b = FourCollisionRoundTrip::AbB;\n" +
+				"        F c = FourCollisionRoundTrip::BBa;\n" +
+				"        F d = FourCollisionRoundTrip::BCB;\n" +
+				"        check(\"Aaa\", 1, a);\n" +
+				"        check(\"AbB\", 2, b);\n" +
+				"        check(\"BBa\", 3, c);\n" +
+				"        check(\"BCB\", 4, d);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"Aaa: 1 -> 1\n" +
+			"AbB: 2 -> 2\n" +
+			"BBa: 3 -> 3\n" +
+			"BCB: 4 -> 4");
+	}
+	public void testIssue5611_collidingNamesInDifferentClasses() throws Exception {
+		// "Aa" and "BB" collide in hash code but belong to different classes: the implementation
+		// class tells them apart.
+		this.runConformTest(
+			new String[] {
+				"CrossClassCollisionRoundTrip.java",
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"public class CrossClassCollisionRoundTrip {\n" +
+				"    interface F extends Serializable {\n" +
+				"        int get();\n" +
+				"    }\n" +
+				"    public static int Aa() { return 1; }\n" +
+				"    public static int BB() { return 2; }\n" +
+				"    public static class Other implements Serializable {\n" +
+				"        private static final long serialVersionUID = 1L;\n" +
+				"        public static int Aa() { return 3; }\n" +
+				"        public static int BB() { return 4; }\n" +
+				"    }\n" +
+				"    static F roundTrip(F value) throws Exception {\n" +
+				"        ByteArrayOutputStream bytes = new ByteArrayOutputStream();\n" +
+				"        try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {\n" +
+				"            out.writeObject(value);\n" +
+				"        }\n" +
+				"        try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {\n" +
+				"            return (F) in.readObject();\n" +
+				"        }\n" +
+				"    }\n" +
+				"    static void check(String name, int expected, F value) throws Exception {\n" +
+				"        int before = value.get();\n" +
+				"        int after = roundTrip(value).get();\n" +
+				"        System.out.println(name + \": \" + before + \" -> \" + after);\n" +
+				"        if (before != expected || after != expected) {\n" +
+				"            throw new AssertionError(name + \" changed from \" + expected + \" to \" + after);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        F a = CrossClassCollisionRoundTrip::Aa;\n" +
+				"        F b = CrossClassCollisionRoundTrip::BB;\n" +
+				"        F c = CrossClassCollisionRoundTrip.Other::Aa;\n" +
+				"        F d = CrossClassCollisionRoundTrip.Other::BB;\n" +
+				"        check(\"Aa\", 1, a);\n" +
+				"        check(\"BB\", 2, b);\n" +
+				"        check(\"Other.Aa\", 3, c);\n" +
+				"        check(\"Other.BB\", 4, d);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"Aa: 1 -> 1\n" +
+			"BB: 2 -> 2\n" +
+			"Other.Aa: 3 -> 3\n" +
+			"Other.BB: 4 -> 4");
+	}
+	public void testIssue5611_sameNameInDifferentClasses() throws Exception {
+		// Same method name in two different classes: the bucket holds several candidates but only
+		// one distinct name, so the implementation class tells them apart.
+		this.runConformTest(
+			new String[] {
+				"SameNameRoundTrip.java",
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"public class SameNameRoundTrip {\n" +
+				"    interface F extends Serializable {\n" +
+				"        int get();\n" +
+				"    }\n" +
+				"    public static class One implements Serializable {\n" +
+				"        private static final long serialVersionUID = 1L;\n" +
+				"        public static int m() { return 1; }\n" +
+				"    }\n" +
+				"    public static class Two implements Serializable {\n" +
+				"        private static final long serialVersionUID = 1L;\n" +
+				"        public static int m() { return 2; }\n" +
+				"    }\n" +
+				"    static F roundTrip(F value) throws Exception {\n" +
+				"        ByteArrayOutputStream bytes = new ByteArrayOutputStream();\n" +
+				"        try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {\n" +
+				"            out.writeObject(value);\n" +
+				"        }\n" +
+				"        try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {\n" +
+				"            return (F) in.readObject();\n" +
+				"        }\n" +
+				"    }\n" +
+				"    static void check(String name, int expected, F value) throws Exception {\n" +
+				"        int before = value.get();\n" +
+				"        int after = roundTrip(value).get();\n" +
+				"        System.out.println(name + \": \" + before + \" -> \" + after);\n" +
+				"        if (before != expected || after != expected) {\n" +
+				"            throw new AssertionError(name + \" changed from \" + expected + \" to \" + after);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        F one = SameNameRoundTrip.One::m;\n" +
+				"        F two = SameNameRoundTrip.Two::m;\n" +
+				"        check(\"One.m\", 1, one);\n" +
+				"        check(\"Two.m\", 2, two);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"One.m: 1 -> 1\n" +
+			"Two.m: 2 -> 2");
+	}
 	// ---
 
 	private void checkExpected(String expected, String actual) {
