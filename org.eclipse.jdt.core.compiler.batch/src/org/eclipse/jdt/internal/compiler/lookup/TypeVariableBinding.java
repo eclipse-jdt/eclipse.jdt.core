@@ -103,11 +103,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 		// don't yet compute the ID!
 	}
 
-	public TypeVariableBinding(TypeVariableBinding prototype) {
+	public TypeVariableBinding(TypeVariableBinding prototype, boolean deferConnectingPrototype) {
 		super(prototype);
-		this.prototype = prototype.prototype;
-		this.prototype.tagBits |= TagBits.HasAnnotatedVariants;
-		this.tagBits &= ~TagBits.HasAnnotatedVariants;
+		if (deferConnectingPrototype) {
+			this.prototype = this; // for now pretend this *is* the prototype
+		} else {
+			this.prototype = prototype.prototype;
+			this.prototype.tagBits |= TagBits.HasAnnotatedVariants;
+			this.tagBits &= ~TagBits.HasAnnotatedVariants;
+		}
 		this.declaringElement = prototype.declaringElement;
 		this.rank = prototype.rank;
 		this.firstBound = prototype.firstBound;
@@ -394,7 +398,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	@Override
 	public TypeBinding clone(TypeBinding enclosingType) {
-		return new TypeVariableBinding(this);
+		return new TypeVariableBinding(this, false);
 	}
 	@Override
 	public String annotatedDebugName() {

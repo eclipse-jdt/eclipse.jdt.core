@@ -21,6 +21,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -57,6 +59,10 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		Substitution substitution = null;
 		final int length = originalVariables.length;
 		final boolean isStatic = originalMethod.isStatic();
+		record UncookedClone(TypeVariableBinding substituted, TypeVariableBinding prototype) {
+			void cook() { this.substituted.prototype = this.prototype.prototype; }
+		}
+		List<UncookedClone> uncookedClones = new ArrayList<>();
 		if (length == 0) {
 			this.typeVariables = Binding.NO_TYPE_VARIABLES;
 			if (!isStatic) substitution = parameterizedDeclaringClass;
@@ -68,8 +74,12 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				if (capturesEnclosingTypeVariables(originalVariable, parameterizedDeclaringClass)) {
 					substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank, parameterizedDeclaringClass.environment);
 				} else {
-					substitutedVariables[i] = new TypeVariableBinding(originalVariable);
-					substitutedVariables[i].declaringElement = this;
+					// create a clone that shares the same id
+					// however, defer connecting to the prototype until after substitution of bounds has happened
+					TypeVariableBinding newTypeVariableBinding = new TypeVariableBinding(originalVariable, true);
+					substitutedVariables[i] = newTypeVariableBinding;
+					newTypeVariableBinding.declaringElement = this;
+					uncookedClones.add(new UncookedClone(newTypeVariableBinding, originalVariable));
 					parameterizedDeclaringClass.environment.typeSystem.cacheDerivedType(originalVariable, substitutedVariables[i]);
 				}
 				substitutedVariables[i].tagBits |= (originalVariable.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation|TagBits.HasMissingType));
@@ -131,6 +141,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				}
 			}
 		}
+		uncookedClones.forEach(UncookedClone::cook);
 		if (substitution != null) {
 			this.returnType = Scope.substitute(substitution, this.returnType);
 			this.parameters = Scope.substitute(substitution, this.parameters);
