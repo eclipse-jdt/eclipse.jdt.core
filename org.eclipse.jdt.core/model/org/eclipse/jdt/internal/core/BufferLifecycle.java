@@ -92,7 +92,7 @@ final class BufferLifecycle {
 					// A cached buffer already has a registration owned by its cache entry.
 					return isCurrent() ? new OpenResult.Complete(existing) : OpenResult.Retry.INSTANCE;
 				}
-				this.candidateState = BufferLifecycle.this.candidates.computeIfAbsent(this.buffer, key -> new CandidateState(this.unit));
+				this.candidateState = BufferLifecycle.this.candidates.computeIfAbsent(this.buffer, _ -> new CandidateState(this.unit));
 				this.candidateState.claims++;
 				if (!isCurrent()) {
 					return OpenResult.Retry.INSTANCE;
@@ -167,7 +167,7 @@ final class BufferLifecycle {
 			if (!unit.isPrimary() && workingCopyInfo == null) {
 				throw unit.newNotPresentException();
 			}
-			OpenState state = this.opening.computeIfAbsent(unit, key -> new OpenState());
+			OpenState state = this.opening.computeIfAbsent(unit, _ -> new OpenState());
 			state.attempts++;
 			return new Opening(unit, state, workingCopyInfo);
 		}
@@ -218,7 +218,7 @@ final class BufferLifecycle {
 			try (Opening attempt = beginOpen(unit)) {
 				switch (attempt.prepareAndPublish()) {
 					case OpenResult.Complete(var buffer) -> { return buffer; }
-					case OpenResult.Retry retry -> { /* retry with the new generation's provider */ }
+					case OpenResult.Retry _ -> { /* retry with the new generation's provider */ }
 				}
 			}
 		}
@@ -278,7 +278,9 @@ final class BufferLifecycle {
 
 	/** Preserves the existing manager method's count-based contract at its compatibility boundary. */
 	int discardPerWorkingCopyInfo(CompilationUnit unit) throws JavaModelException {
-		return discard(unit, () -> {});
+		return discard(unit, () -> {
+			// Compatibility callers have no additional final-discard operation.
+		});
 	}
 
 	private int discard(CompilationUnit unit, Runnable afterFinalDiscard) throws JavaModelException {
@@ -320,7 +322,7 @@ final class BufferLifecycle {
 			registeredUnit.invalidateAST();
 		}
 		IBuffer buffer = detached.buffer();
-		CandidateState state = this.candidates.computeIfAbsent(buffer, key -> new CandidateState(detached.listener()));
+		CandidateState state = this.candidates.computeIfAbsent(buffer, _ -> new CandidateState(detached.listener()));
 		state.retiring = true;
 		return new RetiredBuffer(detached.listener(), buffer, state);
 	}

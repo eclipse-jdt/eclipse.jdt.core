@@ -275,7 +275,7 @@ public void testClosedProviderBufferIsRejected() throws Exception {
 			super.setContents(contents);
 		}
 		@Override
-		public void addBufferChangedListener(IBufferChangedListener listener) {
+		public synchronized void addBufferChangedListener(IBufferChangedListener listener) {
 			if (isClosed()) this.listenerAddsAfterClose++;
 			super.addBufferChangedListener(listener);
 		}
@@ -435,6 +435,8 @@ public void testFailedOpenerPreservesSharedUnpublishedBuffer() throws Exception 
 			return super.getCharacters();
 		}
 		@Override
+		// Wait before registration without holding the provider monitor.
+		@SuppressWarnings("sync-override")
 		public void addBufferChangedListener(IBufferChangedListener listener) {
 			if (Thread.currentThread() == this.failingOpener) {
 				registeringListener.countDown();
@@ -516,7 +518,7 @@ public void testOrdinaryBufferReadIsRetriedAfterWorkingCopyRoundTrip() throws Ex
 	CountDownLatch finishReading = new CountDownLatch(1);
 	AtomicBoolean delayReading = new AtomicBoolean(true);
 	IFile delayedFile = (IFile) Proxy.newProxyInstance(IFile.class.getClassLoader(), new Class<?>[] { IFile.class },
-			(proxy, method, arguments) -> {
+			(_, method, arguments) -> {
 				Object result;
 				try {
 					result = method.invoke(file, arguments);
@@ -604,12 +606,12 @@ public void testDiscardThroughEqualHandleRemovesRegisteredListener() throws Exce
 			super((IFile) owner.getResource(), owner, false);
 		}
 		@Override
-		public void addBufferChangedListener(IBufferChangedListener listener) {
+		public synchronized void addBufferChangedListener(IBufferChangedListener listener) {
 			this.listeners.put(listener, Boolean.TRUE);
 			this.registeredListener = listener;
 		}
 		@Override
-		public void removeBufferChangedListener(IBufferChangedListener listener) {
+		public synchronized void removeBufferChangedListener(IBufferChangedListener listener) {
 			this.listeners.remove(listener);
 			this.removedListener = listener;
 		}
@@ -746,6 +748,8 @@ private void assertConcurrentSharedBufferLifecycle(boolean identityListeners, bo
 			super((IFile) first.getResource(), first, false);
 		}
 		@Override
+		// The competing opener must register while this opener is paused.
+		@SuppressWarnings("sync-override")
 		public void addBufferChangedListener(IBufferChangedListener listener) {
 			if (identityListeners) {
 				synchronized (this.listeners) {
@@ -762,6 +766,8 @@ private void assertConcurrentSharedBufferLifecycle(boolean identityListeners, bo
 			}
 		}
 		@Override
+		// Listener access is guarded by its own monitor or the superclass.
+		@SuppressWarnings("sync-override")
 		public void removeBufferChangedListener(IBufferChangedListener listener) {
 			if (identityListeners) {
 				synchronized (this.listeners) {
@@ -1001,6 +1007,8 @@ public void testFinalDiscardIgnoresEditsWhileRemovingDetachedListener() throws E
 			super((IFile) owner.getResource(), owner, false);
 		}
 		@Override
+		// Allow edit notifications while listener removal is paused.
+		@SuppressWarnings("sync-override")
 		public void removeBufferChangedListener(IBufferChangedListener listener) {
 			if (this.delayRemoval.compareAndSet(true, false)) {
 				removingListener.countDown();
@@ -1082,6 +1090,8 @@ public void testEditBeforePublicationLeavesOpenModelInconsistent() throws Except
 			super((IFile) owner.getResource(), owner, false);
 		}
 		@Override
+		// Allow edits after registration while publication is paused.
+		@SuppressWarnings("sync-override")
 		public void addBufferChangedListener(IBufferChangedListener listener) {
 			super.addBufferChangedListener(listener);
 			listenerRegistered.countDown();
