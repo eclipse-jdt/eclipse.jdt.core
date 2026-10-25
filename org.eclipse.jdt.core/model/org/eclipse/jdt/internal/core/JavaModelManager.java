@@ -1231,6 +1231,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	protected HashMap<WorkingCopyOwner, Map<CompilationUnit, PerWorkingCopyInfo>> perWorkingCopyInfos = new HashMap<>(5);
 
+	private final BufferLifecycle bufferLifecycle = new BufferLifecycle(this);
+
+	BufferLifecycle getBufferLifecycle() {
+		return this.bufferLifecycle;
+	}
+
 	/**
 	 * A weak set of the known search scopes.
 	 */
@@ -2040,49 +2046,35 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * and register it.
 	 * Close the working copy, its buffer and remove it from the shared working copy table.
 	 * Ignore if no per-working copy info existed.
-	 * NOTE: it must NOT be synchronized as it may interact with the element info cache (if useCount is decremented to 0), see bug 50667.
+	 * Buffer callbacks run after the old generation's model and cache entries have been detached.
 	 * Returns the new use count (or -1 if it didn't exist).
 	 */
 	public int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
-
-		// create the delta builder (this remembers the current content of the working copy)
-		// outside the perWorkingCopyInfos lock (see bug 50667)
-		JavaElementDeltaBuilder deltaBuilder = null;
-		if (workingCopy.isPrimary() && workingCopy.hasUnsavedChanges()) {
-			deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+		try (BufferLifecycle.Release release = this.bufferLifecycle.releaseWorkingCopy(workingCopy)) {
+			return release.useCount();
 		}
-		PerWorkingCopyInfo info = null;
+	}
+
+	/** Returns the captured result; a later retain must not change a discard's decision. */
+	int decrementWorkingCopyUseCount(CompilationUnit workingCopy) {
 		synchronized(this.perWorkingCopyInfos) {
 			WorkingCopyOwner owner = workingCopy.owner;
 			Map<CompilationUnit, PerWorkingCopyInfo> workingCopyToInfos = this.perWorkingCopyInfos.get(owner);
 			if (workingCopyToInfos == null) return -1;
 
-			info = workingCopyToInfos.get(workingCopy);
+			PerWorkingCopyInfo info = workingCopyToInfos.get(workingCopy);
 			if (info == null) return -1;
 
-			if (--info.useCount == 0) {
+			int useCount = --info.useCount;
+			if (useCount == 0) {
 				// remove per working copy info
 				workingCopyToInfos.remove(workingCopy);
 				if (workingCopyToInfos.isEmpty()) {
 					this.perWorkingCopyInfos.remove(owner);
 				}
 			}
+			return useCount;
 		}
-		if (info.useCount == 0) { // info cannot be null here (check was done above)
-			// remove infos + close buffer (since no longer working copy)
-			// outside the perWorkingCopyInfos lock (see bug 50667)
-			removeInfoAndChildren(workingCopy);
-			workingCopy.closeBuffer();
-
-			// compute the delta if needed and register it if there are changes
-			if (deltaBuilder != null) {
-				deltaBuilder.buildDeltas();
-				if (deltaBuilder.delta != null) {
-					getDeltaProcessor().registerJavaModelDelta(deltaBuilder.delta);
-				}
-			}
-		}
-		return info.useCount;
 	}
 
 	/**

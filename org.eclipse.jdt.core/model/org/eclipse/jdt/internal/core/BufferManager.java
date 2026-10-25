@@ -52,6 +52,12 @@ public class BufferManager {
  * Adds a buffer to the table of open buffers.
  */
 protected void addBuffer(IBuffer buffer) {
+	cacheBuffer(buffer);
+	closeBuffers();
+}
+
+/** Adds a buffer without invoking close callbacks for evicted entries. */
+void cacheBuffer(IBuffer buffer) {
 	if (VERBOSE) {
 		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
 		System.out.println("Adding buffer for " + owner); //$NON-NLS-1$
@@ -59,11 +65,14 @@ protected void addBuffer(IBuffer buffer) {
 	synchronized (this.openBuffers) {
 		this.openBuffers.put(buffer.getOwner(), buffer);
 	}
-	// close buffers that were removed from the cache if space was needed
-	this.openBuffers.closeBuffers();
 	if (VERBOSE) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
+}
+
+/** Completes eviction outside the lifecycle transaction that published a buffer. */
+void closeBuffers() {
+	this.openBuffers.closeBuffers();
 }
 public static IBuffer createBuffer(IOpenable owner) {
 	JavaElement element = (JavaElement) owner;
@@ -135,6 +144,34 @@ public Enumeration<IBuffer> getOpenBuffers() {
 IBuffer removeBuffer(IOpenable owner) {
 	synchronized (this.openBuffers) {
 		return this.openBuffers.remove(owner);
+	}
+}
+
+/** Detaches the current buffer and its consistency state before closing its provider. */
+IBuffer detachBuffer(Openable owner) {
+	synchronized (this.openBuffers) {
+		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(owner);
+		return this.openBuffers.remove(owner);
+	}
+}
+
+/** Applies a buffer event only if it does not belong to a replaced cache entry. */
+boolean bufferChanged(Openable listener, IBuffer buffer, boolean closed) {
+	synchronized (this.openBuffers) {
+		IBuffer current = this.openBuffers.peek(buffer.getOwner());
+		if (current != null && current != buffer) {
+			return false;
+		}
+		var outOfSync = JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers();
+		if (closed) {
+			outOfSync.remove(listener);
+			if (current == buffer) {
+				this.openBuffers.remove(buffer.getOwner());
+			}
+		} else {
+			outOfSync.add(listener);
+		}
+		return true;
 	}
 }
 

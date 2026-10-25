@@ -16,7 +16,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -44,22 +43,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		BufferManager bufferManager = workingCopy.getBufferManager();
-		IBuffer oldBuffer = null;
-		synchronized (bufferManager) {
-			JavaModelManager.PerWorkingCopyInfo previousInfo = workingCopy.getPerWorkingCopyInfo();
-			JavaModelManager.PerWorkingCopyInfo workingCopyInfo = manager.getPerWorkingCopyInfo(workingCopy, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
-			if (workingCopy.isPrimary() && previousInfo != workingCopyInfo) {
-				// A concurrent open can cache an ordinary buffer before publishing its element info,
-				// so close() may not have found it. The working copy must use its owner's buffer.
-				oldBuffer = bufferManager.removeBuffer(workingCopy);
-			}
-		}
-		if (oldBuffer != null) {
-			// Do not let closing the old buffer remove a replacement published in the meantime.
-			oldBuffer.removeBufferChangedListener((Openable) oldBuffer.getOwner());
-			oldBuffer.close();
-		}
+		manager.getBufferLifecycle().becomeWorkingCopy(workingCopy, this.problemRequestor);
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), true, this.progressMonitor);
 
 		if (!workingCopy.isPrimary()) {
