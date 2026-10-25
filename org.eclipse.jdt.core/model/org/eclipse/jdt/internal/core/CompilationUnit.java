@@ -474,9 +474,12 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workin
 }
 
 public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner workingCopyOwner, int focalPosition) throws JavaModelException {
-	if (this.ast != null) {
-		return this.ast;
+	BufferManager buffers = getBufferManager();
+	var cachedAST = this.ast;
+	if (cachedAST != null && buffers.isBufferListener(this)) {
+		return cachedAST;
 	}
+	this.ast = null;
 	Map<String, String> options = getOptions(true);
 	ASTParser parser = ASTParser.newParser(new AST(options).apiLevel()); // go through AST constructor to convert options to apiLevel
 	// but we should probably instead just use the latest Java version
@@ -490,13 +493,14 @@ public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner w
 	parser.setCompilerOptions(options);
 	parser.setFocalPosition(focalPosition);
 	if (parser.createAST(null) instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
-		if (focalPosition >= 0) {
-			// do not store
-			return newAST;
+		// Equal handles share a buffer, but only its actual listener can keep a
+		// per-handle AST cache valid. Other handles must use the freshly parsed AST.
+		if (focalPosition < 0 && buffers.isBufferListener(this)) {
+			this.ast = newAST;
 		}
-		this.ast = newAST;
+		return newAST;
 	}
-	return this.ast;
+	return null;
 }
 
 @Override

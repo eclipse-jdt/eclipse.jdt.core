@@ -87,12 +87,16 @@ final class BufferLifecycle {
 			}
 			BufferManager buffers = this.unit.getBufferManager();
 			synchronized (BufferLifecycle.this.manager) {
-				this.candidateState = BufferLifecycle.this.candidates.computeIfAbsent(this.buffer, key -> new CandidateState());
+				IBuffer existing = buffers.getBuffer(this.unit);
+				if (existing == this.buffer) {
+					// A cached buffer already has a registration owned by its cache entry.
+					return isCurrent() ? new OpenResult.Complete(existing) : OpenResult.Retry.INSTANCE;
+				}
+				this.candidateState = BufferLifecycle.this.candidates.computeIfAbsent(this.buffer, key -> new CandidateState(this.unit));
 				this.candidateState.claims++;
 				if (!isCurrent()) {
 					return OpenResult.Retry.INSTANCE;
 				}
-				IBuffer existing = buffers.getBuffer(this.unit);
 				if (existing != null) {
 					return new OpenResult.Complete(existing);
 				}
@@ -114,7 +118,10 @@ final class BufferLifecycle {
 				}
 				if (!this.candidateState.retiring) {
 					checkOpen();
-					this.buffer.addBufferChangedListener(this.unit);
+					// IBuffer makes repeated registration of the identical listener a no-op.
+					// Equal handles can have different AST caches, so all contenders must
+					// register the same object, regardless of the provider's equality policy.
+					this.buffer.addBufferChangedListener(this.candidateState.listener);
 				}
 			}
 			try {
@@ -130,7 +137,7 @@ final class BufferLifecycle {
 						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 					}
 					checkOpen();
-					buffers.cacheBuffer(this.unit, this.buffer);
+					buffers.cacheBuffer(this.candidateState.listener, this.buffer);
 					return new OpenResult.Complete(this.buffer);
 				}
 			} finally {
@@ -175,10 +182,15 @@ final class BufferLifecycle {
 
 	private static final class CandidateState {
 		final Object initializationLock = new Object();
+		final Openable listener;
 		int claims;
 		volatile boolean retiring;
 		boolean closeStarted;
 		boolean closeFinished;
+
+		CandidateState(Openable listener) {
+			this.listener = listener;
+		}
 	}
 
 	private void releaseCandidate(Opening attempt) {
@@ -193,7 +205,7 @@ final class BufferLifecycle {
 			}
 			state.retiring = true;
 		}
-		closeRetired(new RetiredBuffer(attempt.unit, attempt.buffer, attempt.candidateState));
+		closeRetired(new RetiredBuffer(attempt.candidateState.listener, attempt.buffer, attempt.candidateState));
 	}
 
 	private sealed interface OpenResult {
@@ -301,11 +313,14 @@ final class BufferLifecycle {
 		if (detached == null) {
 			return null;
 		}
+		// Retirement removes the listener before close, so no close event will
+		// invalidate cached indexer environments for clean provider contents.
+		JavaModelManager.sourceEnvironmentChanged();
 		if (detached.listener() instanceof CompilationUnit registeredUnit && registeredUnit != unit) {
 			registeredUnit.invalidateAST();
 		}
 		IBuffer buffer = detached.buffer();
-		CandidateState state = this.candidates.computeIfAbsent(buffer, key -> new CandidateState());
+		CandidateState state = this.candidates.computeIfAbsent(buffer, key -> new CandidateState(detached.listener()));
 		state.retiring = true;
 		return new RetiredBuffer(detached.listener(), buffer, state);
 	}

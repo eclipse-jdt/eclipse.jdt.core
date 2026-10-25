@@ -51,7 +51,7 @@ public class BufferManager {
  * Adds a buffer to the table of open buffers.
  */
 protected void addBuffer(IBuffer buffer) {
-	cacheBuffer(buffer.getOwner(), buffer);
+	cacheBuffer(buffer.getOwner(), buffer, null);
 	closeBuffers();
 }
 
@@ -60,19 +60,25 @@ protected void addBuffer(IBuffer buffer) {
  * entry exists. For an equal owner, retain the actual registered listener as the
  * key so retirement can remove that same instance. Preserve other owner keys.
  */
-void cacheBuffer(CompilationUnit listener, IBuffer buffer) {
+void cacheBuffer(Openable listener, IBuffer buffer) {
 	IOpenable owner = buffer.getOwner();
-	cacheBuffer(listener.equals(owner) ? listener : owner, buffer);
+	cacheBuffer(listener.equals(owner) ? listener : owner, buffer, listener);
 }
 
 /** Adds a buffer without invoking close callbacks for evicted entries. */
-private void cacheBuffer(IOpenable owner, IBuffer buffer) {
+private void cacheBuffer(IOpenable owner, IBuffer buffer, Openable sourceListener) {
 	if (VERBOSE) {
 		String ownerName = ((Openable)owner).toStringWithAncestors();
 		System.out.println("Adding buffer for " + ownerName); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
 		this.openBuffers.put(owner, buffer);
+		if (sourceListener != null) {
+			// Preparation may have changed the contents before publication, when
+			// edit events cannot yet belong to a current cache registration.
+			JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(sourceListener);
+			JavaModelManager.sourceEnvironmentChanged();
+		}
 	}
 	if (VERBOSE) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
@@ -111,6 +117,14 @@ public IBuffer getBuffer(IOpenable owner) {
 		return this.openBuffers.get(owner);
 	}
 }
+
+/** Only the actual listener receives the notifications needed to invalidate its AST cache. */
+boolean isBufferListener(CompilationUnit unit) {
+	synchronized (this.openBuffers) {
+		return this.openBuffers.peek(unit) != null && this.openBuffers.getKey(unit) == unit;
+	}
+}
+
 /**
  * Returns the default buffer manager.
  */
@@ -168,11 +182,11 @@ DetachedBuffer detachBuffer(Openable owner) {
 	}
 }
 
-/** Applies a buffer event only if it does not belong to a replaced cache entry. */
+/** Applies edits only to the current registration, and allows close cleanup after eviction. */
 boolean bufferChanged(Openable listener, IBuffer buffer, boolean closed) {
 	synchronized (this.openBuffers) {
 		IBuffer current = this.openBuffers.peek(buffer.getOwner());
-		if (current != null && current != buffer) {
+		if (current != buffer && (!closed || current != null)) {
 			return false;
 		}
 		var outOfSync = JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers();
