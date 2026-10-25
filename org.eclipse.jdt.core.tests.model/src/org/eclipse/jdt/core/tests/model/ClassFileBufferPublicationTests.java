@@ -26,9 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IBufferChangedListener;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -37,11 +40,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.core.AbstractClassFile;
+import org.eclipse.jdt.internal.core.Buffer;
 import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.ClassFileWorkingCopy;
 import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.ModularClassFile;
 import org.eclipse.jdt.internal.core.NullBuffer;
@@ -116,21 +119,73 @@ public class ClassFileBufferPublicationTests extends ModifyingResourceTests {
 
 	public void testCompilationUnitBufferListenerIsInstalledBeforePublication() throws Exception {
 		try (PublicationFixture fixture = new PublicationFixture(FileKind.ORDINARY, SourceAttachment.PRESENT)) {
-			PausingBufferManager manager = new PausingBufferManager(false);
+			BufferManager manager = new BufferManager();
+			AtomicBoolean pauseNextListener = new AtomicBoolean();
+			CountDownLatch registeringListener = new CountDownLatch(1);
+			CountDownLatch finishRegistration = new CountDownLatch(1);
 			createFolder("/BufferPublication/src/p");
 			createFile("/BufferPublication/src/p/X.java", CLASS_SOURCE);
 			PackageFragment parent = (PackageFragment) fixture.project.getPackageFragmentRoot(
 					fixture.project.getProject().getFolder("src")).getPackageFragment("p");
-			CompilationUnit unit = new CompilationUnit(parent, "X.java", DefaultWorkingCopyOwner.PRIMARY) {
+			WorkingCopyOwner owner = new WorkingCopyOwner() {
+				@Override
+				public IBuffer createBuffer(ICompilationUnit workingCopy) {
+					return new Buffer((IFile) workingCopy.getResource(), workingCopy, false) {
+						@Override
+						public void addBufferChangedListener(IBufferChangedListener listener) {
+							if (pauseNextListener.compareAndSet(true, false)) {
+								// Pause before installing the model listener, independent of the cache publication method.
+								registeringListener.countDown();
+								try {
+									assertTrue("Timed out waiting to register the buffer listener",
+											finishRegistration.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
+								} catch (InterruptedException e) {
+									Thread.currentThread().interrupt();
+									throw new AssertionError("Interrupted while registering the buffer listener", e);
+								}
+							}
+							super.addBufferChangedListener(listener);
+						}
+					};
+				}
+			};
+			CompilationUnit unit = new CompilationUnit(parent, "X.java", owner) {
 				@Override
 				protected BufferManager getBufferManager() {
 					return manager;
 				}
 			};
 			try {
-				assertUnitListenerInstalled(fixture, unit, manager, SourceAttachment.PRESENT);
+				unit.becomeWorkingCopy(null);
+				// Keep the model info so the next getBuffer() only reopens its buffer.
+				unit.getBuffer().close();
+				assertNull(manager.getBuffer(unit));
+				assertTrue(unit.isConsistent());
+				pauseNextListener.set(true);
+				Future<IBuffer> writer = fixture.workers.submit(unit::getBuffer);
+				IBuffer published;
+				try {
+					assertTrue("Writer did not reach listener registration",
+							registeringListener.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
+					assertNull("A buffer must not be published before its listener is installed", manager.getBuffer(unit));
+				} finally {
+					finishRegistration.countDown();
+					published = writer.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+				}
+				assertSame(published, manager.getBuffer(unit));
+				assertUnitContents(published, SourceAttachment.PRESENT);
+				unit.makeConsistent(null);
+				assertTrue("The unit must be consistent before checking change notifications", unit.isConsistent());
+				published.append("\n");
+				assertFalse("Changes to a published buffer must mark the unit inconsistent", unit.isConsistent());
+				published.close();
+				assertNull("Closing a published buffer must remove it from the cache", manager.getBuffer(unit));
+				IBuffer reopened = unit.getBuffer();
+				assertNotSame(published, reopened);
+				assertUnitContents(reopened, SourceAttachment.PRESENT);
 			} finally {
-				unit.close();
+				finishRegistration.countDown();
+				unit.discardWorkingCopy();
 			}
 		}
 	}
