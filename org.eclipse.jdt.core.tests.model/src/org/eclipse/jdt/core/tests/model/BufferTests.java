@@ -14,17 +14,32 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.BufferChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferChangedListener;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
+import org.eclipse.jdt.internal.core.OpenableElementInfo;
+import org.eclipse.jdt.internal.core.PackageFragment;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BufferTests extends ModifyingResourceTests implements IBufferChangedListener {
@@ -150,6 +165,170 @@ public void testClose() throws CoreException {
 		assertBufferEvent(0, 0, null);
 	} finally {
 		deleteBuffer(buffer);
+	}
+}
+
+/**
+ * A primary working copy must use its provider's buffer even when another
+ * thread has opened an ordinary buffer but has not yet published the CU info.
+ */
+public void testBecomeWorkingCopyWhileOpeningBuffer() throws Exception {
+	String path = "P/x/y/Concurrent.java";
+	String source = "package x.y; public class Concurrent {}";
+	createFile(path, source);
+	waitUntilIndexesReady();
+	ICompilationUnit original = getCompilationUnit(path);
+	original.close();
+	CountDownLatch bufferOpened = new CountDownLatch(1);
+	CountDownLatch finishOpening = new CountDownLatch(1);
+	CompilationUnit unit = new CompilationUnit((PackageFragment) original.getParent(), original.getElementName(), DefaultWorkingCopyOwner.PRIMARY) {
+		@Override
+		protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor monitor,
+				Map<IJavaElement, IElementInfo> newElements, IResource resource) throws JavaModelException {
+			boolean result = super.buildStructure(info, monitor, newElements, resource);
+			if (!isWorkingCopy()) {
+				bufferOpened.countDown();
+				try {
+					assertTrue("Timed out waiting to finish opening the ordinary CU", finishOpening.await(10, TimeUnit.SECONDS));
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new AssertionError(e);
+				}
+			}
+			return result;
+		}
+	};
+	WorkingCopyOwner previousProvider = DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider;
+	AtomicReference<IBuffer> providerBuffer = new AtomicReference<>();
+	WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			IBuffer buffer = new TestBuffer(workingCopy);
+			providerBuffer.set(buffer);
+			return buffer;
+		}
+	});
+	FutureTask<IBuffer> opening = new FutureTask<>(unit::getBuffer);
+	Thread reader = new Thread(opening, "Opening ordinary compilation unit");
+	reader.setDaemon(true);
+	try {
+		reader.start();
+		assertTrue("The ordinary CU did not open its buffer", bufferOpened.await(10, TimeUnit.SECONDS));
+		unit.becomeWorkingCopy(null);
+		finishOpening.countDown();
+		IBuffer buffer = opening.get(10, TimeUnit.SECONDS);
+		assertNotNull("The primary working-copy buffer provider was not used", providerBuffer.get());
+		assertSame("The ordinary CU buffer must be replaced", providerBuffer.get(), unit.getBuffer());
+		assertSame("Concurrent readers must see the working-copy buffer", unit.getBuffer(), buffer);
+		assertEquals("Unexpected initial source", source, buffer.getContents());
+		String editedSource = "package x.y; public class Concurrent { int changed; }";
+		unit.getBuffer().setContents(editedSource);
+		assertEquals("Edits must reach the provider's buffer", editedSource, providerBuffer.get().getContents());
+	} finally {
+		finishOpening.countDown();
+		try {
+			reader.join(10_000);
+			assertFalse("The ordinary CU reader did not finish", reader.isAlive());
+		} finally {
+			try {
+				unit.discardWorkingCopy();
+			} finally {
+				WorkingCopyOwner.setPrimaryBufferProvider(previousProvider);
+				deleteFile(path);
+			}
+		}
+	}
+}
+
+/**
+ * An ordinary buffer created before the working-copy transition must not be
+ * published while the primary buffer provider is still creating its buffer.
+ */
+public void testBecomeWorkingCopyBeforeBufferPublication() throws Exception {
+	String path = "P/x/y/LateBuffer.java";
+	String source = "package x.y; public class LateBuffer {}";
+	createFile(path, source);
+	waitUntilIndexesReady();
+	ICompilationUnit original = getCompilationUnit(path);
+	original.close();
+	Thread testThread = Thread.currentThread();
+	CountDownLatch creatingOrdinaryBuffer = new CountDownLatch(1);
+	CountDownLatch finishCreating = new CountDownLatch(1);
+	CompilationUnit unit = new CompilationUnit((PackageFragment) original.getParent(), original.getElementName(), DefaultWorkingCopyOwner.PRIMARY) {
+		private final ThreadLocal<Boolean> openingBuffer = new ThreadLocal<>();
+		@Override
+		protected IBuffer openBuffer(IProgressMonitor monitor, IElementInfo info) throws JavaModelException {
+			this.openingBuffer.set(Boolean.TRUE);
+			try {
+				return super.openBuffer(monitor, info);
+			} finally {
+				this.openingBuffer.remove();
+			}
+		}
+		@Override
+		public IResource resource() {
+			if (Thread.currentThread() != testThread && Boolean.TRUE.equals(this.openingBuffer.get()) && !isWorkingCopy()) {
+				// BufferManager.createBuffer has already selected an ordinary buffer.
+				creatingOrdinaryBuffer.countDown();
+				try {
+					assertTrue("Timed out waiting to create the ordinary buffer", finishCreating.await(10, TimeUnit.SECONDS));
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new AssertionError(e);
+				}
+			}
+			return super.resource();
+		}
+	};
+	FutureTask<IBuffer> opening = new FutureTask<>(unit::getBuffer);
+	Thread reader = new Thread(opening, "Creating ordinary compilation-unit buffer");
+	reader.setDaemon(true);
+	WorkingCopyOwner previousProvider = DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider;
+	AtomicReference<IBuffer> providerBuffer = new AtomicReference<>();
+	WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			IBuffer buffer = new TestBuffer(workingCopy);
+			providerBuffer.set(buffer);
+			if (Thread.currentThread() == testThread) {
+				// Let the old reader finish before this candidate can be published.
+				finishCreating.countDown();
+				try {
+					opening.get(10, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new AssertionError(e);
+				} catch (ExecutionException | TimeoutException e) {
+					throw new AssertionError(e);
+				}
+			}
+			return buffer;
+		}
+	});
+	try {
+		reader.start();
+		assertTrue("The ordinary CU did not start creating its buffer", creatingOrdinaryBuffer.await(10, TimeUnit.SECONDS));
+		unit.becomeWorkingCopy(null);
+		IBuffer buffer = opening.get(10, TimeUnit.SECONDS);
+		assertSame("A late ordinary buffer must not replace the provider's buffer", providerBuffer.get(), unit.getBuffer());
+		assertSame("Concurrent readers must see the working-copy buffer", unit.getBuffer(), buffer);
+		assertEquals("Unexpected initial source", source, buffer.getContents());
+		String editedSource = "package x.y; public class LateBuffer { int changed; }";
+		unit.getBuffer().setContents(editedSource);
+		assertEquals("Edits must reach the provider's buffer", editedSource, providerBuffer.get().getContents());
+	} finally {
+		finishCreating.countDown();
+		try {
+			reader.join(10_000);
+			assertFalse("The ordinary CU reader did not finish", reader.isAlive());
+		} finally {
+			try {
+				unit.discardWorkingCopy();
+			} finally {
+				WorkingCopyOwner.setPrimaryBufferProvider(previousProvider);
+				deleteFile(path);
+			}
+		}
 	}
 }
 

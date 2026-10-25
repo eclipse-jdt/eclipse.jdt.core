@@ -107,7 +107,11 @@ public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws Ja
 @Override
 public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo;
+	synchronized (getBufferManager()) {
+		// Wait until the first transition has detached any ordinary buffer.
+		perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
+	}
 	if (perWorkingCopyInfo == null) {
 		// close cu and its children
 		close();
@@ -1289,64 +1293,76 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 @Override
 protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws JavaModelException {
 
-	// create buffer
 	BufferManager bufManager = getBufferManager();
-	boolean isWorkingCopy = isWorkingCopy();
-	IBuffer buffer =
-		isWorkingCopy
-			? this.owner.createBuffer(this)
-			: BufferManager.createBuffer(this);
-	if (buffer == null) return null;
+	while (true) {
+		// Create the buffer outside the manager lock, remembering the working-copy state
+		// so an ordinary buffer cannot be published after becomeWorkingCopy().
+		JavaModelManager.PerWorkingCopyInfo workingCopyInfo = getPerWorkingCopyInfo();
+		boolean isWorkingCopy = !isPrimary() || workingCopyInfo != null;
+		IBuffer buffer =
+			isWorkingCopy
+				? this.owner.createBuffer(this)
+				: BufferManager.createBuffer(this);
+		if (buffer == null) return null;
 
-	ICompilationUnit original = null;
-	boolean mustSetToOriginalContent = false;
-	if (isWorkingCopy) {
-		// ensure that isOpen() is called outside the bufManager synchronized block
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=237772
-		mustSetToOriginalContent = !isPrimary() && (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen() ;
-	}
+		ICompilationUnit original = null;
+		boolean mustSetToOriginalContent = false;
+		if (isWorkingCopy) {
+			// ensure that isOpen() is called outside the bufManager synchronized block
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=237772
+			mustSetToOriginalContent = !isPrimary() && (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen() ;
+		}
 
-	// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time
-	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146331
-	IBuffer existingBuffer;
-	synchronized(bufManager) {
-		existingBuffer = bufManager.getBuffer(this);
-		if (existingBuffer == null) {
-			// set the buffer source
-			if (buffer.getCharacters() == null) {
-				if (isWorkingCopy) {
-					if (mustSetToOriginalContent) {
-						buffer.setContents(original.getSource());
-					} else {
-						IFile file = (IFile)getResource();
-						if (file == null || !file.exists()) {
-							// initialize buffer with empty contents
-							buffer.setContents(CharOperation.NO_CHAR);
+		// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146331
+		IBuffer existingBuffer = null;
+		boolean stateChanged;
+		synchronized(bufManager) {
+			stateChanged = workingCopyInfo != getPerWorkingCopyInfo();
+			if (!stateChanged) {
+				existingBuffer = bufManager.getBuffer(this);
+				if (existingBuffer == null) {
+					// set the buffer source
+					if (buffer.getCharacters() == null) {
+						if (isWorkingCopy) {
+							if (mustSetToOriginalContent) {
+								buffer.setContents(original.getSource());
+							} else {
+								IFile file = (IFile)getResource();
+								if (file == null || !file.exists()) {
+									// initialize buffer with empty contents
+									buffer.setContents(CharOperation.NO_CHAR);
+								} else {
+									buffer.setContents(Util.getResourceContentsAsCharArray(file));
+								}
+							}
 						} else {
+							IFile file = (IFile)getResource();
+							if (file == null || !file.exists()) throw newNotPresentException();
 							buffer.setContents(Util.getResourceContentsAsCharArray(file));
 						}
 					}
-				} else {
-					IFile file = (IFile)getResource();
-					if (file == null || !file.exists()) throw newNotPresentException();
-					buffer.setContents(Util.getResourceContentsAsCharArray(file));
+
+					// add buffer to buffer cache
+					// note this may cause existing buffers to be removed from the buffer cache, but only primary compilation unit's buffer
+					// can be closed, thus no call to a client's IBuffer#close() can be done in this synchronized block.
+					bufManager.addBuffer(buffer);
+
+					// listen to buffer changes
+					buffer.addBufferChangedListener(this);
 				}
 			}
-
-			// add buffer to buffer cache
-			// note this may cause existing buffers to be removed from the buffer cache, but only primary compilation unit's buffer
-			// can be closed, thus no call to a client's IBuffer#close() can be done in this synchronized block.
-			bufManager.addBuffer(buffer);
-
-			// listen to buffer changes
-			buffer.addBufferChangedListener(this);
 		}
+		if (stateChanged) {
+			buffer.close();
+			continue;
+		}
+		if (existingBuffer != null) {
+			buffer.close();
+			return existingBuffer;
+		}
+		return buffer;
 	}
-	if(existingBuffer != null) {
-		buffer.close();
-		return existingBuffer;
-	}
-	return buffer;
 }
 @Override
 protected void openAncestors(Map<IJavaElement, IElementInfo> newElements, IProgressMonitor monitor) throws JavaModelException {
