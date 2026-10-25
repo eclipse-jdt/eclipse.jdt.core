@@ -65,8 +65,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			final TypeVariableBinding[] substitutedVariables = new TypeVariableBinding[length];
 			for (int i = 0; i < length; i++) { // copy original type variable to relocate
 				TypeVariableBinding originalVariable = originalVariables[i];
-				TypeBinding[] arguments = parameterizedDeclaringClass.type.typeVariables();
-				if (originalVariable.mentionsAny(arguments, -1)) {
+				if (capturesEnclosingTypeVariables(originalVariable, parameterizedDeclaringClass)) {
 					substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank, parameterizedDeclaringClass.environment);
 				} else {
 					substitutedVariables[i] = new TypeVariableBinding(originalVariable);
@@ -177,6 +176,17 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				}
 			}
 		}
+	}
+
+	private boolean capturesEnclosingTypeVariables(TypeVariableBinding originalVariable, ReferenceBinding currentDeclaringClass) {
+		while (currentDeclaringClass instanceof ParameterizedTypeBinding parameterizedDeclaringClass) {
+			if (originalVariable.mentionsAny(parameterizedDeclaringClass.type.typeVariables(), -1))
+				return true;
+			if (currentDeclaringClass.isStatic())
+				break;
+			currentDeclaringClass = currentDeclaringClass.enclosingType();
+		}
+		return false;
 	}
 
 	/**
