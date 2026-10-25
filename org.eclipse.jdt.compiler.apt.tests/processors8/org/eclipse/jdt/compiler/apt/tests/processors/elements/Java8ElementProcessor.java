@@ -1186,6 +1186,14 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertTrue("Should be a subtype", _typeUtils.isSubtype(upperBound1, upperBound2));
 		assertTrue("Should be assignable", _typeUtils.isAssignable(upperBound1, upperBound2));
 
+		// a member of a parameterized type must not change the bounds of its declaration
+		ExecutableElement pick = getMethod(box, "pick");
+		_typeUtils.asMemberOf(_typeUtils.getDeclaredType(box, number), pick);
+		TypeParameterElement pickA = pick.getTypeParameters().get(0);
+		TypeParameterElement pickB = pick.getTypeParameters().get(1);
+		assertEquals("Incorrect bound", pickA, _typeUtils.asElement(pickB.getBounds().get(0)));
+		assertEquals("Incorrect upper bound", pickA, _typeUtils.asElement(((TypeVariable) pickB.asType()).getUpperBound()));
+
 		// shared type arguments must not make the checks exponential
 		TypeElement map = _elementUtils.getTypeElement("java.util.Map");
 		TypeMirror nested = _elementUtils.getTypeElement("java.lang.String").asType();

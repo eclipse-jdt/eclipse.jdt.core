@@ -10,6 +10,8 @@ public class GH5566Box<X> {
 	}
 	<V extends Map<X, X> & Runnable> void map() {
 	}
+	<A, B extends A> void pick() {
+	}
 	class Inner<Y> {
 	}
 }
