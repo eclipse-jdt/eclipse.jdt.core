@@ -34,9 +34,10 @@ import org.eclipse.jdt.internal.core.util.Util;
 final class BufferLifecycle {
 
 	private final JavaModelManager manager;
+	// Remember intervening working-copy transitions, including ordinary -> working copy -> ordinary.
 	// Only in-flight attempts retain handles. Equality is the Java model's handle equality.
 	private final Map<CompilationUnit, OpenState> opening = new HashMap<>();
-	// Providers may return the same physical buffer to several concurrent openers.
+	// A failed opener must not close a shared candidate that another opener has not published yet.
 	private final Map<IBuffer, CandidateState> candidates = new IdentityHashMap<>();
 
 	BufferLifecycle(JavaModelManager manager) {
@@ -48,22 +49,112 @@ final class BufferLifecycle {
 		int attempts;
 	}
 
-	private record OpenAttempt(BufferLifecycle lifecycle, CompilationUnit unit, OpenState state,
-			Object generation, PerWorkingCopyInfo workingCopyInfo) implements AutoCloseable {
+	/** Owns one attempt from provider creation through preparation, publication and cleanup. */
+	private final class Opening implements AutoCloseable {
+		private final CompilationUnit unit;
+		private final OpenState state;
+		private final Object generation;
+		private final PerWorkingCopyInfo workingCopyInfo;
+		private IBuffer buffer;
+		private CandidateState candidateState;
+
+		Opening(CompilationUnit unit, OpenState state, PerWorkingCopyInfo workingCopyInfo) {
+			this.unit = unit;
+			this.state = state;
+			this.generation = state.generation;
+			this.workingCopyInfo = workingCopyInfo;
+		}
+
 		boolean isWorkingCopy() {
 			return !this.unit.isPrimary() || this.workingCopyInfo != null;
 		}
+
+		private boolean isCurrent() {
+			return this.generation == this.state.generation
+					&& this.workingCopyInfo == this.unit.getPerWorkingCopyInfo();
+		}
+
+		private void checkOpen() throws JavaModelException {
+			if (this.buffer.isClosed()) {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+			}
+		}
+
+		OpenResult prepareAndPublish() throws JavaModelException {
+			this.buffer = isWorkingCopy() ? this.unit.owner.createBuffer(this.unit) : BufferManager.createBuffer(this.unit);
+			if (this.buffer == null) {
+				return new OpenResult.Complete(null);
+			}
+			BufferManager buffers = this.unit.getBufferManager();
+			synchronized (BufferLifecycle.this.manager) {
+				this.candidateState = BufferLifecycle.this.candidates.computeIfAbsent(this.buffer, key -> new CandidateState());
+				this.candidateState.claims++;
+				if (!isCurrent()) {
+					return OpenResult.Retry.INSTANCE;
+				}
+				IBuffer existing = buffers.getBuffer(this.unit);
+				if (existing != null) {
+					return new OpenResult.Complete(existing);
+				}
+			}
+			if (!this.candidateState.retiring) {
+				// Null contents mean uninitialized, not closed. Never initialize a closed provider buffer.
+				checkOpen();
+				if (this.buffer.getCharacters() == null) {
+					char[] contents = readContents(this.unit, isWorkingCopy());
+					// Another opener may have initialized or edited this physical candidate meanwhile.
+					synchronized (this.candidateState.initializationLock) {
+						if (!this.candidateState.retiring) {
+							checkOpen();
+							if (this.buffer.getCharacters() == null) {
+								this.buffer.setContents(contents);
+							}
+						}
+					}
+				}
+				if (!this.candidateState.retiring) {
+					checkOpen();
+					this.buffer.addBufferChangedListener(this.unit);
+				}
+			}
+			try {
+				synchronized (BufferLifecycle.this.manager) {
+					if (!isCurrent()) {
+						return OpenResult.Retry.INSTANCE;
+					}
+					IBuffer existing = buffers.getBuffer(this.unit);
+					if (existing != null) {
+						return new OpenResult.Complete(existing);
+					}
+					if (this.candidateState.retiring) {
+						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+					}
+					checkOpen();
+					buffers.cacheBuffer(this.unit, this.buffer);
+					return new OpenResult.Complete(this.buffer);
+				}
+			} finally {
+				buffers.closeBuffers();
+			}
+		}
+
 		@Override
 		public void close() {
-			synchronized (this.lifecycle.manager) {
-				if (--this.state.attempts == 0) {
-					this.lifecycle.opening.remove(this.unit);
+			try {
+				if (this.candidateState != null) {
+					releaseCandidate(this);
+				}
+			} finally {
+				synchronized (BufferLifecycle.this.manager) {
+					if (--this.state.attempts == 0) {
+						BufferLifecycle.this.opening.remove(this.unit);
+					}
 				}
 			}
 		}
 	}
 
-	private OpenAttempt beginOpen(CompilationUnit unit) throws JavaModelException {
+	private Opening beginOpen(CompilationUnit unit) throws JavaModelException {
 		synchronized (this.manager) {
 			PerWorkingCopyInfo workingCopyInfo = unit.getPerWorkingCopyInfo();
 			if (!unit.isPrimary() && workingCopyInfo == null) {
@@ -71,13 +162,8 @@ final class BufferLifecycle {
 			}
 			OpenState state = this.opening.computeIfAbsent(unit, key -> new OpenState());
 			state.attempts++;
-			return new OpenAttempt(this, unit, state, state.generation, workingCopyInfo);
+			return new Opening(unit, state, workingCopyInfo);
 		}
-	}
-
-	private boolean isCurrent(OpenAttempt attempt) {
-		return attempt.generation == attempt.state.generation
-				&& attempt.workingCopyInfo == attempt.unit.getPerWorkingCopyInfo();
 	}
 
 	private void invalidate(CompilationUnit unit) {
@@ -95,103 +181,32 @@ final class BufferLifecycle {
 		boolean closeFinished;
 	}
 
-	private record Candidate(BufferLifecycle lifecycle, CompilationUnit unit, IBuffer buffer,
-			CandidateState state) implements AutoCloseable {
-		void initialize(boolean workingCopy) throws JavaModelException {
-			if (!this.state.retiring && this.buffer.getCharacters() == null) {
-				char[] contents = readContents(this.unit, workingCopy);
-				// Serialize only initialization of this physical candidate, not unrelated providers.
-				// Some providers report null, uninitialized contents as closed; validate after initialization.
-				synchronized (this.state.initializationLock) {
-					if (!this.state.retiring && this.buffer.getCharacters() == null) {
-						this.buffer.setContents(contents);
-					}
-				}
-			}
-		}
-		@Override
-		public void close() {
-			this.lifecycle.releaseCandidate(this);
-		}
-	}
-
-	private Candidate claim(CompilationUnit unit, IBuffer buffer) {
+	private void releaseCandidate(Opening attempt) {
 		synchronized (this.manager) {
-			CandidateState state = this.candidates.computeIfAbsent(buffer, key -> new CandidateState());
-			state.claims++;
-			return new Candidate(this, unit, buffer, state);
-		}
-	}
-
-	private void releaseCandidate(Candidate candidate) {
-		synchronized (this.manager) {
-			CandidateState state = candidate.state;
+			CandidateState state = attempt.candidateState;
 			if (--state.claims != 0) {
 				return;
 			}
-			if (!state.retiring && candidate.unit.getBufferManager().getBuffer(candidate.buffer.getOwner()) == candidate.buffer) {
-				this.candidates.remove(candidate.buffer, state);
+			if (!state.retiring && attempt.unit.getBufferManager().getBuffer(attempt.buffer.getOwner()) == attempt.buffer) {
+				this.candidates.remove(attempt.buffer, state);
 				return;
 			}
 			state.retiring = true;
 		}
-		closeRetired(new RetiredBuffer(candidate.unit, candidate.buffer, candidate.state));
+		closeRetired(new RetiredBuffer(attempt.unit, attempt.buffer, attempt.candidateState));
 	}
 
-	private sealed interface Publication {
-		record Published(IBuffer buffer) implements Publication {}
-		record Existing(IBuffer buffer) implements Publication {}
-		record Retry() implements Publication {}
-	}
-
-	private Publication publish(OpenAttempt attempt, Candidate candidate) throws JavaModelException {
-		synchronized (this.manager) {
-			if (!isCurrent(attempt)) {
-				return new Publication.Retry();
-			}
-			BufferManager buffers = attempt.unit.getBufferManager();
-			IBuffer existing = buffers.getBuffer(attempt.unit);
-			if (existing != null) {
-				return new Publication.Existing(existing);
-			}
-			if (candidate.state.retiring || candidate.buffer.isClosed()) {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
-			}
-			buffers.cacheBuffer(candidate.buffer);
-			return new Publication.Published(candidate.buffer);
-		}
+	private sealed interface OpenResult {
+		record Complete(IBuffer buffer) implements OpenResult {}
+		enum Retry implements OpenResult { INSTANCE }
 	}
 
 	IBuffer openBuffer(CompilationUnit unit) throws JavaModelException {
 		while (true) {
-			try (OpenAttempt attempt = beginOpen(unit)) {
-				IBuffer buffer = attempt.isWorkingCopy() ? unit.owner.createBuffer(unit) : BufferManager.createBuffer(unit);
-				if (buffer == null) {
-					return null;
-				}
-				try (Candidate candidate = claim(unit, buffer)) {
-					synchronized (this.manager) {
-						if (!isCurrent(attempt)) {
-							continue;
-						}
-						IBuffer existing = unit.getBufferManager().getBuffer(unit);
-						if (existing != null) {
-							return existing;
-						}
-					}
-					candidate.initialize(attempt.isWorkingCopy());
-					buffer.addBufferChangedListener(unit);
-					Publication publication;
-					try {
-						publication = publish(attempt, candidate);
-					} finally {
-						unit.getBufferManager().closeBuffers();
-					}
-					switch (publication) {
-						case Publication.Published(var published) -> { return published; }
-						case Publication.Existing(var existing) -> { return existing; }
-						case Publication.Retry() -> { /* retry with the new generation's provider */ }
-					}
+			try (Opening attempt = beginOpen(unit)) {
+				switch (attempt.prepareAndPublish()) {
+					case OpenResult.Complete(var buffer) -> { return buffer; }
+					case OpenResult.Retry retry -> { /* retry with the new generation's provider */ }
 				}
 			}
 		}
@@ -222,57 +237,49 @@ final class BufferLifecycle {
 	}
 
 	void becomeWorkingCopy(CompilationUnit unit, IProblemRequestor requestor) throws JavaModelException {
-		RetiredBuffer retired = null;
-		try {
+		try (Retirement retirement = new Retirement()) {
 			synchronized (this.manager) {
 				if (unit.getPerWorkingCopyInfo() == null) {
 					invalidate(unit);
-					retired = detach(unit);
+					retirement.buffer = detach(unit);
 					// The buffer is already detached, so model cleanup cannot call its provider.
 					this.manager.removeInfoAndChildren(unit);
 				}
 				this.manager.getPerWorkingCopyInfo(unit, true, true, requestor);
 			}
-		} finally {
-			closeRetired(retired);
 		}
 	}
 
-	sealed interface Release extends AutoCloseable {
-		int useCount();
+	/** The scope never escapes: old-generation cleanup always precedes the captured buffer's close. */
+	private final class Retirement implements AutoCloseable {
+		private RetiredBuffer buffer;
+
 		@Override
-		default void close() {}
+		public void close() {
+			closeRetired(this.buffer);
+		}
 	}
 
-	private record Absent() implements Release {
-		@Override
-		public int useCount() { return -1; }
+	void discardWorkingCopy(CompilationUnit unit, Runnable afterFinalDiscard) throws JavaModelException {
+		discard(unit, afterFinalDiscard);
 	}
 
-	private record Retained(int useCount) implements Release {}
-
-	private record Retired(BufferLifecycle lifecycle, RetiredBuffer buffer) implements Release {
-		@Override
-		public int useCount() { return 0; }
-		@Override
-		public void close() { this.lifecycle.closeRetired(this.buffer); }
+	/** Preserves the existing manager method's count-based contract at its compatibility boundary. */
+	int discardPerWorkingCopyInfo(CompilationUnit unit) throws JavaModelException {
+		return discard(unit, () -> {});
 	}
 
-	Release releaseWorkingCopy(CompilationUnit unit) throws JavaModelException {
+	private int discard(CompilationUnit unit, Runnable afterFinalDiscard) throws JavaModelException {
 		// Do not acquire model information while holding the per-working-copy map lock.
 		JavaElementDeltaBuilder deltaBuilder = unit.isPrimary() && unit.hasUnsavedChanges() ? new JavaElementDeltaBuilder(unit) : null;
-		Retired retired = null;
-		try {
+		try (Retirement retirement = new Retirement()) {
 			synchronized (this.manager) {
 				int useCount = this.manager.decrementWorkingCopyUseCount(unit);
-				if (useCount < 0) {
-					return new Absent();
-				}
-				if (useCount > 0) {
-					return new Retained(useCount);
+				if (useCount != 0) {
+					return useCount;
 				}
 				invalidate(unit);
-				retired = new Retired(this, detach(unit));
+				retirement.buffer = detach(unit);
 				this.manager.removeInfoAndChildren(unit);
 			}
 			if (deltaBuilder != null) {
@@ -281,31 +288,26 @@ final class BufferLifecycle {
 					this.manager.getDeltaProcessor().registerJavaModelDelta(deltaBuilder.delta);
 				}
 			}
-			return retired;
-		} catch (JavaModelException | RuntimeException | Error e) {
-			if (retired != null) {
-				try {
-					retired.close();
-				} catch (RuntimeException | Error closeFailure) {
-					if (closeFailure != e) {
-						e.addSuppressed(closeFailure);
-					}
-				}
-			}
-			throw e;
+			afterFinalDiscard.run();
+			return 0;
 		}
 	}
 
-	private record RetiredBuffer(CompilationUnit unit, IBuffer buffer, CandidateState state) {}
+	private record RetiredBuffer(Openable listener, IBuffer buffer, CandidateState state) {}
 
 	private RetiredBuffer detach(CompilationUnit unit) {
-		IBuffer buffer = unit.getBufferManager().detachBuffer(unit);
-		if (buffer == null) {
+		unit.invalidateAST();
+		BufferManager.DetachedBuffer detached = unit.getBufferManager().detachBuffer(unit);
+		if (detached == null) {
 			return null;
 		}
+		if (detached.listener() instanceof CompilationUnit registeredUnit && registeredUnit != unit) {
+			registeredUnit.invalidateAST();
+		}
+		IBuffer buffer = detached.buffer();
 		CandidateState state = this.candidates.computeIfAbsent(buffer, key -> new CandidateState());
 		state.retiring = true;
-		return new RetiredBuffer(unit, buffer, state);
+		return new RetiredBuffer(detached.listener(), buffer, state);
 	}
 
 	private void closeRetired(RetiredBuffer retired) {
@@ -319,7 +321,7 @@ final class BufferLifecycle {
 		}
 		try {
 			try {
-				retired.buffer.removeBufferChangedListener(retired.unit);
+				retired.buffer.removeBufferChangedListener(retired.listener);
 			} catch (RuntimeException | Error failure) {
 				if (close) {
 					try {

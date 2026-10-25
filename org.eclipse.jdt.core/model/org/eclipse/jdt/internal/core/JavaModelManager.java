@@ -2050,9 +2050,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Returns the new use count (or -1 if it didn't exist).
 	 */
 	public int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
-		try (BufferLifecycle.Release release = this.bufferLifecycle.releaseWorkingCopy(workingCopy)) {
-			return release.useCount();
-		}
+		return this.bufferLifecycle.discardPerWorkingCopyInfo(workingCopy);
 	}
 
 	/** Returns the captured result; a later retain must not change a discard's decision. */

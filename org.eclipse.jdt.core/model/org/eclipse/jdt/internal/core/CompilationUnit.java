@@ -501,8 +501,13 @@ public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner w
 
 @Override
 public void bufferChanged(BufferChangedEvent event) {
-	this.ast = null;
+	invalidateAST();
 	super.bufferChanged(event);
+}
+
+/** Also used when retirement detaches the model listener before the close event. */
+void invalidateAST() {
+	this.ast = null;
 }
 
 /**

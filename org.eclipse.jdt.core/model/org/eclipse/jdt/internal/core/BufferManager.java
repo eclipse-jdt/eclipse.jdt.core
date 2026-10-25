@@ -30,8 +30,7 @@ public class BufferManager {
 	protected static boolean VERBOSE;
 
 	/**
-	 * LRU cache of buffers. The key and value for an entry
-	 * in the table is the identical buffer.
+	 * LRU cache of buffers, keyed by their owning model handles.
 	 */
 	private final BufferCache<IOpenable> openBuffers = new BufferCache<>(60);
 
@@ -52,18 +51,28 @@ public class BufferManager {
  * Adds a buffer to the table of open buffers.
  */
 protected void addBuffer(IBuffer buffer) {
-	cacheBuffer(buffer);
+	cacheBuffer(buffer.getOwner(), buffer);
 	closeBuffers();
 }
 
+/**
+ * Publishes a source buffer after the lifecycle coordinator has checked that no
+ * entry exists. For an equal owner, retain the actual registered listener as the
+ * key so retirement can remove that same instance. Preserve other owner keys.
+ */
+void cacheBuffer(CompilationUnit listener, IBuffer buffer) {
+	IOpenable owner = buffer.getOwner();
+	cacheBuffer(listener.equals(owner) ? listener : owner, buffer);
+}
+
 /** Adds a buffer without invoking close callbacks for evicted entries. */
-void cacheBuffer(IBuffer buffer) {
+private void cacheBuffer(IOpenable owner, IBuffer buffer) {
 	if (VERBOSE) {
-		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
-		System.out.println("Adding buffer for " + owner); //$NON-NLS-1$
+		String ownerName = ((Openable)owner).toStringWithAncestors();
+		System.out.println("Adding buffer for " + ownerName); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
-		this.openBuffers.put(buffer.getOwner(), buffer);
+		this.openBuffers.put(owner, buffer);
 	}
 	if (VERBOSE) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
@@ -147,11 +156,15 @@ IBuffer removeBuffer(IOpenable owner) {
 	}
 }
 
-/** Detaches the current buffer and its consistency state before closing its provider. */
-IBuffer detachBuffer(Openable owner) {
+record DetachedBuffer(IBuffer buffer, Openable listener) {}
+
+/** Captures the cache registration and detaches its consistency state before provider close. */
+DetachedBuffer detachBuffer(Openable owner) {
 	synchronized (this.openBuffers) {
 		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(owner);
-		return this.openBuffers.remove(owner);
+		IOpenable key = this.openBuffers.getKey(owner);
+		IBuffer buffer = this.openBuffers.remove(owner);
+		return buffer == null ? null : new DetachedBuffer(buffer, key instanceof Openable listener ? listener : owner);
 	}
 }
 
