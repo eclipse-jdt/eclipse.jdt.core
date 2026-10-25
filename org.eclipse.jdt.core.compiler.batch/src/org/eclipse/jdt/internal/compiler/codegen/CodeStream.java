@@ -2645,12 +2645,11 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 			SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) synthetics.get(j);
 			if (hasDistinctNames) {
 				// Compare ImplMethodName: the id alone cannot distinguish names in this bucket.
-				aload_0();
-				invoke(Opcodes.OPC_invokevirtual, 1, 1, ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName,
-						ConstantPool.GetImplMethodName, ConstantPool.GetImplMethodNameSignature,
-						getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
+				// The implementation method name was already loaded into the local variable 1
+				// by the first switch.
+				aload_1();
 				ldc(new String(syntheticMethodBinding.selector));
-				invokeObjectEquals();
+				invokeStringEquals();
 				ifeq(nextOne);
 			}
 			// Compare ImplMethodKind
