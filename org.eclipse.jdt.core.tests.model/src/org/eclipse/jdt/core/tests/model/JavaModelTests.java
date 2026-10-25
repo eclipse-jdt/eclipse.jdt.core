@@ -328,6 +328,7 @@ public void testContains6() throws CoreException {
  */
 public void testCreatePkgHandleInDifferentProject() throws CoreException {
 	try {
+		ISchedulingRule root = getWorkspace().getRoot();
 		createJavaProject("P1", new String[] {}, "bin");
 		IFolder folder = createFolder("/P1/lib/x/y");
 		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"/P1/lib"}, "");
@@ -343,13 +344,13 @@ public void testCreatePkgHandleInDifferentProject() throws CoreException {
 				"x.z [in /P1/lib [in P2]]",
 				JavaCore.create(folder2)
 			);
-		p2.getProject().close(null);
+		getWorkspace().run(p2.getProject()::close, root, 0, null);
 		assertElementEquals(
 			"Unexpected element",
 			"<null>", // closed
 			JavaCore.create(folder2)
 		);
-		p2.getProject().open(null);
+		getWorkspace().run(p2.getProject()::open, root, 0, null);
 		assertElementEquals(
 				"Unexpected element",
 				"x.z [in /P1/lib [in P2]]", // open again
