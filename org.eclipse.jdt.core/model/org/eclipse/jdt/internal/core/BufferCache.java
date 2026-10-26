@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 
 /**
@@ -36,6 +37,37 @@ public class BufferCache<K> extends OverflowingLRUCache<K, IBuffer> {
 	 */
 	public BufferCache(int size, int overflow) {
 		super(size, overflow);
+	}
+
+	@FunctionalInterface
+	interface PublicationCheck {
+		boolean canPublish() throws JavaModelException;
+	}
+
+	/** Validate after eviction queries, which may reenter the source buffer lifecycle. */
+	IBuffer putIfAbsent(K key, IBuffer buffer, PublicationCheck check) throws JavaModelException {
+		if (this.overflow > 0) {
+			shrink();
+		}
+		int space = spaceFor(buffer);
+		if (peek(key) == null) {
+			makeSpace(space);
+		}
+		try {
+			if (!check.canPublish()) {
+				return null;
+			}
+			IBuffer existing = get(key);
+			if (existing != null) {
+				return existing;
+			}
+			// No provider callbacks between validation and insertion, nor replacement of a reentrant winner.
+			privateAdd(key, buffer, space);
+			return buffer;
+		} finally {
+			// makeSpace included a prospective insertion, which validation may have rejected.
+			this.overflow = Math.max(0, this.currentSpace - this.spaceLimit);
+		}
 	}
 
 	@Override

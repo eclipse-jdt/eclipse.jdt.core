@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -35,11 +38,16 @@ import org.eclipse.jdt.core.BufferChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferChangedListener;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.core.Buffer;
+import org.eclipse.jdt.internal.core.BufferCache;
 import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
@@ -48,6 +56,7 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.SourceIndexerEnvironment;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
 
 public class BufferLifecycleTests extends ModifyingResourceTests {
 
@@ -332,6 +341,507 @@ public void testClosedProviderBufferIsRejected() throws Exception {
 			} finally {
 				deleteFile(path);
 			}
+		}
+	}
+}
+
+public void testDelayedNullPrimaryOpenRetriesAsOrdinaryFile() throws Exception {
+	String path = "P/x/y/NullPrimary.java";
+	String fileSource = "package x.y; public class NullPrimary { int file; }";
+	String providerSource = "package x.y; public class NullPrimary { int provider; }";
+	createFile(path, fileSource);
+	waitUntilIndexesReady();
+	WorkingCopyOwner previousProvider = DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider;
+	CountDownLatch providerEntered = new CountDownLatch(1);
+	CountDownLatch providerMayReturn = new CountDownLatch(1);
+	AtomicReference<Thread> delayedThread = new AtomicReference<>();
+	WorkingCopyOwner provider = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			if (Thread.currentThread() == delayedThread.get()) {
+				providerEntered.countDown();
+				awaitLatch(providerMayReturn, "The primary provider was not released");
+				return null;
+			}
+			IBuffer buffer = BufferManager.createBuffer(workingCopy);
+			buffer.setContents(providerSource);
+			return buffer;
+		}
+	};
+	ICompilationUnit unit = getCompilationUnit(path);
+	FutureTask<IBuffer> opening = new FutureTask<>(unit::getBuffer);
+	Thread opener = new Thread(opening, "Retrying a primary null provider after discard");
+	opener.setDaemon(true);
+	try {
+		WorkingCopyOwner.setPrimaryBufferProvider(provider);
+		unit.becomeWorkingCopy(null);
+		unit.getBuffer().close();
+		delayedThread.set(opener);
+		opener.start();
+		awaitLatch(providerEntered, "The primary provider was not entered");
+		unit.discardWorkingCopy();
+		assertFalse("Final discard must leave an ordinary primary unit", unit.isWorkingCopy());
+		providerMayReturn.countDown();
+		IBuffer result = opening.get(10, TimeUnit.SECONDS);
+		assertNotNull("The stale null result must retry using the ordinary file", result);
+		assertEquals("The retry must read the file, not the retired provider", fileSource, result.getContents());
+		assertSame("The retry must publish the ordinary file buffer", result, BufferManager.getDefaultBufferManager().getBuffer(unit));
+	} finally {
+		providerMayReturn.countDown();
+		opening.cancel(true);
+		opener.join(10_000);
+		try {
+			assertFalse("The primary opener did not terminate", opener.isAlive());
+			unit.discardWorkingCopy();
+			unit.close();
+		} finally {
+			WorkingCopyOwner.setPrimaryBufferProvider(previousProvider);
+			deleteFile(path);
+		}
+	}
+}
+
+public void testReentrantDiscardFromClosedCheckDoesNotPublishStaleBuffer() throws Exception {
+	assertReentrantProviderQueryDoesNotPublishStaleBuffer(false);
+}
+
+public void testReentrantDiscardFromOwnerQueryDoesNotPublishStaleBuffer() throws Exception {
+	assertReentrantProviderQueryDoesNotPublishStaleBuffer(true);
+}
+
+public void testOwnerQueryClosingCandidateDoesNotPublishClosedBuffer() throws Exception {
+	String path = "P/x/y/OwnerCloses.java";
+	createFile(path, "package x.y; public class OwnerCloses {}");
+	waitUntilIndexesReady();
+	AtomicReference<ICompilationUnit> handle = new AtomicReference<>();
+	AtomicBoolean closed = new AtomicBoolean();
+	WorkingCopyOwner owner = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			handle.set(workingCopy);
+			return new Buffer((IFile) workingCopy.getResource(), workingCopy, false) {
+				private boolean listenerRegistered;
+				@Override
+				public synchronized void addBufferChangedListener(IBufferChangedListener listener) {
+					super.addBufferChangedListener(listener);
+					this.listenerRegistered = true;
+				}
+				@Override
+				public IOpenable getOwner() {
+					if (this.listenerRegistered && closed.compareAndSet(false, true)) {
+						close();
+					}
+					return super.getOwner();
+				}
+			};
+		}
+	};
+	try {
+		JavaModelException failure = null;
+		try {
+			getCompilationUnit(path).getWorkingCopy(owner, null);
+		} catch (JavaModelException e) {
+			failure = e;
+		}
+		assertTrue("The owner query must close the candidate", closed.get());
+		assertNull("A candidate closed by its owner query must not be cached", BufferManager.getDefaultBufferManager().getBuffer(handle.get()));
+		assertNotNull("Opening a closed candidate must fail", failure);
+	} finally {
+		try {
+			if (handle.get() != null) {
+				handle.get().discardWorkingCopy();
+				handle.get().close();
+			}
+		} finally {
+			deleteFile(path);
+		}
+	}
+}
+
+public void testReentrantDiscardDuringCandidateReleaseDoesNotRepublishModel() throws Exception {
+	String path = "P/x/y/ReleaseDiscard.java";
+	createFile(path, "package x.y; public class ReleaseDiscard {}");
+	waitUntilIndexesReady();
+	AtomicBoolean retired = new AtomicBoolean();
+	AtomicReference<CompilationUnit> handle = new AtomicReference<>();
+	AtomicReference<IBuffer> candidate = new AtomicReference<>();
+	WorkingCopyOwner owner = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			handle.set((CompilationUnit) workingCopy);
+			IBuffer buffer = new Buffer((IFile) workingCopy.getResource(), workingCopy, false) {
+				@Override
+				public IOpenable getOwner() {
+					if (BufferManager.getDefaultBufferManager().getBuffer(workingCopy) == this && retired.compareAndSet(false, true)) {
+						try {
+							workingCopy.discardWorkingCopy();
+						} catch (JavaModelException e) {
+							throw new AssertionError(e);
+						}
+					}
+					return super.getOwner();
+				}
+			};
+			candidate.set(buffer);
+			return buffer;
+		}
+	};
+	try {
+		JavaModelException failure = null;
+		try {
+			getCompilationUnit(path).getWorkingCopy(owner, null);
+		} catch (JavaModelException e) {
+			failure = e;
+		}
+		assertTrue("Candidate release must exercise the reentrant discard", retired.get());
+		assertNull("Cleanup must not republish the discarded model", JavaModelManager.getJavaModelManager().getInfo(handle.get()));
+		assertNull("Cleanup must leave no retired buffer", BufferManager.getDefaultBufferManager().getBuffer(handle.get()));
+		assertNotNull("The discarded nonprimary working copy must fail to open", failure);
+		assertTrue("The discarded working copy must be reported as nonexistent", failure.isDoesNotExist());
+		assertTrue("The retired candidate must be closed", candidate.get().isClosed());
+	} finally {
+		try {
+			if (handle.get() != null) {
+				handle.get().discardWorkingCopy();
+				handle.get().close();
+			}
+		} finally {
+			deleteFile(path);
+		}
+	}
+}
+
+public void testReentrantDiscardDuringEvictionDoesNotPublishStaleBuffer() throws Exception {
+	assertEvictionCallbackDoesNotPublishInvalidBuffer(false, false);
+}
+
+public void testReentrantDiscardDuringEvictedBufferCloseDoesNotRepublishModel() throws Exception {
+	assertEvictionCallbackDoesNotPublishInvalidBuffer(true, false);
+}
+
+public void testEvictionQueryClosingCandidateDoesNotPublishClosedBuffer() throws Exception {
+	assertEvictionCallbackDoesNotPublishInvalidBuffer(false, true);
+}
+
+private void assertEvictionCallbackDoesNotPublishInvalidBuffer(boolean duringClose, boolean closeCandidate) throws Exception {
+	class LocalBufferManager extends BufferManager {
+		void cache(IBuffer buffer) {
+			addBuffer(buffer);
+		}
+	}
+	String path = "P/x/y/EvictionDiscard.java";
+	createFile(path, "package x.y; public class EvictionDiscard {}");
+	waitUntilIndexesReady();
+	LocalBufferManager buffers = new LocalBufferManager();
+	Field cache = BufferManager.class.getDeclaredField("openBuffers");
+	cache.setAccessible(true);
+	((BufferCache<?>) cache.get(buffers)).setSpaceLimit(1);
+	AtomicBoolean retired = new AtomicBoolean();
+	AtomicReference<IBuffer> candidate = new AtomicReference<>();
+	WorkingCopyOwner owner = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			IBuffer buffer = BufferManager.createBuffer(workingCopy);
+			candidate.set(buffer);
+			return buffer;
+		}
+	};
+	ICompilationUnit original = getCompilationUnit(path);
+	CompilationUnit unit = new CompilationUnit((PackageFragment) original.getParent(), original.getElementName(), owner) {
+		@Override
+		protected BufferManager getBufferManager() {
+			return buffers;
+		}
+	};
+	ICompilationUnit evictedOwner = getCompilationUnit("P/x/y/Evicted.java");
+	IBuffer evicted = new Buffer(null, evictedOwner, false) {
+		private void retire(boolean selectedCallback) {
+			if (selectedCallback && retired.compareAndSet(false, true)) {
+				try {
+					if (closeCandidate) candidate.get().close();
+					else unit.discardWorkingCopy();
+				} catch (JavaModelException e) {
+					throw new AssertionError(e);
+				}
+			}
+		}
+		@Override
+		public boolean hasUnsavedChanges() {
+			retire(!duringClose);
+			return super.hasUnsavedChanges();
+		}
+		@Override
+		public void close() {
+			retire(duringClose);
+			super.close();
+		}
+	};
+	evicted.setContents("package x.y; class Evicted {}");
+	buffers.cache(evicted);
+	try {
+		JavaModelException failure = null;
+		try {
+			unit.becomeWorkingCopy(null);
+		} catch (JavaModelException e) {
+			failure = e;
+		}
+		assertTrue("Eviction must exercise the provider callback", retired.get());
+		assertNull("Eviction must not publish a retired or closed buffer", buffers.getBuffer(unit));
+		assertNull("Eviction must not republish an invalid model", JavaModelManager.getJavaModelManager().getInfo(unit));
+		assertNotNull("An invalidated nonprimary working copy must fail to open", failure);
+		if (!closeCandidate) {
+			assertTrue("The discarded working copy must be reported as nonexistent", failure.isDoesNotExist());
+		}
+		assertTrue("The retired candidate must be closed", candidate.get().isClosed());
+		assertTrue("The evicted buffer must finish closing", evicted.isClosed());
+	} finally {
+		try {
+			unit.discardWorkingCopy();
+			unit.close();
+			evicted.close();
+		} finally {
+			deleteFile(path);
+		}
+	}
+}
+
+public void testReentrantOwnerQueryDuringClosePreservesReplacement() throws Exception {
+	assertReentrantOwnerQueryPreservesReplacement(false);
+}
+
+public void testReentrantOwnerQueryDuringRemovalPreservesReplacement() throws Exception {
+	assertReentrantOwnerQueryPreservesReplacement(true);
+}
+
+private void assertReentrantOwnerQueryPreservesReplacement(boolean removeDirectly) throws Exception {
+	class LocalBufferManager extends BufferManager {
+		void cache(IBuffer buffer) {
+			addBuffer(buffer);
+		}
+		void remove(IBuffer buffer) {
+			removeBuffer(buffer);
+		}
+	}
+	LocalBufferManager buffers = new LocalBufferManager();
+	CompilationUnit unit = new CompilationUnit((PackageFragment) getPackageFragment("P", "", "x.y"), "OwnerCallback.java", DefaultWorkingCopyOwner.PRIMARY) {
+		@Override
+		protected BufferManager getBufferManager() {
+			return buffers;
+		}
+	};
+	IBuffer replacement = BufferManager.createBuffer(unit);
+	replacement.setContents("package x.y; class OwnerCallback {}");
+	AtomicBoolean armed = new AtomicBoolean();
+	AtomicBoolean replaced = new AtomicBoolean();
+	IBuffer old = new Buffer(null, unit, false) {
+		private int queries;
+		@Override
+		public IOpenable getOwner() {
+			if (armed.get() && ++this.queries >= 2 && replaced.compareAndSet(false, true)) {
+				buffers.cache(replacement);
+				replacement.addBufferChangedListener(unit);
+				replacement.append(" // replacement edit");
+			}
+			return super.getOwner();
+		}
+	};
+	old.close();
+	buffers.cache(old);
+	try {
+		armed.set(true);
+		if (removeDirectly) {
+			buffers.remove(old);
+		} else {
+			unit.bufferChanged(new BufferChangedEvent(old, 0, 0, null));
+		}
+		// If removal only queried once, publish now, after it completed instead.
+		old.getOwner();
+		assertTrue("The provider query must publish the replacement", replaced.get());
+		assertSame("An old buffer's removal must preserve a reentrant replacement", replacement, buffers.getBuffer(unit));
+		assertFalse("The replacement's edit must remain inconsistent", unit.isConsistent());
+	} finally {
+		armed.set(false);
+		replacement.close();
+		buffers.remove(replacement);
+		unit.close();
+	}
+}
+
+private void assertReentrantProviderQueryDoesNotPublishStaleBuffer(boolean ownerQuery) throws Exception {
+	String path = "P/x/y/ReentrantQuery.java";
+	createFile(path, "package x.y; public class ReentrantQuery {}");
+	waitUntilIndexesReady();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	AtomicBoolean retired = new AtomicBoolean();
+	AtomicReference<IBuffer> candidate = new AtomicReference<>();
+	AtomicReference<CompilationUnit> handle = new AtomicReference<>();
+	WorkingCopyOwner owner = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			handle.set((CompilationUnit) workingCopy);
+			IBuffer buffer = new Buffer((IFile) workingCopy.getResource(), workingCopy, false) {
+				private boolean listenerRegistered;
+				@Override
+				public synchronized void addBufferChangedListener(IBufferChangedListener listener) {
+					super.addBufferChangedListener(listener);
+					this.listenerRegistered = true;
+				}
+				private void retireIfPublishing(boolean selectedQuery) {
+					if (selectedQuery && this.listenerRegistered && retired.compareAndSet(false, true)) {
+						try {
+							workingCopy.discardWorkingCopy();
+						} catch (JavaModelException e) {
+							throw new AssertionError(e);
+						}
+					}
+				}
+				@Override
+				public boolean isClosed() {
+					retireIfPublishing(!ownerQuery);
+					return super.isClosed();
+				}
+				@Override
+				public IOpenable getOwner() {
+					retireIfPublishing(ownerQuery);
+					return super.getOwner();
+				}
+			};
+			candidate.set(buffer);
+			return buffer;
+		}
+	};
+	try {
+		JavaModelException failure = null;
+		try {
+			getCompilationUnit(path).getWorkingCopy(owner, null);
+		} catch (JavaModelException e) {
+			failure = e;
+		}
+		assertTrue("The provider query must trigger final retirement", retired.get());
+		assertNull("A reentrant retirement must not leave a stale buffer cached", BufferManager.getDefaultBufferManager().getBuffer(handle.get()));
+		assertNull("A reentrant retirement must not republish model info", manager.getInfo(handle.get()));
+		assertNotNull("A retired nonprimary opening must fail", failure);
+		assertTrue("The retired working copy must be reported as nonexistent", failure.isDoesNotExist());
+		assertTrue("An unpublished candidate must be closed", candidate.get().isClosed());
+	} finally {
+		try {
+			if (handle.get() != null) {
+				handle.get().discardWorkingCopy();
+				handle.get().close();
+			}
+		} finally {
+			deleteFile(path);
+		}
+	}
+}
+
+public void testDelayedNullInitialOpenMustNotRepublishDiscardedModel() throws Exception {
+	assertDelayedNullProviderRejected(false);
+}
+
+public void testDelayedNullReopenMustRejectDiscardedGeneration() throws Exception {
+	assertDelayedNullProviderRejected(true);
+}
+
+private void assertDelayedNullProviderRejected(boolean reopening) throws Exception {
+	String name = reopening ? "Reopen" : "Initial";
+	String path = "P/x/y/" + name + ".java";
+	createFile(path, "package x.y; public class " + name + " {}");
+	waitUntilIndexesReady();
+	CountDownLatch providerEntered = new CountDownLatch(1);
+	CountDownLatch providerMayReturn = new CountDownLatch(1);
+	AtomicBoolean delay = new AtomicBoolean(!reopening);
+	WorkingCopyOwner owner = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			if (!delay.get()) {
+				return BufferManager.createBuffer(workingCopy);
+			}
+			providerEntered.countDown();
+			try {
+				assertTrue("Timed out waiting for the final discard", providerMayReturn.await(10, TimeUnit.SECONDS));
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new AssertionError(e);
+			}
+			return null;
+		}
+	};
+	ICompilationUnit original = getCompilationUnit(path);
+	CompilationUnit unit = new CompilationUnit((PackageFragment) original.getParent(), original.getElementName(), owner);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	FutureTask<Object> opening = new FutureTask<>(() -> {
+		if (reopening) {
+			return unit.getBuffer();
+		}
+		unit.becomeWorkingCopy(null);
+		return unit;
+	});
+	Thread opener = new Thread(opening, "Delayed null provider " + name);
+	opener.setDaemon(true);
+	try {
+		if (reopening) {
+			unit.becomeWorkingCopy(null);
+			unit.getBuffer().close();
+			assertTrue("Setup must leave the existing model open", unit.isOpen());
+			delay.set(true);
+		}
+		opener.start();
+		assertTrue("The opener must have entered the provider", providerEntered.await(10, TimeUnit.SECONDS));
+		assertNotNull("The opening attempt must have a working-copy registration", unit.getPerWorkingCopyInfo());
+		unit.discardWorkingCopy();
+		assertNull("Final discard must remove the working-copy registration", unit.getPerWorkingCopyInfo());
+		assertNull("Final discard must leave no model info", manager.getInfo(unit));
+		providerMayReturn.countDown();
+		Throwable failure = null;
+		try {
+			opening.get(10, TimeUnit.SECONDS);
+		} catch (ExecutionException e) {
+			failure = e.getCause();
+		}
+		assertNull("A delayed null provider must not republish a discarded model", manager.getInfo(unit));
+		assertTrue("A stale null-returning provider must fail with JavaModelException", failure instanceof JavaModelException);
+		assertTrue("The discarded working copy must be reported as nonexistent", ((JavaModelException) failure).isDoesNotExist());
+	} finally {
+		providerMayReturn.countDown();
+		opening.cancel(true);
+		opener.join(10_000);
+		try {
+			assertFalse("The diagnostic worker must terminate", opener.isAlive());
+		} finally {
+			try {
+				unit.discardWorkingCopy();
+				unit.close();
+			} finally {
+				deleteFile(path);
+			}
+		}
+	}
+}
+
+public void testNullProviderWithoutConcurrentDiscardRemainsSupported() throws Exception {
+	String path = "P/x/y/NullControl.java";
+	createFile(path, "package x.y; public class NullControl {}");
+	waitUntilIndexesReady();
+	WorkingCopyOwner owner = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			return null;
+		}
+	};
+	ICompilationUnit original = getCompilationUnit(path);
+	CompilationUnit unit = new CompilationUnit((PackageFragment) original.getParent(), original.getElementName(), owner);
+	try {
+		unit.becomeWorkingCopy(null);
+		assertTrue("A normal null provider must still allow model construction", unit.isOpen());
+		assertNotNull("A normal null provider must retain the working-copy registration", unit.getPerWorkingCopyInfo());
+		assertNull("A normal null provider must not manufacture a physical buffer", unit.getBuffer());
+	} finally {
+		try {
+			unit.discardWorkingCopy();
+			unit.close();
+		} finally {
+			deleteFile(path);
 		}
 	}
 }
@@ -1062,6 +1572,151 @@ public void testBufferlessWorkingCopyRetirementInvalidatesIndexingEnvironment() 
 			deleteFile(path);
 		}
 	}
+}
+
+/** A real indexer package lookup must wait for bufferless model cleanup. */
+public void testParallelIndexerSeesCompletedBufferlessRetirement() throws Exception {
+	String path = "P/x/y/IndexParallel.java";
+	String fileSource = "package x.y; public class IndexParallel { int file; }";
+	String providerSource = "package previous; public class IndexParallel { int provider; }";
+	createFile(path, fileSource);
+	waitUntilIndexesReady();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	WorkingCopyOwner previousProvider = DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider;
+	boolean previousKeep = SourceIndexerEnvironment.KEEP;
+	AtomicBoolean bufferless = new AtomicBoolean();
+	AtomicBoolean pauseCleanup = new AtomicBoolean();
+	AtomicReference<Thread> indexingThread = new AtomicReference<>();
+	AtomicReference<String> observedPackage = new AtomicReference<>();
+	CountDownLatch packageRequested = new CountDownLatch(1);
+	CountDownLatch continueLookup = new CountDownLatch(1);
+	CountDownLatch cleanupEntered = new CountDownLatch(1);
+	CountDownLatch finishCleanup = new CountDownLatch(1);
+	WorkingCopyOwner provider = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			if (bufferless.get()) return null;
+			IBuffer buffer = BufferManager.createBuffer(workingCopy);
+			buffer.setContents(providerSource);
+			return buffer;
+		}
+	};
+	ICompilationUnit original = getCompilationUnit(path);
+	CompilationUnit unit = new CompilationUnit((PackageFragment) original.getParent(), original.getElementName(), DefaultWorkingCopyOwner.PRIMARY) {
+		@Override
+		public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException {
+			boolean indexing = Thread.currentThread() == indexingThread.get();
+			if (indexing) {
+				packageRequested.countDown();
+				awaitLatch(continueLookup, "The package lookup was not released");
+			}
+			IPackageDeclaration[] packages = super.getPackageDeclarations();
+			if (indexing) {
+				observedPackage.set(packages.length == 0 ? "" : packages[0].getElementName());
+			}
+			return packages;
+		}
+		@Override
+		protected void closing(Object info) {
+			if (pauseCleanup.compareAndSet(true, false)) {
+				assertTrue("Model cleanup must hold the manager monitor", Thread.holdsLock(manager));
+				cleanupEntered.countDown();
+				awaitLatch(finishCleanup, "Model cleanup was not released");
+			}
+			super.closing(info);
+		}
+	};
+	Method acquire = IndexManager.class.getDeclaredMethod("acquireSourceIndexerEnvironment", JavaProject.class);
+	Method release = IndexManager.class.getDeclaredMethod("releaseSourceIndexerEnvironment", SourceIndexerEnvironment.class);
+	acquire.setAccessible(true);
+	release.setAccessible(true);
+	FutureTask<SourceIndexerEnvironment> acquiring = new FutureTask<>(() ->
+			(SourceIndexerEnvironment) invoke(acquire, indexManager, unit.getJavaProject()));
+	Thread indexer = new Thread(acquiring, "Reading packages during bufferless retirement");
+	FutureTask<Void> discarding = new FutureTask<>(() -> { unit.discardWorkingCopy(); return null; });
+	Thread discarder = new Thread(discarding, "Retiring a bufferless primary working copy");
+	indexer.setDaemon(true);
+	discarder.setDaemon(true);
+	SourceIndexerEnvironment held = null;
+	SourceIndexerEnvironment acquired = null;
+	SourceIndexerEnvironment after = null;
+	try {
+		WorkingCopyOwner.setPrimaryBufferProvider(provider);
+		SourceIndexerEnvironment.KEEP = true;
+		unit.becomeWorkingCopy(null);
+		assertEquals("The old model must describe the provider's package", "previous", unit.getPackageDeclarations()[0].getElementName());
+		waitUntilIndexesReady();
+		// Keep any retained environment checked out so the worker must build a new one.
+		held = (SourceIndexerEnvironment) invoke(acquire, indexManager, unit.getJavaProject());
+		bufferless.set(true);
+		unit.getBuffer().close();
+		assertNotNull("The bufferless generation must retain its old model", manager.getInfo(unit));
+		assertNull("Retirement must start without a cached buffer", BufferManager.getDefaultBufferManager().getBuffer(unit));
+		indexingThread.set(indexer);
+		indexer.start();
+		awaitLatch(packageRequested, "The indexer did not reach the working-copy package lookup");
+		pauseCleanup.set(true);
+		discarder.start();
+		awaitLatch(cleanupEntered, "Retirement did not enter model cleanup");
+		continueLookup.countDown();
+		assertBlockedOnManager(indexer, discarder, manager);
+		finishCleanup.countDown();
+		discarding.get(10, TimeUnit.SECONDS);
+		acquired = acquiring.get(10, TimeUnit.SECONDS);
+		assertEquals("The waiting indexer must read the completed file model", "x.y", observedPackage.get());
+		assertIndexingSource(acquired, fileSource);
+		invoke(release, indexManager, acquired);
+		after = (SourceIndexerEnvironment) invoke(acquire, indexManager, unit.getJavaProject());
+		assertNotSame("An environment captured before retirement must not be reused", acquired, after);
+		assertIndexingSource(after, fileSource);
+	} finally {
+		continueLookup.countDown();
+		finishCleanup.countDown();
+		pauseCleanup.set(false);
+		acquiring.cancel(true);
+		discarding.cancel(true);
+		indexer.join(10_000);
+		discarder.join(10_000);
+		try {
+			assertFalse("The indexer worker did not terminate", indexer.isAlive());
+			assertFalse("The discard worker did not terminate", discarder.isAlive());
+			if (held != null) invoke(release, indexManager, held);
+			if (after != null) invoke(release, indexManager, after);
+			else if (acquired != null) invoke(release, indexManager, acquired);
+			unit.discardWorkingCopy();
+			unit.close();
+		} finally {
+			WorkingCopyOwner.setPrimaryBufferProvider(previousProvider);
+			SourceIndexerEnvironment.KEEP = previousKeep;
+			deleteFile(path);
+		}
+	}
+}
+
+private static void assertBlockedOnManager(Thread reader, Thread owner, JavaModelManager manager) throws Exception {
+	long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+	while (System.nanoTime() < deadline) {
+		ThreadInfo info = ManagementFactory.getThreadMXBean().getThreadInfo(reader.threadId());
+		if (info != null && info.getThreadState() == Thread.State.BLOCKED
+				&& info.getLockOwnerId() == owner.threadId() && info.getLockInfo() != null
+				&& info.getLockInfo().getIdentityHashCode() == System.identityHashCode(manager)) {
+			return;
+		}
+		Thread.sleep(1);
+	}
+	fail("The indexer did not block on the manager monitor held by model cleanup");
+}
+
+private static void assertIndexingSource(SourceIndexerEnvironment environment, String source) throws Exception {
+	Field field = SourceIndexerEnvironment.class.getDeclaredField("nameEnvironment");
+	field.setAccessible(true);
+	JavaSearchNameEnvironment names = (JavaSearchNameEnvironment) field.get(environment);
+	NameEnvironmentAnswer answer = names.findType(new char[][] { "x".toCharArray(), "y".toCharArray(), "IndexParallel".toCharArray() }, ModuleBinding.ANY);
+	assertNotNull("The completed package must resolve its type", answer);
+	assertEquals("The resolved type must use the file contents", source, new String(answer.getCompilationUnit().getContents()));
+	assertNull("The retired provider package must no longer resolve", names.findType(
+			new char[][] { "previous".toCharArray(), "IndexParallel".toCharArray() }, ModuleBinding.ANY));
 }
 
 /**

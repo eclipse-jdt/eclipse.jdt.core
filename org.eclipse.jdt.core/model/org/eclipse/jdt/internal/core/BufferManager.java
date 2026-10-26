@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * The buffer manager manages the set of open buffers.
@@ -51,33 +52,35 @@ public class BufferManager {
  * Adds a buffer to the table of open buffers.
  */
 protected void addBuffer(IBuffer buffer) {
-	cacheBuffer(buffer.getOwner(), buffer, null);
+	cacheBuffer(buffer.getOwner(), buffer);
 	closeBuffers();
 }
 
 /**
  * Publishes a source buffer after the lifecycle coordinator has checked that no
- * entry exists. For an equal owner, retain the actual registered listener as the
- * key so retirement can remove that same instance. Preserve other owner keys.
+ * entry exists, revalidating after eviction queries. For an equal owner, retain
+ * the actual registered listener as the key so retirement can remove that same
+ * instance. Preserve other owner keys.
  */
-void cacheBuffer(Openable listener, IBuffer buffer) {
-	IOpenable owner = buffer.getOwner();
-	cacheBuffer(listener.equals(owner) ? listener : owner, buffer, listener);
+IBuffer cacheBuffer(Openable listener, IOpenable owner, IBuffer buffer, BufferCache.PublicationCheck check) throws JavaModelException {
+	synchronized (this.openBuffers) {
+		IBuffer result = this.openBuffers.putIfAbsent(listener.equals(owner) ? listener : owner, buffer, check);
+		if (result == buffer) {
+			// Preparation edits occurred before this buffer had a current registration.
+			JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(listener);
+		}
+		return result;
+	}
 }
 
 /** Adds a buffer without invoking close callbacks for evicted entries. */
-private void cacheBuffer(IOpenable owner, IBuffer buffer, Openable sourceListener) {
+private void cacheBuffer(IOpenable owner, IBuffer buffer) {
 	if (VERBOSE) {
 		String ownerName = ((Openable)owner).toStringWithAncestors();
 		System.out.println("Adding buffer for " + ownerName); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
 		this.openBuffers.put(owner, buffer);
-		if (sourceListener != null) {
-			// Preparation may have changed the contents before publication, when
-			// edit events cannot yet belong to a current cache registration.
-			JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(sourceListener);
-		}
 	}
 	if (VERBOSE) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
@@ -183,8 +186,9 @@ DetachedBuffer detachBuffer(Openable owner) {
 
 /** Applies edits only to the current registration, and allows close cleanup after eviction. */
 boolean bufferChanged(Openable listener, IBuffer buffer, boolean closed) {
+	IOpenable owner = buffer.getOwner();
 	synchronized (this.openBuffers) {
-		IBuffer current = this.openBuffers.peek(buffer.getOwner());
+		IBuffer current = this.openBuffers.peek(owner);
 		if (current != buffer && (!closed || current != null)) {
 			return false;
 		}
@@ -192,7 +196,7 @@ boolean bufferChanged(Openable listener, IBuffer buffer, boolean closed) {
 		if (closed) {
 			outOfSync.remove(listener);
 			if (current == buffer) {
-				this.openBuffers.remove(buffer.getOwner());
+				this.openBuffers.remove(owner);
 			}
 		} else {
 			outOfSync.add(listener);
@@ -205,13 +209,14 @@ boolean bufferChanged(Openable listener, IBuffer buffer, boolean closed) {
  * Removes a buffer from the table of open buffers.
  */
 protected void removeBuffer(IBuffer buffer) {
+	IOpenable bufferOwner = buffer.getOwner();
 	if (VERBOSE) {
-		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
+		String owner = ((Openable)bufferOwner).toStringWithAncestors();
 		System.out.println("Removing buffer for " + owner); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
-		if (this.openBuffers.peek(buffer.getOwner()) == buffer) {
-			this.openBuffers.remove(buffer.getOwner());
+		if (this.openBuffers.peek(bufferOwner) == buffer) {
+			this.openBuffers.remove(bufferOwner);
 		}
 	}
 	// close buffers that were removed from the cache (should be only one)

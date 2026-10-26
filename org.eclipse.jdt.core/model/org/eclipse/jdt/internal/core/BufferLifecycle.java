@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -83,7 +84,9 @@ final class BufferLifecycle {
 		OpenResult prepareAndPublish() throws JavaModelException {
 			this.buffer = isWorkingCopy() ? this.unit.owner.createBuffer(this.unit) : BufferManager.createBuffer(this.unit);
 			if (this.buffer == null) {
-				return new OpenResult.Complete(null);
+				synchronized (BufferLifecycle.this.manager) {
+					return isCurrent() ? new OpenResult.Complete(null) : OpenResult.Retry.INSTANCE;
+				}
 			}
 			BufferManager buffers = this.unit.getBufferManager();
 			synchronized (BufferLifecycle.this.manager) {
@@ -136,25 +139,42 @@ final class BufferLifecycle {
 					if (this.candidateState.retiring) {
 						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 					}
+					IOpenable owner = this.buffer.getOwner();
 					checkOpen();
-					buffers.cacheBuffer(this.candidateState.listener, this.buffer);
+					// Queries on this buffer and eviction candidates may reenter a transition.
+					IBuffer published = buffers.cacheBuffer(this.candidateState.listener, owner, this.buffer,
+							() -> {
+								checkOpen();
+								return isCurrent() && !this.candidateState.retiring;
+							});
+					if (published == null) {
+						return OpenResult.Retry.INSTANCE;
+					}
 					// Provider contents can change silently; ordinary file changes are counted separately.
-					if (isWorkingCopy()) {
+					if (published == this.buffer && isWorkingCopy()) {
 						JavaModelManager.sourceEnvironmentChanged();
 					}
-					return new OpenResult.Complete(this.buffer);
+					return new OpenResult.Complete(published);
 				}
 			} finally {
 				buffers.closeBuffers();
 			}
 		}
 
+		void releaseCandidate() {
+			try {
+				if (this.candidateState != null) {
+					BufferLifecycle.this.releaseCandidate(this);
+				}
+			} finally {
+				this.candidateState = null;
+			}
+		}
+
 		@Override
 		public void close() {
 			try {
-				if (this.candidateState != null) {
-					releaseCandidate(this);
-				}
+				releaseCandidate();
 			} finally {
 				synchronized (BufferLifecycle.this.manager) {
 					if (--this.state.attempts == 0) {
@@ -220,9 +240,13 @@ final class BufferLifecycle {
 	IBuffer openBuffer(CompilationUnit unit) throws JavaModelException {
 		while (true) {
 			try (Opening attempt = beginOpen(unit)) {
-				switch (attempt.prepareAndPublish()) {
-					case OpenResult.Complete(var buffer) -> { return buffer; }
-					case OpenResult.Retry _ -> { /* retry with the new generation's provider */ }
+				OpenResult result = attempt.prepareAndPublish();
+				// Finish provider cleanup before the last check; keep tracking intervening transitions.
+				attempt.releaseCandidate();
+				synchronized (this.manager) {
+					if (result instanceof OpenResult.Complete(var buffer) && attempt.isCurrent()) {
+						return buffer;
+					}
 				}
 			}
 		}
