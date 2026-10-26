@@ -893,6 +893,264 @@ private void assertSharedBufferEditInvalidatesBothHandlesASTs(CompilationUnit fi
 			((TypeDeclaration) newSecondAST.types().get(0)).getMethods()[0].getName().getIdentifier());
 }
 
+/** Opening unchanged file-backed units must preserve the retained indexer environment. */
+public void testOrdinaryBufferPublicationPreservesIndexingEnvironment() throws Exception {
+	String firstPath = "P/x/y/IndexOrdinaryFirst.java";
+	String secondPath = "P/x/y/IndexOrdinarySecond.java";
+	createFile(firstPath, "package x.y; public class IndexOrdinaryFirst {}");
+	createFile(secondPath, "package x.y; public class IndexOrdinarySecond {}");
+	ICompilationUnit first = getCompilationUnit(firstPath);
+	ICompilationUnit second = getCompilationUnit(secondPath);
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	boolean previousKeep = SourceIndexerEnvironment.KEEP;
+	try {
+		waitUntilIndexesReady();
+		first.close();
+		second.close();
+		SourceIndexerEnvironment.KEEP = true;
+		// Resolve the classpath and settle indexing before measuring buffer publication.
+		retainedIndexingEnvironment(first);
+		waitUntilIndexesReady();
+		SourceIndexerEnvironment before = retainedIndexingEnvironment(first);
+		assertFalse("The first unit must be an ordinary compilation unit", first.isWorkingCopy());
+		assertFalse("The second unit must be an ordinary compilation unit", second.isWorkingCopy());
+		assertNull("The first file buffer must genuinely be uncached", BufferManager.getDefaultBufferManager().getBuffer(first));
+		assertNull("The second file buffer must genuinely be uncached", BufferManager.getDefaultBufferManager().getBuffer(second));
+		int countBefore = indexManager.getSourceEnvironmentChangeCount();
+
+		assertNotNull("The first file must publish a buffer", first.getBuffer());
+		assertNotNull("The second file must publish a buffer", second.getBuffer());
+
+		assertEquals("Opening unchanged ordinary file buffers must not invalidate source resolution",
+				countBefore, indexManager.getSourceEnvironmentChangeCount());
+		assertSame("Ordinary file buffer publication must preserve the exact retained indexing environment",
+				before, retainedIndexingEnvironment(first));
+	} finally {
+		SourceIndexerEnvironment.KEEP = previousKeep;
+		try {
+			first.close();
+			second.close();
+		} finally {
+			deleteFile(firstPath);
+			deleteFile(secondPath);
+		}
+	}
+}
+
+/**
+ * A clean replacement in the same primary working-copy generation needs its own
+ * notification; the old buffer's earlier close cannot invalidate a later snapshot.
+ */
+public void testCleanWorkingCopyBufferRepublicationInvalidatesIndexingEnvironment() throws Exception {
+	String path = "P/x/y/IndexRepublication.java";
+	String beforeSource = "package x.y; public class IndexRepublication { void before() {} }";
+	String afterSource = "package x.y; public class IndexRepublication { void after() {} }";
+	createFile(path, beforeSource);
+	waitUntilIndexesReady();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	WorkingCopyOwner previousProvider = DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider;
+	boolean previousKeep = SourceIndexerEnvironment.KEEP;
+	AtomicReference<String> providerContents = new AtomicReference<>(beforeSource);
+	WorkingCopyOwner provider = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			IBuffer buffer = BufferManager.createBuffer(workingCopy);
+			buffer.setContents(providerContents.get());
+			return buffer;
+		}
+	};
+	ICompilationUnit unit = getCompilationUnit(path);
+	try {
+		WorkingCopyOwner.setPrimaryBufferProvider(provider);
+		SourceIndexerEnvironment.KEEP = true;
+		unit.becomeWorkingCopy(null);
+		IBuffer oldBuffer = unit.getBuffer();
+		Object generation = ((CompilationUnit) unit).getPerWorkingCopyInfo();
+		retainedIndexingEnvironment(unit);
+		// The readiness helper searches primary copies and may call getBuffer(),
+		// so finish it before closing the buffer whose replacement is under test.
+		waitUntilIndexesReady();
+		oldBuffer.close();
+		assertTrue("The old buffer's close event must be complete", oldBuffer.isClosed());
+		assertNull("The old buffer must no longer be cached", BufferManager.getDefaultBufferManager().getBuffer(unit));
+		assertTrue("Closing the old buffer must preserve the working-copy model", unit.isOpen());
+		// Capture only after the old close, so it cannot mask a missing publication notification.
+		SourceIndexerEnvironment before = retainedIndexingEnvironment(unit);
+		ICompilationUnit[] copiesBefore = manager.getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true);
+		assertNull("Capturing the baseline must leave the replacement unpublished", BufferManager.getDefaultBufferManager().getBuffer(unit));
+		int countBefore = indexManager.getSourceEnvironmentChangeCount();
+		providerContents.set(afterSource);
+
+		IBuffer replacement = unit.getBuffer();
+
+		assertNotSame("Republication must create a new physical buffer", oldBuffer, replacement);
+		assertEquals("The clean provider source must survive publication", afterSource, replacement.getContents());
+		assertFalse("The provider must not need an edit event to expose its source", replacement.hasUnsavedChanges());
+		assertSame("Republication must stay in the same working-copy generation", generation, ((CompilationUnit) unit).getPerWorkingCopyInfo());
+		assertTrue("Republication must preserve the working-copy handle list",
+				Arrays.equals(copiesBefore, manager.getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true)));
+		assertTrue("A clean working-copy publication must independently advance the source environment",
+				indexManager.getSourceEnvironmentChangeCount() > countBefore);
+		assertNotSame("The snapshot taken after the old close must be invalidated by the replacement publication",
+				before, retainedIndexingEnvironment(unit));
+	} finally {
+		try {
+			unit.discardWorkingCopy();
+		} finally {
+			SourceIndexerEnvironment.KEEP = previousKeep;
+			WorkingCopyOwner.setPrimaryBufferProvider(previousProvider);
+			deleteFile(path);
+		}
+	}
+}
+
+/** A working-copy generation can retire with model info but no physical buffer. */
+public void testBufferlessWorkingCopyRetirementInvalidatesIndexingEnvironment() throws Exception {
+	String path = "P/x/y/IndexBufferless.java";
+	String source = "package x.y; public class IndexBufferless {}";
+	createFile(path, source);
+	waitUntilIndexesReady();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	WorkingCopyOwner previousProvider = DefaultWorkingCopyOwner.PRIMARY.primaryBufferProvider;
+	boolean previousKeep = SourceIndexerEnvironment.KEEP;
+	WorkingCopyOwner provider = new WorkingCopyOwner() {
+		@Override
+		public IBuffer createBuffer(ICompilationUnit workingCopy) {
+			return null;
+		}
+	};
+	ICompilationUnit unit = getCompilationUnit(path);
+	try {
+		WorkingCopyOwner.setPrimaryBufferProvider(provider);
+		SourceIndexerEnvironment.KEEP = true;
+		unit.becomeWorkingCopy(null);
+		assertTrue("A null provider buffer must still allow an open working-copy model", unit.isOpen());
+		assertNotNull("The working-copy model info must be retained", manager.getInfo(unit));
+		assertNull("The provider must not leave a physical buffer", BufferManager.getDefaultBufferManager().getBuffer(unit));
+		assertEquals("The bufferless compilation unit must read its file source", source, new String(((CompilationUnit) unit).getContents()));
+		waitUntilIndexesReady();
+		SourceIndexerEnvironment before = retainedIndexingEnvironment(unit);
+		int countBefore = indexManager.getSourceEnvironmentChangeCount();
+
+		unit.becomeWorkingCopy(null);
+		assertEquals("Retaining a generation must not invalidate the source environment", countBefore, indexManager.getSourceEnvironmentChangeCount());
+		unit.discardWorkingCopy();
+		assertTrue("A nonfinal discard must retain the working copy", unit.isWorkingCopy());
+		assertEquals("A nonfinal discard must not invalidate the source environment", countBefore, indexManager.getSourceEnvironmentChangeCount());
+		assertSame("Retain and nonfinal discard must preserve the retained environment", before, retainedIndexingEnvironment(unit));
+
+		unit.discardWorkingCopy();
+
+		assertFalse("Final discard must retire the working-copy generation", unit.isWorkingCopy());
+		assertNull("Final discard must remove the model info", manager.getInfo(unit));
+		assertNull("Final discard must leave no physical buffer", BufferManager.getDefaultBufferManager().getBuffer(unit));
+		assertTrue("A generation's final retirement must invalidate even without a cached buffer",
+				indexManager.getSourceEnvironmentChangeCount() > countBefore);
+		assertNotSame("The retired bufferless generation must not retain its indexing environment", before, retainedIndexingEnvironment(unit));
+	} finally {
+		try {
+			unit.discardWorkingCopy();
+			if (unit.isWorkingCopy()) {
+				// Balance the extra retain if an assertion failed before the nonfinal discard.
+				unit.discardWorkingCopy();
+			}
+		} finally {
+			SourceIndexerEnvironment.KEEP = previousKeep;
+			WorkingCopyOwner.setPrimaryBufferProvider(previousProvider);
+			deleteFile(path);
+		}
+	}
+}
+
+/**
+ * The notification contract requires the model transition to finish before its
+ * epoch advances. This observes that contract, not a concurrent package lookup.
+ */
+public void testRetirementNotifiesAfterModelCleanup() throws Exception {
+	assertWorkingCopyTransitionNotifiesAfterModelCleanup(false);
+}
+
+public void testBecomeWorkingCopyNotifiesAfterModelCleanup() throws Exception {
+	assertWorkingCopyTransitionNotifiesAfterModelCleanup(true);
+}
+
+private void assertWorkingCopyTransitionNotifiesAfterModelCleanup(boolean becomingWorkingCopy) throws Exception {
+	String path = "P/x/y/IndexRetirementOrder.java";
+	createFile(path, "package x.y; public class IndexRetirementOrder {}");
+	waitUntilIndexesReady();
+	ICompilationUnit original = getCompilationUnit(path);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	AtomicBoolean captureClosing = new AtomicBoolean();
+	AtomicReference<Integer> countDuringClosing = new AtomicReference<>();
+	AtomicBoolean infoPresentDuringClosing = new AtomicBoolean();
+	WorkingCopyOwner owner = becomingWorkingCopy ? DefaultWorkingCopyOwner.PRIMARY : new WorkingCopyOwner() {};
+	CompilationUnit unit = new CompilationUnit((PackageFragment) original.getParent(), original.getElementName(), owner) {
+		@Override
+		protected void closing(Object info) {
+			if (captureClosing.get()) {
+				countDuringClosing.set(indexManager.getSourceEnvironmentChangeCount());
+				infoPresentDuringClosing.set(manager.getInfo(this) == info);
+			}
+			super.closing(info);
+		}
+	};
+	try {
+		if (becomingWorkingCopy) {
+			unit.open(null);
+		} else {
+			unit.becomeWorkingCopy(null);
+		}
+		assertNotNull("The generation must have a buffer to detach", BufferManager.getDefaultBufferManager().getBuffer(unit));
+		Object oldInfo = manager.getInfo(unit);
+		assertNotNull("The generation must have model info to retire", oldInfo);
+		waitUntilIndexesReady();
+		int countBefore = indexManager.getSourceEnvironmentChangeCount();
+		captureClosing.set(true);
+
+		if (becomingWorkingCopy) {
+			unit.becomeWorkingCopy(null);
+		} else {
+			unit.discardWorkingCopy();
+		}
+
+		assertNotNull("The transition must invoke the old model's closing callback", countDuringClosing.get());
+		assertTrue("The closing callback must observe model cleanup still in progress", infoPresentDuringClosing.get());
+		assertEquals("The source environment must not advance before the old model info is removed",
+				countBefore, countDuringClosing.get().intValue());
+		assertNotSame("The transition must finish removing the old model info", oldInfo, manager.getInfo(unit));
+		if (becomingWorkingCopy) {
+			assertTrue("The transition must enter working-copy mode", unit.isWorkingCopy());
+		} else {
+			assertNull("Final discard must leave no model info", manager.getInfo(unit));
+		}
+		assertTrue("Completed model retirement must advance the source environment",
+				indexManager.getSourceEnvironmentChangeCount() > countBefore);
+	} finally {
+		captureClosing.set(false);
+		try {
+			unit.discardWorkingCopy();
+			unit.close();
+		} finally {
+			deleteFile(path);
+		}
+	}
+}
+
+private SourceIndexerEnvironment retainedIndexingEnvironment(ICompilationUnit unit) throws Exception {
+	IndexManager indexManager = JavaModelManager.getIndexManager();
+	Method acquire = IndexManager.class.getDeclaredMethod("acquireSourceIndexerEnvironment", JavaProject.class);
+	Method release = IndexManager.class.getDeclaredMethod("releaseSourceIndexerEnvironment", SourceIndexerEnvironment.class);
+	acquire.setAccessible(true);
+	release.setAccessible(true);
+	SourceIndexerEnvironment environment = (SourceIndexerEnvironment) invoke(acquire, indexManager, unit.getJavaProject());
+	invoke(release, indexManager, environment);
+	assertTrue("The indexing environment must be available for reuse", indexManager.isSourceIndexerEnvironmentKept());
+	return environment;
+}
+
 /**
  * A clean provider buffer can change across primary working-copy generations
  * without a file edit or buffer change event to invalidate the indexing cache.
@@ -1111,23 +1369,29 @@ public void testEditBeforePublicationLeavesOpenModelInconsistent() throws Except
 	FutureTask<IBuffer> opening = new FutureTask<>(unit::getBuffer);
 	Thread opener = new Thread(opening, "Publishing a candidate edited before publication");
 	opener.setDaemon(true);
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 	try {
 		assertFalse("The original model must not contain the edited field", unit.getType("EditedBeforePublication").getField("changed").exists());
 		unit.getBuffer().close();
 		assertTrue("The previous buffer's close must leave the model open", unit.isOpen());
 		assertTrue("Closing the previous buffer must leave the model consistent", unit.isConsistent());
 		provided.set(candidate);
+		int countBeforePublication = indexManager.getSourceEnvironmentChangeCount();
 		opener.start();
 		awaitLatch(listenerRegistered, "The candidate did not register its listener");
 		assertNull("The candidate must not yet be published", BufferManager.getDefaultBufferManager().getBuffer(unit));
 		assertEquals("The candidate must start with the original source", source, candidate.getContents());
 		candidate.setContents(changedSource);
 		assertTrue("The prepublication edit must dirty the actual provider buffer", candidate.hasUnsavedChanges());
+		assertEquals("An edit from an unpublished buffer must not invalidate the source environment",
+				countBeforePublication, indexManager.getSourceEnvironmentChangeCount());
 		publishBuffer.countDown();
 		assertSame("The edited candidate must be published", candidate, opening.get(10, TimeUnit.SECONDS));
 		assertSame("The edited candidate must be the cached buffer", candidate, BufferManager.getDefaultBufferManager().getBuffer(unit));
 		assertEquals("Publication must preserve the edit", changedSource, candidate.getContents());
 		assertFalse("Publication must leave the old model inconsistent with the edited candidate", unit.isConsistent());
+		assertTrue("Publication must invalidate the source environment even when the earlier edit event was ignored",
+				indexManager.getSourceEnvironmentChangeCount() > countBeforePublication);
 		unit.makeConsistent(null);
 		assertTrue("Reconciliation must read the prepublication edit", unit.getType("EditedBeforePublication").getField("changed").exists());
 		assertTrue("The rebuilt model must be consistent", unit.isConsistent());

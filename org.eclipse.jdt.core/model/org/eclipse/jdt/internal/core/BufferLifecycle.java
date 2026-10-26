@@ -138,6 +138,10 @@ final class BufferLifecycle {
 					}
 					checkOpen();
 					buffers.cacheBuffer(this.candidateState.listener, this.buffer);
+					// Provider contents can change silently; ordinary file changes are counted separately.
+					if (isWorkingCopy()) {
+						JavaModelManager.sourceEnvironmentChanged();
+					}
 					return new OpenResult.Complete(this.buffer);
 				}
 			} finally {
@@ -251,13 +255,18 @@ final class BufferLifecycle {
 	void becomeWorkingCopy(CompilationUnit unit, IProblemRequestor requestor) throws JavaModelException {
 		try (Retirement retirement = new Retirement()) {
 			synchronized (this.manager) {
-				if (unit.getPerWorkingCopyInfo() == null) {
+				boolean createWorkingCopy = unit.getPerWorkingCopyInfo() == null;
+				if (createWorkingCopy) {
 					invalidate(unit);
 					retirement.buffer = detach(unit);
 					// The buffer is already detached, so model cleanup cannot call its provider.
 					this.manager.removeInfoAndChildren(unit);
 				}
 				this.manager.getPerWorkingCopyInfo(unit, true, true, requestor);
+				if (createWorkingCopy) {
+					// Notify after both model cleanup and working-copy registration are complete.
+					JavaModelManager.sourceEnvironmentChanged();
+				}
 			}
 		}
 	}
@@ -295,6 +304,8 @@ final class BufferLifecycle {
 				invalidate(unit);
 				retirement.buffer = detach(unit);
 				this.manager.removeInfoAndChildren(unit);
+				// Even a bufferless generation can have model information to retire.
+				JavaModelManager.sourceEnvironmentChanged();
 			}
 			if (deltaBuilder != null) {
 				deltaBuilder.buildDeltas();
@@ -315,9 +326,6 @@ final class BufferLifecycle {
 		if (detached == null) {
 			return null;
 		}
-		// Retirement removes the listener before close, so no close event will
-		// invalidate cached indexer environments for clean provider contents.
-		JavaModelManager.sourceEnvironmentChanged();
 		if (detached.listener() instanceof CompilationUnit registeredUnit && registeredUnit != unit) {
 			registeredUnit.invalidateAST();
 		}

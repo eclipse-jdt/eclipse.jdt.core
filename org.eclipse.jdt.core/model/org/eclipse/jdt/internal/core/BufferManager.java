@@ -77,7 +77,6 @@ private void cacheBuffer(IOpenable owner, IBuffer buffer, Openable sourceListene
 			// Preparation may have changed the contents before publication, when
 			// edit events cannot yet belong to a current cache registration.
 			JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(sourceListener);
-			JavaModelManager.sourceEnvironmentChanged();
 		}
 	}
 	if (VERBOSE) {
