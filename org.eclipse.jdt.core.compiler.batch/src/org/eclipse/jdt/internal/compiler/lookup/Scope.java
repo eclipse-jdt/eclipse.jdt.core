@@ -4756,7 +4756,7 @@ public abstract class Scope {
 					MethodBinding next = moreSpecific[j];
 					if (next == null || i == j) continue;
 					MethodBinding original2 = next.original();
-					if (TypeBinding.equalsEquals(original.declaringClass, original2.declaringClass))
+					if (original != original2 && TypeBinding.equalsEquals(original.declaringClass, original2.declaringClass))
 						break nextSpecific; // duplicates thru substitution
 
 					if (!original.isAbstract()) {
