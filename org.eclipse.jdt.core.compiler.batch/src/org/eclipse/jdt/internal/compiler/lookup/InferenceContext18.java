@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2025 GK Software AG, and others.
+ * Copyright (c) 2013, 2026 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1614,15 +1614,10 @@ public class InferenceContext18 {
 	}
 
 	/**
-	 * Compute the transitive closure of the given dependency relation, in place.
-	 * <p>
-	 * Performance (see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5441): a straight-forward
-	 * fix point computation using {@code Set.addAll()} degrades cubically with the number of inference
-	 * variables, because each round re-attempts (and re-hashes) all the dependencies that are already
-	 * known. Here the membership of each dependency set is mirrored into a {@link BitSet} over dense
-	 * inference variable indices, so that the dominating question "does α already know all dependencies
-	 * of γ?" is answered by a few word operations instead of one hash lookup per element.
-	 * </p>
+	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5441: To quickly compute the transitive closure of the
+	 * given dependency relation in place, we encode the membership of each dependency set into a {@link BitSet} over
+	 * dense inference variable indices, so that the crucial question "does α already know all dependencies of γ?"
+	 * can be answered readily with a few word operations.
 	 */
 	private static void computeTransitiveClosure(Map<InferenceVariable, Set<InferenceVariable>> dependsOn) {
 		// assign a dense index to every inference variable occurring as a key or as a dependency:
@@ -1634,17 +1629,14 @@ public class InferenceContext18 {
 				indexOf.computeIfAbsent(dep, iv -> { nodes.add(iv); return nodes.size() - 1; });
 		}
 		int numNodes = nodes.size();
-		@SuppressWarnings("unchecked")
-		Set<InferenceVariable>[] sets = new Set[numNodes]; // sets[i] == dependsOn.get(nodes.get(i)), or null
 		BitSet[] bits = new BitSet[numNodes]; // membership of sets[i], expressed via indices
 		for (int i = 0; i < numNodes; i++) {
 			Set<InferenceVariable> deps = dependsOn.get(nodes.get(i));
 			if (deps == null)
 				continue; // this ivar has no dependencies recorded (it only occurs as a dependency of others)
-			sets[i] = deps;
 			BitSet members = new BitSet(numNodes);
 			for (InferenceVariable dep : deps)
-				members.set(indexOf.get(dep).intValue());
+				members.set(indexOf.get(dep));
 			bits[i] = members;
 		}
 		BitSet missing = new BitSet(numNodes); // scratch
@@ -1668,7 +1660,7 @@ public class InferenceContext18 {
 					missing.andNot(alphaDeps);
 					if (missing.isEmpty())
 						continue; // nothing new, this is the common case
-					Set<InferenceVariable> alphaSet = sets[alpha];
+					Set<InferenceVariable> alphaSet = dependsOn.get(nodes.get(alpha));
 					for (int beta = missing.nextSetBit(0); beta >= 0; beta = missing.nextSetBit(beta + 1))
 						alphaSet.add(nodes.get(beta));
 					alphaDeps.or(missing);
