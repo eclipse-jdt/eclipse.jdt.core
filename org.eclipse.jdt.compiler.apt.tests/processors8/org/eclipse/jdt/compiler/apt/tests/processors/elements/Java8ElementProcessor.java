@@ -1193,6 +1193,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 		TypeParameterElement pickB = pick.getTypeParameters().get(1);
 		assertEquals("Incorrect bound", pickA, _typeUtils.asElement(pickB.getBounds().get(0)));
 		assertEquals("Incorrect upper bound", pickA, _typeUtils.asElement(((TypeVariable) pickB.asType()).getUpperBound()));
+		TypeVariable annotatedB = (TypeVariable) pick.getParameters().get(0).asType();
+		assertEquals("Incorrect upper bound of annotated type variable", pickA, _typeUtils.asElement(annotatedB.getUpperBound()));
 
 		// shared type arguments must not make the checks exponential
 		TypeElement map = _elementUtils.getTypeElement("java.util.Map");
