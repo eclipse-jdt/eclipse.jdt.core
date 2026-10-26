@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3601,13 +3601,14 @@ protected void consumeEnumConstantNoClassBody() {
 		initialization.sourceEnd = endOfEnumConstant;
 	}
 
-	// conditionally flush comments only if a comment starts inside the enum constant's source range
+	// flush comments that start inside the enum constant or after it, before the following ',' ';' or '}':
+	// they belong to this constant and must not become the javadoc of the next one
 	if (this.scanner.commentPtr >= 0) {
 		int startOfEnumConstant = fieldDeclaration.sourceStart;
 
 		int lastCommentStart = Math.abs(this.scanner.commentStarts[this.scanner.commentPtr]);
-		if (lastCommentStart >= startOfEnumConstant && lastCommentStart <= endOfEnumConstant) {
-			this.scanner.commentPtr = -1; // flush, it's a trailing comment inside the enum constant
+		if (lastCommentStart >= startOfEnumConstant) {
+			this.scanner.commentPtr = -1;
 		}
 	}
 }
