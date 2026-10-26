@@ -471,7 +471,7 @@ public class TypeSystem {
 		return this.types[keyType.id];
 	}
 
-	TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
+	private TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
 		if (keyType == null || derivedType == null || keyType.id == TypeIds.NoId)
 			throw new IllegalStateException();
 
@@ -631,5 +631,12 @@ public class TypeSystem {
 		} else {
 			var.declaringElement = declaringElement;
 		}
+	}
+
+	public TypeVariableBinding deriveWithNewDeclaringElement(TypeVariableBinding originalVariable, Binding declaringElement) {
+		TypeVariableBinding newVariable = new TypeVariableBinding(originalVariable.sourceName, declaringElement,
+				originalVariable.rank, originalVariable.id, this.environment);
+		cacheDerivedType(originalVariable, newVariable);
+		return newVariable;
 	}
 }

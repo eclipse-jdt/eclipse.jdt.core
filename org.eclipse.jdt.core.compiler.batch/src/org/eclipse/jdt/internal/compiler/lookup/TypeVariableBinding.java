@@ -91,6 +91,17 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.prototype = this;
 		computeId(environment);
 	}
+	TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, int id, LookupEnvironment environment) {
+		this.sourceName = sourceName;
+		this.declaringElement = declaringElement;
+		this.rank = rank;
+		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
+		this.tagBits |= TagBits.HasTypeVariable;
+		this.environment = environment;
+		this.typeBits = TypeIds.BitUninitialized;
+		this.prototype = this;
+		this.id = id;
+	}
 
 	// for subclass CaptureBinding
 	protected TypeVariableBinding(char[] sourceName, LookupEnvironment environment) {
@@ -103,15 +114,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 		// don't yet compute the ID!
 	}
 
-	public TypeVariableBinding(TypeVariableBinding prototype, boolean deferConnectingPrototype) {
+	public TypeVariableBinding(TypeVariableBinding prototype) {
 		super(prototype);
-		if (deferConnectingPrototype) {
-			this.prototype = this; // for now pretend this *is* the prototype
-		} else {
-			this.prototype = prototype.prototype;
-			this.prototype.tagBits |= TagBits.HasAnnotatedVariants;
-			this.tagBits &= ~TagBits.HasAnnotatedVariants;
-		}
+		this.prototype = prototype.prototype;
+		this.prototype.tagBits |= TagBits.HasAnnotatedVariants;
+		this.tagBits &= ~TagBits.HasAnnotatedVariants;
 		this.declaringElement = prototype.declaringElement;
 		this.rank = prototype.rank;
 		this.firstBound = prototype.firstBound;
@@ -398,7 +405,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	@Override
 	public TypeBinding clone(TypeBinding enclosingType) {
-		return new TypeVariableBinding(this, false);
+		return new TypeVariableBinding(this);
 	}
 	@Override
 	public String annotatedDebugName() {
