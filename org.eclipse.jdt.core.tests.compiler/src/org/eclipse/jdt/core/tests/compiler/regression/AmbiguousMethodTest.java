@@ -4082,6 +4082,61 @@ public void testScalaLikeHierarchy_collectionsReplica() {
 	consumer.expectedOutputString = "ok";
 	consumer.runConformTest();
 }
+/**
+ * Same as above, but the call site is a *class* which implements the generic
+ * interface Ops twice with different type arguments: size() has one single
+ * declaration and the same substituted signature on both paths, hence the call
+ * must resolve (cf. org.apache.pekko.util.ByteString).
+ */
+public void testScalaLikeHierarchy_classReceiver() {
+	// step 1: produce the (Scala like) class files; the hierarchy error is expected
+	Runner producer = new Runner();
+	producer.testFiles = new String[] {
+		"Pekko.java",
+		"""
+		public class Pekko {
+			public interface Ops<A, CC> {
+				int size();
+			}
+			public interface Seq<A> extends Ops<A, Object> {
+			}
+			public static abstract class ByteString implements Seq<Object>, Ops<Object, String> {
+			}
+		}
+		"""
+	};
+	producer.expectedCompilerLog =
+		"""
+		----------
+		1. ERROR in Pekko.java (at line 7)
+			public static abstract class ByteString implements Seq<Object>, Ops<Object, String> {
+			                             ^^^^^^^^^^
+		The interface Ops cannot be implemented more than once with different arguments: Pekko.Ops<Object,String> and Pekko.Ops<Object,Object>
+		----------
+		""";
+	producer.shouldFlushOutputDirectory = true;
+	producer.generateOutput = true; // the class files are the input of step 2
+	producer.runNegativeTest();
+
+	// step 2: compile the client against the class files only - must be clean
+	Runner consumer = new Runner();
+	consumer.testFiles = new String[] {
+		"Consumer.java",
+		"""
+		public class Consumer {
+			int size(Pekko.ByteString bytes) {
+				return bytes.size();
+			}
+			public static void main(String[] args) {
+				System.out.println("ok");
+			}
+		}
+		"""
+	};
+	consumer.shouldFlushOutputDirectory = false; // keep Pekko*.class
+	consumer.expectedOutputString = "ok";
+	consumer.runConformTest();
+}
 public void testJavaSrcGenuineAmbuigity() {
 	runNegativeTest(
 			new String[] {
