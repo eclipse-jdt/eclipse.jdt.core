@@ -4164,8 +4164,6 @@ public void testJavaSrcGenuineAmbuigity() {
 			"----------\n");
 }
 
-
-
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5576
 // the order of the declarations must not matter when a generic method is inferred to have the parameters of a non-generic one
 public void testGH5576() {
@@ -4237,6 +4235,31 @@ public void testGH5576_duplicates() {
 		2. ERROR in X.java (at line 9)
 			void b(Foo<String> f) { f.g("a", "b"); }
 			                          ^
+		The method g(String, String) is ambiguous for the type X.Foo<String>
+		----------
+		""");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5576
+// same as testGH5576_duplicates with differently named type variables, in a static context
+public void testGH5576_duplicatesOtherTypeVariable() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				interface Foo<T> {
+					<U> void g(T t, U u);
+					<V> void g(String s, V v);
+				}
+				static void b(Foo<String> f) { f.g("a", "b"); }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 6)
+			static void b(Foo<String> f) { f.g("a", "b"); }
+			                                 ^
 		The method g(String, String) is ambiguous for the type X.Foo<String>
 		----------
 		""");
