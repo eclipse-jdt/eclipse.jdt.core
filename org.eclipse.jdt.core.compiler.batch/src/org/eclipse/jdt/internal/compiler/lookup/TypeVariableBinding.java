@@ -91,17 +91,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.prototype = this;
 		computeId(environment);
 	}
-	TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, int id, LookupEnvironment environment) {
-		this.sourceName = sourceName;
-		this.declaringElement = declaringElement;
-		this.rank = rank;
-		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
-		this.tagBits |= TagBits.HasTypeVariable;
-		this.environment = environment;
-		this.typeBits = TypeIds.BitUninitialized;
-		this.prototype = this;
-		this.id = id;
-	}
 
 	// for subclass CaptureBinding
 	protected TypeVariableBinding(char[] sourceName, LookupEnvironment environment) {

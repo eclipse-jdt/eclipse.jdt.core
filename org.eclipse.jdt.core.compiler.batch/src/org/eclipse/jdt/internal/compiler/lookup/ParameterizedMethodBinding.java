@@ -45,7 +45,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				originalMethod.parameters,
 				originalMethod.thrownExceptions,
 				parameterizedDeclaringClass);
-		this.originalMethod = originalMethod;
+		this.originalMethod = originalMethod.original();
 		/* missing type bit cannot be copied as is it might come from the return type or a parameter type that
 		 * is substituted by a raw type.
 		 */
@@ -65,13 +65,13 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			final TypeVariableBinding[] substitutedVariables = new TypeVariableBinding[length];
 			for (int i = 0; i < length; i++) { // copy original type variable to relocate
 				TypeVariableBinding originalVariable = originalVariables[i];
-				if (capturesEnclosingTypeVariables(originalVariable, parameterizedDeclaringClass)) {
-					substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank, parameterizedDeclaringClass.environment);
+				if (originalMethod instanceof ParameterizedMethodBinding) {
+					// we are working from an equivalent PTB, let the new TVB share the id
+					substitutedVariables[i] = new TypeVariableBinding(originalVariable);
 				} else {
-					// create a new TVB instance that, however, shares the same id
-					substitutedVariables[i] = parameterizedDeclaringClass.environment.typeSystem.deriveWithNewDeclaringElement(originalVariable, this);
+					substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank, parameterizedDeclaringClass.environment);
+					substitutedVariables[i].tagBits |= (originalVariable.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation|TagBits.HasMissingType));
 				}
-				substitutedVariables[i].tagBits |= (originalVariable.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation|TagBits.HasMissingType));
 			}
 			this.typeVariables = substitutedVariables;
 
@@ -175,17 +175,6 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				}
 			}
 		}
-	}
-
-	private boolean capturesEnclosingTypeVariables(TypeVariableBinding originalVariable, ReferenceBinding currentDeclaringClass) {
-		while (currentDeclaringClass instanceof ParameterizedTypeBinding parameterizedDeclaringClass) {
-			if (originalVariable.mentionsAny(parameterizedDeclaringClass.type.typeVariables(), -1))
-				return true;
-			if (currentDeclaringClass.isStatic())
-				break;
-			currentDeclaringClass = currentDeclaringClass.enclosingType();
-		}
-		return false;
 	}
 
 	/**

@@ -632,11 +632,4 @@ public class TypeSystem {
 			var.declaringElement = declaringElement;
 		}
 	}
-
-	public TypeVariableBinding deriveWithNewDeclaringElement(TypeVariableBinding originalVariable, Binding declaringElement) {
-		TypeVariableBinding newVariable = new TypeVariableBinding(originalVariable.sourceName, declaringElement,
-				originalVariable.rank, originalVariable.id, this.environment);
-		cacheDerivedType(originalVariable, newVariable);
-		return newVariable;
-	}
 }

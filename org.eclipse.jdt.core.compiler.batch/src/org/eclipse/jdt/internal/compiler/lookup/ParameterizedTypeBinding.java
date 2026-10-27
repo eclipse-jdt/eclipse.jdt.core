@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2025 IBM Corporation and others.
+ * Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1125,7 +1125,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			return this.methods;
 
 		try {
-		    MethodBinding[] originalMethods = this.type.methods();
+			MethodBinding[] originalMethods;
+			ParameterizedTypeBinding equivalent = withoutTopTypeAnnotations();
+			if (equivalent != null && equivalent != this) {  //$IDENTITY-COMPARISON$
+				// use methods of the equivalent type as templates for new PTBs
+				// this helps to let contained type variables share the id.
+				originalMethods = equivalent.methods();
+			} else {
+				originalMethods = this.type.methods();
+			}
 		    int length = originalMethods.length;
 		    MethodBinding[] parameterizedMethods = new MethodBinding[length];
 			boolean useNullTypeAnnotations = this.environment.usesNullTypeAnnotations();
@@ -1146,6 +1154,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return this.methods;
 	}
+
+	private ParameterizedTypeBinding withoutTopTypeAnnotations() {
+		if (this.typeAnnotations == Binding.NO_ANNOTATIONS)
+			return null; // nothing to strip off.
+		return this.environment.createParameterizedType(this.type, this.arguments, this.enclosingType);
+	}
+
 	/**
 	 * Define to be able to get the computeId() for the inner type binding.
 	 *
