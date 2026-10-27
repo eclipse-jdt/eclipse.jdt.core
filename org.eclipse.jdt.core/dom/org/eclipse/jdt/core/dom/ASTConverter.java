@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1532,7 +1532,7 @@ class ASTConverter {
 
 			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration mod = unit.moduleDeclaration;
 			if (mod != null) {
-				ASTNode declaration = convertToModuleDeclaration(mod);
+				ASTNode declaration = convert(mod);
 				if (declaration == null) {
 					compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
 				} else {
@@ -1551,10 +1551,7 @@ class ASTConverter {
 						if (type == null) {
 							compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
 						} else {
-							if (type instanceof ModuleDeclaration)
-								compilationUnit.setModule((ModuleDeclaration) type);
-							else
-								compilationUnit.types().add(type);
+							compilationUnit.types().add(type);
 						}
 					}
 				}
@@ -3874,7 +3871,7 @@ class ASTConverter {
 		end = end > declSourceEnd ? end : declSourceEnd;
 		return end;
 	}
-	public ModuleDeclaration convertToModuleDeclaration(org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
+	public ModuleDeclaration convert(org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 		checkCanceled();
 		if (this.scanner.sourceLevel < ClassFileConstants.JDK9
 				|| this.ast.apiLevel < AST.JLS9_INTERNAL) return null;
