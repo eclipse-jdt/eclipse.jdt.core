@@ -650,7 +650,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 			line.setWrapPolicy(wrapPolicy);
 			lines.set(i, line);
 		}
-		block.setInternalStructure(lines);
+		if (lines.size() > 1)
+			block.setInternalStructure(lines);
 		if (this.options.put_text_block_quotes_on_new_line) {
 			if (block instanceof TokenTextBlock && !checkSemicolonTextBlock(block)) {
 				breakLineAfter(node);
