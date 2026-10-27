@@ -317,6 +317,53 @@ class BoundSet {
 	private TypeBound[] incorporatedBounds = Binding.NO_TYPE_BOUNDS;
 	private TypeBound[] unincorporatedBounds = new TypeBound[8];
 	private int unincorporatedBoundsCount = 0;
+
+	/**
+	 * The bounds {@code α = U} with proper {@code U}, as seen at the start of one round of
+	 * {@link #incorporate(InferenceContext18, TypeBound[], TypeBound[])}. Its identity marks that round,
+	 * see {@link TypeBound#incorporatedDependencyKey}.
+	 */
+	private static final class ProperTypes {
+		final Map<InferenceVariable, TypeBound> byVariable;
+		final boolean anySoft;
+		/** Marks memoized results in {@link TypeBound}, without retaining this object. */
+		final Object token = new Object();
+		ProperTypes(Map<InferenceVariable, TypeBound> byVariable) {
+			this.byVariable = byVariable;
+			boolean soft = false;
+			for (TypeBound bound : byVariable.values()) {
+				soft |= bound.isSoft;
+			}
+			this.anySoft = soft;
+		}
+	}
+
+	/**
+	 * Key identifying a {@link ConstraintTypeFormula} by the identity of its types, its relation and softness.
+	 * Identity is stricter than {@link ConstraintTypeFormula#equalsEquals(ConstraintTypeFormula)}, so two formulas
+	 * with equal keys are certainly reduced to the same result.
+	 */
+	private static final class FormulaKey {
+		private final TypeBinding left, right;
+		private final int relation;
+		private final boolean isSoft;
+		FormulaKey(ConstraintTypeFormula formula) {
+			this.left = formula.left;
+			this.right = formula.right;
+			this.relation = formula.relation;
+			this.isSoft = formula.isSoft;
+		}
+		@Override
+		public int hashCode() {
+			return (31 * System.identityHashCode(this.left) + System.identityHashCode(this.right)) * 31 + this.relation * 2 + (this.isSoft ? 1 : 0);
+		}
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof FormulaKey that
+					&& this.left == that.left && this.right == that.right //$IDENTITY-COMPARISON$
+					&& this.relation == that.relation && this.isSoft == that.isSoft;
+		}
+	}
 	private final TypeBound[] mostRecentBounds = new TypeBound[4]; // for quick & dirty duplicate elimination
 	public boolean isRecordPatternInference;
 
@@ -528,8 +575,12 @@ class BoundSet {
 	boolean incorporate(InferenceContext18 context, TypeBound [] first, TypeBound [] next) throws InferenceFailureException {
 		boolean analyzeNull = context.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 		ConstraintTypeFormula [] mostRecentFormulas = new ConstraintTypeFormula[4]; // poor man's cache to toss out duplicates, in pathological cases there are a good quarter million of them.
+		// Complete cache of the formulas reduced during this call: the same formula is typically implied by many pairs of bounds,
+		// yet reducing it once suffices, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5624
+		// Not used for null analysis, which attaches null hints to each pair of bounds individually.
+		Set<FormulaKey> reducedFormulas = analyzeNull ? null : new HashSet<>();
 		// check each pair, in each way.
-		Map<InferenceVariable,TypeBound> properTypesByInferenceVariable = properTypesByInferenceVariable(first, next);
+		ProperTypes properTypesByInferenceVariable = new ProperTypes(properTypesByInferenceVariable(first, next));
 		for (TypeBound bound1 : first) {
 			for (TypeBound bound2 : next) {
 				if (bound1 == bound2)
@@ -597,13 +648,13 @@ class BoundSet {
 						mostRecentFormulas[1] = mostRecentFormulas[0];
 						mostRecentFormulas[0] = newConstraint;
 
-						if (!reduceOneConstraint(context, newConstraint)) {
+						if (reducedFormulas != null && !reducedFormulas.add(new FormulaKey(newConstraint))) {
+							// identical formula already reduced during this call: reducing it again cannot add new bounds
+						} else if (!reduceOneConstraint(context, newConstraint)) {
 							if (InferenceContext18.DEBUG)
 								System.out.println("Incorporation failed to reduce new constraint "+newConstraint); //$NON-NLS-1$
 							return false;
-						}
-
-						if (analyzeNull) {
+						} else if (analyzeNull) {
 							// not per JLS: if the new constraint relates types where at least one has a null annotations,
 							// record all null tagBits as hints for the final inference solution.
 							long nullHints = (newConstraint.left.tagBits | newConstraint.right.tagBits) & TagBits.AnnotationNullMASK;
@@ -619,6 +670,9 @@ class BoundSet {
 					}
 					if (deriveTypeArgumentConstraints) {
 						for (ConstraintTypeFormula typeArgumentConstraint : deriveTypeArgumentConstraints(bound1, bound2, context)) {
+							if (reducedFormulas != null && !reducedFormulas.add(new FormulaKey(typeArgumentConstraint))) {
+								continue; // already reduced during this call
+							}
 							if (!reduceOneConstraint(context, typeArgumentConstraint)) {
 								if (InferenceContext18.DEBUG)
 									System.out.println("Incorporation failed to reduce new constraint "+newConstraint); //$NON-NLS-1$
@@ -761,7 +815,7 @@ class BoundSet {
 		return null;
 	}
 
-	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT, Map<InferenceVariable,TypeBound> properTypesByInferenceVariable) {
+	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT, ProperTypes properTypesByInferenceVariable) {
 
 		// α = S and α = T imply ⟨S = T⟩
 		if (TypeBinding.equalsEquals(boundS.left, boundT.left))
@@ -780,10 +834,10 @@ class BoundSet {
 
 	// pre: boundLeft.left != boundRight.left
 	private ConstraintTypeFormula combineSameSameWithProperType(TypeBound boundLeft, TypeBound boundRight,
-			Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
+			ProperTypes properTypesByInferenceVariable) {
 		//  α = U and S = T imply ⟨S[α:=U] = T[α:=U]⟩
 		TypeBinding u = boundLeft.right;
-		if (enableOptimizationForBug543480 && isParameterizedDependency(boundRight)) {
+		if (enableOptimizationForBug543480 && boundRight.isParameterizedDependency()) {
 			// Performance optimization: do not incorporate arguments one by one, which yielt 2^n new bounds (n=number of type arguments) in the past.
 			// Instead, all arguments of a parameterized dependency are incorporated at once - but only when they are available.
 			return incorporateIntoParameterizedDependencyIfAllArgumentsAreProperTypes(boundRight,
@@ -804,7 +858,7 @@ class BoundSet {
 		return null;
 	}
 
-	private ConstraintTypeFormula combineSameSubSuper(TypeBound boundS, TypeBound boundT, Map<InferenceVariable,TypeBound> properTypesByInferenceVariable) {
+	private ConstraintTypeFormula combineSameSubSuper(TypeBound boundS, TypeBound boundT, ProperTypes properTypesByInferenceVariable) {
 		//  α = S and α <: T imply ⟨S <: T⟩
 		//  α = S and T <: α imply ⟨T <: S⟩
 		InferenceVariable alpha = boundS.left;
@@ -837,11 +891,11 @@ class BoundSet {
 	// pre: boundLeft.left != boundRight.left
 	// pre: boundLeft.left != boundRight.right
 	private ConstraintTypeFormula combineSameSubSuperWithProperType(TypeBound boundLeft, TypeBound boundRight,
-			InferenceVariable alpha, Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
+			InferenceVariable alpha, ProperTypes properTypesByInferenceVariable) {
 		//  α = U and S <: T imply ⟨S[α:=U] <: T[α:=U]⟩
 		TypeBinding u = boundLeft.right;
 
-		if (enableOptimizationForBug543480 && isParameterizedDependency(boundRight)) {
+		if (enableOptimizationForBug543480 && boundRight.isParameterizedDependency()) {
 			// Performance optimization: do not incorporate arguments one by one, which yielt 2^n new bounds (n=number of type arguments) in the past.
 			// Instead, all arguments of a parameterized dependency are incorporated at once - but only when they are available.
 			return incorporateIntoParameterizedDependencyIfAllArgumentsAreProperTypes(boundRight,
@@ -892,33 +946,98 @@ class BoundSet {
 		return null;
 	}
 
-	private boolean isParameterizedDependency(TypeBound typeBound) {
-		return typeBound.right.kind() == Binding.PARAMETERIZED_TYPE
-				&& !typeBound.right.isProperType(true) /* is a dependency, not a type bound */
-				&& typeBound.right.isParameterizedTypeWithActualArguments();
-	}
-
 	private ConstraintTypeFormula incorporateIntoParameterizedDependencyIfAllArgumentsAreProperTypes(
-			TypeBound typeBound, Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
-		Collection<TypeBound> properTypesForAllInferenceVariables = getProperTypesForAllInferenceVariablesOrNull(
-				(ParameterizedTypeBinding) typeBound.right, properTypesByInferenceVariable);
-		if (null != properTypesForAllInferenceVariables) {
-			return combineWithProperTypes(properTypesForAllInferenceVariables, typeBound);
+			TypeBound typeBound, ProperTypes properTypes) {
+		// The result depends only on typeBound and on properTypes, the latter being constant throughout one round of
+		// incorporate(InferenceContext18, TypeBound[], TypeBound[]). Yet, it is requested for each pair of bounds,
+		// i.e., once per partner bound, while each computation costs one substitution per proper type:
+		// memoize to avoid O(#bounds^2 * #ivars) behavior, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5624
+		if (typeBound.incorporatedDependencyKey == properTypes.token
+				&& typeBound.incorporatedDependencyRight == typeBound.right) { // right may be updated with null annotations, see addBound() //$IDENTITY-COMPARISON$
+			return typeBound.incorporatedDependency;
 		}
-		return null;
+		ConstraintTypeFormula result = null;
+		Map<InferenceVariable, TypeBound> properTypesByInferenceVariable = properTypes.byVariable;
+		if (!properTypesByInferenceVariable.isEmpty()) {
+			ParameterizedTypeBinding right = (ParameterizedTypeBinding) typeBound.right;
+			if (properTypesByInferenceVariable.keySet().containsAll(getInferenceVariables(right))) {
+				if (isPlainlySubstitutable(right)) {
+					// Substituting a proper type for an inference variable not mentioned in 'right' is a no-op,
+					// and substitutions by proper types commute, so only substitute what is actually mentioned.
+					Set<InferenceVariable> mentioned = new LinkedHashSet<>();
+					right.collectInferenceVariables(mentioned); // including the enclosing type
+					List<TypeBound> relevant = new ArrayList<>(mentioned.size());
+					for (InferenceVariable variable : mentioned) {
+						TypeBound bound = properTypesByInferenceVariable.get(variable);
+						if (bound != null) {
+							relevant.add(bound);
+						}
+					}
+					// softness still accounts for all proper types, as did the exhaustive substitution
+					result = combineWithProperTypes(relevant, typeBound, properTypes.anySoft);
+				} else {
+					result = combineWithProperTypes(properTypesByInferenceVariable.values(), typeBound, properTypes.anySoft);
+				}
+			}
+		}
+		typeBound.incorporatedDependencyKey = properTypes.token;
+		typeBound.incorporatedDependencyRight = typeBound.right;
+		typeBound.incorporatedDependency = result;
+		return result;
 	}
 
-	private Collection<TypeBound> getProperTypesForAllInferenceVariablesOrNull(
-			ParameterizedTypeBinding parameterizedType,
-			Map<InferenceVariable, TypeBound> properTypesByInferenceVariable) {
-		if (properTypesByInferenceVariable.isEmpty()) {
-			return null;
+	/**
+	 * Answer whether {@link TypeBinding#substituteInferenceVariable(InferenceVariable, TypeBinding)} reaches exactly
+	 * those inference variables that are found by {@link TypeBinding#collectInferenceVariables(Set)}.
+	 * This is not the case for type variables and captures (whose bounds may be substituted but are not collected),
+	 * nor for intersection types (which are collected but not substituted).
+	 */
+	private static boolean isPlainlySubstitutable(TypeBinding type) {
+		if (type instanceof InferenceVariable) {
+			return true;
 		}
-		final Set<InferenceVariable> inferenceVariables = getInferenceVariables(parameterizedType);
-		if(properTypesByInferenceVariable.keySet().containsAll(inferenceVariables)) {
-			return properTypesByInferenceVariable.values();
+		switch (type.kind()) {
+			case Binding.BASE_TYPE:
+			case Binding.TYPE:
+			case Binding.GENERIC_TYPE:
+			case Binding.RAW_TYPE: // neither substituted nor collected
+				return true;
+			case Binding.ARRAY_TYPE:
+				return isPlainlySubstitutable(((ArrayBinding) type).leafComponentType);
+			case Binding.WILDCARD_TYPE:
+			case Binding.INTERSECTION_TYPE: // a wildcard with additional bounds
+				if (!(type instanceof WildcardBinding)) {
+					return false;
+				}
+				WildcardBinding wildcard = (WildcardBinding) type;
+				if (wildcard.bound != null && !isPlainlySubstitutable(wildcard.bound)) {
+					return false;
+				}
+				if (wildcard.otherBounds != null) {
+					for (TypeBinding otherBound : wildcard.otherBounds) {
+						if (!isPlainlySubstitutable(otherBound)) {
+							return false;
+						}
+					}
+				}
+				return true;
+			case Binding.PARAMETERIZED_TYPE:
+				if (!(type instanceof ParameterizedTypeBinding)) {
+					return false;
+				}
+				ParameterizedTypeBinding parameterized = (ParameterizedTypeBinding) type;
+				if (parameterized.arguments != null) {
+					for (TypeBinding argument : parameterized.arguments) {
+						if (argument != parameterized && !isPlainlySubstitutable(argument)) { //$IDENTITY-COMPARISON$
+							return false;
+						}
+					}
+				}
+				ReferenceBinding enclosing = parameterized.enclosingType();
+				return parameterized.isStatic() || enclosing == null || isPlainlySubstitutable(enclosing);
+			default:
+				return false;
 		}
-		return null;
 	}
 
 	private Map<InferenceVariable,TypeBound> properTypesByInferenceVariable(TypeBound[] firstBounds, TypeBound[] nextBounds) {
@@ -949,21 +1068,13 @@ class BoundSet {
 		return inferenceVariables;
 	}
 
-	private ConstraintTypeFormula combineWithProperTypes(Collection<TypeBound> properTypesForAllInferenceVariables, TypeBound boundRight) {
+	private ConstraintTypeFormula combineWithProperTypes(Collection<TypeBound> properTypesForAllInferenceVariables, TypeBound boundRight, boolean isAnyLeftSoft) {
 		// either: α = U, β = V, ... and S =  T imply ⟨S[α:=U, β:=V, ...] =  T[α:=U, β:=V, ...]⟩
 		// or:     α = U, β = V, ... and S <: T imply ⟨S[α:=U, β:=V, ...] <: T[α:=U, β:=V, ...]⟩
-		if(properTypesForAllInferenceVariables.size() == 0) {
-			return null;
-		}
-		boolean isAnyLeftSoft = false;
 		InferenceVariable left = boundRight.left;
 		TypeBinding right = boundRight.right;
 		for(final TypeBound properTypeForInferenceVariable: properTypesForAllInferenceVariables) {
-			final TypeBound boundLeft = properTypeForInferenceVariable;
-			final InferenceVariable alpha = boundLeft.left;
-			final TypeBinding u = boundLeft.right;
-			isAnyLeftSoft |= boundLeft.isSoft;
-			right = right.substituteInferenceVariable(alpha, u);
+			right = right.substituteInferenceVariable(properTypeForInferenceVariable.left, properTypeForInferenceVariable.right);
 		}
 		return ConstraintTypeFormula.create(left, right, boundRight.relation, isAnyLeftSoft||boundRight.isSoft);
 	}
