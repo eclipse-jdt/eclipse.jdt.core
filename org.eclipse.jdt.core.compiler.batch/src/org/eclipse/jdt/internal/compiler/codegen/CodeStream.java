@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3170,8 +3170,8 @@ public void generateSyntheticBodyForRecordCanonicalConstructor(SyntheticMethodBi
 	ReferenceBinding superClass = declaringClass.superclass();
 	MethodBinding superCons = superClass.getExactConstructor(new TypeBinding[0]);
 	CompilerOptions compilerOptions = declaringClass.scope.compilerOptions();
-	boolean safeConstruction = JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(compilerOptions.sourceLevel, compilerOptions.enablePreviewFeatures);
-	if (!safeConstruction) {
+	boolean strictlyInitializedFields = JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(compilerOptions);
+	if (!strictlyInitializedFields) {
 		aload_0();
 		invoke(Opcodes.OPC_invokespecial, superCons, superClass);
 	}
@@ -3195,7 +3195,7 @@ public void generateSyntheticBodyForRecordCanonicalConstructor(SyntheticMethodBi
 		}
 		fieldAccess(Opcodes.OPC_putfield, field, declaringClass);
 	}
-	if (safeConstruction) {
+	if (strictlyInitializedFields) {
 		aload_0();
 		invoke(Opcodes.OPC_invokespecial, superCons, superClass);
 	}

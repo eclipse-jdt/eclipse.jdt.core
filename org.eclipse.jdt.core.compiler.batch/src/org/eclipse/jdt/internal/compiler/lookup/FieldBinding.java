@@ -340,7 +340,7 @@ public Binding getProxy() {
 		if (sourceType.scope != null && (proxyScope = sourceType.scope.referenceContext.initializerScope) != null)
 			return proxyScope.getProxy(this);
 	}
-	return null; // binary type ?
+	return null;
 }
 
 /* Answer true if the receiver has default visibility

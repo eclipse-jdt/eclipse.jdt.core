@@ -2901,7 +2901,7 @@ private boolean shouldInitializeStrictly() {
 				return true;
 			if (!declaringClass.isRecord())
 				return false;
-			if (this.options == null || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.options.sourceLevel, this.options.enablePreviewFeatures))
+			if (this.options == null || !JavaFeature.STRICTLY_INITIALIZED_FIELDS.isSupported(this.options))
 				return false;
 			return true;
 		}
@@ -4010,15 +4010,25 @@ protected void consumeExpressionStatement() {
 	pushOnAstStack(expression);
 }
 
-public boolean requireReferenceOfFieldOfThis(Expression tos) {
+public boolean requireReferenceOfFieldOfThis(Expression tos) { // for better test coverage, we do this for all constructors even in JDK27- i.e not just in preview mode.
 	if (!tos.isThis() || this.referenceContext instanceof MethodDeclaration)
 		return false;
+
+	if (!tos.isQualifiedThis() && this.referenceContext instanceof ConstructorDeclaration)
+		return true;
+
 	char [] className = null;
 	for (int i = this.astPtr; i >=0; i--) {
 		if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
 			if (declaringClass.declarationSourceEnd > 0)
 				continue; // skip preceding member types
 			className = declaringClass.name;
+			break;
+		}
+		if (this.astStack[i] instanceof ConstructorDeclaration constructor) {
+			if (!tos.isQualifiedThis())
+				return true;
+			className = constructor.selector;
 			break;
 		}
 		if (this.astStack[i] instanceof MethodDeclaration)
