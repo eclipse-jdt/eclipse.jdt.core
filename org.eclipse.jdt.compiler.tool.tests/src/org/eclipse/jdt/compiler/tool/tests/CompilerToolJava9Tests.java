@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReference;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
@@ -154,6 +157,90 @@ public class CompilerToolJava9Tests extends TestCase {
 			}
 		}
 
+	}
+	/**
+	 * The system modules of the Eclipse file manager are those of the running JDK.
+	 */
+	public void testListLocationsForSystemModules() throws IOException {
+		if (this.isJREBelow9) return;
+		Set<String> expected = new TreeSet<>();
+		for (ModuleReference module : ModuleFinder.ofSystem().findAll()) {
+			expected.add(module.descriptor().name());
+		}
+		try (StandardJavaFileManager manager = this.compilers[1].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			assertEquals(expected, systemModuleNames(manager));
+		}
+	}
+	/**
+	 * The JrtFileSystem of the Eclipse file manager walks the image for its modules only, without their content: the
+	 * locations of the system modules and the classes of each of their packages are those of the javac file manager.
+	 */
+	public void testSystemModulesContent() throws IOException {
+		if (this.isJREBelow9) return;
+		try (StandardJavaFileManager javac = this.compilers[0].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+				StandardJavaFileManager manager = this.compilers[1].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			for (ModuleReference module : ModuleFinder.ofSystem().findAll()) {
+				String name = module.descriptor().name();
+				Location expectedLocation = javac.getLocationForModule(StandardLocation.SYSTEM_MODULES, name);
+				Location location = manager.getLocationForModule(StandardLocation.SYSTEM_MODULES, name);
+				assertNotNull("No location for " + name, location);
+				assertEquals(name, manager.inferModuleName(location));
+				for (String packageName : module.descriptor().packages()) {
+					assertEquals(name + "/" + packageName, listClasses(javac, expectedLocation, packageName),
+							listClasses(manager, location, packageName));
+				}
+			}
+			assertTrue(listClasses(manager, manager.getLocationForModule(StandardLocation.SYSTEM_MODULES, "java.base"), "java.lang")
+					.contains("java.lang.Object"));
+			assertNull(manager.getLocationForModule(StandardLocation.SYSTEM_MODULES, "no.such.module"));
+		}
+	}
+	/**
+	 * A JDK given as platform class path replaces the system modules of the Eclipse file manager by those of the
+	 * JrtFileSystem of this JDK, created for the compilation.
+	 */
+	public void testSystemModulesOfPlatformClassPath() throws IOException {
+		if (this.isJREBelow9) return;
+		File moduleDir = new File(_tmpSrcDir, "m");
+		File packageDir = new File(moduleDir, "p");
+		Files.createDirectories(packageDir.toPath());
+		File moduleInfo = new File(moduleDir, "module-info.java");
+		Files.writeString(moduleInfo.toPath(), "module m { requires java.sql; }");
+		File type = new File(packageDir, "X.java");
+		Files.writeString(type.toPath(), "package p;\npublic class X { java.sql.Connection connection; }");
+		Set<String> expected = new TreeSet<>();
+		for (ModuleReference module : ModuleFinder.ofSystem().findAll()) {
+			expected.add(module.descriptor().name());
+		}
+		try (StandardJavaFileManager manager = this.compilers[1].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			manager.setLocation(StandardLocation.PLATFORM_CLASS_PATH, List.of(new File(System.getProperty("java.home"))));
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+			List<String> options = List.of("-d", _tmpBinFolderName);
+			Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(List.of(moduleInfo, type));
+			Boolean result = this.compilers[1].getTask(printWriter, manager, null, options, null, units).call();
+			printWriter.flush();
+			assertTrue("Compilation failed: " + stringWriter, result.booleanValue());
+			assertEquals(expected, systemModuleNames(manager));
+			assertTrue(listClasses(manager, manager.getLocationForModule(StandardLocation.SYSTEM_MODULES, "java.sql"), "java.sql")
+					.contains("java.sql.Connection"));
+		}
+	}
+	private static Set<String> systemModuleNames(JavaFileManager manager) throws IOException {
+		Set<String> modules = new TreeSet<>();
+		for (Set<Location> locations : manager.listLocationsForModules(StandardLocation.SYSTEM_MODULES)) {
+			for (Location location : locations) {
+				modules.add(manager.inferModuleName(location));
+			}
+		}
+		return modules;
+	}
+	private static Set<String> listClasses(JavaFileManager manager, Location location, String packageName) throws IOException {
+		Set<String> names = new TreeSet<>();
+		for (JavaFileObject file : manager.list(location, packageName, Set.of(Kind.CLASS), false)) {
+			names.add(manager.inferBinaryName(location, file));
+		}
+		return names;
 	}
 	public void testSupportedCompilerVersions() throws IOException {
 		if (this.isJREBelow9) return;
