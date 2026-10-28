@@ -220,8 +220,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 					classFile.addProblemMethod(methodDecl, method, problemsCopy);
 				}
 			}
-			// add abstract methods
-			classFile.addDefaultAbstractMethods();
 		}
 
 		// propagate generation of (problem) member types
@@ -468,22 +466,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int constantPoolCount = this.constantPool.currentIndex;
 		this.header[this.constantPoolOffset++] = (byte) (constantPoolCount >> 8);
 		this.header[this.constantPoolOffset] = (byte) constantPoolCount;
-	}
-
-	/**
-	 * INTERNAL USE-ONLY
-	 * This methods generate all the default abstract method infos that correpond to
-	 * the abstract methods inherited from superinterfaces.
-	 */
-	public void addDefaultAbstractMethods() { // default abstract methods
-		MethodBinding[] defaultAbstractMethods =
-			this.referenceBinding.getDefaultAbstractMethods();
-		for (MethodBinding methodBinding : defaultAbstractMethods) {
-			generateMethodInfoHeader(methodBinding);
-			int methodAttributeOffset = this.contentsOffset;
-			int attributeNumber = generateMethodInfoAttributes(methodBinding);
-			completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
-		}
 	}
 
 	private int addFieldAttributes(FieldBinding fieldBinding, int fieldAttributeOffset) {
@@ -961,14 +943,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		// default abstract methods
 		generateMissingAbstractMethods(this.referenceBinding.scope.referenceType().missingAbstractMethods, this.referenceBinding.scope.referenceCompilationUnit().compilationResult);
-
-		MethodBinding[] defaultAbstractMethods = this.referenceBinding.getDefaultAbstractMethods();
-		for (MethodBinding methodBinding : defaultAbstractMethods) {
-			generateMethodInfoHeader(methodBinding);
-			int methodAttributeOffset = this.contentsOffset;
-			int attributeNumber = generateMethodInfoAttributes(methodBinding);
-			completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
-		}
 
 		// add synthetic methods infos
 		int emittedSyntheticsCount = 0;
