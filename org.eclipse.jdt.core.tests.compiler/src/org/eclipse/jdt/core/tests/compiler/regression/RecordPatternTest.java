@@ -5109,4 +5109,34 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		runner.javacTestOptions = JavacHasABug.JavacBug8383563;
 		runner.runConformTest();
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5631
+	// MatchException on switch when destructuring a record element with a null parameter
+	public void testIssue5631() {
+		runConformTest(new String[] { "X.java", """
+			public class X {
+				sealed interface Result<T> permits Failure, Success {
+				}
+
+				record Failure<T>(String message) implements Result<T> {
+				}
+
+				record Success<T>(T data) implements Result<T> {
+				}
+
+				public static void main(String[] args) {
+					Result<?> result = new Success<>(null); // Works fine if given a non-null parameter
+
+					System.out.println(switch (result) {
+					case Failure<?>(var message) -> {
+						yield "Failure";
+					}
+					// case Success<?> data -> {  // This version works
+					case Success<?>(var data) -> { // This one fails with "Exception in thread "main" java.lang.MatchException at Test.main(Test.java:20)"
+						yield "Success";
+					}
+					});
+				}
+			}
+			""" }, "Success");
+	}
 }

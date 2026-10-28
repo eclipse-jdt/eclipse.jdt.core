@@ -155,6 +155,7 @@ public class RecordPattern extends Pattern {
 				if (tp.getType() == null || tp.getType().isTypeNameVar(scope)) {
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
+					tp.resolvedType = componentBinding.type;
 				}
 			}
 			TypeBinding componentType = componentBinding.type;
