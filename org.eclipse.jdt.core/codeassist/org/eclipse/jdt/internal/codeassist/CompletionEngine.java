@@ -4673,8 +4673,6 @@ public final class CompletionEngine
 		nextMethod : for (MethodBinding method : methods) {
 			if (method.isSynthetic()) continue nextMethod;
 
-			if (method.isDefaultAbstract())	continue nextMethod;
-
 			if (method.isConstructor()) continue nextMethod;
 
 			if (isStatic && !method.isStatic()) continue nextMethod;
@@ -8734,8 +8732,6 @@ public final class CompletionEngine
 
 			if (method.isSynthetic()) continue next;
 
-			if (method.isDefaultAbstract())	continue next;
-
 			if (method.isConstructor()) continue next;
 
 			if (!method.isStatic()) continue next;
@@ -9250,8 +9246,6 @@ public final class CompletionEngine
 			MethodBinding method = methods[f];
 			if (method.isSynthetic())	continue next;
 
-			if (method.isDefaultAbstract()) continue next;
-
 			if (method.isConstructor()) continue next;
 
 			if (method.isFinal()) {
@@ -9414,8 +9408,6 @@ public final class CompletionEngine
 			if (completingInPreamble(method))
 				continue next;
 			if (method.isSynthetic()) continue next;
-
-			if (method.isDefaultAbstract())	continue next;
 
 			if (method.isConstructor()) continue next;
 
@@ -9870,8 +9862,6 @@ public final class CompletionEngine
 
 				if (method.isSynthetic()) continue next;
 
-				if (method.isDefaultAbstract())	continue next;
-
 				if (method.isConstructor()) continue next;
 
 				if (this.options.checkDeprecation &&
@@ -10156,8 +10146,6 @@ public final class CompletionEngine
 			MethodBinding method = methods[f];
 
 			if (method.isSynthetic()) continue next;
-
-			if (method.isDefaultAbstract())	continue next;
 
 			if (method.isConstructor()) continue next;
 
@@ -10895,9 +10883,7 @@ public final class CompletionEngine
 							CharOperation.equals(smb.selector, TypeConstants.TOSTRING))
 					continue; // allow proposals to override compiler supplied implementations.
 				}
-				if(!receiverTypeMethod.isDefaultAbstract()) {
-					methodsFound.add(receiverTypeMethod);
-				}
+				methodsFound.add(receiverTypeMethod);
 			}
 		}
 
