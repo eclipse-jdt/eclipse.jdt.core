@@ -210,9 +210,12 @@ public class InferenceContext18 {
 	}
 
 	public InferenceContext18(Scope scope) {
-		this.scope = scope;
-		this.environment = scope.environment();
-		this.object = scope.getJavaLangObject();
+		this(scope, null);
+	}
+
+	public InferenceContext18(Scope scope, InvocationSite site) {
+		this(scope, null, site);
+
 	}
 
 	/**
