@@ -59,6 +59,7 @@ public class MultiReleaseTests extends BuilderTests {
 			assertFalse(plain.equals(mr9));
 			assertFalse(mr9.equals(plain));
 			assertFalse(mr9.equals(mr11));
+			assertFalse(mr9.hashCode() == mr11.hashCode());
 			assertTrue(mr9.equals(mr9Again));
 			assertEquals(mr9.hashCode(), mr9Again.hashCode());
 		} finally {

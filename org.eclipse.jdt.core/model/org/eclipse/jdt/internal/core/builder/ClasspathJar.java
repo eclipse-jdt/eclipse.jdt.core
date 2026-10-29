@@ -110,7 +110,7 @@ protected Set<String> readPackageNames() {
 IModule initializeModule() {
 	IModule mod = null;
 	try (ZipFile file = new ZipFile(this.zipFilename)) {
-		ClassFileReader classfile = ClassFileReader.read(file, IModule.MODULE_INFO_CLASS); // FIXME: use jar cache
+		ClassFileReader classfile = ClassFileReader.read(file, IModule.MODULE_INFO_CLASS);
 		if (classfile != null) {
 			mod = classfile.getModuleDeclaration();
 		}

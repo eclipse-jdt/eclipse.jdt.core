@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -49,12 +50,12 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && o instanceof ClasspathMultiReleaseJar jar
-				&& Util.equalOrNull(this.compliance, jar.compliance);
+				&& Objects.equals(this.compliance, jar.compliance);
 	}
 
 	@Override
 	public int hashCode() {
-		return super.hashCode();
+		return 31 * super.hashCode() + Objects.hashCode(this.compliance);
 	}
 
 	@Override
