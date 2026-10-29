@@ -574,9 +574,10 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 		if (CharOperation.equals(superclassName, TypeConstants.CharArray_JAVA_LANG_RECORD_SLASH)){
 			this.modifiers |= ExtraCompilerModifiers.AccRecord;
 		}
-		if (this.isValueClass()) {
+
+		if (this.isClass() && (this.modifiers & ClassFileConstants.AccIdentity) == 0)
 			this.modifiers |= ExtraCompilerModifiers.AccValue;
-		}
+
 		if (typeSignature == null)  {
 			if (superclassName != null) {
 				// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)

@@ -40,6 +40,7 @@ public class AllAptTests extends TestCase {
 		suite.addTestSuite(RecordElementsTests.class);
 		suite.addTestSuite(SealedTypeElementsTests.class);
 		suite.addTestSuite(AnnotationProcessorTests.class);
+		suite.addTestSuite(ValueTypeElementTests.class);
 		return suite;
 	}
 }
