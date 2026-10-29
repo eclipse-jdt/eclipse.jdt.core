@@ -199,6 +199,13 @@ public class Factory {
 						// Don't have JDK 17, just ignore and proceed.
 					}
 					break;
+				case ExtraCompilerModifiers.AccValue:
+					try {
+						appendModifier(result, modifiers, checkBit, Modifier.valueOf("VALUE")); //$NON-NLS-1$
+					} catch(IllegalArgumentException iae) {
+						// Don't have JDK 28, just ignore and proceed.
+					}
+					break;
 			}
 		}
 	}
@@ -320,7 +327,8 @@ public class Factory {
 					ClassFileConstants.AccStatic,
 					ClassFileConstants.AccStrictfp,
 					ExtraCompilerModifiers.AccSealed,
-					ExtraCompilerModifiers.AccNonSealed
+					ExtraCompilerModifiers.AccNonSealed,
+					ExtraCompilerModifiers.AccValue
 				});
 				break;
 			case MODULE :

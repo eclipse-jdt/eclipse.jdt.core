@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -573,6 +573,9 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 		char[] superclassName = binaryType.getSuperclassName();
 		if (CharOperation.equals(superclassName, TypeConstants.CharArray_JAVA_LANG_RECORD_SLASH)){
 			this.modifiers |= ExtraCompilerModifiers.AccRecord;
+		}
+		if (this.isValueClass()) {
+			this.modifiers |= ExtraCompilerModifiers.AccValue;
 		}
 		if (typeSignature == null)  {
 			if (superclassName != null) {
