@@ -488,6 +488,8 @@ public class EclipseCompilerImpl extends Main {
 		// Sometimes this gets called too early there by losing locations set after that point.
 		// The code is now moved to handleLocations() which is invoked just before compilation
 		validateClasspathOptions(bootclasspaths, endorsedDirClasspaths, extdirsClasspaths);
+		// the sources that --patch-module puts into a module, as Main.setPaths() does
+		handlePatchModule();
 	}
 	@Override
 	protected void handleSingleModuleCompilation() {
