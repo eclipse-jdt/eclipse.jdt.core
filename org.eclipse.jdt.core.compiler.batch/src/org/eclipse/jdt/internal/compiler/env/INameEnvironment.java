@@ -76,6 +76,19 @@ public interface INameEnvironment {
 	boolean isPackage(char[][] parentPackageName, char[] packageName);
 
 	/**
+	 * Answer whether the package, known to {@link #isPackage(char[][], char[])}, holds a type: in a
+	 * compilation unit of its own or of one of its sub-packages (JLS 7.4.3: only such a package is
+	 * observable). A type collides only with an observable package, not with a folder of resources.
+	 * <p>
+	 * The default answers <code>true</code>: an environment whose {@link #isPackage(char[][], char[])}
+	 * only reports packages that hold types needs nothing more.
+	 * </p>
+	 */
+	default boolean isObservablePackage(char[][] packageName) {
+		return true;
+	}
+
+	/**
 	 * This method cleans the environment. It is responsible for releasing the memory
 	 * and freeing resources. Passed that point, the name environment is no longer usable.
 	 *
