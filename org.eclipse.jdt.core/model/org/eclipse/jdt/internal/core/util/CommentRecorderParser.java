@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -117,6 +117,12 @@ public class CommentRecorderParser extends Parser {
 	protected void consumeEnumHeader() {
 		pushOnCommentsStack(0, this.scanner.commentPtr);
 		super.consumeEnumHeader();
+	}
+
+	@Override
+	protected void consumeEnumConstantNoClassBody() {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeEnumConstantNoClassBody();
 	}
 
 	@Override

@@ -3867,4 +3867,45 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String text = ((TextElement)childElements.get(0)).getText();
 		assertEquals("Incorrect Text content", " see java.util.ArrayList", text);
 	}
+
+	/**
+	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/33
+	 * A comment between an enum constant and the following comma belongs to neither constant:
+	 * it must not become the Javadoc of the next constant or extend its source range,
+	 * but it must still be in the comment list.
+	 */
+	public void testIssue33() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		String source =
+			"package javadoc.issue33;\n" +
+			"public enum Test {\n" +
+			"	FOO /** random javadoc */,\n" +
+			"	BAR(/* c */ 1),\n" +
+			"	BAZ;\n" +
+			"	Test() {}\n" +
+			"	Test(int i) {}\n" +
+			"}\n";
+		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/issue33/Test.java", source);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+
+		// both comments must still be in the comment list
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 2, unitComments.size());
+		Comment javadoc = (Comment) unitComments.get(0);
+		assertEquals("Wrong position of first comment", source.indexOf("/** random javadoc */"), javadoc.getStartPosition());
+		assertTrue("First comment should be a Javadoc", javadoc.isDocComment());
+		assertNull("Misplaced Javadoc should not be attached to any node", javadoc.getParent());
+		Comment blockComment = (Comment) unitComments.get(1);
+		assertEquals("Wrong position of second comment", source.indexOf("/* c */"), blockComment.getStartPosition());
+
+		// neither comment may be attached to, or extend the range of, the following constant
+		EnumDeclaration enumDeclaration = (EnumDeclaration) compilUnit.types().get(0);
+		List constants = enumDeclaration.enumConstants();
+		assertEquals("Wrong number of constants", 3, constants.size());
+		EnumConstantDeclaration bar = (EnumConstantDeclaration) constants.get(1);
+		assertNull("BAR should not have a Javadoc", bar.getJavadoc());
+		assertEquals("BAR should start at its name", source.indexOf("BAR"), bar.getStartPosition());
+		EnumConstantDeclaration baz = (EnumConstantDeclaration) constants.get(2);
+		assertEquals("BAZ should start at its name", source.indexOf("BAZ"), baz.getStartPosition());
+	}
 }
