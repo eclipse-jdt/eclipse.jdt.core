@@ -6688,6 +6688,48 @@ public final class JavaCore extends Plugin {
 		}
 		return Collections.emptySet();
 	}
+	
+	/**
+	 * Returns true if the version string passed is an LTS, false otherwise
+	 *
+	 * @param version number
+	 * @return true if version is an LTS, false otherwise
+	 * @since 3.48
+	 */
+	public static boolean isVersionLTS(String version) {
+		int numericVersion = Integer.parseInt(version);
+		return numericVersion == 8 || numericVersion == 11 || (numericVersion >= 17 && (numericVersion - 17) % 4 == 0);
+	}
+
+	/**
+	 * Returns the next LTS given a Java version. If none available it returns null.
+	 *
+	 * @param java version
+	 * @return next LTS java version
+	 * @since 3.48
+	 */
+	public static String getNextLTS(String version) {
+		int numericVersion = Integer.parseInt(version);
+		if(isVersionLTS(version)) {
+			return version; //is Already at latest LTS
+		}
+		if (numericVersion<=8) {
+			return JavaCore.VERSION_1_8;
+		}
+		if (numericVersion<=11) {
+			return JavaCore.VERSION_11;
+		}
+		if (numericVersion <= 17) {
+			return JavaCore.VERSION_17;
+		}
+		if (numericVersion > 17) {
+			int numberOfReleasesToAdd = (numericVersion - 17)/4 + ((numericVersion - 17)%4==0? 0 : 1);
+			int nextTLS=17 + 4*numberOfReleasesToAdd;
+			if (nextTLS < Integer.parseInt(JavaCore.latestSupportedJavaVersion()))
+				return Integer.toString(nextTLS);
+		}
+		return null;
+	}
 
 
 	/* (non-Javadoc)
