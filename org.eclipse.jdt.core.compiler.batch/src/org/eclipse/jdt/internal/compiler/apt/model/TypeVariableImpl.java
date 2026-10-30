@@ -20,9 +20,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
@@ -56,25 +54,11 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	@Override
 	public TypeMirror getUpperBound() {
 		TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this._binding;
-		TypeBinding firstBound = typeVariableBinding.firstBound;
-		ReferenceBinding[] superInterfaces = typeVariableBinding.superInterfaces;
-        ReferenceBinding superclass = typeVariableBinding.superclass;
-		if (firstBound == null || superInterfaces.length == 0) {
-			// no explicit bound
-			return this._env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
+		TypeBinding[] bounds = TypeParameterElementImpl.getBoundBindings(typeVariableBinding);
+		if (bounds.length > 1 && !bounds[0].isArrayType()) { // array: capture of ? extends ArrayType, whose upper bound is the array
+			return new IntersectionTypeImpl(this._env, bounds);
 		}
-		if (superInterfaces.length == 1 && TypeBinding.equalsEquals(superInterfaces[0], firstBound)) {
-			// only one bound that is an interface
-			return this._env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
-		}
-
-        boolean superClassIsObject = TypeIds.T_JavaLangObject == typeVariableBinding.superclass().id;
-        int superTypeCount = superInterfaces.length + (superClassIsObject ? 0 : 1);
-        if (superTypeCount > 1) {
-            return new IntersectionTypeImpl(this._env, typeVariableBinding, superClassIsObject ? null : superclass);
-        }
-
-		return this._env.getFactory().newTypeMirror(this._binding);
+		return this._env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
 	}
 
 	/* (non-Javadoc)

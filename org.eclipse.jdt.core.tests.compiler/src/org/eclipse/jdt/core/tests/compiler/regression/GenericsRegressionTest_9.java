@@ -2752,6 +2752,23 @@ public void testIssue5567() {
 	});
 	assertTrue("Test should take less than a second, certainly not a minute", System.currentTimeMillis() < (start + 60000));
 }
+public void testIssue5568() {
+	runConformTest(new String[] {
+			"Outer.java",
+			"""
+			public class Outer<T> {
+				public class Inner {
+					 public <V extends T> V m() { return null; }
+				}
+			}
+			class Test {
+				void test(Outer<Integer>.Inner b) {
+					 Integer i = b.m(); // Type mismatch: cannot convert from T to Integer
+				}
+			}
+			"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }

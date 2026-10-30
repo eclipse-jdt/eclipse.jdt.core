@@ -21,15 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.NullType;
-import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.WildcardType;
+import javax.lang.model.type.*;
 import javax.lang.model.util.Types;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
@@ -257,6 +249,10 @@ public class TypesImpl implements Types {
     @Override
     public List<? extends TypeMirror> directSupertypes(TypeMirror t) {
     	validateRealType(t);
+    	if (t instanceof IntersectionType intersectionType) {
+    		// JLS §4.10.2: the direct supertypes of an intersection type are its components
+    		return intersectionType.getBounds();
+    	}
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
         Binding binding = typeMirrorImpl._binding;
         if (binding instanceof ReferenceBinding) {
@@ -277,6 +273,10 @@ public class TypesImpl implements Types {
     @Override
     public TypeMirror erasure(TypeMirror t) {
     	validateRealType(t);
+    	if (t instanceof IntersectionType intersectionType) {
+    		// JLS §4.6: the erasure of an intersection type is the erasure of its leftmost component
+    		return erasure(intersectionType.getBounds().get(0));
+    	}
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
         Binding binding = typeMirrorImpl._binding;
         if (binding instanceof ReferenceBinding) {
@@ -301,6 +301,9 @@ public class TypesImpl implements Types {
 
     @Override
     public ArrayType getArrayType(TypeMirror componentType) {
+        if (componentType.getKind() == TypeKind.INTERSECTION) {
+            throw new IllegalArgumentException("Invalid array component type: " + componentType); //$NON-NLS-1$
+        }
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) componentType;
         TypeBinding typeBinding = (TypeBinding) typeMirrorImpl._binding;
         return (ArrayType) this._env.getFactory().newTypeMirror(
@@ -417,6 +420,10 @@ public class TypesImpl implements Types {
         if (extendsBound != null && superBound != null) {
             throw new IllegalArgumentException("Extends and super bounds cannot be set at the same time"); //$NON-NLS-1$
         }
+        if ((extendsBound != null && extendsBound.getKind() == TypeKind.INTERSECTION)
+                || (superBound != null && superBound.getKind() == TypeKind.INTERSECTION)) {
+            throw new IllegalArgumentException("Invalid wildcard bound: " + (extendsBound != null ? extendsBound : superBound)); //$NON-NLS-1$
+        }
         if (extendsBound != null) {
             TypeMirrorImpl extendsBoundMirrorType = (TypeMirrorImpl) extendsBound;
             TypeBinding typeBinding = (TypeBinding) extendsBoundMirrorType._binding;
@@ -500,9 +507,7 @@ public class TypesImpl implements Types {
         }
         TypeBinding type1 = ((TypeBinding) b1);
         TypeBinding type2 = ((TypeBinding) b2);
-        if (TypeBinding.equalsEquals(type1,  type2))
-        	return true;
-        return CharOperation.equals(type1.computeUniqueKey(), type2.computeUniqueKey());
+        return TypeBinding.equalsEquals(type1,  type2);
     }
 
     @Override
@@ -573,6 +578,10 @@ public class TypesImpl implements Types {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends TypeMirror> T stripAnnotations(T t) {
+        if (t instanceof IntersectionType) {
+            // an intersection type has no top-level annotations, keep its components as they are
+            return t;
+        }
         if (t instanceof TypeMirrorImpl typeImpl) {
         	Binding b = typeImpl.binding();
         	if (b instanceof TypeBinding typeBinding) {
