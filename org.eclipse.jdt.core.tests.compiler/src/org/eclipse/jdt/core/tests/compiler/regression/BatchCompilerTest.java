@@ -44,6 +44,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.module.ModuleFinder;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -55,6 +57,7 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathJep247;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
@@ -86,6 +89,20 @@ public class BatchCompilerTest extends AbstractBatchCompilerTest {
 	}
 	public static Class<? extends TestCase> testClass() {
 		return BatchCompilerTest.class;
+	}
+	private static class InspectableMain extends Main {
+		InspectableMain() {
+			super(new PrintWriter(new StringWriter()), new PrintWriter(new StringWriter()), false, null, null);
+		}
+
+		boolean usesCtSymReleaseClasspath() {
+			for (Classpath classpath : this.checkedClasspaths) {
+				if (classpath instanceof ClasspathJep247) {
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 	static class StringMatcher extends Matcher {
 		private final String expected;
@@ -13527,5 +13544,44 @@ public void testIssue4768(){
 		"2 problems (2 errors)\n",
 
 		true);
+}
+public void testReleaseCurrentJdkUsesCtSym() {
+	File outputDirectory = new File(OUTPUT_DIR);
+	Util.flushDirectoryContent(outputDirectory);
+	outputDirectory.mkdirs();
+	String sourceFile = OUTPUT_DIR + File.separator + "X.java";
+	Util.writeToFile("public class X {}", sourceFile);
+
+	InspectableMain compiler = new InspectableMain();
+	String release = System.getProperty("java.specification.version");
+	assertTrue(compiler.compile(new String[] { "--release", release, "-d", OUTPUT_DIR, sourceFile }));
+	assertTrue("--release must use ct.sym metadata for the current JDK", compiler.usesCtSymReleaseClasspath());
+}
+public void testReleaseCurrentJdkFiltersImplementationSpecificModules() {
+	String implementationSpecificModule = "jdk.internal.vm.ci";
+	if (ModuleFinder.ofSystem().find(implementationSpecificModule).isEmpty()) {
+		return;
+	}
+
+	String[] testFiles = {
+		"X.java",
+		"public class X {}"
+	};
+	String release = System.getProperty("java.specification.version");
+	String sourceFile = "\"" + OUTPUT_DIR + File.separator + "X.java\"";
+	String outputDirectory = "-d \"" + OUTPUT_DIR + "\"";
+
+	runConformTest(
+			testFiles,
+			outputDirectory + " --add-modules " + implementationSpecificModule + " " + sourceFile,
+			"",
+			"",
+			true);
+	runNegativeTest(
+			testFiles,
+			outputDirectory + " --release " + release + " --add-modules " + implementationSpecificModule + " " + sourceFile,
+			"",
+			"invalid module name: " + implementationSpecificModule + "\n",
+			true);
 }
 }
