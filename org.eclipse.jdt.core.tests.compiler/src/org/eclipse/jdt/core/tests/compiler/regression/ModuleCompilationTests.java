@@ -5678,6 +5678,93 @@ public void testBug521362_emptyFile() {
 				JavacTestOptions.SKIP);
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5648
+	// a relative --patch-module location, with absolute file names
+	public void testPatchModuleSingle_relativeLocation() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out1 = OUTPUT_DIR + File.separator + "bin1";
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1,
+				"module-info.java",
+				"module mod.one { \n" + // no exports!
+				"}");
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + out1 )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"");
+
+		files.clear();
+		String src2 = OUTPUT_DIR + File.separator + "src2";
+		String relativeSrc2;
+		try {
+			relativeSrc2 = Paths.get("").toAbsolutePath().relativize(Paths.get(src2).toAbsolutePath()).toString();
+		} catch (IllegalArgumentException e) {
+			return; // no relative path to the output directory (another drive)
+		}
+		writeFileCollecting(files, src2 + File.separator + "test2",
+				"B.java",
+				"""
+				package test2;
+				import test1.A;
+				class B extends A {}
+				""");
+		buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + "bin2" )
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(relativeSrc2).append("\" ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(File.pathSeparatorChar)
+			.append(out1)
+			.append("\" ");
+		runConformModuleTest(
+				files,
+				buffer,
+				"",
+				"");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5648
+	// the locations are compared as paths: src1 and src1/. are the same location
+	public void testPatchModuleSingle_duplicateLocation3() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String src1 = OUTPUT_DIR + File.separator + "src1";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, src1 + File.separator + "test1",
+				"A.java",
+				"package test1;\n" +
+				"public class A {}");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(src1).append("\"")
+			.append(File.pathSeparatorChar).append("\"").append(src1).append(File.separator).append(".\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ");
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"location ---OUTPUT_DIR_PLACEHOLDER---/src1/. is specified more than once in --patch-module\n",
+				"",
+				JavacTestOptions.SKIP);
+	}
+
 	public void testPatchModuleSingle_syntaxErr() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);

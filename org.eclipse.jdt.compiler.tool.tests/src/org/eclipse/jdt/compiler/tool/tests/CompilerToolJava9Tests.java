@@ -1132,6 +1132,129 @@ public class CompilerToolJava9Tests extends TestCase {
 		assertTrue(task.call());
 	}
 
+	/*
+	 * --patch-module puts sources into a module of the module path, as maven-compiler-plugin does for the tests of a
+	 * modular project: a test in a package of the module and a test in a new package, without module-info.java.
+	 */
+	public void testPatchModuleOption() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		checkPatchModuleCompilation(root, mainOutput, tests.toString(), tests);
+	}
+	/*
+	 * A relative --patch-module location: the compiler is given absolute file names.
+	 */
+	public void testPatchModuleOptionRelativeLocation() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		String relativeLocation;
+		try {
+			relativeLocation = Paths.get("").toAbsolutePath().relativize(tests).toString();
+		} catch (IllegalArgumentException e) {
+			return; // no relative path to the temporary folder (another drive)
+		}
+		checkPatchModuleCompilation(root, mainOutput, relativeLocation, tests);
+	}
+	/*
+	 * The sources patched into a module keep the access checks of the module: the white-box test compiles, a package
+	 * private method called from another package is not visible.
+	 */
+	public void testPatchModuleOptionAccessCheck() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		writeFile(tests.resolve("demo/other/OtherTest.java"),
+				"package demo.other;\n" +
+				"class OtherTest {\n" +
+				"	String s = new demo.lib.Greeter().greet(\"you\");\n" +
+				"}\n");
+		for (int i = 0; i < 2; i++) {
+			List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<>();
+			boolean success = compilePatchModuleTests(this.compilers[i], false, root.resolve("negative-bin" + i), mainOutput,
+					tests.toString(), tests, diagnostics);
+			assertFalse(this.compilerNames[i] + " should not compile: " + diagnostics, success);
+			List<Diagnostic<? extends JavaFileObject>> errors = diagnostics.stream().filter(d -> d.getKind() == Diagnostic.Kind.ERROR).toList();
+			assertEquals(this.compilerNames[i] + ": " + errors, 1, errors.size());
+			assertTrue(this.compilerNames[i] + ": " + errors, errors.get(0).getSource().getName().endsWith("OtherTest.java"));
+			assertTrue(this.compilerNames[i] + ": " + errors, errors.get(0).getMessage(Locale.ROOT).contains("greet(java.lang.String)"));
+		}
+	}
+	private Path compilePatchedModule(Path root) throws IOException {
+		Path main = root.resolve("main");
+		writeFile(main.resolve("module-info.java"),
+				"module demo.lib {\n" +
+				"	exports demo.lib;\n" +
+				"}\n");
+		writeFile(main.resolve("demo/lib/Greeter.java"),
+				"package demo.lib;\n" +
+				"public class Greeter {\n" +
+				"	String greet(String name) { // package private\n" +
+				"		return \"Hello \" + name;\n" +
+				"	}\n" +
+				"}\n");
+		JavaCompiler compiler = this.compilers[0];
+		Path output = root.resolve("main-bin");
+		List<String> options = List.of("-d", output.toString());
+		try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(
+					List.of(main.resolve("module-info.java").toFile(), main.resolve("demo/lib/Greeter.java").toFile()));
+			assertTrue("The module does not compile", compiler.getTask(null, manager, null, options, null, units).call());
+		}
+		return output;
+	}
+	private Path writePatchModuleTests(Path root) throws IOException {
+		Path tests = root.resolve("tests");
+		writeFile(tests.resolve("demo/lib/GreeterTest.java"),
+				"package demo.lib;\n" +
+				"class GreeterTest {\n" +
+				"	String s = new Greeter().greet(\"you\");\n" +
+				"}\n");
+		writeFile(tests.resolve("demo/other/OtherTest.java"),
+				"package demo.other;\n" +
+				"import demo.lib.Greeter;\n" +
+				"class OtherTest {\n" +
+				"	Greeter greeter;\n" +
+				"}\n");
+		return tests;
+	}
+	private void checkPatchModuleCompilation(Path root, Path mainOutput, String patchLocation, Path tests) throws IOException {
+		for (int i = 0; i < 2; i++) {
+			// javac is the reference; ECJ also with a file manager that is not a StandardJavaFileManager
+			for (boolean forwarding : i == 0 ? new boolean[] { false } : new boolean[] { false, true }) {
+				Path output = root.resolve("tests-bin" + i + forwarding);
+				List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<>();
+				boolean success = compilePatchModuleTests(this.compilers[i], forwarding, output, mainOutput, patchLocation, tests, diagnostics);
+				assertTrue(this.compilerNames[i] + (forwarding ? " with a forwarding file manager" : "") + " failed: " + diagnostics, success);
+				assertTrue("Missing GreeterTest.class", Files.exists(output.resolve("demo/lib/GreeterTest.class")));
+				assertTrue("Missing OtherTest.class", Files.exists(output.resolve("demo/other/OtherTest.class")));
+			}
+		}
+	}
+	private boolean compilePatchModuleTests(JavaCompiler compiler, boolean forwarding, Path output, Path mainOutput,
+			String patchLocation, Path tests, List<Diagnostic<? extends JavaFileObject>> diagnostics) throws IOException {
+		List<File> files = new ArrayList<>();
+		try (var walk = Files.walk(tests)) {
+			walk.filter(f -> f.toString().endsWith(".java")).forEach(f -> files.add(f.toFile()));
+		}
+		Files.createDirectories(output);
+		List<String> options = List.of("-d", output.toString(), "--module-path", mainOutput.toString(),
+				"--patch-module", "demo.lib=" + patchLocation, "--add-reads", "demo.lib=ALL-UNNAMED");
+		try (StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			CompilationTask task = compiler.getTask(null, forwarding ? getFileManager(standardManager) : standardManager,
+					diagnostics::add, options, null, standardManager.getJavaFileObjectsFromFiles(files));
+			return task.call();
+		}
+	}
+	private static void writeFile(Path file, String content) throws IOException {
+		Files.createDirectories(file.getParent());
+		Files.writeString(file, content);
+	}
+
 	/**
 	 * Helps with building a compiler invocation, handling the common parts of testing.
 	 */

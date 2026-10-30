@@ -38,6 +38,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -46,6 +47,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -3472,29 +3474,62 @@ private void processAddonModuleOptions(FileSystem env) {
 /** Associate patching source files to their modules. */
 protected void handlePatchModule() {
 	if (this.patchModules != null) {
-		Map<String, String> location2patchedModule = new HashMap<>();
+		Map<Path, String> location2patchedModule = new HashMap<>();
 		for (Entry<String, String> entry : this.patchModules.entrySet()) {
 			StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) {
 				String location = tokenizer.nextToken();
-				if (location2patchedModule.put(location, entry.getKey()) != null) {
+				Path path = realPath(location);
+				if (path != null && location2patchedModule.put(path, entry.getKey()) != null) {
 					throw new IllegalArgumentException(this.bind("configure.duplicateLocationPatchModule", location)); //$NON-NLS-1$
 				}
 			}
 		}
+		if (this.filenames == null) {
+			return;
+		}
 		for(int i = 0; i < this.filenames.length; i++) {
 			if (this.modNames[i] == null) {
-				// does this source file patch an existing module?
-				for (Entry<String, String> entry : location2patchedModule.entrySet()) {
-					if (this.filenames[i].startsWith(entry.getKey()+File.separator)) {
-						this.modNames[i] = entry.getValue();
-						break;
+				// does this source file patch an existing module? The most specific location wins.
+				// (compared as real paths: the javax.tools compiler gets absolute file names, the options may be relative)
+				Path file = realPath(this.filenames[i]);
+				if (file == null) {
+					continue;
+				}
+				Path patch = null;
+				for (Path location : location2patchedModule.keySet()) {
+					if (file.startsWith(location) && !file.equals(location)
+							&& (patch == null || location.getNameCount() > patch.getNameCount())) {
+						patch = location;
 					}
+				}
+				if (patch != null) {
+					this.modNames[i] = location2patchedModule.get(patch);
 				}
 			}
 		}
 	}
 }
+/**
+ * Answers the real path of a file name or a location, its absolute normalized path when it does not exist, or null when
+ * it is not a file name (the URI of a JavaFileObject that is not a file, which the javax.tools compiler passes).
+ */
+private static Path realPath(String name) {
+	if (URI_WITH_SCHEME.matcher(name).matches() && !new File(name).exists()) {
+		return null;
+	}
+	try {
+		Path path = Paths.get(name).toAbsolutePath().normalize();
+		try {
+			return path.toRealPath();
+		} catch (IOException e) {
+			return path;
+		}
+	} catch (InvalidPathException e) {
+		return null;
+	}
+}
+private static final Pattern URI_WITH_SCHEME = Pattern.compile("[a-zA-Z][a-zA-Z0-9+.-]+:.*"); // a scheme of 2 characters at least: not a drive letter //$NON-NLS-1$
 
 protected ArrayList<FileSystem.Classpath> handleModulepath(String arg) {
 	ArrayList<String> modulePaths = processModulePathEntries(arg);
