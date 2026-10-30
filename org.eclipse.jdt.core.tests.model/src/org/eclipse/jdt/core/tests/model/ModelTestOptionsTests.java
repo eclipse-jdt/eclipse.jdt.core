@@ -155,7 +155,7 @@ public class ModelTestOptionsTests extends TestCase {
 					InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID).get(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX + variable, null));
 		} finally {
 			if (savedVariable == null) {
-				JavaCore.removeClasspathVariable(variable);
+				JavaCore.removeClasspathVariable(variable, null);
 			} else {
 				JavaCore.setClasspathVariable(variable, savedVariable, null);
 			}
