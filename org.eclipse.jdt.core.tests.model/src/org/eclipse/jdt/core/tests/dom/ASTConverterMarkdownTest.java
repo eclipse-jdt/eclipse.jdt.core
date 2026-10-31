@@ -2616,4 +2616,61 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Incorrect Text content", " see java.util.ArrayList", text);
 		}
 	}
+
+	public void testMarkdownSlashesInFirstLine5656_01() throws JavaModelException {
+		String source = """
+				/// a/ b/ c/.
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			List<?> childElements = parentTag.fragments();
+			assertEquals("Invalid Element Count", 1, childElements.size());
+			String text = ((TextElement)childElements.get(0)).getText();
+			assertEquals("Incorrect Text content", "a/ b/ c/.", text);
+		}
+	}
+
+	public void testMarkdownSlashesInFirstLine5656_02() throws JavaModelException {
+		String source = """
+				/// a/ b/ c/ more text
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			List<?> childElements = parentTag.fragments();
+			assertEquals("Invalid Element Count", 1, childElements.size());
+			String text = ((TextElement)childElements.get(0)).getText();
+			assertEquals("Incorrect Text content", "a/ b/ c/ more text", text);
+		}
+	}
+
+	public void testMarkdownTrailingSlash5656() throws JavaModelException {
+		String source = """
+				/// see src/ and lib/
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement parentTag = (TagElement)javadoc.tags().get(0);
+			List<?> childElements = parentTag.fragments();
+			assertEquals("Invalid Element Count", 1, childElements.size());
+			String text = ((TextElement)childElements.get(0)).getText();
+			assertEquals("Incorrect Text content", "see src/ and lib/", text);
+		}
+	}
 }
