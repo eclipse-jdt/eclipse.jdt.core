@@ -2498,6 +2498,24 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
 	areturn();
 }
 
+/**
+ * Returns whether the given synthetic method bindings hold at least two distinct implementation
+ * method names. Bindings that share a hashcode share a bucket of the first switch, and hence the
+ * same id, but they can still have distinct names.
+ */
+private static boolean hasDistinctMethodNames(List synthetics) {
+	int count = synthetics.size();
+	for (int i = 0; i < count - 1; i++) {
+		String name = new String(((SyntheticMethodBinding) synthetics.get(i)).selector);
+		for (int j = i + 1; j < count; j++) {
+			if (!name.equals(new String(((SyntheticMethodBinding) synthetics.get(j)).selector))) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 // TODO what about blowing the method limit? Ignore for now?
 /**
  * This is intended to match what javac generates. First there is a switch statement on the hashcode of the lambda method name - based on that
@@ -2505,6 +2523,9 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
  * of the serialized lambda. If they all checkout OK an invokedynamic call to a bootstrap method targeting the altMetafactory. If any of the tests
  * fail an IllegalArgumentException is thrown. This exception is not typically seen by the 'user', instead they seem to see a NPE when
  * the lambda does not deserialize properly.
+ * Unlike javac, the id identifies a hash bucket rather than an exact method name: several distinct names can share the same hashcode.
+ * For the buckets that hold several distinct names, the second switch therefore re-checks the exact implementation method name of
+ * each candidate before accepting it.
  */
 public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding methodBinding,SyntheticMethodBinding[] syntheticMethodBindings) {
 	// Compute a map of hashcodes to a list of synthetic methods whose names share a hashcode
@@ -2561,7 +2582,9 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 	sort(localKeysCopy, 0, numberOfHashcodes-1, sortedIndexes);
 	// TODO need to use a tableswitch at some size threshold?
 	lookupswitch(defaultLabel, keys, sortedIndexes, switchLabels);
-	// TODO cope with multiple names that share the same hashcode
+	// The id assigned below identifies a hash bucket, not an exact method name: several distinct
+	// names can share the same hashcode. The second switch re-checks the exact name for the
+	// buckets that contain several distinct names.
 	hashcodeIterator = hashcodes.iterator();
 	index = 0;
 	while (hashcodeIterator.hasNext()) {
@@ -2569,9 +2592,8 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		List synthetics = (List)hashcodesTosynthetics.get(hashcode);
 		switchLabels[index].place();
 		BranchLabel nextOne = new BranchLabel(this);
-		// Loop through all lambdas that share the same hashcode
-		// TODO: isn't doing this for just one of these enough because they all share
-		// the same name?
+		// Loop through all lambdas that share the same hashcode: they do not necessarily
+		// share the same name.
 		for (Object synthetic : synthetics) {
 			SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding)synthetic;
 			aload_1();
@@ -2614,9 +2636,22 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		List synthetics = (List)hashcodesTosynthetics.get(hashcode);
 		switchLabels[hashcodeIndex++].place();
 		BranchLabel nextOne = synthetics.size() > 1 ? new BranchLabel(this) : errorLabel;
+		// The id identifies a hash bucket, so it can be shared by distinct method names: recheck
+		// the exact name for the buckets that contain several distinct names, so that the bytecode
+		// of the unambiguous buckets stays unchanged.
+		boolean hasDistinctNames = hasDistinctMethodNames(synthetics);
 		// Loop through all lambdas that share the same hashcode
 		for (int j = 0, count = synthetics.size(); j < count; j++) {
 			SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) synthetics.get(j);
+			if (hasDistinctNames) {
+				// Compare ImplMethodName: the id alone cannot distinguish names in this bucket.
+				// The implementation method name was already loaded into the local variable 1
+				// by the first switch.
+				aload_1();
+				ldc(new String(syntheticMethodBinding.selector));
+				invokeStringEquals();
+				ifeq(nextOne);
+			}
 			// Compare ImplMethodKind
 			aload_0();
 			FunctionalExpression funcEx = syntheticMethodBinding.lambda != null ? syntheticMethodBinding.lambda
