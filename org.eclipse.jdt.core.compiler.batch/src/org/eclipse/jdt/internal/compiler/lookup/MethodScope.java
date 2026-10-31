@@ -306,7 +306,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 
 public void checkUnusedParameters(MethodBinding method) {
 	if (method.isAbstract() || method.isCompactConstructor()
-			|| (method.isImplementing() && !compilerOptions().reportUnusedParameterWhenImplementingAbstract)
+			|| ((method.isImplementing() || method.isUsedAsMethodReference()) && !compilerOptions().reportUnusedParameterWhenImplementingAbstract)
 			|| (method.isOverriding() && !method.isImplementing() && !compilerOptions().reportUnusedParameterWhenOverridingConcrete)
 			|| method.isMain()) {
 		// do not want to check
