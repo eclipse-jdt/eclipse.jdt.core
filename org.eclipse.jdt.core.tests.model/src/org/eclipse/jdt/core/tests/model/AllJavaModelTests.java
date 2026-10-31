@@ -141,6 +141,7 @@ private static Class[] getAllTestClasses() {
 		// Options tests
 		OptionTests.class,
 		OptionCacheTests.class,
+		JavaProjectGetOptionsConcurrencyTests.class,
 
 		// Type hierarchy tests
 		TypeHierarchyTests.class,
