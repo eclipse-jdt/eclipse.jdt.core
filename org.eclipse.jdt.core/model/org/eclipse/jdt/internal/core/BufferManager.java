@@ -129,6 +129,16 @@ public Enumeration<IBuffer> getOpenBuffers() {
 }
 
 /**
+ * Removes the owner's buffer without closing it or notifying its listeners.
+ * The caller must close the returned buffer outside the buffer manager lock.
+ */
+IBuffer removeBuffer(IOpenable owner) {
+	synchronized (this.openBuffers) {
+		return this.openBuffers.remove(owner);
+	}
+}
+
+/**
  * Removes a buffer from the table of open buffers.
  */
 protected void removeBuffer(IBuffer buffer) {
@@ -137,7 +147,9 @@ protected void removeBuffer(IBuffer buffer) {
 		System.out.println("Removing buffer for " + owner); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
-		this.openBuffers.remove(buffer.getOwner());
+		if (this.openBuffers.peek(buffer.getOwner()) == buffer) {
+			this.openBuffers.remove(buffer.getOwner());
+		}
 	}
 	// close buffers that were removed from the cache (should be only one)
 	this.openBuffers.closeBuffers();
