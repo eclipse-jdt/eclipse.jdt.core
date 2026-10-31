@@ -993,4 +993,67 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		formatSource(input, expected);
 	}
 
+	public void testMarkdownTrailingSlash5656_01() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				class Mark {
+					/// see src/ and lib/
+					void foo() {
+					}
+				}
+				""";
+		formatSource(input);
+	}
+
+	public void testMarkdownTrailingSlash5656_02() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		this.formatterPrefs.comment_line_length = 40;
+		String input = """
+				class Mark {
+					/// The folders under the root, never src/, lib/ or bin/
+					void foo() {
+					}
+				}
+				""";
+		String expected = """
+				class Mark {
+					/// The folders under the root, never
+					/// src/, lib/ or bin/
+					void foo() {
+					}
+				}
+				""";
+		formatSource(input, expected);
+	}
+
+	public void testMarkdownSlashesInFirstLine5656() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				class Mark {
+					/// a/ b/ c/.
+					void foo() {
+					}
+				}
+				""";
+		formatSource(input);
+	}
+
+	public void testMarkdownSeparatorLine5656() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				class Mark {
+					void foo() {
+					}
+
+					////////////////////////////////
+					// PUBLIC METHODS
+					////////////////////////////////
+
+					void bar() {
+					}
+				}
+				""";
+		formatSource(input);
+	}
+
 }
