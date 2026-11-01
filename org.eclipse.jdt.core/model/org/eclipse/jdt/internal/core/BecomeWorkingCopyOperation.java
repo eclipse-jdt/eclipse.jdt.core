@@ -46,17 +46,25 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		BufferManager bufferManager = workingCopy.getBufferManager();
 		IBuffer oldBuffer = null;
+		// Use openBuffer's publication monitor so an opener cannot reuse an ordinary
+		// cached buffer between primary working-copy registration and its detachment.
 		synchronized (bufferManager) {
 			JavaModelManager.PerWorkingCopyInfo previousInfo = workingCopy.getPerWorkingCopyInfo();
 			JavaModelManager.PerWorkingCopyInfo workingCopyInfo = manager.getPerWorkingCopyInfo(workingCopy, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
 			if (workingCopy.isPrimary() && previousInfo != workingCopyInfo) {
-				// A concurrent open can cache an ordinary buffer before publishing its element info,
-				// so close() may not have found it. The working copy must use its owner's buffer.
+				// CompilationUnit.becomeWorkingCopy() calls close() before this operation.
+				// A concurrent ordinary open may have cached its buffer without publishing
+				// its CU element info yet. In that case removeInfoAndChildren() skips
+				// closing(), leaving the ordinary buffer cached. Detach it here so the
+				// primary working copy can obtain its owner's buffer.
 				oldBuffer = bufferManager.removeBuffer(workingCopy);
 			}
 		}
 		if (oldBuffer != null) {
-			// Do not let closing the old buffer remove a replacement published in the meantime.
+			// close() notifies listeners before clearing them. The detached buffer no
+			// longer represents this working copy: suppress its owner's close callback,
+			// which could clear a replacement buffer's out-of-sync state. Close outside
+			// the manager monitor because other listeners may reenter the Java model.
 			oldBuffer.removeBufferChangedListener((Openable) oldBuffer.getOwner());
 			oldBuffer.close();
 		}

@@ -109,7 +109,9 @@ public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonit
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo;
 	synchronized (getBufferManager()) {
-		// Wait until the first transition has detached any ordinary buffer.
+		// Serialize this lookup/retain with registration and ordinary-buffer detachment
+		// in BecomeWorkingCopyOperation. Acquiring the monitor may block; it does not
+		// wait for the subsequent working-copy initialization to finish.
 		perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
 	}
 	if (perWorkingCopyInfo == null) {
@@ -1315,9 +1317,12 @@ protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws Java
 
 		// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146331
+		// Also coordinate with BecomeWorkingCopyOperation's registration and detachment.
 		IBuffer existingBuffer = null;
 		boolean stateChanged;
 		synchronized(bufManager) {
+			// Compare registration identities, not just whether this is a working copy:
+			// a candidate created for an earlier registration must be retried.
 			stateChanged = workingCopyInfo != getPerWorkingCopyInfo();
 			if (!stateChanged) {
 				existingBuffer = bufManager.getBuffer(this);

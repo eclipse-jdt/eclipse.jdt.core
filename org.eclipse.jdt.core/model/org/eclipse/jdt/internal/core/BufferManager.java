@@ -23,6 +23,14 @@ import org.eclipse.jdt.core.IOpenable;
 /**
  * The buffer manager manages the set of open buffers.
  * It implements an LRU cache of buffers.
+ * <p>
+ * Individual cache operations synchronize on {@link #openBuffers}. The monitor
+ * of the {@code BufferManager} instance is a separate lock used by
+ * {@link CompilationUnit#openBuffer} and {@link BecomeWorkingCopyOperation} to
+ * coordinate buffer publication with primary working-copy registration and
+ * detachment of an ordinary buffer. In that transition, buffer factories and
+ * explicit closes of detached or rejected buffers run outside the manager
+ * monitor, since they can invoke client code and acquire other model locks.
  */
 public class BufferManager {
 
@@ -30,8 +38,7 @@ public class BufferManager {
 	protected static boolean VERBOSE;
 
 	/**
-	 * LRU cache of buffers. The key and value for an entry
-	 * in the table is the identical buffer.
+	 * LRU cache mapping openable owners to their buffers.
 	 */
 	private final BufferCache<IOpenable> openBuffers = new BufferCache<>(60);
 
@@ -130,7 +137,11 @@ public Enumeration<IBuffer> getOpenBuffers() {
 
 /**
  * Removes the owner's buffer without closing it or notifying its listeners.
- * The caller must close the returned buffer outside the buffer manager lock.
+ * This method may be called while holding this manager's monitor to detach an
+ * ordinary buffer atomically with primary working-copy registration. The caller
+ * must close the returned buffer after releasing that monitor, because closing
+ * can invoke buffer listeners. It is the close, not this removal, that must run
+ * outside the manager monitor.
  */
 IBuffer removeBuffer(IOpenable owner) {
 	synchronized (this.openBuffers) {
@@ -139,7 +150,8 @@ IBuffer removeBuffer(IOpenable owner) {
 }
 
 /**
- * Removes a buffer from the table of open buffers.
+ * Removes a buffer from the table of open buffers, provided it is still the
+ * cached buffer for its owner.
  */
 protected void removeBuffer(IBuffer buffer) {
 	if (VERBOSE) {
@@ -147,6 +159,8 @@ protected void removeBuffer(IBuffer buffer) {
 		System.out.println("Removing buffer for " + owner); //$NON-NLS-1$
 	}
 	synchronized (this.openBuffers) {
+		// A delayed close event must not remove a replacement for the same owner.
+		// A replacement remains cached until its own close, detachment or cache eviction.
 		if (this.openBuffers.peek(buffer.getOwner()) == buffer) {
 			this.openBuffers.remove(buffer.getOwner());
 		}
