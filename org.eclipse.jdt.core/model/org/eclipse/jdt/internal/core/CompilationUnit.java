@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1297,80 +1297,98 @@ protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws Java
 
 	BufferManager bufManager = getBufferManager();
 	while (true) {
-		// Create the buffer outside the manager lock, remembering the working-copy state
-		// so an ordinary buffer cannot be published after becomeWorkingCopy().
+		// Provider calls run outside the publication monitor. Their result may also
+		// be in use by another opener or a replacement working-copy registration.
 		JavaModelManager.PerWorkingCopyInfo workingCopyInfo = getPerWorkingCopyInfo();
 		boolean isWorkingCopy = !isPrimary() || workingCopyInfo != null;
 		IBuffer buffer =
 			isWorkingCopy
 				? this.owner.createBuffer(this)
 				: BufferManager.createBuffer(this);
-		if (buffer == null) return null;
-
-		ICompilationUnit original = null;
-		boolean mustSetToOriginalContent = false;
-		if (isWorkingCopy) {
-			// ensure that isOpen() is called outside the bufManager synchronized block
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=237772
-			mustSetToOriginalContent = !isPrimary() && (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen() ;
-		}
-
-		// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146331
-		// Also coordinate with BecomeWorkingCopyOperation's registration and detachment.
-		IBuffer existingBuffer = null;
-		boolean stateChanged;
-		synchronized(bufManager) {
-			// Compare registration identities, not just whether this is a working copy:
-			// a candidate created for an earlier registration must be retried.
-			stateChanged = workingCopyInfo != getPerWorkingCopyInfo();
-			if (!stateChanged) {
-				existingBuffer = bufManager.getBuffer(this);
-				if (existingBuffer == null) {
-					// set the buffer source
-					if (buffer.getCharacters() == null) {
-						if (isWorkingCopy) {
-							if (mustSetToOriginalContent) {
-								buffer.setContents(original.getSource());
-							} else {
-								IFile file = (IFile)getResource();
-								if (file == null || !file.exists()) {
-									// initialize buffer with empty contents
-									buffer.setContents(CharOperation.NO_CHAR);
-								} else {
-									buffer.setContents(Util.getResourceContentsAsCharArray(file));
-								}
-							}
-						} else {
-							IFile file = (IFile)getResource();
-							if (file == null || !file.exists()) throw newNotPresentException();
-							buffer.setContents(Util.getResourceContentsAsCharArray(file));
-						}
-					}
-
-					// add buffer to buffer cache
-					// note this may cause existing buffers to be removed from the buffer cache, but only primary compilation unit's buffer
-					// can be closed, thus no call to a client's IBuffer#close() can be done in this synchronized block.
-					bufManager.addBuffer(buffer);
-
-					// listen to buffer changes
-					buffer.addBufferChangedListener(this);
-				}
+		if (buffer == null) {
+			synchronized (bufManager) {
+				if (workingCopyInfo == getPerWorkingCopyInfo()) return null;
 			}
-		}
-		if (stateChanged) {
-			buffer.close();
 			continue;
 		}
-		if (existingBuffer != null) {
-			if (buffer != existingBuffer) {
-				buffer.close();
+		IBuffer result;
+		Throwable failure = null;
+		try (BufferManager.BufferCandidate candidate = bufManager.acquireBuffer(this, buffer)) {
+			result = prepareBuffer(bufManager, candidate, workingCopyInfo, isWorkingCopy);
+		} catch (JavaModelException | RuntimeException | Error e) {
+			failure = e;
+			throw e;
+		} finally {
+			// Eviction may invoke provider close callbacks, including after rejected publication.
+			try {
+				bufManager.closeBuffers();
+			} catch (RuntimeException | Error e) {
+				if (failure == null) throw e;
+				if (failure != e) failure.addSuppressed(e);
 			}
-			return existingBuffer;
 		}
-		return buffer;
+		// Releasing an unused candidate can itself reenter a working-copy transition.
+		synchronized (bufManager) {
+			if (result != null && workingCopyInfo == getPerWorkingCopyInfo()) {
+				return result;
+			}
+		}
 	}
 }
+
+private IBuffer prepareBuffer(BufferManager bufManager, BufferManager.BufferCandidate candidate,
+		JavaModelManager.PerWorkingCopyInfo workingCopyInfo, boolean isWorkingCopy) throws JavaModelException {
+	IBuffer buffer = candidate.buffer;
+	synchronized (bufManager) {
+		if (workingCopyInfo != getPerWorkingCopyInfo()) return null;
+		IBuffer existing = bufManager.getBuffer(this);
+		if (existing != null) return existing;
+		// The cache owned this candidate at acquisition. It may now have been detached;
+		// this attempt must neither republish it nor take over its retirement.
+		if (candidate.isCached()) return null;
+	}
+	// Query only a candidate still needed for publication, outside the monitor.
+	IOpenable bufferOwner = candidate.captureOwner();
+	candidate.checkOpen();
+	if (buffer.getCharacters() == null) {
+		char[] contents = readBufferContents(isWorkingCopy);
+		synchronized (candidate.initializationLock()) {
+			candidate.checkOpen();
+			// Another opener may already have initialized or edited this physical buffer.
+			if (buffer.getCharacters() == null) {
+				buffer.setContents(contents);
+			}
+		}
+	}
+	candidate.checkOpen();
+	buffer.addBufferChangedListener(candidate.listener());
+	synchronized (bufManager) {
+		return bufManager.cacheBuffer(candidate.listener(), bufferOwner, buffer, () -> {
+			// Listener registration and eviction queries may reenter the model. Validate
+			// after those callbacks, immediately before the callback-free insertion.
+			candidate.checkOpen();
+			return workingCopyInfo == getPerWorkingCopyInfo();
+		});
+	}
+}
+
+private char[] readBufferContents(boolean isWorkingCopy) throws JavaModelException {
+	if (isWorkingCopy && !isPrimary()) {
+		// Query original model information outside the publication monitor (bug 237772).
+		ICompilationUnit original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
+		if (original.isOpen()) {
+			String source = original.getSource();
+			return source == null ? null : source.toCharArray();
+		}
+	}
+	IFile file = (IFile)getResource();
+	if (file == null || !file.exists()) {
+		if (!isWorkingCopy) throw newNotPresentException();
+		return CharOperation.NO_CHAR;
+	}
+	return Util.getResourceContentsAsCharArray(file);
+}
+
 @Override
 protected void openAncestors(Map<IJavaElement, IElementInfo> newElements, IProgressMonitor monitor) throws JavaModelException {
 	if (!isWorkingCopy()) {

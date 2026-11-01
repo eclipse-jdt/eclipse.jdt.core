@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,7 +16,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -45,7 +44,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 		CompilationUnit workingCopy = getWorkingCopy();
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		BufferManager bufferManager = workingCopy.getBufferManager();
-		IBuffer oldBuffer = null;
+		BufferManager.BufferRetirement oldBuffer = null;
 		// Use openBuffer's publication monitor so an opener cannot reuse an ordinary
 		// cached buffer between primary working-copy registration and its detachment.
 		synchronized (bufferManager) {
@@ -57,15 +56,13 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 				// its CU element info yet. In that case removeInfoAndChildren() skips
 				// closing(), leaving the ordinary buffer cached. Detach it here so the
 				// primary working copy can obtain its owner's buffer.
-				oldBuffer = bufferManager.removeBuffer(workingCopy);
+				oldBuffer = bufferManager.retireBuffer(workingCopy);
 			}
 		}
 		if (oldBuffer != null) {
-			// close() notifies listeners before clearing them. The detached buffer no
-			// longer represents this working copy: suppress its owner's close callback,
-			// which could clear a replacement buffer's out-of-sync state. Close outside
-			// the manager monitor because other listeners may reenter the Java model.
-			oldBuffer.removeBufferChangedListener((Openable) oldBuffer.getOwner());
+			// Retirement was reserved before releasing the publication monitor, so
+			// another opener cannot republish this buffer while its close is pending.
+			// Remove its actual model listener and close outside the manager monitor.
 			oldBuffer.close();
 		}
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), true, this.progressMonitor);
