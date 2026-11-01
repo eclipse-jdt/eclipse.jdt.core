@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.JavaModelException;
  * detachment of an ordinary buffer. In that transition, buffer factories and
  * explicit closes of detached or rejected buffers run outside the manager
  * monitor, since they can invoke client code and acquire other model locks.
+ * </p>
  */
 public class BufferManager {
 

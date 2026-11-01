@@ -1312,19 +1312,20 @@ protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws Java
 			continue;
 		}
 		IBuffer result;
-		Throwable failure = null;
+		Throwable originalFailure = null;
 		try (BufferManager.BufferCandidate candidate = bufManager.acquireBuffer(this, buffer)) {
 			result = prepareBuffer(bufManager, candidate, workingCopyInfo, isWorkingCopy);
-		} catch (JavaModelException | RuntimeException | Error e) {
-			failure = e;
-			throw e;
+		} catch (JavaModelException | RuntimeException | Error failure) {
+			originalFailure = failure;
+			throw failure;
 		} finally {
 			// Eviction may invoke provider close callbacks, including after rejected publication.
 			try {
 				bufManager.closeBuffers();
-			} catch (RuntimeException | Error e) {
-				if (failure == null) throw e;
-				if (failure != e) failure.addSuppressed(e);
+			} catch (RuntimeException | Error cleanupFailure) {
+				if (originalFailure == null) throw cleanupFailure;
+				// The original failure is already being rethrown; retain the cleanup failure as suppressed.
+				if (originalFailure != cleanupFailure) originalFailure.addSuppressed(cleanupFailure);
 			}
 		}
 		// Releasing an unused candidate can itself reenter a working-copy transition.
