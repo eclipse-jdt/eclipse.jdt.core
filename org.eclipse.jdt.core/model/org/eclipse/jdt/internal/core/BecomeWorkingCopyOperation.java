@@ -44,7 +44,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 		CompilationUnit workingCopy = getWorkingCopy();
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		BufferManager bufferManager = workingCopy.getBufferManager();
-		BufferManager.BufferRetirement oldBuffer = null;
+		final BufferManager.BufferRetirement oldBuffer;
 		// Use openBuffer's publication monitor so an opener cannot reuse an ordinary
 		// cached buffer between primary working-copy registration and its detachment.
 		synchronized (bufferManager) {
@@ -57,13 +57,13 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 				// closing(), leaving the ordinary buffer cached. Detach it here so the
 				// primary working copy can obtain its owner's buffer.
 				oldBuffer = bufferManager.retireBuffer(workingCopy);
+			} else {
+				oldBuffer = null;
 			}
 		}
-		if (oldBuffer != null) {
-			// Retirement was reserved before releasing the publication monitor, so
-			// another opener cannot republish this buffer while its close is pending.
-			// Remove its actual model listener and close outside the manager monitor.
-			oldBuffer.close();
+		try (oldBuffer) {
+			// This empty scope completes the reserved retirement outside the publication
+			// monitor, before initializing the working copy.
 		}
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), true, this.progressMonitor);
 
