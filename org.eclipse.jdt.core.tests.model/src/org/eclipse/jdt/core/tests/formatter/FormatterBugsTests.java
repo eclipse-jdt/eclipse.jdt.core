@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13517,5 +13517,40 @@ public void testIssue5195_forcedWrappingGetsOwnLine() {
 			};
 		}
 		""");
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/33
+ * Exception formatting code with misplaced Javadoc: a Javadoc between an enum constant and
+ * the following comma must not be attached to the next constant.
+ */
+public void testIssue33() {
+	String source =
+		"public enum Test {\n" +
+		"FOO /** random javadoc */, \n" +
+		"BAR\n" +
+		"}";
+	formatSource(source,
+		"public enum Test {\n" +
+		"	FOO /** random javadoc */\n" +
+		"	, BAR\n" +
+		"}");
+}
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/33
+ * Same as above, for an enum constant with arguments.
+ */
+public void testIssue33_withArguments() {
+	String source =
+		"public enum Test {\n" +
+		"FOO(1) /** random javadoc */, \n" +
+		"BAR\n" +
+		"}";
+	formatSource(source,
+		"public enum Test {\n" +
+		"	FOO(1) /** random javadoc */\n" +
+		"	, BAR\n" +
+		"}");
 }
 }
