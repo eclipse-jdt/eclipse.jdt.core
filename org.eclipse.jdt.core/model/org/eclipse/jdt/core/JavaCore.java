@@ -6692,7 +6692,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Returns true if the version string passed is an LTS, false otherwise
 	 *
-	 * @param version number
+	 * @param version The java version number
 	 * @return true if version is an LTS, false otherwise
 	 * @since 3.48
 	 */
@@ -6713,8 +6713,8 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Returns the next LTS given a Java version. If none available it returns null.
 	 *
-	 * @param java version
-	 * @return next LTS java version
+	 * @param version java version number
+	 * @return next LTS java version if available.
 	 * @since 3.48
 	 */
 	public static String getNextLTS(String version) {
