@@ -3300,6 +3300,46 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			}
 			"""});
 	}
+	public void testGH1600_negative() {
+		runNegativeTest(new String[] {"X.java",
+			"""
+			public class X extends CustomField {
+				@Override
+				public void setReadOnly(boolean readOnly) {
+					super.setReadOnly(readOnly);
+				}
+
+				public static void main(String[] args) {
+					System.out.println("Done");
+				}
+			}
+
+			abstract class CustomField extends AbstractField implements HasValue {}
+
+			abstract class AbstractField implements HasValueAndElement {}
+
+			interface HasValue {
+				default void setReadOnly(boolean readOnly) {
+				}
+			}
+
+			interface HasValueAndElement extends HasValue {
+				void setReadOnly(boolean readOnly);
+			}
+			""",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	super.setReadOnly(readOnly);\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Cannot directly invoke the abstract method setReadOnly(boolean) for the type HasValueAndElement\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 22)\n" +
+			"	void setReadOnly(boolean readOnly);\n" +
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The method setReadOnly(boolean) of type HasValueAndElement should be tagged with @Override since it actually overrides a superinterface method\n" +
+			"----------\n");
+	}
 	public void testGH1600_2() {
 		runConformTest(new String[] {"Test.java",
 			"""
