@@ -4163,5 +4163,42 @@ public void testJavaSrcGenuineAmbuigity() {
 			"The method foo(String) is ambiguous for the type GenuineAmbiguity.I<String>\n" +
 			"----------\n");
 }
+public void testIssue2304() {
+	runConformTest(new String[] {
+		"ServiceRegistry.java",
+		"""
+		import java.util.function.Consumer;
+		import java.util.function.Function;
 
+		public class ServiceRegistry {
+
+			static <R> void registerHandler(Class<R> type, Function<? super R, ?> handler) { // (1)
+				handler.apply(null);
+			}
+			static <R> void registerHandler(Class<R> type, Consumer<R> handler) {
+				handler.accept(null);
+			}
+
+			public static void main(String[] args) {
+				Service service = new Service() {
+					@Override public Object publish(Request request) {
+						System.out.println("Function");
+						return null;
+					}
+					@Override public void publish(Object message) {
+						System.out.println("Consumer");
+					}
+				};
+				registerHandler(Request.class, (Request r) -> service.publish(r)); // (2)
+			}
+		}
+
+		interface Request {}
+		interface Service {
+			void publish(Object message);
+			Object publish(Request request);
+		}
+		"""
+	});
+}
 }
