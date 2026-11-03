@@ -80,6 +80,7 @@ public final class Options {
 		Options.FILE_MANAGER_OPTIONS.add("-classpath");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-cp");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-sourcepath");//$NON-NLS-1$
+		Options.FILE_MANAGER_OPTIONS.add("--patch-module");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-extdirs");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-endorseddirs");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-s");//$NON-NLS-1$
