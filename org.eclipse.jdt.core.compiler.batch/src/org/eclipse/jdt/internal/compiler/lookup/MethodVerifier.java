@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -775,7 +775,7 @@ static boolean couldMethodOverride(MethodBinding method, MethodBinding inherited
 		if (inheritedMethod.isProtected() && !method.isProtected())
 			return false;
 	}
-	return true;
+	return method.parameters.length == inheritedMethod.parameters.length;
 }
 
 // Answer whether the method overrides the inheritedMethod
