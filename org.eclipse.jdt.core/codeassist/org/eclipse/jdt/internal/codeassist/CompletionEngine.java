@@ -4670,6 +4670,26 @@ public final class CompletionEngine
 			return;
 
 		MethodBinding[] methods = binding.availableMethods();
+
+		// First, check whether an overload exists whose arity exactly matches the number
+		// of arguments typed so far. If so, only such overloads should contribute expected
+		// types: an overload requiring additional, not-yet-typed arguments is a weaker guess
+		// at user intent and shouldn't dilute the relevance of proposals matching the type
+		// expected by an overload that already fits what's been typed.
+		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5665
+		boolean hasExactArityMatch = false;
+		exactArityCheck : for (MethodBinding method : methods) {
+			if (method.isSynthetic()) continue exactArityCheck;
+			if (method.isConstructor()) continue exactArityCheck;
+			if (isStatic && !method.isStatic()) continue exactArityCheck;
+			if (this.options.checkVisibility && !method.canBeSeenBy(receiverType, invocationSite, scope)) continue exactArityCheck;
+			if (!CharOperation.equals(method.selector, selector)) continue exactArityCheck;
+			if (method.parameters.length == arguments.length) {
+				hasExactArityMatch = true;
+				break exactArityCheck;
+			}
+		}
+
 		nextMethod : for (MethodBinding method : methods) {
 			if (method.isSynthetic()) continue nextMethod;
 
@@ -4683,6 +4703,9 @@ public final class CompletionEngine
 
 			TypeBinding[] parameters = method.parameters;
 			if(parameters.length < arguments.length)
+				continue nextMethod;
+
+			if (hasExactArityMatch && parameters.length != arguments.length)
 				continue nextMethod;
 
 			int length = arguments.length - 1;

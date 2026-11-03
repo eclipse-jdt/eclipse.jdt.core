@@ -6198,6 +6198,44 @@ public void testBug575149_expectOverloadedMethodsAndVariablesRankedWithExpectedT
 			new char[][] {"Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;".toCharArray(),
 			"Ljava.util.function.Consumer<Ljava.lang.Integer;>;".toCharArray()}, true));
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5665
+public void testIssue5665_expectOnlyExactArityOverloadContributesExpectedType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Issue5665.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"public class Issue5665 {\n" +
+			"	private void foo() {\n" +
+			"		List<String> result = new ArrayList<>();\n" +
+			"		result.add(Integer.);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Integer.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	// List.add(E) is the only overload whose arity (1) matches the single argument being
+	// typed here; List.add(int, E) requires a second, not-yet-typed argument, so its first
+	// parameter type (int) shouldn't be contributed as an expected type for this slot. Before
+	// the fix, both String and int were added as expected types, so int-typed Integer members
+	// (e.g. MAX_VALUE) were ranked as relevant as String-typed ones (e.g. toString(int)).
+	char[][] expectedTypesSignatures = requestor.getExpectedTypesSignatures();
+	StringBuilder actual = new StringBuilder();
+	if (expectedTypesSignatures == null) {
+		actual.append("null");
+	} else {
+		for (char[] signature : expectedTypesSignatures) {
+			actual.append('[').append(new String(signature)).append(']');
+		}
+	}
+	assertTrue("expected type signatures don't match, was: " + actual,
+			CharOperation.equals(expectedTypesSignatures,
+			new char[][] {"Ljava.lang.String;".toCharArray()}, true));
+}
 public void testBug575149_expectRemainingOverloadedMethodsMatchingFilledArguments() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
