@@ -2005,6 +2005,7 @@ public abstract class Scope {
 					visitedTypes.add(uncaptured);
 				}
 				compilationUnitScope().recordTypeReference(currentType);
+				final MethodVerifier methodVerifier = environment().methodVerifier();
 				currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceStart(), invocationSite == null ? 0 : invocationSite.sourceEnd());
 				MethodBinding[] currentMethods = currentType.getMethods(selector);
 				if (currentMethods.length > 0) {
@@ -2013,9 +2014,20 @@ public abstract class Scope {
 						if (!current.canBeSeenBy(receiverType, invocationSite, this)) continue next;
 
 						if (foundSize > 0) {
-							// its possible to walk the same superinterface from different classes in the hierarchy
-							for (int f = 0; f < foundSize; f++)
-								if (current == found.elementAt(f)) continue next;
+							int f = 0;
+							while (f < foundSize && found.elementAt(f) instanceof MethodBinding existing) {
+								if (current == existing) continue next; // same superinterface reached from different classes in the hierarchy
+								if (existing.declaringClass.isInterface()) { // current is known to be an interface method.
+									if (methodVerifier.doesMethodOverride(existing, current))
+										continue next;
+									if (methodVerifier.doesMethodOverride(current, existing)) {
+										found.remove(existing);
+										foundSize--;
+										continue;
+									}
+								}
+								f++;
+							}
 						}
 						found.add(current);
 					}
