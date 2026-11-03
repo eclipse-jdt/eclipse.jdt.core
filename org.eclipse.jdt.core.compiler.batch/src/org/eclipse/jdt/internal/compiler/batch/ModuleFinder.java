@@ -69,13 +69,42 @@ public class ModuleFinder {
 				collector.add(entry);
 			} else {
 				if (file.isDirectory()) {
+					// on the module path, a directory of modules, as for java.lang.module.ModuleFinder.of(Path...): only its packaged
+					// modules and its exploded modules, not its other files nor the content of its other directories
 					File[] files = file.listFiles();
 					if (files != null) {
-						for (File f : files)
-							scanForModules(destinationPath, parser, options, isModulepath, isModulepath, collector, f, release);
+						for (File f : files) {
+							if (!isModulepath) {
+								scanForModules(destinationPath, parser, options, isModulepath, isModulepath, collector, f, release);
+							} else if (isModuleInDirectory(f)) {
+								addModule(destinationPath, parser, options, collector, f, release);
+							}
+						}
 					}
 				}
 			}
+		}
+	}
+	/**
+	 * Answers whether a file of a directory of modules of the module path is a module: a packaged module (a JAR or a JMOD
+	 * file), or an exploded module (a directory with a module descriptor, or with its source).
+	 */
+	private static boolean isModuleInDirectory(File file) {
+		if (file.isDirectory()) {
+			String[] descriptors = file.list((dir, name) -> name.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)
+					|| name.equalsIgnoreCase(IModule.MODULE_INFO_JAVA)); // javax.tools also reads the module source path this way
+			return descriptors != null && descriptors.length > 0;
+		}
+		String name = file.getName();
+		return name.endsWith(".jar") || name.endsWith(".jmod"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	/** Adds a module of a directory of modules of the module path, without looking into it if it is not a module. */
+	private static void addModule(String destinationPath, Parser parser, Map<String, String> options,
+			List<FileSystem.Classpath> collector, File file, String release) {
+		FileSystem.Classpath entry = FileSystem.getClasspath(file.getAbsolutePath(), null, false, null,
+				destinationPath == null ? null : (destinationPath + File.separator + file.getName()), options, release);
+		if (entry != null && scanForModule(entry, file, parser, true, release) != null) {
+			collector.add(entry);
 		}
 	}
 	protected static IModule scanForModule(FileSystem.Classpath modulePath, final File file, Parser parser, boolean considerAutoModules, String release) {
