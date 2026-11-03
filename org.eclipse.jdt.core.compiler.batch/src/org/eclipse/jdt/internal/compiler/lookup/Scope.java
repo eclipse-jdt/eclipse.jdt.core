@@ -2020,11 +2020,11 @@ public abstract class Scope {
 								if (existing.declaringClass.isInterface()) { // current is known to be an interface method.
 									if (methodVerifier.doesMethodOverride(existing, current))
 										continue next;
-								    if (methodVerifier.doesMethodOverride(current, existing)) {
-								    	found.remove(existing);
-								    	foundSize--;
-								    	continue;
-								    }
+									if (methodVerifier.doesMethodOverride(current, existing)) {
+										found.remove(existing);
+										foundSize--;
+										continue;
+									}
 								}
 								f++;
 							}
