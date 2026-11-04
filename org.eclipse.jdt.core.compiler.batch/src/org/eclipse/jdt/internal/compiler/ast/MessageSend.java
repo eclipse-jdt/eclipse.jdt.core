@@ -701,6 +701,22 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 	}
 	return FlowInfo.UNKNOWN;
 }
+
+@Override
+public boolean patternMatch(Expression expression) {
+	if (expression instanceof MessageSend that) {
+		if (this.binding == null || !this.binding.equals(that.binding))
+			return false;
+		if (this.argumentTypes.length != that.argumentTypes.length)
+			return false;
+		for (int i = 0, length = this.argumentTypes.length; i < length; i++)
+			if (TypeBinding.notEquals(this.argumentTypes[i], that.argumentTypes[i])) // deliberately don't peek into any polys here
+				return false;
+		return true;
+	}
+	return false;
+}
+
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.Expression#postConversionType(Scope)
  */
