@@ -44,7 +44,7 @@
 		<property name="build.result.folder" value="${basedir}" />
 		<property name="postingDirectory" value="${build.result.folder}/ecj" />
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="export"/>
+		<ant antfile="${basedir}/../org.eclipse.jdt.core.compiler.batch/scripts/export-ecj.xml" useNativeBasedir="true" target="export"/>
 	</target>
 	
 	<!-- ===================================================================== -->
@@ -92,7 +92,7 @@
 	</target>
 
 	<target name="post.compile.@dot">
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-batch-compiler"/>
+		<ant antfile="${basedir}/../org.eclipse.jdt.core.compiler.batch/scripts/export-ecj.xml" useNativeBasedir="true" target="extract-batch-compiler"/>
 	</target>
 	
 	<!-- ===================================================================== -->
@@ -196,7 +196,7 @@
 	<!--                      reference to the classpath structure.            -->
 	<!-- ===================================================================== -->
 	<target name="post.compile.jdtCompilerAdapter.jar">
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-ant-adapter-compiler"/>
+		<ant antfile="${basedir}/../org.eclipse.jdt.core.compiler.batch/scripts/export-ecj.xml" useNativeBasedir="true" target="extract-ant-adapter-compiler"/>
 		<copy todir="${target.folder}">
 			<fileset dir="${basedir}/scripts/antadapter">
 				<include name="plugin.properties"/>
