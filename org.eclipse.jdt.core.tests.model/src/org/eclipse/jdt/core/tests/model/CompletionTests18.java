@@ -6223,6 +6223,106 @@ public void testIssue5665_expectOnlyExactArityOverloadContributesExpectedType() 
 	// parameter type (int) shouldn't be contributed as an expected type for this slot. Before
 	// the fix, both String and int were added as expected types, so int-typed Integer members
 	// (e.g. MAX_VALUE) were ranked as relevant as String-typed ones (e.g. toString(int)).
+	assertExpectedTypesSignatures(requestor, new char[][] {"Ljava.lang.String;".toCharArray()});
+}
+// Companion to testIssue5665_expectOnlyExactArityOverloadContributesExpectedType: when the ONLY
+// applicable overload requires more arguments than have been typed so far (no exact-arity overload
+// exists), the fix must not suppress its parameter type - the original, more permissive behavior
+// (needed for genuinely partial/ambiguous calls, and for varargs methods in particular, since a
+// varargs method's arity will often not match the number of arguments typed so far) must still apply.
+public void testIssue5665Varargs_fallbackPreservedWhenNoExactArityOverload() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Issue5665Varargs1.java",
+			"public class Issue5665Varargs1 {\n" +
+			"	private void foo() {\n" +
+			"		bar(Integer.);\n" +
+			"	}\n" +
+			"	private void bar(int i, String... rest) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Integer.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	// bar(int, String...) has arity 2, which doesn't match the single argument typed so far, so
+	// there's no exact-arity overload at all here. The fix must fall back to the original
+	// permissive behavior and still offer int as the expected type for this first argument.
+	assertExpectedTypesSignatures(requestor, new char[][] {"I".toCharArray()});
+}
+// Complement to the previous test: when an exact-arity overload DOES exist alongside a varargs
+// overload that would also (loosely) accept the arguments typed so far, only the exact-arity
+// overload's parameter type should be contributed - the varargs overload requires an additional
+// argument and shouldn't dilute relevance for this slot.
+public void testIssue5665Varargs_excludedWhenExactArityOverloadExists() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Issue5665Varargs2.java",
+			"public class Issue5665Varargs2 {\n" +
+			"	private void foo() {\n" +
+			"		bar(Integer.);\n" +
+			"	}\n" +
+			"	private void bar(String s) {}\n" +
+			"	private void bar(int i, String... rest) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Integer.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertExpectedTypesSignatures(requestor, new char[][] {"Ljava.lang.String;".toCharArray()});
+}
+// Generics variant of the main scenario: the exact-arity overload's parameter is a type variable
+// that must be substituted with the actual type argument (String here, not the erasure/bound) before
+// being compared against the excluded, larger-arity overload's (int) parameter type.
+public void testIssue5665Generics_boundedTypeParameterSubstitution() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Issue5665Generics.java",
+			"public class Issue5665Generics<T> {\n" +
+			"	private void foo(Issue5665Generics<String> g) {\n" +
+			"		g.bar(Integer.);\n" +
+			"	}\n" +
+			"	private void bar(T t) {}\n" +
+			"	private void bar(int i, T t) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Integer.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertExpectedTypesSignatures(requestor, new char[][] {"Ljava.lang.String;".toCharArray()});
+}
+// Boxing variant: the exact-arity overload's parameter is a boxed reference type (Integer), not a
+// primitive, confirming the arity filter itself is agnostic to boxing and only the excluded
+// overload's (unrelated, int) parameter type is left out.
+public void testIssue5665Boxing_referenceTypeParameterStillMatchedByArity() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Issue5665Boxing.java",
+			"public class Issue5665Boxing {\n" +
+			"	private void foo() {\n" +
+			"		bar(Integer.);\n" +
+			"	}\n" +
+			"	private void bar(Integer i) {}\n" +
+			"	private void bar(int i, Integer j) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Integer.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertExpectedTypesSignatures(requestor, new char[][] {"Ljava.lang.Integer;".toCharArray()});
+}
+private void assertExpectedTypesSignatures(CompletionTestsRequestor2 requestor, char[][] expected) {
 	char[][] expectedTypesSignatures = requestor.getExpectedTypesSignatures();
 	StringBuilder actual = new StringBuilder();
 	if (expectedTypesSignatures == null) {
@@ -6233,8 +6333,7 @@ public void testIssue5665_expectOnlyExactArityOverloadContributesExpectedType() 
 		}
 	}
 	assertTrue("expected type signatures don't match, was: " + actual,
-			CharOperation.equals(expectedTypesSignatures,
-			new char[][] {"Ljava.lang.String;".toCharArray()}, true));
+			CharOperation.equals(expectedTypesSignatures, expected, true));
 }
 public void testBug575149_expectRemainingOverloadedMethodsMatchingFilledArguments() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
