@@ -171,4 +171,277 @@ public class InferenceScalabilityTest extends AbstractRegressionTest {
 		assertTrue("Type inference exceeded the 10-second budget: " + measurement,
 				elapsedNanos <= budgetNanos);
 	}
+
+	public void testIssue_JDK8221301 () {
+		if (RUN_JAVAC || RUN_JAVAC_OPT_IN)
+			return;
+
+		String source = """
+			public class X {
+
+			  static class Pair<A, B> {
+			    static <A, B> Pair<A, B> of(A a, B b) {
+			      throw new RuntimeException();
+			    }
+			  }
+
+			  static class List<T> {
+			    static <T> List<T> of(T... tx) {
+			      throw new RuntimeException();
+			    }
+			  }
+
+			  static final List<Pair<String, String>> PAIRS = List.of(
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"),
+			      Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"), Pair.of("a", "b"));
+			}
+			""";
+
+		java.util.Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_27);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_27);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_27);
+
+		final long budgetNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+		final long start = System.nanoTime();
+		long elapsedNanos;
+		String measurement;
+		try {
+			runConformTest(new String[] { "X.java", source }, options);
+		} finally {
+			elapsedNanos = System.nanoTime() - start;
+			measurement = "issue JDK8221301: 400 nested Pair.of(\"a\", \"b\") invocations, elapsed="
+					+ java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNanos)
+					+ "ms, budget="
+					+ java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(budgetNanos)
+					+ "ms, withinBudget=" + (elapsedNanos <= budgetNanos);
+			System.out.println(testClass().getSimpleName() + ": " + measurement);
+		}
+		assertTrue("Type inference exceeded the 5-second budget: " + measurement,
+				elapsedNanos <= budgetNanos);
+	}
+
+
+	public void _testIssue_JDK8152289  () {
+		if (RUN_JAVAC || RUN_JAVAC_OPT_IN)
+			return;
+
+		String source = """
+			public class X {
+				static class Point<T extends Comparable<T>> {
+					Point(T label) { }
+				}
+
+				static class Graph<T extends Comparable<T>> {
+					@SafeVarargs
+					public Graph(Point<T>... vertices) { }
+				}
+
+			    //100 points
+			    Graph<Integer> GEO = new Graph<>(
+			            new Point<>(1),
+			            new Point<>(2),
+			            new Point<>(3),
+			            new Point<>(4),
+			            new Point<>(5),
+			            new Point<>(6),
+			            new Point<>(7),
+			            new Point<>(8),
+			            new Point<>(9),
+			            new Point<>(10),
+			            new Point<>(11),
+			            new Point<>(12),
+			            new Point<>(13),
+			            new Point<>(14),
+			            new Point<>(15),
+			            new Point<>(16),
+			            new Point<>(17),
+			            new Point<>(18),
+			            new Point<>(19),
+			            new Point<>(20),
+			            new Point<>(21),
+			            new Point<>(22),
+			            new Point<>(23),
+			            new Point<>(24),
+			            new Point<>(25),
+			            new Point<>(26),
+			            new Point<>(27),
+			            new Point<>(28),
+			            new Point<>(29),
+			            new Point<>(30),
+			            new Point<>(31),
+			            new Point<>(32),
+			            new Point<>(33),
+			            new Point<>(34),
+			            new Point<>(35),
+			            new Point<>(36),
+			            new Point<>(37),
+			            new Point<>(38),
+			            new Point<>(39),
+			            new Point<>(40),
+			            new Point<>(41),
+			            new Point<>(42),
+			            new Point<>(43),
+			            new Point<>(44),
+			            new Point<>(45),
+			            new Point<>(46),
+			            new Point<>(47),
+			            new Point<>(48),
+			            new Point<>(49),
+			            new Point<>(50),
+			            new Point<>(51),
+			            new Point<>(52),
+			            new Point<>(53),
+			            new Point<>(54),
+			            new Point<>(55),
+			            new Point<>(56),
+			            new Point<>(57),
+			            new Point<>(58),
+			            new Point<>(59),
+			            new Point<>(60),
+			            new Point<>(61),
+			            new Point<>(62),
+			            new Point<>(63),
+			            new Point<>(64),
+			            new Point<>(65),
+			            new Point<>(66),
+			            new Point<>(67),
+			            new Point<>(68),
+			            new Point<>(69),
+			            new Point<>(70),
+			            new Point<>(71),
+			            new Point<>(72),
+			            new Point<>(73),
+			            new Point<>(74),
+			            new Point<>(75),
+			            new Point<>(76),
+			            new Point<>(77),
+			            new Point<>(78),
+			            new Point<>(79),
+			            new Point<>(80),
+			            new Point<>(81),
+			            new Point<>(82),
+			            new Point<>(83),
+			            new Point<>(84),
+			            new Point<>(85),
+			            new Point<>(86),
+			            new Point<>(87),
+			            new Point<>(88),
+			            new Point<>(89),
+			            new Point<>(90),
+			            new Point<>(91),
+			            new Point<>(92),
+			            new Point<>(93),
+			            new Point<>(94),
+			            new Point<>(95),
+			            new Point<>(96),
+			            new Point<>(97),
+			            new Point<>(98),
+			            new Point<>(99),
+			            new Point<>(100)
+			    );
+			}
+			""";
+
+		java.util.Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_27);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_27);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_27);
+
+		final long budgetNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+		final long start = System.nanoTime();
+		long elapsedNanos;
+		String measurement;
+		try {
+			runConformTest(new String[] { "X.java", source }, options);
+		} finally {
+			elapsedNanos = System.nanoTime() - start;
+			measurement = "issue JDK8221301: 100 nested new Point<>() invocations, elapsed="
+					+ java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(elapsedNanos)
+					+ "ms, budget="
+					+ java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(budgetNanos)
+					+ "ms, withinBudget=" + (elapsedNanos <= budgetNanos);
+			System.out.println(testClass().getSimpleName() + ": " + measurement);
+		}
+		assertTrue("Type inference exceeded the 5-second budget: " + measurement,
+				elapsedNanos <= budgetNanos);
+	}
 }
