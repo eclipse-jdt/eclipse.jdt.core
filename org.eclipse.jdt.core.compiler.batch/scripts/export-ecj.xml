@@ -17,21 +17,15 @@
 <!--
 	Build script to create a batch compiler (ecj) from org.eclipse.jdt.core.compiler.batch.
 	The batch compiler (including the JSR 199 / JSR 269 implementations and the ant adapter)
-	lives in the sibling project org.eclipse.jdt.core.compiler.batch, which must be compiled
-	(e.g. by Eclipse into its "bin" folder) before running this script.
+	must be compiled (e.g. by Eclipse into the "bin" folder) before running this script.
 -->
 <project name="Eclipse Batch Compiler" default="export-all" basedir="..">
 	<target name="init">
 		<tstamp/>
-		<!-- Location of the batch compiler project (sibling of org.eclipse.jdt.core) -->
-		<property name="batch.project" location="${basedir}/../org.eclipse.jdt.core.compiler.batch"/>
+		<!-- Location of the batch compiler project (this project) -->
+		<property name="batch.project" location="${basedir}"/>
 		<property name="batch.src" location="${batch.project}/src"/>
 		<property name="batch.bin" location="${batch.project}/bin"/>
-		<fail message="Batch compiler project not found at ${batch.project}">
-			<condition>
-				<not><available file="${batch.project}" type="dir"/></not>
-			</condition>
-		</fail>
 		<fail message="Compiled classes of batch compiler not found at ${batch.bin}, please build org.eclipse.jdt.core.compiler.batch first">
 			<condition>
 				<not><available file="${batch.bin}/org/eclipse/jdt/internal/compiler/batch/messages.properties"/></not>
