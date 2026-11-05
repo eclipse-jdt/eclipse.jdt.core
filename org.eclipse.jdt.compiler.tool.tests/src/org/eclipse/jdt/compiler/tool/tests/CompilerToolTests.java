@@ -22,23 +22,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.lang.model.SourceVersion;
 import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
@@ -1551,6 +1557,73 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			writer.flush();
 		}
 		return file;
+	}
+
+	/**
+	 * Class files, smaller or larger than a stream buffer, are written whole to the stream of their JavaFileObject,
+	 * which is closed, whether the stream comes from the Eclipse file manager or from a file object of the client.
+	 */
+	public void testClassFileOutputStream() throws IOException, ClassFormatException {
+		Path directory = Files.createTempDirectory("CompilerToolTests");
+		try {
+			Path small = directory.resolve("Small.java");
+			Files.writeString(small, "package p;\npublic class Small {}\n");
+			StringBuilder big = new StringBuilder("package p;\npublic class Big {\n");
+			for (int i = 0; i < 500; i++) {
+				big.append("\tpublic String m").append(i).append("() { return \"value").append(i).append("\"; }\n");
+			}
+			Path bigSource = directory.resolve("Big.java");
+			Files.writeString(bigSource, big.append("}\n"));
+			Path bin = Files.createDirectories(directory.resolve("bin"));
+
+			Map<String, ByteArrayOutputStream> streams = new HashMap<>();
+			Map<String, byte[]> closed = new HashMap<>(); // content when the stream was closed
+			try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.ROOT, StandardCharsets.UTF_8)) {
+				Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(List.of(small.toFile(), bigSource.toFile()));
+				assertTrue(compiler.getTask(null, manager, null, List.of("-d", bin.toString()), null, units).call());
+
+				JavaFileManager inMemory = new ForwardingJavaFileManager<>(manager) {
+					@Override
+					public JavaFileObject getJavaFileForOutput(Location location, String name, Kind kind, FileObject sibling) {
+						String className = name.replace('/', '.'); // ECJ passes binary names with slashes
+						return new SimpleJavaFileObject(URI.create("mem:///" + name.replace('.', '/') + kind.extension), kind) {
+							@Override
+							public OutputStream openOutputStream() {
+								ByteArrayOutputStream stream = new ByteArrayOutputStream() {
+									@Override
+									public synchronized void write(byte[] b, int off, int len) {
+										assertFalse("written after close", closed.containsKey(className));
+										super.write(b, off, len);
+									}
+									@Override
+									public void close() {
+										closed.put(className, toByteArray());
+									}
+								};
+								streams.put(className, stream);
+								return stream;
+							}
+						};
+					}
+				};
+				assertTrue(compiler.getTask(null, inMemory, null, List.of(), null, units).call());
+			}
+			assertEquals(Set.of("p.Small", "p.Big"), streams.keySet());
+			assertEquals(streams.keySet(), closed.keySet());
+			for (String className : streams.keySet()) {
+				String fileName = className.replace('.', '/') + ".class";
+				byte[] written = Files.readAllBytes(bin.resolve(fileName));
+				assertTrue(className, Arrays.equals(written, closed.get(className)));
+				ClassFileReader reader = new ClassFileReader(written, fileName.toCharArray());
+				assertEquals(className.replace('.', '/'), new String(reader.getName()));
+			}
+			assertTrue("smaller than a buffer", Files.size(bin.resolve("p/Small.class")) < 8192);
+			assertTrue("larger than a buffer", Files.size(bin.resolve("p/Big.class")) > 8192);
+		} finally {
+			try (Stream<Path> paths = Files.walk(directory)) {
+				paths.sorted(Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
+			}
+		}
 	}
 
 	/**
