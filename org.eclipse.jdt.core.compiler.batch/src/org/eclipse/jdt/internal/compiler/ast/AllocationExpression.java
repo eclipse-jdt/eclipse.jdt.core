@@ -321,6 +321,21 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 }
 
 @Override
+public boolean patternMatch(Expression expression) {
+	if (expression instanceof AllocationExpression that) {
+		if (this.binding == null || !this.binding.equals(that.binding))
+			return false;
+		if (this.argumentTypes.length != that.argumentTypes.length)
+			return false;
+		for (int i = 0, length = this.argumentTypes.length; i < length; i++)
+			if (TypeBinding.notEquals(this.argumentTypes[i], that.argumentTypes[i])) // deliberately don't peek into any polys here
+				return false;
+		return true;
+	}
+	return false;
+}
+
+@Override
 public StringBuilder printExpression(int indent, StringBuilder output) {
 	if (this.type != null) { // type null for enum constant initializations
 		output.append("new "); //$NON-NLS-1$
