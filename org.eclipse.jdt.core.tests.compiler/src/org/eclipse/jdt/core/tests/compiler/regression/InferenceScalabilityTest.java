@@ -300,7 +300,7 @@ public class InferenceScalabilityTest extends AbstractRegressionTest {
 	}
 
 
-	public void _testIssue_JDK8152289  () {
+	public void testIssue_JDK8152289  () {
 		if (RUN_JAVAC || RUN_JAVAC_OPT_IN)
 			return;
 
