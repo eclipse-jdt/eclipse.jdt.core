@@ -233,8 +233,6 @@ private void checkInternalNPE(BlockScope scope, FlowContext flowContext, FlowInf
 					FlowContext.MAY_NULL, flowInfo);
 			}
 			flowInfo.markAsComparedEqualToNonNull(local);
-			// from thereon it is set
-			flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
 		}
 	}
 	if (this.otherBindings != null) {
