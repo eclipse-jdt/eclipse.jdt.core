@@ -697,6 +697,82 @@ public void testGH4865() {
 			"""
 	});
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5644
+// Missing error: static blank final field read in an anonymous class initializer before it is assigned
+public void testIssue5644() {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			class S1 {
+			    static final int F;
+			    static final Object o = new Object() {
+			        { System.out.println(F); }      // javac: error
+			    };
+			    static { F = 1; }
+			}
+			class S2 {
+			    static final int F;
+			    static { Object o = new Object() { { int v = F; } }; F = 1; }   // javac: error
+			}
+			class S3 {
+			    static final int F;
+			    static final Object o = new Object() { int v = F; };   // javac: error
+			    static { F = 1; }
+			}
+			class S4 {
+			    interface I { int get(); }
+			    static final int F;
+			    static final Object o = new Object() {
+			        { I i = () -> F; }              // javac: error
+			    };
+			    static { F = 1; }
+			}
+			class S5 {
+			    interface I { Object get(); }
+			    static final int F;
+			    static final I i = () -> new Object() { int v = F; };   // javac: error
+			    static { F = 1; }
+			}
+			"""
+	},
+	"----------\n" +
+	"1. ERROR in X.java (at line 4)\n" +
+	"	{ System.out.println(F); }      // javac: error\n" +
+	"	                     ^\n" +
+	"The blank final field F may not have been initialized\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 10)\n" +
+	"	static { Object o = new Object() { { int v = F; } }; F = 1; }   // javac: error\n" +
+	"	                                             ^\n" +
+	"The blank final field F may not have been initialized\n" +
+	"----------\n" +
+	"3. WARNING in X.java (at line 14)\n" +
+	"	static final Object o = new Object() { int v = F; };   // javac: error\n" +
+	"	                                           ^\n" +
+	"The value of the field new Object(){}.v is not used\n" +
+	"----------\n" +
+	"4. ERROR in X.java (at line 14)\n" +
+	"	static final Object o = new Object() { int v = F; };   // javac: error\n" +
+	"	                                               ^\n" +
+	"The blank final field F may not have been initialized\n" +
+	"----------\n" +
+	"5. ERROR in X.java (at line 21)\n" +
+	"	{ I i = () -> F; }              // javac: error\n" +
+	"	              ^\n" +
+	"The blank final field F may not have been initialized\n" +
+	"----------\n" +
+	"6. WARNING in X.java (at line 28)\n" +
+	"	static final I i = () -> new Object() { int v = F; };   // javac: error\n" +
+	"	                                            ^\n" +
+	"The value of the field new Object(){}.v is not used\n" +
+	"----------\n" +
+	"7. ERROR in X.java (at line 28)\n" +
+	"	static final I i = () -> new Object() { int v = F; };   // javac: error\n" +
+	"	                                                ^\n" +
+	"The blank final field F may not have been initialized\n" +
+	"----------\n");
+}
+
 public static Class testClass() {
 	return InitializationTests.class;
 }
