@@ -773,6 +773,134 @@ public void testIssue5644() {
 	"----------\n");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5593
+// Bogus error: blank final field may not have been initialized for Outer.this.field in a lambda.
+// X.this.field and X.this.q.x are accepted; this.field, (this).field and q.x are still checked, and a
+// compound assignment through X.this only reports the final field.
+public void testIssue5593() {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			class P { int x; }
+			public class X {
+				final String store;
+				final P q;
+				final int count;
+				final Runnable r = () -> {
+					System.out.print(X.this.store);
+					X.this.q.x = 1;
+					X.this.q.x += 1;
+					X.this.q.x++;
+					System.out.print(this.count);
+					X.this.count++;
+				};
+				final Object o = new Object() {
+					String s = X.this.store;
+					{ System.out.print(this.s + " " + X.this.store + " "); }
+				};
+				X(int c) {
+					System.out.print((X.this).store + " ");
+					X.this.count += 1;
+					X.this.count++;
+					System.out.print((this).count);
+					X.this.q.x = 1;
+					this.q.x += 1;
+					q.x++;
+					this.store = "set";
+					this.q = new P();
+					this.count = c;
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 11)
+			System.out.print(this.count);
+			                      ^^^^^
+		The blank final field count may not have been initialized
+		----------
+		2. ERROR in X.java (at line 12)
+			X.this.count++;
+			       ^^^^^
+		The final field X.count cannot be assigned
+		----------
+		3. ERROR in X.java (at line 20)
+			X.this.count += 1;
+			       ^^^^^
+		The final field X.count cannot be assigned
+		----------
+		4. ERROR in X.java (at line 21)
+			X.this.count++;
+			       ^^^^^
+		The final field X.count cannot be assigned
+		----------
+		5. ERROR in X.java (at line 22)
+			System.out.print((this).count);
+			                        ^^^^^
+		The blank final field count may not have been initialized
+		----------
+		6. ERROR in X.java (at line 24)
+			this.q.x += 1;
+			     ^
+		The blank final field q may not have been initialized
+		----------
+		7. ERROR in X.java (at line 25)
+			q.x++;
+			^
+		The blank final field q may not have been initialized
+		----------
+		""");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5593
+// The static form is a different AST node (QualifiedNameReference): a field read through its type name
+// (X.Q.x = 1, X.Q.x += 1, X.Q.x++) is not checked, while the simple name Q is, also in a compound assignment;
+// a compound assignment through X.F only reports the final field.
+public void testIssue5593_static() {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			class P { int x; }
+			public class X {
+				static final P Q;
+				static final int F;
+				static {
+					X.Q.x = 1;
+					X.Q.x += 1;
+					X.Q.x++;
+					Q.x = 1;
+					Q.x += 1;
+					Q.x++;
+					X.F += 1;
+					Q = new P();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 9)
+			Q.x = 1;
+			^
+		The blank final field Q may not have been initialized
+		----------
+		2. ERROR in X.java (at line 10)
+			Q.x += 1;
+			^
+		The blank final field Q may not have been initialized
+		----------
+		3. ERROR in X.java (at line 11)
+			Q.x++;
+			^
+		The blank final field Q may not have been initialized
+		----------
+		4. ERROR in X.java (at line 12)
+			X.F += 1;
+			  ^
+		The final field X.F cannot be assigned
+		----------
+		""");
+}
 public static Class testClass() {
 	return InitializationTests.class;
 }
