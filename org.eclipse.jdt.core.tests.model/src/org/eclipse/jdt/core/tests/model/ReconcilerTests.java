@@ -936,7 +936,7 @@ public void testBufferClosed1() throws CoreException {
 	);
 
 	// simulate buffer being closed
-	((TestBuffer) this.workingCopy.getBuffer()).contents = null;
+	((TestBuffer) this.workingCopy.getBuffer()).closeWithoutNotification();
 
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 	assertProblemsInclude(
@@ -978,7 +978,7 @@ public void testBufferClosed2() throws CoreException {
 	);
 
 	// simulate buffer being closed
-	((TestBuffer) this.workingCopy.getBuffer()).contents = null;
+	((TestBuffer) this.workingCopy.getBuffer()).closeWithoutNotification();
 
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 	assertProblemsInclude(

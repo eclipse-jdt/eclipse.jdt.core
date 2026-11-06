@@ -30,6 +30,7 @@ public class TestBuffer implements IBuffer {
 		ArrayList changeListeners;
 		char[] contents = null;
 		boolean hasUnsavedChanges = false;
+		private boolean closed;
 		public TestBuffer(IOpenable owner) {
 			this.owner = owner;
 		}
@@ -37,6 +38,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#addBufferChangedListener(IBufferChangedListener)
 		 */
 		public void addBufferChangedListener(IBufferChangedListener listener) {
+			if (this.closed) return;
 			if (this.changeListeners == null) {
 				this.changeListeners = new ArrayList(5);
 			}
@@ -49,6 +51,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#append(char[])
 		 */
 		public void append(char[] text) {
+			if (this.closed) return;
 			this.hasUnsavedChanges = true;
 			notifyListeners();
 		}
@@ -57,6 +60,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#append(String)
 		 */
 		public void append(String text) {
+			if (this.closed) return;
 			this.hasUnsavedChanges = true;
 			notifyListeners();
 		}
@@ -65,11 +69,16 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#close()
 		 */
 		public void close() {
-			this.contents = null; // mark as closed
+			if (this.closed) return;
+			closeWithoutNotification();
 			if (this.changeListeners != null) {
 				notifyListeners();
 				this.changeListeners = null;
 			}
+		}
+		void closeWithoutNotification() {
+			this.closed = true;
+			this.contents = null;
 		}
 		private void notifyListeners() {
 			if (this.changeListeners == null) return;
@@ -99,7 +108,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#getContents()
 		 */
 		public String getContents() {
-			return new String(this.contents);
+			return this.contents == null ? null : new String(this.contents);
 		}
 
 		/*
@@ -141,7 +150,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#isClosed()
 		 */
 		public boolean isClosed() {
-			return this.contents == null;
+			return this.closed;
 		}
 
 		/*
@@ -167,6 +176,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#replace(int, int, char[])
 		 */
 		public void replace(int position, int length, char[] text) {
+			if (this.closed) return;
 			this.hasUnsavedChanges = true;
 			notifyListeners();
 		}
@@ -175,6 +185,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#replace(int, int, String)
 		 */
 		public void replace(int position, int length, String text) {
+			if (this.closed) return;
 			this.hasUnsavedChanges = true;
 			notifyListeners();
 		}
@@ -183,6 +194,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#save(IProgressMonitor, boolean)
 		 */
 		public void save(IProgressMonitor progress, boolean force) {
+			if (this.closed) return;
 			this.hasUnsavedChanges = false;
 		}
 
@@ -190,6 +202,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#setContents(char[])
 		 */
 		public void setContents(char[] characters) {
+			if (this.closed) return;
 			this.contents = characters;
 			this.hasUnsavedChanges = true;
 			notifyListeners();
@@ -199,6 +212,7 @@ public class TestBuffer implements IBuffer {
 		 * @see IBuffer#setContents(String)
 		 */
 		public void setContents(String characters) {
+			if (this.closed) return;
 			this.contents = characters.toCharArray();
 			this.hasUnsavedChanges = true;
 			notifyListeners();

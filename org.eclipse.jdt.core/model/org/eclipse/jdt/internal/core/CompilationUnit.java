@@ -107,11 +107,7 @@ public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws Ja
 @Override
 public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
-	if (perWorkingCopyInfo == null) {
-		// close cu and its children
-		close();
-
+	if (!manager.getBufferLifecycle().retainWorkingCopy(this)) {
 		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(this, problemRequestor);
 		operation.runOperation(monitor);
 	}
@@ -478,9 +474,12 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workin
 }
 
 public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner workingCopyOwner, int focalPosition) throws JavaModelException {
-	if (this.ast != null) {
-		return this.ast;
+	BufferManager buffers = getBufferManager();
+	var cachedAST = this.ast;
+	if (cachedAST != null && buffers.isBufferListener(this)) {
+		return cachedAST;
 	}
+	this.ast = null;
 	Map<String, String> options = getOptions(true);
 	ASTParser parser = ASTParser.newParser(new AST(options).apiLevel()); // go through AST constructor to convert options to apiLevel
 	// but we should probably instead just use the latest Java version
@@ -494,19 +493,25 @@ public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner w
 	parser.setCompilerOptions(options);
 	parser.setFocalPosition(focalPosition);
 	if (parser.createAST(null) instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
-		if (focalPosition >= 0) {
-			// do not store
-			return newAST;
+		// Equal handles share a buffer, but only its actual listener can keep a
+		// per-handle AST cache valid. Other handles must use the freshly parsed AST.
+		if (focalPosition < 0 && buffers.isBufferListener(this)) {
+			this.ast = newAST;
 		}
-		this.ast = newAST;
+		return newAST;
 	}
-	return this.ast;
+	return null;
 }
 
 @Override
 public void bufferChanged(BufferChangedEvent event) {
-	this.ast = null;
+	invalidateAST();
 	super.bufferChanged(event);
+}
+
+/** Also used when retirement detaches the model listener before the close event. */
+void invalidateAST() {
+	this.ast = null;
 }
 
 /**
@@ -1288,65 +1293,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 
 @Override
 protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws JavaModelException {
-
-	// create buffer
-	BufferManager bufManager = getBufferManager();
-	boolean isWorkingCopy = isWorkingCopy();
-	IBuffer buffer =
-		isWorkingCopy
-			? this.owner.createBuffer(this)
-			: BufferManager.createBuffer(this);
-	if (buffer == null) return null;
-
-	ICompilationUnit original = null;
-	boolean mustSetToOriginalContent = false;
-	if (isWorkingCopy) {
-		// ensure that isOpen() is called outside the bufManager synchronized block
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=237772
-		mustSetToOriginalContent = !isPrimary() && (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen() ;
-	}
-
-	// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time
-	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146331
-	IBuffer existingBuffer;
-	synchronized(bufManager) {
-		existingBuffer = bufManager.getBuffer(this);
-		if (existingBuffer == null) {
-			// set the buffer source
-			if (buffer.getCharacters() == null) {
-				if (isWorkingCopy) {
-					if (mustSetToOriginalContent) {
-						buffer.setContents(original.getSource());
-					} else {
-						IFile file = (IFile)getResource();
-						if (file == null || !file.exists()) {
-							// initialize buffer with empty contents
-							buffer.setContents(CharOperation.NO_CHAR);
-						} else {
-							buffer.setContents(Util.getResourceContentsAsCharArray(file));
-						}
-					}
-				} else {
-					IFile file = (IFile)getResource();
-					if (file == null || !file.exists()) throw newNotPresentException();
-					buffer.setContents(Util.getResourceContentsAsCharArray(file));
-				}
-			}
-
-			// add buffer to buffer cache
-			// note this may cause existing buffers to be removed from the buffer cache, but only primary compilation unit's buffer
-			// can be closed, thus no call to a client's IBuffer#close() can be done in this synchronized block.
-			bufManager.addBuffer(buffer);
-
-			// listen to buffer changes
-			buffer.addBufferChangedListener(this);
-		}
-	}
-	if(existingBuffer != null) {
-		buffer.close();
-		return existingBuffer;
-	}
-	return buffer;
+	return JavaModelManager.getJavaModelManager().getBufferLifecycle().openBuffer(this);
 }
 @Override
 protected void openAncestors(Map<IJavaElement, IElementInfo> newElements, IProgressMonitor monitor) throws JavaModelException {
