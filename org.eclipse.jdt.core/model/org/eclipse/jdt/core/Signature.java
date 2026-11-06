@@ -633,13 +633,18 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 	int checkpoint = buffer.length();
 	int innerTypeStart = -1;
 	boolean inAnonymousType = false;
+	int[] result = getLastDotDollar(string);
+	int lastDot = result[0];
+	int lastDollar = result[1];
+	boolean isLastDollar = (string.length > 2 && lastDollar == string.length - 2) || lastDollar == (string.length - 1);
+
 	while (true) {
 		if (p >= string.length) {
 			throw newIllegalArgumentException(string, start);
 		}
 		c = string[p];
-		char prevC = string[p - 1];
-		char nextC = p < string.length - 1 ? string[p + 1] : 0;
+		boolean isPreviousDollar = (p - 1 >= 0) ? (string[p - 1] == '$') : false;
+		boolean isNextDollar = (p + 1 < string.length) ? (string[p + 1] == '$') : false;
 		switch(c) {
 			case C_SEMICOLON :
 				// all done
@@ -667,39 +672,25 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 				}
 				break;
 			 case C_DOLLAR :
-				 if (nextC == C_DOT) {
-					 buffer.append('$');
-				 } else {
-					 boolean foundDotAfterDollar = false;
-					 if (prevC == C_DOT) {
-						 int i = p + 1;
-						 // check to see if we have dollar as part of package or class
-						 while (i < string.length) {
-							 if (string[i++] == C_DOT) {
-								 foundDotAfterDollar = true;
-								 break;
-							 }
-						 }
-					 }
-					 if (foundDotAfterDollar) {
-						 buffer.append('$');
-						 break;
-					 }
-					 innerTypeStart = buffer.length();
-					 inAnonymousType = false;
-					 if (resolved) {
-						 // once we hit "$" there are no more package prefixes
-						 removePackageQualifiers = false;
-						 /**
-						  * Convert '$' in resolved type signatures into '.'.
-						  * NOTE: This assumes that the type signature is an inner type
-						  * signature. This is true in most cases, but someone can define a
-						  * non-inner type name containing a '$'.
-						  */
-						 buffer.append('.');
-					 }
-				 }
-				 break;
+			 	innerTypeStart = buffer.length();
+			 	inAnonymousType = false;
+			 	if (resolved) {
+					// once we hit "$" there are no more package prefixes
+					/**
+					 * Convert '$' in resolved type signatures into '.'.
+					 * NOTE: This assumes that the type signature is an inner type
+					 * signature. This is true in most cases, but someone can define a
+					 * non-inner type name containing a '$'.
+					 * see https://github.com/eclipse-jdt/eclipse.jdt.core/pull/671
+					 */
+			 		if (!isNextDollar && !isPreviousDollar && !isLastDollar && p > 0 && string[p-1] != C_DOT && p >= lastDot) {
+						buffer.append('.');
+						removePackageQualifiers = false;
+					} else {
+						buffer.append(c);
+					}
+			 	}
+			 	break;
 			 default :
 				if (innerTypeStart != -1 && !inAnonymousType && Character.isDigit(c)) {
 					inAnonymousType = true;
@@ -1937,8 +1928,15 @@ public static char[] getSignatureQualifier(char[] typeSignature) {
 
 	char[] qualifiedType = Signature.toCharArray(typeSignature);
 
+	int[] result = getLastDotDollar(typeSignature);
+	int lastDot = result[0];
+	int lastDollar = result[1];
+	boolean isLastDollar = (typeSignature.length > 2 && lastDollar == typeSignature.length - 2) || lastDollar == (typeSignature.length - 1);
+
 	int dotCount = 0;
 	indexFound: for(int i = 0; i < typeSignature.length; i++) {
+		boolean isPreviousDollar = (i - 1 >= 0) ? (typeSignature[i - 1] == '$') : false;
+		boolean isNextDollar = (i + 1 < typeSignature.length) ? (typeSignature[i + 1] == '$') : false;
 		switch(typeSignature[i]) {
 			case C_DOT:
 				dotCount++;
@@ -1946,7 +1944,9 @@ public static char[] getSignatureQualifier(char[] typeSignature) {
 			case C_GENERIC_START:
 				break indexFound;
 			case C_DOLLAR:
-				break indexFound;
+				if (!isPreviousDollar && !isNextDollar && !isLastDollar && i >= lastDot) {
+					break indexFound;
+				}
 		}
 	}
 
@@ -1961,6 +1961,22 @@ public static char[] getSignatureQualifier(char[] typeSignature) {
 		}
 	}
 	return CharOperation.NO_CHAR;
+}
+
+private static int[] getLastDotDollar(char[] array) {
+	if (array == null)
+		return new int[] { 0, 0 };
+	int lastDot = 0;
+	int lastDollar = -1;
+	for (int i = 0; i < array.length; i++) {
+		if (array[i] == C_DOT) {
+			lastDot = i;
+		}
+		if (array[i] == C_DOLLAR) {
+			lastDollar = i;
+		}
+	}
+	return new int[] { lastDot, lastDollar };
 }
 /**
  * Returns package fragment of a type signature. The package fragment separator must be '.'
@@ -1999,9 +2015,14 @@ public static char[] getSignatureSimpleName(char[] typeSignature) {
 	if(typeSignature == null) return CharOperation.NO_CHAR;
 
 	char[] qualifiedType = Signature.toCharArray(typeSignature);
-
+	int[] result = getLastDotDollar(typeSignature);
+	int lastDot = result[0];
+	int lastDollar = result[1];
+	boolean isLastDollar = (typeSignature.length > 2 && lastDollar == typeSignature.length - 2) || lastDollar == (typeSignature.length - 1);
 	int dotCount = 0;
 	indexFound: for(int i = 0; i < typeSignature.length; i++) {
+		boolean isPreviousDollar = (i - 1 >= 0) ? (typeSignature[i - 1] == '$') : false;
+		boolean isNextDollar = (i + 1 < typeSignature.length) ? (typeSignature[i + 1] == '$') : false;
 		switch(typeSignature[i]) {
 			case C_DOT:
 				dotCount++;
@@ -2009,7 +2030,9 @@ public static char[] getSignatureSimpleName(char[] typeSignature) {
 			case C_GENERIC_START:
 				break indexFound;
 			case C_DOLLAR:
-				break indexFound;
+				if (!isNextDollar && !isPreviousDollar && !isLastDollar && i >= lastDot) {
+					break indexFound;
+				}
 		}
 	}
 
