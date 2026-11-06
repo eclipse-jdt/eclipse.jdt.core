@@ -2040,6 +2040,8 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 								: method.getAnnotations();
 	if (annotations != null) {
 		int methodDefaultNullness = NO_NULL_DEFAULT;
+		boolean jspecifyNullable = false;
+		boolean jspecifyNonNull = false;
 		for (IBinaryAnnotation annotation : annotations) {
 			char[] annotationTypeName = annotation.getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
@@ -2062,6 +2064,10 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 								new AnnotationBinding[] { this.environment.getNullableAnnotation() });
 					}
 				}
+			} else if (typeBit == TypeIds.BitJSpecifyNullableAnnotation) {
+				jspecifyNullable = true;
+			} else if (typeBit == TypeIds.BitJSpecifyNonNullAnnotation) {
+				jspecifyNonNull = true;
 			}
 		}
 		methodBinding.defaultNullness = methodDefaultNullness;
@@ -2673,5 +2679,21 @@ public ModuleBinding module() {
 	if (!isPrototype())
 		return this.prototype.module;
 	return this.module;
+}
+
+@Override
+public boolean isJSpecifyNullMarked() {
+	long bits = this.extendedTagBits & ExtendedTagBits.JSpecifyNullMarkAnnotated;
+	if (bits == ExtendedTagBits.IsJSpecifyNullMarked) {
+		return true;
+	} else if (bits == ExtendedTagBits.IsJSpecifyNullUnmarked) {
+		return false;
+	} else if (this.enclosingType != null) {
+		return this.enclosingType.isJSpecifyNullMarked();
+	} else if ((this.tagBits & ExtendedTagBits.IsKotlinMetadataAnnotated) == ExtendedTagBits.IsKotlinMetadataAnnotated) {
+		return false;
+	} else {
+		return getPackage().isJSpecifyNullMarked();
+	}
 }
 }
