@@ -28,6 +28,15 @@ public class TypeBound extends ReductionResult {
 	// here we accumulate null tagBits from any types that have been related to this type bound during incorporation:
 	long nullHints;
 
+	// Caches for BoundSet.incorporate(), which queries the following per pair of bounds although they depend on this bound only.
+	// Each is valid only for the 'right' it was computed for, since 'right' may be replaced, see BoundSet.addBound().
+	private TypeBinding parameterizedDependencyRight;
+	private boolean isParameterizedDependency;
+	/** Identifies the incorporation round for which {@link #incorporatedDependency} was computed, null if none. */
+	Object incorporatedDependencyKey;
+	TypeBinding incorporatedDependencyRight;
+	ConstraintTypeFormula incorporatedDependency;
+
 	static TypeBound createBoundOrDependency(InferenceSubstitution theta, TypeBinding type, InferenceVariable variable) {
         // Part of JLS8 sect 18.1.3:
 		return new TypeBound(variable, theta.substitute(theta, type), SUBTYPE, true);
@@ -64,6 +73,18 @@ public class TypeBound extends ReductionResult {
 	/** distinguish bounds from dependencies. */
 	boolean isBound() {
 		return this.right.isProperType(true);
+	}
+
+	/** Answer whether this is a dependency on a parameterized type with type arguments, like {@code α <: List<β>}. */
+	boolean isParameterizedDependency() {
+		TypeBinding type = this.right;
+		if (type != this.parameterizedDependencyRight) { //$IDENTITY-COMPARISON$
+			this.isParameterizedDependency = type.kind() == Binding.PARAMETERIZED_TYPE
+					&& !type.isProperType(true) /* is a dependency, not a type bound */
+					&& type.isParameterizedTypeWithActualArguments();
+			this.parameterizedDependencyRight = type;
+		}
+		return this.isParameterizedDependency;
 	}
 
 	@Override
