@@ -95,7 +95,7 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 			+ "  in jar:"  + Path.of(_extJar.toPath().normalize().toAbsolutePath().toString()).toUri().toURL().toString() +"!/\n"
 			+ "Processor org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor matches [org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen] and returns true\n"
 			+ "Round 2:\n"
-			+ "	input files: {p1.gen.Class1,p1.gen.Class2,p1.Class0}\n"
+			+ "	input files: {p1.Class0,p1.gen.Class1,p1.gen.Class2}\n" // generated in this order by BatchGenProcessor
 			+ "	annotations: []\n"
 			+ "	last round: false\n"
 			+ "Processor org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor matches [] and returns false\n"
