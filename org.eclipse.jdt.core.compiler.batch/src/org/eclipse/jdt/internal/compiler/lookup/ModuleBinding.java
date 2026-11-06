@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2025 IBM Corporation and others.
+ * Copyright (c) 2016, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -94,7 +94,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		@Override
 		public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
 			// per JLS 7.7.5 an unnamed module exports all its packages
-			return pkg.isDeclaredIn(this) && pkg.hasCompilationUnit(false);
+			return pkg.isDeclaredIn(this) && pkg.hasCompilationUnit(false)
+					&& !client.ignoresPackageOfUnnamedModule(pkg.getIncarnation(this));
 		}
 		@Override
 		PlainPackageBinding getDeclaredPackage(char[] flatName) {
@@ -150,6 +151,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	private final boolean[] isComplete = new boolean[UpdateKind.values().length];
 	private Set<ModuleBinding> transitiveRequires;
 	Map<Binding, AnnotationHolder> storedAnnotations = null;
+	/** Answers of {@link #ignoresPackageOfUnnamedModule(PlainPackageBinding)}. */
+	private Map<PlainPackageBinding, Boolean> ignoredUnnamedPackages;
 
 	/**
 	 * Packages declared in this module (indexed by qualified name).
@@ -715,6 +718,71 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			// TODO(SHMOD): store export status in the PackageBinding?
 		}
 		return false;
+	}
+
+	/**
+	 * Answer whether this module ignores the given package of the unnamed module.
+	 * <p>
+	 * The compilation units of an unnamed module are never visible to a named module (JLS 7.7.5). A named module reads
+	 * the unnamed module only by a host system option ({@code --add-reads <module>=ALL-UNNAMED}, JEP 261), and then
+	 * a package of the class path is ignored if the package is also defined in a named module. As javac does, a named
+	 * module ignores a package of the unnamed module if it has a compilation unit in this package itself, or if another
+	 * module that it reads exports this package to it.
+	 * </p>
+	 * <p>
+	 * The unnamed module and automatic modules answer false: they are never compiled from source, and the package
+	 * lookups of an automatic module already leave out the unnamed module (see {@link #otherRelevantModules(char[][])}).
+	 * </p>
+	 * <p>
+	 * The answer is computed once per package, like javac, which keeps a package of the unnamed module that it has
+	 * found in the visible packages of the module.
+	 * </p>
+	 */
+	boolean ignoresPackageOfUnnamedModule(PlainPackageBinding unnamedPackage) {
+		if (isUnnamed() || isAutomatic())
+			return false;
+		if (this.ignoredUnnamedPackages == null)
+			this.ignoredUnnamedPackages = new HashMap<>();
+		Boolean ignored = this.ignoredUnnamedPackages.get(unnamedPackage);
+		if (ignored == null) {
+			ignored = Boolean.valueOf(hasPackageInNamedModules(unnamedPackage.compoundName));
+			this.ignoredUnnamedPackages.put(unnamedPackage, ignored);
+		}
+		return ignored.booleanValue();
+	}
+
+	/**
+	 * Answer whether this module has a compilation unit in the package of the given name, or whether another named
+	 * module that it reads exports this package to it.
+	 */
+	private boolean hasPackageInNamedModules(char[][] compoundName) {
+		char[] flatName = CharOperation.concatWith(compoundName, '.');
+		if (hasCompilationUnitInPackage(compoundName, flatName))
+			return true;
+		for (ModuleBinding requiredModule : getAllRequiredModules()) {
+			if (requiredModule.isUnnamed())
+				continue;
+			if (requiredModule.isAutomatic()) {
+				// an automatic module exports all its packages
+				if (requiredModule.hasCompilationUnitInPackage(compoundName, flatName))
+					return true;
+			} else {
+				for (PlainPackageBinding exportedPackage : requiredModule.getExports()) {
+					if (CharOperation.equals(exportedPackage.compoundName, compoundName)
+							&& requiredModule.isPackageExportedTo(exportedPackage, this))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean hasCompilationUnitInPackage(char[][] compoundName, char[] flatName) {
+		PlainPackageBinding declaredPackage = getDeclaredPackage(flatName);
+		if (declaredPackage != null)
+			return declaredPackage.hasCompilationUnit(false);
+		return this.environment.useModuleSystem
+				&& ((IModuleAwareNameEnvironment) this.environment.nameEnvironment).hasCompilationUnit(compoundName, nameForCUCheck(), false);
 	}
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {

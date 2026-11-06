@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2024 IBM Corporation and others.
+ * Copyright (c) 2016, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6040,5 +6040,441 @@ public void testBug521362_emptyFile() {
 					----------
 					1 problem (1 warning)
 					""");
+	}
+
+	/** Compiles a module (a module-info.java and the other sources, as relative path / source pairs) into binDir. */
+	private void compileModuleForIssue5677(String srcDir, String binDir, String modulePath, String... pathsAndSources) {
+		List<String> files = new ArrayList<>();
+		for (int i = 0; i < pathsAndSources.length; i += 2) {
+			File file = new File(srcDir, pathsAndSources[i]);
+			writeFileCollecting(files, file.getParent(), file.getName(), pathsAndSources[i + 1]);
+		}
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d \"").append(binDir).append("\"")
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(modulePath)
+			.append("\" ");
+		runConformModuleTest(files, buffer, "", "");
+	}
+
+	/** Compiles classes of the class path (relative path / source pairs) into binDir. */
+	private void compileClassPathForIssue5677(String srcDir, String binDir, String... pathsAndSources) {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d \"").append(binDir).append("\"")
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ");
+		for (int i = 0; i < pathsAndSources.length; i += 2) {
+			File file = new File(srcDir, pathsAndSources[i]);
+			writeFile(file.getParent(), file.getName(), pathsAndSources[i + 1]);
+			buffer.append(" \"").append(file.getPath()).append("\"");
+		}
+		runConformTest(new String[] {}, buffer.toString(), "", "", false);
+	}
+
+	/** The test compile of Maven: the tests are patched into mod.one, which reads the class path. */
+	private StringBuilder testCompileForIssue5677(String testsDir, String modulePath, String classPath) {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d \"").append(OUTPUT_DIR).append(File.separator).append("test-bin\"")
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" --patch-module mod.one=\"").append(testsDir).append("\" ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(modulePath)
+			.append("\" ")
+			.append(" -classpath \"").append(classPath).append("\" ")
+			.append(" --add-reads mod.one=ALL-UNNAMED ");
+		return buffer;
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// a package of the module that is also on the class path is not split: the class path package is ignored (JEP 261)
+	public void testIssue5677_packageOfModuleOnClassPath() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, "",
+				"module-info.java", "module mod.one {\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {\n	int inPackage;\n}",
+				"p/InPackage.java", "package p;\nclass InPackage {\n	int field;\n}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"p/Foo.java", "package p;\npublic class Foo {}");
+		// a test resource, which Maven copies to target/test-classes, on the class path
+		String resources = OUTPUT_DIR + File.separator + "resources";
+		writeFile(resources + File.separator + "p", "Resource.java", "package p;\nclass Resource {}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "ATest.java",
+				"""
+				package p;
+				public class ATest {
+					A a;
+					int packagePrivateAccess() {
+						return this.a.inPackage + new InPackage().field;
+					}
+				}
+				""");
+		writeFileCollecting(files, tests + File.separator + "q", "QTest.java",
+				"""
+				package q;
+				import p.A;
+				public class QTest {
+					A a;
+					p.A b;
+				}
+				""");
+		writeFileCollecting(files, tests + File.separator + "q", "QOnDemandTest.java",
+				"""
+				package q;
+				import p.*;
+				public class QOnDemandTest {
+					A a;
+				}
+				""");
+		runConformModuleTest(files,
+				testCompileForIssue5677(tests, bin, classes + File.pathSeparator + resources),
+				"",
+				"");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// the types of the ignored class path package are not found
+	public void testIssue5677_typeOnlyOnClassPath() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, "",
+				"module-info.java", "module mod.one {\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"p/Foo.java", "package p;\npublic class Foo {}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "UsesFoo.java",
+				"""
+				package p;
+				public class UsesFoo {
+					Foo f;
+				}
+				""");
+		writeFileCollecting(files, tests + File.separator + "q", "QualifiedFoo.java",
+				"""
+				package q;
+				public class QualifiedFoo {
+					p.Foo f;
+				}
+				""");
+		runNegativeModuleTest(files,
+				testCompileForIssue5677(tests, bin, classes),
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/tests/p/UsesFoo.java (at line 3)
+					Foo f;
+					^^^
+				Foo cannot be resolved to a type
+				----------
+				----------
+				2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/tests/q/QualifiedFoo.java (at line 3)
+					p.Foo f;
+					^^^^^
+				The type p.Foo is not accessible
+				----------
+				2 problems (2 errors)
+				""",
+				"cannot find symbol");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// a type of the module that is also on the class path is not ambiguous
+	public void testIssue5677_sameTypeOnClassPath() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, "",
+				"module-info.java", "module mod.one {\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {\n	public static int inModule;\n}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"p/A.java", "package p;\npublic class A {\n	public static int onClassPath;\n}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "ATest.java",
+				"""
+				package p;
+				public class ATest {
+					int i = A.inModule;
+				}
+				""");
+		writeFileCollecting(files, tests + File.separator + "q", "QTest.java",
+				"""
+				package q;
+				import p.A;
+				public class QTest {
+					int i = A.inModule;
+					int j = p.A.inModule;
+				}
+				""");
+		runConformModuleTest(files,
+				testCompileForIssue5677(tests, bin, classes),
+				"",
+				"");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// the class path package is also ignored when another module read by the module exports the package
+	public void testIssue5677_packageExportedByReadModule() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String bin2 = OUTPUT_DIR + File.separator + "bin2";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src2", bin2, "",
+				"module-info.java", "module mod.two {\n	exports q;\n}",
+				"q/N.java", "package q;\npublic class N {}");
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, bin2,
+				"module-info.java", "module mod.one {\n	requires mod.two;\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"q/Bar.java", "package q;\npublic class Bar {}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "UsesQ.java",
+				"""
+				package p;
+				public class UsesQ {
+					q.N n;
+					q.Bar b;
+				}
+				""");
+		runNegativeModuleTest(files,
+				testCompileForIssue5677(tests, bin + File.pathSeparator + bin2, classes),
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/tests/p/UsesQ.java (at line 4)
+					q.Bar b;
+					^^^^^
+				The type q.Bar is not accessible
+				----------
+				1 problem (1 error)
+				""",
+				"cannot find symbol");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// a package that a read module does not export does not hide the class path package
+	public void testIssue5677_packageNotExportedByReadModule() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String bin2 = OUTPUT_DIR + File.separator + "bin2";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src2", bin2, "",
+				"module-info.java", "module mod.two {\n}",
+				"q/N.java", "package q;\npublic class N {}");
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, bin2,
+				"module-info.java", "module mod.one {\n	requires mod.two;\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"q/Bar.java", "package q;\npublic class Bar {}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "UsesQ.java",
+				"""
+				package p;
+				public class UsesQ {
+					q.Bar b;
+				}
+				""");
+		runConformModuleTest(files,
+				testCompileForIssue5677(tests, bin + File.pathSeparator + bin2, classes),
+				"",
+				"");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// a package that a read module only exports to another module does not hide the class path package
+	public void testIssue5677_packageExportedToOtherModule() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String bin3 = OUTPUT_DIR + File.separator + "bin3";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src3", bin3, "",
+				"module-info.java", "module other.mod {\n}");
+		String bin2 = OUTPUT_DIR + File.separator + "bin2";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src2", bin2, bin3,
+				"module-info.java", "module mod.two {\n	exports q to other.mod;\n}",
+				"q/N.java", "package q;\npublic class N {}");
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, bin2 + File.pathSeparator + bin3,
+				"module-info.java", "module mod.one {\n	requires mod.two;\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"q/Bar.java", "package q;\npublic class Bar {}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "UsesQ.java",
+				"""
+				package p;
+				public class UsesQ {
+					q.Bar b;
+				}
+				""");
+		runConformModuleTest(files,
+				testCompileForIssue5677(tests, bin + File.pathSeparator + bin2 + File.pathSeparator + bin3, classes),
+				"",
+				"");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// an automatic module exports all its packages, so it hides the class path package too
+	public void testIssue5677_packageOfReadAutomaticModule() throws IOException {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String autoJar = OUTPUT_DIR + File.separator + "auto.jar";
+		Util.createJar(
+				new String[] { "q/N.java", "package q;\npublic class N {}" },
+				new String[] { "META-INF/MANIFEST.MF", "Manifest-Version: 1.0\nAutomatic-Module-Name: auto.two\n" },
+				autoJar,
+				JavaCore.VERSION_9);
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, autoJar,
+				"module-info.java", "module mod.one {\n	requires auto.two;\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"q/Bar.java", "package q;\npublic class Bar {}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "UsesQ.java",
+				"""
+				package p;
+				public class UsesQ {
+					q.N n;
+					q.Bar b;
+				}
+				""");
+		runNegativeModuleTest(files,
+				testCompileForIssue5677(tests, bin + File.pathSeparator + autoJar, classes),
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/tests/p/UsesQ.java (at line 4)
+					q.Bar b;
+					^^^^^
+				The type q.Bar is not accessible
+				----------
+				1 problem (1 error)
+				""",
+				"cannot find symbol");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// a type of an automatic module that refers to its package, which is also on the class path
+	public void testIssue5677_typeOfReadAutomaticModule() throws IOException {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String autoJar = OUTPUT_DIR + File.separator + "auto.jar";
+		Util.createJar(
+				new String[] {
+					"q/X.java", "package q;\npublic class X {\n	public String fromModule() { return null; }\n}",
+					"q/Y.java", "package q;\npublic class Y {\n	public X x() { return new X(); }\n}" },
+				new String[] { "META-INF/MANIFEST.MF", "Manifest-Version: 1.0\nAutomatic-Module-Name: auto.two\n" },
+				autoJar,
+				JavaCore.VERSION_9);
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, autoJar,
+				"module-info.java", "module mod.one {\n	requires auto.two;\n	exports p;\n}",
+				"p/A.java", "package p;\npublic class A {}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"q/X.java", "package q;\npublic class X {\n	public String fromClassPath() { return null; }\n}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "p", "UsesY.java",
+				"""
+				package p;
+				public class UsesY {
+					String s = new q.Y().x().fromModule();
+				}
+				""");
+		runConformModuleTest(files,
+				testCompileForIssue5677(tests, bin + File.pathSeparator + autoJar, classes),
+				"",
+				"");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// a package of the module without compilation unit (only a subpackage) does not hide the class path package
+	public void testIssue5677_subpackageOfModule() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String bin = OUTPUT_DIR + File.separator + "bin";
+		compileModuleForIssue5677(OUTPUT_DIR + File.separator + "src", bin, "",
+				"module-info.java", "module mod.one {\n	exports p.sub;\n}",
+				"p/sub/S.java", "package p.sub;\npublic class S {}");
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"p/Foo.java", "package p;\npublic class Foo {}");
+		String tests = OUTPUT_DIR + File.separator + "tests";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, tests + File.separator + "q", "QTest.java",
+				"""
+				package q;
+				public class QTest {
+					p.Foo f;
+					p.sub.S s;
+				}
+				""");
+		runConformModuleTest(files,
+				testCompileForIssue5677(tests, bin, classes),
+				"",
+				"");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// same as testIssue5677_packageOfModuleOnClassPath, compiling the sources of the module
+	public void testIssue5677_moduleSources() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String classes = OUTPUT_DIR + File.separator + "classes";
+		compileClassPathForIssue5677(OUTPUT_DIR + File.separator + "cpsrc", classes,
+				"p/Foo.java", "package p;\npublic class Foo {}",
+				"p/A.java", "package p;\npublic class A {}");
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java",
+				"module mod.one {\n" +
+				"	exports p;\n" +
+				"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "A.java",
+				"package p;\n" +
+				"public class A {}");
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "QTest.java",
+				"""
+				package q;
+				import p.A;
+				public class QTest {
+					A a;
+					p.A b;
+				}
+				""");
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "QOnDemandTest.java",
+				"""
+				package q;
+				import p.*;
+				public class QOnDemandTest {
+					A a;
+				}
+				""");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d \"").append(OUTPUT_DIR).append(File.separator).append("bin\"")
+			.append(" -9 ")
+			.append(" -proc:none ")
+			.append(" -classpath \"").append(classes).append("\" ")
+			.append(" --module-path \"").append(Util.getJavaClassLibsAsString()).append("\" ")
+			.append(" --module-source-path \"").append(directory).append("\" ")
+			.append(" --add-reads mod.one=ALL-UNNAMED ");
+		runConformModuleTest(files, buffer, "", "");
 	}
 }
