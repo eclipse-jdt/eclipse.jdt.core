@@ -37,11 +37,14 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.IntersectionType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.SimpleTypeVisitor8;
 import org.eclipse.jdt.compiler.apt.tests.annotations.*;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
@@ -1098,6 +1101,188 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertNotNull("Method m1 should not be null", m1);
 		assertNull("Method m3 should be null", m3);
+	}
+	public void testGH5566() {
+		TypeElement type = _elementUtils.getTypeElement("targets.GH5566.GH5566Bounds");
+		List<? extends TypeParameterElement> typeParameters = type.getTypeParameters();
+		IntersectionType a = verifyIntersectionUpperBound(typeParameters.get(0), "java.io.Serializable", "java.io.Serializable,java.lang.Comparable<A>,java.lang.Runnable");
+		IntersectionType b = verifyIntersectionUpperBound(typeParameters.get(1), "java.lang.Number", "java.lang.Number,java.lang.Runnable");
+		verifyIntersectionUpperBound(typeParameters.get(2), "java.lang.Object", "java.lang.Object,java.lang.Comparable<? super C>");
+		IntersectionType d = verifyIntersectionUpperBound(typeParameters.get(3), "java.lang.Runnable", "java.lang.Runnable,java.io.Serializable");
+		IntersectionType e = verifyIntersectionUpperBound(typeParameters.get(4), "java.io.Serializable", "java.io.Serializable,java.lang.Runnable");
+
+		assertEquals("Incorrect toString", "java.lang.Number&java.lang.Runnable", b.toString());
+		// javac adds java.lang.Object in front of an intersection of interfaces
+		assertEquals("Incorrect toString", "java.io.Serializable&java.lang.Comparable<A>&java.lang.Runnable",
+				"java.lang.Object&java.io.Serializable&java.lang.Comparable<A>&java.lang.Runnable", a.toString());
+		assertTrue("Order of components should not matter", _typeUtils.isSameType(d, e));
+		assertFalse("Different components", _typeUtils.isSameType(a, e));
+
+		TypeMirror impl = _elementUtils.getTypeElement("targets.GH5566.GH5566Impl").asType();
+		assertTrue("Should be a subtype of all components", _typeUtils.isSubtype(impl, d));
+		assertTrue("Should be assignable to all components", _typeUtils.isAssignable(impl, d));
+		assertFalse("Should not be a subtype of all components", _typeUtils.isSubtype(impl, a));
+
+		TypeMirror f = ((TypeVariable) typeParameters.get(5).asType()).getUpperBound();
+		assertEquals("Incorrect kind", TypeKind.DECLARED, f.getKind());
+		assertEquals("Incorrect upper bound", "java.lang.Runnable", f.toString());
+		TypeMirror g = ((TypeVariable) typeParameters.get(6).asType()).getUpperBound();
+		assertEquals("Incorrect kind", TypeKind.TYPEVAR, g.getKind());
+		assertTrue("Incorrect upper bound", _typeUtils.isSameType(typeParameters.get(0).asType(), g));
+
+		IntersectionType h = verifyIntersectionUpperBound(typeParameters.get(7), "java.util.ArrayList", "java.util.ArrayList<java.lang.String>,java.io.Serializable");
+		TypeMirror arrayListOfString = _typeUtils.getDeclaredType(_elementUtils.getTypeElement("java.util.ArrayList"), _elementUtils.getTypeElement("java.lang.String").asType());
+		assertTrue("Should be a subtype of all components", _typeUtils.isSubtype(arrayListOfString, h));
+		assertTrue("Should be assignable to all components", _typeUtils.isAssignable(arrayListOfString, h));
+
+		TypeElement list = _elementUtils.getTypeElement("java.util.List");
+		TypeMirror number = _elementUtils.getTypeElement("java.lang.Number").asType();
+		assertTrue("Same type arguments", _typeUtils.isSameType(_typeUtils.getDeclaredType(list, b), _typeUtils.getDeclaredType(list, b)));
+		assertFalse("Different type arguments", _typeUtils.isSameType(_typeUtils.getDeclaredType(list, b), _typeUtils.getDeclaredType(list, number)));
+		TypeMirror listOfD = _typeUtils.getDeclaredType(list, d);
+		TypeMirror listOfE = _typeUtils.getDeclaredType(list, e);
+		assertEquivalentIntersections(list, d, e);
+		assertTrue("Order of components should not matter", _typeUtils.isSameType(_typeUtils.getArrayType(listOfD), _typeUtils.getArrayType(listOfE)));
+		assertTrue("Order of components should not matter", _typeUtils.isSameType(
+				_typeUtils.getDeclaredType(list, _typeUtils.getWildcardType(listOfD, null)),
+				_typeUtils.getDeclaredType(list, _typeUtils.getWildcardType(listOfE, null))));
+		assertTrue("Order of components should not matter", _typeUtils.isSubtype(_typeUtils.getDeclaredType(_elementUtils.getTypeElement("java.util.ArrayList"), d), listOfE));
+		IntersectionType argument = (IntersectionType) ((DeclaredType) listOfD).getTypeArguments().get(0);
+		assertTrue("Incorrect type argument", _typeUtils.isSameType(argument, d));
+		assertEquals("Incorrect bounds of type argument", 2, argument.getBounds().size());
+
+		// neither an explicit java.lang.Object, type annotations nor the order of the interfaces after a class matter
+		IntersectionType i = verifyIntersectionUpperBound(typeParameters.get(8), "java.lang.Object", "java.lang.Object,java.io.Serializable,java.lang.Runnable");
+		TypeMirror j = ((TypeVariable) typeParameters.get(9).asType()).getUpperBound();
+		IntersectionType k = verifyIntersectionUpperBound(typeParameters.get(10), "java.lang.Number", "java.lang.Number,java.lang.Runnable,java.io.Serializable");
+		IntersectionType l = verifyIntersectionUpperBound(typeParameters.get(11), "java.lang.Number", "java.lang.Number,java.io.Serializable,java.lang.Runnable");
+		assertEquivalentIntersections(list, i, e);
+		assertEquivalentIntersections(list, j, d);
+		assertEquivalentIntersections(list, k, l);
+
+		// type variable of a member of a type parameterized with an intersection
+		TypeElement box = _elementUtils.getTypeElement("targets.GH5566.GH5566Box");
+		TypeVariable v = ((ExecutableType) _typeUtils.asMemberOf(_typeUtils.getDeclaredType(box, d), getMethod(box, "m"))).getTypeVariables().get(0);
+		assertTrue("Should be a subtype of its upper bound", _typeUtils.isSubtype(v, v.getUpperBound()));
+		assertTrue("Should be assignable to its upper bound", _typeUtils.isAssignable(v, v.getUpperBound()));
+		TypeVariable vOfB = ((ExecutableType) _typeUtils.asMemberOf(_typeUtils.getDeclaredType(box, b), getMethod(box, "m"))).getTypeVariables().get(0);
+		TypeVariable vOfNumber = ((ExecutableType) _typeUtils.asMemberOf(_typeUtils.getDeclaredType(box, number), getMethod(box, "m"))).getTypeVariables().get(0);
+		assertFalse("Different type variables", _typeUtils.isSameType(vOfB, vOfNumber));
+		TypeElement inner = ElementFilter.typesIn(box.getEnclosedElements()).get(0);
+		try {
+			assertFalse("Different raw member types", _typeUtils.isSameType(
+					_typeUtils.getDeclaredType(_typeUtils.getDeclaredType(box, b), inner),
+					_typeUtils.getDeclaredType(_typeUtils.getDeclaredType(box, number), inner)));
+		} catch (IllegalArgumentException ex) {
+			// javac rejects raw member types of parameterized types
+		}
+
+		// the same member of differently annotated parameterizations has distinct, but equal type variables
+		List<VariableElement> fields = ElementFilter.fieldsIn(_elementUtils.getTypeElement("targets.GH5566.GH5566Fields").getEnclosedElements());
+		ExecutableElement comparable = getMethod(box, "comparable");
+		TypeMirror upperBound1 = ((ExecutableType) _typeUtils.asMemberOf((DeclaredType) fields.get(0).asType(), comparable)).getTypeVariables().get(0).getUpperBound();
+		TypeMirror upperBound2 = ((ExecutableType) _typeUtils.asMemberOf((DeclaredType) fields.get(1).asType(), comparable)).getTypeVariables().get(0).getUpperBound();
+		assertTrue("Should be same type", _typeUtils.isSameType(upperBound1, upperBound2));
+		assertTrue("Should be a subtype", _typeUtils.isSubtype(upperBound1, upperBound2));
+		assertTrue("Should be assignable", _typeUtils.isAssignable(upperBound1, upperBound2));
+
+		// a member of a parameterized type must not change the bounds of its declaration
+		ExecutableElement pick = getMethod(box, "pick");
+		_typeUtils.asMemberOf(_typeUtils.getDeclaredType(box, number), pick);
+		TypeParameterElement pickA = pick.getTypeParameters().get(0);
+		TypeParameterElement pickB = pick.getTypeParameters().get(1);
+		assertEquals("Incorrect bound", pickA, _typeUtils.asElement(pickB.getBounds().get(0)));
+		assertEquals("Incorrect upper bound", pickA, _typeUtils.asElement(((TypeVariable) pickB.asType()).getUpperBound()));
+		TypeVariable annotatedB = (TypeVariable) pick.getParameters().get(0).asType();
+		assertEquals("Incorrect upper bound of annotated type variable", pickA, _typeUtils.asElement(annotatedB.getUpperBound()));
+
+		// shared type arguments must not make the checks exponential
+		TypeElement map = _elementUtils.getTypeElement("java.util.Map");
+		TypeMirror nested = _elementUtils.getTypeElement("java.lang.String").asType();
+		TypeMirror nestedIntersection = d;
+		for (int n = 0; n < 30; n++) {
+			nested = _typeUtils.getDeclaredType(map, nested, nested);
+			nestedIntersection = _typeUtils.getDeclaredType(map, nestedIntersection, nestedIntersection);
+		}
+		assertTrue("Should be assignable", _typeUtils.isAssignable(nested, nested));
+		assertTrue("Should be a subtype", _typeUtils.isSubtype(nested, _elementUtils.getTypeElement("java.lang.Object").asType()));
+		assertTrue("Should be assignable", _typeUtils.isAssignable(nestedIntersection, nestedIntersection));
+		if (processingEnv.getClass().getName().startsWith("org.eclipse.")) {
+			// javac substitutes shared type arguments repeatedly in asMemberOf()
+			TypeVariable deep = ((ExecutableType) _typeUtils.asMemberOf(_typeUtils.getDeclaredType(box, nested), getMethod(box, "map"))).getTypeVariables().get(0);
+			assertEquals("Incorrect kind", TypeKind.INTERSECTION, deep.getUpperBound().getKind());
+			assertTrue("Should be a subtype of its upper bound", _typeUtils.isSubtype(deep, deep.getUpperBound()));
+		}
+
+		assertThrowsIllegalArgument("Array of an intersection type", () -> _typeUtils.getArrayType(b));
+		assertThrowsIllegalArgument("Wildcard extending an intersection type", () -> _typeUtils.getWildcardType(b, null));
+		assertThrowsIllegalArgument("Wildcard with an intersection type as super bound", () -> _typeUtils.getWildcardType(null, b));
+
+		// binary type variable <T extends Object & Comparable<? super T>>
+		TypeElement collections = _elementUtils.getTypeElement("java.util.Collections");
+		for (ExecutableElement method : ElementFilter.methodsIn(collections.getEnclosedElements())) {
+			if (method.getSimpleName().contentEquals("max") && method.getParameters().size() == 1) {
+				verifyIntersectionUpperBound(method.getTypeParameters().get(0), "java.lang.Object", "java.lang.Object,java.lang.Comparable<? super T>");
+			}
+		}
+	}
+	private IntersectionType verifyIntersectionUpperBound(TypeParameterElement typeParameter, String erasure, String bounds) {
+		TypeVariable typeVariable = (TypeVariable) typeParameter.asType();
+		TypeMirror upperBound = typeVariable.getUpperBound();
+		assertEquals("Incorrect kind of upper bound of " + typeParameter, TypeKind.INTERSECTION, upperBound.getKind());
+		IntersectionType intersection = (IntersectionType) upperBound;
+		assertEquals("Incorrect bounds of " + typeParameter, bounds,
+				intersection.getBounds().stream().map(TypeMirror::toString).collect(Collectors.joining(",")));
+		assertSameTypes("Incorrect bounds of " + typeParameter, typeParameter.getBounds(), intersection.getBounds());
+		assertSameTypes("Incorrect direct supertypes of " + typeParameter, intersection.getBounds(), _typeUtils.directSupertypes(intersection));
+		assertEquals("Incorrect erasure of " + typeParameter, erasure, _typeUtils.erasure(intersection).toString());
+		assertTrue("Should be same type", _typeUtils.isSameType(intersection, typeVariable.getUpperBound()));
+		assertFalse("Should not be same type as the type variable", _typeUtils.isSameType(intersection, typeVariable));
+		assertFalse("Should not be equal to the type variable", intersection.equals(typeVariable));
+		assertFalse("Should not be same type as its first bound", _typeUtils.isSameType(intersection, intersection.getBounds().get(0)));
+		assertTrue("Type variable should be a subtype of its bound", _typeUtils.isSubtype(typeVariable, intersection));
+		assertFalse("Bound should not be a subtype of the type variable", _typeUtils.isSubtype(intersection, typeVariable));
+		assertTrue("Should be a subtype of its first bound", _typeUtils.isSubtype(intersection, intersection.getBounds().get(0)));
+		String visited = intersection.accept(new SimpleTypeVisitor8<String, Void>() {
+			@Override
+			public String visitIntersection(IntersectionType t, Void p) {
+				return "intersection";
+			}
+		}, null);
+		assertEquals("Incorrect visit method", "intersection", visited);
+		return intersection;
+	}
+	private ExecutableElement getMethod(TypeElement type, String name) {
+		for (ExecutableElement method : ElementFilter.methodsIn(type.getEnclosedElements())) {
+			if (method.getSimpleName().contentEquals(name)) {
+				return method;
+			}
+		}
+		reportError("Method not found: " + name);
+		return null;
+	}
+	private void assertEquivalentIntersections(TypeElement list, TypeMirror intersection1, TypeMirror intersection2) {
+		String msg = intersection1 + " and " + intersection2 + " should be equivalent";
+		assertTrue(msg, _typeUtils.isSameType(intersection1, intersection2));
+		TypeMirror list1 = _typeUtils.getDeclaredType(list, intersection1);
+		TypeMirror list2 = _typeUtils.getDeclaredType(list, intersection2);
+		assertTrue(msg + " as type arguments", _typeUtils.isSameType(list1, list2));
+		assertTrue(msg + " as type arguments", _typeUtils.isSubtype(list1, list2));
+		assertTrue(msg + " as type arguments", _typeUtils.isAssignable(list1, list2));
+	}
+	private void assertThrowsIllegalArgument(String msg, Runnable runnable) {
+		try {
+			runnable.run();
+		} catch (IllegalArgumentException e) {
+			return;
+		}
+		reportError(msg + ": IllegalArgumentException expected");
+	}
+	private void assertSameTypes(String msg, List<? extends TypeMirror> expected, List<? extends TypeMirror> actual) {
+		assertEquals(msg + ": incorrect size", expected.size(), actual.size());
+		for (int i = 0; i < expected.size(); i++) {
+			assertTrue(msg + ": " + expected.get(i) + " vs " + actual.get(i), _typeUtils.isSameType(expected.get(i), actual.get(i)));
+		}
 	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');

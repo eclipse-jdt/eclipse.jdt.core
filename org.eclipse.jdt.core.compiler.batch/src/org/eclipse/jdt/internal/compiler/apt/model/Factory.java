@@ -507,6 +507,9 @@ public class Factory {
 		case Binding.INTERSECTION_TYPE: // TODO compatible, but shouldn't it really be an intersection type?
 			return new WildcardTypeImpl(this._env, (WildcardBinding) binding);
 
+		case Binding.INTERSECTION_TYPE18:
+			return new IntersectionTypeImpl(this._env, (IntersectionTypeBinding18) binding);
+
 		case Binding.TYPE_PARAMETER:
 			return new TypeVariableImpl(this._env, (TypeVariableBinding) binding);
 		case Binding.MODULE:
