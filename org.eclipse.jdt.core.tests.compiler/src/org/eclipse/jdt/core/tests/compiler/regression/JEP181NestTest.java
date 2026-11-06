@@ -165,7 +165,7 @@ public void testBug535851_004() throws Exception {
 	);
 
 	String expectedPartialOutput =
-		"Nest Host: #24 pack1/X\n";
+		"Nest Host: #26 pack1/X\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // vanilla anonymous declaration
@@ -886,7 +886,7 @@ public void testBug535918_004b() throws Exception {
 	String partialOutput = "Nest Members:\n" +
 			"   #20 pack1/X$Y\n";
 	verifyOutputPositive(XFile, partialOutput);
-	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XYFile, "Nest Host: #23 pack1/X");
 	verifyOutputPositive(XYFile, "getfield pack1.X.priv_int");
 
 	verifyOutputNegative(XFile, "access$");
@@ -934,8 +934,8 @@ public void testBug535918_005a() throws Exception {
 			"   #38 pack1/X$Y,\n" +
 			"   #42 pack1/X$Y$Z";
 	verifyOutputPositive(XFile, partialOutput);
-	verifyOutputPositive(XYFile, "Nest Host: #31 pack1/X");
-	verifyOutputPositive(XYZFile, "Nest Host: #24 pack1/X");
+	verifyOutputPositive(XYFile, "Nest Host: #32 pack1/X");
+	verifyOutputPositive(XYZFile, "Nest Host: #26 pack1/X");
 	verifyOutputPositive(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y)"); //only one param
 
 	verifyOutputNegative(XYZFile, "synthetic X$Y$Z");
@@ -982,8 +982,8 @@ public void testBug535918_005b() throws Exception {
 			"   #38 pack1/X$Y,\n" +
 			"   #41 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
-	verifyOutputPositive(XYFile, "Nest Host: #30 pack1/X");
-	verifyOutputPositive(XZFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XYFile, "Nest Host: #31 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #23 pack1/X");
 	verifyOutputPositive(XYFile, "invokespecial pack1.X$Z(pack1.X)"); //only one param
 
 	verifyOutputNegative(XZFile, "synthetic X$Z");
@@ -1030,8 +1030,8 @@ public void testBug535918_005c() throws Exception {
 			"   #38 pack1/X$Y,\n" +
 			"   #42 pack1/X$Y$Z";
 	verifyOutputPositive(XFile, partialOutput);
-	verifyOutputPositive(XYFile, "Nest Host: #24 pack1/X");
-	verifyOutputPositive(XYZFile, "Nest Host: #34 pack1/X");
+	verifyOutputPositive(XYFile, "Nest Host: #25 pack1/X");
+	verifyOutputPositive(XYZFile, "Nest Host: #36 pack1/X");
 	verifyOutputPositive(XYZFile, "invokespecial pack1.X$Y(pack1.X)"); //only one param
 
 	verifyOutputNegative(XYFile, "synthetic X$Y");
@@ -1074,8 +1074,8 @@ public void testBug535918_005d() throws Exception {
 			"   #35 pack1/X$Y,\n" +
 			"   #38 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
-	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
-	verifyOutputPositive(XZFile, "Nest Host: #21 pack1/X");
+	verifyOutputPositive(XYFile, "Nest Host: #23 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "invokespecial pack1.X$Y(pack1.X)"); //only one param
 
 	verifyOutputNegative(XYFile, "synthetic X$Y");
@@ -1403,7 +1403,7 @@ public void testBug535918_0056a() throws Exception {
 			"   #18 pack1/X$Y$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #3 pack1/X");
-	verifyOutputPositive(XYZFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XYZFile, "Nest Host: #24 pack1/X");
 	verifyOutputPositive(XYZFile, "putfield pack1.X.priv_int"); //direct access
 
 	verifyOutputNegative(XYFile, "synthetic X$Y");
@@ -1449,7 +1449,7 @@ public void testBug545387_01() throws Exception {
 	);
 
 	String XSub1Sub2 = getClassFileContents("pack1/X$Sub1$Sub2.class", ClassFileBytesDisassembler.SYSTEM);
-	verifyOutputPositive(XSub1Sub2, "Nest Host: #29 pack1/X");
+	verifyOutputPositive(XSub1Sub2, "Nest Host: #31 pack1/X");
 }
 
 public void testBug572190_01() throws Exception {
