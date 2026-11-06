@@ -16,12 +16,23 @@ package org.eclipse.jdt.compiler.apt.tests;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -324,6 +335,108 @@ public class BatchDispatchTests extends TestCase {
 		options.add("-verbose");
 
 		BatchTestUtils.compileOneClass(BatchTestUtils.getEclipseCompiler(), options, inputFile);
+	}
+
+	/**
+	 * Records the order of the annotations given to {@code process()}, of {@link RoundEnvironment#getRootElements()}
+	 * and of {@link RoundEnvironment#getElementsAnnotatedWith(Class)} in the first round.
+	 */
+	@SupportedAnnotationTypes("*")
+	private static final class ElementOrderProc extends AbstractProcessor {
+		boolean firstRound = true;
+		final List<String> annotations = new ArrayList<>();
+		final List<String> rootElements = new ArrayList<>();
+		final List<String> annotatedElements = new ArrayList<>();
+
+		@Override
+		public SourceVersion getSupportedSourceVersion() {
+			return SourceVersion.latestSupported();
+		}
+
+		@Override
+		public boolean process(Set<? extends TypeElement> annotationTypes, RoundEnvironment roundEnv) {
+			if (this.firstRound) {
+				this.firstRound = false;
+				for (TypeElement annotation : annotationTypes) {
+					this.annotations.add(annotation.getQualifiedName().toString());
+				}
+				for (Element element : roundEnv.getRootElements()) {
+					this.rootElements.add(element.getSimpleName().toString());
+				}
+				for (Element element : roundEnv.getElementsAnnotatedWith(Deprecated.class)) {
+					this.annotatedElements.add(element.getEnclosingElement().getSimpleName() + "." + element.getSimpleName());
+				}
+			}
+			return false;
+		}
+	}
+
+	private static final String ELEMENT_ORDER_X = """
+			package p;
+			public class X {
+				@Deprecated public void m0() {}
+				@Deprecated public void m1() {}
+				@Deprecated public void m2() {}
+				@Deprecated public void m3() {}
+				@Deprecated public void m4() {}
+				@Deprecated public void m5() {}
+				@Deprecated public void m6() {}
+				@Deprecated public void m7() {}
+				@Deprecated public void m8() {}
+				@Deprecated public void m9() {}
+				@Deprecated public static class Inner {
+					@Deprecated public void i0() {}
+					@Deprecated public void i1() {}
+					@Deprecated public void i2() {}
+					@Deprecated public void i3() {}
+					@Deprecated public void i4() {}
+				}
+				@Deprecated public void m10() {}
+				@Deprecated public void m11() {}
+			}
+			""";
+
+	private static final String ELEMENT_ORDER_Y = """
+			package p;
+			@SuppressWarnings("all") @Deprecated class Y {}
+			""";
+
+	/**
+	 * The elements come in the order in which their annotations are found: member types first, then the other
+	 * members (for these sources, javac gives the same order). Processors such as the Spring Boot configuration
+	 * metadata processor report spurious errors when the order changes from one compilation to the next.
+	 */
+	private static final List<String> ELEMENT_ORDER_EXPECTED = List.of(
+			"X.Inner", "Inner.i0", "Inner.i1", "Inner.i2", "Inner.i3", "Inner.i4",
+			"X.m0", "X.m1", "X.m2", "X.m3", "X.m4", "X.m5", "X.m6", "X.m7", "X.m8", "X.m9", "X.m10", "X.m11",
+			"p.Y");
+
+	private void checkElementOrder(JavaCompiler compiler) throws IOException {
+		File binFolder = new File(BatchTestUtils.getBinFolderName());
+		binFolder.mkdirs();
+		File packageFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "elementorder", "p");
+		packageFolder.mkdirs();
+		File x = new File(packageFolder, "X.java");
+		File y = new File(packageFolder, "Y.java");
+		Files.writeString(x.toPath(), ELEMENT_ORDER_X);
+		Files.writeString(y.toPath(), ELEMENT_ORDER_Y);
+		ElementOrderProc processor = new ElementOrderProc();
+		DiagnosticReport<JavaFileObject> report = new DiagnosticReport<>();
+		StringWriter out = new StringWriter();
+		try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, null)) {
+			CompilationTask task = compiler.getTask(out, manager, report,
+					List.of("-proc:only", "-d", binFolder.getAbsolutePath()), null, manager.getJavaFileObjects(x, y));
+			task.setProcessors(List.of(processor));
+			assertTrue("Compilation failed: " + out + report, task.call());
+		}
+		assertEquals("Annotations", List.of("java.lang.Deprecated", "java.lang.SuppressWarnings"), processor.annotations);
+		assertEquals("Root elements", List.of("X", "Y"), processor.rootElements);
+		// the enclosing element of a top-level type is its package: "p.Y"
+		assertEquals("Elements annotated with @Deprecated", ELEMENT_ORDER_EXPECTED, processor.annotatedElements);
+	}
+
+	public void testElementOrderWithEclipseCompiler() throws IOException {
+		checkElementOrder(BatchTestUtils.getEclipseCompiler());
 	}
 
 	@Override
