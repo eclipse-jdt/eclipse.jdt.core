@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
@@ -762,6 +763,27 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						}
 					}
 					return true;
+				case "--patch-module": //$NON-NLS-1$
+					if (remaining.hasNext()) {
+						// <module>=<path>[<path separator><path>...]: the location of the module in PATCH_MODULE_PATH, as in
+						// javac. As for the batch compiler, Main.configure reports a value with another syntax.
+						String[] patch = remaining.next().split("="); //$NON-NLS-1$
+						if (patch.length == 2 && !patch[0].trim().isEmpty()) {
+							List<Path> paths = new ArrayList<>();
+							for (String path : patch[1].trim().split(File.pathSeparator)) {
+								try {
+									if (!path.isEmpty()) {
+										paths.add(Paths.get(path));
+									}
+								} catch (InvalidPathException e) {
+									// no source is in this location
+								}
+							}
+							setLocationForModule(StandardLocation.PATCH_MODULE_PATH, patch[0].trim(), paths);
+						}
+						return true;
+					}
+					return false;
 				case "-encoding": //$NON-NLS-1$
 					if (remaining.hasNext()) {
 						this.charset = Charset.forName(remaining.next());
@@ -1487,18 +1509,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	public Location getLocationForModule(Location location, JavaFileObject fo) {
 		validateModuleLocation(location, ""); //$NON-NLS-1$
 		Path path = null;
+		// as in javac, the module location of a file is found from its real path
 		if (fo instanceof ArchiveFileObject) {
-			path = ((ArchiveFileObject) fo).file.toPath();
+			path = ModuleLocationHandler.realPath(((ArchiveFileObject) fo).file.toPath());
 			return this.locationHandler.getLocation(location, path);
 		} else if (fo instanceof EclipseFileObject) {
-			path = ((EclipseFileObject) fo).f.toPath();
-			try {
-				path = path.toRealPath();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			path = ModuleLocationHandler.realPath(((EclipseFileObject) fo).f.toPath());
 			LocationContainer container = this.locationHandler.getLocation(location);
-			while (path != null) {
+			while (container != null && path != null) {
 				Location loc = container.get(path);
 				if (loc != null)
 					return loc;

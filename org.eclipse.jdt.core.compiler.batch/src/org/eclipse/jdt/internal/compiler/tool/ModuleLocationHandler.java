@@ -54,6 +54,7 @@ public class ModuleLocationHandler {
 		return null;
 	}
 
+	/** Answers the module location of a file of a location of modules: path must be a real path, see realPath(Path). */
 	public Location getLocation(Location loc, Path path) {
 		LocationContainer forwarder = this.containers.get(loc);
 		if (forwarder != null) {
@@ -98,8 +99,26 @@ public class ModuleLocationHandler {
 			}
 		} else {
 			wrapper.setPaths(paths);
+			if (wrapper instanceof ModuleLocationWrapper) {
+				// the files of the module are now found from its new paths
+				container.remove(wrapper);
+				for (Path path : paths) {
+					container.put(path, wrapper);
+				}
+			}
 		}
 		container.put(moduleName, wrapper);
+	}
+	/**
+	 * Answers the real path of a path, or its absolute normalized path when it does not exist. As in javac, the module
+	 * location of a file is found from its real path and the real paths of the paths of the module locations.
+	 */
+	static Path realPath(Path path) {
+		try {
+			return path.toRealPath();
+		} catch (IOException e) {
+			return path.toAbsolutePath().normalize();
+		}
 	}
 	public Iterable<Set<Location>> listLocationsForModules(Location location) {
 		LocationContainer locationContainer = this.containers.get(location);
@@ -115,6 +134,11 @@ public class ModuleLocationHandler {
 
 		Map<String, LocationWrapper> locationNames;
 		Map<Path, LocationWrapper> locationPaths;
+		/**
+		 * The module locations by the real paths of their paths (see {@link ModuleLocationHandler#realPath(Path)}), computed
+		 * when a file is looked up, null when the paths changed since.
+		 */
+		Map<Path, LocationWrapper> locationRealPaths;
 		LocationContainer(Location loc) {
 			super();
 			this.loc = loc;
@@ -133,11 +157,22 @@ public class ModuleLocationHandler {
 
 		void put(Path path, LocationWrapper impl) {
 			this.locationPaths.put(path, impl);
+			this.locationRealPaths = null;
 			this.paths = null;
 		}
 
+		void remove(LocationWrapper impl) {
+			this.locationPaths.values().removeIf(wrapper -> wrapper == impl);
+			this.locationRealPaths = null;
+		}
+
+		/** Answers the module location of a real path, see {@link ModuleLocationHandler#realPath(Path)}. */
 		Location get(Path path) {
-			return this.locationPaths.get(path);
+			if (this.locationRealPaths == null) {
+				this.locationRealPaths = new HashMap<>();
+				this.locationPaths.forEach((p, wrapper) -> this.locationRealPaths.put(realPath(p), wrapper));
+			}
+			return this.locationRealPaths.get(path);
 		}
 
 		@Override
@@ -149,12 +184,14 @@ public class ModuleLocationHandler {
 		public Iterable<? extends Path> getPaths() {
 			if (this.paths != null)
 				return this.paths;
-			return this.locationPaths.keySet();
+			// a copy: a caller may set the location of a module while it iterates the paths
+			return new ArrayList<>(this.locationPaths.keySet());
 		}
 
 		public void clear() {
 			this.locationNames.clear();
 			this.locationPaths.clear();
+			this.locationRealPaths = null;
 		}
 	}
 
@@ -187,6 +224,7 @@ public class ModuleLocationHandler {
 		@Override
 		void put(Path path, LocationWrapper impl) {
 			this.locationPaths.put(path, impl);
+			this.locationRealPaths = null;
 		}
 	}
 
