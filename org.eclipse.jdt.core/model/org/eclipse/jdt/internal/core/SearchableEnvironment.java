@@ -1103,6 +1103,11 @@ public class SearchableEnvironment
 		}
 	}
 	@Override
+	public boolean isObservablePackage(char[][] packageName) {
+		String[] pkgName = CharOperation.toStrings(packageName);
+		return (this.owner != null && this.owner.isPackage(pkgName)) || this.nameLookup.isObservablePackage(pkgName);
+	}
+	@Override
 	public boolean hasCompilationUnit(char[][] pkgName, char[] moduleName, boolean checkCUs) {
 		LookupStrategy strategy = LookupStrategy.get(moduleName);
 		switch (strategy) {

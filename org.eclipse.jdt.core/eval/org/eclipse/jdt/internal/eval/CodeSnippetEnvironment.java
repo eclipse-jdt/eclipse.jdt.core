@@ -93,6 +93,10 @@ public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 	return this.env.isPackage(parentPackageName, packageName);
 }
 @Override
+public boolean isObservablePackage(char[][] packageName) {
+	return this.env.isObservablePackage(packageName);
+}
+@Override
 public void cleanup() {
 	this.env.cleanup();
 }
