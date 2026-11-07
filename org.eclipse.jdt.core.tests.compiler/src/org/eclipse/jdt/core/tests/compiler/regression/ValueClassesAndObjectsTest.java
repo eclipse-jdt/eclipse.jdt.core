@@ -17,7 +17,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -3781,7 +3780,6 @@ public void testIssue5530() {
 			"""
 		};
 	runner.expectedOutputString = "false\nfalse";
-	runner.javacTestOptions = JavacHasABug.JavacBug8394667;
 	runner.runConformTest();
 }
 }
