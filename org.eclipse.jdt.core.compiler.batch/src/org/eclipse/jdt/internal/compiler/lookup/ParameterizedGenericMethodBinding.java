@@ -211,7 +211,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// Applicability succeeded, proceed to infer invocation type, if possible.
 			TypeBinding expectedType = invocationSite.invocationTargetType();
 			boolean hasReturnProblem = false;
-			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType() || !isPolyExpression) {
+			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType()) {
 				// ---- 18.5.2 (Invocation type): ----
 				provisionalResult = result;
 				if (InferenceContext18.DEBUG) {
