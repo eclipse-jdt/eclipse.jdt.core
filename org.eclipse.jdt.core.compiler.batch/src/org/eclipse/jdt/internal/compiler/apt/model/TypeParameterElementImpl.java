@@ -62,58 +62,51 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		return this._bounds;
 	}
 
-	// This code is drawn from org.eclipse.jdt.core.dom.TypeBinding.getTypeBounds()
 	private List<? extends TypeMirror> calculateBounds() {
-		TypeVariableBinding typeVariableBinding = (TypeVariableBinding)this._binding;
+		TypeBinding[] boundBindings = getBoundBindings((TypeVariableBinding)this._binding);
+		if (boundBindings.length == 0) {
+			// at least we must add java.lang.Object
+			return Collections.singletonList(this._env.getFactory().newTypeMirror(this._env.getLookupEnvironment().getType(TypeConstants.JAVA_LANG_OBJECT)));
+		}
+		List<TypeMirror> typeBounds = new ArrayList<>(boundBindings.length);
+		for (TypeBinding boundBinding : boundBindings) {
+			TypeMirror typeBinding = this._env.getFactory().newTypeMirror(boundBinding);
+			if (typeBinding == null) {
+				return Collections.emptyList();
+			}
+			typeBounds.add(typeBinding);
+		}
+		return Collections.unmodifiableList(typeBounds);
+	}
+
+	/**
+	 * Answer the bounds of the given type variable in declaration order, or an empty array
+	 * if it has no explicit bound (its only bound is then java.lang.Object).
+	 * This code is drawn from org.eclipse.jdt.core.dom.TypeBinding.getTypeBounds()
+	 */
+	static TypeBinding[] getBoundBindings(TypeVariableBinding typeVariableBinding) {
 		ReferenceBinding varSuperclass = typeVariableBinding.superclass();
 		TypeBinding firstClassOrArrayBound = typeVariableBinding.firstBound;
-		int boundsLength = 0;
 		boolean isFirstBoundATypeVariable = false;
 		if (firstClassOrArrayBound != null) {
 			if (firstClassOrArrayBound.isTypeVariable()) {
 				isFirstBoundATypeVariable = true;
 			}
-			if (TypeBinding.equalsEquals(firstClassOrArrayBound, varSuperclass)) {
-				boundsLength++;
-				if (firstClassOrArrayBound.isTypeVariable()) {
-					isFirstBoundATypeVariable = true;
-				}
-			} else if (firstClassOrArrayBound.isArrayType()) { // capture of ? extends/super arrayType
-				boundsLength++;
-			} else {
+			if (!TypeBinding.equalsEquals(firstClassOrArrayBound, varSuperclass)
+					&& !firstClassOrArrayBound.isArrayType()) { // array: capture of ? extends/super arrayType
 				firstClassOrArrayBound = null;
 			}
 		}
+		List<TypeBinding> bounds = new ArrayList<>();
+		if (firstClassOrArrayBound != null) {
+			bounds.add(firstClassOrArrayBound);
+		}
 		ReferenceBinding[] superinterfaces = typeVariableBinding.superInterfaces();
-		int superinterfacesLength = 0;
-		if (superinterfaces != null) {
-			superinterfacesLength = superinterfaces.length;
-			boundsLength += superinterfacesLength;
+		// we need to filter out remaining bounds if the first bound is a type variable
+		if (superinterfaces != null && !isFirstBoundATypeVariable) {
+			Collections.addAll(bounds, superinterfaces);
 		}
-		List<TypeMirror> typeBounds = new ArrayList<>(boundsLength);
-		if (boundsLength != 0) {
-			if (firstClassOrArrayBound != null) {
-				TypeMirror typeBinding = this._env.getFactory().newTypeMirror(firstClassOrArrayBound);
-				if (typeBinding == null) {
-					return Collections.emptyList();
-				}
-				typeBounds.add(typeBinding);
-			}
-			// we need to filter out remaining bounds if the first bound is a type variable
-			if (superinterfaces != null && !isFirstBoundATypeVariable) {
-				for (int i = 0; i < superinterfacesLength; i++) {
-					TypeMirror typeBinding = this._env.getFactory().newTypeMirror(superinterfaces[i]);
-					if (typeBinding == null) {
-						return Collections.emptyList();
-					}
-					typeBounds.add(typeBinding);
-				}
-			}
-		} else {
-			// at least we must add java.lang.Object
-			typeBounds.add(this._env.getFactory().newTypeMirror(this._env.getLookupEnvironment().getType(TypeConstants.JAVA_LANG_OBJECT)));
-		}
-		return Collections.unmodifiableList(typeBounds);
+		return bounds.toArray(new TypeBinding[bounds.size()]);
 	}
 
 	@Override
