@@ -52,12 +52,9 @@ protected Openable(JavaElement parent) {
  */
 @Override
 public void bufferChanged(BufferChangedEvent event) {
-	JavaModelManager.sourceEnvironmentChanged();
-	if (event.getBuffer().isClosed()) {
-		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
-		getBufferManager().removeBuffer(event.getBuffer());
-	} else {
-		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(this);
+	IBuffer buffer = event.getBuffer();
+	if (getBufferManager().bufferChanged(this, buffer, buffer.isClosed())) {
+		JavaModelManager.sourceEnvironmentChanged();
 	}
 }
 /**
