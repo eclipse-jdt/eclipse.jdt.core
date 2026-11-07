@@ -2752,6 +2752,34 @@ public void testIssue5567() {
 	});
 	assertTrue("Test should take less than a second, certainly not a minute", System.currentTimeMillis() < (start + 60000));
 }
+public void testIssue4866() {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			import java.util.function.Function;
+			interface C<A> { }
+			interface S<T> {
+				<A> A m1(C<A> c);
+			}
+			public abstract class X {
+				void foo2(S<String> s) {
+					s.m1(m2(String::toUpperCase, xyz -> "NODATA"));
+				}
+				public abstract <T, K, U>
+					C<?> m2(Function<? super T, ? extends K> keyMapper,
+							Function<? super T, ? extends U> valueMapper);
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 8)
+			s.m1(m2(String::toUpperCase, xyz -> "NODATA"));
+			        ^^^^^^^^^^^^^^^^^^^
+		The type String does not define toUpperCase(Object) that is applicable here
+		----------
+		""");
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
