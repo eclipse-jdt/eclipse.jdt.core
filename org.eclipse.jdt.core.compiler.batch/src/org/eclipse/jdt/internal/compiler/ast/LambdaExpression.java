@@ -146,6 +146,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	}
 
 	public Expression[] resultExpressions() {
+		if (this.resultExpressions == NO_EXPRESSIONS && this.body instanceof Expression expr && expr.isTrulyExpression())
+			return new Expression[] { expr };
 		return this.resultExpressions;
 	}
 

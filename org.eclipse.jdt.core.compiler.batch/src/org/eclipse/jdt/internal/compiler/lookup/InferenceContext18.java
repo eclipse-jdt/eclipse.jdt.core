@@ -854,33 +854,36 @@ public class InferenceContext18 {
 	 * 18.5.4 More Specific Method Inference
 	 */
 	public boolean isMoreSpecificThan(MethodBinding m1, MethodBinding m2, boolean isVarArgs, boolean isVarArgs2) {
-		// TODO: we don't yet distinguish vararg-with-passthrough from vararg-with-exactly-one-vararg-arg
 		if (isVarArgs != isVarArgs2) {
 			return isVarArgs2;
 		}
 		Expression[] arguments = this.invocationArguments;
-		int numInvocArgs = arguments == null ? 0 : arguments.length;
+		int k = arguments == null ? 0 : arguments.length;
 		TypeVariableBinding[] p = m2.typeVariables();
-		TypeBinding[] s = m1.parameters;
-		TypeBinding[] t = new TypeBinding[m2.parameters.length];
+		// First, an initial bound set, B, is generated ...
+		// (done early as it includes creating the inference variables).
 		createInitialBoundSet(p);
-		for (int i = 0; i < t.length; i++)
+
+		TypeBinding[] s = m1.parameters;
+
+		TypeBinding[] t = new TypeBinding[m2.parameters.length];
+		for (int i = 0; i < m2.parameters.length; i++)
 			t[i] = substitute(m2.parameters[i]);
 
 		try {
-			for (int i = 0; i < numInvocArgs; i++) {
+			// combines bullets for strict/loose invocation with variable arity invocations:
+			// iterates over k types, where difference is hidden inside getParameter()
+			for (int i = 0; i < k; i++) {
 				TypeBinding si = getParameter(s, i, isVarArgs);
 				TypeBinding ti = getParameter(t, i, isVarArgs);
-				Boolean result = moreSpecificMain(si, ti, this.invocationArguments[i]);
-				if (result == Boolean.FALSE)
+				// Second, for all i (1 ≤ i ≤ k), a set of constraint formulas or bounds is generated.
+				if (!moreSpecificSecondStep(si, ti, this.invocationArguments[i]))
 					return false;
-				if (result == null)
-					if (!reduceAndIncorporate(ConstraintTypeFormula.create(si, ti, ReductionResult.SUBTYPE)))
-						return false;
 			}
-			if (t.length == numInvocArgs + 1) {
-				TypeBinding skplus1 = getParameter(s, numInvocArgs, true);
-				TypeBinding tkplus1 = getParameter(t, numInvocArgs, true);
+			// Third, if m2 is applicable by variable arity invocation and has k+1 parameters ...
+			if (isVarArgs && m2.parameters.length == k+1) {
+				TypeBinding skplus1 = getParameter(s, k, isVarArgs);
+				TypeBinding tkplus1 = substitute(getParameter(t, k, isVarArgs));
 				if (!reduceAndIncorporate(ConstraintTypeFormula.create(skplus1, tkplus1, ReductionResult.SUBTYPE)))
 					return false;
 			}
@@ -890,113 +893,145 @@ public class InferenceContext18 {
 		}
 	}
 
-	// FALSE: inference fails
-	// TRUE:  constraints have been incorporated
-	// null:  need to create the si <: ti constraint
-	private Boolean moreSpecificMain(TypeBinding si, TypeBinding ti, Expression expri) throws InferenceFailureException {
-		if (si.isProperType(true) && ti.isProperType(true)) {
-			return expri.sIsMoreSpecific(si, ti, this.scope) ? Boolean.TRUE : Boolean.FALSE;
-		}
-		// "if Ti is not a functional interface type" specifically requests the si <: ti constraint created by our caller
-		if (!ti.isFunctionalInterface(this.scope))
-			return null;
+	private boolean moreSpecificSecondStep(TypeBinding si, TypeBinding ti, Expression expri) throws InferenceFailureException {
+		// cascade of checks joined by "Otherwise", hence the returns below.
+		if (ti.isProperType(true))
+			return expri.sIsMoreSpecific(si, ti, this.scope);
 
-		TypeBinding funcI = ti.original();
-		// "It must be determined whether Si satisfies the following five conditions:"
-		// (we negate each condition for early exit):
-		if (si.isFunctionalInterface(this.scope)) {			// bullet 1
-			if (siSuperI(si, funcI) || siSubI(si, funcI))
-				return null;								// bullets 2 & 3
-			if (si instanceof IntersectionTypeBinding18) {
-				TypeBinding[] elements = ((IntersectionTypeBinding18)si).intersectingTypes;
-				checkSuper: {
-					for (int i = 0; i < elements.length; i++)
-						if (!siSuperI(elements[i], funcI))
-							break checkSuper;
-					return null;							// bullet 4
-					// each element of the intersection is a superinterface of I, or a parameterization of a superinterface of I.
-				}
-				for (TypeBinding binding : elements)
-					if (siSubI(binding, funcI))
-						return null;						// bullet 5
-						// some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.
-			}
-			// all passed, time to do some work:
-			TypeBinding siCapture = si.capture(this.scope, expri.sourceStart, expri.sourceEnd);
-			MethodBinding sam = siCapture.getSingleAbstractMethod(this.scope, false); // no wildcards should be left needing replacement
-			TypeBinding[] u = sam.parameters;
-			TypeBinding r1 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
-			sam = ti.getSingleAbstractMethod(this.scope, true); // TODO
-			TypeBinding[] v = sam.parameters;
-			TypeBinding r2 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
-			return Boolean.valueOf(checkExpression(expri, u, r1, v, r2));
-		}
-		return null;
-	}
+		if (!(si.isFunctionalInterface(this.scope) && ti.isFunctionalInterface(this.scope)))
+			return reduceAndIncorporate(ConstraintTypeFormula.create(si, ti, ReductionResult.SUBTYPE));
 
-	private boolean checkExpression(Expression expri, TypeBinding[] u, TypeBinding r1, TypeBinding[] v, TypeBinding r2)
-			throws InferenceFailureException {
-		if (expri instanceof LambdaExpression && !((LambdaExpression)expri).argumentsTypeElided()) {
-			for (int i = 0; i < u.length; i++) {
-				if (!reduceAndIncorporate(ConstraintTypeFormula.create(u[i], v[i], ReductionResult.SAME)))
+		if (containsSubOrSuperI(si, ti))
+			return reduceAndIncorporate(ConstraintTypeFormula.create(si, ti, ReductionResult.SUBTYPE));
+
+		// let MTS be the function type of the capture of Si, ...
+		TypeBinding siCapture = si.capture(this.scope, expri.sourceStart, expri.sourceEnd);
+		MethodBinding mts = siCapture.getSingleAbstractMethod(this.scope, true);
+		MethodBinding mtsPrime = si.getSingleAbstractMethod(this.scope, true);
+		MethodBinding mtt = ti.getSingleAbstractMethod(this.scope, true);
+		if (mts.parameters.length != mtt.parameters.length)
+			return false;
+		if (mts.typeVariables.length != mtt.typeVariables.length)
+			return false;
+		for (int i=0; i<mts.typeVariables.length; i++) {
+			if (TypeBinding.notEquals(mts.typeVariables[i], mtsPrime.typeVariables[i]))
+				return false;
+		}
+
+		// Otherwise, the following constraint formulas or bounds are generated ...
+		TypeVariableBinding[] as = mts.typeVariables;
+		TypeVariableBinding[] bs = mtt.typeVariables;
+		Substitution thetaPrime = new Substitution.NullSubstitution(this.environment);
+		Substitution thetaAPrime = thetaPrime;
+		TypeVariableBinding[] aPrimes = mtsPrime.typeVariables;
+		if (as != Binding.NO_TYPE_VARIABLES) {
+			thetaPrime = new Substitution.AdhocSubstituation(as, bs, this.environment);
+			thetaAPrime = new Substitution.AdhocSubstituation(aPrimes, bs, this.environment);
+		}
+		for (int j = 0; j < as.length; j++) {
+			TypeBinding x = as[j].firstBound;
+			TypeBinding y = bs[j].firstBound;
+			if (x != null && y != null) {
+				if (x.mentionsAny(as, -1) && !y.isProperType(true))
+					return false;
+				if (!reduceAndIncorporate(ConstraintTypeFormula.create(x, Scope.substitute(thetaPrime, y), ReductionResult.SAME)))
 					return false;
 			}
-			if (r2.id == TypeIds.T_void)
+		}
+
+		TypeBinding[] u = mts.parameters;
+		TypeBinding[] uPrime = mtsPrime.parameters;
+		TypeBinding[] v = mtt.parameters;
+		for (int j = 0; j < u.length; j++) {
+			if (u[j].mentionsAny(as, -1) && !v[j].isProperType(true))
+				return false;
+			if (!reduceAndIncorporate(ConstraintTypeFormula.create(Scope.substitute(thetaPrime, v[j]), u[j], ReductionResult.SUBTYPE)))
+				return false;
+			if (!reduceAndIncorporate(ConstraintTypeFormula.create(Scope.substitute(thetaAPrime, v[j]), uPrime[j], ReductionResult.SAME)))
+				return false;
+		}
+		TypeBinding rs = mts.isConstructor() ? mts.declaringClass : mts.returnType;
+		TypeBinding rt = mtt.isConstructor() ? mtt.declaringClass : mtt.returnType;
+		return checkExpression(expri, u, rs, v, rt, as, thetaPrime);
+	}
+
+	private boolean containsSubOrSuperI(TypeBinding si, TypeBinding ti) {
+		TypeBinding[] sIntersecting = si instanceof IntersectionTypeBinding18 intersection
+				? intersection.intersectingTypes : new TypeBinding[] { si };
+		TypeBinding[] tIntersecting = ti instanceof IntersectionTypeBinding18 intersection
+				? intersection.intersectingTypes : new TypeBinding[] { ti };
+		// JLS speaks of "the/some interface of Si/Ti", which Dan Smith explained
+		// in a private email to mean exactly what the original() calls below do.
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=468999#c8
+		for (TypeBinding someS : sIntersecting) {
+			for (TypeBinding someT : tIntersecting) {
+				if (siSuperI(someS.original(), someT.original()))
+					return true; // some interface of si is super interface of some interface of ti
+				if (siSubI(someS.original(), someT.original()))
+					return true;  // some interface of si is sub interface of some interface of ti
+			}
+		}
+		return false;
+	}
+
+	private boolean checkExpression(Expression expri, TypeBinding[] u, TypeBinding rs, TypeBinding[] v, TypeBinding rt, TypeBinding[] as, Substitution thetaPrime)
+			throws InferenceFailureException {
+		if (rs.mentionsAny(as, -1) && !rt.isProperType(true))
+			return Boolean.FALSE;
+		if (expri instanceof LambdaExpression && !((LambdaExpression)expri).argumentsTypeElided()) {
+			if (rt.id == TypeIds.T_void)
 				return true;
 			LambdaExpression lambda = (LambdaExpression) expri;
 			Expression[] results = lambda.resultExpressions();
-			if (results != Expression.NO_EXPRESSIONS) {
-				if (r1.isFunctionalInterface(this.scope) && r2.isFunctionalInterface(this.scope)
-						&& !(r1.isCompatibleWith(r2) || r2.isCompatibleWith(r1))) {
-					// "these rules are applied recursively to R1 and R2, for each result expression in expi."
-					// (what does "applied .. to R1 and R2" mean? Why mention R1/R2 and not U/V?)
+			if (results != Expression.NO_EXPRESSIONS) { // extracted condition of each of the following three checks
+				if (rs.isFunctionalInterface(this.scope) && rt.isFunctionalInterface(this.scope)) {
 					for (Expression result : results) {
-						if (!checkExpression(result, u, r1, v, r2))
+						if (!moreSpecificSecondStep(rs, Scope.substitute(thetaPrime, rt), result))
 							return false;
 					}
 					return true;
 				}
-				checkPrimitive1: if (r1.isPrimitiveType() && !r2.isPrimitiveType()) {
+				if (rs.isPrimitiveType() && !rt.isPrimitiveType()) {
+					boolean allGood = true;
 					// check: each result expression is a standalone expression of a primitive type
-					for (int i = 0; i < results.length; i++) {
-						if (results[i].isPolyExpression() || (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType()))
-							break checkPrimitive1;
+					for (int i = 0; i < results.length && allGood; i++) {
+						allGood &= !results[i].isPolyExpression();
+						allGood &= results[i].resolvedType != null && results[i].resolvedType.isPrimitiveType();
 					}
-					return true;
+					if (allGood)
+						return true;
 				}
-				checkPrimitive2: if (r2.isPrimitiveType() && !r1.isPrimitiveType()) {
+				if (rt.isPrimitiveType() && !rs.isPrimitiveType()) {
+					boolean allGood = true;
 					for (int i = 0; i < results.length; i++) {
-						// for all expressions (not for any expression not)
-						if (!(
-								(!results[i].isPolyExpression() && (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType())) // standalone of a referencetype
-								|| results[i].isPolyExpression()))	// or a poly
-							break checkPrimitive2;
+						if (!results[i].isPolyExpression()) {
+							// a standalone expression of a reference type?
+							allGood &= results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType();
+						} else {
+							// or a poly expression: good
+						}
 					}
-					return true;
+					if (allGood)
+						return true;
 				}
 			}
-			return reduceAndIncorporate(ConstraintTypeFormula.create(r1, r2, ReductionResult.SUBTYPE));
-		} else if (expri instanceof ReferenceExpression && ((ReferenceExpression)expri).isExactMethodReference()) {
-			ReferenceExpression reference = (ReferenceExpression) expri;
-			for (int i = 0; i < u.length; i++) {
-				if (!reduceAndIncorporate(ConstraintTypeFormula.create(u[i], v[i], ReductionResult.SAME)))
-					return false;
-			}
-			if (r2.id == TypeIds.T_void)
+			return reduceAndIncorporate(ConstraintTypeFormula.create(rs, Scope.substitute(thetaPrime, rt), ReductionResult.SUBTYPE));
+		} else if (expri instanceof ReferenceExpression reference && reference.isExactMethodReference()) {
+			if (rt.id == TypeIds.T_void)
 				return true;
 			MethodBinding method = reference.getExactMethod();
 			TypeBinding returnType = method.isConstructor() ? method.declaringClass : method.returnType;
-			if (r1.isPrimitiveType() && !r2.isPrimitiveType() && returnType.isPrimitiveType())
+			if (rs.isPrimitiveType() && !rt.isPrimitiveType() && returnType.isPrimitiveType())
 				return true;
-			if (r2.isPrimitiveType() && !r1.isPrimitiveType() && !returnType.isPrimitiveType())
+			if (rt.isPrimitiveType() && !rs.isPrimitiveType() && !returnType.isPrimitiveType())
 				return true;
-			return reduceAndIncorporate(ConstraintTypeFormula.create(r1, r2, ReductionResult.SUBTYPE));
+			return reduceAndIncorporate(ConstraintTypeFormula.create(rs, Scope.substitute(thetaPrime, rt), ReductionResult.SUBTYPE));
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression cond = (ConditionalExpression) expri;
-			return  checkExpression(cond.valueIfTrue, u, r1, v, r2) && checkExpression(cond.valueIfFalse, u, r1, v, r2);
+			return  checkExpression(cond.valueIfTrue, u, rs, v, rt, as, thetaPrime) && checkExpression(cond.valueIfFalse, u, rs, v, rt, as, thetaPrime);
 		} else if (expri instanceof SwitchExpression se) {
 			for (Expression re : se.resultExpressions()) {
-				if (!checkExpression(re, u, r1, v, r2))
+				if (!checkExpression(re, u, rs, v, rt, as, thetaPrime))
 					return false;
 			}
 			return true;

@@ -4163,5 +4163,240 @@ public void testJavaSrcGenuineAmbuigity() {
 			"The method foo(String) is ambiguous for the type GenuineAmbiguity.I<String>\n" +
 			"----------\n");
 }
+public void testIssue2304_orig() {
+	runConformTest(new String[] {
+		"ServiceRegistry.java",
+		"""
+		import java.util.function.Consumer;
+		import java.util.function.Function;
 
+		public class ServiceRegistry {
+
+			static <R> void registerHandler(Class<R> type, Function<? super R, ?> handler) { // (1)
+				handler.apply(null);
+			}
+			static <R> void registerHandler(Class<R> type, Consumer<R> handler) {
+				handler.accept(null);
+			}
+
+			public static void main(String[] args) {
+				Service service = new Service() {
+					@Override public Object publish(Request request) {
+						System.out.println("Function");
+						return null;
+					}
+					@Override public void publish(Object message) {
+						System.out.println("Consumer");
+					}
+				};
+				registerHandler(Request.class, (Request r) -> service.publish(r)); // (2)
+			}
+		}
+
+		interface Request {}
+		interface Service {
+			void publish(Object message);
+			Object publish(Request request);
+		}
+		"""
+	});
+}
+//rs primitive, rt reference, all results standalone primitive -> true
+public void testIssue2304_lambdaPrimitiveVsGeneric() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface IS { int get(int x); }
+			interface GF<T> { T get(int x); }
+			static void a(IS f) { System.out.print("int"); }
+			static <T> void a(GF<T> f) { System.out.print("gen"); }
+			public static void main(String[] args) {
+				a((int i) -> 1);
+			}
+		}
+		"""
+	},
+	"int");
+}
+//rs primitive, rt reference, but a result is a poly expression -> falls through to rs <: rt, fails
+public void testIssue2304_lambdaPrimitivePolyResult() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface IS { int get(int x); }
+			interface GF<T> { T get(int x); }
+			static <T> T poly(T t) { return t; }
+			static void a(IS f) { System.out.print("int"); }
+			static <T> void a(GF<T> f) { System.out.print("gen"); }
+			public static void main(String[] args) {
+				a((int i) -> poly(1));
+			}
+		}
+		"""
+	},
+	"""
+	----------
+	1. ERROR in X.java (at line 8)
+		a((int i) -> poly(1));
+		^
+	The method a(X.IS) is ambiguous for the type X
+	----------
+	""");
+}
+
+//both result types are functional interfaces -> recursive moreSpecificSecondStep
+public void testIssue2304_lambdaFunctionalResult() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		import java.util.function.Supplier;
+		public class X {
+			interface SS { Supplier<String> get(int x); }
+			interface GS<T> { Supplier<T> get(int x); }
+			static void d(SS f) { System.out.print("ss"); }
+			static <T> void d(GS<T> f) { System.out.print("gs"); }
+			public static void main(String[] args) {
+				d((int i) -> () -> "s");
+			}
+		}
+		"""
+	},
+	"ss");
+}
+
+//ConditionalExpression as the argument itself
+public void testIssue2304_conditionalArgument() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface IS { int get(int x); }
+			interface GF<T> { T get(int x); }
+			static void a(IS f) { System.out.print("int"); }
+			static <T> void a(GF<T> f) { System.out.print("gen"); }
+			public static void main(String[] args) {
+				a(args.length == 0 ? (int i) -> 1 : (int i) -> 2);
+			}
+		}
+		"""
+	},
+	"int");
+}
+//exact method reference: rs primitive & method returns primitive
+public void testIssue2304_exactMethodRefPrimitive() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface IS { int get(String x); }
+			interface GF<T> { T get(String x); }
+			static int len(String s) { return s.length(); }
+			static void a(IS f) { System.out.print("int"); }
+			static <T> void a(GF<T> f) { System.out.print("gen"); }
+			public static void main(String[] args) {
+				a(X::len);
+			}
+		}
+		"""
+	},
+	"int");
+}
+//exact method reference: rs reference & method returns reference
+public void testIssue2304_exactMethodRefReference() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface RS { Integer get(String x); }
+			interface GF<T> { T get(String x); }
+			static Integer lenB(String s) { return s.length(); }
+			static void b(RS f) { System.out.print("ref"); }
+			static <T> void b(GF<T> f) { System.out.print("gen"); }
+			public static void main(String[] args) {
+				b(X::lenB);
+			}
+		}
+		"""
+	},
+	"ref");
+}
+
+//exact method reference: rs primitive, method returns reference -> falls through to subtype constraint
+public void testIssue2304_exactMethodRefMismatch() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface IS { int get(String x); }
+			interface GF<T> { T get(String x); }
+			static Integer lenB(String s) { return s.length(); }
+			static void a(IS f) { System.out.print("int"); }
+			static <T> void a(GF<T> f) { System.out.print("gen"); }
+			public static void main(String[] args) {
+				a(X::lenB);
+			}
+		}
+		"""
+	},
+	"""
+	----------
+	1. ERROR in X.java (at line 8)
+		a(X::lenB);
+		^
+	The method a(X.IS) is ambiguous for the type X
+	----------
+	"""
+);
+}
+
+//implicitly typed lambda -> final else branch returns false
+public void testIssue2304_implicitLambdaAmbiguous() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface IS { int get(int x); }
+			interface GF<T> { T get(int x); }
+			static void a(IS f) { }
+			static <T> void a(GF<T> f) { }
+			public static void main(String[] args) {
+				a(i -> 1);
+			}
+		}
+		"""
+	},
+	"----------\n" +
+	"1. ERROR in X.java (at line 7)\n" +
+	"	a(i -> 1);\n" +
+	"	^\n" +
+	"The method a(X.IS) is ambiguous for the type X\n" +
+	"----------\n");
+}
+
+//rs mentions the method type variable of a generic function type, rt is not a proper type -> false
+public void testIssue2304_genericFunctionTypeAmbiguous() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			interface GM { <A> A get(A a); }
+			interface GM2<T> { <B> T get(B b); }
+			static <Y> Y id(Y y) { return y; }
+			static void e(GM f) { }
+			static <T> void e(GM2<T> f) { }
+			public static void main(String[] args) {
+				e(X::id);
+			}
+		}
+		"""
+	},
+	"----------\n" +
+	"1. ERROR in X.java (at line 8)\n" +
+	"	e(X::id);\n" +
+	"	^\n" +
+	"The method e(X.GM) is ambiguous for the type X\n" +
+	"----------\n");
+}
 }
