@@ -97,6 +97,7 @@ private static Class[] getAllTestClasses() {
 
 		// IBuffer tests
 		BufferTests.class,
+		BufferConcurrencyTests.class,
 
 		// Name lookup tests
 		NameLookupTests2.class,

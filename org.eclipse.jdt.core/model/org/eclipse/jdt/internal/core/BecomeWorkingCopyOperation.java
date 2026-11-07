@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -42,7 +42,29 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
-		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		BufferManager bufferManager = workingCopy.getBufferManager();
+		final BufferManager.BufferRetirement oldBuffer;
+		// Use openBuffer's publication monitor so an opener cannot reuse an ordinary
+		// cached buffer between primary working-copy registration and its detachment.
+		synchronized (bufferManager) {
+			JavaModelManager.PerWorkingCopyInfo previousInfo = workingCopy.getPerWorkingCopyInfo();
+			JavaModelManager.PerWorkingCopyInfo workingCopyInfo = manager.getPerWorkingCopyInfo(workingCopy, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
+			if (workingCopy.isPrimary() && previousInfo != workingCopyInfo) {
+				// CompilationUnit.becomeWorkingCopy() calls close() before this operation.
+				// A concurrent ordinary open may have cached its buffer without publishing
+				// its CU element info yet. In that case removeInfoAndChildren() skips
+				// closing(), leaving the ordinary buffer cached. Detach it here so the
+				// primary working copy can obtain its owner's buffer.
+				oldBuffer = bufferManager.retireBuffer(workingCopy);
+			} else {
+				oldBuffer = null;
+			}
+		}
+		try (oldBuffer) {
+			// This empty scope completes the reserved retirement outside the publication
+			// monitor, before initializing the working copy.
+		}
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), true, this.progressMonitor);
 
 		if (!workingCopy.isPrimary()) {

@@ -153,7 +153,6 @@ public void testClose() throws CoreException {
 	}
 }
 
-
 /**
  * Tests getting the underlying resource of a buffer.
  */
