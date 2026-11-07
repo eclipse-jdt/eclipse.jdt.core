@@ -952,7 +952,7 @@ public class InferenceContext18 {
 		}
 		TypeBinding rs = mts.isConstructor() ? mts.declaringClass : mts.returnType;
 		TypeBinding rt = mtt.isConstructor() ? mtt.declaringClass : mtt.returnType;
-		return checkExpression(expri, u, rs, v, rt, as, thetaAPrime);
+		return checkExpression(expri, u, rs, v, rt, as, thetaPrime);
 	}
 
 	private boolean containsSubOrSuperI(TypeBinding si, TypeBinding ti) {
