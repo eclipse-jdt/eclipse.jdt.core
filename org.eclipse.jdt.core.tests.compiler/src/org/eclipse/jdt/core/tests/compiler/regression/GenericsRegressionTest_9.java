@@ -2780,6 +2780,24 @@ public void testIssue4866() {
 		----------
 		""");
 }
+public void testNonPolyGenericCallAsArgument() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		import java.util.function.Function;
+		public class X {
+			// return type does not mention T => call is NOT a poly expression
+			static <T> String inner(Function<? super T, String> f) { return ":x-"+f.apply(null); }
+			static <U> U outer(U u) { System.out.print(u); return u; }
+			public static void main(String... args) {
+				String s = outer(inner(t -> "a"));
+				outer(inner(String::valueOf));
+			}
+		}
+		"""
+	}, ":x-a:x-null");
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
