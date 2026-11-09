@@ -638,7 +638,7 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 
     // Warn on finalize method, the garbage collector never invokes it
     public void testFinalizeMethod() {
-    	runWarningTest(new String [] {
+    	runNegativeTest(new String [] {
  				"X.java",
  				"""
  				public value class X {
@@ -654,12 +654,11 @@ public class ValueClassesAndObjectsTest extends AbstractRegressionTestCommon {
 				"	       ^^^^^\n" +
 				"You are using a preview language feature that may or may not be supported in a future release\n" +
 				"----------\n" +
-				"2. WARNING in X.java (at line 2)\n" +
+				"2. ERROR in X.java (at line 2)\n" +
 				"	public void finalize() {}\n" +
 				"	            ^^^^^^^^^^\n" +
-				"The finalize method is useless in a value class\n" +
-				"----------\n",
-				getCompilerOptions(true));
+				"A value class may not declare a finalize method\n" +
+				"----------\n");
  	}
 
     public void testEmissionOfLoadableDescriptors() throws Exception {
