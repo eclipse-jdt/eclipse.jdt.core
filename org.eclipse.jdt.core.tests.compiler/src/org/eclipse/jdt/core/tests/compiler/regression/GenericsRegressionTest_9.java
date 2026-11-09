@@ -2798,6 +2798,36 @@ public void testNonPolyGenericCallAsArgument() {
 	}, ":x-a:x-null");
 }
 
+public void testIssue4866_followup() {
+	runNegativeTest(new String[] {
+		"X.java",
+		"""
+		import java.util.List;
+
+		public class X {
+		    static <T extends List<String>> String inner(T value) {
+		        return "";
+		    }
+
+		    static <U> U outer(U value) {
+		        return value;
+		    }
+
+		    @SuppressWarnings("rawtypes")
+		    static void test(List raw) {
+		        String s = outer(inner(raw));
+		    }
+		}
+		"""
+	},
+	"----------\n" +
+	"1. WARNING in X.java (at line 14)\n" +
+	"	String s = outer(inner(raw));\n" +
+	"	                 ^^^^^^^^^^\n" +
+	"Type safety: Unchecked invocation inner(List) of the generic method inner(T) of type X\n" +
+	"----------\n");
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
