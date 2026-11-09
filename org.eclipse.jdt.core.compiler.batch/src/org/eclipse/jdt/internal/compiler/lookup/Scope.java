@@ -1882,13 +1882,14 @@ public abstract class Scope {
 				break;
 		}
 
+		MethodBinding[] declared = new MethodBinding[visiblesCount]; // declared parameters, not those inferred for this call
+		for (int i = 0; i < visiblesCount; i++)
+			declared[i] = candidates[i].isParameterizedGeneric() ? candidates[i].shallowOriginal() : candidates[i];
 		for (int i = 0; i < visiblesCount; i++) {
-			MethodBinding candidate = candidates[i];
-			if (candidate.isParameterizedGeneric())
-				candidate = candidate.shallowOriginal();
+			MethodBinding candidate = declared[i];
 			if (candidate.hasSubstitutedParameters()) {
 				for (int j = i + 1; j < visiblesCount; j++) {
-					MethodBinding otherCandidate = candidates[j];
+					MethodBinding otherCandidate = declared[j];
 					if (otherCandidate.hasSubstitutedParameters()) {
 						if (otherCandidate == candidate
 								|| (TypeBinding.equalsEquals(candidate.declaringClass, otherCandidate.declaringClass) && candidate.areParametersEqual(otherCandidate))) {
