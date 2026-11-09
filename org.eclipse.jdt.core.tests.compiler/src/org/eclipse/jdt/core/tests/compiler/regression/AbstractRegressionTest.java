@@ -1294,6 +1294,9 @@ protected static class JavacTestOptions {
 						new JavacHasABug(MismatchType.EclipseErrorsJavacNone),
 				NoWarningForDuplicateJavadocTag =
 						new JavacHasABug(MismatchType.EclipseErrorsJavacNone);
+		public static JavacHasABug
+				JavacAllowsStaticLocalValueClass = // https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/thread/5KCTJMBW5VQMQ4BTAEK5YJ5ACHARUPDE/
+						new JavacHasABug("--enable-preview -source 28", MismatchType.EclipseErrorsJavacWarnings);
 	}
 	public static class JavacBug8179483 extends JavacHasABug {
 		String extraJavacOptions;
