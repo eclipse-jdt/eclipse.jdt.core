@@ -17,6 +17,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.PreviewTest;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -3709,50 +3710,54 @@ public void testIssue5523() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5531
 //  ECJ rejects static modifier for a local abstract value type
 public void testIssue5531() {
-	runNegativeTest(new String[] {
-		"X.java",
-		"""
-		public class X {
-		    static class Z {
-		        int foo() {
-		            abstract static value class ValueType {
-		                public int i = 42;
-		            }
-		            value class CV extends ValueType {
-		                CV() {
-		                    System.out.print("In CV ctor ");
-		                }
+	Runner runner = getRunnerForPreview28();
+	runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+			    static class Z {
+			        int foo() {
+			            abstract static value class ValueType {
+			                public int i = 42;
+			            }
+			            value class CV extends ValueType {
+			                CV() {
+			                    System.out.print("In CV ctor ");
+			                }
 
-		                public int foo() {
-		                    return i * 2;
-		                }
-		            }
-		            return new CV().foo();
-		        }
-		    }
+			                public int foo() {
+			                    return i * 2;
+			                }
+			            }
+			            return new CV().foo();
+			        }
+			    }
 
-		    public static void main(String [] args) {
-		        System.out.println(new X.Z().foo());
-		    }
-		}
-		"""
-	},
-	"----------\n" +
-	"1. WARNING in X.java (at line 4)\n" +
-	"	abstract static value class ValueType {\n" +
-	"	                ^^^^^\n" +
-	"You are using a preview language feature that may or may not be supported in a future release\n" +
-	"----------\n" +
-	"2. ERROR in X.java (at line 4)\n" +
-	"	abstract static value class ValueType {\n" +
-	"	                            ^^^^^^^^^\n" +
-	"Illegal modifier for the local class ValueType; only abstract or final is permitted\n" +
-	"----------\n" +
-	"3. WARNING in X.java (at line 7)\n" +
-	"	value class CV extends ValueType {\n" +
-	"	^^^^^\n" +
-	"You are using a preview language feature that may or may not be supported in a future release\n" +
-	"----------\n");
+			    public static void main(String [] args) {
+			        System.out.println(new X.Z().foo());
+			    }
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	abstract static value class ValueType {\n" +
+			"	                ^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	abstract static value class ValueType {\n" +
+			"	                            ^^^^^^^^^\n" +
+			"Illegal modifier for the local class ValueType; only abstract or final is permitted\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 7)\n" +
+			"	value class CV extends ValueType {\n" +
+			"	^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n";
+	runner.javacTestOptions = JavacHasABug.JavacAllowsStaticLocalValueClass;
+	runner.runNegativeTest();
 }
 public void testIssue5530() {
 	Runner runner = getRunnerForPreview28();
