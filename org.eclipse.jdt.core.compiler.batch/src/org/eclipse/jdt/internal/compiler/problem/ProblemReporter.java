@@ -1698,7 +1698,6 @@ public int computeSeverity(int problemID){
 		case IProblem.IllegalExtendedDimensions:
 		case IProblem.VarargsConflict :
  		case IProblem.StrictfpNotRequired:
- 		case IProblem.FinalizeMethodUselessInValueClass:
  			return ProblemSeverities.Warning;
  		case IProblem.TypeCollidesWithPackage :
 			return ProblemSeverities.Error;
