@@ -5512,7 +5512,7 @@ public class CompletionParser extends AssistParser {
 		// loop without block. Completion while at K_CONTROL_STATEMENT_DELIMITER case needs to handled
 		// similar to the K_BLOCK_DELIMITER with minor differences.
 		if (kind == K_BLOCK_DELIMITER || kind == K_CONTROL_STATEMENT_DELIMITER || kind == K_LAMBDA_EXPRESSION_DELIMITER
-				|| kind == K_SWITCH_EXPRESSION_DELIMITTER) {
+				|| kind == K_SWITCH_EXPRESSION_DELIMITTER || kind == K_SWITCH_LABEL) {
 			if (this.canBeExplicitConstructor == YES) {
 				canBeExplicitConstructorCall = true;
 			}
@@ -5529,6 +5529,20 @@ public class CompletionParser extends AssistParser {
 
 			keywords.add(Keywords.FINAL);
 			keywords.add(Keywords.CLASS);
+
+			keywords.add(Keywords.BREAK);
+			keywords.add(Keywords.CASE);
+			keywords.add(Keywords.YIELD);
+
+			if (kind == K_SWITCH_LABEL) {
+				//I need to add the specific cases for the switch label statement
+				if (topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) != DEFAULT) {
+					keywords.add(Keywords.DEFAULT);
+				}				
+				keywords.add(Keywords.CASE);
+				keywords.add(Keywords.YIELD);
+			}
+
 			if (this.options.complianceLevel >= ClassFileConstants.JDK10) {
 				keywords.add(Keywords.VAR);
 			}
@@ -5578,34 +5592,6 @@ public class CompletionParser extends AssistParser {
 			}
 			if (kind == K_YIELD_KEYWORD) {
 				keywords.add(Keywords.YIELD);
-			}
-			if (kind == K_SWITCH_LABEL) {
-				if (topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) != DEFAULT) {
-					keywords.add(Keywords.DEFAULT);
-				}
-				keywords.add(Keywords.BREAK);
-				keywords.add(Keywords.CASE);
-				keywords.add(Keywords.YIELD);
-				keywords.add(Keywords.ASSERT);
-				keywords.add(Keywords.DO);
-				keywords.add(Keywords.FOR);
-				keywords.add(Keywords.IF);
-				keywords.add(Keywords.RETURN);
-				keywords.add(Keywords.SWITCH);
-				keywords.add(Keywords.SYNCHRONIZED);
-				keywords.add(Keywords.THROW);
-				keywords.add(Keywords.TRY);
-				keywords.add(Keywords.WHILE);
-
-				keywords.add(Keywords.FINAL);
-				keywords.add(Keywords.CLASS);
-
-				if (this.options.complianceLevel >= ClassFileConstants.JDK10) {
-					keywords.add(Keywords.VAR);
-				}
-				if (isInsideLoop()) {
-					keywords.add(Keywords.CONTINUE);
-				}
 			}
 		}
 		return canBeExplicitConstructorCall;
