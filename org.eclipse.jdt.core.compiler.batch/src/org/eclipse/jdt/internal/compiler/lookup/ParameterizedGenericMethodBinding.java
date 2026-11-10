@@ -217,7 +217,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					System.out.println("Infer invocation type for "+invocationSite+ " with target " //$NON-NLS-1$ //$NON-NLS-2$
 							+(expectedType == null ? "<no type>" : expectedType.debugName())); //$NON-NLS-1$
 				}
-				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
+				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod, isPolyExpression);
 				if (InferenceContext18.DEBUG) {
 					System.out.println("Result=\n"+result); //$NON-NLS-1$
 				}
