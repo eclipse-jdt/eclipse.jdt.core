@@ -36,10 +36,25 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
 	boolean isSoft;
 
+	// set for a subtyping constraint that stems from the containment of type arguments (18.2.3, ‹S <= ? extends T'› etc.):
+	// S is then a type argument, not the type of a value, so no capture must be applied when looking for its supertype
+	boolean fromTypeArgument;
+
+	// set for a containment constraint between the type arguments of two such types: a wildcard found here stands for a
+	// different type in each value that the enclosing type argument describes, so no inference variable can be equal to it
+	boolean withinTypeArgument;
+
 	public static ConstraintTypeFormula create(TypeBinding exprType, TypeBinding right, int relation) {
 		if (exprType == null || right == null)
 			return FALSE;
 		return new ConstraintTypeFormula(exprType, right, relation, false);
+	}
+
+	private static ConstraintTypeFormula createFromTypeArgument(TypeBinding left, TypeBinding right, int relation, boolean isSoft) {
+		ConstraintTypeFormula formula = create(left, right, relation, isSoft);
+		if (formula != FALSE)
+			formula.fromTypeArgument = true;
+		return formula;
 	}
 
 	public static ConstraintTypeFormula create(TypeBinding exprType, TypeBinding right, int relation, boolean isSoft) {
@@ -121,7 +136,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				} else {
 					// TODO: speculative addition:
 					//       see also note in BoundSet.combineSameSameWithProperType(..)
-					if (this.right instanceof InferenceVariable)
+					if (this.right instanceof InferenceVariable && !this.withinTypeArgument)
 						return new TypeBound((InferenceVariable) this.right, this.left, SAME, this.isSoft);
 					return FALSE;
 				}
@@ -131,14 +146,14 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					return TRUE;
 				if (t.boundKind == Wildcard.EXTENDS) {
 					if (this.left.kind() != Binding.WILDCARD_TYPE) {
-						return ConstraintTypeFormula.create(this.left, t.bound, SUBTYPE, this.isSoft);
+						return createFromTypeArgument(this.left, t.bound, SUBTYPE, this.isSoft);
 					} else {
 						WildcardBinding s = (WildcardBinding) this.left;
 						switch (s.boundKind) {
 							case Wildcard.UNBOUND:
-								return ConstraintTypeFormula.create(inferenceContext.object, t.bound, SUBTYPE, this.isSoft);
+								return ConstraintTypeFormula.create(implicitUpperBound(s, inferenceContext.object), t.bound, SUBTYPE, this.isSoft);
 							case Wildcard.EXTENDS:
-								return ConstraintTypeFormula.create(s.bound, t.bound, SUBTYPE, this.isSoft);
+								return createFromTypeArgument(s.bound, t.bound, SUBTYPE, this.isSoft);
 							case Wildcard.SUPER:
 								return ConstraintTypeFormula.create(inferenceContext.object, t.bound, SAME, this.isSoft);
 							default:
@@ -147,11 +162,11 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					}
 				} else { // SUPER
 					if (this.left.kind() != Binding.WILDCARD_TYPE) {
-						return ConstraintTypeFormula.create(t.bound, this.left, SUBTYPE, this.isSoft);
+						return createFromTypeArgument(t.bound, this.left, SUBTYPE, this.isSoft);
 					} else {
 						WildcardBinding s = (WildcardBinding) this.left;
 						if (s.boundKind == Wildcard.SUPER) {
-							return ConstraintTypeFormula.create(t.bound, s.bound, SUBTYPE, this.isSoft);
+							return createFromTypeArgument(t.bound, s.bound, SUBTYPE, this.isSoft);
 						} else {
 							return FALSE;
 						}
@@ -281,7 +296,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					List<ConstraintFormula> constraints = new ArrayList<>();
 					boolean isFirst = true;
 					while (superCandidate != null && superCandidate.kind() == Binding.PARAMETERIZED_TYPE && subCandidate != null)  {
-						if (!addConstraintsFromTypeParameters(subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
+						if (!addConstraintsFromTypeParameters(scope, subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
 							if (isFirst) return FALSE;
 						isFirst = false;
 						// travel to enclosing types to check if they have type parameters, too:
@@ -321,6 +336,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					return FALSE;
 				TypeBinding sPrime = sPrimeArray.elementsType();
 				if (!tPrime.isPrimitiveType() && !sPrime.isPrimitiveType()) {
+					if (this.fromTypeArgument) // the element type of a type argument is no type of a value either
+						return createFromTypeArgument(sPrime, tPrime, SUBTYPE, this.isSoft);
 					return ConstraintTypeFormula.create(sPrime, tPrime, SUBTYPE, this.isSoft);
 				}
 				return TypeBinding.equalsEquals(tPrime, sPrime) ? TRUE : FALSE; // same primitive type?
@@ -396,8 +413,10 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		return null;
 	}
 
-	boolean addConstraintsFromTypeParameters(TypeBinding subCandidate, ParameterizedTypeBinding ca, List<ConstraintFormula> constraints) {
+	boolean addConstraintsFromTypeParameters(Scope scope, TypeBinding subCandidate, ParameterizedTypeBinding ca, List<ConstraintFormula> constraints) {
 		TypeBinding cb = subCandidate.findSuperTypeOriginatingFrom(ca);	// C<B1,B2,...>
+		if (this.fromTypeArgument && cb != null)
+			cb = projectNewCaptures(scope, subCandidate, cb);
 		if (cb == null)
 			return false; // nothing here means we failed
 		if (TypeBinding.equalsEquals(ca, cb)) // incl C#RAW vs C#RAW
@@ -412,13 +431,57 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			return true; // no arguments here means nothing to check
 		if (cb.isRawType() || bi == null || bi.length == 0)
 			return (this.isSoft && InferenceContext18.SIMULATE_BUG_JDK_8026527) ? true : false; // FALSE would conform to the spec
-		for (int i = 0; i < ai.length; i++)
-			constraints.add(ConstraintTypeFormula.create(bi[i], ai[i], TYPE_ARGUMENT_CONTAINED, this.isSoft));
+		for (int i = 0; i < ai.length; i++) {
+			ConstraintTypeFormula contained = ConstraintTypeFormula.create(bi[i], ai[i], TYPE_ARGUMENT_CONTAINED, this.isSoft);
+			if (this.fromTypeArgument && contained != FALSE)
+				contained.withinTypeArgument = true;
+			constraints.add(contained);
+		}
 		return true;
+	}
+
+	/*
+	 * S is a type argument, hence no type of a value: a capture that was created to find its supertype must not show up
+	 * in the constraints, where it could become the instantiation of an inference variable. Project such captures away
+	 * (4.10.5), see https://mail.openjdk.org/pipermail/compiler-dev/2024-May/026579.html
+	 */
+	private static TypeBinding projectNewCaptures(Scope scope, TypeBinding subCandidate, TypeBinding superType) {
+		TypeVariableBinding[] mentioned = superType.syntheticTypeVariablesMentioned();
+		if (mentioned == null || mentioned.length == 0)
+			return superType;
+		TypeVariableBinding[] known = subCandidate.syntheticTypeVariablesMentioned();
+		List<TypeBinding> fresh = new ArrayList<>();
+		nextVariable: for (TypeVariableBinding variable : mentioned) {
+			if (TypeBinding.equalsEquals(variable, subCandidate))
+				continue;
+			if (known != null)
+				for (TypeVariableBinding other : known)
+					if (TypeBinding.equalsEquals(variable, other))
+						continue nextVariable;
+			fresh.add(variable);
+		}
+		if (fresh.isEmpty())
+			return superType;
+		TypeBinding projected = superType.upwardsProjection(scope, fresh.toArray(new TypeBinding[fresh.size()]));
+		return projected != null ? projected : superType;
+	}
+
+	// the bound of the type parameter that an unbounded wildcard stands for, if it is a proper type without type variables
+	private static TypeBinding implicitUpperBound(WildcardBinding wildcard, TypeBinding object) {
+		TypeVariableBinding variable = wildcard.typeVariable();
+		if (variable != null) {
+			TypeBinding bound = variable.upperBound();
+			if (bound != null && bound.isValidBinding() && variable.otherUpperBounds().length == 0
+					&& bound.isProperType(true) && bound.syntheticTypeVariablesMentioned().length == 0
+					&& (bound.tagBits & TagBits.HasTypeVariable) == 0)
+				return bound;
+		}
+		return object;
 	}
 
 	public boolean equalsEquals (ConstraintTypeFormula that) {
 		return (that != null && this.relation == that.relation && this.isSoft == that.isSoft &&
+					this.fromTypeArgument == that.fromTypeArgument && this.withinTypeArgument == that.withinTypeArgument &&
 					TypeBinding.equalsEquals(this.left, that.left) && TypeBinding.equalsEquals(this.right, that.right));
 	}
 
