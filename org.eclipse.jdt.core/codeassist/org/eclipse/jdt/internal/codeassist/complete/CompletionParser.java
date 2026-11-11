@@ -5530,15 +5530,11 @@ public class CompletionParser extends AssistParser {
 			keywords.add(Keywords.FINAL);
 			keywords.add(Keywords.CLASS);
 
-			keywords.add(Keywords.BREAK);
-			keywords.add(Keywords.CASE);
-			keywords.add(Keywords.YIELD);
-
 			if (kind == K_SWITCH_LABEL) {
 				//I need to add the specific cases for the switch label statement
 				if (topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) != DEFAULT) {
 					keywords.add(Keywords.DEFAULT);
-				}				
+				}
 				keywords.add(Keywords.CASE);
 				keywords.add(Keywords.YIELD);
 			}
