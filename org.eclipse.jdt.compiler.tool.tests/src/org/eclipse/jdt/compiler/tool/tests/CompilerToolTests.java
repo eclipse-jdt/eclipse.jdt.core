@@ -1636,6 +1636,73 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 	}
 
+	/**
+	 * A problem of no compilation unit (here a type that annotation processing needs and the class path misses) gives a
+	 * diagnostic without source: getSource() must return null, not throw a NullPointerException (Maven calls it for
+	 * every diagnostic, and the exception failed the build: HikariCP, Spring Data JPA).
+	 */
+	public void testDiagnosticWithoutSource() throws IOException {
+		Path directory = Files.createTempDirectory("diagnostic");
+		try {
+			Path libSource = directory.resolve("libsrc/lib");
+			Files.createDirectories(libSource);
+			Files.writeString(libSource.resolve("Base.java"), "package lib;\npublic class Base extends RuntimeException {}\n");
+			Files.writeString(libSource.resolve("Sub.java"), "package lib;\npublic class Sub extends Base {}\n");
+			Path lib = directory.resolve("lib");
+			Files.createDirectories(lib);
+			try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
+				assertTrue(compiler.getTask(ignoreOutput(), manager, null, List.of("-d", lib.toString()), null,
+						manager.getJavaFileObjects(libSource.resolve("Base.java").toFile(), libSource.resolve("Sub.java").toFile())).call());
+			}
+			Files.delete(lib.resolve("lib/Base.class")); // lib.Sub misses its superclass
+			Path source = directory.resolve("src/p/Y.java");
+			Files.createDirectories(source.getParent());
+			Files.writeString(source, "package p;\npublic class Y {\n\tvoid f() throws lib.Sub {}\n}\n");
+			javax.annotation.processing.Processor processor = new javax.annotation.processing.AbstractProcessor() {
+				@Override
+				public Set<String> getSupportedAnnotationTypes() {
+					return Set.of("*");
+				}
+				@Override
+				public SourceVersion getSupportedSourceVersion() {
+					return SourceVersion.latestSupported();
+				}
+				@Override
+				public boolean process(Set<? extends javax.lang.model.element.TypeElement> annotations,
+						javax.annotation.processing.RoundEnvironment roundEnv) {
+					for (javax.lang.model.element.Element type : roundEnv.getRootElements()) {
+						for (javax.lang.model.element.Element member : type.getEnclosedElements()) {
+							if (member instanceof javax.lang.model.element.ExecutableElement method) {
+								for (javax.lang.model.type.TypeMirror thrown : method.getThrownTypes()) {
+									this.processingEnv.getTypeUtils().directSupertypes(thrown);
+								}
+							}
+						}
+					}
+					return false;
+				}
+			};
+			List<String> withoutSource = new ArrayList<>();
+			DiagnosticListener<JavaFileObject> listener = diagnostic -> {
+				if (diagnostic.getSource() == null) {
+					withoutSource.add(diagnostic.getMessage(Locale.ROOT));
+				}
+			};
+			try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
+				CompilationTask task = compiler.getTask(ignoreOutput(), manager, listener,
+						List.of("-d", directory.resolve("bin").toString(), "-classpath", lib.toString()), null,
+						manager.getJavaFileObjects(source.toFile()));
+				task.setProcessors(List.of(processor));
+				task.call();
+			}
+			assertTrue(withoutSource.toString(), withoutSource.stream().anyMatch(message -> message.contains("lib.Base")));
+		} finally {
+			try (Stream<Path> paths = Files.walk(directory)) {
+				paths.sorted(Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
+			}
+		}
+	}
+
 	/*
 	 * Clean up the compiler
 	 */
