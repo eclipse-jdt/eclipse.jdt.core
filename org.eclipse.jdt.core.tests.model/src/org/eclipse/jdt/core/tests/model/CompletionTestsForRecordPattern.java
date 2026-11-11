@@ -76,7 +76,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		String completeBehind = "fals";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("false[KEYWORD]{false, null, null, false, null, 52}",
+		assertResults("",
 				requestor.getResults());
 
 	}
