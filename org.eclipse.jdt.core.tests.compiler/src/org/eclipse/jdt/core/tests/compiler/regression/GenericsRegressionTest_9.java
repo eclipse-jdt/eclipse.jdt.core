@@ -2775,6 +2775,11 @@ public void testIssue4866() {
 		----------
 		1. ERROR in X.java (at line 8)
 			s.m1(m2(String::toUpperCase, xyz -> "NODATA"));
+			     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Cannot infer type argument(s) for <T, K, U> m2(Function<? super T,? extends K>, Function<? super T,? extends U>)
+		----------
+		2. ERROR in X.java (at line 8)
+			s.m1(m2(String::toUpperCase, xyz -> "NODATA"));
 			        ^^^^^^^^^^^^^^^^^^^
 		The type String does not define toUpperCase(Object) that is applicable here
 		----------
@@ -2828,6 +2833,34 @@ public void testIssue4866_followup() {
 	"----------\n");
 }
 
+public void testIssue5705() {
+	runConformTest(new String[] {
+		"R.java",
+		"""
+		import java.util.Comparator;
+		import java.util.List;
+		import java.util.Map;
+		import java.util.Optional;
+
+		public class R {
+			void a(Optional<String> o) {
+				use(o.orElseThrow(AssertionError::new));
+			}
+			void b(List<Map.Entry<String, Integer>> l) {
+				l.sort(Comparator.<Map.Entry<String, Integer>>comparingInt(Map.Entry::getValue).reversed()
+						.thenComparing(Map.Entry::getKey));
+			}
+			interface FailableConsumer<T, E extends Throwable> { void accept(T t) throws E; }
+			interface FailableRunnable<E extends Throwable> { void run() throws E; }
+			static <E extends Throwable> String now(FailableRunnable<E> r) throws E { return null; }
+			static <E extends Throwable> void c(FailableConsumer<String, E> consumer) throws E {
+				use(now(() -> consumer.accept("")));
+			}
+			static void use(String s) { }
+		}
+		"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
