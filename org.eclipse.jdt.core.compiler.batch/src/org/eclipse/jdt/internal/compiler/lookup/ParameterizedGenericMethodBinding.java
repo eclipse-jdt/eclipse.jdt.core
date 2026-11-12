@@ -210,22 +210,20 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// Applicability succeeded, proceed to infer invocation type, if possible.
 			TypeBinding expectedType = invocationSite.invocationTargetType();
 			boolean hasReturnProblem = false;
-			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType()) {
+			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType() || !isPolyExpression) {
 				// ---- 18.5.2 (Invocation type): ----
 				provisionalResult = result;
 				if (InferenceContext18.DEBUG) {
 					System.out.println("Infer invocation type for "+invocationSite+ " with target " //$NON-NLS-1$ //$NON-NLS-2$
 							+(expectedType == null ? "<no type>" : expectedType.debugName())); //$NON-NLS-1$
 				}
-				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
+				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod, isPolyExpression);
 				if (InferenceContext18.DEBUG) {
 					System.out.println("Result=\n"+result); //$NON-NLS-1$
 				}
 				hasReturnProblem |= result == null;
 				if (hasReturnProblem)
 					result = provisionalResult; // let's prefer a type error regarding the return type over reporting no match at all
-			} else if (!isPolyExpression) {
-				infCtx18.stepCompleted = InferenceContext18.TYPE_INFERRED_FINAL;
 			}
 			if (result != null) {
 				// assemble the solution etc:
