@@ -996,14 +996,15 @@ public class EclipseCompilerImpl extends Main {
 		// + from Main: filenames, modNames
 		// + here: compilationUnits (see comment at declaration)
 		// I.e., instead of using filenames[idx] we use compilationUnits.get(idx):
+		// idx alone identifies the unit. Also requiring filename to be a suffix of
+		// getName() is wrong: a JavaFileObject may legally report a differently-formed
+		// path for the same file, which made this return null for a valid idx (#5302).
 		if (this.compilationUnits != null && idx < this.compilationUnits.size()) {
 			JavaFileObject javaFileObject = this.compilationUnits.get(idx);
-			if (filename.endsWith(javaFileObject.getName())) {
-				try {
-					return ClasspathJsr199.readCompilationUnit(javaFileObject, getDefaultEncoding());
-				} catch (IOException e) {
-					// nop
-				}
+			try {
+				return ClasspathJsr199.readCompilationUnit(javaFileObject, getDefaultEncoding());
+			} catch (IOException e) {
+				// nop
 			}
 		}
 		return null;
