@@ -4302,6 +4302,10 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			}
 			break;
 		case 'p' :
+			if (token.equals("potentiallyExpensiveTypeInference")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportPotentiallyExpensiveTypeInference, severity, isEnabling);
+				return;
+			}
 			if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
 				setSeverity(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, severity, isEnabling);
 				return;

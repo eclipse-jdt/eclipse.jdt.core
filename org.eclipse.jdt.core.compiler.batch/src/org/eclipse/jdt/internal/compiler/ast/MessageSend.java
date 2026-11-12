@@ -90,6 +90,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class MessageSend extends Expression implements IPolyExpression, Invocation {
 
+	private static final int EXPENSIVE_INFERENCE_ARGUMENT_THRESHOLD = 50;
+
 	public Expression receiver;
 	public char[] selector;
 	public Expression[] arguments;
@@ -147,6 +149,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 		}
+	}
+	if (this.arguments != null && this.arguments.length >= EXPENSIVE_INFERENCE_ARGUMENT_THRESHOLD
+			&& compilerOptions.isAnyEnabled(IrritantSet.EXPENSIVE_TYPE_INFERENCE)
+			&& hasPotentiallyExpensiveTypeInference()) {
+		currentScope.problemReporter().potentiallyExpensiveTypeInference(this);
 	}
 	if (compilerOptions.isAnyEnabled(IrritantSet.UNLIKELY_ARGUMENT_TYPE) && this.binding.isValidBinding()
 			&& this.arguments != null) {
@@ -1046,6 +1053,33 @@ public TypeBinding resolveType(BlockScope scope) {
 	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
 				? this.resolvedType
 				: null;
+}
+
+/**
+ * Check the resolved invocation in flow analysis, after overload selection and target typing.
+ * Only count arguments whose type inference depends on the variable arity parameter.
+ */
+private boolean hasPotentiallyExpensiveTypeInference() {
+	if (this.typeArguments != null || this.argumentsHaveErrors || this.resolvedType == null
+			|| !(this.binding instanceof ParameterizedGenericMethodBinding method)
+			|| !method.isValidBinding() || method.isRaw || !method.isVarargs()
+			|| (this.bits & ASTNode.Unchecked) != 0 || (method.tagBits & TagBits.HasMissingType) != 0) {
+		return false;
+	}
+	MethodBinding declaration = method.original();
+	int firstVararg = declaration.parameters.length - 1;
+	if (this.arguments.length - firstVararg < EXPENSIVE_INFERENCE_ARGUMENT_THRESHOLD
+			|| !declaration.parameters[firstVararg].mentionsAny(declaration.typeVariables(), -1)) {
+		return false;
+	}
+	int polyArguments = 0;
+	for (int i = firstVararg; i < this.arguments.length; i++) {
+		if (this.arguments[i] instanceof MessageSend inner && inner.binding != null && inner.binding.isValidBinding()
+				&& inner.isPolyExpression() && ++polyArguments == EXPENSIVE_INFERENCE_ARGUMENT_THRESHOLD) {
+			return true;
+		}
+	}
+	return false;
 }
 
 protected boolean isUnnecessaryReceiverCast(BlockScope scope, TypeBinding uncastedReceiverType) {

@@ -11269,4 +11269,53 @@ public void testBug508834_comment0() {
 			""");
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.ui/issues/3300
+	public void testPotentiallyExpensiveTypeInference() {
+		String item = "item(1)";
+		String fortyNine = (item + ", ").repeat(48) + item;
+		String fifty = fortyNine + ", " + item;
+		String source = """
+				class X {
+				    static <T> T item(T t) { return t; }
+				    @SafeVarargs static <T> void collect(T... ts) {}
+				    static <T> void independent(T first, Object... rest) {}
+				    @SafeVarargs static <T> void prefixed(T first, T... rest) {}
+				    static void test() {
+				        collect(
+				            %s);
+				        X.<Integer>collect(%s);
+				        collect(%s, 1);
+				        collect(%s, X.<Integer>item(1));
+				        independent(1, %s);
+				        prefixed(%s);
+				        collect(%s);
+				    }
+				    static <T> int size(T t) { return 1; }
+				    @SuppressWarnings("expensive-type-inference")
+				    static void suppressed() { collect(%s); }
+				}
+				""".formatted(fifty, fifty, fortyNine, fortyNine, fifty, fifty, fifty.replace("item", "size"), fifty);
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_POTENTIALLY_EXPENSIVE_TYPE_INFERENCE, CompilerOptions.WARNING);
+		runNegativeTest(new String[] { "X.java", source }, """
+				----------
+				1. WARNING in X.java (at line 7)
+					collect(
+					^^^^^^^
+				Type inference for this varargs invocation may slow compilation. Consider specifying explicit type arguments
+				----------
+				""", null, true, options);
+	}
+
+	public void testPotentiallyExpensiveTypeInferenceIgnoredByDefault() {
+		String arguments = "id(1), ".repeat(49) + "id(1)";
+		runConformTest(new String[] { "X.java", """
+				class X {
+				    static <T> T id(T value) { return value; }
+				    @SafeVarargs static <T> void take(T... values) {}
+				    void test() { take(%s); }
+				}
+				""".formatted(arguments) });
+	}
+
 }
