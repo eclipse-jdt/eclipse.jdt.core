@@ -751,8 +751,12 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.0
 	 */
 	void initCommentMapper(Scanner scanner) {
-		this.commentMapper = new DefaultCommentMapper(this.optionalCommentTable);
-		this.commentMapper.initialize(this, scanner);
+		// Lombok or some other project can generate an incorrect source position.(0, 0)
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4712
+		if (this.optionalCommentTable != null && this.optionalCommentTable.length > 0) {
+			this.commentMapper = new DefaultCommentMapper(this.optionalCommentTable);
+			this.commentMapper.initialize(this, scanner);
+		}
 	}
 
 	@Override
