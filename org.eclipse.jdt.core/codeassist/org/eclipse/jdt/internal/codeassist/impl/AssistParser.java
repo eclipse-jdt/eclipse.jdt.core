@@ -553,7 +553,8 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			this.elementPtr = i - 1;
 			lambdaClosed = true;
 		} else {
-			if (shouldCommit) {
+			// Expression-bodied lambdas in field initializers have no real block to snapshot.
+			if (shouldCommit && this.realBlockPtr >= 0) {
 				int stackLength = this.stack.length;
 				if (++this.stateStackTop >= stackLength) {
 					System.arraycopy(
