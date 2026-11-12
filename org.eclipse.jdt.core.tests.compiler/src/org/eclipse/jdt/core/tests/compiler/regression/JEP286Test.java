@@ -1489,4 +1489,20 @@ public void testIssue5202ArrayDownwardsProjection() {
 			"""
 		});
 }
+public void testGH5699() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			class A<E> {}
+			public class X {
+				static <T> A<? super T> m(T t) { return null; }
+				void foo(A<?> a) {
+					var v = m(a);
+					v = a;
+				}
+			}
+			"""
+		});
+}
 }
