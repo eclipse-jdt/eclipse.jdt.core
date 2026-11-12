@@ -2694,6 +2694,309 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		// javac does not support as many serializable lambdas in a class
 		this.runConformTest(true /* skipJavac */, null, new String[] { "X.java", source.toString() }, String.valueOf(2L * count + (long) count * (count - 1) / 2));
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5726
+	// $deserializeLambda$ captures the receiver with the type the invokedynamic uses: the parameter of the synthetic
+	// accessor for y::f and t::f from a nested class, super::f, X.super::f and I.super::m
+	public void testGH5726() {
+		this.runConformTest(
+			new String[] {
+				"impl/X.java",
+				"""
+				package impl;
+				import java.io.*;
+				import java.util.function.Function;
+				interface I { default String m(String s) { return "I" + s; } }
+				public class X extends lib.Sup implements I, Serializable {
+					@Override public String m(String s) { return "M" + s; }
+					static class Y extends X {}
+					interface F extends Function<String, String>, Serializable {}
+					static void print(F f) throws Exception {
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+							out.writeObject(f);
+						}
+						try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+							System.out.print(((F) in.readObject()).apply("."));
+						}
+					}
+					static class N {
+						void g(Y y) throws Exception {
+							print(y::f);
+						}
+						<T extends Y> void gt(T t) throws Exception {
+							print(t::f);
+						}
+					}
+					class Inner implements Serializable {
+						void h() throws Exception {
+							print(X.super::f);
+							print(X.this::f);
+						}
+					}
+					void g() throws Exception {
+						print(super::f);
+						print(I.super::m);
+						print(this::m);
+					}
+					public static void main(String[] args) throws Exception {
+						new N().g(new Y());
+						new N().gt(new Y() {});
+						new X().new Inner().h();
+						new X().g();
+					}
+				}
+				""",
+				"lib/Sup.java",
+				"""
+				package lib;
+				public abstract class Sup {
+					protected String f(String s) { return "f" + s; }
+				}
+				""",
+			},
+			"f.f.f.f.f.I.M.");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5713
+	// super::toString goes through a synthetic accessor of X, whose parameter is the captured receiver
+	public void testGH5713() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.io.*;
+				import java.util.function.Supplier;
+
+				public class X implements Serializable {
+					public static void main(String[] args) throws Exception {
+						ByteArrayOutputStream b = new ByteArrayOutputStream();
+						new ObjectOutputStream(b).writeObject(new X().get());
+						new ObjectInputStream(new ByteArrayInputStream(b.toByteArray())).readObject();
+						System.out.println("OK");
+					}
+					Object get() { return (Supplier<String> & Serializable) super::toString; }
+				}
+				""",
+			},
+			"OK");
+	}
+	// I.super::m in an interface: the accessor is a private instance method of J, the receiver is captured as a J
+	public void testGH5726_interfaceSuper() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.io.*;
+				import java.util.function.Function;
+				interface I { default String m(String s) { return "I" + s; } }
+				interface J extends I {
+					interface F extends Function<String, String>, Serializable {}
+					default F get() { return I.super::m; }
+				}
+				public class X implements J, Serializable {
+					public static void main(String[] args) throws Exception {
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+							out.writeObject(new X().get());
+						}
+						try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+							System.out.println(((J.F) in.readObject()).apply("."));
+						}
+					}
+				}
+				""",
+			},
+			"I.");
+	}
+	// the code of a finally block is generated once per exit: each copy captures the receiver with the accessor's type
+	public void testGH5726_finally() {
+		this.runConformTest(
+			new String[] {
+				"impl/X.java",
+				"""
+				package impl;
+				import java.io.*;
+				import java.util.function.Function;
+				public class X extends lib.Sup {
+					static class Y extends X implements Serializable {}
+					interface F extends Function<String, String>, Serializable {}
+					static void print(F f) throws Exception {
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+							out.writeObject(f);
+						}
+						try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+							System.out.print(((F) in.readObject()).apply("."));
+						}
+					}
+					static class N {
+						void g(Y y, boolean b) throws Exception {
+							try {
+								if (b) return;
+								System.out.print("-");
+							} finally {
+								Function<String, String> q = y::f;
+								System.out.print(q.apply("1"));
+								print(y::f);
+							}
+						}
+					}
+					public static void main(String[] args) throws Exception {
+						new N().g(new Y(), false);
+						new N().g(new Y(), true);
+					}
+				}
+				""",
+				"lib/Sup.java",
+				"""
+				package lib;
+				public abstract class Sup {
+					protected String f(String s) { return "f" + s; }
+				}
+				""",
+			},
+			"-f1f.f1f.");
+	}
+	// the same in an interface, where the accessor of I.super::m is an instance method
+	public void testGH5726_interfaceSuperInFinally() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.io.*;
+				import java.util.function.Function;
+				interface I { default String m(String s) { return "I" + s; } }
+				interface J extends I {
+					interface F extends Function<String, String>, Serializable {}
+					static void print(F f) throws Exception {
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+							out.writeObject(f);
+						}
+						try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+							System.out.print(((F) in.readObject()).apply("."));
+						}
+					}
+					default void g(boolean b) throws Exception {
+						try {
+							if (b) return;
+							System.out.print("-");
+						} finally {
+							Function<String, String> q = I.super::m;
+							System.out.print(q.apply("1"));
+							print(I.super::m);
+						}
+					}
+				}
+				public class X implements J, Serializable {
+					public static void main(String[] args) throws Exception {
+						new X().g(false);
+						new X().g(true);
+					}
+				}
+				""",
+			},
+			"-I1I.I1I.");
+	}
+	// a receiver of a type variable with two bounds, and the unbound Y::f, through the same accessor
+	public void testGH5726_intersectionAndUnbound() {
+		this.runConformTest(
+			new String[] {
+				"impl/X.java",
+				"""
+				package impl;
+				import java.io.*;
+				import java.util.function.BiFunction;
+				import java.util.function.Function;
+				public class X extends lib.Sup implements Serializable {
+					interface I { default void dummy() {} }
+					static class Y extends X implements I {}
+					interface F extends Function<String, String>, Serializable {}
+					interface B extends BiFunction<Y, String, String>, Serializable {}
+					@SuppressWarnings("unchecked")
+					static <T> T rt(T o) throws Exception {
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+							out.writeObject(o);
+						}
+						try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+							return (T) in.readObject();
+						}
+					}
+					static class N {
+						<T extends Y & I> void g(T t) throws Exception {
+							Function<String, String> f = t::f;
+							System.out.print(f.apply("1"));
+							System.out.print(rt((F) t::f).apply("2"));
+							BiFunction<Y, String, String> b = Y::f;
+							System.out.print(b.apply(t, "3"));
+							System.out.print(rt((B) Y::f).apply(t, "4"));
+						}
+					}
+					public static void main(String[] args) throws Exception {
+						new N().g(new Y());
+					}
+				}
+				""",
+				"lib/Sup.java",
+				"""
+				package lib;
+				public abstract class Sup {
+					protected String f(String s) { return "f" + s; }
+				}
+				""",
+			},
+			"f1f2f3f4");
+	}
+	// private methods of another class, also through a synthetic accessor: unchanged
+	public void testGH5726_private() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.io.*;
+				import java.util.function.Function;
+				public class X implements Serializable {
+					interface F extends Function<String, String>, Serializable {}
+					static void print(F f) throws Exception {
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+							out.writeObject(f);
+						}
+						try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+							System.out.print(((F) in.readObject()).apply("."));
+						}
+					}
+					private String p(String s) { return "p" + s; }
+					static class Sup implements Serializable { private String q(String s) { return "q" + s; } }
+					static class Sub extends Sup {
+						void g() throws Exception {
+							print(super::q);
+							Function<String, String> f = super::q;
+							System.out.print(f.apply("1"));
+						}
+					}
+					static class N {
+						void g(X x) throws Exception {
+							print(x::p);
+							Function<String, String> f = x::p;
+							System.out.print(f.apply("2"));
+						}
+					}
+					class Inner implements Serializable {
+						void g() throws Exception {
+							print(X.this::p);
+						}
+					}
+					public static void main(String[] args) throws Exception {
+						new Sub().g();
+						new N().g(new X());
+						new X().new Inner().g();
+					}
+				}
+				""",
+			},
+			"q.q1p.p2p.");
+	}
 	// ---
 
 	private void checkExpected(String expected, String actual) {
