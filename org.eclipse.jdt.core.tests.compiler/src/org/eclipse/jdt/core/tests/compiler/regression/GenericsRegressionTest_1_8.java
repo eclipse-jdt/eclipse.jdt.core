@@ -11269,4 +11269,207 @@ public void testBug508834_comment0() {
 			""");
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5724
+	// a method reference to a protected method of a superclass in another package is exact when the receiver gives
+	// access to it: this::m, super::m, another receiver of type X, a static method, an enclosing instance (also from a
+	// member class and an anonymous class), the unbound X::m; with it, the overload is chosen as javac does
+	public void testGH5724() {
+		runConformTest(
+			new String[] {
+				"impl/X.java",
+				"""
+				package impl;
+				import java.util.List;
+				import java.util.function.BiConsumer;
+				import java.util.function.Consumer;
+				import java.util.function.Function;
+				public class X extends lib.Sup {
+					interface TC<T> { void accept(T t) throws Exception; }
+					interface TC2<A, B> { void accept(A a, B b) throws Exception; }
+					static class Chain<T> {
+						final TC<T> c;
+						Chain(TC<T> c) { this.c = c; }
+						Consumer<T> sneaky() { return t -> { try { this.c.accept(t); } catch (Exception e) { throw new RuntimeException(e); } }; }
+					}
+					static class Chain2<A, B> {
+						final TC2<A, B> c;
+						Chain2(TC2<A, B> c) { this.c = c; }
+						BiConsumer<A, B> sneaky() { return (a, b) -> { try { this.c.accept(a, b); } catch (Exception e) { throw new RuntimeException(e); } }; }
+					}
+					static <T> Chain<T> wrap(TC<T> c) { return new Chain<>(c); }
+					static <A, B> Chain2<A, B> wrap2(TC2<A, B> c) { return new Chain2<>(c); }
+					class Inner {
+						void g(List<String> l) {
+							l.forEach(wrap(X.this::m).sneaky());
+							l.forEach(wrap(X::sm).sneaky());
+						}
+					}
+					static void foo(Function<String, String> fn) { System.out.print("F"); }
+					static void foo(Consumer<String> c) { System.out.print("C"); }
+					void run(List<String> l) {
+						l.forEach(wrap(this::m).sneaky());
+						l.forEach(wrap(lib.Sup::sm).sneaky());
+						l.forEach(wrap(super::m).sneaky());
+						X other = this;
+						l.forEach(wrap(other::m).sneaky());
+						new Object() { void x() { l.forEach(wrap(X.this::m).sneaky()); } }.x();
+						new Inner().g(l);
+						wrap2(X::m).sneaky().accept(this, "u");
+						foo(this::f);
+					}
+					public static void main(String[] args) {
+						new X().run(List.of("a"));
+					}
+				}
+				""",
+				"lib/Sup.java",
+				"""
+				package lib;
+				public abstract class Sup {
+					protected void m(String s) throws Exception { System.out.print(s); }
+					protected static void sm(String s) throws Exception { System.out.print(s.toUpperCase()); }
+					protected String f(String s) { return s; }
+				}
+				""",
+			},
+			"aAaaaaAuF");
+	}
+	// other receivers that give access to the protected method: a subclass of X, a type variable bounded by X, an
+	// enclosing instance from a nested member class and from a local class, this::m in a lambda; generic superclass
+	public void testGH5724_otherReceivers() {
+		runConformTest(
+			new String[] {
+				"impl/X.java",
+				"""
+				package impl;
+				import java.util.List;
+				import java.util.function.Consumer;
+				public class X extends lib.G<String> {
+					interface TC<T> { void accept(T t) throws Exception; }
+					static class Chain<T> {
+						final TC<T> c;
+						Chain(TC<T> c) { this.c = c; }
+						Consumer<T> sneaky() { return t -> { try { this.c.accept(t); } catch (Exception e) { throw new RuntimeException(e); } }; }
+					}
+					static <T> Chain<T> wrap(TC<T> c) { return new Chain<>(c); }
+					static class Sub extends X {}
+					class Inner {
+						class Inner2 {
+							void g(List<String> l) { l.forEach(wrap(X.this::m).sneaky()); }
+						}
+					}
+					<S extends X> void viaTypeVariable(S s, List<String> l) { l.forEach(wrap(s::m).sneaky()); }
+					void run(List<String> l) {
+						Sub sub = new Sub();
+						l.forEach(wrap(sub::m).sneaky());
+						viaTypeVariable(sub, l);
+						new Inner().new Inner2().g(l);
+						Runnable r = () -> l.forEach(wrap(this::m).sneaky());
+						r.run();
+						class Local { void g() { l.forEach(wrap(X.this::m).sneaky()); } }
+						new Local().g();
+					}
+					public static void main(String[] args) {
+						new X().run(List.of("b"));
+					}
+				}
+				""",
+				"lib/G.java",
+				"""
+				package lib;
+				public abstract class G<T> {
+					protected void m(T t) throws Exception { System.out.print(t); }
+				}
+				""",
+			},
+			"bbbbb");
+	}
+	// the superclass type does not give access to the protected method of another package (JLS 6.6.2.1): still an error
+	public void testGH5724_negSuperclassType() {
+		runNegativeTest(
+			new String[] {
+				"impl/X.java",
+				"""
+				package impl;
+				import java.util.function.BiConsumer;
+				public class X extends lib.Sup {
+					interface TC2<A, B> { void accept(A a, B b) throws Exception; }
+					static class Chain2<A, B> {
+						Chain2(TC2<A, B> c) {}
+						BiConsumer<A, B> sneaky() { return (a, b) -> {}; }
+					}
+					static <A, B> Chain2<A, B> wrap2(TC2<A, B> c) { return new Chain2<>(c); }
+					void run() {
+						BiConsumer<lib.Sup, String> b = wrap2(lib.Sup::m).sneaky();
+					}
+				}
+				""",
+				"lib/Sup.java",
+				"""
+				package lib;
+				public abstract class Sup {
+					protected void m(String s) throws Exception { System.out.print(s); }
+				}
+				""",
+			},
+			"""
+			----------
+			1. ERROR in impl\\X.java (at line 11)
+				BiConsumer<lib.Sup, String> b = wrap2(lib.Sup::m).sneaky();
+				                                ^^^^^
+			The method wrap2(X.TC2<A,B>) in the type X is not applicable for the arguments (lib.Sup::m)
+			----------
+			2. ERROR in impl\\X.java (at line 11)
+				BiConsumer<lib.Sup, String> b = wrap2(lib.Sup::m).sneaky();
+				                                      ^^^^^^^^^^
+			The type Sup does not define m(A, B) that is applicable here
+			----------
+			""");
+	}
+	// a sibling receiver does not give access to the protected method: still an error
+	public void testGH5724_negSiblingReceiver() {
+		runNegativeTest(
+			new String[] {
+				"lib/Sup.java",
+				"""
+				package lib;
+				public abstract class Sup {
+					protected void m(String s) throws Exception { System.out.print(s); }
+				}
+				""",
+				"impl/X.java",
+				"""
+				package impl;
+				import java.util.List;
+				import java.util.function.Consumer;
+				public class X extends lib.Sup {
+					interface TC<T> { void accept(T t) throws Exception; }
+					static class Chain<T> {
+						final TC<T> c;
+						Chain(TC<T> c) { this.c = c; }
+						Consumer<T> sneaky() { return t -> { try { this.c.accept(t); } catch (Exception e) { throw new RuntimeException(e); } }; }
+					}
+					static <T> Chain<T> wrap(TC<T> c) { return new Chain<>(c); }
+					void run(List<String> l, Other y) {
+						l.forEach(wrap(y::m).sneaky());
+					}
+				}
+				class Other extends lib.Sup {}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in impl\\X.java (at line 13)
+				l.forEach(wrap(y::m).sneaky());
+				          ^^^^
+			The method wrap(X.TC<T>) in the type X is not applicable for the arguments (y::m)
+			----------
+			2. ERROR in impl\\X.java (at line 13)
+				l.forEach(wrap(y::m).sneaky());
+				               ^^^^
+			The type Other does not define m(T) that is applicable here
+			----------
+			""");
+	}
+
 }
