@@ -1106,14 +1106,14 @@ public class Javadoc extends ASTNode {
 						}
 					}
 					if (typeReference instanceof JavadocQualifiedTypeReference && !scope.isDefinedInSameUnit(resolvedType)) {
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=222188
-						// partially qualified references from a different CU should be warned
+						// Package may be omitted when the reference starts at a top-level type
+						// name (e.g. {@link Map.Entry} with import java.util.Map). Matches the
+						// Documentation Comment Specification / standard doclet. Previously this
+						// was restricted to the same package only (bugs 221539, 222188).
 						char[][] typeRefName = ((JavadocQualifiedTypeReference) typeReference).getTypeName();
 						int skipLength = 0;
-						if (topLevelScope.getCurrentPackage() == resolvedType.getPackage()
-								&& typeRefName.length < computedCompoundName.length) {
-							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=221539: references can be partially qualified
-							// in same package and hence if the package name is not given, ignore package name check
+						if (typeRefName.length < computedCompoundName.length) {
+							// omit package segments; remaining name must match the type path
 							skipLength = resolvedType.fPackage.compoundName.length;
 						}
 						boolean valid = true;
