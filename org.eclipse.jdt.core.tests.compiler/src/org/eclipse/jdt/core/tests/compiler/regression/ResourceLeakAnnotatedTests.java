@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 GK Software SE.
+ * Copyright (c) 2024, 2026 GK Software SE.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1874,5 +1874,76 @@ public void testGH4899() {
 		},
 		"",
 		getCompilerOptions());
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5362
+// Explicit @Owning / @NotOwning take precedence over the unconstrained-generic exemption.
+public void testGH5362_owningPrecedence() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.IGNORE);
+	runLeakTestWithAnnotations(
+		new String[] {
+			"X.java",
+			"""
+			import java.io.FileInputStream;
+			import java.io.IOException;
+			import org.eclipse.jdt.annotation.NotOwning;
+			import org.eclipse.jdt.annotation.Owning;
+			public class X {
+				@Owning
+				static <T> T owning(T value) { return value; }
+				@NotOwning
+				static <T> T notOwning(T value) { return value; }
+				void discardOwning(FileInputStream in) {
+					owning(in);
+				}
+				void assignOwning(FileInputStream in) throws IOException {
+					FileInputStream out = owning(in);
+					out.toString();
+				}
+				void closeOwning(FileInputStream in) throws IOException {
+					FileInputStream out = owning(in);
+					out.close();
+				}
+				void discardNotOwning(FileInputStream in) {
+					notOwning(in);
+				}
+				void assignNotOwning(FileInputStream in) {
+					FileInputStream out = notOwning(in);
+					out.toString();
+				}
+				@Owning
+				static <T extends java.io.Closeable> T owningBounded() { return null; }
+				void discardOwningBounded() {
+					owningBounded();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 11)
+			owning(in);
+			^^^^^^^^^^
+		Resource leak: '<unassigned Closeable value>' is never closed
+		----------
+		2. ERROR in X.java (at line 14)
+			FileInputStream out = owning(in);
+			                ^^^
+		Resource leak: 'out' is never closed
+		----------
+		3. INFO in X.java (at line 18)
+			FileInputStream out = owning(in);
+			                ^^^
+		Resource 'out' should be managed by try-with-resource
+		----------
+		4. ERROR in X.java (at line 31)
+			owningBounded();
+			^^^^^^^^^^^^^^^
+		Resource leak: '<unassigned Closeable value>' is never closed
+		----------
+		""",
+		options);
 }
 }
