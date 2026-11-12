@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2025 IBM Corporation and others.
+ * Copyright (c) 2016, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6820,6 +6820,57 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(p1);
 		}
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5677
+	// the test code reads the class path, which also has a package of the module: this package is ignored (JEP 261)
+	public void testIssue5677_packageOfModuleOnTestClassPath() throws CoreException, IOException {
+		String outputDirectory = Util.getOutputDirectory();
+		String jarPath = outputDirectory + File.separator + "issue5677lib.jar";
+		try {
+			Util.createJar(new String[] {
+					"p/Foo.java",
+					"package p;\n" +
+					"public class Foo {}\n",
+					"t/Lib.java",
+					"package t;\n" +
+					"public class Lib {}\n"
+				},
+				jarPath,
+				"1.8");
+			IJavaProject project = createJava9Project("Issue5677", new String[] {"src"});
+			addClasspathEntry(project, JavaCore.newSourceEntry(new Path("/Issue5677/src-tests"), null, null, new Path("/Issue5677/bin-tests"), new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }));
+			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }, false));
+			createFolder("/Issue5677/src/p");
+			createFolder("/Issue5677/src-tests/p");
+			createFolder("/Issue5677/src-tests/q");
+			createFile("/Issue5677/src/module-info.java",
+					"module m {\n" +
+					"	exports p;\n" +
+					"}\n");
+			createFile("/Issue5677/src/p/A.java",
+					"package p;\n" +
+					"public class A {}\n");
+			createFile("/Issue5677/src-tests/p/ATest.java",
+					"package p;\n" +
+					"public class ATest extends t.Lib {\n" +
+					"	A a;\n" +
+					"}\n");
+			createFile("/Issue5677/src-tests/q/QTest.java",
+					"package q;\n" +
+					"import p.A;\n" +
+					"public class QTest {\n" +
+					"	A a;\n" +
+					"	p.A b;\n" +
+					"}\n");
+			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject("Issue5677");
+			new File(jarPath).delete();
+		}
+	}
+
 	// Bug 520713: allow test code to access code on the classpath
 	public void testWithTestAttributeAndTestDependencyOnClassPath() throws CoreException, IOException {
 		String outputDirectory = Util.getOutputDirectory();
