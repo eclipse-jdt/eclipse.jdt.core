@@ -39,6 +39,8 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -224,6 +226,81 @@ public class CompilerToolJava9Tests extends TestCase {
 			assertEquals(expected, systemModuleNames(manager));
 			assertTrue(listClasses(manager, manager.getLocationForModule(StandardLocation.SYSTEM_MODULES, "java.sql"), "java.sql")
 					.contains("java.sql.Connection"));
+		}
+	}
+	/**
+	 * A directory of the module path which is not a module is a directory of modules: only its packaged modules and its
+	 * exploded modules count, not its other files nor the content of its other directories. A file named like a module with
+	 * an extension, such as a service file of META-INF/services, is no automatic module which would hide the real module.
+	 * Packaged modules are recognized with a case-sensitive .jar or .jmod suffix, as javac.
+	 */
+	public void testModulePathDirectoryWithOtherFiles() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder, "modulePathDirectory");
+		Path module = root.resolve("m-bin");
+		compileModule(root, "m", module);
+		Path modules = root.resolve("mods");
+		compileModule(root, "n", modules.resolve("n"));
+		compileModule(root, "o", root.resolve("o-bin"));
+		jar(root.resolve("o-bin"), modules.resolve("o.jar"));
+		compileModule(root, "p", root.resolve("p-bin"));
+		jar(root.resolve("p-bin"), modules.resolve("group/p.jar"));
+		compileModule(root, "q", root.resolve("q-bin"));
+		jar(root.resolve("q-bin"), modules.resolve("q.zip"));
+		compileModule(root, "r", root.resolve("r-bin"));
+		jar(root.resolve("r-bin"), modules.resolve("r.JAR"));
+		Path other = root.resolve("other");
+		Files.createDirectories(other.resolve("META-INF/services"));
+		Files.writeString(other.resolve("META-INF/services/m.Foo"), "m.Foo\n");
+		Files.writeString(other.resolve("notes.txt"), "not a module");
+		// the other directory comes first, as target/classes of a Maven build whose module-info.class was deleted
+		String modulePath = other + File.pathSeparator + module + File.pathSeparator + modules;
+		for (int i = 0; i < 2; i++) {
+			assertEquals(this.compilers[i] + " with m, n and o", "", compileApp(i, root, modulePath, "m, n, o", "m.Foo m; n.Foo n; o.Foo o;"));
+			// a module of another directory of the directory of modules is not found
+			assertFalse(this.compilers[i] + " with p", compileApp(i, root, modulePath, "p", "p.Foo p;").isEmpty());
+			// a JAR file can have any name, but a directory of modules only exposes the .jar and .jmod files, as javac
+			assertFalse(this.compilers[i] + " with q", compileApp(i, root, modulePath, "q", "q.Foo q;").isEmpty());
+			assertFalse(this.compilers[i] + " with r", compileApp(i, root, modulePath, "r", "r.Foo r;").isEmpty());
+		}
+	}
+	private void compileModule(Path root, String name, Path output) throws IOException {
+		Path source = root.resolve(name + "-src");
+		Files.createDirectories(source.resolve(name));
+		Files.writeString(source.resolve("module-info.java"), "module " + name + " { exports " + name + "; }");
+		Files.writeString(source.resolve(name + "/Foo.java"), "package " + name + ";\npublic class Foo {}");
+		try (StandardJavaFileManager manager = this.compilers[0].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromPaths(
+					List.of(source.resolve("module-info.java"), source.resolve(name + "/Foo.java")));
+			assertTrue(this.compilers[0].getTask(null, manager, null, List.of("-d", output.toString()), null, units).call());
+		}
+	}
+	private static void jar(Path classes, Path jar) throws IOException {
+		Files.createDirectories(jar.getParent());
+		try (JarOutputStream out = new JarOutputStream(Files.newOutputStream(jar)); var files = Files.walk(classes)) {
+			for (Path file : (Iterable<Path>) files.filter(Files::isRegularFile)::iterator) {
+				out.putNextEntry(new JarEntry(classes.relativize(file).toString().replace(File.separatorChar, '/')));
+				out.write(Files.readAllBytes(file));
+				out.closeEntry();
+			}
+		}
+	}
+	/** @return the errors of the compilation of a module app which requires the given modules, empty if it compiles */
+	private String compileApp(int compiler, Path root, String modulePath, String requires, String fields) throws IOException {
+		Path source = root.resolve("app-src-" + compiler + "-" + requires.replaceAll("\\W", ""));
+		Files.createDirectories(source.resolve("app"));
+		String requiresClauses = String.join(" ", Arrays.stream(requires.split(", ")).map(name -> "requires " + name + ";").toList());
+		Files.writeString(source.resolve("module-info.java"), "module app { " + requiresClauses + " }");
+		Files.writeString(source.resolve("app/Main.java"), "package app;\npublic class Main { " + fields + " }");
+		try (StandardJavaFileManager manager = this.compilers[compiler].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+			Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromPaths(
+					List.of(source.resolve("module-info.java"), source.resolve("app/Main.java")));
+			List<String> options = List.of("--module-path", modulePath, "-d", source.resolve("bin").toString());
+			Boolean result = this.compilers[compiler].getTask(printWriter, manager, null, options, null, units).call();
+			printWriter.flush();
+			return result.booleanValue() ? "" : "failed: " + stringWriter;
 		}
 	}
 	private static Set<String> systemModuleNames(JavaFileManager manager) throws IOException {
