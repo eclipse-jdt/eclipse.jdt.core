@@ -35,12 +35,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaCompiler;
@@ -688,6 +695,157 @@ public class CompilerToolJava9Tests extends TestCase {
 		};
 		cons.accept(standardManager);
 		cons.accept(getFileManager(standardManager));
+	}
+	private static final String NEW_API = """
+			public class X {
+				java.util.HexFormat hexFormat;
+				javax.lang.model.util.Elements elements;
+				Object file = elements.getFileObjectOf(null);
+			}
+			""";
+	private static final String REMOVED_API = """
+			public class Y {
+				@SuppressWarnings("removal")
+				void m() {
+					int frames = new Thread().countStackFrames();
+					Object compiler = java.lang.Compiler.class;
+				}
+			}
+			""";
+	/*
+	 * --release with a standard file manager (GH 5660): the API of the JDK is the one of the release, as with javac. The
+	 * classes added after the release (HexFormat in 17, Elements.getFileObjectOf in 18) are missing, the ones removed
+	 * after the release (Thread.countStackFrames in 22, java.lang.Compiler in 21) are there.
+	 */
+	public void testOptionRelease7() throws IOException {
+		if (this.isJREBelow12) return;
+		JavaCompiler javac = this.compilers[0];
+		JavaCompiler ecj = this.compilers[1];
+		JavaCompiler[][] compilerAndFileManager = { { javac, javac }, { ecj, ecj }, { ecj, javac } };
+		for (JavaCompiler[] pair : compilerAndFileManager) {
+			try (StandardJavaFileManager manager = pair[1].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+				String name = pair[0].getClass().getSimpleName() + " with " + manager.getClass().getSimpleName();
+				assertEquals(name, Set.of("X.java:2", "X.java:4"), compileErrors(pair[0], manager, List.of("--release", "11"), "X.java", NEW_API));
+				assertEquals(name, Set.of(), compileErrors(pair[0], manager, List.of("--release", "11"), "Y.java", REMOVED_API));
+			}
+		}
+	}
+	/*
+	 * --release with a standard file manager in a modular compilation (GH 5660)
+	 */
+	public void testOptionRelease8() throws IOException {
+		if (this.isJREBelow12) return;
+		String moduleInfo = "module m { requires java.sql; }";
+		String newApi = """
+				package p;
+				public class X {
+					java.util.HexFormat hexFormat;
+					java.sql.Connection connection;
+				}
+				""";
+		for (JavaCompiler compiler : this.compilers) {
+			try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+				String name = compiler.getClass().getSimpleName();
+				assertEquals(name, Set.of("X.java:3"), compileErrors(compiler, manager, List.of("--release", "11"),
+						"module-info.java", moduleInfo, "p/X.java", newApi));
+				assertEquals(name, Set.of(), compileErrors(compiler, manager, List.of("--release", "11"),
+						"module-info.java", moduleInfo, "p/Y.java", "package p;\n" + REMOVED_API));
+			}
+		}
+	}
+	@SupportedAnnotationTypes("*")
+	public static class ReleaseApiProcessor extends AbstractProcessor {
+		final Map<String, Boolean> found = new TreeMap<>();
+		@Override
+		public SourceVersion getSupportedSourceVersion() {
+			return SourceVersion.latestSupported();
+		}
+		@Override
+		public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+			if (this.found.isEmpty()) {
+				for (String type : new String[] { "java.util.HexFormat", "java.lang.Compiler" }) {
+					this.found.put(type, this.processingEnv.getElementUtils().getTypeElement(type) != null);
+				}
+			}
+			return false;
+		}
+	}
+	/*
+	 * --release with a standard file manager (GH 5660): an annotation processor sees the API of the release, also when
+	 * PLATFORM_CLASS_PATH is set to the JDK
+	 */
+	public void testOptionRelease9() throws IOException {
+		if (this.isJREBelow12) return;
+		for (JavaCompiler compiler : this.compilers) {
+			for (boolean platformClassPath : new boolean[] { false, true }) {
+				try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+					if (platformClassPath) {
+						manager.setLocation(StandardLocation.PLATFORM_CLASS_PATH, List.of(new File(System.getProperty("java.home"))));
+					}
+					Path directory = Files.createTempDirectory(Paths.get(_tmpFolder), "release");
+					Path source = Files.writeString(directory.resolve("A.java"), "public class A {}");
+					ReleaseApiProcessor processor = new ReleaseApiProcessor();
+					CompilationTask task = compiler.getTask(new StringWriter(), manager, null,
+							List.of("-proc:only", "--release", "11", "-d", directory.toString()), null,
+							manager.getJavaFileObjectsFromFiles(List.of(source.toFile())));
+					task.setProcessors(List.of(processor));
+					task.call();
+					assertEquals(compiler.getClass().getSimpleName() + (platformClassPath ? " with PLATFORM_CLASS_PATH" : ""),
+							Map.of("java.lang.Compiler", true, "java.util.HexFormat", false), processor.found);
+				}
+			}
+		}
+	}
+	/*
+	 * --system replaces the system modules of the running JDK (GH 5660)
+	 */
+	public void testOptionSystem() throws IOException {
+		if (this.isJREBelow12) return;
+		File javaHome = new File(System.getProperty("java.home"));
+		try (StandardJavaFileManager manager = this.compilers[1].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			assertTrue(manager.handleOption("--system", List.of(javaHome.getPath()).iterator()));
+			List<File> location = new ArrayList<>();
+			manager.getLocation(StandardLocation.SYSTEM_MODULES).forEach(location::add);
+			assertEquals(List.of(javaHome), location);
+			// the file manager serves the modules of the new system
+			assertTrue(systemModuleNames(manager).contains("java.base"));
+			assertNotNull(manager.getJavaFileForInput(manager.getLocationForModule(StandardLocation.SYSTEM_MODULES, "java.base"),
+					"java.lang.Object", Kind.CLASS));
+		}
+		for (JavaCompiler compiler : this.compilers) {
+			try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+				assertEquals(compiler.getClass().getSimpleName(), Set.of("X.java:2", "X.java:4"),
+						compileErrors(compiler, manager, List.of("--system", javaHome.getPath(), "--release", "11"), "X.java", NEW_API));
+			}
+		}
+	}
+	/**
+	 * Compiles the given sources (pairs of relative path and content) into a new directory and answers the errors, as
+	 * "<file name>:<line>".
+	 */
+	private Set<String> compileErrors(JavaCompiler compiler, StandardJavaFileManager manager, List<String> extraOptions,
+			String... sources) throws IOException {
+		Path directory = Files.createTempDirectory(Paths.get(_tmpFolder), "release");
+		List<File> files = new ArrayList<>();
+		for (int i = 0; i < sources.length; i += 2) {
+			Path file = directory.resolve(sources[i]);
+			Files.createDirectories(file.getParent());
+			Files.writeString(file, sources[i + 1]);
+			files.add(file.toFile());
+		}
+		Path output = Files.createDirectories(directory.resolve("bin"));
+		List<String> options = new ArrayList<>(List.of("-d", output.toString()));
+		options.addAll(extraOptions);
+		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+		compiler.getTask(new StringWriter(), manager, diagnostics, options, null, manager.getJavaFileObjectsFromFiles(files)).call();
+		Set<String> errors = new TreeSet<>();
+		for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
+			if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+				errors.add((diagnostic.getSource() == null ? "-" : new File(diagnostic.getSource().getName()).getName())
+						+ ":" + diagnostic.getLineNumber());
+			}
+		}
+		return errors;
 	}
 	private char[] extractClassName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
 		// the entry at i has to be a field ref or a method/interface method ref.
