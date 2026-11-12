@@ -49,6 +49,7 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	boolean valueCompatible = false;
 	boolean returnsValue;
 	boolean returnsVoid;
+	private boolean loopConditionInBody; // set by analyzeShape(): the body has a while, do or for statement with a condition
+	private Boolean completesNormallyOnceResolved; // of the original, see bodyCompletesNormallyOnceResolved(TypeBinding)
+	private Set<TypeBinding> shapeCopyFailures; // of the original: the targets against which no copy could be resolved
 	public LambdaExpression original = this;
 	private boolean committed = false;
 	public SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
@@ -807,6 +811,21 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			public boolean visit(LambdaExpression type, BlockScope skope) {
 				return false;
 			}
+			@Override
+			public boolean visit(WhileStatement whileStatement, BlockScope skope) {
+				LambdaExpression.this.loopConditionInBody = true;
+				return true;
+			}
+			@Override
+			public boolean visit(DoStatement doStatement, BlockScope skope) {
+				LambdaExpression.this.loopConditionInBody = true;
+				return true;
+			}
+			@Override
+			public boolean visit(ForStatement forStatement, BlockScope skope) {
+				LambdaExpression.this.loopConditionInBody |= forStatement.condition != null;
+				return true;
+			}
 		    @Override
 			public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
 		    	if (returnStatement.expression != null) {
@@ -831,6 +850,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				this.voidCompatible = true;
 				this.valueCompatible = true;
 			}
+			this.loopConditionInBody = false;
 			this.body.traverse(new ShapeComputer(), null);
 			if (!this.returnsValue && !this.returnsVoid)
 				this.valueCompatible = this.body.doesNotCompleteNormally();
@@ -863,8 +883,45 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		} else {
 			if (!this.valueCompatible)
 				return false;
+			if (this.loopConditionInBody && !this.returnsValue && !this.assistNode && !this.committed && argumentsTypeElided()
+					&& bodyCompletesNormallyOnceResolved(targetType))
+				return false;
 		}
 		return true;
+	}
+
+	/* A block body without return statements is value-compatible iff it cannot complete normally (JLS 15.27.2, 14.22).
+	   For a while, do or for statement, that depends on whether its condition is a constant expression with value true,
+	   which is not known before resolution (see Statement.isConstantTrueCondition(Expression)). javac decides after a
+	   speculative attribution of the body and a flow analysis, once for all the targets, with erroneous parameter types
+	   (DeferredAttr.DeferredAttrNode.StructuralStuckChecker.canLambdaBodyCompleteNormally). This lambda decides once too,
+	   on a resolved copy of itself. Unlike javac, the copy has the parameter types of the given target, or of its raw type
+	   when its function type mentions inference variables: whether a condition is a constant expression does not depend on
+	   them, as a parameter is no constant variable. The copy goes into no cache: the copies of the targets stay those that
+	   type checking makes. A target against which no copy can be resolved is not tried again; another target may be.
+	*/
+	private boolean bodyCompletesNormallyOnceResolved(TypeBinding targetType) {
+		LambdaExpression lambda = this.original;
+		if (lambda.completesNormallyOnceResolved == null && this.enclosingScope != null) {
+			TypeBinding type = targetType.isProperType(true) ? targetType
+					: targetType instanceof ParameterizedTypeBinding ? this.enclosingScope.environment().convertToRawType(targetType.erasure(), false)
+					: null;
+			if (type == null || lambda.shapeCopyFailures != null && lambda.shapeCopyFailures.contains(type))
+				return false; // no copy for this target: the shape analysis stands
+			try {
+				LambdaExpression copy = resolvedCopy(type);
+				if (copy != null) {
+					lambda.completesNormallyOnceResolved = Boolean.valueOf(!copy.valueCompatible);
+				} else {
+					if (lambda.shapeCopyFailures == null)
+						lambda.shapeCopyFailures = new HashSet<>();
+					lambda.shapeCopyFailures.add(type);
+				}
+			} catch (CopyFailureException cfe) {
+				lambda.completesNormallyOnceResolved = Boolean.FALSE; // the text cannot be copied: the shape analysis stands
+			}
+		}
+		return Boolean.TRUE.equals(lambda.completesNormallyOnceResolved);
 	}
 
 	private enum CompatibilityResult { COMPATIBLE, INCOMPATIBLE, REPORTED }
@@ -974,24 +1031,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
 			if (copy == null) {
-				copy = copy();
+				copy = resolvedCopy(targetType);
 				if (copy == null)
-					throw new CopyFailureException();
-				if (InferenceContext18.DEBUG) {
-					System.out.println("Copy lambda "+this+" for target "+targetType.debugName()); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-
-				copy.setExpressionContext(this.expressionContext);
-				copy.setExpectedType(targetType);
-				MethodScope outerMostMethodScope = this.enclosingScope.outerMostMethodScope();
-				int analysisIndex = outerMostMethodScope.analysisIndex;
-				TypeBinding type;
-				try {
-					type = copy.resolveType(this.enclosingScope, true);
-				} finally {
-					outerMostMethodScope.analysisIndex = analysisIndex;
-				}
-				if (type == null || !type.isValidBinding())
 					return null;
 
 				targetType = copy.expectedType; // possibly updated local types
@@ -1002,6 +1043,34 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if (copy.thrownExceptions == null)
 				copy.analyzeExceptions();
 			return copy;
+		} finally {
+			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+		}
+	}
+
+	/** A copy of this lambda, resolved against the given target without reporting its problems: null when the copy has
+	 * significant errors. */
+	private LambdaExpression resolvedCopy(TypeBinding targetType) {
+		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+		try {
+			LambdaExpression copy = copy();
+			if (copy == null)
+				throw new CopyFailureException();
+			if (InferenceContext18.DEBUG) {
+				System.out.println("Copy lambda "+this+" for target "+targetType.debugName()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			copy.setExpressionContext(this.expressionContext);
+			copy.setExpectedType(targetType);
+			MethodScope outerMostMethodScope = this.enclosingScope.outerMostMethodScope();
+			int analysisIndex = outerMostMethodScope.analysisIndex;
+			TypeBinding type;
+			try {
+				type = copy.resolveType(this.enclosingScope, true);
+			} finally {
+				outerMostMethodScope.analysisIndex = analysisIndex;
+			}
+			return type == null || !type.isValidBinding() ? null : copy;
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}

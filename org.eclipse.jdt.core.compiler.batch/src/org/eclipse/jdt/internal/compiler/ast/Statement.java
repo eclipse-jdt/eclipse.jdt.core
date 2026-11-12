@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
@@ -92,6 +93,20 @@ public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowCo
 */
 public boolean doesNotCompleteNormally() {
 	return false;
+}
+
+/** Whether the condition of a while, do or for statement keeps the loop running for ever (JLS 14.22): it is a constant expression
+    with value true, or there is no condition (for (;;)). This is not the constant that code generation optimizes:
+    x == 0 || true is no constant expression. doesNotCompleteNormally() of these statements uses it, hence the lambda shape
+    analysis, the scope of the pattern variables after an if statement (JLS 6.3.2.2) and the fall-through of switch cases.
+    The constant of a condition that is not resolved yet is not known: this answers true then, and
+    LambdaExpression.isPotentiallyCompatibleWith(TypeBinding, Scope) decides on a resolved copy of the lambda.
+*/
+static boolean isConstantTrueCondition(Expression condition) {
+	if (condition == null)
+		return true;
+	Constant cst = condition.constant;
+	return cst == null || cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_boolean && cst.booleanValue();
 }
 
 /** Lambda shape analysis: *Assuming* this is reachable, analyze if this completes by continuing i.e control flow cannot reach the textually next statement.

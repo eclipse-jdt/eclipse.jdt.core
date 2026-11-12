@@ -4638,6 +4638,45 @@ public void testBug548318_030() {
 			null,
 			true);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+// a while statement completes normally unless its condition is a constant expression with value true (JLS 14.22):
+// x == 0 || true is no constant expression, so the next case may be entered by falling through
+public void testIssue5730() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
+	runNegativeTest(
+		true /* flush output directory */,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    static void m(int k, int x) {\n" +
+			"        switch (k) {\n" +
+			"            case 0:\n" +
+			"                while (true) { }\n" +
+			"            case 1:\n" +
+			"                break;\n" +
+			"        }\n" +
+			"    }\n" +
+			"    static void n(int k, int x) {\n" +
+			"        switch (k) {\n" +
+			"            case 0:\n" +
+			"                while (x == 0 || true) { }\n" +
+			"            case 1:\n" +
+			"                break;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" +
+		"1. ERROR in X.java (at line 14)\n" +
+		"	case 1:\n" +
+		"	^^^^^^\n" +
+		"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }

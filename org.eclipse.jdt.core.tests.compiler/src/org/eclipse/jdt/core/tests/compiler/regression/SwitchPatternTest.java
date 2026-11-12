@@ -12115,4 +12115,42 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				""");
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+	// the statement before a case pattern can complete normally (JLS 14.11.1): x == 0 || true is no constant expression
+	public void testIssue5730() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static void m(Object o, int x) {
+								switch (o) {
+									case String s:
+										while (true) { }
+									case Integer i:
+										break;
+									default:
+										break;
+								}
+							}
+							static void n(Object o, int x) {
+								switch (o) {
+									case String s:
+										while (x == 0 || true) { }
+									case Integer i:
+										break;
+									default:
+										break;
+								}
+							}
+						}
+						""",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 16)\n" +
+				"	case Integer i:\n" +
+				"	^^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern\n" +
+				"----------\n");
+	}
 }
