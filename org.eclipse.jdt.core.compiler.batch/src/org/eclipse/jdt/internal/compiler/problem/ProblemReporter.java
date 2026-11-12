@@ -637,6 +637,8 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.UnlikelyCollectionMethodArgumentType:
 			return CompilerOptions.UnlikelyCollectionMethodArgumentType;
+		case IProblem.PotentiallyExpensiveTypeInference:
+			return CompilerOptions.PotentiallyExpensiveTypeInference;
 		case IProblem.UnlikelyEqualsArgumentType:
 			return CompilerOptions.UnlikelyEqualsArgumentType;
 
@@ -713,6 +715,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables :
 			case CompilerOptions.NonNullTypeVariableFromLegacyInvocation :
 			case CompilerOptions.UnlikelyCollectionMethodArgumentType :
+			case CompilerOptions.PotentiallyExpensiveTypeInference:
 			case CompilerOptions.UnlikelyEqualsArgumentType:
 			case CompilerOptions.APILeak:
 			case CompilerOptions.UnstableAutoModuleName:
@@ -2373,6 +2376,9 @@ public void enumSwitchCannotTargetField(Reference reference, FieldBinding field)
 			new String[]{ String.valueOf(field.declaringClass.shortReadableName()), String.valueOf(field.name) },
 			nodeSourceStart(field, reference),
 			nodeSourceEnd(field, reference));
+}
+public void potentiallyExpensiveTypeInference(MessageSend invocation) {
+	this.handle(IProblem.PotentiallyExpensiveTypeInference, NoArgument, NoArgument, invocation.nameSourceStart(), invocation.nameSourceEnd());
 }
 public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params) {
 	StringBuilder buffer = new StringBuilder();
