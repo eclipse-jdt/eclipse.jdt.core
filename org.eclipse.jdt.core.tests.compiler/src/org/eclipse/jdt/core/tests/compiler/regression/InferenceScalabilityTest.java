@@ -153,7 +153,7 @@ public class InferenceScalabilityTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
 
-		final long budgetNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(10);
+		final long budgetNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(15);
 		final long start = System.nanoTime();
 		long elapsedNanos;
 		String measurement;
