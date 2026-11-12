@@ -1069,17 +1069,34 @@ private boolean hasPotentiallyExpensiveTypeInference() {
 	MethodBinding declaration = method.original();
 	int firstVararg = declaration.parameters.length - 1;
 	if (this.arguments.length - firstVararg < EXPENSIVE_INFERENCE_ARGUMENT_THRESHOLD
-			|| !declaration.parameters[firstVararg].mentionsAny(declaration.typeVariables(), -1)) {
+			|| !mentionsMethodTypeParameter(declaration.parameters[firstVararg], declaration)) {
 		return false;
 	}
 	int polyArguments = 0;
 	for (int i = firstVararg; i < this.arguments.length; i++) {
-		if (this.arguments[i] instanceof MessageSend inner && inner.binding != null && inner.binding.isValidBinding()
-				&& inner.isPolyExpression() && ++polyArguments == EXPENSIVE_INFERENCE_ARGUMENT_THRESHOLD) {
+		if (this.arguments[i] instanceof MessageSend inner
+				&& inner.binding instanceof ParameterizedGenericMethodBinding innerMethod && innerMethod.isValidBinding()
+				&& !innerMethod.isRaw && inner.isPolyExpression()
+				&& ++polyArguments == EXPENSIVE_INFERENCE_ARGUMENT_THRESHOLD) {
 			return true;
 		}
 	}
 	return false;
+}
+
+private static boolean mentionsMethodTypeParameter(TypeBinding type, MethodBinding method) {
+	// Include arguments of enclosing member types, even inside arrays and wildcard bounds.
+	class FindTypeParameter extends TypeBindingVisitor {
+		boolean found;
+		@Override
+		public boolean visit(TypeVariableBinding variable) {
+			this.found |= variable.declaringElement == method;
+			return false;
+		}
+	}
+	FindTypeParameter finder = new FindTypeParameter();
+	TypeBindingVisitor.visit(finder, type);
+	return finder.found;
 }
 
 protected boolean isUnnecessaryReceiverCast(BlockScope scope, TypeBinding uncastedReceiverType) {

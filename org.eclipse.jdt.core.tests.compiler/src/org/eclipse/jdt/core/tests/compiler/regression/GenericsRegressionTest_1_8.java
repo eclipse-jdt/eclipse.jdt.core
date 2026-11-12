@@ -11307,6 +11307,38 @@ public void testBug508834_comment0() {
 				""", null, true, options);
 	}
 
+	public void testPotentiallyExpensiveTypeInferenceMemberAndRawTypes() {
+		String source = """
+				import java.util.List;
+				class X {
+				    static class Box<A> {
+				        class Cell {}
+				        <R> R get() { return null; }
+				    }
+				    static <T> T id(T value) { return value; }
+				    @SafeVarargs static <T> void collect(T... values) {}
+				    @SafeVarargs static <T> void nested(List<? extends Box<T>.Cell[]>... values) {}
+				    static void test(Box raw, List<Box<String>.Cell[]> cells) {
+				        collect(
+				            %s);
+				        nested(
+				            %s);
+				    }
+				}
+				""".formatted("raw.get(), ".repeat(49) + "raw.get()", "id(cells), ".repeat(49) + "id(cells)");
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+		options.put(JavaCore.COMPILER_PB_POTENTIALLY_EXPENSIVE_TYPE_INFERENCE, CompilerOptions.WARNING);
+		runNegativeTest(new String[] { "X.java", source }, """
+				----------
+				1. WARNING in X.java (at line 13)
+					nested(
+					^^^^^^
+				Type inference for this varargs invocation may slow compilation. Consider specifying explicit type arguments
+				----------
+				""", null, true, options);
+	}
+
 	public void testPotentiallyExpensiveTypeInferenceIgnoredByDefault() {
 		String arguments = "id(1), ".repeat(49) + "id(1)";
 		runConformTest(new String[] { "X.java", """

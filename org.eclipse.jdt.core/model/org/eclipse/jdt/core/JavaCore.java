@@ -1707,7 +1707,9 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting Potentially Expensive Type Inference.
 	 * <p>When enabled, the compiler reports generic variable arity method invocations
-	 * whose variable arity arguments include at least 50 poly method invocations.
+	 * where the variable arity parameter mentions a type parameter of the method
+	 * and at least 50 variable arity arguments are poly method invocations.
+	 * The warning applies when the outer method type arguments are inferred.
 	 * Specifying explicit method type arguments can reduce compilation time.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentiallyExpensiveTypeInference"</code></dd>
