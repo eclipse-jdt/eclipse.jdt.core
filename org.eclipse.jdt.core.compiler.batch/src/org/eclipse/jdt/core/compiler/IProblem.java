@@ -2919,6 +2919,6 @@ void setSourceStart(int sourceStart);
 	 */
 	int SwitchExpressionsYieldMissingDefaultCaseWithPatterns = Syntax + 2107;
 
-	/** @since 3.48 */
+	/** @since 3.47 */
 	int PotentiallyExpensiveTypeInference = MethodRelated + 2108;
 }
