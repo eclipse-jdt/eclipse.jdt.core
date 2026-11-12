@@ -19,9 +19,15 @@ import org.eclipse.core.runtime.CoreException;
 
 class ClassServiceFactory implements IServiceFactory {
 	private final Class<?> _clazz;
+	private final boolean _aggregating;
 
 	public ClassServiceFactory(Class<?> clazz) {
+		this(clazz, false);
+	}
+
+	public ClassServiceFactory(Class<?> clazz, boolean aggregating) {
 		_clazz = clazz;
+		_aggregating = aggregating;
 	}
 
 	@Override
@@ -32,6 +38,10 @@ class ClassServiceFactory implements IServiceFactory {
 			throw new CoreException(AptPlugin.createWarningStatus(e,
 					"Unable to create instance of annotation processor " + _clazz.getName())); //$NON-NLS-1$
 		} 
+	}
+
+	public boolean isAggregating() {
+		return _aggregating;
 	}
 
 	@Override
