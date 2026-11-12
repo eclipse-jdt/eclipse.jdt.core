@@ -2316,16 +2316,8 @@ public void testGH4731() {
 			}
 			"""
 		};
-	runner.expectedCompilerLog = """
-			----------
-			1. ERROR in TestWildcard.java (at line 9)
-				return TestWildcard.concat(_parts).iterator();
-				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-			Type mismatch: cannot convert from Iterator<capture#2-of ? extends Runnable> to Iterator<Runnable>
-			----------
-			""";
-	runner.javacTestOptions = JavacHasABug.JavacBug8016207;
-	runner.runNegativeTest();
+	// T is not inferred as a capture of the nested wildcard, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5703
+	runner.runConformTest();
 }
 public void testGH4937() {
 	runConformTest(new String[] {

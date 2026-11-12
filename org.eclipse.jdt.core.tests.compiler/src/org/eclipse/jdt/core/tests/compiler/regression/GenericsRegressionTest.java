@@ -42,7 +42,6 @@ import java.io.File;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -7026,8 +7025,27 @@ public void testGH4314b() {
 			}
 			"""
 		};
-	runner.javacTestOptions = JavacHasABug.JavacBug8016196;
-	runner.runConformTest();
+	// C<B<?>> is no C<? extends C<U>> for any U, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5703
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in Test.java (at line 5)\n" +
+			"	m(\n" +
+			"				_ -> new A<>(c),\n" +
+			"				b -> b.intValue());\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Cannot infer type argument(s) for <T, R> m(Function<Test.B<Number>,Test.A<T>>, Function<T,R>)\n" +
+			"----------\n" +
+			"2. ERROR in Test.java (at line 6)\n" +
+			"	_ -> new A<>(c),\n" +
+			"	     ^^^^^^^^^^\n" +
+			"Cannot infer type arguments for A<>\n" +
+			"----------\n" +
+			"3. ERROR in Test.java (at line 7)\n" +
+			"	b -> b.intValue());\n" +
+			"	       ^^^^^^^^\n" +
+			"The method intValue() is undefined for the type Object\n" +
+			"----------\n";
+	runner.runNegativeTest();
 }
 public void testGH4314c() {
 	if (this.complianceLevel < ClassFileConstants.JDK22)
@@ -7239,5 +7257,124 @@ public void testGHIssue5394() {
 			"""
 	});
 }
-}
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5703
+// a wildcard nested in a type argument stands for a different type in each element
+public void testGH5703() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"T.java",
+			"""
+			import java.util.ArrayList;
+			import java.util.List;
+			public class T {
+				static class B<X> { X x; }
+				static class C<X> extends B<X> { C(X x) { this.x = x; } }
+				static <Z> void m(List<? extends B<Z>> a) { a.get(0).x = a.get(1).x; }
+				public static void main(String[] args) {
+					C<String> s = new C<>("s");
+					List<C<?>> l = new ArrayList<>();
+					l.add(s);
+					l.add(new C<>(1));
+					m(l);
+					String str = s.x;
+					System.out.print(str);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in T.java (at line 12)\n" +
+			"	m(l);\n" +
+			"	^\n" +
+			"The method m(List<? extends T.B<Z>>) in the type T is not applicable for the arguments (List<T.C<?>>)\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+// the example of https://mail.openjdk.org/pipermail/compiler-dev/2025-October/031866.html
+public void testGH5703b() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"T.java",
+			"""
+			public class T {
+				static class A<X> { }
+				static class B<X> { }
+				static class C<X> extends B<X> { }
+				static <Z> void m(A<? extends B<Z>> a) { }
+				void t(A<C<?>> a, A<C<String>> ok, A<? extends C<String>> ok2) {
+					m(ok);
+					m(ok2);
+					m(a);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in T.java (at line 9)\n" +
+			"	m(a);\n" +
+			"	^\n" +
+			"The method m(T.A<? extends T.B<Z>>) in the type T is not applicable for the arguments (T.A<T.C<?>>)\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+// what must still be accepted
+public void testGH5703c() {
+	runConformTest(new String[] {
+			"T.java",
+			"""
+			import java.util.List;
+			public class T {
+				static class B<X> { X x; }
+				static class C<X> extends B<X> { }
+				static class N<X extends Number> extends B<X> { }
+				static <Z> void m(List<? extends B<Z>> a) { }
+				static <Z> Z m2(List<? extends B<? extends Z>> a) { return a.get(0).x; }
+				static <Z> void m3(List<? super C<Z>> a) { }
+				static <Z> void m4(B<Z> b) { }
+				void ok(List<C<String>> l1, List<? extends C<String>> l2, List<C<?>> l3, List<N<?>> l4,
+						List<B<? super String>> l5, List<B<String>> l6, C<?> c) {
+					m(l1);
+					m(l2);
+					Object o = m2(l3);
+					Number n = m2(l4);
+					m2(l5);
+					m3(l6);
+					m4(c);
+					m4(l3.get(0));
+				}
+			}
+			"""
+		},
+		"");
+}
+// the same through an array type
+public void testGH5703d() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"T.java",
+			"""
+			import java.util.List;
+			public class T {
+				static class B<X> { X x; }
+				static class C<X> extends B<X> { }
+				static <Z> void m1(List<? extends B<Z>[]> a) { }
+				void t(List<C<?>[]> l1, List<C<String>[]> ok1) {
+					m1(ok1);
+					m1(l1);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in T.java (at line 8)\n" +
+			"	m1(l1);\n" +
+			"	^^\n" +
+			"The method m1(List<? extends T.B<Z>[]>) in the type T is not applicable for the arguments (List<T.C<?>[]>)\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+}
