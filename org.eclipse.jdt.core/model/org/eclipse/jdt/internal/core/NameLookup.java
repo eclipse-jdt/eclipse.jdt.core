@@ -1134,6 +1134,53 @@ public class NameLookup implements SuffixConstants {
 		return this.packageFragments.get(pkgName) != null;
 	}
 
+	/**
+	 * Returns whether the package, or one of its sub-packages, holds a type (JLS 7.4.3).
+	 * Every folder of a source folder or of a class folder is a package fragment, even a folder
+	 * that only holds resources: such a package is not observable, like in the builder.
+	 * The package fragments of archives are assumed to hold types (the builder does the same).
+	 */
+	public boolean isObservablePackage(String[] pkgName) {
+		Object[][] keys = this.packageFragments.keyTable;
+		for (int i = 0, length = keys.length; i < length; i++) {
+			String[] name = (String[]) keys[i];
+			if (name == null || !isSameOrSubPackage(name, pkgName))
+				continue;
+			Object value = this.packageFragments.valueTable[i];
+			IPackageFragmentRoot[] roots = value instanceof PackageFragmentRoot root
+					? new IPackageFragmentRoot[] { root }
+					: (IPackageFragmentRoot[]) value;
+			for (IPackageFragmentRoot root : roots) {
+				if (holdsTypes(root, name))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean isSameOrSubPackage(String[] name, String[] pkgName) {
+		if (name.length < pkgName.length)
+			return false;
+		for (int i = 0; i < pkgName.length; i++) {
+			if (!name[i].equals(pkgName[i]))
+				return false;
+		}
+		return true;
+	}
+
+	private boolean holdsTypes(IPackageFragmentRoot root, String[] pkgName) {
+		try {
+			if (root.isArchive() || !(root instanceof PackageFragmentRoot folderRoot))
+				return true;
+			PackageFragment fragment = folderRoot.getPackageFragment(pkgName);
+			if (this.typesInWorkingCopies != null && this.typesInWorkingCopies.containsKey(fragment))
+				return true;
+			return fragment.containsJavaResources();
+		} catch (JavaModelException e) {
+			return true; // cannot tell: keep the package
+		}
+	}
+
 	public boolean isPackage(String[] pkgName, IPackageFragmentRoot[] moduleContext) {
 		if (moduleContext == null) // includes the case where looking for module UNNAMED or ANY
 			return isPackage(pkgName);
