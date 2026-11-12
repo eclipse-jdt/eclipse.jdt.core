@@ -5897,16 +5897,18 @@ public void test401939b() {
 				"		goo((x) -> { while (BLANK) throw new Exception(); });\n" +
 				"	}\n" +
 				"}\n",			},
+				// the bodies with a loop complete normally (FALSE, POI: constant expressions with value false, BLANK: no
+				// constant variable): they are not value-compatible, and goo(I) is not applicable (#5730)
 				"----------\n" +
 				"1. ERROR in X.java (at line 14)\n" +
 				"	goo((x) -> { while (FALSE) throw new Exception(); });\n" +
-				"	    ^^^^^^\n" +
-				"This lambda expression must return a result of type String\n" +
+				"	^^^\n" +
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 17)\n" +
 				"	goo((x) -> { while (POI) throw new Exception(); });\n" +
-				"	    ^^^^^^\n" +
-				"This lambda expression must return a result of type String\n" +
+				"	^^^\n" +
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 19)\n" +
 				"	goo((x) -> { if (TRUE) throw new Exception(); });\n" +
@@ -5915,8 +5917,8 @@ public void test401939b() {
 				"----------\n" +
 				"4. ERROR in X.java (at line 22)\n" +
 				"	goo((x) -> { while (BLANK) throw new Exception(); });\n" +
-				"	    ^^^^^^\n" +
-				"This lambda expression must return a result of type String\n" +
+				"	^^^\n" +
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .

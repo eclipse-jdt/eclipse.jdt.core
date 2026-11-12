@@ -568,11 +568,13 @@ public void test016() {
 			"	}\n" +
 			"}\n"
 		},
+		// the body completes normally (FALSE is a constant expression with value false): it is not value-compatible and
+		// goo(I) is not applicable, as for any other block body that completes normally (#5730)
 		"----------\n" +
 		"1. ERROR in X.java (at line 8)\n" +
 		"	goo((x) -> {while (FALSE) throw new Exception();});\n" +
-		"	    ^^^^^^\n" +
-		"This lambda expression must return a result of type String\n" +
+		"	^^^\n" +
+		"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" +
 		"----------\n");
 }
 public void test017() {
@@ -974,11 +976,13 @@ public void test029() {
 			"	}\n" +
 			"}\n"
 		},
+		// the body completes normally (FALSE is a constant expression with value false): it is not value-compatible and
+		// goo(I) is not applicable, as for any other block body that completes normally (#5730)
 		"----------\n" +
 		"1. ERROR in X.java (at line 8)\n" +
 		"	goo((x) -> {\n" +
-		"	    ^^^^^^\n" +
-		"This lambda expression must return a result of type String\n" +
+		"	^^^\n" +
+		"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" +
 		"----------\n");
 }
 public void test030() {
@@ -3280,6 +3284,186 @@ public void testBug470232_For() {
 			"    }\n" +
 			"}\n"
 		});
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+// Implicitly typed block lambda ending with a while/for loop is taken as value-compatible: false "ambiguous" error
+public void testIssue5730() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface V { void run(int x); }\n" +
+			"interface R { Object get(int x); }\n" +
+			"public class X {\n" +
+			"    static boolean b;\n" +
+			"    static final boolean K = true;\n" +
+			"    static void ex(V v) { System.out.print(\"V\"); }\n" +
+			"    static void ex(R r) { System.out.print(\"R\"); }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        ex(x -> { while (x > 0) { } });\n" +
+			"        ex(x -> { for (int i = 0; i < x; i++) { } });\n" +
+			"        ex(x -> { for (; b; ) { } });\n" +
+			"        ex(x -> { do { } while (x > 0); });\n" +
+			"        ex(x -> { do { } while (false); });\n" +
+			"        ex(x -> { while (x == 0 || K) { } });\n" +
+			"        ex((int x) -> { while (x == 0 || K) { } });\n" +
+			"        ex(x -> { if (b) { while (b) { } } else throw new RuntimeException(); });\n" +
+			"        ex(x -> { try { while (b) { } } finally { } });\n" +
+			"        ex(x -> { synchronized (X.class) { while (b) { } } });\n" +
+			"        ex(x -> { boolean t = true; while (t) { } });\n" +
+			"        ex(x -> { while (x > 0) { throw new RuntimeException(); } });\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"VVVVVVVVVVVV");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+// a loop whose condition is a constant expression with value true does not complete normally: the lambda is also value-compatible
+public void testIssue5730_constantCondition() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface V { void run(int x); }\n" +
+			"interface R { Object get(int x); }\n" +
+			"public class X {\n" +
+			"    static final boolean K = true;\n" +
+			"    static void ex(V v) { }\n" +
+			"    static void ex(R r) { }\n" +
+			"    static void m() {\n" +
+			"        ex(x -> { while (true) { } });\n" +
+			"        ex(x -> { for (;;) { } });\n" +
+			"        ex(x -> { while (K) { } });\n" +
+			"        ex(x -> { final boolean t = true; while (t) { } });\n" +
+			"        ex(x -> { do { } while (1 < 2); });\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	ex(x -> { while (true) { } });\n" +
+		"	^^\n" +
+		"The method ex(V) is ambiguous for the type X\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	ex(x -> { for (;;) { } });\n" +
+		"	^^\n" +
+		"The method ex(V) is ambiguous for the type X\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 10)\n" +
+		"	ex(x -> { while (K) { } });\n" +
+		"	^^\n" +
+		"The method ex(V) is ambiguous for the type X\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 11)\n" +
+		"	ex(x -> { final boolean t = true; while (t) { } });\n" +
+		"	^^\n" +
+		"The method ex(V) is ambiguous for the type X\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 12)\n" +
+		"	ex(x -> { do { } while (1 < 2); });\n" +
+		"	^^\n" +
+		"The method ex(V) is ambiguous for the type X\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+// a body that completes normally is not value-compatible: the method is not applicable
+public void testIssue5730_valueTarget() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface R { Object get(int x); }\n" +
+			"public class X {\n" +
+			"    static void ex(R r) { }\n" +
+			"    static void m() {\n" +
+			"        ex(x -> { while (x > 0) { } });\n" +
+			"        ex(x -> { while (true) { } });\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	ex(x -> { while (x > 0) { } });\n" +
+		"	^^\n" +
+		"The method ex(R) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+// a loop condition that is not a boolean: no internal error (ShouldNotImplement from Constant.booleanValue())
+public void testIssue5730_nonBooleanCondition() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface V { void run(int x); }\n" +
+			"interface R { Object get(int x); }\n" +
+			"public class X {\n" +
+			"    static void ex(V v) { }\n" +
+			"    static void ex(R r) { }\n" +
+			"    static void m() {\n" +
+			"        R r = (int x) -> { while (1) { } };\n" +
+			"        ex(x -> { do { } while (\"s\"); });\n" +
+			"        ex(x -> { for (; x; ) { } });\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	R r = (int x) -> { while (1) { } };\n" +
+		"	                          ^\n" +
+		"Type mismatch: cannot convert from int to boolean\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	ex(x -> { do { } while (\"s\"); });\n" +
+		"	                        ^^^\n" +
+		"Type mismatch: cannot convert from String to boolean\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	ex(x -> { for (; x; ) { } });\n" +
+		"	                 ^\n" +
+		"Type mismatch: cannot convert from int to boolean\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+// the case of Apache ActiveMQ (KahaDBStore): generic methods, an iterator loop
+public void testIssue5730_genericMethods() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.util.Iterator;\n" +
+			"interface Closure<T extends Throwable> { void execute(X tx) throws T; }\n" +
+			"interface CallableClosure<R, T extends Throwable> { R execute(X tx) throws T; }\n" +
+			"public class X {\n" +
+			"    <T extends Throwable> void execute(Closure<T> closure) throws T { System.out.print(\"Closure\"); }\n" +
+			"    <R, T extends Throwable> R execute(CallableClosure<R, T> closure) throws T { System.out.print(\"CallableClosure\"); return null; }\n" +
+			"    Iterator<String> iterator(X tx) throws IOException { return java.util.Collections.emptyIterator(); }\n" +
+			"    public static void main(String[] args) throws IOException {\n" +
+			"        X x = new X();\n" +
+			"        x.execute(tx -> {\n" +
+			"            for (Iterator<String> it = x.iterator(tx); it.hasNext();) {\n" +
+			"                it.next();\n" +
+			"            }\n" +
+			"        });\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"Closure");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+// the parameter types of the function types are inference variables during the applicability inference
+public void testIssue5730_inferredParameterTypes() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"    static <T> void ex(Consumer<T> c) { System.out.print(\"Consumer\"); }\n" +
+			"    static <T, U> U ex(Function<T, U> f) { System.out.print(\"Function\"); return null; }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        ex(x -> { while (x != null) { } });\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"Consumer");
 }
 public static Class testClass() {
 	return LambdaShapeTests.class;

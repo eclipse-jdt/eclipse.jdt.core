@@ -5041,4 +5041,41 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5730
+	// s is in scope after the if statement only when its then statement cannot complete normally (JLS 6.3.2.2), and a
+	// while statement that runs for ever needs a condition that is a constant expression with value true (JLS 14.22):
+	// x == 0 || true is no constant expression
+	public void testIssue5730() {
+		Map<String, String> options = getCompilerOptions(false);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static void m(Object o, int x) {
+								if (!(o instanceof String s)) {
+									while (true) { }
+								}
+								s.length();
+							}
+							static void n(Object o, int x) {
+								if (!(o instanceof String s)) {
+									while (x == 0 || true) { }
+								}
+								s.length();
+							}
+						}
+						""",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	s.length();\n" +
+				"	^\n" +
+				"s cannot be resolved\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
 }
