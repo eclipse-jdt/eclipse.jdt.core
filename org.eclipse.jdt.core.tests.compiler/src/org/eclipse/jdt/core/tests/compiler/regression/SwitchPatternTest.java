@@ -9970,7 +9970,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5081
-	// NPE in IGenerateTypeCheck.generateTypeCheck with record patterns in switch expression inside lambda
+	// NPE in TypePattern.generateTypeCheck with record patterns in switch expression inside lambda
 	public void testIssue5081() {
 		if (this.complianceLevel < ClassFileConstants.JDK22)
 			return;
@@ -10015,7 +10015,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5081
-	// NPE in IGenerateTypeCheck.generateTypeCheck with record patterns in switch expression inside lambda
+	// NPE in TypePattern.generateTypeCheck with record patterns in switch expression inside lambda
 	public void testIssue5081_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK22)
 			return;
