@@ -195,8 +195,17 @@ public class BatchFilerImpl implements Filer {
 	public FileObject getResource(Location location, CharSequence pkg,
 			CharSequence relativeName) throws IOException {
 		validateName(relativeName);
-		FileObject fo = this._fileManager.getFileForInput(
-				location, pkg.toString(), relativeName.toString());
+		FileObject fo;
+		if (location.isOutputLocation()) {
+			if (location == StandardLocation.SOURCE_OUTPUT && !this._fileManager.hasLocation(location)) {
+				location = StandardLocation.CLASS_OUTPUT;
+			}
+			fo = this._fileManager.hasLocation(location)
+					? this._fileManager.getFileForOutput(location, pkg.toString(), relativeName.toString(), null)
+					: null;
+		} else {
+			fo = this._fileManager.getFileForInput(location, pkg.toString(), relativeName.toString());
+		}
 		if (fo == null) {
 			throw new FileNotFoundException("Resource does not exist : " + location + '/' + pkg + '/' + relativeName); //$NON-NLS-1$
 		}

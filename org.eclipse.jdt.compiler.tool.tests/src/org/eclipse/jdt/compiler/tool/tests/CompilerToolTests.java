@@ -1636,6 +1636,107 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 	}
 
+	/**
+	 * Filer.getResource gives what javac gives: for a file that does not exist, a file object in an output location
+	 * (the JBoss Logging processor reads its translations from CLASS_OUTPUT this way) and a FileNotFoundException in an
+	 * input location, also in one that has no path (SOURCE_PATH without -sourcepath), not an IllegalArgumentException.
+	 */
+	public void testFilerGetResourceOfAMissingFile() throws IOException {
+		// with -s, and without it: the generated sources then go to the class output
+		for (boolean sourceOutput : new boolean[] { true, false }) {
+			Map<StandardLocation, String> eclipse = getResourceOfAMissingFile(compiler, true, sourceOutput);
+			assertEquals("file object", eclipse.get(StandardLocation.CLASS_OUTPUT));
+			assertEquals("file object", eclipse.get(StandardLocation.SOURCE_OUTPUT));
+			assertEquals("FileNotFoundException", eclipse.get(StandardLocation.SOURCE_PATH));
+			assertEquals("FileNotFoundException", eclipse.get(StandardLocation.CLASS_PATH));
+			JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
+			if (systemCompiler != null) {
+				assertEquals("-s " + sourceOutput, getResourceOfAMissingFile(systemCompiler, true, sourceOutput), eclipse);
+			}
+		}
+	}
+
+	/**
+	 * Without any output directory (neither -d nor -s), Filer.getResource throws a FileNotFoundException for the output
+	 * locations, which processors expect. This differs from javac on purpose: javac resolves the file against the
+	 * current directory.
+	 */
+	public void testFilerGetResourceWithoutOutputDirectory() throws IOException {
+		Map<StandardLocation, String> eclipse = getResourceOfAMissingFile(compiler, false, false);
+		assertEquals("FileNotFoundException", eclipse.get(StandardLocation.CLASS_OUTPUT));
+		assertEquals("FileNotFoundException", eclipse.get(StandardLocation.SOURCE_OUTPUT));
+	}
+
+	private Map<StandardLocation, String> getResourceOfAMissingFile(JavaCompiler javaCompiler, boolean classOutput,
+			boolean sourceOutput) throws IOException {
+		Path directory = Files.createTempDirectory("filer");
+		try {
+			Path source = directory.resolve("src/p/X.java");
+			Files.createDirectories(source.getParent());
+			Files.writeString(source, "package p;\npublic class X {}\n");
+			Files.createDirectories(directory.resolve("bin"));
+			Files.createDirectories(directory.resolve("gen"));
+			Map<StandardLocation, String> results = new HashMap<>();
+			javax.annotation.processing.Processor processor = new javax.annotation.processing.AbstractProcessor() {
+				@Override
+				public Set<String> getSupportedAnnotationTypes() {
+					return Set.of("*");
+				}
+				@Override
+				public SourceVersion getSupportedSourceVersion() {
+					return SourceVersion.latestSupported();
+				}
+				@Override
+				public boolean process(Set<? extends javax.lang.model.element.TypeElement> annotations,
+						javax.annotation.processing.RoundEnvironment roundEnv) {
+					if (!results.isEmpty()) {
+						return false;
+					}
+					for (StandardLocation location : new StandardLocation[] { StandardLocation.CLASS_OUTPUT,
+							StandardLocation.SOURCE_OUTPUT, StandardLocation.SOURCE_PATH, StandardLocation.CLASS_PATH }) {
+						try {
+							this.processingEnv.getFiler().getResource(location, "", "missing.txt");
+							results.put(location, "file object");
+						} catch (IOException | RuntimeException e) {
+							results.put(location, e.getClass().getSimpleName());
+						}
+					}
+					return false;
+				}
+			};
+			try (StandardJavaFileManager manager = javaCompiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
+				List<String> options = new ArrayList<>(List.of("-classpath", directory.resolve("bin").toString()));
+				if (classOutput) {
+					options.addAll(List.of("-d", directory.resolve("bin").toString()));
+				}
+				if (sourceOutput) {
+					options.addAll(List.of("-s", directory.resolve("gen").toString()));
+				}
+				CompilationTask task = javaCompiler.getTask(ignoreOutput(), manager, null, options, null,
+						manager.getJavaFileObjects(source.toFile()));
+				task.setProcessors(List.of(processor));
+				assertTrue("compilation failed", task.call());
+			}
+			return results;
+		} finally {
+			try (Stream<Path> paths = Files.walk(directory)) {
+				paths.sorted(Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
+			}
+		}
+	}
+
+	/**
+	 * A location that has no path has no file, as with javac's file manager.
+	 */
+	public void testFileForInputOfALocationWithoutPath() throws IOException {
+		try (EclipseFileManager manager = new EclipseFileManager(null, null)) {
+			assertNull(manager.getLocation(StandardLocation.SOURCE_PATH));
+			assertNull(manager.getFileForInput(StandardLocation.SOURCE_PATH, "p", "missing.txt"));
+			assertNull(manager.getJavaFileForInput(StandardLocation.SOURCE_PATH, "p.Missing", Kind.SOURCE));
+		}
+
+	}
+
 	/*
 	 * Clean up the compiler
 	 */
