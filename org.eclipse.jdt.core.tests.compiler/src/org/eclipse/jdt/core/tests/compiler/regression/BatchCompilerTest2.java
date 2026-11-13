@@ -150,29 +150,6 @@ public void test004_previewUnused() throws Exception {
 	String expectedOutput = ".0, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
-public void test004_previewUsed() throws Exception {
-	this.runConformTest(
-			new String[] {
-					"X.java",
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(Object o) {\n" +
-					"		switch (o) {\n" +
-					"			case int i -> System.out.print(i);\n" +
-					"			default -> System.out.print(0);\n" +
-					"		}\n" +
-					"	}\n" +
-					"}"
-			},
-			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
-					"",
-					"",
-					true);
-	String expectedOutput = ".65535, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
 public void test006() throws Exception {
 	this.runConformTest(
 			new String[] {

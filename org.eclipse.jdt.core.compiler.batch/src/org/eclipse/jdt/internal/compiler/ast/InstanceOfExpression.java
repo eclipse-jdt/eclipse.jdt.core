@@ -266,7 +266,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
 		} else {
 			if (expressionType != TypeBinding.NULL) {
-				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, true);
+				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, false);
 				if (!isLegal || (this.bits & ASTNode.UnsafeCast) != 0) {
 					scope.problemReporter().unsafeCastInTestingContext(this.expression, checkedType, expressionType);
 				}
