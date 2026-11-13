@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class TypePattern extends Pattern implements IGenerateTypeCheck {
+public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
 
@@ -76,7 +76,6 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
-		generateTestingConversion(currentScope, codeStream);
 		if (isUnnamed()) {
 			if (this.getEnclosingPattern() == null || this.isTotalTypeNode) {
 				switch (this.local.binding.type.id) {
@@ -91,9 +90,7 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 		} else {
 
 			if (!this.isTotalTypeNode) {
-				boolean checkCast = TypeBinding.notEquals(this.local.binding.type, this.outerExpressionType) &&
-											(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(currentScope.compilerOptions()) ? !this.local.binding.type.isBaseType() : true);
-				if (checkCast)
+				if (TypeBinding.notEquals(this.local.binding.type, this.outerExpressionType))
 					codeStream.checkcast(this.local.binding.type);
 			}
 			this.local.generateCode(currentScope, codeStream);
@@ -101,88 +98,24 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 	}
 
 	public void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
-		generateTypeCheck(this.outerExpressionType, getType(), scope, codeStream,
-				findPrimitiveConversionRoute(this.resolvedType, this.accessorMethod.returnType, scope));
-	}
-
-	@Override
-	public void setPatternIsTotalType() {
-		this.isTotalTypeNode = true;
-	}
-
-	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
-		TypeBinding provided = this.outerExpressionType;
-		TypeBinding expected = this.resolvedType;
-		PrimitiveConversionRoute route = findPrimitiveConversionRoute(expected, provided, scope);
-		switch (route) {
-			case IDENTITY_CONVERSION:
-				// Do nothing
-				break;
-			case WIDENING_PRIMITIVE_CONVERSION:
-			case NARROWING_PRIMITVE_CONVERSION:
-			case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
-				this.computeConversion(scope, expected, provided);
-				codeStream.generateImplicitConversion(this.implicitConversion);
-				break;
-			case BOXING_CONVERSION:
-			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION: // widening needs no conversion :)
-				codeStream.generateBoxingConversion(provided.id);
-				break;
-			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
-				codeStream.generateUnboxingConversion(expected.id);
-				break;
-			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
-				int rhsUnboxed = TypeIds.box2primitive(provided.superclass().id);
-				codeStream.generateUnboxingConversion(rhsUnboxed);
-				this.computeConversion(scope, expected, TypeBinding.wellKnownBaseType(rhsUnboxed));
-				codeStream.generateImplicitConversion(this.implicitConversion);
-				break;
-			case NARROWING_AND_UNBOXING_CONVERSION:
-				TypeBinding boxType = scope.environment().computeBoxingType(expected);
-				codeStream.checkcast(boxType);
-				codeStream.generateUnboxingConversion(expected.id);
-				break;
-			case UNBOXING_CONVERSION:
-				codeStream.generateUnboxingConversion(expected.id);
-				break;
-			case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
-				this.computeConversion(scope, expected, provided);
-				codeStream.generateImplicitConversion(this.implicitConversion);
-				break;
-			case NO_CONVERSION_ROUTE:
-			default:
-				break;
+		TypeReference expectedTypeRef = getType();
+		if (isUnnamed() && expectedTypeRef == null) { // for a type elided unnamed pattern, there is no need for a type check.
+			codeStream.pop(this.outerExpressionType);
+			codeStream.iconst_1();
+		} else {
+			codeStream.instance_of(expectedTypeRef, expectedTypeRef.resolvedType);
 		}
 	}
 
 	@Override
 	public boolean isUnconditional(TypeBinding t, Scope scope) {
 		// §14.30.3: A type pattern that declares a pattern variable of a type S is unconditional for a type T
-		// 			 if there is a testing conversion that is unconditionally exact (5.7.2) from |T| to |S|.
-		// §5.7.2 lists:
-		// * an identity conversion
-		// * an exact widening primitive conversion
-		// * a widening reference conversion
-		// * a boxing conversion
-		// * a boxing conversion followed by a widening reference conversion
+		// 			 if the erasure of T is a subtype of the erasure of S.
 		if (TypeBinding.equalsEquals(t, this.resolvedType))
 			return true;
-		PrimitiveConversionRoute route = findPrimitiveConversionRoute(this.resolvedType, t, scope);
-		return switch(route) {
-			case IDENTITY_CONVERSION,
-				BOXING_CONVERSION,
-				BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION
-				-> true;
-			case WIDENING_PRIMITIVE_CONVERSION -> BaseTypeBinding.isExactWidening(this.resolvedType.id, t.id);
-			case NO_CONVERSION_ROUTE -> { // a widening reference conversion?
-				if (!this.resolvedType.isPrimitiveOrBoxedPrimitiveType() || !t.isPrimitiveOrBoxedPrimitiveType()) {
-					yield t.isCompatibleWith(this.resolvedType);
-				} else {
-					yield false;
-				}
-			}
-			default -> false;
-		};
+		if (!this.resolvedType.isPrimitiveOrBoxedPrimitiveType() || !t.isPrimitiveOrBoxedPrimitiveType())
+			return t.isCompatibleWith(this.resolvedType);
+		return false;
 	}
 
 	@Override
@@ -193,9 +126,6 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			return false;
 
 		if (p.resolvedType.isSubtypeOf(this.resolvedType, false))
-			return true;
-
-		if (this.getEnclosingPattern() == null && isUnconditional(this.outerExpressionType, scope))
 			return true;
 
 		return p.resolvedType.erasure().findSuperTypeOriginatingFrom(this.resolvedType.erasure()) != null;

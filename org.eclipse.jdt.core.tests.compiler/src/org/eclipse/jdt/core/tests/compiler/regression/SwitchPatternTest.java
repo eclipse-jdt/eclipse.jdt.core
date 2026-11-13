@@ -9970,7 +9970,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5081
-	// NPE in IGenerateTypeCheck.generateTypeCheck with record patterns in switch expression inside lambda
+	// NPE in TypePattern.generateTypeCheck with record patterns in switch expression inside lambda
 	public void testIssue5081() {
 		if (this.complianceLevel < ClassFileConstants.JDK22)
 			return;
@@ -10015,7 +10015,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5081
-	// NPE in IGenerateTypeCheck.generateTypeCheck with record patterns in switch expression inside lambda
+	// NPE in TypePattern.generateTypeCheck with record patterns in switch expression inside lambda
 	public void testIssue5081_2() {
 		if (this.complianceLevel < ClassFileConstants.JDK22)
 			return;
@@ -12113,6 +12113,39 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				A switch expression should have a default case
 				----------
 				""");
+	}
+
+	// An unconditional top-level type pattern must not dominate a subsequent pattern of an
+	// unrelated type (that rule belonged to the withdrawn Primitive Types in Patterns feature).
+	public void testUnconditionalPatternDoesNotDominateUnrelatedType() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface A {}
+				interface B {}
+				public class X {
+					static String foo(A a) {
+						return switch (a) {
+							case A x -> "A";
+							case B y -> "B";
+						};
+					}
+					static void bar(A a) {
+						switch (a) {
+							case A x -> System.out.print("A");
+							case B y -> System.out.print("B");
+						}
+					}
+					public static void main(String[] args) {
+						class C implements A, B {}
+						System.out.print(foo(new C()));
+						bar(new C());
+					}
+				}
+				"""
+			},
+			"AA");
 	}
 
 }

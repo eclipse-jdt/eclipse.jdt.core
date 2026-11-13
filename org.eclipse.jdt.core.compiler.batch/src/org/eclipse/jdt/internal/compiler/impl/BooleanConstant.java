@@ -15,9 +15,6 @@ package org.eclipse.jdt.internal.compiler.impl;
 
 public class BooleanConstant extends Constant {
 
-	public static final char[] TRUE_STRING = "TRUE".toCharArray(); //$NON-NLS-1$
-	public static final char[] FALSE_STRING = "FALSE".toCharArray(); //$NON-NLS-1$
-
 	private final boolean value;
 
 	private static final BooleanConstant TRUE = new BooleanConstant(true);
