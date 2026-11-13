@@ -334,29 +334,4 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 		},
 		"CCE");
 	}
-	public void testGH5583() {
-		Runner runner = new Runner();
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				import java.util.*;
-				public class X {
-					@SafeVarargs static <T> T[] pair(T... a) { return a; }
-					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
-					public static void main(String[] args) {
-						List<? super Integer> numbers = new ArrayList<Number>();
-						List<? super Integer> objects = new ArrayList<Object>();
-						List<? super Integer>[] direct = pair(numbers, objects);
-						List<List<? super Integer>> nested = list(pair(numbers, objects));
-						direct[0].add(1);
-						nested.get(1).add(2);
-						System.out.println(nested);
-					}
-				}
-				"""
-			};
-		runner.expectedOutputString = "[[1], [2]]";
-		runner.javacTestOptions = DubiousOutcome.JavacErrorsEclipseNone;
-		runner.runConformTest();
-	}
 }

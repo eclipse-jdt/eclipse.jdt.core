@@ -142,6 +142,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						}
 						// b2 has been lifted, inferring poly invocation type amounts to lifting b3.
 					}
+					BoundSet innerB2 = innerCtx != null ? innerCtx.b2 : inferenceContext.currentBounds;
+					inferenceContext.recordEquivalentVariables(innerB2, invocation, method, this.right);
+					inferenceContext.recordVariablesSolvedFromLowerBounds(innerB2, invocation, method);
 					if (!inferenceContext.computeB3(invocation, this.right, method, false))
 						return FALSE;
 					return null; // already incorporated

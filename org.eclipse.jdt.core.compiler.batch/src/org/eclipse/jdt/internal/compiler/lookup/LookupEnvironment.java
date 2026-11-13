@@ -54,6 +54,8 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.Location;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -140,6 +142,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	/** Global access to the outermost active inference context as the universe for inference variable interning. */
 	InferenceContext18 currentInferenceContext;
+	public LambdaExpression propagatingLambda;
+	public List<Expression> propagatingResults;
 
 	/**
 	 * Flag that should be set during annotation traversal or similar runs
