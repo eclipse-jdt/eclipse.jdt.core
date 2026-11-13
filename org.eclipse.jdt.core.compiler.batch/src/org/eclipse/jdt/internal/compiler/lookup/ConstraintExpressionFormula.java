@@ -454,8 +454,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (rTheta.leafComponentType() instanceof InferenceVariable) { // https://bugs.openjdk.java.net/browse/JDK-8062082
 				InferenceVariable alpha = (InferenceVariable) rTheta.leafComponentType();
 				TypeBinding targetLeafType = targetType.leafComponentType();
+				boolean isArray = rTheta.isArrayType();
 				boolean toResolve = false;
-				if (inferenceContext.currentBounds.condition18_5_2_bullet_3_3_1(alpha, targetLeafType)) {
+				if (isArray) {
+					toResolve = inferenceContext.currentBounds.condition18_5_2_bullet_3_3_2(alpha, targetLeafType, inferenceContext);
+				} else if (inferenceContext.currentBounds.condition18_5_2_bullet_3_3_1(alpha, targetLeafType)) {
 					toResolve = true;
 				} else if (inferenceContext.currentBounds.condition18_5_2_bullet_3_3_2(alpha, targetLeafType, inferenceContext)) {
 					toResolve = true;
@@ -468,9 +471,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					BoundSet solution = inferenceContext.solve(new InferenceVariable[]{alpha}, false);
 					if (solution == null)
 						return false;
-					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceStart(), invocationSite.sourceEnd());
-					if (rTheta.dimensions() != 0) {
+					TypeBinding u = solution.getInstantiation(alpha, null);
+					if (isArray) {
 						u = inferenceContext.environment.createArrayType(u, rTheta.dimensions());
+					} else {
+						u = u.capture(inferenceContext.scope, invocationSite.sourceStart(), invocationSite.sourceEnd());
 					}
 					ConstraintTypeFormula newConstraint = ConstraintTypeFormula.create(u, targetType, COMPATIBLE);
 					return inferenceContext.reduceAndIncorporate(newConstraint);
