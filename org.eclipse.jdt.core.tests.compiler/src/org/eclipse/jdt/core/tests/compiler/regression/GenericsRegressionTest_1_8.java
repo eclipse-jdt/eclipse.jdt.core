@@ -11501,5 +11501,353 @@ public void testBug508834_comment0() {
 			----------
 			""");
 	}
+	public void testGH5583_lubOfCaptures() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> List<E> list(E[] e) { return null; }
+					static <T> Supplier<T> sup(T a, T b) { return null; }
+					static <E> List<E> get(Supplier<? extends E> s) { return null; }
+					static <T> T pick(T a, T b) { return a; }
+					static <R> R map(Function<Integer, R> f) { return null; }
+					void test(List<? super Integer> numbers, List<? super Integer> objects) {
+						List<? super Integer>[] direct = pair(numbers, objects);
+						List<? super Integer> picked = pick(numbers, objects);
+						List<List<? super Integer>> nested = list(pair(numbers, objects));
+						List<List<? super Integer>> supplied = get(sup(numbers, objects));
+						Supplier<List<List<? super Integer>>> lambda = () -> list(pair(numbers, objects));
+						Object local = map(n -> { List<List<? super Integer>> l = list(pair(numbers, objects)); return l; });
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 13)
+				List<List<? super Integer>> nested = list(pair(numbers, objects));
+				                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			2. ERROR in X.java (at line 14)
+				List<List<? super Integer>> supplied = get(sup(numbers, objects));
+				                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			3. ERROR in X.java (at line 15)
+				Supplier<List<List<? super Integer>>> lambda = () -> list(pair(numbers, objects));
+				                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			4. ERROR in X.java (at line 16)
+				Object local = map(n -> { List<List<? super Integer>> l = list(pair(numbers, objects)); return l; });
+				                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			""");
+	}
+	public void testGH5583_lubOfCapturesNested() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					static <T> Supplier<T> sup(T a, T b) { return () -> b; }
+					static <E> List<E> get(Supplier<? extends E> s) { return new ArrayList<>(Collections.singletonList(s.get())); }
+					static <R> R id(R r) { return r; }
+					static <R> R map(Function<Integer, R> f) { return f.apply(0); }
+					public static void main(String[] args) {
+						List<? super Integer> numbers = new ArrayList<Number>();
+						List<? super Integer> objects = new ArrayList<Object>();
+						List<? super Integer>[] direct = pair(numbers, objects);
+						List<List<? super Integer>> all = new ArrayList<>();
+						all.addAll(id(list(pair(numbers, objects))));
+						all.addAll(id(get(sup(numbers, objects))));
+						all.addAll(map(n -> list(pair(numbers, objects))));
+						all.addAll(map(n -> { return get(sup(numbers, objects)); }));
+						all.addAll(id(args.length == 0 ? list(pair(numbers, objects)) : null));
+						all.addAll(id(map(n -> get(sup(numbers, objects)))));
+						all.addAll(id(map(n -> { if (n == 0) return list(pair(numbers, objects)); return null; })));
+						direct[0].add(1);
+						all.get(1).add(2);
+						System.out.println(all.size() + " " + numbers + " " + objects);
+					}
+				}
+				"""
+			},
+			"11 [1] [2]");
+	}
+	public void testGH5583_lubOfCapturesNotEquivalent() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					static <T extends List<? super Integer>> Supplier<T> bounded(T a, T b) { return null; }
+					static <E extends List<? super Integer>> List<E> getBounded(Supplier<? extends E> s) { return null; }
+					static <T> Supplier<T> consumed(T a, T b, Consumer<? super T> c) { return null; }
+					static <E> List<E> get(Supplier<? extends E> s) { return null; }
+					static <T> Supplier<T> pair(T a, T b) { return null; }
+					static <E> List<E> getWithExtra(Supplier<? extends E> s, E extra) { return null; }
+					static <R> R id(R r) { return r; }
+					static <R> R map(Function<Integer, R> f) { return null; }
+					static <T extends List<?>> Supplier<T> anyList(T a, T b) { return null; }
+					static <E extends List<?>> List<E> getAnyList(Supplier<? extends E> s) { return null; }
+					@SuppressWarnings("rawtypes") static <T extends Collection> Supplier<T> rawCollection(T a, T b) { return null; }
+					@SuppressWarnings("rawtypes") static <E extends Collection> List<E> getRawCollection(Supplier<? extends E> s) { return null; }
+					void test(List<? super Integer> numbers, List<? super Integer> objects, Consumer<List<? super Integer>> c, Consumer<List<?>> any) {
+						List<List<? super Integer>> b = id(getBounded(bounded(numbers, objects)));
+						List<List<? super Integer>> m = map(n -> getBounded(bounded(numbers, objects)));
+						List<List<? super Integer>> u = id(get(consumed(numbers, objects, c)));
+						List<List<? super Integer>> l = id(getAnyList(anyList(numbers, objects)));
+						List<List<? super Integer>> r = id(getRawCollection(rawCollection(numbers, objects)));
+						List<List<? super Integer>> a = id(get(consumed(numbers, objects, any)));
+						List<List<? super Integer>> e = id(getWithExtra(pair(numbers, objects), numbers));
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 17)
+				List<List<? super Integer>> b = id(getBounded(bounded(numbers, objects)));
+				                                   ^^^^^^^^^^
+			The method getBounded(Supplier<? extends E>) in the type X is not applicable for the arguments (Supplier<List<? super Integer>>)
+			----------
+			2. ERROR in X.java (at line 18)
+				List<List<? super Integer>> m = map(n -> getBounded(bounded(numbers, objects)));
+				                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from Object to List<List<? super Integer>>
+			----------
+			3. ERROR in X.java (at line 18)
+				List<List<? super Integer>> m = map(n -> getBounded(bounded(numbers, objects)));
+				                                         ^^^^^^^^^^
+			The method getBounded(Supplier<? extends E>) in the type X is not applicable for the arguments (Supplier<List<? super Integer>>)
+			----------
+			4. ERROR in X.java (at line 19)
+				List<List<? super Integer>> u = id(get(consumed(numbers, objects, c)));
+				                                   ^^^
+			The method get(Supplier<? extends E>) in the type X is not applicable for the arguments (Supplier<List<? super Integer>>)
+			----------
+			5. ERROR in X.java (at line 20)
+				List<List<? super Integer>> l = id(getAnyList(anyList(numbers, objects)));
+				                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			6. ERROR in X.java (at line 22)
+				List<List<? super Integer>> a = id(get(consumed(numbers, objects, any)));
+				                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			7. ERROR in X.java (at line 23)
+				List<List<? super Integer>> e = id(getWithExtra(pair(numbers, objects), numbers));
+				                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			""");
+	}
+	public void testGH5583_lubOfCapturesWildcardResult() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					static <R> R id(R r) { return r; }
+					static <T> Supplier<T> pair(T a, T b) { return null; }
+					static <E> List<? extends E> getExtending(Supplier<? extends E> s) { return null; }
+					static <E> List<? extends E> extending(E a, E b) { return null; }
+					static <E> List<? extends E> extendingConsumed(E a, E b, Consumer<? super E> c) { return null; }
+					static <E> List<? super E> getSuper(Supplier<? extends E> s) { return null; }
+					void test(List<? super Integer> numbers, List<? super Integer> objects, Consumer<List<? super Integer>> c, boolean flag) {
+						List<? extends List<? super Integer>> n = id(getExtending(pair(numbers, objects)));
+						List<? extends List<? super Integer>> d = id(extending(numbers, objects));
+						List<? extends List<? super Integer>> t = extending(numbers, objects);
+						List<? extends List<? super Integer>> u = id(extendingConsumed(numbers, objects, c));
+						List<? super List<? super Integer>> s = id(flag ? getSuper(pair(numbers, objects)) : null);
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 11)
+				List<? extends List<? super Integer>> n = id(getExtending(pair(numbers, objects)));
+				                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<capture-Y#0-of E super List<?>> to List<? extends List<? super Integer>>
+			----------
+			2. ERROR in X.java (at line 12)
+				List<? extends List<? super Integer>> d = id(extending(numbers, objects));
+				                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<capture-Y#0-of E super List<?>> to List<? extends List<? super Integer>>
+			----------
+			""");
+	}
+	public void testGH5583_lubOfCapturesDiamond() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					static <T> Supplier<T> sup(T a, T b) { return () -> b; }
+					static <E> List<E> get(Supplier<? extends E> s) { return new ArrayList<>(Collections.singletonList(s.get())); }
+					static <R> R id(R r) { return r; }
+					static <R> R map(Function<Integer, R> f) { return f.apply(0); }
+					static class Box<R> { final R r; Box(Function<Integer, R> f) { this.r = f.apply(0); } }
+					static class Gen<R> { final R r; <S> Gen(Function<S, R> f, S s) { this.r = f.apply(s); } }
+					class Inner<R> { final R r; Inner(Supplier<R> s) { this.r = s.get(); } }
+					static int size(Box<List<List<? super Integer>>> b) { return b.r.size(); }
+					void run() {
+						List<? super Integer> numbers = new ArrayList<Number>();
+						List<? super Integer> objects = new ArrayList<Object>();
+						Box<List<List<? super Integer>>> a = new Box<>(n -> get(sup(numbers, objects)));
+						Box<List<List<? super Integer>>> b = id(new Box<>(n -> list(pair(numbers, objects))));
+						Box<List<List<? super Integer>>> c = new Box<>(n -> { return id(get(sup(numbers, objects))); });
+						Gen<List<List<? super Integer>>> g = new Gen<>(n -> list(pair(numbers, objects)), "");
+						Inner<List<List<? super Integer>>> i = this.new Inner<>(() -> get(sup(numbers, objects)));
+						a.r.get(0).add(1);
+						System.out.println(a.r.size() + b.r.size() + c.r.size() + g.r.size() + i.r.size() + size(new Box<>(n -> get(sup(numbers, objects)))) + " " + objects);
+					}
+					public static void main(String[] args) {
+						new X().run();
+					}
+				}
+				"""
+			},
+			"8 [1]");
+	}
+	public void testGH5583_lubOfCapturesSwitch() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					static <T> Supplier<T> sup(T a, T b) { return () -> b; }
+					static <E> List<E> get(Supplier<? extends E> s) { return new ArrayList<>(Collections.singletonList(s.get())); }
+					static <R> R id(R r) { return r; }
+					static <R> R map(Function<Integer, R> f) { return f.apply(0); }
+					public static void main(String[] args) {
+						List<? super Integer> numbers = new ArrayList<Number>();
+						List<? super Integer> objects = new ArrayList<Object>();
+						List<List<? super Integer>> all = new ArrayList<>();
+						all.addAll(map(n -> switch (n) { case 0 -> list(pair(numbers, objects)); default -> null; }));
+						all.addAll(map(n -> switch (n) { case 0: yield get(sup(numbers, objects)); default: yield null; }));
+						all.addAll(map(n -> switch (n) { case 1 -> list(pair(numbers, objects)); default -> get(sup(numbers, objects)); }));
+						all.addAll(id(switch (args.length) { case 0 -> list(pair(numbers, objects)); default -> null; }));
+						all.addAll(map(n -> { switch (n) { case 0: return list(pair(numbers, objects)); default: return null; } }));
+						all.get(1).add(1);
+						System.out.println(all.size() + " " + objects);
+					}
+				}
+				"""
+			},
+			"8 [1]");
+	}
+	public void testGH5583_lubOfCapturesOverload() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					static <T> Supplier<T> sup(T a, T b) { return () -> b; }
+					static <E> List<E> get(Supplier<? extends E> s) { return new ArrayList<>(Collections.singletonList(s.get())); }
+					static <R> R id(R r) { return r; }
+					static <R> R map(Function<Integer, R> f) { return f.apply(0); }
+					static void m(List<List<? super Integer>> l) { System.out.print("L"); }
+					static void m(Object o) { System.out.print("O"); }
+					public static void main(String[] args) {
+						List<? super Integer> numbers = new ArrayList<Number>();
+						List<? super Integer> objects = new ArrayList<Object>();
+						m(id(get(sup(numbers, objects))));
+						m(id(list(pair(numbers, objects))));
+						m(map(n -> list(pair(numbers, objects))));
+						m(map(n -> { List<List<? super Integer>> l = id(list(pair(numbers, objects))); return l; }));
+						m(get(sup(numbers, objects)));
+						System.out.println();
+					}
+				}
+				"""
+			},
+			"LLLLO");
+	}
+	public void testGH5583_lubOfCapturesNotPropagated() {
+		if (this.complianceLevel < ClassFileConstants.JDK9)
+			return;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> List<E> list(E[] e) { return null; }
+					static <T> Supplier<T> sup(T a, T b) { return null; }
+					static <E> List<E> get(Supplier<? extends E> s) { return null; }
+					static <R> R map(Function<Integer, R> f) { return null; }
+					static class Box<R> { Box(Function<Integer, R> f) {} }
+					void test(List<? super Integer> numbers, List<? super Integer> objects) {
+						Box<List<List<? super Integer>>> a = new Box<>(n -> get(sup(numbers, objects))) {};
+						Object b = map(n -> { class C { List<List<? super Integer>> f = list(pair(numbers, objects)); } return new C(); });
+						Object c = map(n -> { Supplier<List<List<? super Integer>>> s = () -> list(pair(numbers, objects)); return s; });
+						Object d = map(n -> { List<List<? super Integer>> l = get(sup(numbers, objects)); return l; });
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 11)
+				Box<List<List<? super Integer>>> a = new Box<>(n -> get(sup(numbers, objects))) {};
+				                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			2. ERROR in X.java (at line 11)
+				Box<List<List<? super Integer>>> a = new Box<>(n -> get(sup(numbers, objects))) {};
+				                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			3. ERROR in X.java (at line 12)
+				Object b = map(n -> { class C { List<List<? super Integer>> f = list(pair(numbers, objects)); } return new C(); });
+				                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			4. ERROR in X.java (at line 13)
+				Object c = map(n -> { Supplier<List<List<? super Integer>>> s = () -> list(pair(numbers, objects)); return s; });
+				                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			5. ERROR in X.java (at line 14)
+				Object d = map(n -> { List<List<? super Integer>> l = get(sup(numbers, objects)); return l; });
+				                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<List<?>> to List<List<? super Integer>>
+			----------
+			""");
+	}
 
 }

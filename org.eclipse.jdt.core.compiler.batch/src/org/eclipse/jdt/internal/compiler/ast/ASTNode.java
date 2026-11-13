@@ -729,6 +729,24 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 			cScope.resolvingPolyExpressionArguments = resolvingPolyExpressionArguments;
 		}
 	}
+	/**
+	 * Non-JLS: whether the type of parameter {@code i} mentions the type variables inferred for this invocation: those of a
+	 * generic method, or those of the class for a diamond allocation (javac: {@code Resolve.resolveDiamond} checks the
+	 * arguments of a diamond like those of a generic method whose type parameters are the class's). Not for an anonymous
+	 * class: {@code Attr.visitAnonymousClassDefinition} checks copies of the arguments against the constructor of the
+	 * anonymous class, whose parameter types are inferred.
+	 */
+	private static boolean mentionsInferredTypeVariables(Invocation invocation, MethodBinding method, int i, boolean variableArity) {
+		MethodBinding original = method.original();
+		TypeBinding parameter = InferenceContext18.getParameter(original.parameters, i, variableArity);
+		if (parameter == null)
+			return false;
+		if (method instanceof ParameterizedGenericMethodBinding && parameter.mentionsAny(original.typeVariables, -1))
+			return true;
+		return invocation instanceof AllocationExpression allocation && allocation.type != null && (allocation.type.bits & ASTNode.IsDiamond) != 0
+				&& !(allocation instanceof QualifiedAllocationExpression qualified && qualified.anonymousType != null)
+				&& parameter.mentionsAny(original.declaringClass.typeVariables(), -1);
+	}
 	private static MethodBinding resolvePolyExpressionArguments0(Invocation invocation, MethodBinding method, TypeBinding[] argumentTypes, BlockScope scope) {
 		MethodBinding candidateMethod = method.isValidBinding() ? method : method instanceof ProblemMethodBinding ? ((ProblemMethodBinding) method).closestMatch : null;
 		if (candidateMethod == null)
@@ -754,7 +772,13 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 					LambdaExpression lambda = (LambdaExpression) argument;
 					// avoid complaining about non-kosher descriptor as secondary problem
 					boolean skipKosherCheck = method.problemId() == ProblemReasons.Ambiguous;
-					updatedArgumentType = lambda.resolveType(scope, skipKosherCheck);
+					LookupEnvironment environment = scope.environment();
+					Object enclosingLambda = environment.enterPropagatingLambda(mentionsInferredTypeVariables(invocation, candidateMethod, i, variableArity) ? lambda : null);
+					try {
+						updatedArgumentType = lambda.resolveType(scope, skipKosherCheck);
+					} finally {
+						environment.exitPropagatingLambda(enclosingLambda);
+					}
 					// additional checks, because LE.resolveType may return a valid binding even in the presence of structural errors
 					if (lambda.hasErrors() || lambda.hasDescripterProblem) {
 						continue;
