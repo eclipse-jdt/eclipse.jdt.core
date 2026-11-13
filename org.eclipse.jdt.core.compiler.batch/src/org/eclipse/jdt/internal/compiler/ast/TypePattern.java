@@ -128,9 +128,6 @@ public class TypePattern extends Pattern {
 		if (p.resolvedType.isSubtypeOf(this.resolvedType, false))
 			return true;
 
-		if (this.getEnclosingPattern() == null && isUnconditional(this.outerExpressionType, scope))
-			return true;
-
 		return p.resolvedType.erasure().findSuperTypeOriginatingFrom(this.resolvedType.erasure()) != null;
 	}
 

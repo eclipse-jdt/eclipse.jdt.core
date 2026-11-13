@@ -12115,4 +12115,37 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				""");
 	}
 
+	// An unconditional top-level type pattern must not dominate a subsequent pattern of an
+	// unrelated type (that rule belonged to the withdrawn Primitive Types in Patterns feature).
+	public void testUnconditionalPatternDoesNotDominateUnrelatedType() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface A {}
+				interface B {}
+				public class X {
+					static String foo(A a) {
+						return switch (a) {
+							case A x -> "A";
+							case B y -> "B";
+						};
+					}
+					static void bar(A a) {
+						switch (a) {
+							case A x -> System.out.print("A");
+							case B y -> System.out.print("B");
+						}
+					}
+					public static void main(String[] args) {
+						class C implements A, B {}
+						System.out.print(foo(new C()));
+						bar(new C());
+					}
+				}
+				"""
+			},
+			"AA");
+	}
+
 }
