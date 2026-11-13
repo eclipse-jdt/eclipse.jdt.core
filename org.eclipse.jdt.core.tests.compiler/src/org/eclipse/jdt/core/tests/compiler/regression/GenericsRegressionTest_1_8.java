@@ -11269,4 +11269,32 @@ public void testBug508834_comment0() {
 			""");
 	}
 
+	public void testGH5624_hiddenPolyArgumentNotChecked() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.function.Function;
+
+				public class X {
+					static class Foo<R> {}
+					static <R> Foo<R> wrap(Function<String, R> f) { return null; }
+					List<Foo<Integer>> test() {
+						return Arrays.asList(wrap(x -> 1), wrap(x -> 1), wrap(x -> "s"));
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 9)
+				return Arrays.asList(wrap(x -> 1), wrap(x -> 1), wrap(x -> "s"));
+				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<X.Foo<Object>> to List<X.Foo<Integer>>
+			----------
+			""");
+	}
+
 }

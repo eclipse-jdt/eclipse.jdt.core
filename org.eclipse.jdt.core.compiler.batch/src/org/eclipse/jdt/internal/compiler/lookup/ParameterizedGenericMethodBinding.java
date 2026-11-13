@@ -29,6 +29,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
@@ -53,6 +54,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	public boolean inferredWithUncheckedConversion;
 	public TypeBinding targetType; // used to distinguish different PGMB created for different target types (needed because inference contexts are remembered per PGMB)
 
+	private static TypeBinding [] materialArguments(MethodBinding method, TypeBinding[] arguments) {
+		int parametersLength = method.parameters.length;
+		int argumentsLength = arguments.length;
+		if (!method.isVarargs() || argumentsLength <= parametersLength)
+			return arguments;
+
+		boolean isomorphic = true;
+		TypeBinding varArgType = arguments[parametersLength - 1];
+		for (int i = parametersLength; isomorphic && i < argumentsLength; i++)
+			isomorphic = TypeBinding.patternMatch(varArgType, arguments[i]);
+
+		return isomorphic ? Arrays.copyOf(arguments, parametersLength + 1 /* retain variable arity nature */) : arguments;
+	}
 	/**
 	 * Perform inference of generic method type parameters and/or expected type
 	 * <p>
@@ -190,6 +204,11 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (result == null && originalMethod.isVarargs()) {
 				// check for variable-arity applicability
 				infCtx18 = invocationSite.freshInferenceContext(scope); // start over
+				if (!compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
+					arguments = materialArguments(originalMethod, arguments);
+					if (arguments.length > 0 &&  arguments.length != infCtx18.invocationArguments.length)
+						infCtx18.invocationArguments = Arrays.copyOf(infCtx18.invocationArguments, arguments.length);
+				}
 				infCtx18.inferenceKind = InferenceContext18.CHECK_VARARG;
 				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
 				if (InferenceContext18.DEBUG) {
