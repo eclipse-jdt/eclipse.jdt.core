@@ -754,7 +754,19 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 					LambdaExpression lambda = (LambdaExpression) argument;
 					// avoid complaining about non-kosher descriptor as secondary problem
 					boolean skipKosherCheck = method.problemId() == ProblemReasons.Ambiguous;
-					updatedArgumentType = lambda.resolveType(scope, skipKosherCheck);
+					LookupEnvironment environment = scope.environment();
+					LambdaExpression enclosingLambda = environment.propagatingLambda;
+					List<Expression> enclosingResults = environment.propagatingResults;
+					environment.propagatingResults = null;
+					environment.propagatingLambda = candidateMethod instanceof ParameterizedGenericMethodBinding generic
+							&& InferenceContext18.getParameter(generic.original().parameters, i, variableArity).mentionsAny(generic.original().typeVariables, -1)
+									? lambda : null;
+					try {
+						updatedArgumentType = lambda.resolveType(scope, skipKosherCheck);
+					} finally {
+						environment.propagatingLambda = enclosingLambda;
+						environment.propagatingResults = enclosingResults;
+					}
 					// additional checks, because LE.resolveType may return a valid binding even in the presence of structural errors
 					if (lambda.hasErrors() || lambda.hasDescripterProblem) {
 						continue;
