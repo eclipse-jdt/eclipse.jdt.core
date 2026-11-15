@@ -158,6 +158,52 @@ public void testExternalJarChanged2() throws CoreException, IOException {
 		stopDeltas();
 	}
 }
+/*
+ * Ensures that refreshing one project reports nothing while its external jars are unchanged,
+ * and reports a changed jar in every project that shares it.
+ */
+public void testExternalJarChangedInProjectsSharingIt() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {""}, "");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {""}, "");
+
+		String pPath = getExternalPath() + "p.jar";
+		String missingPath = getExternalPath() + "missing.jar";
+		setClasspath(p1, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		setClasspath(p2, new IClasspathEntry[]{
+				JavaCore.newLibraryEntry(new Path(missingPath), null, null),
+				JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+
+		f = new File(pPath);
+		f.createNewFile();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
+
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{p2},null);
+		assertDeltas("Unexpected delta", "");
+
+		touch(f);
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{p2},null);
+
+		String jar = f.toPath().normalize().toAbsolutePath().toString();
+		assertDeltas(
+			"Unexpected delta",
+			"P1[*]: {CHILDREN}\n"+
+			"	"+jar+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}\n"+
+			"P2[*]: {CHILDREN}\n"+
+			"	"+jar+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		if(f != null) {
+			deleteResource(f);
+		}
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		stopDeltas();
+	}
+}
 /**
  * Refresh an external jar after a modification of this jar.
  */
