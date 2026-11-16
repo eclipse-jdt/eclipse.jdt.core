@@ -55,6 +55,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		this.packageCache = new HashSet<>(41);
 		this.packageCache.add(Util.EMPTY_STRING);
 		Set<Integer> versions = new HashSet<>();
+		String directory = null;
 		for (Enumeration<? extends ZipEntry> entries = this.zipFile.entries(); entries.hasMoreElements();) {
 			String entryName = entries.nextElement().getName();
 			int prefixLength = versionedPrefixLength(entryName);
@@ -64,7 +65,11 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 			if (prefixLength > 0) {
 				versions.add(Integer.valueOf(entryName.substring(VERSIONS_PREFIX_LENGTH, prefixLength - 1)));
 			}
-			addToPackageCache(entryName.substring(prefixLength), false);
+			String fileName = entryName.substring(prefixLength);
+			if (!isInDirectory(fileName, directory)) {
+				addToPackageCache(fileName, false);
+				directory = directoryOf(fileName);
+			}
 		}
 		List<Integer> sortedVersions = new ArrayList<>(versions);
 		sortedVersions.sort(Comparator.reverseOrder());
