@@ -272,6 +272,109 @@ public class ClasspathJarTest extends TestCase {
 		}
 	}
 
+	public void testPackagesOfEntriesInAnyOrder() throws IOException {
+		List<String> entries = List.of(
+				"p/A.class",
+				"q/B.class",
+				"p/C.class",
+				"p/q/D.class",
+				"p/E.class",
+				"p/q/",
+				"p/q/F.class",
+				"pq/G.class",
+				"p/H.class",
+				"x/y/z/",
+				"x/Y.class",
+				"a//B.class",
+				"a/C.class",
+				"Foo.class",
+				"/Bar.class",
+				"p/q/r/s/I.class",
+				"p/q/J.class");
+		File jar = writeJar("order.jar", entries);
+		Set<String> packages = new TreeSet<>(List.of("", "/", "nope", "p/q/r/s/t"));
+		for (String entry : entries) {
+			for (int i = entry.indexOf('/'); i != -1; i = entry.indexOf('/', i + 1)) {
+				packages.add(entry.substring(0, i));
+			}
+		}
+		ClasspathJar classpath = new ClasspathJar(jar, true, null, null);
+		classpath.initialize();
+		try {
+			for (String pkg : packages) {
+				assertEquals("package \"" + pkg + "\"", isPackageByWalk(entries, pkg), classpath.isPackage(pkg, null));
+				assertEquals("package \"" + pkg + "\"", hasCompilationUnitByWalk(entries, pkg), classpath.hasCompilationUnit(pkg, null));
+			}
+		} finally {
+			classpath.reset();
+		}
+		ClasspathMultiReleaseJar multiRelease = new ClasspathMultiReleaseJar(jar, true, null, null, "11");
+		multiRelease.initialize();
+		try {
+			for (String pkg : packages) {
+				assertEquals("package \"" + pkg + "\"", isPackageByWalk(entries, pkg), multiRelease.isPackage(pkg, null));
+				assertEquals("package \"" + pkg + "\"", hasCompilationUnitByWalk(entries, pkg), multiRelease.hasCompilationUnit(pkg, null));
+			}
+		} finally {
+			multiRelease.reset();
+		}
+	}
+
+	public void testMultiReleasePackagesOfEntriesInAnyOrder() throws IOException {
+		File jar = writeJar("mr-order.jar", MULTI_RELEASE_MANIFEST, List.of(
+				"p/A.class",
+				"META-INF/versions/11/p/B.class",
+				"q/C.class",
+				"META-INF/versions/17/r/D.class",
+				"META-INF/versions/17/q/D.class",
+				"META-INF/versions/9/p/E.class",
+				"p/F.class",
+				"META-INF/versions/11/s/t/G.class",
+				"META-INF/versions/x/u/H.class",
+				"s/I.class",
+				"META-INF/versions/9/s/t/J.class",
+				"v/K.class"));
+		List<String> visible = List.of(
+				"META-INF/MANIFEST.MF",
+				"p/A.class",
+				"p/B.class",
+				"q/C.class",
+				"p/E.class",
+				"p/F.class",
+				"s/t/G.class",
+				"s/I.class",
+				"s/t/J.class",
+				"v/K.class");
+		Set<String> packages = new TreeSet<>(List.of("", "r", "u", "META-INF/versions", "META-INF/versions/11/p", "nope"));
+		for (String entry : visible) {
+			for (int i = entry.indexOf('/'); i != -1; i = entry.indexOf('/', i + 1)) {
+				packages.add(entry.substring(0, i));
+			}
+		}
+		ClasspathMultiReleaseJar classpath = new ClasspathMultiReleaseJar(jar, true, null, null, "11");
+		classpath.initialize();
+		try {
+			for (String pkg : packages) {
+				assertEquals("package \"" + pkg + "\"", isPackageByWalk(visible, pkg), classpath.isPackage(pkg, null));
+				assertEquals("package \"" + pkg + "\"", hasCompilationUnitByWalk(visible, pkg), classpath.hasCompilationUnit(pkg, null));
+			}
+		} finally {
+			classpath.reset();
+		}
+	}
+
+	private static boolean isPackageByWalk(List<String> entries, String pkg) {
+		if (pkg.isEmpty())
+			return true;
+		for (String entry : entries) {
+			for (int last = entry.lastIndexOf('/'); last > 0; last = entry.lastIndexOf('/', last - 1)) {
+				if (entry.substring(0, last).equals(pkg))
+					return true;
+			}
+		}
+		return false;
+	}
+
 	/** hasCompilationUnit does not depend on isPackage having read the archive before. */
 	public void testMultiReleaseHasCompilationUnitFirst() throws IOException {
 		File jar = writeJar("mr.jar", MULTI_RELEASE_MANIFEST, MULTI_RELEASE_ENTRIES);
