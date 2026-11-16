@@ -69,6 +69,21 @@ public class CharDeduplicationTest extends TestCase {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
+	public void testDeduplicationOfEqualHashes() {
+		assertEquals("Aa".hashCode(), "BB".hashCode());
+		CharDeduplication deduplication = CharDeduplication.getThreadLocalInstance();
+		deduplication.reset();
+		for (int i = 0; i < 3; i++) {
+			char[] aa = deduplication.sharedCopyOfRange("xAay".toCharArray(), 1, 3);
+			char[] bb = deduplication.sharedCopyOfRange("xBBy".toCharArray(), 1, 3);
+			assertEquals("Aa", new String(aa));
+			assertEquals("BB", new String(bb));
+			assertSame(aa, deduplication.sharedCopyOfRange("Aa".toCharArray(), 0, 2));
+			assertSame(bb, deduplication.sharedCopyOfRange("BB".toCharArray(), 0, 2));
+		}
+	}
+
 	public void testDeduplicationMid() {
 		String text = "abcdefghijklmn";
 		for (int start = 0; start < text.length(); start++) {

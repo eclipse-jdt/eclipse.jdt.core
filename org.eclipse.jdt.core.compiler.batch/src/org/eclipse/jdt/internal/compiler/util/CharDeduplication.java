@@ -52,6 +52,7 @@ public class CharDeduplication {
 	/** single threaded only, hashtable with restricted linear probing **/
 	private final char[][] hashTable = new char[TABLE_SIZE][];
 	private final int circularBufferPointer[] = new int[TABLE_SIZE];
+	private final int[] hashes = new int[TABLE_SIZE];
 
 	private CharDeduplication() {
 		// private
@@ -62,6 +63,7 @@ public class CharDeduplication {
 	public void reset() {
 		Arrays.fill(this.hashTable, null);
 		Arrays.fill(this.circularBufferPointer, 0);
+		Arrays.fill(this.hashes, 0);
 	}
 
 	public static char[] intern(char[] source) {
@@ -102,7 +104,7 @@ public class CharDeduplication {
 				// this case only happens when the table is filling up,
 				// but helps to get good deduplication fast
 				positionToReplace = position;
-			} else if (equals(source, from, to, charArray)) {
+			} else if (this.hashes[position] == hash && Arrays.equals(source, from, to, charArray, 0, charArray.length)) {
 				// Successfully deduplicated:
 				return charArray;
 			}
@@ -115,6 +117,7 @@ public class CharDeduplication {
 			positionToReplace = (circularBufferStart + (j & (SEARCH_SIZE-1))) & (TABLE_SIZE - 1);
 		}
 		this.hashTable[positionToReplace] = r;
+		this.hashes[positionToReplace] = hash;
 		return r;
 	}
 
@@ -124,17 +127,5 @@ public class CharDeduplication {
 			result = 31 * result + source[i];
 		}
 		return result;
-	}
-
-	private boolean equals(char[] source, int from, int to, char[] charArray) {
-		if (charArray.length != to - from) {
-			return false;
-		}
-		for (int i = from; i < to; i++) {
-			if (source[i] != charArray[i - from]) {
-				return false;
-			}
-		}
-		return true;
 	}
 }
