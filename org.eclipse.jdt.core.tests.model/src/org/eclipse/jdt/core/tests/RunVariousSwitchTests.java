@@ -54,8 +54,6 @@ public class RunVariousSwitchTests extends TestCase {
 				NullAnnotationTests21.class,
 				NullAnnotationTest.class,
 
-				PrimitiveInPatternsTest.class,
-				PrimitiveInPatternsTestSH.class,
 
 				JavaSearchBugs14SwitchExpressionTests.class,
 				ASTRewritingSwitchExpressionsTest.class,

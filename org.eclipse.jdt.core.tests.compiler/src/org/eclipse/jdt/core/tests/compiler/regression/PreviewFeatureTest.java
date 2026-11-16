@@ -335,9 +335,9 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 			options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		try {
 			if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
-				assertFalse(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(new CompilerOptions(options)));
+				assertFalse(JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(new CompilerOptions(options)));
 			else
-				assertTrue(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(new CompilerOptions(options)));
+				assertTrue(JavaFeature.VALUE_CLASSES_AND_OBJECTS.isSupported(new CompilerOptions(options)));
 		} finally {
 			options.put(CompilerOptions.OPTION_EnablePreviews, old);
 		}

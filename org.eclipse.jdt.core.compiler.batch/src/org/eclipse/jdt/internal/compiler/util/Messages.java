@@ -132,7 +132,6 @@ public final class Messages {
 	public static String unnamed_patterns_and_vars;
 	public static String compact_source_and_instance_main_methods;
 	public static String flexible_constructor_bodies;
-	public static String primitives_in_patterns;
 	public static String module_imports;
 	public static String markdown_comments;
 	public static String value_classes_and_objects;

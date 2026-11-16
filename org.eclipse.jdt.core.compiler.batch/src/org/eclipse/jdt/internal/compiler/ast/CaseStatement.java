@@ -18,13 +18,11 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
@@ -62,7 +60,6 @@ public static class LabelExpression {
 	private final boolean isQualifiedEnum;
 	public int enumDescIdx;
 	public int classDescIdx;
-	public int primitivesBootstrapIdx; // index for a bootstrap method to args to indy typeSwitch for primitives
 
 	LabelExpression(Constant c, Expression e, TypeBinding t, int index, boolean isQualifiedEnum) {
 		this.constant = c;
@@ -189,18 +186,14 @@ private Constant resolvePatternLabel(BlockScope scope, TypeBinding caseType, Typ
 			return Constant.NotAConstant;
 		}
 	} else if (caseType.isValidBinding()) { // already complained if invalid
-		if (pattern.findPrimitiveConversionRoute(caseType, selectorType, scope) == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
-			if (caseType.isPrimitiveType() && !JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions())) {
-				scope.problemReporter().unexpectedTypeinSwitchPattern(caseType, pattern);
-				this.swich.caseElementsHaveErrors = true;
-				return Constant.NotAConstant;
-			} else if (!pattern.checkCastTypesCompatibility(scope, caseType, selectorType, null, false)) {
-				scope.problemReporter().typeMismatchError(selectorType, caseType, pattern, null);
-				this.swich.caseElementsHaveErrors = true;
-				return Constant.NotAConstant;
-			}
-		} else {
-			this.swich.isPrimitiveSwitch = true;
+		if (caseType.isPrimitiveType()) {
+			scope.problemReporter().unexpectedTypeinSwitchPattern(caseType, pattern);
+			this.swich.caseElementsHaveErrors = true;
+			return Constant.NotAConstant;
+		} else if (!pattern.checkCastTypesCompatibility(scope, caseType, selectorType, null, false)) {
+			scope.problemReporter().typeMismatchError(selectorType, caseType, pattern, null);
+			this.swich.caseElementsHaveErrors = true;
+			return Constant.NotAConstant;
 		}
 	}
 	if (pattern.coversType(selectorType, scope)) {
@@ -277,24 +270,6 @@ public void resolve(BlockScope scope) {
 						this.swich.gatherLabelExpression(new LabelExpression(constant, p, p.resolvedType, this.swich.labelExpressionIndex, false));
 				}
 			} else {
-				// check from §14.11.1 (JEP 455):
-				// For each case constant associated with the switch block that is a constant expression, one of the following is true:
-				//  - [...]
-				//  - if T is one of long, float, double, or boolean, the type of the case constant is T.
-				//  - if T is one of Long, Float, Double, or Boolean, the type of the case constant is, respectively, long, float, double, or boolean.
-				if (caseType.id != T_null) {
-					TypeBinding expectedCaseType = selectorType.isBoxedPrimitiveType() && JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()) ? selectorType.unboxedType() : selectorType;
-					switch (expectedCaseType.id) {
-						case TypeIds.T_long, TypeIds.T_float, TypeIds.T_double, TypeIds.T_boolean -> {
-							if (caseType.id != expectedCaseType.id) {
-								scope.problemReporter().caseExpressionWrongType(e, selectorType, expectedCaseType);
-								continue;
-							}
-							if (Pattern.findPrimitiveConversionRoute(caseType, selectorType, scope, this) != Pattern.PrimitiveConversionRoute.NO_CONVERSION_ROUTE)
-								selectorType = expectedCaseType;
-						}
-					}
-				}
 				Constant constant = resolveConstantLabel(scope, caseType, selectorType, e);
 				if (constant != Constant.NotAConstant) {
 					int index = e instanceof NullLiteral ? -1 : this.swich.labelExpressionIndex;
@@ -397,15 +372,5 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 			e.traverse(visitor, blockScope);
 	}
 	visitor.endVisit(this, blockScope);
-}
-
-public Boolean getBooleanConstantValue() {
-	if (this.constantExpressions != null) {
-		for (Expression expression : this.constantExpressions) {
-			if (expression.constant instanceof BooleanConstant bc)
-				return bc.booleanValue();
-		}
-	}
-	return null;
 }
 }

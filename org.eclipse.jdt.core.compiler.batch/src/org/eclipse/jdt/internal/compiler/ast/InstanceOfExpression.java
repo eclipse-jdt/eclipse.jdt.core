@@ -26,8 +26,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.stream.Stream;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
-import org.eclipse.jdt.internal.compiler.ast.Pattern.TestContextRecord;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -36,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -45,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class InstanceOfExpression extends OperatorExpression implements IGenerateTypeCheck {
+public class InstanceOfExpression extends OperatorExpression {
 
 	public Expression expression;
 	public TypeReference type;
@@ -53,8 +50,6 @@ public class InstanceOfExpression extends OperatorExpression implements IGenerat
 
 	private static final char[] SECRET_EXPRESSION_VALUE = " secretExpressionValue".toCharArray(); //$NON-NLS-1$
 	private LocalVariableBinding secretExpressionValue = null;
-
-	private TestContextRecord testContextRecord;
 
 public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
@@ -173,13 +168,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	}
 
 	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : this.pattern != null ? new BranchLabel(codeStream) : null;
-	PrimitiveConversionRoute route = PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
-	TypeBinding providedType = null;
-	if (this.testContextRecord != null) {
-		route = this.testContextRecord.route();
-		providedType = this.testContextRecord.right();
-	}
-	generateTypeCheck(providedType, this.type, currentScope, codeStream, route);
+	codeStream.instance_of(this.type, this.type.resolvedType);
 
 	if (this.pattern != null) {
 		codeStream.ifeq(internalFalseLabel);
@@ -223,21 +212,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 
 	if (internalFalseLabel != falseLabel)
 		internalFalseLabel.place();
-}
-
-@Override
-public void setPatternIsTotalType() {
-	if (this.pattern != null) {
-		this.pattern.isTotalTypeNode = true;
-	}
-}
-
-@Override
-public void consumeProvidedValue(TypeBinding provided, CodeStream codeStream) {
-	LocalVariableBinding local = this.expression.localVariableBinding();
-	local = local != null ? local : this.secretExpressionValue;
-	if (local != null)
-		codeStream.store(local, false);
 }
 
 @Override
@@ -292,11 +266,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
 		} else {
 			if (expressionType != TypeBinding.NULL) {
-				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, true);
+				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, false);
 				if (!isLegal || (this.bits & ASTNode.UnsafeCast) != 0) {
 					scope.problemReporter().unsafeCastInTestingContext(this.expression, checkedType, expressionType);
-				} else  {
-					checkRefForPrimitivesAndAddSecretVariable(scope, checkedType, expressionType);
 				}
 			}
 		}
@@ -312,30 +284,8 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 	boolean needToCheck = (expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true);
-	if (!needToCheck)
-		return;
-	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope, this);
-	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
-
-	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION
-			|| route == PrimitiveConversionRoute.NARROWING_PRIMITVE_CONVERSION
-			|| route == PrimitiveConversionRoute.WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION) {
-
-		// Do Nothing - no additional steps required for conversion later.
-
-	} else if (route == PrimitiveConversionRoute.BOXING_CONVERSION
-			|| route == PrimitiveConversionRoute.BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION) {
-		addSecretExpressionValue(scope, expressionType);
-	} else if (route == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+	if (needToCheck)
 		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
-	}
-}
-
-private void checkRefForPrimitivesAndAddSecretVariable(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
-	if (!JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()))
-		return;
-	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope, this);
-	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 }
 
 private void addSecretExpressionValue(BlockScope scope, TypeBinding expressionType) {
