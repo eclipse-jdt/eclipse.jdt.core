@@ -16,6 +16,7 @@ package org.eclipse.jdt.compiler.apt.tests;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.SourceVersion;
@@ -431,6 +432,19 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testGH1752", null, "GH1752", "9");
 	}
+	public void testGH5739() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testGH5739", "First.java", "gh5739", "21", true);
+		
+	}
+	public void testGH5739Javac() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testGH5739", "First.java", "gh5739", "21", true);
+	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}
@@ -438,17 +452,19 @@ public class Java8ElementsTests extends TestCase {
 		internalTest(compiler, processor, testMethod, testClass, "model8", "8");
 	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod, String testClass, String resourceArea, String compliance) throws IOException {
+		internalTest(compiler, processor, testMethod, testClass, resourceArea, compliance, false);
+	}
+	private void internalTest(JavaCompiler compiler, String processor, String testMethod, String testClass, String resourceArea, String compliance, boolean passSrcDir) throws IOException {
 		if (!canRunJava8()) {
 			return;
 		}
 		System.clearProperty(processor);
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", resourceArea);
-		if (testClass == null || testClass.equals("")) {
+		if (passSrcDir || testClass == null || testClass.equals("")) {
 			BatchTestUtils.copyResources("targets/" + resourceArea, targetFolder);
 		} else {
 			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
 		}
-
 
 		List<String> options = new ArrayList<>();
 		options.add("-A" + processor);
@@ -460,7 +476,13 @@ public class Java8ElementsTests extends TestCase {
 			options.add("-source");
 			options.add(compliance);
 		}
-		BatchTestUtils.compileTree(compiler, options, targetFolder, true);
+		if (passSrcDir) {
+			List<File> files = new ArrayList<>();
+			files.add(new File(targetFolder, testClass));
+			BatchTestUtils.compileTreeWithSelectedFiles(new StringWriter(), compiler, options, TestUtils.concatPath(BatchTestUtils.getSrcFolderName()), files, true, null);
+		} else {
+			BatchTestUtils.compileTree(compiler, options, targetFolder, true);
+		}
 
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.

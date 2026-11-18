@@ -58,7 +58,8 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.IFoo", "org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer", "targets.filer8.PackageAnnot",
-	                       "java.lang.Deprecated", "org.eclipse.jdt.compiler.apt.tests.annotations.GenClass"})
+	                       "java.lang.Deprecated", "org.eclipse.jdt.compiler.apt.tests.annotations.GenClass",
+	                       "targets.gh5739.Marker"})
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
@@ -162,6 +163,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testEnumConstArguments();
 		testBug544288();
 		testGH4617();
+		testGH5739();
 	}
 
 	public void testLambdaSpecifics() {
@@ -1098,6 +1100,34 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertNotNull("Method m1 should not be null", m1);
 		assertNull("Method m3 should be null", m3);
+	}
+	private int gh5739Round = 0;
+	private static final String[][] GH5739_EXPECTED_ROOTS = {
+			{"targets.gh5739.First", "targets.gh5739.Marker"},
+			{"targets.gh5739.Second"},
+			{"targets.gh5739.Third"}};
+	private static final String[][] GH5739_EXPECTED_ANNOTATED = {
+			{"targets.gh5739.First"},
+			{"targets.gh5739.Second"},
+			{"targets.gh5739.Third"}};
+	public void testGH5739() {
+		int round = this.gh5739Round++;
+		assertFalse("processingOver() should be false", this.roundEnv.processingOver());
+		assertTrue("Unexpected round " + (round + 1), round < GH5739_EXPECTED_ROOTS.length);
+		Set<String> roots = this.roundEnv.getRootElements().stream()
+				.filter(e -> e instanceof TypeElement)
+				.map(e -> ((TypeElement) e).getQualifiedName().toString())
+				.filter(n -> n.contains("gh5739"))
+				.collect(Collectors.toSet());
+		assertEquals("Incorrect root elements in round " + (round + 1),
+				Set.of(GH5739_EXPECTED_ROOTS[round]), roots);
+		TypeElement marker = processingEnv.getElementUtils().getTypeElement("targets.gh5739.Marker");
+		assertNotNull("Marker type should not be null", marker);
+		Set<String> annotated = this.roundEnv.getElementsAnnotatedWith(marker).stream()
+				.map(e -> ((TypeElement) e).getQualifiedName().toString())
+				.collect(Collectors.toSet());
+		assertEquals("Incorrect annotated elements in round " + (round + 1),
+				Set.of(GH5739_EXPECTED_ANNOTATED[round]), annotated);
 	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');
