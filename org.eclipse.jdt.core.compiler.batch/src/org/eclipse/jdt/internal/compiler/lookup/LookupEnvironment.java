@@ -54,6 +54,8 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.Location;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -140,6 +142,30 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	/** Global access to the outermost active inference context as the universe for inference variable interning. */
 	InferenceContext18 currentInferenceContext;
+	/**
+	 * Non-JLS: the lambda argument of a generic invocation during its final resolution, when the parameter type mentions
+	 * the inferred type variables (javac: {@code Attr.visitLambda} gives its result expressions {@code lambdaBodyResult}).
+	 * Its result expressions are then within the enclosing inference, see {@link InferenceContext18#isWithinEnclosingInference()}.
+	 */
+	PropagatingLambda propagatingLambda;
+
+	static final class PropagatingLambda {
+		final LambdaExpression lambda;
+		List<Expression> results;
+		PropagatingLambda(LambdaExpression lambda) {
+			this.lambda = lambda;
+		}
+	}
+
+	public Object enterPropagatingLambda(LambdaExpression lambda) {
+		PropagatingLambda previous = this.propagatingLambda;
+		this.propagatingLambda = lambda == null ? null : new PropagatingLambda(lambda);
+		return previous;
+	}
+
+	public void exitPropagatingLambda(Object previous) {
+		this.propagatingLambda = (PropagatingLambda) previous;
+	}
 
 	/**
 	 * Flag that should be set during annotation traversal or similar runs

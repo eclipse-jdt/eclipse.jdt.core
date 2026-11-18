@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
 import org.eclipse.jdt.internal.compiler.util.Sorting;
@@ -104,6 +105,7 @@ public class InferenceContext18 {
 
 	static final boolean SHOULD_WORKAROUND_BUG_JDK_8153748 = true; // NON-JLS emulating javac behaviour after private email communication
 
+	/** Non-JLS: the retry ignores lower bounds only where javac does, see {@link #upperBoundMentionsInterdependentVariable}. */
 	static final boolean SHOULD_WORKAROUND_BUG_JDK_6573446 = true; // NON-JLS, see also https://mail.openjdk.org/archives/list/compiler-dev@openjdk.org/thread/TLIVNI7SPUVX646O7RTGG7IOYJVWSV47/
 
 	/**
@@ -164,6 +166,279 @@ public class InferenceContext18 {
 	boolean prematureOverloadResolution = false;
 	// during reduction we ignore missing types but record that fact here:
 	TypeBinding missingType;
+
+	private Map<InvocationSite, Set<InferenceVariable>> equivalentVariables;
+	private Map<InvocationSite, Set<InferenceVariable>> variablesSolvedFromLowerBounds;
+
+	/**
+	 * Non-JLS: records, for the fallback of {@link #SHOULD_WORKAROUND_BUG_JDK_6573446}, what javac decides when it propagates
+	 * the inference context of {@code site} into the enclosing inference, from the bounds {@code B2} it sees at that point.
+	 * A new record for the same site replaces the previous one, so a later inference with another target type does not
+	 * see what was decided for an earlier one.
+	 */
+	void recordPropagation(BoundSet bounds, InvocationSite site, MethodBinding method, TypeBinding targetType) {
+		forgetPropagation(site);
+		this.equivalentVariables = record(this.equivalentVariables, site, equivalentVariables(bounds, site, method, targetType));
+		this.variablesSolvedFromLowerBounds = record(this.variablesSolvedFromLowerBounds, site, variablesSolvedFromLowerBounds(bounds, site, method));
+	}
+
+	void forgetPropagation(InvocationSite site) {
+		this.equivalentVariables = record(this.equivalentVariables, site, null);
+		this.variablesSolvedFromLowerBounds = record(this.variablesSolvedFromLowerBounds, site, null);
+	}
+
+	private static Map<InvocationSite, Set<InferenceVariable>> record(Map<InvocationSite, Set<InferenceVariable>> records, InvocationSite site, Set<InferenceVariable> variables) {
+		if (variables == null || variables.isEmpty()) {
+			if (records != null)
+				records.remove(site);
+			return records;
+		}
+		if (records == null)
+			records = new HashMap<>();
+		records.put(site, variables);
+		return records;
+	}
+
+	private static Map<InvocationSite, Set<InferenceVariable>> merge(Map<InvocationSite, Set<InferenceVariable>> records, Map<InvocationSite, Set<InferenceVariable>> others) {
+		if (others == null || others.isEmpty())
+			return records;
+		if (records == null)
+			records = new HashMap<>();
+		records.putAll(others);
+		return records;
+	}
+
+	private static boolean isRecorded(Map<InvocationSite, Set<InferenceVariable>> records, InferenceVariable variable) {
+		if (records == null)
+			return false;
+		InferenceVariable prototype = variable.prototype();
+		for (Set<InferenceVariable> variables : records.values()) {
+			if (variables.contains(prototype))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Non-JLS: the variables {@code E} of a {@code ? extends E} argument of the return type whose lub of the lower bounds
+	 * fits their upper bounds: javac captures the return type of a propagated invocation only
+	 * ({@code Infer.generateReturnConstraints}) and does not derive bounds from captured variables, so it solves them
+	 * from their lower bounds.
+	 */
+	private Set<InferenceVariable> variablesSolvedFromLowerBounds(BoundSet bounds, InvocationSite site, MethodBinding method) {
+		if (bounds == null || this.inferenceVariables == null || !(method.original().returnType instanceof ParameterizedTypeBinding returnType) || returnType.arguments == null)
+			return null;
+		Set<InferenceVariable> solved = null;
+		for (TypeBinding argument : returnType.arguments) {
+			if (!(argument instanceof WildcardBinding wildcard) || wildcard.boundKind != Wildcard.EXTENDS)
+				continue;
+			for (InferenceVariable variable : this.inferenceVariables) {
+				if (!isSameSite(variable.site, site) || TypeBinding.notEquals(variable.typeParameter, wildcard.bound))
+					continue;
+				TypeBinding[] lowerBounds = bounds.lowerBounds(variable, true);
+				if (lowerBounds == Binding.NO_TYPES)
+					continue;
+				TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
+				if (lub != null && lub != TypeBinding.VOID && Arrays.stream(bounds.upperBounds(variable, true)).allMatch(upper -> lub.isCompatibleWith(upper, this.scope))) {
+					if (solved == null)
+						solved = new HashSet<>();
+					solved.add(variable.prototype());
+				}
+			}
+		}
+		return solved;
+	}
+
+	private boolean isSolvedFromLowerBounds(InferenceVariable variable) {
+		return isRecorded(this.variablesSolvedFromLowerBounds, variable);
+	}
+
+	/**
+	 * Non-JLS: the variables that javac's {@code InferenceContext.min} removes as equivalent to another one
+	 * ({@code ReachabilityVisitor.isEquiv}): the same bounds apart from each other. Nothing when the context has capture
+	 * variables or needs an eager resolution (18.5.2.1), like {@code min} and {@code Infer.shouldPropagate}.
+	 */
+	private Set<InferenceVariable> equivalentVariables(BoundSet bounds, InvocationSite site, MethodBinding method, TypeBinding targetType) {
+		if (bounds == null || this.inferenceVariables == null || Arrays.stream(this.inferenceVariables).anyMatch(InferenceContext18::isCaptureVariable)
+				|| needsEagerResolution(bounds, site, method, targetType))
+			return null;
+		Set<InferenceVariable> equivalent = null;
+		for (InferenceVariable outer : this.inferenceVariables) {
+			if (!isSameSite(outer.site, site) || isEquivalentToAnother(outer) || equivalent != null && equivalent.contains(outer.prototype()))
+				continue;
+			for (TypeBinding lower : bounds.lowerBounds(outer, false)) {
+				if (lower instanceof InferenceVariable inner && TypeBinding.notEquals(inner, outer) && isEquivalent(bounds, outer, inner)) {
+					if (equivalent == null)
+						equivalent = new HashSet<>();
+					equivalent.add(inner.prototype());
+				}
+			}
+		}
+		return equivalent;
+	}
+
+	private boolean needsEagerResolution(BoundSet bounds, InvocationSite site, MethodBinding method, TypeBinding targetType) {
+		if (targetType == null || !(method.original().returnType instanceof TypeVariableBinding returnType))
+			return false;
+		for (InferenceVariable variable : this.inferenceVariables) {
+			if (isSameSite(variable.site, site) && TypeBinding.equalsEquals(variable.typeParameter, returnType)) {
+				return bounds.condition18_5_2_bullet_3_3_1(variable, targetType)
+						|| bounds.condition18_5_2_bullet_3_3_2(variable, targetType, this)
+						|| (targetType.isPrimitiveType() && bounds.findWrapperTypeBound(variable) != null);
+			}
+		}
+		return false;
+	}
+
+	private static boolean isEquivalent(BoundSet bounds, InferenceVariable outer, InferenceVariable inner) {
+		return sameTypes(without(bounds.lowerBounds(outer, false), inner), bounds.lowerBounds(inner, false))
+				&& sameTypes(bounds.sameBounds(outer), bounds.sameBounds(inner))
+				&& sameTypes(bounds.upperBounds(outer, false), without(bounds.upperBounds(inner, false), outer))
+				&& declaredBoundsShared(inner, outer);
+	}
+
+	private static TypeBinding[] without(TypeBinding[] types, TypeBinding type) {
+		return Arrays.stream(types).filter(t -> TypeBinding.notEquals(t, type)).toArray(TypeBinding[]::new);
+	}
+
+	private static boolean sameTypes(TypeBinding[] types, TypeBinding[] others) {
+		return Arrays.stream(types).allMatch(t -> Arrays.stream(others).anyMatch(o -> TypeBinding.equalsEquals(t, o)))
+				&& Arrays.stream(others).allMatch(o -> Arrays.stream(types).anyMatch(t -> TypeBinding.equalsEquals(t, o)));
+	}
+
+	/**
+	 * Non-JLS: javac compares bounds as instances ({@code Type.equals} is {@code ==}): a declared bound is shared only if it
+	 * is the same type and not parameterized, or the same type parameter's bound that does not mention its type variables.
+	 */
+	private static boolean declaredBoundsShared(InferenceVariable inner, InferenceVariable outer) {
+		if (!(inner.typeParameter instanceof TypeVariableBinding first) || !(outer.typeParameter instanceof TypeVariableBinding second))
+			return false;
+		boolean sameDeclaration = TypeBinding.equalsEquals(first, second);
+		TypeBinding[] bounds = declaredBounds(first);
+		TypeBinding[] others = declaredBounds(second);
+		for (TypeBinding bound : bounds) {
+			if (Arrays.stream(others).noneMatch(other -> isSameDeclaredBound(first, bound, other, sameDeclaration)))
+				return false;
+		}
+		for (TypeBinding other : others) {
+			if (Arrays.stream(bounds).noneMatch(bound -> isSameDeclaredBound(second, other, bound, sameDeclaration)))
+				return false;
+		}
+		return true;
+	}
+
+	private static TypeBinding[] declaredBounds(TypeVariableBinding typeVariable) {
+		if (typeVariable.firstBound == null)
+			return new TypeBinding[] { typeVariable.superclass };
+		List<TypeBinding> bounds = new ArrayList<>();
+		bounds.add(typeVariable.firstBound);
+		for (ReferenceBinding superInterface : typeVariable.superInterfaces) {
+			if (TypeBinding.notEquals(superInterface, typeVariable.firstBound))
+				bounds.add(superInterface);
+		}
+		return bounds.toArray(TypeBinding[]::new);
+	}
+
+	private static boolean isSameDeclaredBound(TypeVariableBinding typeVariable, TypeBinding bound, TypeBinding otherBound, boolean sameDeclaration) {
+		if (TypeBinding.notEquals(bound, otherBound))
+			return false;
+		if (!bound.isParameterizedType())
+			return true;
+		if (!sameDeclaration)
+			return false;
+		TypeVariableBinding[] declared = typeVariable.declaringElement instanceof MethodBinding method ? method.typeVariables
+				: typeVariable.declaringElement instanceof ReferenceBinding type ? type.typeVariables() : Binding.NO_TYPE_VARIABLES;
+		return !bound.mentionsAny(declared, -1);
+	}
+
+	private static boolean isCaptureVariable(InferenceVariable variable) {
+		return variable.typeParameter instanceof WildcardBinding;
+	}
+
+	private boolean isEquivalentToAnother(InferenceVariable variable) {
+		return isRecorded(this.equivalentVariables, variable);
+	}
+
+	/**
+	 * Non-JLS: whether javac would propagate the inference context of the current invocation into an enclosing one
+	 * ({@code Infer.instantiateMethod}, {@code PartiallyInferredMethodType.check}): within the inference of an enclosing
+	 * invocation, or as a result expression of a lambda argument being resolved for the last time
+	 * ({@code Attr.visitLambda}: {@code lambdaBodyResult}; {@code Attr.visitReturn}).
+	 */
+	boolean isWithinEnclosingInference() {
+		LookupEnvironment.PropagatingLambda propagating = this.environment.propagatingLambda;
+		if (propagating == null) {
+			InferenceContext18 enclosing = this.environment.currentInferenceContext;
+			return enclosing != null && !isSameSite(enclosing.currentInvocation, this.currentInvocation);
+		}
+		if (!(this.currentInvocation instanceof Expression expression))
+			return false;
+		if (propagating.results == null)
+			propagating.results = resultExpressions(propagating.lambda);
+		for (Expression result : propagating.results) {
+			if (result == expression)
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * The expressions whose value is the value of the lambda: its expression body or return expressions, and the branches
+	 * of conditional and switch expressions among them, not those of nested lambdas or local classes.
+	 */
+	private static List<Expression> resultExpressions(LambdaExpression lambda) {
+		List<Expression> results = new ArrayList<>();
+		if (lambda.body instanceof Expression body) {
+			addResultExpressions(body, results);
+			return results;
+		}
+		lambda.body.traverse(new ASTVisitor() {
+			@Override
+			public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
+				if (returnStatement.expression != null)
+					addResultExpressions(returnStatement.expression, results);
+				return false;
+			}
+			@Override
+			public boolean visit(LambdaExpression nested, BlockScope blockScope) {
+				return false;
+			}
+			@Override
+			public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope blockScope) {
+				return false;
+			}
+		}, lambda.scope);
+		return results;
+	}
+
+	private static void addResultExpressions(Expression result, List<Expression> results) {
+		results.add(result);
+		if (result instanceof ConditionalExpression conditional) {
+			addResultExpressions(conditional.valueIfTrue, results);
+			addResultExpressions(conditional.valueIfFalse, results);
+		} else if (result instanceof SwitchExpression switchExpression) {
+			switchExpression.traverse(new ASTVisitor() {
+				@Override
+				public boolean visit(YieldStatement yieldStatement, BlockScope blockScope) {
+					if (yieldStatement.expression != null)
+						addResultExpressions(yieldStatement.expression, results);
+					return false;
+				}
+				@Override
+				public boolean visit(SwitchExpression nested, BlockScope blockScope) {
+					return nested == switchExpression;
+				}
+				@Override
+				public boolean visit(LambdaExpression nested, BlockScope blockScope) {
+					return false;
+				}
+				@Override
+				public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope blockScope) {
+					return false;
+				}
+			}, (BlockScope) null);
+		}
+	}
 
 	public static boolean isSameSite(InvocationSite site1, InvocationSite site2) {
 		if (site1 == site2)
@@ -401,6 +676,10 @@ public class InferenceContext18 {
 			substitute(method.returnType); // result is ignore, the only effect is on InferenceVariable.nullHints
 
 		this.currentBounds = this.b2.copy();
+		if (isWithinEnclosingInference())
+			recordPropagation(this.b2, invocationSite, method, expectedType);
+		else
+			forgetPropagation(invocationSite);
 
 		int step = (expectedType == null || expectedType.isProperType(true)) ? TYPE_INFERRED_FINAL : TYPE_INFERRED;
 
@@ -1210,6 +1489,8 @@ public class InferenceContext18 {
 				if (attempt == FAIL_AFTER_USING_LOWER_BOUNDS && SHOULD_WORKAROUND_BUG_JDK_6573446) {
 					attempt = resolve(tmpBoundSet.copy(), new LinkedHashSet<>(variableSet), toResolveSet, isRecordPatternTypeInference, false);
 				}
+				if (attempt == FAIL_AFTER_USING_LOWER_BOUNDS)
+					attempt = null;
 				tmpBoundSet = attempt;
 				if (tmpBoundSet == null
 						|| tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated && oldNumUninstantiated != 0)
@@ -1259,6 +1540,7 @@ public class InferenceContext18 {
 			Set<InferenceVariable> variableSet, final InferenceVariable[] variables, boolean useLowerBounds)
 					throws InferenceFailureException {
 		boolean lowerBoundsUsed = false;
+		Map<InferenceVariable, Set<InferenceVariable>> dependencies = null;
 		for (int j = 0; j < variables.length; j++) {
 			InferenceVariable variable = variables[j];
 			if (tmpBoundSet.isInstantiated(variable)) { // NON-JLS: may happen when exception bound has been incorporated
@@ -1268,13 +1550,19 @@ public class InferenceContext18 {
 			}
 			// try lower bounds:
 			TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
-			if (lowerBounds != Binding.NO_TYPES && useLowerBounds) {
+			if (lowerBounds != Binding.NO_TYPES && (useLowerBounds || isSolvedFromLowerBounds(variable))) {
 				TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
 				if (lub == TypeBinding.VOID || lub == null)
 					return new ResolveOutcome(false, lowerBoundsUsed);
 				tmpBoundSet.addBound(new TypeBound(variable, lub, ReductionResult.SAME), this.environment);
 				lowerBoundsUsed = true;
 			} else {
+				if (lowerBounds != Binding.NO_TYPES && !isEquivalentToAnother(variable) && !isCaptureVariable(variable)) {
+					if (dependencies == null)
+						dependencies = collectDependencies(tmpBoundSet);
+					if (upperBoundMentionsInterdependentVariable(tmpBoundSet, dependencies, variable))
+						return new ResolveOutcome(false, lowerBoundsUsed);
+				}
 				TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, true/*onlyProper*/);
 				// check exception bounds:
 				if (tmpBoundSet.inThrows.contains(variable.prototype()) && tmpBoundSet.hasOnlyTrivialExceptionBounds(variable, upperBounds)) {
@@ -1284,6 +1572,7 @@ public class InferenceContext18 {
 					if (!tmpBoundSet.incorporate(this)) {
 						return new ResolveOutcome(false, lowerBoundsUsed); // go for second attempt
 					}
+					dependencies = null;
 				} else {
 					// try upper bounds:
 					TypeBinding glb = this.object;
@@ -1315,6 +1604,27 @@ public class InferenceContext18 {
 		if (tmpBoundSet.incorporate(this))
 			return new ResolveOutcome(true, lowerBoundsUsed); // success!
 		return new ResolveOutcome(false, lowerBoundsUsed); // go for second attempt
+	}
+
+	/**
+	 * Non-JLS: in the fallback without lower bounds, javac ({@code Infer.instantiateAsUninferredVars}) gives a fresh type
+	 * variable without lower bound to a variable whose upper bounds mention a variable of its node of the inference graph
+	 * ({@code InferenceGraph.initNodes}: a strongly connected set of dependencies), so its proper lower bounds fail.
+	 * Capture variables never join such a node ({@code Type.UndetVar.addBound}).
+	 */
+	private boolean upperBoundMentionsInterdependentVariable(BoundSet boundSet, Map<InferenceVariable, Set<InferenceVariable>> dependencies, InferenceVariable variable) {
+		Set<InferenceVariable> ofVariable = dependencies.get(variable);
+		if (ofVariable == null)
+			return false;
+		Set<InferenceVariable> mentioned = new LinkedHashSet<>();
+		for (TypeBinding upperBound : boundSet.upperBounds(variable, false))
+			upperBound.collectInferenceVariables(mentioned);
+		for (InferenceVariable other : mentioned) {
+			Set<InferenceVariable> ofOther = dependencies.get(other);
+			if (!isEquivalentToAnother(other) && !isCaptureVariable(other) && ofVariable.contains(other) && ofOther != null && ofOther.contains(variable))
+				return true;
+		}
+		return false;
 	}
 
 	private boolean resolveSecondAttempt(BoundSet tmpBoundSet, Set<InferenceVariable> toResolveSet,
@@ -1900,6 +2210,8 @@ public class InferenceContext18 {
 
 	public void integrateInnerInferenceB2(InferenceContext18 innerCtx) {
 		this.currentBounds.addBounds(innerCtx.b2, this.environment, true);
+		this.equivalentVariables = merge(this.equivalentVariables, innerCtx.equivalentVariables);
+		this.variablesSolvedFromLowerBounds = merge(this.variablesSolvedFromLowerBounds, innerCtx.variablesSolvedFromLowerBounds);
 		this.inferenceVariables = innerCtx.inferenceVariables;
 		this.inferenceKind = innerCtx.inferenceKind;
 		if (!isSameSite(innerCtx.currentInvocation, this.currentInvocation))
