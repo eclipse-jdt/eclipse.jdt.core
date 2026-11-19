@@ -1056,4 +1056,60 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		formatSource(input);
 	}
 
+	public void testIssue5571() throws Exception {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String source = """
+				class Test {
+					/// * XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+					///// XXXXX
+					public void test() {
+					}
+				}
+							""";
+		String expected = """
+				class Test {
+					/// * XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+					/// // XXXXX
+					public void test() {
+					}
+				}
+							""";
+
+		formatSource(source, expected);
+	}
+
+	public void testIssue5571JoinsLines() throws Exception {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String source = """
+				class Test {
+					/// heading
+					////text1
+					///// text2
+					////// text3
+					/////// text4
+					//////// text5
+					///////// text6
+					////////// text7
+					/////////// text8
+					//////////// text9
+					///////////// text10
+					public void test() {
+					}
+				}
+							""";
+		// The formatter sees this as markdown block so joins the lines and the slashes
+		// that were
+		// the markdown triple-slashes are removed.
+		String expected = """
+				class Test {
+					/// heading /text1 // text2 /// text3 //// text4 ///// text5 ////// text6
+					/// /////// text7 //////// text8 ///////// text9 ////////// text10
+					public void test() {
+					}
+				}
+							""";
+
+		formatSource(source, expected);
+	}
+
 }
