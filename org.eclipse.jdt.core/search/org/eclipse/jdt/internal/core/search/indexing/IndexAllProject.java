@@ -214,9 +214,12 @@ public class IndexAllProject extends IndexRequest {
 											}
 											return false;
 										case IResource.FOLDER :
-											if (exclusionPatterns != null || inclusionPatterns != null)
-												if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+										if (exclusionPatterns != null && inclusionPatterns == null) {
+											// if there are inclusion patterns then we must walk the children
+											if (Util.isExcluded(proxy.requestFullPath(), inclusionPatterns,
+													exclusionPatterns, true))
 													return false;
+										}
 											if (hasOutputs && outputs.contains(proxy.requestFullPath()))
 												return false;
 									}
