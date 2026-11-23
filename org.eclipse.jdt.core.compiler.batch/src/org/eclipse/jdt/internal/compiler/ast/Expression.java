@@ -34,6 +34,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -1207,6 +1208,70 @@ public void setExpressionContext(ExpressionContext context) {
 
 public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 	return this.resolvedType != null && this.resolvedType.isCompatibleWith(left,  scope);
+}
+
+public TypeBinding invocationArgumentType(TypeBinding type, TypeBinding parameterType, Scope scope) {
+	if (!(type instanceof CaptureBinding) || parameterType.kind() != Binding.PARAMETERIZED_TYPE)
+		return type;
+	TypeBinding upperBound = type;
+	List<TypeBinding> visited = new ArrayList<>();
+	while (upperBound instanceof CaptureBinding capture) {
+		for (TypeBinding previous : visited) {
+			if (TypeBinding.equalsEquals(previous, capture))
+				return type;
+		}
+		visited.add(capture);
+		upperBound = null;
+		TypeBinding[] bounds = capture.allUpperBounds();
+		if (bounds != null) {
+			for (TypeBinding bound : bounds) {
+				if (bound.id == TypeIds.T_JavaLangObject)
+					continue;
+				if (upperBound != null)
+					return type;
+				upperBound = bound;
+			}
+		}
+	}
+	if (!(upperBound instanceof ParameterizedTypeBinding parameterized) || (parameterized.tagBits & TagBits.HasDirectWildcard) == 0)
+		return type;
+	ParameterizedTypeBinding captured = parameterized.capture(scope, this.sourceStart, this.sourceEnd);
+	if (!captureIsNotContained(captured, captured.findSuperTypeOriginatingFrom(parameterType), parameterType))
+		return type;
+	long nullTagBits = type.tagBits & TagBits.AnnotationNullMASK;
+	if (nullTagBits != 0) {
+		LookupEnvironment environment = scope.environment();
+		return environment.createAnnotatedType(captured.withoutToplevelNullAnnotation(), environment.nullAnnotationsFromTagBits(nullTagBits));
+	}
+	return captured;
+}
+
+private static boolean captureIsNotContained(ParameterizedTypeBinding captured, TypeBinding superType, TypeBinding parameterType) {
+	if (!(superType instanceof ParameterizedTypeBinding provided) || !(parameterType instanceof ParameterizedTypeBinding required))
+		return false;
+	TypeBinding[] providedArguments = provided.arguments;
+	TypeBinding[] requiredArguments = required.arguments;
+	if (providedArguments != null && requiredArguments != null && providedArguments.length == requiredArguments.length) {
+		for (int i = 0; i < providedArguments.length; i++) {
+			if (providedArguments[i] instanceof CaptureBinding capture && isArgumentOf(capture, captured)) {
+				if (!(requiredArguments[i] instanceof WildcardBinding requiredWildcard))
+					return true;
+				if (requiredWildcard.boundKind == Wildcard.SUPER && capture.wildcard.boundKind != Wildcard.SUPER)
+					return true;
+			}
+		}
+	}
+	return captureIsNotContained(captured, provided.enclosingType(), required.enclosingType());
+}
+
+private static boolean isArgumentOf(CaptureBinding capture, ParameterizedTypeBinding captured) {
+	if (captured.arguments != null) {
+		for (TypeBinding argument : captured.arguments) {
+			if (TypeBinding.equalsEquals(argument, capture))
+				return true;
+		}
+	}
+	return false;
 }
 
 public boolean isBoxingCompatibleWith(TypeBinding left, Scope scope) {

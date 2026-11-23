@@ -37,6 +37,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
 	boolean isSoft;
 
+	boolean isInvocationArgument;
+
 	ConstraintExpressionFormula(Expression expression, TypeBinding type, int relation) {
 		this.left = expression;
 		this.right = type;
@@ -46,6 +48,12 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 	ConstraintExpressionFormula(Expression expression, TypeBinding type, int relation, boolean isSoft) {
 		this(expression, type, relation);
 		this.isSoft = isSoft;
+	}
+
+	private ConstraintExpressionFormula resultFormula(Expression result) {
+		ConstraintExpressionFormula formula = new ConstraintExpressionFormula(result, this.right, this.relation, this.isSoft);
+		formula.isInvocationArgument = this.isInvocationArgument;
+		return formula;
 	}
 
 	@Override
@@ -73,6 +81,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				}
 				return TRUE;
 			}
+			if (this.isInvocationArgument && !canBePolyExpression(this.left) && this.left.resolvedType != null) {
+				TypeBinding captured = this.left.invocationArgumentType(this.left.resolvedType, this.right, inferenceContext.scope);
+				if (TypeBinding.notEquals(captured, this.left.resolvedType) && captured.isCompatibleWith(this.right, inferenceContext.scope))
+					return TRUE;
+			}
 			return FALSE;
 		}
 		if (!canBePolyExpression(this.left)) {
@@ -82,7 +95,12 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					return null; // nothing valuable to infer from this
 				return FALSE;
 			}
-			return ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
+			if (this.isInvocationArgument)
+				exprType = this.left.invocationArgumentType(exprType, this.right, inferenceContext.scope);
+			ConstraintTypeFormula formula = ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
+			if (this.isInvocationArgument && formula != FALSE && (exprType.tagBits & TagBits.HasDirectWildcard) == 0)
+				formula.fromInvocationArgument = true;
+			return formula;
 		} else {
 			// shapes of poly expressions (18.2.1)
 			// - parenthesized expression : these are transparent in our AST
@@ -151,14 +169,14 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			} else if (this.left instanceof ConditionalExpression) {
 				ConditionalExpression conditional = (ConditionalExpression) this.left;
 				return new ConstraintFormula[] {
-					new ConstraintExpressionFormula(conditional.valueIfTrue, this.right, this.relation, this.isSoft),
-					new ConstraintExpressionFormula(conditional.valueIfFalse, this.right, this.relation, this.isSoft)
+					resultFormula(conditional.valueIfTrue),
+					resultFormula(conditional.valueIfFalse)
 				};
 			}  else if (this.left instanceof SwitchExpression se) {
 				ConstraintFormula[] cfs = new ConstraintFormula[se.resultExpressions().size()];
 				int i = 0;
 				for (Expression re : se.resultExpressions()) {
-					cfs[i++] = new ConstraintExpressionFormula(re, this.right, this.relation, this.isSoft);
+					cfs[i++] = resultFormula(re);
 				}
 				return cfs;
 			} else if (this.left instanceof LambdaExpression) {
