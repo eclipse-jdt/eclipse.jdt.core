@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2024 IBM Corporation and others.
+ * Copyright (c) 2016, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3553,6 +3553,79 @@ public void testBug521362_emptyFile() {
 		     true);
 		String expectedOutput = "// Compiled from X.java (version 1.8 : 52.0, super bit)";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	public void testReleaseOptionWithEquals() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release=8 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+		String expectedOutput = "// Compiled from X.java (version 1.8 : 52.0, super bit)";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	public void testModuleOptionsWithEquals() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, directory + File.separator + "mod.x", "module-info.java",
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, directory + File.separator + "mod.x" + File.separator + "pm", "C1.java",
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out)
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" \"--module-source-path=" + directory + "\"");
+		runConformModuleTest(files,
+				buffer,
+				"",
+				"");
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		writeFileCollecting(files, directory + File.separator + "p", "X.java",
+						"public class X extends pm.C1 { \n" +
+						"}");
+		buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out)
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" \"--module-path=" + OUTPUT_DIR + File.separator + out + "\"")
+			.append(" --add-modules=mod.x");
+		runConformModuleTest(files,
+				buffer,
+				"",
+				"");
+		buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out)
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" \"--module-path=" + OUTPUT_DIR + File.separator + out + "\"")
+			.append(" --add-modules=mod.z");
+		runNegativeModuleTest(files,
+				buffer,
+				"",
+				"invalid module name: mod.z\n",
+				"module not found");
 	}
 	public void testReleaseOption2() throws Exception {
 		if (!isJRE17Plus) return;

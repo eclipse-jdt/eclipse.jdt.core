@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1716,6 +1716,20 @@ public boolean compile(String[] argv) {
 	return false;
 }
 
+private static final Set<String> LONG_OPTIONS_WITH_ARGUMENT = Set.of("--add-exports", "--add-modules", "--add-reads", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		"--limit-modules", "--module-path", "--module-source-path", "--module-version", "--patch-module", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		"--processor-module-path", "--release", "--system", "--upgrade-module-path"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+public static String[] splitLongOption(String argument) {
+	if (argument.startsWith("--")) { //$NON-NLS-1$
+		int separator = argument.indexOf('=');
+		if (separator > 0 && LONG_OPTIONS_WITH_ARGUMENT.contains(argument.substring(0, separator))) {
+			return new String[] { argument.substring(0, separator), argument.substring(separator + 1) };
+		}
+	}
+	return null;
+}
+
 /*
 Decode the command line arguments
  */
@@ -1850,6 +1864,18 @@ public void configure(String[] argv) {
 		}
 
 		currentArg = newCommandLineArgs[index];
+		String[] nameAndValue = mode == DEFAULT ? splitLongOption(currentArg) : null;
+		if (nameAndValue != null) {
+			String[] splitArgs = new String[argCount + 1];
+			System.arraycopy(newCommandLineArgs, 0, splitArgs, 0, index);
+			splitArgs[index] = nameAndValue[0];
+			splitArgs[index + 1] = nameAndValue[1];
+			System.arraycopy(newCommandLineArgs, index + 1, splitArgs, index + 2, argCount - index - 1);
+			newCommandLineArgs = splitArgs;
+			this.expandedCommandLine = splitArgs;
+			argCount++;
+			currentArg = nameAndValue[0];
+		}
 
 		switch(mode) {
 			case DEFAULT :

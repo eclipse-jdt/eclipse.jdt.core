@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2024 IBM Corporation and others.
+ * Copyright (c) 2017, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -396,6 +396,47 @@ public class CompilerToolJava9Tests extends TestCase {
 			// This needs fix. This test case by design will produce different output every compiler version.
 	 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
 			// check that the .class file exist for X
+			assertTrue("delete failed", inputFile.delete());
+		};
+		cons.accept(standardManager);
+		cons.accept(getFileManager(standardManager));
+	}
+	public void testOptionReleaseWithEquals() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Consumer<JavaFileManager> cons = manager -> {
+			String tmpFolder = _tmpFolder;
+			File inputFile = new File(tmpFolder, "X.java");
+			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
+				writer.write(
+					"package p;\n" +
+					"public class X {}");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			List<File> files = new ArrayList<>();
+			files.add(inputFile);
+			Iterable<? extends JavaFileObject> units = standardManager.getJavaFileObjectsFromFiles(files);
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+
+			List<String> options = new ArrayList<>();
+			options.add("-d");
+			options.add(tmpFolder);
+			options.add("--release=8");
+			CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
+			Boolean result = task.call();
+			printWriter.flush();
+			printWriter.close();
+			assertTrue("Compilation failed: " + stringWriter, result.booleanValue());
+			ClassFileReader reader = null;
+			try {
+				reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
+			} catch (ClassFormatException | IOException e) {
+				fail("Should not happen: " + e);
+			}
+			assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
 			assertTrue("delete failed", inputFile.delete());
 		};
 		cons.accept(standardManager);
