@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2023 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2026 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -276,27 +276,45 @@ public class TypesImpl implements Types {
 
     @Override
     public TypeMirror erasure(TypeMirror t) {
-    	validateRealType(t);
+    	TypeKind kind = t.getKind();
+    	if (kind == TypeKind.PACKAGE || kind == TypeKind.MODULE) {
+    		throw new IllegalArgumentException(t.toString());
+    	}
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
         Binding binding = typeMirrorImpl._binding;
-        if (binding instanceof ReferenceBinding) {
-        	TypeBinding type = ((ReferenceBinding) binding).erasure();
-        	if (type.isGenericType()) {
-        		type = this._env.getLookupEnvironment().convertToRawType(type, false);
+        if (binding instanceof MethodBinding method) {
+        	TypeBinding[] parameters = new TypeBinding[method.parameters.length];
+        	for (int i = 0; i < parameters.length; i++) {
+        		parameters[i] = erasure(method.parameters[i]);
         	}
-            return this._env.getFactory().newTypeMirror(type);
+        	ReferenceBinding[] thrownExceptions = new ReferenceBinding[method.thrownExceptions.length];
+        	for (int i = 0; i < thrownExceptions.length; i++) {
+        		thrownExceptions[i] = (ReferenceBinding) erasure(method.thrownExceptions[i]);
+        	}
+        	MethodBinding erasure = new MethodBinding(method.modifiers, method.selector, erasure(method.returnType),
+        			parameters, thrownExceptions, method.declaringClass);
+        	return new ExecutableTypeImpl(this._env, erasure) {
+        		@Override
+        		public TypeMirror getReceiverType() {
+        			return NoTypeImpl.NO_TYPE_NONE;
+        		}
+        	};
         }
-        if (binding instanceof ArrayBinding) {
-            TypeBinding typeBinding = (TypeBinding) binding;
-            TypeBinding leafType = typeBinding.leafComponentType().erasure();
-            if (leafType.isGenericType()) {
-            	leafType = this._env.getLookupEnvironment().convertToRawType(leafType, false);
-            }
-            return this._env.getFactory().newTypeMirror(
-                    this._env.getLookupEnvironment().createArrayType(leafType,
-                            typeBinding.dimensions()));
+        if (binding instanceof ReferenceBinding || binding instanceof ArrayBinding) {
+            return this._env.getFactory().newTypeMirror(erasure((TypeBinding) binding));
         }
         return t;
+    }
+
+    private TypeBinding erasure(TypeBinding type) {
+    	if (type instanceof ArrayBinding) {
+    		return this._env.getLookupEnvironment().createArrayType(erasure(type.leafComponentType()), type.dimensions());
+    	}
+    	TypeBinding erasure = type.erasure();
+    	if (erasure.isGenericType()) {
+    		erasure = this._env.getLookupEnvironment().convertToRawType(erasure, false);
+    	}
+    	return erasure;
     }
 
     @Override

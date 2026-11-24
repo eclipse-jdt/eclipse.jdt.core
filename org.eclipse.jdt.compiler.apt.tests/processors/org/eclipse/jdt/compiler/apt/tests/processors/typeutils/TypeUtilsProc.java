@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2015 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2026 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ package org.eclipse.jdt.compiler.apt.tests.processors.typeutils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
@@ -34,6 +36,7 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Types;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 import org.eclipse.jdt.internal.compiler.apt.model.DeclaredTypeImpl;
@@ -94,6 +97,10 @@ public class TypeUtilsProc extends BaseProcessor
     		if (!examineTypesAsMemberOfSubclass()) {
     		    return false;
     		}
+
+    		if (!examineErasureOfExecutable()) {
+    			return false;
+    		}
 		} catch (RuntimeException e) {
 		    StringWriter sw = new StringWriter();
 		    PrintWriter w = new PrintWriter(sw);
@@ -104,6 +111,124 @@ public class TypeUtilsProc extends BaseProcessor
 
 		reportSuccess();
 		return false;
+	}
+
+	private boolean examineErasureOfExecutable() {
+		TypeElement typeAC = _elementUtils.getTypeElement("targets.model.pb.AC");
+		TypeElement typeA = _elementUtils.getTypeElement("targets.model.pa.A");
+		if (null == typeAC || null == typeA) {
+			reportError("Couldn't find targets.model.pb.AC or targets.model.pa.A");
+			return false;
+		}
+		List<ExecutableElement> methods = new ArrayList<>(ElementFilter.methodsIn(typeAC.getEnclosedElements()));
+		methods.addAll(ElementFilter.methodsIn(typeA.getEnclosedElements()));
+		int checked = 0;
+		for (ExecutableElement method : methods) {
+			String name = method.getSimpleName().toString();
+			if (!name.equals("methodT3Void") && !name.equals("methodGetMapT1ListT2") && !name.equals("methodThrows2")) {
+				continue;
+			}
+			ExecutableType type = (ExecutableType) method.asType();
+			TypeMirror erasure = _typeUtils.erasure(type);
+			if (erasure.getKind() != TypeKind.EXECUTABLE) {
+				reportError("erasure of the type of " + name + " should be an executable type, but is " + erasure.getKind());
+				return false;
+			}
+			ExecutableType erasedType = (ExecutableType) erasure;
+			if (!erasedType.getTypeVariables().isEmpty()) {
+				reportError("erasure of the type of " + name + " should have no type variables: " + erasedType.getTypeVariables());
+				return false;
+			}
+			if (!sameTypes(_typeUtils.erasure(type.getReturnType()), erasedType.getReturnType())) {
+				reportError("erasure of the type of " + name + " has the return type " + erasedType.getReturnType());
+				return false;
+			}
+			if (!sameErasures(type.getParameterTypes(), erasedType.getParameterTypes())) {
+				reportError("erasure of the type of " + name + " has the parameter types " + erasedType.getParameterTypes());
+				return false;
+			}
+			if (!sameErasures(type.getThrownTypes(), erasedType.getThrownTypes())) {
+				reportError("erasure of the type of " + name + " has the thrown types " + erasedType.getThrownTypes());
+				return false;
+			}
+			checked++;
+		}
+		if (checked != 3) {
+			reportError("Expected to check the erasure of 3 methods, checked " + checked);
+			return false;
+		}
+		ExecutableType methodT3Void = erasureOf(typeAC, "methodT3Void");
+		if (!expect(methodT3Void.getParameterTypes(), rawType("java.util.List"))) {
+			reportError("erasure of the type of methodT3Void has the parameter types " + methodT3Void.getParameterTypes());
+			return false;
+		}
+		ExecutableType methodGetMap = erasureOf(typeAC, "methodGetMapT1ListT2");
+		if (!_typeUtils.isSameType(methodGetMap.getReturnType(), rawType("java.util.Map"))
+				|| !expect(methodGetMap.getParameterTypes(), rawType("java.util.Iterator"))) {
+			reportError("erasure of the type of methodGetMapT1ListT2 is " + methodGetMap.getParameterTypes() + " " + methodGetMap.getReturnType());
+			return false;
+		}
+		ExecutableType methodGetT1 = erasureOf(typeAC, "methodGetT1");
+		if (!_typeUtils.isSameType(methodGetT1.getReturnType(), _elementUtils.getTypeElement("java.lang.String").asType())
+				|| !expect(methodGetT1.getParameterTypes(), _elementUtils.getTypeElement("java.lang.Object").asType())) {
+			reportError("erasure of the type of methodGetT1 is " + methodGetT1.getParameterTypes() + " " + methodGetT1.getReturnType());
+			return false;
+		}
+		ExecutableType methodThrows2 = erasureOf(typeA, "methodThrows2");
+		if (!expect(methodThrows2.getThrownTypes(), _elementUtils.getTypeElement("targets.model.pa.ExceptionA").asType(),
+				_elementUtils.getTypeElement("java.lang.UnsupportedOperationException").asType())) {
+			reportError("erasure of the type of methodThrows2 has the thrown types " + methodThrows2.getThrownTypes());
+			return false;
+		}
+		if (methodGetT1.getReceiverType().getKind() != TypeKind.NONE) {
+			reportError("erasure of the type of methodGetT1 should have no receiver type, not " + methodGetT1.getReceiverType());
+			return false;
+		}
+		return true;
+	}
+
+	private ExecutableType erasureOf(TypeElement type, String name) {
+		for (ExecutableElement method : ElementFilter.methodsIn(type.getEnclosedElements())) {
+			if (method.getSimpleName().contentEquals(name)) {
+				return (ExecutableType) _typeUtils.erasure(method.asType());
+			}
+		}
+		throw new IllegalStateException("No method " + name + " in " + type);
+	}
+
+	private TypeMirror rawType(String name) {
+		return _typeUtils.getDeclaredType(_elementUtils.getTypeElement(name));
+	}
+
+	private boolean expect(List<? extends TypeMirror> actual, TypeMirror... expected) {
+		if (actual.size() != expected.length) {
+			return false;
+		}
+		for (int i = 0; i < expected.length; i++) {
+			if (!_typeUtils.isSameType(expected[i], actual.get(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean sameErasures(List<? extends TypeMirror> types, List<? extends TypeMirror> erasures) {
+		if (types.size() != erasures.size()) {
+			return false;
+		}
+		for (int i = 0; i < types.size(); i++) {
+			if (!sameTypes(_typeUtils.erasure(types.get(i)), erasures.get(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean sameTypes(TypeMirror expected, TypeMirror actual) {
+		if (expected.getKind() == TypeKind.VOID) {
+			return actual.getKind() == TypeKind.VOID;
+		}
+		return _typeUtils.isSameType(expected, actual);
 	}
 
 	/**
