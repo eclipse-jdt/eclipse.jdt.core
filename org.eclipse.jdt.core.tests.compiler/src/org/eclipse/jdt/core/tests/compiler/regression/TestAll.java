@@ -270,8 +270,6 @@ public static Test suite() {
 		},
 		{ // 28
 			PreviewFlagTest.class,
-			PrimitiveInPatternsTest.class,
-			PrimitiveInPatternsTestSH.class,
 			ValueClassesAndObjectsTest.class,
 			CopilotGeneratedJep401Tests.class,
 			RecordsWithStrictFieldsTest.class,

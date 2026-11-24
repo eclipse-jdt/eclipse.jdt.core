@@ -123,63 +123,6 @@ public class BaseTypeBinding extends TypeBinding {
 						&& (CONVERSIONS[right2left] & (IDENTITY|NARROWING)) != 0;
 	}
 
-	/**
-	 * Predicate telling whether its a widening followed by narrowing conversion -
-	 * as per section 5.1.4 applicable for byte to char
-	 * @param left - the target type to convert to
-	 * @param right - the actual type
-	 * @return true if  widening and narrowing conversion
-	 */
-	public static final boolean isWideningAndNarrowing(int left, int right) {
-		return TypeIds.Byte2Char ==  right + (left<<4);
-	}
-
-	/**
-	 * Predicate telling whether "left" can store a "right" using some widening conversion and
-	 * whether it is an exact widening conversion
-	 * https://cr.openjdk.org/~abimpoudis/instanceof/jep455-20240424/specs/instanceof-jls.html#jls-5.1.2
-	 *(is left bigger than right)
-	 * @param left - the target type to convert to
-	 * @param right - the actual type
-	 * @return true if legal widening conversion
-	 */
-	public static final boolean isExactWidening(int left, int right) {
-		if (isWidening(left, right)) {
-			int right2left = right + (left<<4);
-			switch (right2left) {
-				case TypeIds.Byte2Short:
-				case TypeIds.Byte2Int:
-				case TypeIds.Byte2Long:
-				case TypeIds.Byte2Float:
-				case TypeIds.Byte2Double:
-				case TypeIds.Short2Int:
-				case TypeIds.Short2Long:
-				case TypeIds.Short2Float:
-				case TypeIds.Short2Double:
-				case TypeIds.Char2Int:
-				case TypeIds.Char2Long:
-				case TypeIds.Char2Float:
-				case TypeIds.Char2Double:
-				case TypeIds.Int2Long:
-				case TypeIds.Int2Double:
-				case TypeIds.Float2Double:
-					return true;
-				default : return false;
-			}
-
-		}
-		return false;
-	}
-
-	/**
-	 *
-	 * @param left - the target type to convert to
-	 * @param right - the actual type
-	 * @return return the conversion index
-	 */
-	public static final int getRightToLeft(int left, int right) {
-		return right + (left<<4);
-	}
 	public final boolean isIntegralType(int tid) {
 		return tid == TypeIds.T_byte || tid == TypeIds.T_short || tid == TypeIds.T_int || tid == TypeIds.T_long;
 	}

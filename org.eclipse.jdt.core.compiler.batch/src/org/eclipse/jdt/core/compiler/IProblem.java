@@ -2886,6 +2886,7 @@ void setSourceStart(int sourceStart);
 	/**
 	 * @since 3.40
 	 * @noreference preview feature
+	 * @deprecated - problem is no longer generated (preview feature "Primitive Types in Patterns" withdrawn)
 	 */
 	int WrongCaseType =  PreviewRelated + 2100;
 
@@ -2898,6 +2899,7 @@ void setSourceStart(int sourceStart);
 	/**
 	 * @since 3.40
 	 * @noreference preview feature
+	 * @deprecated - problem is no longer generated (preview feature "Primitive Types in Patterns" withdrawn)
 	 */
 	int DefaultTrueAndFalseCases = PreviewRelated + 2102;
 
