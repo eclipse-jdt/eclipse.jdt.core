@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2020 Jesper S Moller and others.
+ * Copyright (c) 2013, 2026 Jesper S Moller and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1548,6 +1548,51 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n" +
 			"	                         ^^^^\n" +
 			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" +
+			"----------\n");
+	}
+	public void testContainerAnnotationTypeTargetCoveredByTypeUse() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"@Target({ FIELD, TYPE_USE })\n" +
+				"@Repeatable(A.List.class)\n" +
+				"@interface A {\n" +
+				"  @Target({ FIELD, ANNOTATION_TYPE, TYPE_USE })\n" +
+				"  @interface List { A[] value(); }\n" +
+				"}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@Repeatable(B.List.class)\n" +
+				"@interface B {\n" +
+				"  @Target({ TYPE, TYPE_PARAMETER, ANNOTATION_TYPE })\n" +
+				"  @interface List { B[] value(); }\n" +
+				"}\n" +
+				"@A @A @interface Annotated {}\n" +
+				"@B @B public class X<@B @B T> {\n" +
+				"  @A @A String f;\n" +
+				"}\n"
+			},
+			"");
+	}
+	public void testContainerAnnotationTypeTargetNotCoveredByTypeUse() {
+		this.runNegativeTest(
+			new String[] {
+				"C.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"@Target(TYPE_USE)\n" +
+				"@Repeatable(C.List.class)\n" +
+				"@interface C {\n" +
+				"  @Target({ TYPE_PARAMETER, ANNOTATION_TYPE, METHOD })\n" +
+				"  @interface List { C[] value(); }\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in C.java (at line 4)\n" +
+			"	@Repeatable(C.List.class)\n" +
+			"	            ^^^^^^^^^^^^\n" +
+			"The container annotation type @C.List is allowed at targets where the repeatable annotation type @C is not: METHOD\n" +
 			"----------\n");
 	}
 	// check repeated occurrence of annotation where annotation container is not valid for the target
