@@ -1243,7 +1243,7 @@ public abstract class Annotation extends Expression {
 					AnnotationTargetAllowed.NO;
 			case Binding.LOCAL :
 				LocalVariableBinding localVariableBinding = (LocalVariableBinding) recipient;
-				if ((localVariableBinding.tagBits & TagBits.IsArgument) != 0) {
+				if (localVariableBinding.isParameter() || localVariableBinding.isCatchParameter()) {
 					if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
 						return AnnotationTargetAllowed.YES;
 					} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {

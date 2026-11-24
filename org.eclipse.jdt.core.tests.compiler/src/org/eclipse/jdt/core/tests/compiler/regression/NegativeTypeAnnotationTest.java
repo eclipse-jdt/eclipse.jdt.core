@@ -4523,4 +4523,49 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				+ "Syntax error, type annotations are illegal here\n"
 				+ "----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5777
+	// PARAMETER annotation rejected on an exception parameter (catch), LOCAL_VARIABLE accepted instead
+	public void testIssue5777() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.*;
+					public class X {
+					  @Target({ElementType.PARAMETER})
+					  @interface ParameterAnnotation {}
+
+					  @Target({ElementType.LOCAL_VARIABLE})
+					  @interface LocalVariableAnnotation {}
+
+					  @Target({ElementType.TYPE_USE})
+					  @interface TypeUseAnnotation {}
+
+					  @interface TargetLessAnnotation {}
+
+					  void m1() { try { } catch (@ParameterAnnotation RuntimeException t) { } }
+					  void m2() { try { } catch (@LocalVariableAnnotation RuntimeException t) { } }
+					  void m3() { try { } catch (@TypeUseAnnotation RuntimeException t) { } }
+					  void m4() { try { } catch (@TargetLessAnnotation RuntimeException t) { } }
+
+					  void m5() { try { } catch (@ParameterAnnotation NullPointerException | ArrayIndexOutOfBoundsException t) { } }
+					  void m6() { try { } catch (@LocalVariableAnnotation NullPointerException | ArrayIndexOutOfBoundsException t) { } }
+					  void m7() { try { } catch (@TypeUseAnnotation NullPointerException | ArrayIndexOutOfBoundsException t) { } }
+					  void m8() { try { } catch (@TargetLessAnnotation NullPointerException | ArrayIndexOutOfBoundsException t) { } }
+					}
+					""",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 15)\n" +
+				"	void m2() { try { } catch (@LocalVariableAnnotation RuntimeException t) { } }\n" +
+				"	                           ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The annotation @X.LocalVariableAnnotation is disallowed for this location\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 20)\n" +
+				"	void m6() { try { } catch (@LocalVariableAnnotation NullPointerException | ArrayIndexOutOfBoundsException t) { } }\n" +
+				"	                           ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The annotation @X.LocalVariableAnnotation is disallowed for this location\n" +
+				"----------\n");
+	}
 }
