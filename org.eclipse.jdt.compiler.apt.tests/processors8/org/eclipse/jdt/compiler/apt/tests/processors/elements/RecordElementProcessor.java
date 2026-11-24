@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 IBM Corporation.
+ * Copyright (c) 2020, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -98,6 +98,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		testRecords8();
 		testRecords9();
 		testRecords10();
+		testRecordComponentDocComment();
 	}
 
 	public void testPreviewFlagTrue() throws IOException {
@@ -575,6 +576,22 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		verifyAnnotations(field, new String[]{"@Marker4()"});
 		asType = field.asType();
 		verifyAnnotations(asType, new String[]{});
+	}
+	public void testRecordComponentDocComment() {
+		TypeElement record = find(roundEnv.getRootElements(), "DocumentedRecord");
+		assertNotNull("TypeElement for record should not be null", record);
+		List<? extends RecordComponentElement> components = record.getRecordComponents();
+		assertEquals("incorrect no of record components", 2, components.size());
+		for (RecordComponentElement component : components) {
+			assertNull("doc comment of the record component " + component, _elementUtils.getDocComment(component));
+		}
+		assertNull("doc comment of the accessor of a", _elementUtils.getDocComment(components.get(0).getAccessor()));
+		for (VariableElement field : ElementFilter.fieldsIn(record.getEnclosedElements())) {
+			assertNull("doc comment of the field " + field, _elementUtils.getDocComment(field));
+		}
+		String accessorComment = _elementUtils.getDocComment(components.get(1).getAccessor());
+		assertNotNull("doc comment of the accessor of b", accessorComment);
+		assertEquals("doc comment of the accessor of b", "The accessor of b.", accessorComment.trim());
 	}
 	public void testRecordsConstructors() {
 		Set<? extends Element> elements = roundEnv.getRootElements();

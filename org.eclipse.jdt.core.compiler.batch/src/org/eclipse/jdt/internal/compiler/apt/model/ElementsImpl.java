@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2026 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -370,7 +370,6 @@ public class ElementsImpl implements Elements {
 					referenceContext = sourceMethod;
 				}
 				break;
-			case RECORD_COMPONENT :
 			case ENUM_CONSTANT :
 			case FIELD :
 				VariableElementImpl variableElementImpl = (VariableElementImpl) e;
