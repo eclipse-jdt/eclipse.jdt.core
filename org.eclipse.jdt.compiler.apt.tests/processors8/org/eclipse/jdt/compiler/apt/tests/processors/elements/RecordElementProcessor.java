@@ -605,4 +605,18 @@ public class RecordElementProcessor extends BaseElementProcessor {
 			assertTrue("Should be a compact constructor", _elementUtils.isCompactConstructor(constr));
 		}
 	}
+	public void testGHIssue5772() {
+		Element annot = _elementUtils.getTypeElement("records.q.Q");
+		Element type = _elementUtils.getTypeElement("records.q.R5");
+		List<? extends Element> enclosedElements = type.getEnclosedElements();
+//		List<RecordComponentElement> recordComponentsIn = ElementFilter.recordComponentsIn(enclosedElements);
+//		RecordComponentElement recordComponentElement = recordComponentsIn.get(0);
+//		List<? extends AnnotationMirror> annotationMirrors = recordComponentElement.getAnnotationMirrors();
+		assertNotNull("TypeElement for annotation element should not be null", annot);
+		Set<? extends Element> elementsAnnotatedWith = roundEnv.getElementsAnnotatedWith((TypeElement) annot);
+		for (Element e : elementsAnnotatedWith) {
+			System.out.println(e.getKind() + " " + e + " enclosed by " + e.getEnclosingElement().getKind() + " " + e.getEnclosingElement());
+        }
+		System.out.println("END: " + annot.getClass().toString());
+	}
 }

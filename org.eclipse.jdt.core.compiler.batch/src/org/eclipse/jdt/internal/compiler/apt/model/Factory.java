@@ -349,9 +349,10 @@ public class Factory {
 		switch (binding.kind()) {
 		case Binding.FIELD:
 		case Binding.LOCAL:
-		case Binding.RECORD_COMPONENT:
 		case Binding.VARIABLE:
 			return new VariableElementImpl(this._env, (VariableBinding) binding);
+		case Binding.RECORD_COMPONENT:
+			return new RecordComponentElementImpl(this._env, (RecordComponentBinding) binding);
 		case Binding.TYPE:
 		case Binding.GENERIC_TYPE:
 			ReferenceBinding referenceBinding = (ReferenceBinding)binding;
