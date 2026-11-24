@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2024 IBM Corporation and others.
+ * Copyright (c) 2016, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3600,6 +3600,70 @@ public void testBug521362_emptyFile() {
 		     + " --release 8 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "option -source is not supported when --release is used\n",
+		     true);
+	}
+	public void testDefaultRootModulesRelease11() throws Exception {
+		if (!isJRE11Plus) return;
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import javax.smartcardio.TerminalFactory;\n" +
+					"public class X {\n" +
+					"	TerminalFactory f = TerminalFactory.getDefault();\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 11 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+	}
+	public void testDefaultRootModulesWithoutRelease() throws Exception {
+		if (!isJRE11Plus) return;
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import javax.smartcardio.TerminalFactory;\n" +
+					"public class X {\n" +
+					"	TerminalFactory f = TerminalFactory.getDefault();\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+	}
+	public void testDefaultRootModulesRelease10() throws Exception {
+		if (!isJRE11Plus) return;
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import javax.smartcardio.TerminalFactory;\n" +
+					"public class X {\n" +
+					"	TerminalFactory f = TerminalFactory.getDefault();\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 10 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" +
+		     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
+		     "	import javax.smartcardio.TerminalFactory;\n" +
+		     "	       ^^^^^^^^^^^^^^^^^\n" +
+		     "The import javax.smartcardio cannot be resolved\n" +
+		     "----------\n" +
+		     "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		     "	TerminalFactory f = TerminalFactory.getDefault();\n" +
+		     "	^^^^^^^^^^^^^^^\n" +
+		     "TerminalFactory cannot be resolved to a type\n" +
+		     "----------\n" +
+		     "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		     "	TerminalFactory f = TerminalFactory.getDefault();\n" +
+		     "	                    ^^^^^^^^^^^^^^^\n" +
+		     "TerminalFactory cannot be resolved\n" +
+		     "----------\n" +
+		     "3 problems (3 errors)\n",
 		     true);
 	}
 	public void testReleaseOption5() throws Exception {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2023 IBM Corporation.
+ * Copyright (c) 2016, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
@@ -39,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
@@ -273,6 +275,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	@Override
 	protected <T> List<String> allModules(Iterable<T> allSystemModules, Function<T,String> getModuleName, Function<T,IModule> getModule) {
 		List<String> result = new ArrayList<>();
+		boolean allApiModulesAreRoots = allApiModulesAreRoots();
 		boolean hasJavaDotSE = false;
 		for (T mod : allSystemModules) {
 			String moduleName = getModuleName.apply(mod);
@@ -284,10 +287,13 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		}
 		for (T mod : allSystemModules) {
 			String moduleName = getModuleName.apply(mod);
-			boolean isJavaDotStart = moduleName.startsWith("java."); //$NON-NLS-1$
-			boolean isPotentialRoot = !isJavaDotStart;	// always include non-java.*
-			if (!hasJavaDotSE)
-				isPotentialRoot |= isJavaDotStart;		// no java.se => add all java.*
+			boolean isPotentialRoot = true;
+			if (!allApiModulesAreRoots) {
+				boolean isJavaDotStart = moduleName.startsWith("java."); //$NON-NLS-1$
+				isPotentialRoot = !isJavaDotStart;	// always include non-java.*
+				if (!hasJavaDotSE)
+					isPotentialRoot |= isJavaDotStart;		// no java.se => add all java.*
+			}
 
 			if (isPotentialRoot) {
 				IModule m = getModule.apply(mod);
@@ -302,6 +308,14 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			}
 		}
 		return result;
+	}
+	protected boolean allApiModulesAreRoots() {
+		try {
+			String release = JRTUtil.getJdkRelease(this.file);
+			return release == null || CompilerOptions.versionToJdkLevel(release) >= ClassFileConstants.JDK11;
+		} catch (IOException e) {
+			return true;
+		}
 	}
 	@Override
 	public void reset() {
