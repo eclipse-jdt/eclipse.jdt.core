@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2023 IBM Corporation.
+ * Copyright (c) 2018, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -50,6 +50,14 @@ public class Java11ElementsTests extends TestCase {
 	public void testFiler3Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest2(compiler, MODULE_PROC, "testFiler3", null);
+	}
+	public void testFilerSingleModule() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestSingleModule(compiler, "testFilerSingleModule");
+	}
+	public void testFilerSingleModuleJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestSingleModule(compiler, "testFilerSingleModule");
 	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava11()) {
@@ -103,6 +111,30 @@ public class Java11ElementsTests extends TestCase {
 		}
 		BatchTestUtils.compileInModuleMode(compiler, options, MODULE_PROC, srcRoot, null, true, false);
 		assertEquals("succeeded", System.getProperty(MODULE_PROC));
+	}
+	private void internalTestSingleModule(JavaCompiler compiler, String testMethod) throws IOException {
+		if (!canRunJava17()) {
+			return;
+		}
+		System.clearProperty(MODULE_PROC);
+		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "mod.gen");
+		BatchTestUtils.copyResources("mod_locations/bug5757/mod.gen", srcRoot);
+
+		List<String> options = new ArrayList<>();
+		options.add("-A" + testMethod);
+		if (compiler instanceof EclipseCompiler) {
+			options.add("-17");
+		}
+		BatchTestUtils.compileInModuleMode(compiler, options, MODULE_PROC, srcRoot, null, false, false);
+		assertEquals("succeeded", System.getProperty(MODULE_PROC));
+	}
+	public boolean canRunJava17() {
+		try {
+			SourceVersion.valueOf("RELEASE_17");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
 	}
 	public boolean canRunJava11() {
 		try {

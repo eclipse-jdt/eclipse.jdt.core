@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation.
+ * Copyright (c) 2019, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@
 package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
@@ -144,6 +146,23 @@ public class Java11ElementProcessor extends BaseProcessor {
 			reportError("source should be created inside the module");
 		}
 
+	}
+	public void testFilerSingleModule() throws IOException {
+		TypeElement generated = _elementUtils.getTypeElement("gen.api.ApiImpl");
+		if (generated == null) {
+			TypeElement api = _elementUtils.getTypeElement("gen.api.Api");
+			assertNotNull("type element should not be null", api);
+			try (Writer writer = _filer.createSourceFile("gen.api.ApiImpl", api).openWriter()) {
+				writer.write("package gen.api;\npublic class ApiImpl implements Api {\n\t@Override public String hello() { return Helper.NAME; }\n}\n");
+			} catch (IOException e) {
+				reportError("gen.api.ApiImpl could not be created: " + e);
+			}
+			this.reportSuccessAlready = false;
+			return;
+		}
+		ModuleElement module = _elementUtils.getModuleOf(generated);
+		assertEquals("generated type should be in the module", "mod.gen", module.getQualifiedName().toString());
+		this.reportSuccessAlready = true;
 	}
 	@Override
 	public void reportError(String msg) {
