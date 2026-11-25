@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2021 BEA Systems, Inc.
+ * Copyright (c) 2007, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -31,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -38,6 +40,8 @@ import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
@@ -100,6 +104,37 @@ public class BatchTestUtils {
 		return compileOneClass(compiler, options, inputFile, false);
 	}
 	public static DiagnosticReport<JavaFileObject> compileOneClass(JavaCompiler compiler, List<String> options, File inputFile, boolean useJLS8Processors) {
+		addProcessorPaths(options, useJLS8Processors, true);
+		return compileOneClassWithPaths(compiler, options, inputFile);
+	}
+	public static DiagnosticReport<JavaFileObject> compileOneClassProcessorPathFirst(JavaCompiler compiler, List<String> options, File inputFile, boolean modulePath) throws IOException {
+		File annotations = new File(_tmpFolder, "annotations-only");
+		deleteTree(annotations);
+		try (ZipFile jar = new ZipFile(_processorJarPath)) {
+			for (ZipEntry entry : Collections.list(jar.entries())) {
+				Path target = annotations.toPath().resolve(entry.getName()).normalize();
+				if (!entry.isDirectory() && entry.getName().startsWith("org/eclipse/jdt/compiler/apt/tests/annotations/")
+						&& target.startsWith(annotations.toPath())) {
+					Files.createDirectories(target.getParent());
+					try (InputStream in = jar.getInputStream(entry)) {
+						Files.copy(in, target);
+					}
+				}
+			}
+		}
+		options.add("-processorpath");
+		options.add(_processorJarPath);
+		if (modulePath) {
+			File modules = new File(_tmpFolder, "empty-module-path");
+			modules.mkdirs();
+			options.add("--module-path");
+			options.add(modules.getPath());
+		}
+		options.add("-cp");
+		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + annotations.getPath());
+		return compileOneClassWithPaths(compiler, options, inputFile);
+	}
+	private static DiagnosticReport<JavaFileObject> compileOneClassWithPaths(JavaCompiler compiler, List<String> options, File inputFile) {
 		DiagnosticReport<JavaFileObject> diagnostics = new DiagnosticReport<>();
 		StandardJavaFileManager manager = compiler.getStandardFileManager(diagnostics, Locale.getDefault(), Charset.defaultCharset());
 
@@ -114,7 +149,6 @@ public class BatchTestUtils {
 		options.add(_tmpBinFolderName);
 		options.add("-s");
 		options.add(_tmpGenFolderName);
-		addProcessorPaths(options, useJLS8Processors, true);
 		options.add("-XprintRounds");
 		options.add("-XprintProcessorInfo");
 		CompilationTask task = compiler.getTask(printWriter, manager, diagnostics, options, null, units);

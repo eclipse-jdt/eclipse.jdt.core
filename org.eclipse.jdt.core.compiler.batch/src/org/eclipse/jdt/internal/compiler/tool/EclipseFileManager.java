@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 IBM Corporation and others.
+ * Copyright (c) 2006, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -62,7 +62,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	static final int HAS_BOOTCLASSPATH = 2;
 	static final int HAS_ENDORSED_DIRS = 4;
 	static final int HAS_PROCESSORPATH = 8;
-	static final int HAS_PROC_MODULEPATH = 16;
 
 	Map<File, Archive> archivesCache;
 	Charset charset;
@@ -735,9 +734,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 							}
 							if ((this.flags & EclipseFileManager.HAS_PROCESSORPATH) == 0) {
 								setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
-							} else if ((this.flags & EclipseFileManager.HAS_PROC_MODULEPATH) == 0) {
-								if (this.isOnJvm9)
-									setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, classpaths);
 							}
 						}
 						return true;
@@ -756,9 +752,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						}
 						if ((this.flags & EclipseFileManager.HAS_PROCESSORPATH) == 0) {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
-						} else if ((this.flags & EclipseFileManager.HAS_PROC_MODULEPATH) == 0) {
-							if (this.isOnJvm9)
-								setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, classpaths);
 						}
 					}
 					return true;
@@ -842,7 +835,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
 						if (processorpaths != null && this.isOnJvm9) {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, processorpaths);
-							this.flags |= EclipseFileManager.HAS_PROC_MODULEPATH;
 						}
 						return true;
 					} else {

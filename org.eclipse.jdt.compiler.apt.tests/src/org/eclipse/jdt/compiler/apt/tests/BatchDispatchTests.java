@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 BEA Systems, Inc.
+ * Copyright (c) 2006, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -261,14 +261,52 @@ public class BatchDispatchTests extends TestCase {
  		assertTrue("generated src file was not compiled", genClassFile.exists());
 	}
 
+	public void testProcessorPathBeforeClasspathWithEclipseCompiler() throws IOException {
+		internalTestGenerateClass(BatchTestUtils.getEclipseCompiler(), PathOrder.PROCESSOR_PATH_BEFORE_CLASS_PATH);
+	}
+
+	public void testProcessorPathBeforeClasspathWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
+		internalTestGenerateClass(compiler, PathOrder.PROCESSOR_PATH_BEFORE_CLASS_PATH);
+	}
+
+	public void testProcessorPathBeforeModulePathWithEclipseCompiler() throws IOException {
+		internalTestGenerateClass(BatchTestUtils.getEclipseCompiler(), PathOrder.PROCESSOR_PATH_BEFORE_MODULE_PATH);
+	}
+
+	public void testProcessorPathBeforeModulePathWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
+		internalTestGenerateClass(compiler, PathOrder.PROCESSOR_PATH_BEFORE_MODULE_PATH);
+	}
+
+	private enum PathOrder {
+		DEFAULT, PROCESSOR_PATH_BEFORE_CLASS_PATH, PROCESSOR_PATH_BEFORE_MODULE_PATH
+	}
+
 	// Called with system compiler and Eclipse compiler
 	private void internalTestGenerateClass(JavaCompiler compiler) throws IOException {
+		internalTestGenerateClass(compiler, PathOrder.DEFAULT);
+	}
+
+	private void internalTestGenerateClass(JavaCompiler compiler, PathOrder order) throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
 		File inputFile = BatchTestUtils.copyResource("targets/dispatch/HasGenClass.java", targetFolder);
 		assertNotNull("No input file", inputFile);
 
 		List<String> options = new ArrayList<>();
-		BatchTestUtils.compileOneClass(compiler, options, inputFile);
+		if (order != PathOrder.DEFAULT) {
+			BatchTestUtils.compileOneClassProcessorPathFirst(compiler, options, inputFile, order == PathOrder.PROCESSOR_PATH_BEFORE_MODULE_PATH);
+		} else {
+			BatchTestUtils.compileOneClass(compiler, options, inputFile);
+		}
 
 		// check that the gen-src and class files were generated
  		File genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "gen", "HgcGen.java");
