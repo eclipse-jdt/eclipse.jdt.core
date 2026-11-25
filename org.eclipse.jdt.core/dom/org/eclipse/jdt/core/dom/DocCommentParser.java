@@ -1243,6 +1243,11 @@ class DocCommentParser extends AbstractCommentParser {
 				textToBeAdded += System.lineSeparator();
 			}
 		}
+		// Strip Javadoc line-leader * from embedded newlines (e.g. inside text blocks """...""")
+		// Only for inline Javadoc snippets: external and Markdown snippets do not have Javadoc * prefixes
+		if (!isExternalSnippet && !isMarkdown) {
+			textToBeAdded = textToBeAdded.replaceAll("(\\r\\n?|\\n)[^\\S\\r\\n]*\\*", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		textElem.setText(textToBeAdded);
 		textElem.setSourceRange(start, end-start);
 
