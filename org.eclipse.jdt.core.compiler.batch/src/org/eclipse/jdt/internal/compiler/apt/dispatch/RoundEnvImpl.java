@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2019 IBM Corporation and others.
+ * Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,12 +22,15 @@ import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -196,7 +199,15 @@ public class RoundEnvImpl implements RoundEnvironment
 			// null for anonymous and local classes or an array of those
 			throw new IllegalArgumentException("Argument must represent an annotation type"); //$NON-NLS-1$
 		}
-		TypeElement annoType = this._processingEnv.getElementUtils().getTypeElement(canonicalName);
+		Elements elements = this._processingEnv.getElementUtils();
+		TypeElement annoType = elements.getTypeElement(canonicalName);
+		if (annoType == null && this._processingEnv.getCompiler().options.sourceLevel >= ClassFileConstants.JDK9) {
+			String moduleName = a.getModule().getName();
+			ModuleElement module = elements.getModuleElement(moduleName == null ? "" : moduleName); //$NON-NLS-1$
+			if (module != null) {
+				annoType = elements.getTypeElement(module, canonicalName);
+			}
+		}
 		if (annoType == null) {
 			return Collections.emptySet();
 		}

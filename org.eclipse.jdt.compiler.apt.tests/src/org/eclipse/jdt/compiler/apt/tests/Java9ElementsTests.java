@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2023 IBM Corporation.
+ * Copyright (c) 2017, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -104,6 +104,32 @@ public class Java9ElementsTests extends TestCase {
 		internalTest2(compiler, MODULE_PROC, "testModuleElement1", null);
 	}
 
+	public void testTypeElementOutsideModuleGraph() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest2(compiler, MODULE_PROC, "bug5810", "testTypeElementOutsideModuleGraph", null);
+	}
+	public void testTypeElementOutsideModuleGraphJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
+		internalTest2(compiler, MODULE_PROC, "bug5810", "testTypeElementOutsideModuleGraph", null);
+	}
+	public void testTypeElementAddedModule() throws IOException {
+		internalTestAddedModule(BatchTestUtils.getEclipseCompiler());
+	}
+	public void testTypeElementAddedModuleJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
+		internalTestAddedModule(compiler);
+	}
+	private void internalTestAddedModule(JavaCompiler compiler) throws IOException {
+		internalTest2(compiler, MODULE_PROC, "bug5810", "testTypeElementAddedModule", null, List.of("--add-modules", "java.net.http"));
+	}
 	public void testModuleElement2Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
@@ -593,6 +619,9 @@ public class Java9ElementsTests extends TestCase {
 		internalTest2(compiler, processor, "modules", testMethod, testClass);
 	}
 	private void internalTest2(JavaCompiler compiler, String processor, String modLocation, String testMethod, String testClass) throws IOException {
+		internalTest2(compiler, processor, modLocation, testMethod, testClass, List.of());
+	}
+	private void internalTest2(JavaCompiler compiler, String processor, String modLocation, String testMethod, String testClass, List<String> extraOptions) throws IOException {
 		if (!canRunJava9()) {
 			return;
 		}
@@ -605,6 +634,7 @@ public class Java9ElementsTests extends TestCase {
 		options.add(processor);
 		options.add("-A" + processor);
 		options.add("-A" + testMethod);
+		options.addAll(extraOptions);
 		if (compiler instanceof EclipseCompiler) {
 			options.add("-17");
 		}
