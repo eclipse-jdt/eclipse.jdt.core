@@ -25,6 +25,8 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 /**
  * These test ensure that modifications in external jar are correctly reported as
  * IJavaEllementDeltas after a JavaModel#refreshExternalArchives().
@@ -202,6 +204,40 @@ public void testExternalJarChangedInProjectsSharingIt() throws CoreException, IO
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		stopDeltas();
+	}
+}
+/*
+ * Ensures that refreshing a project whose external jars are unchanged or missing does not
+ * resolve the classpath of other projects.
+ */
+public void testUnchangedRefreshSkipsUnrelatedProjects() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {""}, "");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {""}, "");
+
+		String pPath = getExternalPath() + "p.jar";
+		f = new File(pPath);
+		f.createNewFile();
+		setClasspath(p1, new IClasspathEntry[]{
+				JavaCore.newLibraryEntry(new Path(getExternalPath() + "missing.jar"), null, null),
+				JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		setClasspath(p2, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+
+		PerProjectInfo p2Info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(p2.getProject());
+		p2Info.setResolvedClasspath(null, null, null, null, p2Info.rawTimeStamp, false);
+
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{p1},null);
+
+		assertNull("P2 classpath should not be resolved", p2Info.getResolvedClasspath());
+	} finally {
+		if(f != null) {
+			deleteResource(f);
+		}
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 /**
