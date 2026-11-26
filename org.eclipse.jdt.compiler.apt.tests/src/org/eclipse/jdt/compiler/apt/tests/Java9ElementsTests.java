@@ -116,6 +116,19 @@ public class Java9ElementsTests extends TestCase {
 		}
 		internalTest2(compiler, MODULE_PROC, "bug5810", "testTypeElementOutsideModuleGraph", null);
 	}
+	public void testTypeElementAmbiguous() throws IOException {
+		if (!canRunJava9()) {
+			return;
+		}
+		System.clearProperty(MODULE_PROC);
+		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName());
+		BatchTestUtils.copyResources("mod_locations" + File.separator + "bug5810ambiguous", srcRoot);
+		List<String> options = new ArrayList<>(List.of("-processor", MODULE_PROC, "-A" + MODULE_PROC, "-AtestTypeElementAmbiguous", "-17"));
+		String output = BatchTestUtils.compileInModuleMode(BatchTestUtils.getEclipseCompiler(), options, MODULE_PROC, srcRoot, null, true,
+				false, false);
+		assertTrue(String.valueOf(output), output != null && output.contains("The package p is accessible from more than one module"));
+		assertEquals("succeeded", System.getProperty(MODULE_PROC));
+	}
 	public void testTypeElementAddedModule() throws IOException {
 		internalTestAddedModule(BatchTestUtils.getEclipseCompiler());
 	}

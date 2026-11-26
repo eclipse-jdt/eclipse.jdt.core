@@ -331,6 +331,10 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.net.http is added with --add-modules", client);
 		assertEquals("Incorrect module element", "java.net.http", _elementUtils.getModuleOf(client).getQualifiedName().toString());
 	}
+	public void testTypeElementAmbiguous() {
+		assertNotNull("x.X is in mod.x", _elementUtils.getTypeElement("x.X"));
+		assertNull("mod.x reads p.C from mod.a and from mod.b", _elementUtils.getTypeElement("p.C"));
+	}
 	public void testTypeElementOutsideModuleGraph() {
 		assertNotNull("java.lang.String is in java.base", _elementUtils.getTypeElement("java.lang.String"));
 		TypeElement connection = _elementUtils.getTypeElement("java.sql.Connection");

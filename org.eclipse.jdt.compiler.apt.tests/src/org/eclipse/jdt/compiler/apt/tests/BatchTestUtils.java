@@ -157,6 +157,11 @@ public class BatchTestUtils {
 	}
 	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
 			File moduleSrcFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain) throws IOException {
+		compileInModuleMode(compiler, options, processor, moduleSrcFolder, listener, multiModule, processBinariesAgain, true);
+	}
+	public static String compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
+			File moduleSrcFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain,
+			boolean expectSuccess) throws IOException {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
 		// create new list containing inputfile
@@ -189,13 +194,16 @@ public class BatchTestUtils {
 
 		if (!result.booleanValue()) {
 			String errorOutput = stringWriter.getBuffer().toString();
+			if (!expectSuccess) {
+				return errorOutput;
+			}
 			System.err.println("Compilation failed: " + errorOutput);
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
 		} else {
 			junit.framework.TestCase.assertEquals("succeeded", System.getProperty(processor));
 		}
 		if (!processBinariesAgain) {
-			return;
+			return null;
 		}
 		List<String> classes = new ArrayList<>();
 		try {
@@ -231,6 +239,7 @@ public class BatchTestUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 	public static void compileTree(JavaCompiler compiler, List<String> options,
 			File targetFolder, boolean useJLS8Processors,

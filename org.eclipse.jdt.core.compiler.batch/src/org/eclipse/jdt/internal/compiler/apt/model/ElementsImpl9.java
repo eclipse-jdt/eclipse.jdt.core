@@ -109,7 +109,8 @@ public class ElementsImpl9 extends ElementsImpl {
 
 	private ReferenceBinding typeBinding(char[][] compoundName, ModuleBinding module) {
 		TypeElement t = getTypeElement(compoundName, module);
-		return t == null ? null : (ReferenceBinding) ((TypeElementImpl) t)._binding;
+		ReferenceBinding binding = t == null ? null : (ReferenceBinding) ((TypeElementImpl) t)._binding;
+		return binding != null && binding.isValidBinding() ? binding : null;
 	}
 
 	private Set<ModuleBinding> rootModules() {
