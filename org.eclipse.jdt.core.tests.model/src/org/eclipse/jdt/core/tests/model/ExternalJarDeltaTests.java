@@ -219,19 +219,20 @@ public void testUnchangedRefreshSkipsUnrelatedProjects() throws CoreException, I
 		String pPath = getExternalPath() + "p.jar";
 		f = new File(pPath);
 		f.createNewFile();
-		setClasspath(p1, new IClasspathEntry[]{
+		setClasspath(p1, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		setClasspath(p2, new IClasspathEntry[]{
 				JavaCore.newLibraryEntry(new Path(getExternalPath() + "missing.jar"), null, null),
 				JavaCore.newLibraryEntry(new Path(pPath), null, null)});
-		setClasspath(p2, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		getJavaModel().refreshExternalArchives(null,null);
 		waitUntilIndexesReady();
 
-		PerProjectInfo p2Info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(p2.getProject());
-		p2Info.setResolvedClasspath(null, null, null, null, p2Info.rawTimeStamp, false);
+		PerProjectInfo p1Info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(p1.getProject());
+		p1Info.setResolvedClasspath(null, null, null, null, p1Info.rawTimeStamp, false);
 
-		getJavaModel().refreshExternalArchives(new IJavaElement[]{p1},null);
+		// P1 precedes P2 in workspace order, so it is only skipped if refreshed projects are visited first
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{p2},null);
 
-		assertNull("P2 classpath should not be resolved", p2Info.getResolvedClasspath());
+		assertNull("P1 classpath should not be resolved", p1Info.getResolvedClasspath());
 	} finally {
 		if(f != null) {
 			deleteResource(f);
