@@ -11180,6 +11180,11 @@ public void initialize(boolean parsingCompilationUnit) {
 		//System.out.println("Resized EXPR stacks : "+ expressionLength);
 	}
 	System.arraycopy(this.noExpressions, 0, this.expressionStack, 0, expressionLength);
+	Arrays.fill(this.genericsStack, null);
+	Arrays.fill(this.typeAnnotationStack, null);
+	if (this.javadocParser != null) {
+		this.javadocParser.releaseNodes();
+	}
 
 	// reset this.scanner state
 	this.scanner.commentPtr = -1;

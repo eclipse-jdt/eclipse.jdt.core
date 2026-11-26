@@ -165,6 +165,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.astLengthPtr = -1;
 			this.astPtr = -1;
 			this.identifierPtr = -1;
+			this.usesReferencesPtr = -1;
+			this.providesReferencesPtr = -1;
 			this.currentTokenType = TokenNameInvalid;
 			setInlineTagStarted(false);
 			this.inlineTagStart = -1;

@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -55,6 +56,30 @@ public class JavadocParser extends AbstractCommentParser {
 	private final ArrayList<String> regionNames = new ArrayList<>();
 	private int regionPosition = -1;
 
+	private void releaseInvalidParamReferences() {
+		if (this.invalidParamReferencesPtr >= 0) {
+			Arrays.fill(this.invalidParamReferencesStack, 0, this.invalidParamReferencesPtr + 1, null);
+			this.invalidParamReferencesPtr = -1;
+		}
+	}
+
+	void releaseNodes() {
+		Arrays.fill(this.astStack, null);
+		this.astPtr = -1;
+		this.astLengthPtr = -1;
+		releaseInvalidParamReferences();
+		if (this.usesReferencesStack != null) {
+			Arrays.fill(this.usesReferencesStack, null);
+		}
+		if (this.providesReferencesStack != null) {
+			Arrays.fill(this.providesReferencesStack, null);
+		}
+		this.usesReferencesPtr = -1;
+		this.providesReferencesPtr = -1;
+		this.returnStatement = null;
+		this.docComment = null;
+	}
+
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
 		this.kind = COMPIL_PARSER | TEXT_VERIF;
@@ -79,6 +104,7 @@ public class JavadocParser extends AbstractCommentParser {
 		this.validValuePositions = -1;
 		this.invalidValuePositions = -1;
 		this.tagWaitingForDescription = NO_TAG_VALUE;
+		releaseInvalidParamReferences();
 
 		// Init javadoc if necessary
 		if (this.checkDocComment) {
