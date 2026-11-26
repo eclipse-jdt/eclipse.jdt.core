@@ -101,7 +101,7 @@ protected boolean compiledAllAtOnce;
 private boolean inCompiler;
 
 protected boolean keepStoringProblemMarkers;
-protected Map<SourceFile, AnnotationBinding[]> filesWithAnnotations = null;
+protected Map<SourceFile, String[]> filesWithAnnotations = null;
 
 //2000 is best compromise between space used and speed
 public static int MAX_AT_ONCE = Integer.getInteger(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE, 2000).intValue();
@@ -261,8 +261,15 @@ public void acceptResult(CompilationResult result) {
 		}
 		if (result.hasAnnotations && this.filesWithAnnotations != null) {
 			// only initialized if an annotation processor is attached
-			AnnotationBinding[] bindings = result.annotations.stream().flatMap(Arrays::stream).filter(Objects::nonNull).toArray(AnnotationBinding[]::new);
-			this.filesWithAnnotations.put(compilationUnit, bindings);
+			String[] annotationTypeNames = result.annotations.stream()
+					.flatMap(Arrays::stream)
+					.filter(Objects::nonNull)
+					.map(AnnotationBinding::getAnnotationType)
+					.filter(type -> type != null && type.compoundName != null)
+					.map(type -> new String(CharOperation.concatWith(type.compoundName, '.')))
+					.distinct()
+					.toArray(String[]::new);
+			this.filesWithAnnotations.put(compilationUnit, annotationTypeNames);
 		}
 
 		this.compiler.lookupEnvironment.releaseClassFiles(classFiles);
