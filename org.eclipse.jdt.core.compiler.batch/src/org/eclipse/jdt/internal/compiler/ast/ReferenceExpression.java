@@ -373,21 +373,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				codeStream.invoke(Opcodes.OPC_invokevirtual, mb, mb.declaringClass);
 				codeStream.pop();
 			}
-			if (this.lhs.isSuper() && !this.actualMethodBinding.isPrivate()) {
-				if (this.lhs instanceof QualifiedSuperReference) {
-					QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) this.lhs;
-					TypeReference qualification = qualifiedSuperReference.qualification;
-					if (qualification.resolvedType.isInterface()) {
-						buffer.append(sourceType.signature());
-					} else {
-						buffer.append(((QualifiedSuperReference) this.lhs).currentCompatibleType.signature());
-					}
-				} else {
-					buffer.append(sourceType.signature());
-				}
-			} else {
-				buffer.append(this.receiverType.signature());
-			}
+			buffer.append(capturedReceiverType().signature());
 			argumentsSize = 1;
 		} else {
 			if (this.isConstructorReference()) {
@@ -509,6 +495,20 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 			return;
 		}
+	}
+
+	/**
+	 * The type of the receiver captured by the invokedynamic of a method reference with a receiver, also used by
+	 * $deserializeLambda$. LambdaMetafactory wants it to be exactly the receiver type of the implementation method: when
+	 * a synthetic accessor is invoked (always for super::m), its first parameter if it is static, else its declaring
+	 * class, which may differ from the type of the receiver expression. It only depends on the accessor recorded by
+	 * {@link #manageSyntheticAccessIfNecessary}, so every code generation of this expression answers the same. Only for a
+	 * method reference with a receiver ({@link #haveReceiver}): the accessor of a constructor reference is no receiver.
+	 */
+	public TypeBinding capturedReceiverType() {
+		if (this.syntheticAccessor != null)
+			return this.syntheticAccessor.isStatic() ? this.syntheticAccessor.parameters[0] : this.syntheticAccessor.declaringClass;
+		return this.receiverType;
 	}
 
 	@Override

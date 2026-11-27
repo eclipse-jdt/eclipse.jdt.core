@@ -2670,7 +2670,7 @@ public void generateSyntheticBodyForDeserializeLambdaHelper(SyntheticMethodBindi
 		} else {
 			ReferenceExpression refEx = (ReferenceExpression)funcEx;
 			if (refEx.haveReceiver)
-				receiverType = ((ReferenceExpression)funcEx).receiverType;
+				receiverType = refEx.capturedReceiverType();
 			// Should never have outer locals
 		}
 		if (receiverType != null) {

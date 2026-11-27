@@ -9157,6 +9157,51 @@ public void testLambdaInTernary_06() {
 			"Hello World!"
 			);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5726
+// a method reference to a protected method of a superclass in another package goes through a synthetic accessor of X
+// from a class nested in X: the captured receiver has the type of the accessor's parameter, not the type of the
+// receiver expression (LambdaMetafactory checks that they are the same)
+public void testGH5726() {
+	this.runConformTest(
+			new String[] {
+				"impl/X.java",
+				"""
+				package impl;
+				import java.util.function.*;
+				public class X extends lib.Sup<String> {
+					static class Y extends X {}
+					static class Z extends Y {}
+					interface I { default void dummy() {} }
+					static class W extends Y implements I {}
+					private String p(String s) { return "p" + s; }
+					static class N {
+						<T extends Y> void g(Y y, Z z, T t, W w, X x) {
+							Function<String, String> q = y::f; System.out.print(q.apply("1"));
+							q = z::f; System.out.print(q.apply("2"));
+							q = t::f; System.out.print(q.apply("3"));
+							q = t::id; System.out.print(q.apply("4"));
+							Consumer<String> c = w::v; c.accept("5");
+							q = x::f; System.out.print(q.apply("6"));
+							q = x::p; System.out.print(q.apply("7"));
+							Supplier<Function<String, String>> s = () -> y::f; System.out.print(s.get().apply("8"));
+						}
+					}
+					class Inner { void h(Y y) { Function<String, String> q = y::f; System.out.print(q.apply("9")); q = X.this::f; System.out.print(q.apply("A")); } }
+					public static void main(String[] args) { new N().g(new Y(), new Z(), new Z(), new W(), new X()); new X().new Inner().h(new Z()); }
+				}
+				""",
+				"lib/Sup.java",
+				"""
+				package lib;
+				public abstract class Sup<T> {
+					protected String f(String s) { return "f" + s; }
+					protected T id(T t) { return t; }
+					protected void v(String s) { System.out.print("v" + s); }
+				}
+				""",
+			},
+			"f1f2f34v5f6p7f8f9fA");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
