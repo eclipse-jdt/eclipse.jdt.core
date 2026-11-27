@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -986,13 +987,14 @@ public class DeltaProcessor {
 		}
 
 		// perform refresh
-		Iterator<String> projectNames = this.state.getOldJavaProjecNames().iterator();
 		IWorkspaceRoot wksRoot = ResourcesPlugin.getWorkspace().getRoot();
-		while (projectNames.hasNext()) {
+		for (String projectName : refreshedProjectsFirst(refreshedElements)) {
 
 			if (monitor != null && monitor.isCanceled()) break;
 
-			String projectName = projectNames.next();
+			// once every archive is known to be unchanged, no remaining project can get a delta
+			if (!hasDelta && externalArchivesStatus.size() == archivePathsToRefresh.size()) break;
+
 			IProject project = wksRoot.getProject(projectName);
 			if (!JavaProject.hasJavaNature(project)) {
 				// project is not accessible or has lost its Java nature
@@ -1028,6 +1030,8 @@ public class DeltaProcessor {
 								externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
 								// the jar was physically removed: remove the index
 								this.manager.indexManager.removeIndex(entryPath);
+							} else {
+								externalArchivesStatus.put(entryPath, EXTERNAL_JAR_UNCHANGED);
 							}
 
 						} else if (targetLibrary instanceof File){ // external JAR
@@ -1121,6 +1125,23 @@ public class DeltaProcessor {
 			JavaModelManager.getJavaModelManager().resetJarTypeCache();
 		}
 		return hasDelta;
+	}
+
+	/*
+	 * All Java project names, with the projects of the refreshed elements first: their classpaths
+	 * reference every archive to refresh, so their statuses are all known after visiting them.
+	 */
+	private Set<String> refreshedProjectsFirst(Set<IJavaElement> refreshedElements) {
+		Set<String> allNames = this.state.getOldJavaProjecNames();
+		Set<String> names = new LinkedHashSet<>();
+		for (IJavaElement element : refreshedElements) {
+			IJavaProject javaProject = element.getJavaProject();
+			if (javaProject != null && allNames.contains(javaProject.getElementName())) {
+				names.add(javaProject.getElementName());
+			}
+		}
+		names.addAll(allNames);
+		return names;
 	}
 	private JavaElementDelta currentDelta() {
 		if (this.currentDelta == null) {
