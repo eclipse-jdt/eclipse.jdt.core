@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
@@ -92,6 +93,13 @@ public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowCo
 */
 public boolean doesNotCompleteNormally() {
 	return false;
+}
+
+static boolean isConstantTrueCondition(Expression condition) {
+	if (condition == null)
+		return true;
+	Constant cst = condition.constant;
+	return cst == null || cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_boolean && cst.booleanValue();
 }
 
 /** Lambda shape analysis: *Assuming* this is reachable, analyze if this completes by continuing i.e control flow cannot reach the textually next statement.
