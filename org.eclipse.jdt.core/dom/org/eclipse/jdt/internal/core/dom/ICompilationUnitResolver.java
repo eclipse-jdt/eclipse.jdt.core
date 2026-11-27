@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -119,4 +120,10 @@ public interface ICompilationUnitResolver {
 	 */
 	CompilationUnit toCompilationUnit(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, final boolean initialNeedsToResolveBinding, IJavaProject project, List<Classpath> classpaths, int focalPosition,
 			int apiLevel, Map<String, String> compilerOptions, WorkingCopyOwner parsedUnitWorkingCopyOwner, WorkingCopyOwner typeRootWorkingCopyOwner, int flags, IProgressMonitor monitor);
+
+	/**
+	 * Gets the supported Java versions this resolver is able to process as source or target when attempting to create ASTs.
+	 * @return the supported Java versions for this resolver.
+	 */
+	Collection<String> getSupportedJavaVersions();
 }
