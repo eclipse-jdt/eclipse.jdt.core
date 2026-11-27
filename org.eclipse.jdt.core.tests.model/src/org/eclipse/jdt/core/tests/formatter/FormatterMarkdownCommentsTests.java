@@ -371,6 +371,37 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		formatSource(input, expected);
 	}
 
+	public void testMarkdownFencedCodeBlockWithSlashContent() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		this.formatterPrefs.join_lines_in_comments = false;
+		String input = """
+				/// This is a test for the markdown codeblock formatter.
+				///\s
+				/// ```java
+				/// public void 	foo() {
+				///     // hello
+				///     System.out.println("Hello world!");
+				/// }
+				/// ```
+				///\s
+				class Foo { }
+				""";
+		String expected = """
+				/// This is a test for the markdown codeblock formatter.
+				///\s
+				/// ```java
+				/// public void foo() {
+				/// 	// hello
+				/// 	System.out.println("Hello world!");
+				/// }
+				/// ```
+				///\s
+				class Foo {
+				}
+				""";
+		formatSource(input, expected);
+	}
+
 	public void testMarkdownFencedCodeBlockWithTilde() throws JavaModelException {
 		setComplianceLevel(CompilerOptions.VERSION_23);
 		String input = """
