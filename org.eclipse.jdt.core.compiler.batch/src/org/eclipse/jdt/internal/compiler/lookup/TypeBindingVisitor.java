@@ -91,6 +91,8 @@ public class TypeBindingVisitor {
 					visit(visitor, typeVariableBinding.firstBound);
 					visit(visitor, typeVariableBinding.superclass);
 					visit(visitor, typeVariableBinding.superInterfaces);
+					if (typeVariableBinding instanceof CaptureBinding capture)
+						visit(visitor, capture.lowerBound); // lower bound may mention further captures
 				}
 	            break;
 
