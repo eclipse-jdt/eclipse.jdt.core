@@ -527,16 +527,11 @@ public class EclipseCompilerImpl extends Main {
 							if (platformLocations.size() == 1) {
 								Classpath jrt = platformLocations.get(0);
 								if (jrt instanceof ClasspathJrt) {
-									ClasspathJrt classpathJrt = (ClasspathJrt) jrt;
 									// TODO: double check, should it be platform or system module?
 									try {
-										EclipseFileManager efm = (EclipseFileManager) standardJavaFileManager;
-										@SuppressWarnings("resource") // XXX EclipseFileManager should close jrtfs but it looks like standardJavaFileManager is never closed
-										// Was leaking new JrtFileSystem(classpathJrt.file):
-										JrtFileSystem jrtfs = efm.getJrtFileSystem(classpathJrt.file); // XXX use classpathJrt.jrtFileSystem??
-										efm.locationHandler.newSystemLocation(StandardLocation.SYSTEM_MODULES, jrtfs);
+										((EclipseFileManager) standardJavaFileManager).setSystemModules(file);
 									} catch (IOException e) {
-										String error = "Failed to create JRTFS from " + classpathJrt.file; //$NON-NLS-1$
+										String error = "Failed to create JRTFS from " + file; //$NON-NLS-1$
 										if (JRTUtil.PROPAGATE_IO_ERRORS) {
 											throw new IllegalStateException(error, e);
 										} else {
@@ -547,7 +542,9 @@ public class EclipseCompilerImpl extends Main {
 								}
 							}
 						}
-						fileSystemClasspaths.addAll(platformLocations);
+						long jdkLevel = getJdkLevel(file);
+						if (!usesRelease(jdkLevel) || !isCompletePlatform(file, jdkLevel)) // else the classpath of the release (ct.sym) is added below instead
+							fileSystemClasspaths.addAll(platformLocations);
 						break; // Only possible scenario is, we have one and only entry representing the Java home.
 					} else {
 						Classpath classpath = FileSystem.getClasspath(
@@ -564,8 +561,9 @@ public class EclipseCompilerImpl extends Main {
 				}
 			}
 		} else if (javaFileManager != null) {
-			File javaHome = Util.getJavaHome();
-			long jdkLevel = Util.getJDKLevel(javaHome);
+			File javaHome = getJavaHome(); // --system, or the running JDK
+			// the level of the running JDK comes from java.version, the one of another JDK from its release file
+			long jdkLevel = javaHome == null || javaHome.equals(Util.getJavaHome()) ? Util.getJDKLevel(javaHome) : getJdkLevel(javaHome);
 			if (jdkLevel >= ClassFileConstants.JDK9) {
 				Classpath systemClasspath = getSystemClasspath(javaHome, jdkLevel);
 				Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
@@ -623,8 +621,7 @@ public class EclipseCompilerImpl extends Main {
 			if (locationFiles != null) {
 				for (File file : locationFiles) {
 					if (file.isDirectory()) {
-						String javaVersion = getJavaVersion(file);
-						long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
+						long jdkLevel = getJdkLevel(file);
 						Classpath systemClasspath = getSystemClasspath(file, jdkLevel);
 						Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
 						fileSystemClasspaths.add(classpath);
@@ -633,6 +630,8 @@ public class EclipseCompilerImpl extends Main {
 							classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
 							fileSystemClasspaths.add(classpath);
 						}
+						// the classes of the JDK come from systemClasspath, not from the running JDK
+						havePlatformPaths |= isCompletePlatform(file, jdkLevel);
 						haveClassPaths = true;
 						break; //unlikely to have more than one path
 					}
@@ -642,8 +641,7 @@ public class EclipseCompilerImpl extends Main {
 			if (locationFiles != null) {
 				for (File file : locationFiles) {
 					if (file.isDirectory()) {
-						String javaVersion = getJavaVersion(file);
-						long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
+						long jdkLevel = getJdkLevel(file);
 						Classpath systemClasspath = getSystemClasspath(file, jdkLevel);
 						Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
 						fileSystemClasspaths.add(classpath);
@@ -652,6 +650,8 @@ public class EclipseCompilerImpl extends Main {
 							classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
 							fileSystemClasspaths.add(classpath);
 						}
+						// the classes of the JDK come from systemClasspath, not from the running JDK
+						havePlatformPaths |= isCompletePlatform(file, jdkLevel);
 						haveClassPaths = true;
 						break; //unlikely to have more than one path
 					}
@@ -789,15 +789,31 @@ public class EclipseCompilerImpl extends Main {
 		}
 		return version;
 	}
+	private long getJdkLevel(File javaHome) {
+		String javaVersion = getJavaVersion(javaHome);
+		return javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
+	}
+	/** Answers whether the classes of a JDK of the given level come from the ct.sym of an older release (--release). */
+	private boolean usesRelease(long jdkLevel) {
+		return this.releaseVersion != null && this.complianceLevel < jdkLevel;
+	}
+	/**
+	 * Answers whether {@link #getSystemClasspath(File, long)} gives all the classes of the given JDK: its jrt image for a
+	 * JDK 9 or later, or its ct.sym for --release, which is read as the ct.sym of a JDK 12 or later.
+	 */
+	private boolean isCompletePlatform(File javaHome, long jdkLevel) {
+		return EclipseFileManager.isModularJdk(javaHome) && (!usesRelease(jdkLevel) || jdkLevel >= ClassFileConstants.JDK12);
+	}
 	private Classpath getSystemClasspath(File jdkHome, long jdkLevel) {
 		Classpath system;
-		if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
+		if (usesRelease(jdkLevel)) {
 			String versionFromJdkLevel = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
 			if (versionFromJdkLevel.length() >= 3) {
 				versionFromJdkLevel = versionFromJdkLevel.substring(2);
 			}
 			// TODO: Revisit for access rules
-			system = FileSystem.getOlderSystemRelease(jdkHome.getAbsolutePath(), versionFromJdkLevel, null);
+			// the reader of ct.sym is the one of the selected JDK (--system), not of the running one
+			system = FileSystem.getOlderSystemRelease(jdkHome.getAbsolutePath(), jdkLevel, versionFromJdkLevel, null);
 		} else {
 			system = FileSystem.getJrtClasspath(jdkHome.toString(), null, null, null);
 		}

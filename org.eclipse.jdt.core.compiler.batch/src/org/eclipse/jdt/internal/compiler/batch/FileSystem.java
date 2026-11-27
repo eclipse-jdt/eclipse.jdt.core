@@ -39,6 +39,7 @@ import javax.lang.model.SourceVersion;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -323,6 +324,16 @@ public static Classpath getOlderSystemRelease(String jdkHome, String release, Ac
 	return isJRE12Plus ?
 			new ClasspathJep247Jdk12(new File(convertPathSeparators(jdkHome)), release, accessRuleSet) :
 			new ClasspathJep247(new File(convertPathSeparators(jdkHome)), release, accessRuleSet);
+}
+/**
+ * Answers the reader of the ct.sym of the given JDK, whose layout changed in JDK 12: it depends on the level of this
+ * JDK, which can be another one than the running JDK (--system).
+ */
+public static Classpath getOlderSystemRelease(String jdkHome, long jdkLevel, String release, AccessRuleSet accessRuleSet) {
+	File home = new File(convertPathSeparators(jdkHome));
+	return jdkLevel >= ClassFileConstants.JDK12 ?
+			new ClasspathJep247Jdk12(home, release, accessRuleSet) :
+			new ClasspathJep247(home, release, accessRuleSet);
 }
 public static Classpath getClasspath(String classpathName, String encoding,
 		boolean isSourceOnly, AccessRuleSet accessRuleSet,

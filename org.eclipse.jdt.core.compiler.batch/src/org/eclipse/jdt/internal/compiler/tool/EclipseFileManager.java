@@ -102,12 +102,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 	protected void initialize(File javahome) throws IOException {
 		if (this.isOnJvm9) {
-			this.jrtSystem = new JrtFileSystem(javahome);
-			try (Archive previous = this.archivesCache.put(javahome, this.jrtSystem)) {
-				// nothing. Only theoretically autoclose the previous instance - which does not exist at this time
-			}
-			this.jrtHome = javahome;
-			this.locationHandler.newSystemLocation(StandardLocation.SYSTEM_MODULES, this.jrtSystem);
+			setSystemModules(javahome);
 		} else {
 			this.setLocation(StandardLocation.PLATFORM_CLASS_PATH, getDefaultBootclasspath());
 		}
@@ -115,6 +110,25 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		this.setLocation(StandardLocation.CLASS_PATH, defaultClasspath);
 		// No annotation module path by default
 		this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, defaultClasspath);
+	}
+	/** Answers whether the given directory is the home of a JDK 9 or later (it has a jrt image). */
+	static boolean isModularJdk(File javaHome) {
+		return new File(new File(javaHome, "lib"), JRTUtil.JRT_FS_JAR).isFile(); //$NON-NLS-1$
+	}
+	/** Makes the modules of the given JDK (9 or later) the SYSTEM_MODULES location. */
+	@SuppressWarnings("resource") // the cached archives are closed by close()
+	void setSystemModules(File javahome) throws IOException {
+		if (this.archivesCache.get(javahome) instanceof JrtFileSystem jrt) {
+			this.jrtSystem = jrt; // the same JDK again: the file objects of earlier lookups still use it
+		} else {
+			this.jrtSystem = new JrtFileSystem(javahome);
+			Archive previous = this.archivesCache.put(javahome, this.jrtSystem);
+			if (previous != null && previous != Archive.UNKNOWN_ARCHIVE) { // the shared UNKNOWN_ARCHIVE is never closed
+				previous.close();
+			}
+		}
+		this.jrtHome = javahome;
+		this.locationHandler.newSystemLocation(StandardLocation.SYSTEM_MODULES, this.jrtSystem);
 	}
 
 	/* (non-Javadoc)
@@ -694,11 +708,18 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					if (remaining.hasNext()) {
 						final Iterable<? extends File> classpaths = getPathsFrom(remaining.next());
 						if (classpaths != null) {
-							Iterable<? extends File> iterable = getLocation(StandardLocation.SYSTEM_MODULES);
-							if (iterable != null) {
-								setLocation(StandardLocation.SYSTEM_MODULES, concatFiles(iterable, classpaths));
+							// a JDK image replaces the system modules of the running JDK, as in javac
+							Iterator<? extends File> files = classpaths.iterator();
+							File javaHome = files.hasNext() ? files.next() : null;
+							if (this.isOnJvm9 && javaHome != null && !files.hasNext() && isModularJdk(javaHome)) {
+								setSystemModules(javaHome);
 							} else {
-								setLocation(StandardLocation.SYSTEM_MODULES, classpaths);
+								Iterable<? extends File> iterable = getLocation(StandardLocation.SYSTEM_MODULES);
+								if (iterable != null) {
+									setLocation(StandardLocation.SYSTEM_MODULES, concatFiles(iterable, classpaths));
+								} else {
+									setLocation(StandardLocation.SYSTEM_MODULES, classpaths);
+								}
 							}
 						}
 						return true;
