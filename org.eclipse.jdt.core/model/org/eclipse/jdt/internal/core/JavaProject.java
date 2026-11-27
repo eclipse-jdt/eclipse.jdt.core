@@ -2164,6 +2164,11 @@ public class JavaProject
 		} catch (JavaModelException | BackingStoreException e) {
 			projectOptions = new Hashtable();
 		}
+		// Take a private snapshot: perProjectInfo.options is a live, shared cache that
+		// another thread may concurrently rebuild/mutate; iterating or returning it
+		// directly can throw ConcurrentModificationException or leak a mutable
+		// reference to the shared cache. See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5520
+		projectOptions = new Hashtable(projectOptions);
 
 		// Inherit from JavaCore options if specified
 		if (inheritJavaCoreOptions) {
