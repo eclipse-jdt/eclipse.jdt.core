@@ -1513,8 +1513,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #24 p1/A$Y$SubInnerY,\n" +
-					"   #26 p1/A$Z\n" +
+					"   #25 p1/A$Y$SubInnerY,\n" +
+					"   #27 p1/A$Z\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
@@ -1539,8 +1539,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #22 p1/A$SubY,\n" +
-					"   #24 p1/A$Z\n" +
+					"   #23 p1/A$SubY,\n" +
+					"   #25 p1/A$Z\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
@@ -1567,9 +1567,9 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #24 p1/A$SubY,\n" +
-					"   #26 p1/A$Y$SubInnerY,\n" +
-					"   #28 p1/A$Z\n";
+					"   #25 p1/A$SubY,\n" +
+					"   #27 p1/A$Y$SubInnerY,\n" +
+					"   #29 p1/A$Z\n";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug564498_4() throws IOException, ClassFormatException {
@@ -1589,7 +1589,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #24 p1/A$Y$SubInnerY\n";
+					"   #25 p1/A$Y$SubInnerY\n";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Reject references of membertype without qualifier of enclosing type in permits clause
@@ -5097,8 +5097,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
 				"  Inner classes:\n" +
-				"    [inner class info: #3 Y$E, outer class info: #20 Y\n" +
-				"     inner name: #22 E, accessflags: 17416 abstract static],\n" +
+				"    [inner class info: #3 Y$E, outer class info: #23 Y\n" +
+				"     inner name: #25 E, accessflags: 17416 abstract static],\n" +
 				"    [inner class info: #1 Y$E$1, outer class info: #0\n" +
 				"     inner name: #0, accessflags: 16400 final]\n" +
 				"  Enclosing Method: #3  #0 Y$E\n";
