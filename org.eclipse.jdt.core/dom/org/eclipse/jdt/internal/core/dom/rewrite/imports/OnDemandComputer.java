@@ -22,10 +22,12 @@ import java.util.Set;
 class OnDemandComputer {
 	private final int typeOnDemandThreshold;
 	private final int staticOnDemandThreshold;
+	private final boolean reduceByThreshold;
 
-	OnDemandComputer(int typeOnDemandThreshold, int staticOnDemandThreshold) {
+	OnDemandComputer(int typeOnDemandThreshold, int staticOnDemandThreshold, boolean reduceByThreshold) {
 		this.typeOnDemandThreshold = typeOnDemandThreshold;
 		this.staticOnDemandThreshold = staticOnDemandThreshold;
+		this.reduceByThreshold = reduceByThreshold;
 	}
 
 	/**
@@ -120,7 +122,7 @@ class OnDemandComputer {
 			}
 		}
 
-		if (containerHasOnDemand || reducibleImports.size() >= onDemandThreshold) {
+		if (containerHasOnDemand || (this.reduceByThreshold && reducibleImports.size() >= onDemandThreshold)) {
 			return new OnDemandReduction(containerOnDemand, reducibleImports);
 		}
 
