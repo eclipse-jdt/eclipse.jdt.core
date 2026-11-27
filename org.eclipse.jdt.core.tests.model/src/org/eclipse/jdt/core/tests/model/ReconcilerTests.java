@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -5627,6 +5628,83 @@ public void testBug564613_001() throws CoreException, IOException, InterruptedEx
 	} finally {
 		if (project15 != null)
 			deleteProject(project15);
+	}
+}
+/**
+ * A folder named like a type, in a resources source folder, contains no type: it is not a package.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4413
+ */
+public void testGH4413() throws CoreException, InterruptedException {
+	testGH4413(JavaCore.newSourceEntry(IPath.fromOSString("/GH4413/resources"), new IPath[0], new IPath[0], null));
+}
+/**
+ * Same as {@link #testGH4413()}, with the exclusion pattern that m2e sets on the resources folders.
+ */
+public void testGH4413_excludeAll() throws CoreException, InterruptedException {
+	testGH4413(JavaCore.newSourceEntry(IPath.fromOSString("/GH4413/resources"), new IPath[0], new IPath[] { IPath.fromOSString("**") }, null));
+}
+/**
+ * Same as {@link #testGH4413()}, the resources are in a class folder.
+ */
+public void testGH4413_classFolder() throws CoreException, InterruptedException {
+	testGH4413(JavaCore.newLibraryEntry(IPath.fromOSString("/GH4413/resources"), null, null));
+}
+/**
+ * A type still collides with a package that has a sub-package holding a type (JLS 7.4.3).
+ */
+public void testGH4413_subPackage() throws CoreException {
+	ICompilationUnit fooTest = null;
+	try {
+		createJavaProject("GH4413", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createFolder("/GH4413/src/org/example/FooTest/sub");
+		createFile("/GH4413/src/org/example/FooTest/sub/Bar.java",
+			"package org.example.FooTest.sub;\n" +
+			"public class Bar {}\n");
+		String source =
+			"package org.example;\n" +
+			"public class FooTest {}\n";
+		createFile("/GH4413/src/org/example/FooTest.java", source);
+
+		this.problemRequestor.initialize(source.toCharArray());
+		fooTest = getCompilationUnit("/GH4413/src/org/example/FooTest.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" +
+			"1. ERROR in /GH4413/src/org/example/FooTest.java (at line 2)\n" +
+			"	public class FooTest {}\n" +
+			"	             ^^^^^^^\n" +
+			"The type FooTest collides with a package\n" +
+			"----------\n");
+	} finally {
+		if (fooTest != null)
+			fooTest.discardWorkingCopy();
+		deleteProject("GH4413");
+	}
+}
+private void testGH4413(IClasspathEntry resources) throws CoreException, InterruptedException {
+	ICompilationUnit fooTest = null;
+	try {
+		IJavaProject project = createJavaProject("GH4413", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createFolder("/GH4413/resources/org/example/FooTest");
+		createFile("/GH4413/resources/org/example/FooTest/someResource.txt", "resource");
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		IClasspathEntry[] newClasspath = new IClasspathEntry[classpath.length + 1];
+		System.arraycopy(classpath, 0, newClasspath, 0, classpath.length);
+		newClasspath[classpath.length] = resources;
+		project.setRawClasspath(newClasspath, null);
+		createFolder("/GH4413/src/org/example");
+		String source =
+			"package org.example;\n" +
+			"public class FooTest {}\n";
+		createFile("/GH4413/src/org/example/FooTest.java", source);
+
+		this.problemRequestor.initialize(source.toCharArray());
+		fooTest = getCompilationUnit("/GH4413/src/org/example/FooTest.java").getWorkingCopy(this.wcOwner, null);
+		assertNoProblem(source.toCharArray(), fooTest);
+	} finally {
+		if (fooTest != null)
+			fooTest.discardWorkingCopy();
+		deleteProject("GH4413");
 	}
 }
 }

@@ -219,7 +219,10 @@ void checkAndSetImports() {
 	TypeDeclaration[] types = this.referenceContext.types;
 	if (types != null) {
 		for (TypeDeclaration typeDecl : types) {
-			if (this.fPackage != this.environment.defaultPackage && this.fPackage.getPackage(typeDecl.name, module()) != null) {
+			PackageBinding collidingPackage;
+			if (this.fPackage != this.environment.defaultPackage
+					&& (collidingPackage = this.fPackage.getPackage(typeDecl.name, module())) != null
+					&& this.environment.nameEnvironment.isObservablePackage(collidingPackage.compoundName)) {
 				// if a package exists, it must be a valid package - cannot be a NotFound problem package
 				// this is now a warning since a package does not really 'exist' until it contains a type, see JLS v2, 7.4.3
 				problemReporter().typeCollidesWithPackage(this.referenceContext, typeDecl);

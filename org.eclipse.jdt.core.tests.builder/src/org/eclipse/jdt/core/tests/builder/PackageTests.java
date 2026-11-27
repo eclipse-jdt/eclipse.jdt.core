@@ -286,6 +286,74 @@ public void test002() throws CoreException {
 		env.removeProject(externalProjectPath);
 	}
 }
+
+/**
+ * A Maven layout: the test resources (a source folder that excludes everything, whose files are copied by m2e)
+ * have a folder named like a test class. A folder without any type is not a package.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4413
+ */
+public void testNoFolderProblemTestResources() throws CoreException {
+	IPath projectPath = env.addProject("Project");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, "");
+	env.setOutputFolder(projectPath, "target/classes");
+	IPath main = env.addPackageFragmentRoot(projectPath, "src/main/java", null, null, "target/classes");
+	IPath test = env.addPackageFragmentRoot(projectPath, "src/test/java", null, null, "target/test-classes", true);
+	IPath resources = env.addPackageFragmentRoot(projectPath, "src/test/resources", null,
+			new IPath[] { IPath.fromOSString("**") }, "target/test-classes", true);
+
+	env.addClass(main, "org.example", "Foo",
+		"package org.example;\n" +
+		"public class Foo {}\n");
+	IPath fooTest = env.addClass(test, "org.example", "FooTest",
+		"package org.example;\n" +
+		"public class FooTest { Foo foo; }\n");
+	env.addFolder(resources, "org/example/FooTest");
+	env.addFile(resources, "org/example/FooTest/someResource.txt", "resource\n");
+	// the copy of the resources into the output folder, made by Maven or m2e
+	IPath testClasses = projectPath.append("target/test-classes");
+	env.addFolder(testClasses, "org/example/FooTest");
+	env.addFile(testClasses, "org/example/FooTest/someResource.txt", "resource\n");
+
+	fullBuild();
+	expectingNoProblems();
+
+	env.addClass(test, "org.example", "FooTest",
+		"package org.example;\n" +
+		"public class FooTest { Foo foo2; }\n");
+	incrementalBuild();
+	expectingNoProblemsFor(fooTest);
+	expectingNoProblems();
 }
 
+/**
+ * Same as {@link #testNoFolderProblemTestResources()}, the resources are copied by the Java builder.
+ */
+public void testNoFolderProblemTestResources2() throws CoreException {
+	IPath projectPath = env.addProject("Project");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, "");
+	env.setOutputFolder(projectPath, "target/classes");
+	IPath main = env.addPackageFragmentRoot(projectPath, "src/main/java", null, null, "target/classes");
+	IPath test = env.addPackageFragmentRoot(projectPath, "src/test/java", null, null, "target/test-classes", true);
+	IPath resources = env.addPackageFragmentRoot(projectPath, "src/test/resources", null, null, "target/test-classes", true);
 
+	env.addClass(main, "org.example", "Foo",
+		"package org.example;\n" +
+		"public class Foo {}\n");
+	env.addClass(test, "org.example", "FooTest",
+		"package org.example;\n" +
+		"public class FooTest { Foo foo; }\n");
+	env.addFolder(resources, "org/example/FooTest");
+	env.addFile(resources, "org/example/FooTest/someResource.txt", "resource\n");
+
+	fullBuild();
+	expectingNoProblems();
+
+	env.addClass(test, "org.example", "FooTest",
+		"package org.example;\n" +
+		"public class FooTest { Foo foo2; }\n");
+	incrementalBuild();
+	expectingNoProblems();
+}
+}
