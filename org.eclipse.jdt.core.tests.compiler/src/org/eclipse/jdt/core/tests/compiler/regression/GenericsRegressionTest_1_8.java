@@ -11268,5 +11268,238 @@ public void testBug508834_comment0() {
 			----------
 			""");
 	}
+	public void testGH5583() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				public class X {
+					static List<Class<?>> f(Optional<Integer> o, Class<?>[] a) {
+						return o.map(n -> List.of(Arrays.copyOf(a, n))).orElse(List.of());
+					}
+					public static void main(String[] args) {
+						System.out.println(f(Optional.of(1), new Class<?>[] { String.class, Integer.class }));
+					}
+				}
+				"""
+			},
+			"[class java.lang.String]");
+	}
+	public void testGH5583_lambdaResults() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					static <T> T[] copy(T[] a) { return a.clone(); }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					static <R> R call(Function<Integer, R> f) { return f.apply(1); }
+					static <R> R get(Supplier<R> s) { return s.get(); }
+					static <A, R> R apply(Function<A, R> f, A a) { return f.apply(a); }
+					public static void main(String[] args) {
+						Class<?>[] a = { String.class, Integer.class };
+						List<List<Class<?>>> all = new ArrayList<>();
+						all.add(call(n -> list(copy(a))).subList(0, 1));
+						all.add(call((Integer n) -> list(copy(a))).subList(1, 2));
+						all.add(call(n -> { if (n > 1) return list(a); return list(copy(a)); }).subList(0, 1));
+						all.add(call(n -> n > 1 ? list(a) : list(copy(a))).subList(1, 2));
+						all.add(call(n -> call(p -> list(copy(a)))).subList(0, 1));
+						all.add(get(() -> list(copy(a))).subList(1, 2));
+						all.add(list(apply(X::copy, a)).subList(0, 1));
+						Class<?>[] s = call(n -> copy(a)).clone();
+						System.out.println(all.size() + " " + s.length + " " + all.get(6));
+					}
+				}
+				"""
+			},
+			"7 2 [class java.lang.String]");
+	}
+	public void testGH5583_invocations() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				public class X {
+					static <T> T[] copy(T[] a) { return a.clone(); }
+					@SuppressWarnings("unchecked")
+					static <T> T[][] wrap(T[] a) {
+						T[][] r = (T[][]) java.lang.reflect.Array.newInstance(a.getClass(), 1);
+						r[0] = a;
+						return r;
+					}
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					@SafeVarargs static <E> List<E> of(E... e) { return new ArrayList<>(Arrays.asList(e)); }
+					static class Box<E> {
+						final List<E> content;
+						Box(E[] es) { this.content = list(es); }
+					}
+					public static void main(String[] args) {
+						Class<?>[] a = { String.class, Integer.class };
+						List<List<Class<?>>> all = new ArrayList<>();
+						all.add(list(copy(a)).subList(0, 1));
+						all.add(list(copy(copy(a))).subList(1, 2));
+						all.add(of(copy(a)).subList(0, 1));
+						all.add(new Box<>(copy(a)).content);
+						all.add(list(args.length == 0 ? copy(a) : a).subList(1, 2));
+						all.add(Arrays.asList(Arrays.copyOf(a, 1)).subList(0, 1));
+						List<List<Class<?>[]>> arrays = new ArrayList<>();
+						arrays.add(of(copy(a), copy(a)).subList(0, 1));
+						arrays.add(list(wrap(a)).subList(0, 1));
+						Optional<Class<?>[]> o = Optional.of(copy(a)).filter(x -> x.length == 2);
+						System.out.println(all.size() + " " + arrays.size() + " " + o.isPresent());
+					}
+				}
+				"""
+			},
+			"6 2 true");
+	}
+	public void testGH5583_parameterizations() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				public class X {
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					public static void main(String[] args) {
+						List<Integer> ints = Arrays.asList(1);
+						List<Double> doubles = Arrays.asList(2.0);
+						List<List<? extends Number>> all = new ArrayList<>(list(pair(ints, doubles)));
+						list(pair(ints, doubles)).add(ints);
+						System.out.println(all);
+					}
+				}
+				"""
+			},
+			"[[1], [2.0]]");
+	}
+	public void testGH5583_var() {
+		if (this.complianceLevel < ClassFileConstants.JDK10) return;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				public class X {
+					static <T> T[] copy(T[] a) { return a.clone(); }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					public static void main(String[] args) {
+						Class<?>[] a = { String.class, Integer.class };
+						var l = list(copy(a));
+						l.add(Object.class);
+						List<Class<?>> r = l;
+						var o = Optional.of(1).map(n -> copy(a));
+						Optional<Class<?>[]> s = o;
+						for (Class<?> c : list(copy(a)))
+							r.add(c);
+						System.out.println(r.size() + " " + s.get().length);
+					}
+				}
+				"""
+			},
+			"5 2");
+	}
+	public void testGH5583_rawArray() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				import java.util.function.*;
+				public class X {
+					static <R> R call(Function<Integer, R> f) { return f.apply(1); }
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					static <K, V> Map<K, V> copy(Map<K, V> map) {
+						return Map.ofEntries(map.entrySet().toArray(new Map.Entry[0]));
+					}
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					static <K, V> Map<K, V> lambda(Map<K, V> map) {
+						return call(n -> Map.ofEntries(map.entrySet().toArray(new Map.Entry[0])));
+					}
+					public static void main(String[] args) {
+						Map<String, Integer> map = new HashMap<>();
+						map.put("a", 1);
+						System.out.println(copy(map) + " " + lambda(map));
+					}
+				}
+				"""
+			},
+			"{a=1} {a=1}");
+	}
+	public void testGH5583_negSharedCapture() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				public class X {
+					interface I {}
+					static class P implements I {}
+					static class Q implements I {}
+					static <T> T[] copy(T[] a) { return a; }
+					@SafeVarargs static <T> T[] pair(T... a) { return a; }
+					static <E> void swap(List<E>[] ls) { ls[0].add(ls[1].get(0)); }
+					static void wildcard(List<?>[] lists) {
+						swap(copy(lists));
+					}
+					static void parameterizations(List<P> ps, List<Q> qs) {
+						swap(pair(ps, qs));
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 10)
+				swap(copy(lists));
+				^^^^
+			The method swap(List<E>[]) in the type X is not applicable for the arguments (List<?>[])
+			----------
+			2. ERROR in X.java (at line 13)
+				swap(pair(ps, qs));
+				^^^^
+			The method swap(List<E>[]) in the type X is not applicable for the arguments (List<? extends X.I>[])
+			----------
+			""");
+	}
+	public void testGH5583_negOtherErrors() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.*;
+				public class X {
+					static <T> T[] copy(T[] a) { return a; }
+					static <T> T first(List<T> l) { return l.get(0); }
+					static <E> List<E> list(E[] e) { return new ArrayList<>(Arrays.asList(e)); }
+					static <E> List<E> single(E e) { return new ArrayList<>(Arrays.asList(e)); }
+					static void wrongElement(Class<?>[] a) {
+						List<Class<String>> r = list(copy(a)).subList(0, 1);
+					}
+					static void notAnArray(List<Class<?>> classes) {
+						List<Class<?>> r = single(first(classes)).subList(0, 1);
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				List<Class<String>> r = list(copy(a)).subList(0, 1);
+				                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<Class<?>> to List<Class<String>>
+			----------
+			2. ERROR in X.java (at line 11)
+				List<Class<?>> r = single(first(classes)).subList(0, 1);
+				                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Type mismatch: cannot convert from List<Class<capture#2-of ?>> to List<Class<?>>
+			----------
+			""");
+	}
 
 }
