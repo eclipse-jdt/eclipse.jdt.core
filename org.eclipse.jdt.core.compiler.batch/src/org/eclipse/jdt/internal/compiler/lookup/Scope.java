@@ -2426,7 +2426,7 @@ public abstract class Scope {
 		} catch (MethodClashException e) {
 			return null;
 		}
-		if (exactMethod == null || !exactMethod.canBeSeenBy(invocationSite, this))
+		if (exactMethod == null)
 			return null;
 
 		final TypeBinding[] typeArguments = invocationSite.genericTypeArguments();
