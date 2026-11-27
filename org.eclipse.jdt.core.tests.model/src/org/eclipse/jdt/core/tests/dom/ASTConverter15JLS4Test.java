@@ -2187,7 +2187,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		SimpleName simpleName2 = (SimpleName) name;
 		typeBinding = simpleName2.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-        assertEquals("Wrong name 3", "test0070.Outer", typeBinding.getQualifiedName());
+        assertEquals("Wrong name 3", "test0070.Outer<java.lang.String>", typeBinding.getQualifiedName());
 	}
 
 	/**
@@ -4001,7 +4001,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		simpleName = qualifiedType.getName();
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name 5", "Outer.Inner", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name 5", "Outer<java.lang.String>.Inner", typeBinding.getQualifiedName());
 		type = qualifiedType.getQualifier();
 		assertTrue("Not a parameterized type", type.isParameterizedType());
 		parameterizedType = (ParameterizedType) type;
@@ -4019,7 +4019,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		simpleName = (SimpleName) name;
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name 8", "Outer", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name 8", "Outer<java.lang.String>", typeBinding.getQualifiedName());
    }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
