@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -64,7 +64,8 @@ public static Test suite() {
 @Override
 protected void tearDown() throws Exception {
 	// Put back default options
-	JavaCore.setOptions(JavaCore.getDefaultOptions());
+	// The defaults map alone does not remove obsolete formatter preferences.
+	restoreJavaCoreOptions(JavaCore.getDefaultOptions());
 
 	super.tearDown();
 }
