@@ -30,8 +30,11 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IModuleAttribute;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 
 public class ModuleCompilationTests extends AbstractModuleCompilationTest {
@@ -4065,6 +4068,116 @@ public void testBug521362_emptyFile() {
 	        "",
 	        "invalid module name: java.xml.ws.annotation\n",
 	        true);
+	}
+	// ct.sym lookups without a module: classes of several modules, several classes of java.util (in the ct.sym of
+	// JDK 17 to 25, Optional is not in the same directory as List and Map), a class of a known package that does not
+	// exist in the release, and a source package below an intermediate package of the JDK (org.w3c)
+	public void testReleaseOption25() throws Exception {
+		if (!isJRE12Plus) return;
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"import java.util.concurrent.Flow;\n" +
+					"import java.sql.Connection;\n" +
+					"import javax.xml.XMLConstants;\n" +
+					"public class X {\n" +
+					"	List<String> list;\n" +
+					"	Optional<String> optional;\n" +
+					"	Flow.Publisher<String> publisher;\n" +
+					"	Connection connection;\n" +
+					"	String namespace = XMLConstants.XML_NS_URI;\n" +
+					"	HexFormat hexFormat;\n" +
+					"	Map<String, String> map;\n" +
+					"}",
+					"org/w3c/mine/Y.java",
+					"package org.w3c.mine;\n" +
+					"public class Y {\n" +
+					"	org.w3c.dom.Document document;\n" +
+					"	org.w3c.dom.NoSuchType noSuchType;\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " \"" + OUTPUT_DIR +  File.separator + "org/w3c/mine/Y.java\""
+		     + " --release 11 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" +
+		     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" +
+		     "	HexFormat hexFormat;\n" +
+		     "	^^^^^^^^^\n" +
+		     "HexFormat cannot be resolved to a type\n" +
+		     "----------\n" +
+		     "----------\n" +
+		     "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/org/w3c/mine/Y.java (at line 4)\n" +
+		     "	org.w3c.dom.NoSuchType noSuchType;\n" +
+		     "	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		     "org.w3c.dom.NoSuchType cannot be resolved to a type\n" +
+		     "----------\n" +
+		     "2 problems (2 errors)\n",
+		     true);
+	}
+	// ct.sym lookups in named modules, with the same classes of java.util as testReleaseOption25
+	public void testReleaseOption26() {
+		if (!isJRE12Plus) return;
+		runNegativeModuleTest(
+			new String[] {
+				"module-info.java",
+				"module mod.one {\n" +
+				"	requires java.sql;\n" +
+				"}",
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	java.sql.Connection connection;\n" +
+				"	java.util.List<String> list;\n" +
+				"	javax.xml.XMLConstants constants;\n" +
+				"	java.util.HexFormat hexFormat;\n" +
+				"	java.util.Optional<String> optional;\n" +
+				"}"
+			},
+			" --release 11 \"" + getSourceDir() +  File.separator + "module-info.java\" "
+			+ "\"" + getSourceDir() +  File.separator + "p/X.java\"",
+			"",
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 6)\n" +
+			"	java.util.HexFormat hexFormat;\n" +
+			"	^^^^^^^^^^^^^^^^^^^\n" +
+			"java.util.HexFormat cannot be resolved to a type\n" +
+			"----------\n" +
+			"1 problem (1 error)\n",
+			true,
+			"cannot find symbol");
+	}
+	// ct.sym lookups of the release classpath itself, without a module (the javax.tools compiler uses them) and in a
+	// module (the batch compiler uses them, see testReleaseOption25 and 26)
+	public void testReleaseOption27() throws Exception {
+		if (!isJRE12Plus) return;
+		Classpath classpath = FileSystem.getOlderSystemRelease(System.getProperty("java.home"), "11", null);
+		classpath.initialize();
+		try {
+			for (String type : new String[] { "List", "Optional", "Map" }) {
+				for (String module : new String[] { null, "java.base" }) {
+					NameEnvironmentAnswer answer = classpath.findClass(type.toCharArray(), "java/util", module, "java/util/" + type + ".class");
+					assertNotNull(type + " in " + module, answer);
+					assertEquals(type + " in " + module, "java/util/" + type, String.valueOf(answer.getBinaryType().getName()));
+					assertEquals(type + " in " + module, "java.base", String.valueOf(answer.moduleName()));
+				}
+			}
+			for (String module : new String[] { null, "java.sql" }) {
+				NameEnvironmentAnswer answer = classpath.findClass("Connection".toCharArray(), "java/sql", module, "java/sql/Connection.class");
+				assertNotNull("Connection in " + module, answer);
+				assertEquals("Connection in " + module, "java.sql", String.valueOf(answer.moduleName()));
+			}
+			for (String module : new String[] { null, "java.base" }) {
+				// a class missing from the release in a package of the release
+				assertNull("HexFormat in " + module, classpath.findClass("HexFormat".toCharArray(), "java/util", module, "java/util/HexFormat.class"));
+				// a package of the running JDK (since 19) that is not in the release
+				assertNull("Arena in " + module, classpath.findClass("Arena".toCharArray(), "java/lang/foreign", module, "java/lang/foreign/Arena.class"));
+			}
+			assertNull("org/apache", classpath.findClass("apache".toCharArray(), "org", null, "org/apache.class"));
+		} finally {
+			classpath.reset();
+		}
 	}
 	public void testLimitModules1() {
 		File outputDirectory = new File(OUTPUT_DIR);
