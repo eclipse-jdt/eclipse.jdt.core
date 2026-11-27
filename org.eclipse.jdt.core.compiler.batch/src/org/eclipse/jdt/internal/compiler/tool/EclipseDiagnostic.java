@@ -102,6 +102,9 @@ public class EclipseDiagnostic implements Diagnostic<EclipseFileObject> {
 
     @Override
     public EclipseFileObject getSource() {
+        if (this.originatingFileName == null) {
+            return null;
+        }
         File f = new File(new String(this.originatingFileName));
         if (f.exists()) {
             return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);

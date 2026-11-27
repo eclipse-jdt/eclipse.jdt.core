@@ -269,6 +269,9 @@ public class EclipseCompilerImpl extends Main {
 						}
 						@Override
 						public JavaFileObject getSource() {
+							if (originatingFileName == null) {
+								return null;
+							}
 							File f = new File(new String(originatingFileName));
 							if (f.exists()) {
 								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
@@ -349,6 +352,9 @@ public class EclipseCompilerImpl extends Main {
 						}
 						@Override
 						public JavaFileObject getSource() {
+							if (originatingFileName == null) {
+								return null;
+							}
 							File f = new File(new String(originatingFileName));
 							if (f.exists()) {
 								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
