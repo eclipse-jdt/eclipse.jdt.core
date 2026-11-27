@@ -947,4 +947,53 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			ClasspathEntry.setSharedIndexLocation(null, getClass());
 		}
 	}
+
+	// Test that a reused shared index is written to the index map when indexes are saved and is reused after restart
+	public void testSharedIndexLocationSavedInIndexMap() throws CoreException, IOException {
+		String sharedIndexDir = Files.createTempDirectory("shared_index").toFile().toPath().normalize().toAbsolutePath().toString();
+		ClasspathEntry.setSharedIndexLocation(sharedIndexDir, getClass());
+		String jarFilePath = Path.fromOSString(Paths.get(sharedIndexDir, "Test.jar").toString()).toPortableString();
+		CRC32 checksumCalculator = new CRC32();
+		checksumCalculator.update(jarFilePath.getBytes());
+		String fileName = Long.toString(checksumCalculator.getValue()) + ".index";
+		String indexFilePath = Paths.get(sharedIndexDir, DiskIndex.INDEX_VERSION, fileName).toString();
+		try {
+			createJar(new String[] {
+					"pkg/Test.java",
+					"package pkg;\n" +
+					"public class Test {\n" +
+					"  protected Test(int i) {}\n" +
+					"}"}, jarFilePath);
+			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
+			long modified = new File(indexFilePath).lastModified();
+
+			IJavaProject p = createJavaProject("P");
+			Path libPath = new Path(jarFilePath);
+			IClasspathEntry entry = JavaCore.newLibraryEntry(libPath, null, null, null, null, false);
+			setClasspath(p, new IClasspathEntry[] { entry });
+			waitUntilIndexesReady();
+
+			JavaModelManager.getIndexManager().saveIndexes();
+			File indexMap = JavaCore.getPlugin().getStateLocation().append("indexNamesMap.txt").toFile();
+			String savedMap = Files.readString(indexMap.toPath());
+			assertTrue("Shared index is missing from the index map: " + savedMap, savedMap.contains(libPath.toOSString()));
+
+			simulateExitRestart();
+			getJavaModel().refreshExternalArchives(null, null);
+			waitUntilIndexesReady();
+
+			search("Test", TYPE, DECLARATIONS, EXACT_RULE,
+					SearchEngine.createJavaSearchScope(new IJavaElement[] { p }));
+			assertSearchResults(Paths.get(sharedIndexDir, "Test.jar").toString() + " pkg.Test");
+			java.io.File indexFile = JavaModelManager.getIndexManager().getIndex(libPath, false, false).getIndexFile();
+			assertEquals("Specified index file is not being used", indexFilePath, indexFile.toString());
+			assertEquals(modified, new File(indexFilePath).lastModified());
+		} finally {
+			deleteProject("P");
+			new File(indexFilePath).delete();
+			new File(jarFilePath).delete();
+			new File(sharedIndexDir).delete();
+			ClasspathEntry.setSharedIndexLocation(null, getClass());
+		}
+	}
 }
