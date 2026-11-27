@@ -904,6 +904,7 @@ public void test012b(){
         "      over-ann             missing @Override annotation (superclass)\n" +
         "      paramAssign          assignment to a parameter\n" +
         "      pkgDefaultMethod   + attempt to override package-default method\n" +
+        "      potentiallyExpensiveTypeInference  slow type inference in varargs calls\n" +
         "      raw                + usage of raw type\n" +
         "      removal            + deprecation marked for removal\n" +
         "      resource           + (pot.) unsafe usage of resource of type Closeable\n" +
@@ -1113,6 +1114,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.pessimisticNullAnalysisForFreeTypeVariables\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentiallyExpensiveTypeInference\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation\" value=\"warning\"/>\n" +

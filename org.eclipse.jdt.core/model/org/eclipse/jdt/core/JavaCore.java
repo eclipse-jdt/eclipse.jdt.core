@@ -1705,6 +1705,23 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE = PLUGIN_ID + ".compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
 
 	/**
+	 * Compiler option ID: Reporting Potentially Expensive Type Inference.
+	 * <p>When enabled, the compiler reports generic variable arity method invocations
+	 * where the variable arity parameter mentions a type parameter of the method
+	 * and at least 50 variable arity arguments are poly method invocations.
+	 * The warning applies when the outer method type arguments are inferred.
+	 * Specifying explicit method type arguments can reduce compilation time.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentiallyExpensiveTypeInference"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.48
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_POTENTIALLY_EXPENSIVE_TYPE_INFERENCE = PLUGIN_ID + ".compiler.problem.potentiallyExpensiveTypeInference"; //$NON-NLS-1$
+
+	/**
 	 * Compiler option ID: Reporting when public API uses a non-API type.
 	 * <p>
 	 * This option is relevant only when compiling code in a named module (at compliance 9 or greater).

@@ -72,6 +72,7 @@ public class IrritantSet {
 	public static final IrritantSet UNCHECKED = new IrritantSet(CompilerOptions.UncheckedTypeOperation);
 	public static final IrritantSet UNQUALIFIED_FIELD_ACCESS = new IrritantSet(CompilerOptions.UnqualifiedFieldAccess);
 	public static final IrritantSet RESOURCE = new IrritantSet(CompilerOptions.UnclosedCloseable);
+	public static final IrritantSet EXPENSIVE_TYPE_INFERENCE = new IrritantSet(CompilerOptions.PotentiallyExpensiveTypeInference);
 	public static final IrritantSet UNLIKELY_ARGUMENT_TYPE = new IrritantSet(CompilerOptions.UnlikelyCollectionMethodArgumentType);
 	public static final IrritantSet API_LEAK = new IrritantSet(CompilerOptions.APILeak);
 	public static final IrritantSet MODULE = new IrritantSet(CompilerOptions.UnstableAutoModuleName);

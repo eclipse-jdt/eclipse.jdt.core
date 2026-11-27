@@ -206,6 +206,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyEqualsArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
+	public static final String OPTION_ReportPotentiallyExpensiveTypeInference = "org.eclipse.jdt.core.compiler.problem.potentiallyExpensiveTypeInference"; //$NON-NLS-1$
 
 	public static final String OPTION_ReportAPILeak = "org.eclipse.jdt.core.compiler.problem.APILeak"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnstableAutoModuleName = "org.eclipse.jdt.core.compiler.problem.unstableAutoModuleName";   //$NON-NLS-1$
@@ -408,6 +409,7 @@ public class CompilerOptions {
 	public static final int UnusedLambdaParameter = IrritantSet.GROUP3 | ASTNode.Bit3;
 	public static final int MemberOfDeprecatedType = IrritantSet.GROUP3 | ASTNode.Bit4;
 	public static final int NullAnnotationUnsupportedLocation = IrritantSet.GROUP3 | ASTNode.Bit5;
+	public static final int PotentiallyExpensiveTypeInference = IrritantSet.GROUP3 | ASTNode.Bit6;
 
 
 	// Severity level for handlers
@@ -617,6 +619,7 @@ public class CompilerOptions {
 		"cast", //$NON-NLS-1$
 		"dep-ann", //$NON-NLS-1$
 		"deprecation", //$NON-NLS-1$
+		"expensive-type-inference", //$NON-NLS-1$
 		"exports",  //$NON-NLS-1$
 		"fallthrough", //$NON-NLS-1$
 		"finally", //$NON-NLS-1$
@@ -873,6 +876,8 @@ public class CompilerOptions {
 				return OPTION_ReportUnlikelyCollectionMethodArgumentType;
 			case UnlikelyEqualsArgumentType:
 				return OPTION_ReportUnlikelyEqualsArgumentType;
+			case PotentiallyExpensiveTypeInference:
+				return OPTION_ReportPotentiallyExpensiveTypeInference;
 			case APILeak:
 				return OPTION_ReportAPILeak;
 			case UnstableAutoModuleName:
@@ -1134,6 +1139,7 @@ public class CompilerOptions {
 
 			OPTION_ReportUnlikelyCollectionMethodArgumentType,
 			OPTION_ReportUnlikelyEqualsArgumentType,
+			OPTION_ReportPotentiallyExpensiveTypeInference,
 			OPTION_ReportAPILeak,
 			OPTION_ReportPreviewFeatures,
 			OPTION_ReportSuppressWarningNotFullyAnalysed
@@ -1238,6 +1244,8 @@ public class CompilerOptions {
 			case UnlikelyEqualsArgumentType:
 			case UnlikelyCollectionMethodArgumentType:
 				return "unlikely-arg-type"; //$NON-NLS-1$
+			case PotentiallyExpensiveTypeInference:
+				return "expensive-type-inference"; //$NON-NLS-1$
 			case APILeak:
 				return "exports"; //$NON-NLS-1$
 			case UnstableAutoModuleName:
@@ -1271,6 +1279,8 @@ public class CompilerOptions {
 					return IrritantSet.DEP_ANN;
 				break;
 			case 'e' :
+				if ("expensive-type-inference".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.EXPENSIVE_TYPE_INFERENCE;
 				if ("exports".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.API_LEAK;
 				break;
@@ -1502,6 +1512,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentType, getSeverityString(UnlikelyCollectionMethodArgumentType));
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict, this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnlikelyEqualsArgumentType, getSeverityString(UnlikelyEqualsArgumentType));
+		optionsMap.put(OPTION_ReportPotentiallyExpensiveTypeInference, getSeverityString(PotentiallyExpensiveTypeInference));
 		optionsMap.put(OPTION_ReportAPILeak, getSeverityString(APILeak));
 		optionsMap.put(OPTION_ReportUnstableAutoModuleName, getSeverityString(UnstableAutoModuleName));
 		optionsMap.put(OPTION_EnablePreviews, this.enablePreviewFeatures ? ENABLED : DISABLED);
@@ -2038,6 +2049,7 @@ public class CompilerOptions {
 			this.reportUnlikelyCollectionMethodArgumentTypeStrict = ENABLED.equals(optionValue);
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnlikelyEqualsArgumentType)) != null) updateSeverity(UnlikelyEqualsArgumentType, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyExpensiveTypeInference)) != null) updateSeverity(PotentiallyExpensiveTypeInference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAPILeak)) != null) updateSeverity(APILeak, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnstableAutoModuleName)) != null) updateSeverity(UnstableAutoModuleName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_AnnotationBasedNullAnalysis)) != null) {
@@ -2408,6 +2420,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unlikely argument type for collection methods: ").append(getSeverityString(UnlikelyCollectionMethodArgumentType)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods, strict check against expected type: ").append(this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument types for equals(): ").append(getSeverityString(UnlikelyEqualsArgumentType)); //$NON-NLS-1$
+		buf.append("\n\t- potentially expensive type inference: ").append(getSeverityString(PotentiallyExpensiveTypeInference)); //$NON-NLS-1$
 		buf.append("\n\t- API leak: ").append(getSeverityString(APILeak)); //$NON-NLS-1$
 		buf.append("\n\t- unstable auto module name: ").append(getSeverityString(UnstableAutoModuleName)); //$NON-NLS-1$
 		buf.append("\n\t- SuppressWarnings not fully analysed: ").append(getSeverityString(SuppressWarningsNotAnalysed)); //$NON-NLS-1$
