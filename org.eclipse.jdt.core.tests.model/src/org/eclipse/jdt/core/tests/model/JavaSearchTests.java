@@ -24,12 +24,17 @@ import java.util.List;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.LocalVariableDeclarationMatch;
@@ -43,6 +48,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.core.util.HandleFactory;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
@@ -4190,6 +4196,58 @@ public void testStaticImportPackage02() throws CoreException {
 		"src/s2/C.java [s2.pack.age]\n" +
 		"src/s2/D.java [s2.pack.age]"
 	);
+}
+
+public void testCamelCaseTypePattern_ClassFileWorkingCopy_Prereq() throws CoreException {
+	IProject p = ResourcesPlugin.getWorkspace().getRoot().getProject("JavaSearch");
+	IJavaProject jp = JavaCore.create(p);
+	IClasspathEntry[] entr2 = jp.getResolvedClasspath(true);
+	String jclMinPath = null;
+	for( int i = 0; i < entr2.length && jclMinPath == null; i++ ) {
+		IPath path = entr2[i].getPath();
+		if( path.toString().contains("jclMin1.8.jar")) {
+			jclMinPath = path.toString();
+		}
+	}
+	String runtimeExceptionPath = jclMinPath + "|java/lang/RuntimeException.class";
+	ITypeRoot typeRootRuntimeException = (ITypeRoot)new HandleFactory().createOpenable(runtimeExceptionPath, getJavaSearchScope());
+	org.eclipse.jdt.core.ICompilationUnit cuRuntimeException = typeRootRuntimeException.getWorkingCopy(null, new NullProgressMonitor());
+
+
+	String retentionPath = jclMinPath + "|java/lang/annotation/Retention.class";
+	ITypeRoot typeRootRetention = (ITypeRoot)new HandleFactory().createOpenable(retentionPath, getJavaSearchScope());
+	org.eclipse.jdt.core.ICompilationUnit cuRetention = typeRootRetention.getWorkingCopy(null, new NullProgressMonitor());
+
+	String retentionPolicyPath = jclMinPath + "|java/lang/annotation/RetentionPolicy.class";
+	ITypeRoot typeRootRetentionPolicy = (ITypeRoot)new HandleFactory().createOpenable(retentionPolicyPath, getJavaSearchScope());
+	org.eclipse.jdt.core.ICompilationUnit cuRetentionPolicy = typeRootRetentionPolicy.getWorkingCopy(null, new NullProgressMonitor());
+
+	org.eclipse.jdt.core.ICompilationUnit[] cuArr = new org.eclipse.jdt.core.ICompilationUnit[] {
+			cuRuntimeException, cuRetention, cuRetentionPolicy
+		};
+
+	ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+	astParser.setCompilerOptions(jp.getOptions(true));
+	astParser.setProject(jp);
+	astParser.setResolveBindings(true);
+	astParser.setBindingsRecovery(true);
+	astParser.createASTs(cuArr, new String[0], new ASTRequestor() {
+		@Override
+		public void acceptAST(org.eclipse.jdt.core.ICompilationUnit source, org.eclipse.jdt.core.dom.CompilationUnit ast) {
+			String srcString = source.toString();
+			String astString = ast.toString();
+			if( srcString.contains("RetentionPolicy.class") && !astString.contains("RetentionPolicy")) {
+				fail();
+			}
+			if( srcString.contains("Retention.class") && !astString.contains("Retention")) {
+				fail();
+			}
+			if( srcString.contains("RuntimeException.class") && !astString.contains("RuntimeException")) {
+				fail();
+			}
+		}
+		// todo, use a subprogressmonitor or slice it
+	}, new NullProgressMonitor());
 }
 
 /**
