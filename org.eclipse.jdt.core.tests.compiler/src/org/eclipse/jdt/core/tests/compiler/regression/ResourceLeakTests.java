@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 GK Software SE and others.
+ * Copyright (c) 2011, 2026 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7457,5 +7457,277 @@ public void testGH4511() {
 	},
 	"",
 	compilerOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5362
+// Map.put (and any unannotated, unconstrained generic return) must not acquire a
+// closeable merely because substitution instantiates the type variable with one.
+private Map gh5362Options() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportInsufficientResourceManagement, CompilerOptions.WARNING);
+	return options;
+}
+public void testGH5362_discardedMapPut() {
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.io.ByteArrayInputStream;
+			import java.io.Closeable;
+			import java.io.IOException;
+			import java.util.ArrayList;
+			import java.util.HashMap;
+			import java.util.List;
+			import java.util.Map;
+			import java.util.jar.JarFile;
+			public class X {
+				void direct(String name) throws IOException {
+					try (JarFile jar = new JarFile(name)) {
+						jar.getName();
+					}
+				}
+				void array(String name) throws IOException {
+					try (JarFile jar = new JarFile(name)) {
+						JarFile[] jars = { jar };
+						if (jars.length != 1) throw new IllegalStateException();
+					}
+				}
+				void list(String name) throws IOException {
+					try (JarFile jar = new JarFile(name)) {
+						List<JarFile> jars = new ArrayList<>();
+						jars.add(jar);
+						if (jars.size() != 1) throw new IllegalStateException();
+					}
+				}
+				void map(String name) throws IOException {
+					try (JarFile jar = new JarFile(name)) {
+						Map<String, JarFile> jars = new HashMap<>();
+						jars.put("a.jar", jar);
+						if (jars.size() != 1) throw new IllegalStateException();
+					}
+				}
+				void hashMap(String name) throws IOException {
+					try (JarFile jar = new JarFile(name)) {
+						HashMap<String, JarFile> jars = new HashMap<>();
+						jars.put("a.jar", jar);
+						if (jars.size() != 1) throw new IllegalStateException();
+					}
+				}
+				void box(String name) throws IOException {
+					try (JarFile jar = new JarFile(name)) {
+						Box<JarFile> jars = new Box<>();
+						jars.put("a.jar", jar);
+					}
+				}
+				void wildcard(Map<String, ? extends JarFile> jars) {
+					jars.get("a.jar");
+				}
+				void pass(String name) throws IOException {
+					JarFile jar = new JarFile(name);
+					Id.pass(jar);
+					jar.getName();
+				}
+				void resourceFree(Box<ByteArrayInputStream> box) {
+					new ByteArrayInputStream(new byte[0]);
+					box.get();
+				}
+				void closed(Map<String, JarFile> jars, JarFile jar) throws IOException {
+					JarFile previous = jars.put("a.jar", jar);
+					previous.close();
+				}
+				void boundedClosed(Factory factory) throws IOException {
+					Closeable closeable = factory.open();
+					closeable.close();
+				}
+			}
+			class Box<T> {
+				T put(String key, T value) { return value; }
+				T get() { return null; }
+			}
+			class Id {
+				static <T> T pass(T value) { return value; }
+			}
+			interface Factory {
+				<T extends Closeable> T open();
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 52)\n" +
+		"	JarFile jar = new JarFile(name);\n" +
+		"	        ^^^\n" +
+		potentialLeakOrCloseNotShown("jar") +
+		"----------\n",
+		gh5362Options());
+}
+public void testGH5362_assignedGenericResult() {
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.Map;
+			import java.util.jar.JarFile;
+			public class X {
+				void leftOpen(Map<String, JarFile> jars, JarFile jar) {
+					JarFile previous = jars.put("a", jar);
+					previous.getName();
+				}
+				void conditional(boolean flag, Map<String, JarFile> jars, JarFile jar) {
+					JarFile previous = flag ? jars.put("a", jar) : jars.get("a");
+					previous.getName();
+				}
+				void fromBox(Box<JarFile> box) {
+					JarFile value = box.get();
+					value.getName();
+				}
+			}
+			class Box<T> {
+				T get() { return null; }
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	JarFile previous = jars.put(\"a\", jar);\n" +
+		"	        ^^^^^^^^\n" +
+		"Potential resource leak: 'previous' may not be closed\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	JarFile previous = flag ? jars.put(\"a\", jar) : jars.get(\"a\");\n" +
+		"	        ^^^^^^^^\n" +
+		"Potential resource leak: 'previous' may not be closed\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 13)\n" +
+		"	JarFile value = box.get();\n" +
+		"	        ^^^^^\n" +
+		"Potential resource leak: 'value' may not be closed\n" +
+		"----------\n",
+		gh5362Options());
+}
+public void testGH5362_insertedResourceRemainsOpen() {
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.Map;
+			import java.util.jar.JarFile;
+			public class X {
+				void both(Map<String, JarFile> jars, String name) throws Exception {
+					JarFile created = new JarFile(name);
+					JarFile displaced = jars.put("k", created);
+					created.getName();
+					displaced.getName();
+				}
+				void closeDisplacedOnly(Map<String, JarFile> jars, String name) throws Exception {
+					JarFile created = new JarFile(name);
+					JarFile displaced = jars.put("k", created);
+					displaced.close();
+				}
+				void closeCreatedOnly(Map<String, JarFile> jars, String name) throws Exception {
+					JarFile created = new JarFile(name);
+					JarFile displaced = jars.put("k", created);
+					created.close();
+					displaced.getName();
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	JarFile created = new JarFile(name);\n" +
+		"	        ^^^^^^^\n" +
+		potentialLeakOrCloseNotShown("created") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	JarFile displaced = jars.put(\"k\", created);\n" +
+		"	        ^^^^^^^^^\n" +
+		"Potential resource leak: 'displaced' may not be closed\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 11)\n" +
+		"	JarFile created = new JarFile(name);\n" +
+		"	        ^^^^^^^\n" +
+		potentialLeakOrCloseNotShown("created") +
+		"----------\n" +
+		"4. ERROR in X.java (at line 17)\n" +
+		"	JarFile displaced = jars.put(\"k\", created);\n" +
+		"	        ^^^^^^^^^\n" +
+		"Potential resource leak: 'displaced' may not be closed\n" +
+		"----------\n",
+		gh5362Options());
+}
+public void testGH5362_resourceContractsRemain() {
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.io.Closeable;
+			import java.io.FileInputStream;
+			import java.io.IOException;
+			import java.nio.file.Files;
+			import java.nio.file.Path;
+			public class X {
+				void boundedDiscard(Factory factory) {
+					factory.open();
+				}
+				void boundedAssigned(Factory factory) throws IOException {
+					Closeable closeable = factory.open();
+					closeable.toString();
+				}
+				void holderDiscard(Holder<Closeable> holder) {
+					holder.get();
+				}
+				void concreteDiscard(Streams streams, String name) throws IOException {
+					streams.open(name);
+				}
+				void files(Path path) throws IOException {
+					Files.newInputStream(path);
+					Files.lines(path);
+				}
+			}
+			interface Factory {
+				<T extends Closeable> T open();
+			}
+			class Holder<T extends Closeable> {
+				T get() { return null; }
+			}
+			interface Streams {
+				FileInputStream open(String name) throws IOException;
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	factory.open();\n" +
+		"	^^^^^^^^^^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	Closeable closeable = factory.open();\n" +
+		"	          ^^^^^^^^^\n" +
+		potentialOrDefiniteLeak("closeable") +
+		"----------\n" +
+		"3. ERROR in X.java (at line 15)\n" +
+		"	holder.get();\n" +
+		"	^^^^^^^^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n" +
+		"4. ERROR in X.java (at line 18)\n" +
+		"	streams.open(name);\n" +
+		"	^^^^^^^^^^^^^^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n" +
+		"5. ERROR in X.java (at line 21)\n" +
+		"	Files.newInputStream(path);\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n" +
+		"6. ERROR in X.java (at line 22)\n" +
+		"	Files.lines(path);\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n",
+		gh5362Options());
 }
 }
