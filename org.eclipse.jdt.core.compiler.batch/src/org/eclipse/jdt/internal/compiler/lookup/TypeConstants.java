@@ -460,6 +460,15 @@ public interface TypeConstants {
 	// for List.*indexOf:
 	char[] INDEX_OF = "indexOf".toCharArray(); //$NON-NLS-1$
 	char[] LAST_INDEX_OF = "lastIndexOf".toCharArray(); //$NON-NLS-1$
+
+	char[] JSPECIFY = "jspecify".toCharArray(); //$NON-NLS-1$
+	char[] ANNOTATIONS = "annotations".toCharArray(); //$NON-NLS-1$
+	char[][] ORG_JSPECIFY_ANNOTATIONS_NONNULL = new char[][] { ORG, JSPECIFY, ANNOTATIONS, "NonNull".toCharArray() }; //$NON-NLS-1$
+	char[][] ORG_JSPECIFY_ANNOTATIONS_NULLABLE = new char[][] { ORG, JSPECIFY, ANNOTATIONS, "Nullable".toCharArray() }; //$NON-NLS-1$
+	char[][] ORG_JSPECIFY_ANNOTATIONS_NULLMARKED = new char[][] { ORG, JSPECIFY, ANNOTATIONS, "NullMarked".toCharArray() }; //$NON-NLS-1$
+	char[][] ORG_JSPECIFY_ANNOTATIONS_NULLUNMARKED = new char[][] { ORG, JSPECIFY, ANNOTATIONS, "NullUnmarked".toCharArray() }; //$NON-NLS-1$
+	char[] KOTLIN = "kotlin".toCharArray(); //$NON-NLS-1$
+	char[][] KOTLIN_METADATA = new char[][] { KOTLIN, "Metadata".toCharArray() }; //$NON-NLS-1$
 	enum DangerousMethod {
 		// Collection:
 		Contains, Remove, RemoveAll, ContainsAll, RetainAll,
