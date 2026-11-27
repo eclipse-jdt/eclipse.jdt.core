@@ -2749,6 +2749,13 @@ public final class JavaCore extends Plugin {
 	 * <a href="https://openjdk.org/projects/jigsaw/spec/sotms/#the-unnamed-module">"The State of the Module System"</a>,
 	 * which indicates that different semantics had been intended.
 	 * </p>
+	 * <p>
+	 * When a named module reads the unnamed module (for example with {@code --add-reads <module>=ALL-UNNAMED}, or the
+	 * test class path of a modular project), the compiler also ignores, like javac, a package of the unnamed module
+	 * that the named module has a compilation unit in, or that another module that it reads exports to it: the
+	 * compilation units of this package of the unnamed module conflict with no package, and its types are not
+	 * visible to the named module.
+	 * </p>
 	 *
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.ignoreUnnamedModuleForSplitPackage"</code></dd>
