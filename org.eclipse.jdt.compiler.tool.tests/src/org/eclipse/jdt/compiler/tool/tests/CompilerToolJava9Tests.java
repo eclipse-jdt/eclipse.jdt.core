@@ -1132,6 +1132,198 @@ public class CompilerToolJava9Tests extends TestCase {
 		assertTrue(task.call());
 	}
 
+	/*
+	 * --patch-module puts sources into a module of the module path, as maven-compiler-plugin does for the tests of a
+	 * modular project: a test in a package of the module and a test in a new package, without module-info.java.
+	 */
+	public void testPatchModuleOption() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		checkPatchModuleCompilation(root, mainOutput, tests.toString(), tests);
+	}
+	/*
+	 * A relative --patch-module location: the compiler is given absolute file names.
+	 */
+	public void testPatchModuleOptionRelativeLocation() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		String relativeLocation;
+		try {
+			// from the real paths: the operating system resolves ".." after the symbolic links of the working directory
+			relativeLocation = Paths.get("").toRealPath().relativize(tests.toRealPath()).toString();
+		} catch (IllegalArgumentException e) {
+			return; // no relative path to the temporary folder (another drive)
+		}
+		checkPatchModuleCompilation(root, mainOutput, relativeLocation, tests);
+	}
+	/*
+	 * The value of maven-compiler-plugin for the tests: the classes of the module, which are also on the module path, then
+	 * the test sources, and a trailing path separator.
+	 */
+	public void testPatchModuleOptionMavenValue() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		checkPatchModuleCompilation(root, mainOutput, mainOutput + File.pathSeparator + tests + File.pathSeparator, tests);
+	}
+	/*
+	 * A --patch-module location through a symbolic link: as in javac, it matches the real path of the sources.
+	 */
+	public void testPatchModuleOptionSymbolicLink() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		Path link = root.resolve("tests-link");
+		try {
+			Files.createSymbolicLink(link, tests);
+		} catch (IOException | UnsupportedOperationException e) {
+			return; // no symbolic link on this platform
+		}
+		checkPatchModuleCompilation(root, mainOutput, link.toString(), tests);
+	}
+	/*
+	 * A value of --patch-module without '=' is reported as with the batch compiler, also to the diagnostic listener.
+	 */
+	public void testPatchModuleOptionInvalidValue() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<>();
+		try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			compiler.getTask(null, manager, diagnostics::add, List.of("--patch-module", "demo.lib"), null, null);
+			fail("--patch-module demo.lib is accepted");
+		} catch (IllegalArgumentException e) {
+			assertEquals("invalid syntax for --patch-module: demo.lib", e.getMessage());
+			assertEquals(diagnostics.toString(), 1, diagnostics.size());
+		}
+	}
+	/*
+	 * As in javac (ModuleTable.updatePaths), setting the location of a module again replaces the paths in which the files
+	 * of the module are found. javac does not support it for PATCH_MODULE_PATH, hence the module path.
+	 */
+	public void testSetLocationForModuleAgain() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path a = root.resolve("a").resolve("p/A.java");
+		Path b = root.resolve("b").resolve("p/B.java");
+		writeFile(a, "package p;\nclass A {}\n");
+		writeFile(b, "package p;\nclass B {}\n");
+		for (int i = 0; i < 2; i++) {
+			try (StandardJavaFileManager manager = this.compilers[i].getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+				manager.setLocationForModule(StandardLocation.MODULE_PATH, "m", List.of(root.resolve("a")));
+				manager.setLocationForModule(StandardLocation.MODULE_PATH, "m", List.of(root.resolve("b")));
+				assertNull(this.compilerNames[i], manager.getLocationForModule(StandardLocation.MODULE_PATH,
+						manager.getJavaFileObjects(a).iterator().next()));
+				Location location = manager.getLocationForModule(StandardLocation.MODULE_PATH, manager.getJavaFileObjects(b).iterator().next());
+				assertNotNull(this.compilerNames[i], location);
+				assertEquals(this.compilerNames[i], "m", manager.inferModuleName(location));
+			}
+		}
+	}
+	/*
+	 * The sources patched into a module keep the access checks of the module: the white-box test compiles, a package
+	 * private method called from another package is not visible.
+	 */
+	public void testPatchModuleOptionAccessCheck() throws IOException {
+		if (this.isJREBelow9) return;
+		Path root = Paths.get(_tmpFolder);
+		Path mainOutput = compilePatchedModule(root);
+		Path tests = writePatchModuleTests(root);
+		writeFile(tests.resolve("demo/other/OtherTest.java"),
+				"package demo.other;\n" +
+				"class OtherTest {\n" +
+				"	String s = new demo.lib.Greeter().greet(\"you\");\n" +
+				"}\n");
+		for (int i = 0; i < 2; i++) {
+			List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<>();
+			boolean success = compilePatchModuleTests(this.compilers[i], false, false, root.resolve("negative-bin" + i), mainOutput,
+					tests.toString(), tests, diagnostics);
+			assertFalse(this.compilerNames[i] + " should not compile: " + diagnostics, success);
+			List<Diagnostic<? extends JavaFileObject>> errors = diagnostics.stream().filter(d -> d.getKind() == Diagnostic.Kind.ERROR).toList();
+			assertEquals(this.compilerNames[i] + ": " + errors, 1, errors.size());
+			assertTrue(this.compilerNames[i] + ": " + errors, errors.get(0).getSource().getName().endsWith("OtherTest.java"));
+			assertTrue(this.compilerNames[i] + ": " + errors, errors.get(0).getMessage(Locale.ROOT).contains("greet(java.lang.String)"));
+		}
+	}
+	private Path compilePatchedModule(Path root) throws IOException {
+		Path main = root.resolve("main");
+		writeFile(main.resolve("module-info.java"),
+				"module demo.lib {\n" +
+				"	exports demo.lib;\n" +
+				"}\n");
+		writeFile(main.resolve("demo/lib/Greeter.java"),
+				"package demo.lib;\n" +
+				"public class Greeter {\n" +
+				"	String greet(String name) { // package private\n" +
+				"		return \"Hello \" + name;\n" +
+				"	}\n" +
+				"}\n");
+		JavaCompiler compiler = this.compilers[0];
+		Path output = root.resolve("main-bin");
+		List<String> options = List.of("-d", output.toString());
+		try (StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(
+					List.of(main.resolve("module-info.java").toFile(), main.resolve("demo/lib/Greeter.java").toFile()));
+			assertTrue("The module does not compile", compiler.getTask(null, manager, null, options, null, units).call());
+		}
+		return output;
+	}
+	private Path writePatchModuleTests(Path root) throws IOException {
+		Path tests = root.resolve("tests");
+		writeFile(tests.resolve("demo/lib/GreeterTest.java"),
+				"package demo.lib;\n" +
+				"class GreeterTest {\n" +
+				"	String s = new Greeter().greet(\"you\");\n" +
+				"}\n");
+		writeFile(tests.resolve("demo/other/OtherTest.java"),
+				"package demo.other;\n" +
+				"import demo.lib.Greeter;\n" +
+				"class OtherTest {\n" +
+				"	Greeter greeter;\n" +
+				"}\n");
+		return tests;
+	}
+	private void checkPatchModuleCompilation(Path root, Path mainOutput, String patchLocation, Path tests) throws IOException {
+		for (int i = 0; i < 2; i++) {
+			// javac is the reference; ECJ with its standard file manager, the same behind a file manager that is not a
+			// StandardJavaFileManager, and the standard file manager of javac, which handles --patch-module itself
+			for (int manager = 0; manager < (i == 0 ? 1 : 3); manager++) {
+				Path output = root.resolve("tests-bin" + i + manager);
+				List<Diagnostic<? extends JavaFileObject>> diagnostics = new ArrayList<>();
+				boolean success = compilePatchModuleTests(this.compilers[i], manager % 2 == 1, manager >= 2, output, mainOutput, patchLocation, tests,
+						diagnostics);
+				assertTrue(this.compilerNames[i] + " with the file manager " + manager + " failed: " + diagnostics, success);
+				assertTrue("Missing GreeterTest.class", Files.exists(output.resolve("demo/lib/GreeterTest.class")));
+				assertTrue("Missing OtherTest.class", Files.exists(output.resolve("demo/other/OtherTest.class")));
+			}
+		}
+	}
+	private boolean compilePatchModuleTests(JavaCompiler compiler, boolean forwarding, boolean javacManager, Path output, Path mainOutput,
+			String patchLocation, Path tests, List<Diagnostic<? extends JavaFileObject>> diagnostics) throws IOException {
+		List<File> files = new ArrayList<>();
+		try (var walk = Files.walk(tests)) {
+			walk.filter(f -> f.toString().endsWith(".java")).forEach(f -> files.add(f.toFile()));
+		}
+		Files.createDirectories(output);
+		List<String> options = List.of("-d", output.toString(), "--module-path", mainOutput.toString(),
+				"--patch-module", "demo.lib=" + patchLocation, "--add-reads", "demo.lib=ALL-UNNAMED");
+		JavaCompiler managerCompiler = javacManager ? this.compilers[0] : compiler;
+		try (StandardJavaFileManager standardManager = managerCompiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			CompilationTask task = compiler.getTask(null, forwarding ? getFileManager(standardManager) : standardManager,
+					diagnostics::add, options, null, standardManager.getJavaFileObjectsFromFiles(files));
+			return task.call();
+		}
+	}
+	private static void writeFile(Path file, String content) throws IOException {
+		Files.createDirectories(file.getParent());
+		Files.writeString(file, content);
+	}
+
 	/**
 	 * Helps with building a compiler invocation, handling the common parts of testing.
 	 */
