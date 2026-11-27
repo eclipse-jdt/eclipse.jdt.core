@@ -72,7 +72,7 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  *  Called indirectly from {@link Scope#findMethod(ReferenceBinding, char[], TypeBinding[], InvocationSite, boolean)} et al
  *  to select applicable methods into overload resolution.</dd>
  * <dt>18.5.2 Invocation Type Inference</dt>
- * <dd>{@link InferenceContext18#inferInvocationType(TypeBinding, InvocationSite, MethodBinding)}. After a
+ * <dd>{@link InferenceContext18#inferInvocationType(TypeBinding, InvocationSite, MethodBinding, boolean)}. After a
  * 	most specific method has been picked, and given a target type determine the final generic instantiation.
  *  As long as a target type is still unavailable this phase keeps getting deferred.<br>
  *  Different wrappers exist for the convenience of different callers.</dd>
@@ -376,7 +376,7 @@ public class InferenceContext18 {
 		ConstraintExpressionFormula.inferInvocationApplicability(this, method, arguments, isDiamond, this.inferenceKind);
 	}
 
-	/** Perform steps from JLS 18.5.2. needed for computing the bound set B3. */
+	/** Perform steps from JLS 18.5.2.1 needed for computing the bound set B3. */
 	boolean computeB3(InvocationSite invocationSite, TypeBinding targetType, MethodBinding method, boolean resetBoundSet)
 				throws InferenceFailureException
 	{
@@ -394,7 +394,7 @@ public class InferenceContext18 {
 
 	/** JLS 18.5.2 Invocation Type Inference
 	 */
-	public BoundSet inferInvocationType(TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method) throws InferenceFailureException
+	public BoundSet inferInvocationType(TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method, boolean isPolyExpression) throws InferenceFailureException
 	{
 		// not JLS: simply ensure that null hints from the return type have been seen even in standalone contexts:
 		if (expectedType == null && method.returnType != null)
@@ -405,18 +405,18 @@ public class InferenceContext18 {
 		int step = (expectedType == null || expectedType.isProperType(true)) ? TYPE_INFERRED_FINAL : TYPE_INFERRED;
 
 		try {
-			// bullets 1&2: definitions only.
-			if (expectedType != null
-					&& expectedType != TypeBinding.VOID
-					&& invocationSite instanceof Expression && ((Expression) invocationSite).isTrulyExpression()
-					&& ((Expression)invocationSite).isPolyExpression(method))
-			{
-				// 3. bullet: special treatment for poly expressions
+			// JLS 18.5.2 amounts to performing 18.5.2.2, which conditionally pulls in 18.5.2.1, too.
+
+			// 1. bullet:
+			if (expectedType != null && expectedType != TypeBinding.VOID && isPolyExpression) {
+				// If the method invocation expression is a poly expression, let B3 be the bound set generated in §18.5.2.1
 				if (!computeB3(invocationSite, expectedType, method, false)) {
 					return null;
 				}
 			} else {
 				mergeInnerBounds();
+				// If the method invocation expression is not a poly expression, let B3 be the same as
+				// the bound set produced by reduction in order to demonstrate that m is applicable in §18.5.1.
 				this.b3 = this.currentBounds.copy();
 			}
 
@@ -431,11 +431,11 @@ public class InferenceContext18 {
 			pushBoundsToOuter();
 			this.directlyAcceptingInnerBounds = true;
 
-			// 4. bullet: assemble C:
+			// 2. bullet: assemble C:
 			Set<ConstraintFormula> c = new LinkedHashSet<>();
 			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, invocationSite))
 				return null;
-			// 5. bullet: determine B4 from C
+			// 3. bullet: determine B4 from C
 			while (!c.isEmpty()) {
 				Map<InferenceVariable,Set<InferenceVariable>> dependencies = collectDependencies(this.currentBounds);
 				List<Set<InferenceVariable>> components = new ArrayList<>(dependencies.values());
@@ -479,7 +479,7 @@ public class InferenceContext18 {
 					}
 				}
 			}
-			// 6. bullet: solve
+			// 4. bullet: solve
 			BoundSet solution = solve();
 			if (solution == null || !isResolved(solution)) {
 				this.currentBounds = this.b2; // don't let bounds from unsuccessful attempt leak into subsequent attempts
