@@ -1321,4 +1321,8 @@ public boolean isPotentiallyCompatibleWith(TypeBinding targetType, Scope scope) 
 protected Constant optimizedNullComparisonConstant() {
 	return Constant.NotAConstant;
 }
+
+public boolean patternMatch(Expression expression) {
+	return false;
+}
 }

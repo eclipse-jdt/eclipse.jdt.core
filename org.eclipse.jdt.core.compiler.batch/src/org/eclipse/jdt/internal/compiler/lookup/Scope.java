@@ -5169,145 +5169,25 @@ public abstract class Scope {
 	   could be found. This method is modeled after Scope.getConstructor and Scope.getMethod.
 	 */
 	public MethodBinding getStaticFactory (ParameterizedTypeBinding allocationType, ReferenceBinding originalEnclosingType, TypeBinding[] argumentTypes, final InvocationSite allocationSite) {
-
-		// allocationType is the diamond type. originalEnclosingType is the real enclosing type ==> may be parameterized, parameterized with own type variables, raw, just plain type or null.
-		int classTypeVariablesArity = 0;
-		TypeVariableBinding[] classTypeVariables = Binding.NO_TYPE_VARIABLES;
-		ReferenceBinding genericType = allocationType.genericType();
-		ReferenceBinding currentType = genericType;
-		while (currentType != null) {
-			TypeVariableBinding[] typeVariables = currentType.typeVariables();
-			int length = typeVariables == null ? 0 : typeVariables.length;
-			if (length > 0) {
-				System.arraycopy(classTypeVariables, 0, classTypeVariables = new TypeVariableBinding[classTypeVariablesArity + length], 0, classTypeVariablesArity);
-				System.arraycopy(typeVariables, 0, classTypeVariables, classTypeVariablesArity, length);
-				classTypeVariablesArity += length;
-			}
-			if (currentType.isStatic()) // any enclosing types cannot be parameterized, if generic treat as raw.
-				break;
-			currentType = currentType.enclosingType();
-		}
-		boolean isInterface = allocationType.isInterface();
-		ReferenceBinding typeToSearch = isInterface ? getJavaLangObject() : allocationType;
-
-		MethodBinding[] methods = typeToSearch.getMethods(TypeConstants.INIT, argumentTypes.length);
-		MethodBinding [] staticFactories = new MethodBinding[methods.length];
-		int sfi = 0;
-		for (MethodBinding method : methods) {
+		MethodBinding [] staticFactories = allocationType.getDiamondFactories(this);
+		int sfi = staticFactories.length;
+		MethodBinding[] compatible = new MethodBinding[sfi];
+		int compatibleIndex = 0;
+		for (int i = 0; i < sfi; i++) {
+			MethodBinding method = staticFactories[i];
 			if (!method.canBeSeenBy(allocationSite, this))
 				continue;
-
 			int paramLength = method.parameters.length;
 			boolean isVarArgs = method.isVarargs();
 			if (argumentTypes.length != paramLength)
 				if (!isVarArgs || argumentTypes.length < paramLength - 1)
 					continue; // incompatible
-
-			TypeVariableBinding[] methodTypeVariables = method.typeVariables();
-			int methodTypeVariablesArity = methodTypeVariables.length;
-			final int factoryArity = classTypeVariablesArity + methodTypeVariablesArity;
-			final LookupEnvironment environment = environment();
-			MethodBinding targetMethod = isInterface ? new MethodBinding(method.original(), genericType) : method.original();
-			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(targetMethod, environment, originalEnclosingType);
-			staticFactory.typeVariables = new TypeVariableBinding[factoryArity];
-			Map<TypeBinding, TypeVariableBinding> map = new HashMap<>(factoryArity);
-
-			// Rename each type variable T of the type to T' or T'' or T''' based on the enclosing level to avoid a clash.
-			String prime = ""; //$NON-NLS-1$
-			Binding declaringElement = null;
-			for (int j = 0; j < classTypeVariablesArity; j++) {
-				TypeVariableBinding original;
-				original = classTypeVariables[j];
-				if (original.declaringElement != declaringElement) {
-					declaringElement = original.declaringElement;
-					prime += "'"; //$NON-NLS-1$
-				}
-				map.put(original.unannotated(), staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(original.sourceName, prime.toCharArray()),
-																			staticFactory, j, environment));
-			}
-			// Rename each type variable U of method
-			prime += "'"; //$NON-NLS-1$
-			for (int j = classTypeVariablesArity, k = 0; j < factoryArity; j++, k++) {
-				map.put(methodTypeVariables[k].unannotated(),
-						(staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(methodTypeVariables[k].sourceName, prime.toCharArray()),
-																			staticFactory, j, environment)));
-
-			}
-			final Scope scope = this;
-			Substitution substitution = new Substitution() {
-					@Override
-					public LookupEnvironment environment() {
-						return scope.environment();
-					}
-					@Override
-					public boolean isRawSubstitution() {
-						return false;
-					}
-					@Override
-					public TypeBinding substitute(TypeVariableBinding typeVariable) {
-						TypeBinding retVal = map.get(typeVariable.unannotated());
-						return retVal == null ? typeVariable : typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(retVal, typeVariable.getTypeAnnotations()) : retVal;
-					}
-				};
-
-			// initialize new variable bounds
-			for (int j = 0; j < factoryArity; j++) {
-				TypeVariableBinding originalVariable = j < classTypeVariablesArity ? classTypeVariables[j] : methodTypeVariables[j - classTypeVariablesArity];
-				TypeVariableBinding substitutedVariable = map.get(originalVariable.unannotated());
-
-				TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
-				ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
-				if (originalVariable.firstBound != null) {
-					TypeBinding firstBound;
-					firstBound = TypeBinding.equalsEquals(originalVariable.firstBound, originalVariable.superclass)
-							? substitutedSuperclass // could be array type or interface
-									: substitutedInterfaces[0];
-					substitutedVariable.setFirstBound(firstBound);
-				}
-				switch (substitutedSuperclass.kind()) {
-					case Binding.ARRAY_TYPE :
-						substitutedVariable.setSuperClass(environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, null));
-						substitutedVariable.setSuperInterfaces(substitutedInterfaces);
-						break;
-					default:
-						if (substitutedSuperclass.isInterface()) {
-							substitutedVariable.setSuperClass(environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, null));
-							int interfaceCount = substitutedInterfaces.length;
-							System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
-							substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
-							substitutedVariable.setSuperInterfaces(substitutedInterfaces);
-						} else {
-							substitutedVariable.setSuperClass((ReferenceBinding) substitutedSuperclass); // typeVar was extending other typeVar which got substituted with interface
-							substitutedVariable.setSuperInterfaces(substitutedInterfaces);
-						}
-				}
-			}
-			staticFactory.returnType = environment.createParameterizedType(genericType,
-					Scope.substitute(substitution, genericType.typeVariables()),
-					(ReferenceBinding) Scope.substitute(substitution, originalEnclosingType));
-			staticFactory.parameters = Scope.substitute(substitution, method.parameters);
-			staticFactory.thrownExceptions = Scope.substitute(substitution, method.thrownExceptions);
-			if (staticFactory.thrownExceptions == null) {
-				staticFactory.thrownExceptions = Binding.NO_EXCEPTIONS;
-			}
-			staticFactories[sfi++] = new ParameterizedMethodBinding((ParameterizedTypeBinding) environment.convertToParameterizedType(isInterface ? allocationType : staticFactory.declaringClass),
-																												staticFactory);
-		}
-		if (sfi == 0)
-			return null;
-		if (sfi != methods.length) {
-			System.arraycopy(staticFactories, 0, staticFactories = new MethodBinding[sfi], 0, sfi);
-		}
-		MethodBinding[] compatible = new MethodBinding[sfi];
-		int compatibleIndex = 0;
-		for (int i = 0; i < sfi; i++) {
-			MethodBinding compatibleMethod = computeCompatibleMethod(staticFactories[i], argumentTypes, allocationSite);
+			MethodBinding compatibleMethod = computeCompatibleMethod(method, argumentTypes, allocationSite);
 			if (compatibleMethod != null) {
 				if (compatibleMethod.isValidBinding())
 					compatible[compatibleIndex++] = compatibleMethod;
 			}
 		}
-
 		if (compatibleIndex == 0) {
 			return null;
 		}
