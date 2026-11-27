@@ -1380,10 +1380,15 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 			switch (otherWildcard.boundKind) {
 				case Wildcard.EXTENDS:
 					if (otherBound instanceof IntersectionTypeBinding18) {
+						// T <= ? extends (A & B) requires every component (JLS 4.5.1)
 						TypeBinding [] intersectingTypes = ((IntersectionTypeBinding18) otherBound).intersectingTypes;
-						for (TypeBinding intersectingType : intersectingTypes)
+						for (TypeBinding intersectingType : intersectingTypes) {
 							if (TypeBinding.equalsEquals(intersectingType, this))
-								return true;
+								continue;
+							if (upperBound == null || !upperBound.isCompatibleWith(intersectingType))
+								return false;
+						}
+						return true;
 					}
 					if (TypeBinding.equalsEquals(otherBound, this))
 						return true; // ? extends T  <=  ? extends ? extends T

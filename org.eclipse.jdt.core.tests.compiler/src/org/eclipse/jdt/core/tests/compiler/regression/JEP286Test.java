@@ -1489,4 +1489,28 @@ public void testIssue5202ArrayDownwardsProjection() {
 			"""
 		});
 }
+// A type must satisfy every component of '? extends I1 & I2' (JLS 4.5.1), not just one of them
+public void testVarIntersectionBoundContainment() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			interface I1 {}
+			interface I2 {}
+			class C<T extends I1> {}
+			public class X {
+				void foo(C<? extends I2> x) {
+					var y = x;
+					y = new C<I1>();
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"\ty = new C<I1>();\n" +
+		"\t    ^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from C<I1> to C<? extends I1 & I2>\n" +
+		"----------\n");
+}
 }
