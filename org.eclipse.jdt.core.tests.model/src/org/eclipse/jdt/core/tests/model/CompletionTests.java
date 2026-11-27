@@ -11942,6 +11942,20 @@ public void testCompletionKeywordTrue6() throws JavaModelException {
 				requestor.getResults());
 	}
 }
+
+public void testCompletionKeywordTrue8() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTrue5.java");
+
+	String str = cu.getSource();
+	String completeBehind = "tru";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"",
+		requestor.getResults());
+}
 public void testCompletionKeywordTry1() throws JavaModelException {
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTry1.java");
