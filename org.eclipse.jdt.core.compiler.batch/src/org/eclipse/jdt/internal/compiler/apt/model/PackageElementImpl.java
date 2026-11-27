@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 BEA Systems, Inc.
+ * Copyright (c) 2007, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.UnresolvedReferenceBinding;
 
 /**
  * Implementation of PackageElement, which represents a package
@@ -78,7 +79,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		Set<ReferenceBinding> types = new HashSet<>();
 		if (typeNames != null) {
 			for (char[][] typeName : typeNames) {
-				if (typeName == null) continue;
+				if (typeName == null || isLocalOrAnonymousClassFile(nameEnvironment, binding, typeName)) continue;
 				ReferenceBinding type = environment.getType(typeName);
 				if (type == null || type.isMemberType()) continue;
 				if (type.isValidBinding()) {
@@ -93,7 +94,9 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		if (binding.knownTypes != null) {
 			ReferenceBinding[] knownTypes = binding.knownTypes.valueTable;
 			for (ReferenceBinding referenceBinding : knownTypes) {
-				if (referenceBinding != null && referenceBinding.isValidBinding() && referenceBinding.enclosingType() == null) {
+				if (referenceBinding != null && referenceBinding.isValidBinding() && referenceBinding.enclosingType() == null
+						&& !(referenceBinding instanceof UnresolvedReferenceBinding
+								&& isLocalOrAnonymousClassFile(nameEnvironment, binding, referenceBinding.compoundName))) {
 					if (!types.contains(referenceBinding)) {
 						Element newElement = this._env.getFactory().newElement(referenceBinding);
 						if (newElement.getKind() != ElementKind.PACKAGE)
@@ -105,6 +108,20 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		ArrayList<Element> list = new ArrayList<>(set.size());
 		list.addAll(set);
 		return Collections.unmodifiableList(list);
+	}
+
+	private static boolean isLocalOrAnonymousClassFile(INameEnvironment nameEnvironment, PackageBinding packageBinding, char[][] typeName) {
+		char[] simpleName = typeName[typeName.length - 1];
+		if (!(nameEnvironment instanceof FileSystem) || CharOperation.indexOf('$', simpleName) < 0) {
+			return false;
+		}
+		ReferenceBinding known = packageBinding.knownTypes == null ? null : packageBinding.knownTypes.get(simpleName);
+		if (known != null && !(known instanceof UnresolvedReferenceBinding)) {
+			return false;
+		}
+		ModuleBinding module = packageBinding.enclosingModule;
+		return ((FileSystem) nameEnvironment).isLocalOrAnonymousClassFile(typeName,
+				module == null ? ModuleBinding.ANY : module.nameForLookup());
 	}
 
 	@Override

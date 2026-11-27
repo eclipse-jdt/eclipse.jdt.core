@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2020 IBM Corporation and others.
+ * Copyright (c) 2006, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1633,6 +1633,116 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	class MyFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 		protected MyFileManager(StandardJavaFileManager fileManager) {
 			super(fileManager);
+		}
+	}
+
+	public void testPackageEnclosedElementsSkipLocalAndAnonymousClassFiles() throws IOException {
+		Path root = Files.createTempDirectory("enclosed");
+		try {
+			checkPackageEnclosedElements(root);
+		} finally {
+			try (Stream<Path> paths = Files.walk(root)) {
+				paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			}
+		}
+	}
+
+	private void checkPackageEnclosedElements(Path root) throws IOException {
+		Path broken = root.resolve("broken");
+		Path v2 = root.resolve("v2");
+		compileSource(root, "v1/lib/A.java",
+				"package lib;\n" +
+				"public class A {\n" +
+				"	public <T> Object m() { return new java.util.ArrayList<T>() {}; }\n" +
+				"}\n", broken);
+		compileSource(root, "v2/lib/A.java",
+				"package lib;\n" +
+				"public class A {\n" +
+				"	public Object m() { return null; }\n" +
+				"}\n", v2);
+		Files.copy(v2.resolve("lib/A.class"), broken.resolve("lib/A.class"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+		compileSource(root, "src/lib2/B.java",
+				"package lib2;\n" +
+				"public class B {\n" +
+				"	public class Member {}\n" +
+				"	public static class Nested { enum State { X { void f() {} }, Y; void f() {} } }\n" +
+				"	enum E { ONE { }, TWO }\n" +
+				"	Runnable r = new Runnable() { public void run() { class Local {} } };\n" +
+				"	void m() { class Local2 {} Object o = new Object() {}; }\n" +
+				"}\n" +
+				"class Top$Dollar {}\n", broken);
+		Map<String, List<String>> enclosed = enclosedElements(root, Arrays.asList("-proc:only", "-classpath", broken.toString()), "lib", "lib2");
+		assertEquals("[A]", String.valueOf(enclosed.get("lib")));
+		assertEquals("[B, Top$Dollar]", String.valueOf(enclosed.get("lib2")));
+	}
+
+	public void testPackageEnclosedElementsKeepSourceTypeNamedLikeAnonymousClassFile() throws IOException {
+		Path root = Files.createTempDirectory("enclosed");
+		try {
+			Path classes = root.resolve("classes");
+			compileSource(root, "src/lib/B.java",
+					"package lib;\n" +
+					"public class B {\n" +
+					"	Object o = new Object() {};\n" +
+					"}\n", classes);
+			Path sources = root.resolve("sourcepath");
+			Path source = sources.resolve("lib/B$1.java");
+			Files.createDirectories(source.getParent());
+			Files.writeString(source, "package lib;\npublic class B$1 {}\n");
+			Map<String, List<String>> enclosed = enclosedElements(root,
+					Arrays.asList("-proc:only", "-sourcepath", sources.toString(), "-classpath", classes.toString()), "lib");
+			assertEquals("[B, B$1]", String.valueOf(enclosed.get("lib")));
+		} finally {
+			try (Stream<Path> paths = Files.walk(root)) {
+				paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			}
+		}
+	}
+
+	private Map<String, List<String>> enclosedElements(Path root, List<String> options, String... packages) throws IOException {
+		Path q = root.resolve("q/Q.java");
+		Files.createDirectories(q.getParent());
+		Files.writeString(q, "package q;\nclass Q {}\n");
+		Map<String, List<String>> enclosed = new HashMap<>();
+		javax.annotation.processing.Processor processor = new javax.annotation.processing.AbstractProcessor() {
+			@Override
+			public Set<String> getSupportedAnnotationTypes() {
+				return Collections.singleton("*");
+			}
+			@Override
+			public SourceVersion getSupportedSourceVersion() {
+				return SourceVersion.latestSupported();
+			}
+			@Override
+			public boolean process(Set<? extends javax.lang.model.element.TypeElement> annotations, javax.annotation.processing.RoundEnvironment roundEnv) {
+				if (!roundEnv.processingOver()) {
+					for (String name : packages) {
+						enclosed.put(name, this.processingEnv.getElementUtils().getPackageElement(name).getEnclosedElements().stream()
+								.map(e -> e.getSimpleName().toString()).sorted().collect(Collectors.toList()));
+					}
+				}
+				return false;
+			}
+		};
+		try (StandardJavaFileManager manager = this.compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			StringWriter out = new StringWriter();
+			CompilationTask task = this.compiler.getTask(out, manager, null, options, null, manager.getJavaFileObjects(q.toFile()));
+			task.setProcessors(Collections.singletonList(processor));
+			assertTrue("Compilation failed: " + out, task.call());
+		}
+		return enclosed;
+	}
+
+	private void compileSource(Path root, String relativePath, String contents, Path output) throws IOException {
+		Path source = root.resolve(relativePath);
+		Files.createDirectories(source.getParent());
+		Files.writeString(source, contents);
+		Files.createDirectories(output);
+		try (StandardJavaFileManager manager = this.compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset())) {
+			StringWriter out = new StringWriter();
+			CompilationTask task = this.compiler.getTask(out, manager, null, Arrays.asList("-d", output.toString(), "-proc:none"),
+					null, manager.getJavaFileObjects(source.toFile()));
+			assertTrue("Compilation failed: " + out, task.call());
 		}
 	}
 
