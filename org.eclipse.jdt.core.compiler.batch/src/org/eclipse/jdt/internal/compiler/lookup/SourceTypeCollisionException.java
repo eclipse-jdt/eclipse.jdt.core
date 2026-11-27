@@ -19,4 +19,9 @@ public class SourceTypeCollisionException extends RuntimeException {
 	private static final long serialVersionUID = 4798247636899127380L;
 	public boolean isLastRound = false;
 	public ICompilationUnit[] newAnnotationProcessorUnits;
+	/**
+	 * The index within {@link #newAnnotationProcessorUnits} where annotation processing should
+	 * resume.
+	 */
+	public int annotationProcessorStartIndex;
 }
