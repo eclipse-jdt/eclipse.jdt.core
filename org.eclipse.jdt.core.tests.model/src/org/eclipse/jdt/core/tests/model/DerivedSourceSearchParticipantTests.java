@@ -15,7 +15,11 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.DerivedSourceSearchParticipantRegistry;
@@ -192,6 +196,77 @@ public class DerivedSourceSearchParticipantTests extends ModifyingResourceTests 
 		waitUntilIndexesReady();
 		assertTrue("indexDocument should have been called for file in subpackage",
 				TestDerivedSourceSearchParticipant.indexDocumentCallCount.get() > 0);
+	}
+
+	/**
+	 * Verifies that a {@code .langx} file added to an already indexed package
+	 * is indexed by the delta processor and not only by a still pending full project scan.
+	 * See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5086
+	 */
+	public void testIndexingFileAddedToIndexedPackage() throws CoreException {
+		createFolder("/DSP/src/pkg");
+		waitUntilIndexesReady();
+		TestDerivedSourceSearchParticipant.indexedDocumentPaths.clear();
+		createFile(
+			"/DSP/src/pkg/Added.langx",
+			"package pkg;\n" +
+			"public class Added {}"
+		);
+		waitUntilIndexesReady();
+		assertIndexed("/DSP/src/pkg/Added.langx");
+	}
+
+	/**
+	 * Verifies that changing the content of an indexed {@code .langx} file
+	 * re-indexes it.
+	 * See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/5086
+	 */
+	public void testIndexingChangedDerivedSourceFile() throws CoreException {
+		createFile(
+			"/DSP/src/Changed.langx",
+			"public class Changed {}"
+		);
+		waitUntilIndexesReady();
+		TestDerivedSourceSearchParticipant.indexedDocumentPaths.clear();
+		editFile(
+			"/DSP/src/Changed.langx",
+			"public class Changed { void m() {} }"
+		);
+		waitUntilIndexesReady();
+		assertIndexed("/DSP/src/Changed.langx");
+	}
+
+	/**
+	 * Verifies that a {@code .langx} file excluded from the source folder
+	 * is not indexed when it is added.
+	 */
+	public void testNoIndexingOfExcludedDerivedSourceFile() throws CoreException {
+		IClasspathEntry[] classpath = this.project.getRawClasspath();
+		for (int i = 0; i < classpath.length; i++) {
+			if (classpath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+				classpath[i] = JavaCore.newSourceEntry(classpath[i].getPath(), new IPath[] { new Path("Excluded.langx") });
+			}
+		}
+		this.project.setRawClasspath(classpath, null);
+		waitUntilIndexesReady();
+		TestDerivedSourceSearchParticipant.indexedDocumentPaths.clear();
+		createFile(
+			"/DSP/src/Excluded.langx",
+			"public class Excluded {}"
+		);
+		createFile(
+			"/DSP/src/Included.langx",
+			"public class Included {}"
+		);
+		waitUntilIndexesReady();
+		assertIndexed("/DSP/src/Included.langx");
+		assertFalse("Excluded file should not be indexed",
+				TestDerivedSourceSearchParticipant.indexedDocumentPaths.contains("/DSP/src/Excluded.langx"));
+	}
+
+	private void assertIndexed(String documentPath) {
+		assertTrue(documentPath + " should have been indexed, indexed documents: " + TestDerivedSourceSearchParticipant.indexedDocumentPaths,
+				TestDerivedSourceSearchParticipant.indexedDocumentPaths.contains(documentPath));
 	}
 
 	/**

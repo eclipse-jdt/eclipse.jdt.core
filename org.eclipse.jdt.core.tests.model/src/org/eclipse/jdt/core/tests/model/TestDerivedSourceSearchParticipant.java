@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -35,6 +37,7 @@ public class TestDerivedSourceSearchParticipant extends DerivedSourceSearchParti
 
 	public static final AtomicInteger indexDocumentCallCount = new AtomicInteger(0);
 	public static final AtomicInteger instanceCount = new AtomicInteger(0);
+	public static final Set<String> indexedDocumentPaths = ConcurrentHashMap.newKeySet();
 
 	public TestDerivedSourceSearchParticipant() {
 		instanceCount.incrementAndGet();
@@ -48,6 +51,7 @@ public class TestDerivedSourceSearchParticipant extends DerivedSourceSearchParti
 	@Override
 	public void indexDocument(SearchDocument document, IPath indexLocation) {
 		indexDocumentCallCount.incrementAndGet();
+		indexedDocumentPaths.add(document.getPath());
 		document.removeAllIndexEntries();
 		// delegate to the Java source indexer for testing
 		new SourceIndexer(document).indexDocument();
@@ -74,5 +78,6 @@ public class TestDerivedSourceSearchParticipant extends DerivedSourceSearchParti
 	public static void reset() {
 		indexDocumentCallCount.set(0);
 		instanceCount.set(0);
+		indexedDocumentPaths.clear();
 	}
 }
