@@ -896,6 +896,16 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     		}
     	}
 
+		if (this.binding != null && isMethodReference() && this.original == this) {
+			// The method implements the functional interface method (see MethodScope.checkUnusedParameters()).
+			// Only tracked within its own unit, which is fully resolved before analysis, so compilation order does not matter.
+			MethodBinding method = this.binding.original();
+			if (method.declaringClass instanceof SourceTypeBinding sourceType && sourceType.scope != null
+					&& sourceType.scope.compilationUnitScope() == scope.compilationUnitScope()) {
+				method.extendedTagBits |= ExtendedTagBits.IsUsedAsMethodReference;
+			}
+		}
+
     	return this.resolvedType; // Phew !
 	}
 

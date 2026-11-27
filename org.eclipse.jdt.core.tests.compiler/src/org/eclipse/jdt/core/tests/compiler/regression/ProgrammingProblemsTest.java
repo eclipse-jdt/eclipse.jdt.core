@@ -4306,4 +4306,238 @@ public void testIssue4328() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3944
+// "Ignore in overriding and implementing method" not working for method references
+public void testGH3944a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					interface MyFunction {
+						int apply(int someParam, int someOtherParam);
+					}
+					interface Unbound {
+						int apply(X receiver, int someParam);
+					}
+					interface Pick<T> {
+						T apply(T first, T second);
+					}
+					static final MyFunction FIELD = X::fieldImpl;
+					public static void main(String[] args) {
+						test(X::staticImpl);
+						test(new X()::instanceImpl);
+						Unbound u = X::unboundImpl;
+						Pick<String> p = X::genericImpl;
+						Object o = (MyFunction) X::castImpl;
+						Runnable r = () -> test(X::nestedImpl);
+						System.out.println(u.apply(new X(), 1) + p.apply("a", "b") + o + r + notReferenced(1, 2));
+					}
+					static void test(MyFunction func) {
+						System.out.println(func.apply(1, 2));
+					}
+					private static int staticImpl(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+					private int instanceImpl(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+					private int unboundImpl(int someParam) {
+						return 0;
+					}
+					private static <T> T genericImpl(T first, T second) {
+						return second;
+					}
+					private static int castImpl(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+					private static int nestedImpl(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+					private static int fieldImpl(int someParam, int someOtherParam) {
+						someParam++;
+						return someOtherParam;
+					}
+					private static int notReferenced(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 46)\n" +
+			"	private static int notReferenced(int someParam, int someOtherParam) {\n" +
+			"	                                     ^^^^^^^^^\n" +
+			"The value of the parameter someParam is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3944
+// unused parameters of methods used as method references are still reported when
+// CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract is enabled
+public void testGH3944b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					interface MyFunction {
+						int apply(int someParam, int someOtherParam);
+					}
+					public static void main(String[] args) {
+						test(X::staticImpl);
+						test(new X()::instanceImpl);
+					}
+					static void test(MyFunction func) {
+						System.out.println(func.apply(1, 2));
+					}
+					private static int staticImpl(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+					private int instanceImpl(int someParam, int someOtherParam) {
+						someParam++;
+						return someOtherParam;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 12)\n" +
+			"	private static int staticImpl(int someParam, int someOtherParam) {\n" +
+			"	                                  ^^^^^^^^^\n" +
+			"The value of the parameter someParam is not used\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 15)\n" +
+			"	private int instanceImpl(int someParam, int someOtherParam) {\n" +
+			"	                             ^^^^^^^^^\n" +
+			"The value of the parameter someParam is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3944
+// constructor references and method references from another compilation unit do not change the reporting
+public void testGH3944c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+				"Y.java",
+				"""
+				public class Y {
+					public static void main(String[] args) {
+						X.MyFunction f = X::otherUnitImpl;
+						X.Factory g = X::new;
+						System.out.println(f.apply(1, 2) + " " + g.make(3));
+					}
+				}
+				""",
+				"X.java",
+				"""
+				public class X {
+					interface MyFunction {
+						int apply(int someParam, int someOtherParam);
+					}
+					interface Factory {
+						X make(int someParam);
+					}
+					X(int someParam) {
+					}
+					static int otherUnitImpl(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 8)\n" +
+			"	X(int someParam) {\n" +
+			"	      ^^^^^^^^^\n" +
+			"The value of the parameter someParam is not used\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 10)\n" +
+			"	static int otherUnitImpl(int someParam, int someOtherParam) {\n" +
+			"	                             ^^^^^^^^^\n" +
+			"The value of the parameter someParam is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3944
+// this::, super::, overriding and local/anonymous class methods used as method references
+public void testGH3944d() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.IntBinaryOperator;
+				public class X {
+					int superImpl(int someParam, int someOtherParam) {
+						return someOtherParam;
+					}
+					int overridden(int someParam, int someOtherParam) {
+						return someParam + someOtherParam;
+					}
+					static class Y extends X {
+						@Override
+						int overridden(int someParam, int someOtherParam) {
+							return someOtherParam;
+						}
+						@Override
+						int superImpl(int someParam, int someOtherParam) {
+							return someParam + someOtherParam;
+						}
+						int thisImpl(int someParam, int someOtherParam) {
+							return someOtherParam;
+						}
+						IntBinaryOperator[] operators() {
+							class Local {
+								int localImpl(int someParam, int someOtherParam) {
+									return someOtherParam;
+								}
+							}
+							IntBinaryOperator anonymous = new IntBinaryOperator() {
+								@Override
+								public int applyAsInt(int left, int right) {
+									return right;
+								}
+								int anonymousImpl(int someParam, int someOtherParam) {
+									return someOtherParam;
+								}
+								IntBinaryOperator self() {
+									return this::anonymousImpl;
+								}
+							};
+							return new IntBinaryOperator[] { this::overridden, super::superImpl, this::thisImpl, new Local()::localImpl, anonymous };
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 35)\n" +
+			"	IntBinaryOperator self() {\n" +
+			"	                  ^^^^^^\n" +
+			"The method self() from the type new IntBinaryOperator(){} is never used locally\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
 }
