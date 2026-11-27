@@ -397,7 +397,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		validateNonModuleLocation(location);
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
-			throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
+			// a location without a path has no file, as with javac's file manager (Filer.getResource(SOURCE_PATH...)
+			// then throws a FileNotFoundException that a processor expects, not an IllegalArgumentException)
+			return null;
 		}
 		String normalizedFileName = normalizedFileName(packageName, relativeName);
 		for (File file : files) {
@@ -485,7 +487,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
-			throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
+			return null; // as getFileForInput
 		}
 		String normalizedFileName = normalized(className);
 		normalizedFileName += kind.extension;
@@ -917,7 +919,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		} catch (IOException e) {
 			// ignore
 		} catch (IllegalArgumentException iae) {
-			return null; // Either unknown kind or location not present
+			return null; // unknown kind (a location without a path gives no file object, not an exception)
 		}
 		if (javaFileObject == null) {
 			return null;

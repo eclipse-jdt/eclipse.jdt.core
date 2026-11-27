@@ -1,6 +1,7 @@
 package org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Set;
 import javax.annotation.processing.Filer;
@@ -39,10 +40,15 @@ public class Bug530665Proc extends BaseProcessor {
 		}
 
 		try {
-			filer.getResource(StandardLocation.CLASS_OUTPUT, "targets/AnnotationProcessorTests/bug530665", "nonexists.txt");
-			reportError("Filer.getResource(nonexists.txt) did NOT throw!");
+			// as javac: the file object of an output location, for a file that does not exist yet, cannot be read
+			FileObject fo = filer.getResource(StandardLocation.CLASS_OUTPUT, "targets/AnnotationProcessorTests/bug530665", "nonexists.txt");
+			try (InputStream in = fo.openInputStream()) {
+				reportError("Filer.getResource(nonexists.txt) could be read!");
+			} catch (IOException e) {
+				// expected
+			}
 		} catch (IOException e) {
-			// ignored
+			reportError("Filer.getResource(nonexists.txt) threw: " + e);
 		}
 		try {
 			// can be done multiple times...
