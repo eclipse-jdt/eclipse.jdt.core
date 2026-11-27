@@ -109,10 +109,44 @@ static char[] getSearchFullQualifiedSearchName(IBinaryType type) {
 	// nevertheless this at least solves finding normal named inner Types in .class files
 	// "$" is rarely used since jls-3.8 states:
 	// "the $ sign should be used only in mechanically generated source code or, rarely, to access pre-existing names on legacy systems"
-	char[] qualifiedName = CharOperation.replaceOnCopy(binaryName, '$', '.');
+	if (binaryName == null) {
+		return null;
+	}
+	char[] qualifiedName = new char[binaryName.length];
+	int[] result = getLastDotDollar(binaryName);
+	int lastDot = result[0];
+	int lastDollar = result[1];
+	boolean isLastDollar = (binaryName.length > 2 && lastDollar == binaryName.length - 2) || lastDollar == (binaryName.length - 1);
+	for (int i = 0, length = binaryName.length; i < length; i++) {
+		boolean isPreviousDollar = (i - 1 >= 0) ? (binaryName[i - 1] == '$') : false;
+		boolean isNextDollar = (i + 1 < binaryName.length) ? (binaryName[i + 1] == '$') : false;
+		char c = binaryName[i];
+		if (c == '$' && !isNextDollar && !isPreviousDollar && !isLastDollar && i > 0
+				&& binaryName[i-1] != '.' && i >= lastDot) {
+			qualifiedName[i] = '.';
+		} else {
+			qualifiedName[i] = c;
+		}
+	}
 	// Note on how a type name is calculated for the UI:
 	// @see org.eclipse.jdt.internal.core.manipulation.BindingLabelProviderCore#getTypeLabel(ITypeBinding, long, StringBuffer)
 	return qualifiedName;
+}
+
+private static int[] getLastDotDollar(char[] array) {
+	if (array == null)
+		return new int[] { 0, 0 };
+	int lastDot = 0;
+	int lastDollar = -1;
+	for (int i = 0; i < array.length; i++) {
+		if (array[i] == '.') {
+			lastDot = i;
+		}
+		if (array[i] == '$') {
+			lastDollar = i;
+		}
+	}
+	return new int[] { lastDot, lastDollar };
 }
 
 private  boolean checkAnnotation(IBinaryAnnotation annotation, TypeReferencePattern pattern) {
