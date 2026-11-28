@@ -18,14 +18,11 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class CompilationParticipantResult extends BuildContext {
 	protected SourceFile sourceFile;
-	protected AnnotationBinding[] annotations; // only set during processAnnotations
+	protected String[] annotationTypeNames; // only set during processAnnotations
 	protected IFile[] addedFiles; // added/changed generated source files that need to be compiled
 	protected IFile[] deletedFiles; // previously generated source files that should be deleted
 	protected CategorizedProblem[] problems; // new problems to report against this compilationUnit
@@ -35,7 +32,7 @@ public class CompilationParticipantResult extends BuildContext {
 protected CompilationParticipantResult(SourceFile sourceFile, boolean isTestCode) {
 	this.sourceFile = sourceFile;
 	this.isTestCode = isTestCode;
-	this.annotations = null;
+	this.annotationTypeNames = null;
 	this.addedFiles = null;
 	this.deletedFiles = null;
 	this.problems = null;
@@ -71,21 +68,14 @@ public IFile getFile() {
  */
 @Override
 public boolean hasAnnotations() {
-	return this.annotations != null; // only set during processAnnotations
+	return this.annotationTypeNames != null; // only set during processAnnotations
 }
 
 @Override
 public boolean hasAnnotations(String fqn) {
-	if (this.annotations != null) {
-		for (AnnotationBinding binding : this.annotations) {
-			if (binding == null) {
-				continue;
-			}
-			ReferenceBinding type = binding.getAnnotationType();
-			if (type == null || type.compoundName == null) {
-				continue;
-			}
-			if (fqn.equals(new String(CharOperation.concatWith(type.compoundName, '.')))) {
+	if (this.annotationTypeNames != null) {
+		for (String annotationTypeName : this.annotationTypeNames) {
+			if (fqn.equals(annotationTypeName)) {
 				return true;
 			}
 		}
@@ -167,9 +157,9 @@ public void recordNewProblems(CategorizedProblem[] newProblems) {
 	this.problems = merged;
 }
 
-void reset(AnnotationBinding[] newAnnotations) {
+void reset(String[] newAnnotationTypeNames) {
 	// called prior to processAnnotations
-	this.annotations = newAnnotations;
+	this.annotationTypeNames = newAnnotationTypeNames;
 	this.addedFiles = null;
 	this.deletedFiles = null;
 	this.problems = null;

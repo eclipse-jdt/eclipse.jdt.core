@@ -18,12 +18,14 @@ import static org.junit.Assert.assertArrayEquals;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
@@ -55,6 +57,9 @@ import org.eclipse.jdt.core.tests.builder.participants.TestCompilationParticipan
 import org.eclipse.jdt.core.tests.builder.participants.TestCompilationParticipant3;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ParticipantBuildTests extends BuilderTests {
@@ -440,6 +445,100 @@ public class ParticipantBuildTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingNoProblems();
+	}
+
+	public void testProcessAnnotationHasAnnotationAcrossChunks() throws Exception {
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion());
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, "");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "p", "Ann",
+			"package p;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"public @interface Ann {}\n"
+			);
+		env.addClass(root, "p", "A",
+			"package p;\n" +
+			"@Deprecated\n" +
+			"public class A {}\n"
+			);
+		env.addClass(root, "p", "B",
+			"package p;\n" +
+			"public class B { @Override public String toString() { return \"\"; } }\n"
+			);
+		env.addClass(root, "p", "C",
+			"package p;\n" +
+			"public class C {}\n"
+			);
+		env.addClass(root, "p", "D",
+			"package p;\n" +
+			"@Ann\n" +
+			"public class D { @Ann int f; @Ann @Deprecated void m() {} }\n"
+			);
+		env.addClass(root, "p", "E",
+			"package p;\n" +
+			"@Ann\n" +
+			"public class E {}\n"
+			);
+
+		String[] candidates = { "p.Ann", "java.lang.Deprecated", "java.lang.Override",
+				"java.lang.annotation.Retention", "gibts.nicht.Hier" };
+		Map<String, String> found = new TreeMap<>();
+		List<String> retainedBindings = new ArrayList<>();
+		TestCompilationParticipant1.PARTICIPANT = new CompilationParticipant() {
+			public boolean isAnnotationProcessor() {
+				return true;
+			}
+			public void processAnnotations(BuildContext[] files) {
+				for (BuildContext file : files) {
+					List<String> names = new ArrayList<>();
+					for (String candidate : candidates) {
+						if (file.hasAnnotations(candidate)) {
+							names.add(candidate);
+						}
+					}
+					found.put(file.getFile().getName(), file.hasAnnotations() + " " + names);
+					for (Class<?> c = file.getClass(); c != null; c = c.getSuperclass()) {
+						for (Field field : c.getDeclaredFields()) {
+							field.setAccessible(true);
+							Object value;
+							try {
+								value = field.get(file);
+							} catch (IllegalAccessException e) {
+								throw new IllegalStateException(e);
+							}
+							Object[] values = value instanceof Object[] array ? array : new Object[] { value };
+							for (Object element : values) {
+								if (element instanceof Binding || element instanceof AnnotationBinding) {
+									retainedBindings.add(file.getFile().getName() + '.' + field.getName());
+								}
+							}
+						}
+					}
+				}
+			}
+		};
+
+		int previousLimit = AbstractImageBuilder.MAX_AT_ONCE;
+		AbstractImageBuilder.MAX_AT_ONCE = 2;
+		try {
+			fullBuild(projectPath);
+		} finally {
+			AbstractImageBuilder.MAX_AT_ONCE = previousLimit;
+		}
+		expectingNoProblems();
+		assertEquals(
+			"{A.java=true [java.lang.Deprecated], " +
+			"Ann.java=true [java.lang.annotation.Retention], " +
+			"B.java=true [java.lang.Override], " +
+			"C.java=false [], " +
+			"D.java=true [p.Ann, java.lang.Deprecated], " +
+			"E.java=true [p.Ann]}",
+			found.toString());
+		assertEquals("[]", retainedBindings.toString());
 	}
 
 	public void testProcessAnnotationReferences() throws JavaModelException {
