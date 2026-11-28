@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 IBM Corporation.
+ * Copyright (c) 2020, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,6 +99,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		testRecords8();
 		testRecords9();
 		testRecords10();
+		testRecordFieldOrder();
 	}
 
 	public void testPreviewFlagTrue() throws IOException {
@@ -249,6 +251,20 @@ public class RecordElementProcessor extends BaseElementProcessor {
 			}
 		}
 		return null;
+	}
+	public void testRecordFieldOrder() {
+		TypeElement record = find(this.roundEnv.getRootElements(), "Point");
+		assertNotNull("TypeElement for record should not be null", record);
+		List<String> fields = ElementFilter.fieldsIn(record.getEnclosedElements()).stream().map(f -> f.getSimpleName().toString()).collect(Collectors.toList());
+		List<String> componentFields = Arrays.asList("comp_", "comp2_", "comp3_", "comp4_", "comp5_", "comp6_");
+		List<String> staticFields = Arrays.asList("field1", "field2", "field3");
+		assertEquals("Incorrect order of the component fields", componentFields, fields.stream().filter(componentFields::contains).collect(Collectors.toList()));
+		assertEquals("Incorrect order of the static fields", staticFields, fields.stream().filter(staticFields::contains).collect(Collectors.toList()));
+		if (!this.isBinaryMode) {
+			List<String> all = new ArrayList<>(componentFields);
+			all.addAll(staticFields);
+			assertEquals("Incorrect order of the fields", all, fields);
+		}
 	}
 	public void testRecords4a() {
 		Set<? extends Element> elements = roundEnv.getRootElements();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2023 IBM Corporation and others.
+ * Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -135,7 +135,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			ExecutableElement executable = new ExecutableElementImpl(this._env, method);
 			enclosed.add(executable);
 		}
-		for (FieldBinding field : binding.fields()) {
+		for (FieldBinding field : fieldsInOrder(binding)) {
 			// TODO no field should be excluded according to the JLS
 			if (!field.isSynthetic()) {
 				 VariableElement variable = new VariableElementImpl(this._env, field);
@@ -157,6 +157,30 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (!binding.isBinaryBinding())
 			Collections.sort(enclosed, new SourceLocationComparator());
 		return Collections.unmodifiableList(enclosed);
+	}
+
+	private static FieldBinding[] fieldsInOrder(ReferenceBinding binding) {
+		if (binding instanceof BinaryTypeBinding binaryType) {
+			return binaryType.fieldsInOriginalOrder();
+		}
+		FieldBinding[] fields = binding.fields();
+		if (!binding.isRecord() || fields.length < 2) {
+			return fields;
+		}
+		List<FieldBinding> ordered = new ArrayList<>(fields.length);
+		for (RecordComponentBinding component : binding.components()) {
+			for (FieldBinding field : fields) {
+				if (!field.isStatic() && CharOperation.equals(field.name, component.name) && !ordered.contains(field)) {
+					ordered.add(field);
+				}
+			}
+		}
+		for (FieldBinding field : fields) {
+			if (!ordered.contains(field)) {
+				ordered.add(field);
+			}
+		}
+		return ordered.toArray(new FieldBinding[ordered.size()]);
 	}
 
 	@Override

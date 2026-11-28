@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2024 IBM Corporation.
+ * Copyright (c) 2020, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,6 +82,14 @@ public class RecordElementsTests extends TestCase {
 	public void _testRecords4aJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", false, true);
+	}
+	public void testRecordFieldOrder() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecordFieldOrder", null, "records", false, true);
+	}
+	public void testRecordFieldOrderJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecordFieldOrder", null, "records", false, true);
 	}
 	public void testRecords5() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();

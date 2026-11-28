@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -99,6 +99,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 	protected RecordComponentBinding[] components;
 	protected MethodBinding[] methods;
 	protected MethodBinding[] methodsInOriginalOrder;
+	protected FieldBinding[] fieldsInOriginalOrder;
 	protected ReferenceBinding[] memberTypes;
 	protected TypeVariableBinding[] typeVariables;
 	protected ModuleBinding module;
@@ -355,12 +356,7 @@ public FieldBinding[] availableFields() {
 		return this.fields;
 
 	// lazily sort fields
-	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
-		int length = this.fields.length;
-		if (length > 1)
-			ReferenceBinding.sortFields(this.fields, 0, length);
-		this.tagBits |= TagBits.AreFieldsSorted;
-	}
+	sortFields();
 	FieldBinding[] availableFields = new FieldBinding[this.fields.length];
 	int count = 0;
 	for (FieldBinding field : this.fields) {
@@ -1262,6 +1258,25 @@ public RecordComponentBinding[] components() {
 	this.tagBits &= ~TagBits.HasUnresolvedComponents;
 	return this.components;
 }
+private void sortFields() {
+	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
+		int length = this.fields.length;
+		if (length > 1) {
+			if (this.environment.globalOptions.processAnnotations) {
+				this.fieldsInOriginalOrder = Arrays.copyOf(this.fields, length);
+			}
+			ReferenceBinding.sortFields(this.fields, 0, length);
+		}
+		this.tagBits |= TagBits.AreFieldsSorted;
+	}
+}
+public FieldBinding[] fieldsInOriginalOrder() {
+	if (!isPrototype()) {
+		return this.prototype.fieldsInOriginalOrder();
+	}
+	fields();
+	return this.fieldsInOriginalOrder == null ? this.fields : this.fieldsInOriginalOrder;
+}
 // NOTE: the type of each field of a binary type is resolved when needed
 @Override
 public FieldBinding[] fields() {
@@ -1274,12 +1289,7 @@ public FieldBinding[] fields() {
 		return this.fields;
 
 	// lazily sort fields
-	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
-		int length = this.fields.length;
-		if (length > 1)
-			ReferenceBinding.sortFields(this.fields, 0, length);
-		this.tagBits |= TagBits.AreFieldsSorted;
-	}
+	sortFields();
 	for (int i = this.fields.length; --i >= 0;)
 		resolveTypeFor(this.fields[i]);
 	this.tagBits |= TagBits.AreFieldsComplete;
@@ -1443,12 +1453,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 		return this.prototype.getField(fieldName, needResolve);
 
 	// lazily sort fields
-	if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
-		int length = this.fields.length;
-		if (length > 1)
-			ReferenceBinding.sortFields(this.fields, 0, length);
-		this.tagBits |= TagBits.AreFieldsSorted;
-	}
+	sortFields();
 	FieldBinding field = ReferenceBinding.binarySearch(fieldName, this.fields);
 	return needResolve && field != null ? resolveTypeFor(field) : field;
 }
