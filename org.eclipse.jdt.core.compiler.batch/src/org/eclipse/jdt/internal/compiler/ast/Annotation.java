@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -687,7 +687,7 @@ public abstract class Annotation extends Expression {
 					if ((containerAnnotationTypeTargets & targetMask & ~targets) != 0) {
 						 // if targetMask equals TagBits.AnnotationForType implies
 						 // TagBits.AnnotationForType is part of containerAnnotationTypeTargets
-						if (targetMask == TagBits.AnnotationForType &&
+						if ((targetMask == TagBits.AnnotationForType || targetMask == TagBits.AnnotationForTypeParameter) &&
 								(targets & TagBits.AnnotationForTypeUse) != 0) {
 							return;
 						}
@@ -696,7 +696,7 @@ public abstract class Annotation extends Expression {
 				}
 				void checkAnnotationType(char[] targetName) {
 					if ((containerAnnotationTypeTargets & TagBits.AnnotationForAnnotationType) != 0 &&
-							((targets & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType))) == 0) {
+							((targets & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType | TagBits.AnnotationForTypeUse))) == 0) {
 						add(targetName);
 					}
 				}
