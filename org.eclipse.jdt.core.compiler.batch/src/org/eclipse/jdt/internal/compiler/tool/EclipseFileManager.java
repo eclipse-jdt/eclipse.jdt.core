@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 IBM Corporation and others.
+ * Copyright (c) 2006, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -664,6 +664,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 */
 	@Override
 	public boolean handleOption(String current, Iterator<String> remaining) {
+		String[] nameAndValue = Main.splitLongOption(current);
+		if (nameAndValue != null) {
+			return handleOption(nameAndValue[0], List.of(nameAndValue[1]).iterator());
+		}
 		try {
 			switch(current) {
 				case "-bootclasspath": //$NON-NLS-1$
