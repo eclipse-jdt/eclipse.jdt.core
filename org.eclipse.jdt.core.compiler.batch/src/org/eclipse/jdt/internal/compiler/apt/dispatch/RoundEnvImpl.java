@@ -27,16 +27,10 @@ import javax.lang.model.util.ElementFilter;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class RoundEnvImpl implements RoundEnvironment
 {
@@ -56,51 +50,75 @@ public class RoundEnvImpl implements RoundEnvironment
 
 		// Discover the annotations that will be passed to Processor.process()
 		AnnotationDiscoveryVisitor visitor = new AnnotationDiscoveryVisitor(this._processingEnv);
+		this._annoToUnit = visitor._annoToElement;
 		if (this._units != null) {
 			for (CompilationUnitDeclaration unit : this._units) {
 				unit.scope.environment.suppressImportErrors = true;
 				unit.traverse(visitor, unit.scope);
 				unit.scope.environment.suppressImportErrors = false;
+				if (unit.types == null) continue;
+				for (TypeDeclaration type : unit.types) {
+					collectAnnotations(type.binding);
+				}
 			}
 		}
-		this._annoToUnit = visitor._annoToElement;
 		if (binaryTypeBindings != null) collectAnnotations(binaryTypeBindings);
 		this._binaryTypes = binaryTypeBindings;
 	}
 
 	private void collectAnnotations(ReferenceBinding[] referenceBindings) {
 		for (ReferenceBinding referenceBinding : referenceBindings) {
-			// collect all annotations from the binary types
-			if (referenceBinding instanceof ParameterizedTypeBinding) {
-				referenceBinding = ((ParameterizedTypeBinding) referenceBinding).genericType();
-			}
-			AnnotationBinding[] annotationBindings = Factory.getPackedAnnotationBindings(referenceBinding.getAnnotations());
+			collectAnnotations(referenceBinding);
+		}
+	}
+	private void collectAnnotations(ReferenceBinding referenceBinding) {
+		// collect all annotations from the binary types
+		if (referenceBinding instanceof ParameterizedTypeBinding) {
+			referenceBinding = ((ParameterizedTypeBinding) referenceBinding).genericType();
+		}
+		AnnotationBinding[] annotationBindings = Factory.getPackedAnnotationBindings(referenceBinding.getAnnotations());
+		for (AnnotationBinding annotationBinding : annotationBindings) {
+			TypeElement anno = (TypeElement)this._factory.newElement(annotationBinding.getAnnotationType());
+			Element element = this._factory.newElement(referenceBinding);
+			this._annoToUnit.put(anno, element);
+		}
+		FieldBinding[] fieldBindings = referenceBinding.fields();
+		for (FieldBinding fieldBinding : fieldBindings) {
+			annotationBindings = Factory.getPackedAnnotationBindings(fieldBinding.getAnnotations());
 			for (AnnotationBinding annotationBinding : annotationBindings) {
 				TypeElement anno = (TypeElement)this._factory.newElement(annotationBinding.getAnnotationType());
-				Element element = this._factory.newElement(referenceBinding);
+				Element element = this._factory.newElement(fieldBinding);
 				this._annoToUnit.put(anno, element);
 			}
-			FieldBinding[] fieldBindings = referenceBinding.fields();
-			for (FieldBinding fieldBinding : fieldBindings) {
-				annotationBindings = Factory.getPackedAnnotationBindings(fieldBinding.getAnnotations());
-				for (AnnotationBinding annotationBinding : annotationBindings) {
-					TypeElement anno = (TypeElement)this._factory.newElement(annotationBinding.getAnnotationType());
-					Element element = this._factory.newElement(fieldBinding);
-					this._annoToUnit.put(anno, element);
-				}
-			}
-			MethodBinding[] methodBindings = referenceBinding.methods();
-			for (MethodBinding methodBinding : methodBindings) {
-				annotationBindings = Factory.getPackedAnnotationBindings(methodBinding.getAnnotations());
-				for (AnnotationBinding annotationBinding : annotationBindings) {
-					TypeElement anno = (TypeElement)this._factory.newElement(annotationBinding.getAnnotationType());
-					Element element = this._factory.newElement(methodBinding);
-					this._annoToUnit.put(anno, element);
-				}
-			}
-			ReferenceBinding[] memberTypes = referenceBinding.memberTypes();
-			collectAnnotations(memberTypes);
 		}
+		RecordComponentBinding[] recordComponents = referenceBinding.components();
+		for (RecordComponentBinding recordComponent : recordComponents) {
+			annotationBindings = Factory.getPackedAnnotationBindings(recordComponent.getAnnotations());
+			for (AnnotationBinding annotationBinding : annotationBindings) {
+				TypeElement anno = (TypeElement)this._factory.newElement(annotationBinding.getAnnotationType());
+				Element element = this._factory.newElement(recordComponent);
+				this._annoToUnit.put(anno, element);
+			}
+		}
+		MethodBinding[] methodBindings = referenceBinding.methods();
+		for (MethodBinding methodBinding : methodBindings) {
+			annotationBindings = Factory.getPackedAnnotationBindings(methodBinding.getAnnotations());
+			for (AnnotationBinding annotationBinding : annotationBindings) {
+				TypeElement anno = (TypeElement)this._factory.newElement(annotationBinding.getAnnotationType());
+				Element element = this._factory.newElement(methodBinding);
+				this._annoToUnit.put(anno, element);
+			}
+			AnnotationBinding[][] parameterAnnotations = methodBinding.getParameterAnnotations();
+			if (parameterAnnotations == null) continue;
+			System.out.print(new String(methodBinding.readableName()) + ":");
+			AbstractMethodDeclaration sourceMethod = methodBinding.sourceMethod();
+			for (AnnotationBinding[] annotBinding : parameterAnnotations) {
+				// Now we have no way to get the AST node for the method
+				// or the record component
+			}
+		}
+		ReferenceBinding[] memberTypes = referenceBinding.memberTypes();
+		collectAnnotations(memberTypes);
 	}
 
 	/**
