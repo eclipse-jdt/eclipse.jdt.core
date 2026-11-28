@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2025 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2026 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,9 +17,12 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import javax.lang.model.AnnotatedConstruct;
@@ -35,7 +38,9 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -53,6 +58,13 @@ import org.eclipse.jdt.internal.compiler.util.TextBlockUtil;
  */
 public class ElementsImpl9 extends ElementsImpl {
 
+	private Set<ModuleBinding> rootModules;
+	private int rootModulesUnits;
+	private CompilationUnitDeclaration[] rootModulesSource;
+	private ModuleBinding rootModulesUnnamed;
+	private Set<ModuleBinding> moduleGraph;
+	private Set<ModuleBinding> moduleGraphRoots;
+
 	public ElementsImpl9(BaseProcessingEnvImpl env) {
 		super(env);
 	}
@@ -62,14 +74,106 @@ public class ElementsImpl9 extends ElementsImpl {
 		if (name.length() == 0)
 			return null;
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
-		Set<? extends ModuleElement> allModuleElements = getAllModuleElements();
-		for (ModuleElement moduleElement : allModuleElements) {
-			TypeElement t = getTypeElement(compoundName, ((ModuleElementImpl) moduleElement).binding);
-			if (t != null) {
-				return t;
+		Set<ModuleBinding> roots = rootModules();
+		if (roots.isEmpty()) {
+			Set<? extends ModuleElement> allModuleElements = getAllModuleElements();
+			for (ModuleElement moduleElement : allModuleElements) {
+				TypeElement t = getTypeElement(compoundName, ((ModuleElementImpl) moduleElement).binding);
+				if (t != null) {
+					return t;
+				}
+			}
+			return null;
+		}
+		LookupEnvironment lookup = this._env.getLookupEnvironment();
+		Set<ModuleBinding> others = new LinkedHashSet<>(moduleGraph());
+		others.removeAll(roots);
+		others.add(lookup.UnNamedModule);
+		Set<ReferenceBinding> found = new LinkedHashSet<>();
+		for (ModuleBinding root : roots) {
+			ReferenceBinding binding = typeBinding(compoundName, root);
+			if (binding != null && root.canAccess(binding.fPackage)) {
+				found.add(binding);
 			}
 		}
-		return null;
+		if (found.isEmpty()) {
+			for (ModuleBinding module : others) {
+				ReferenceBinding binding = typeBinding(compoundName, module);
+				if (binding != null && binding.module() == module) {
+					found.add(binding);
+				}
+			}
+		}
+		return found.size() == 1 ? (TypeElement) this._env.getFactory().newElement(found.iterator().next()) : null;
+	}
+
+	private ReferenceBinding typeBinding(char[][] compoundName, ModuleBinding module) {
+		TypeElement t = getTypeElement(compoundName, module);
+		ReferenceBinding binding = t == null ? null : (ReferenceBinding) ((TypeElementImpl) t)._binding;
+		return binding != null && binding.isValidBinding() ? binding : null;
+	}
+
+	private Set<ModuleBinding> rootModules() {
+		Compiler compiler = this._env.getCompiler();
+		int units = compiler == null ? 0 : compiler.totalUnits;
+		CompilationUnitDeclaration[] unitsToProcess = compiler == null ? null : compiler.unitsToProcess;
+		ModuleBinding unnamed = this._env.getLookupEnvironment().UnNamedModule;
+		if (this.rootModules != null && this.rootModulesUnits == units && this.rootModulesSource == unitsToProcess
+				&& this.rootModulesUnnamed == unnamed) {
+			return this.rootModules;
+		}
+		Set<ModuleBinding> roots = new LinkedHashSet<>();
+		if (unitsToProcess == null || this._env.getAddedModules() == null) {
+			return roots;
+		}
+		for (int i = 0; i < units; i++) {
+			CompilationUnitDeclaration unit = unitsToProcess[i];
+			if (unit != null) {
+				if (unit.scope == null) {
+					return new LinkedHashSet<>();
+				}
+				ModuleBinding module = unit.scope.module();
+				if (module != null && !module.isUnnamed()) {
+					roots.add(module);
+				}
+			}
+		}
+		this.rootModules = roots;
+		this.rootModulesUnits = units;
+		this.rootModulesSource = unitsToProcess;
+		this.rootModulesUnnamed = unnamed;
+		return roots;
+	}
+
+	private Set<ModuleBinding> moduleGraph() {
+		Set<ModuleBinding> roots = rootModules();
+		if (this.moduleGraph != null && this.moduleGraphRoots == roots) {
+			return this.moduleGraph;
+		}
+		this.moduleGraphRoots = roots;
+		Deque<ModuleBinding> pending = new ArrayDeque<>(roots);
+		LookupEnvironment lookup = this._env.getLookupEnvironment();
+		for (String added : this._env.getAddedModules()) {
+			ModuleBinding module = lookup.getModule(added.toCharArray());
+			if (module != null) {
+				pending.addLast(module);
+			}
+		}
+		Set<ModuleBinding> graph = new LinkedHashSet<>();
+		while (!pending.isEmpty()) {
+			ModuleBinding module = pending.removeFirst();
+			if (graph.add(module)) {
+				for (ModuleBinding required : module.getAllRequiredModules()) {
+					pending.addLast(required);
+				}
+				if (module.isAutomatic()) {
+					for (ModuleBinding automatic : module.getRequiresTransitive()) {
+						pending.addLast(automatic);
+					}
+				}
+			}
+		}
+		return this.moduleGraph = graph;
 	}
 
 	@Override
@@ -159,12 +263,27 @@ public class ElementsImpl9 extends ElementsImpl {
 		if (binding == null) {
 			return null;
 		}
+		if (!binding.isUnnamed()) {
+			Set<ModuleBinding> roots = rootModules();
+			if (!roots.isEmpty() && !moduleGraph().contains(binding)) {
+				return null;
+			}
+		}
 		return new ModuleElementImpl(this._env, binding);
 	}
 
 	@Override
 	public Set<? extends ModuleElement> getAllModuleElements() {
 		LookupEnvironment lookup = this._env.getLookupEnvironment();
+		Set<ModuleBinding> roots = rootModules();
+		if (!roots.isEmpty()) {
+			Set<ModuleElement> mods = new HashSet<>();
+			for (ModuleBinding moduleBinding : moduleGraph()) {
+				mods.add((ModuleElement) this._env.getFactory().newElement(moduleBinding));
+			}
+			mods.add((ModuleElement) this._env.getFactory().newElement(lookup.UnNamedModule));
+			return mods;
+		}
 		HashtableOfModule knownModules = lookup.knownModules;
 		ModuleBinding[] modules = knownModules.valueTable;
 		if (modules == null || modules.length == 0) {

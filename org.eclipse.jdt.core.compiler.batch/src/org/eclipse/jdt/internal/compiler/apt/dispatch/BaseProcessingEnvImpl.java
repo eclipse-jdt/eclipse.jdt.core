@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2023 BEA Systems, Inc.
+ * Copyright (c) 2007, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.compiler.apt.dispatch;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -84,6 +85,10 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 
 	public Compiler getCompiler() {
 		return this._compiler;
+	}
+
+	public Set<String> getAddedModules() {
+		return null;
 	}
 
 	public ICompilationUnit[] getDeletedUnits() {

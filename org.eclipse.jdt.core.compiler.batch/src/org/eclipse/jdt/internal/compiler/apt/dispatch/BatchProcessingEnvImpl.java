@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 BEA Systems, Inc.
+ * Copyright (c) 2006, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import javax.tools.JavaFileManager;
 import org.eclipse.jdt.internal.compiler.apt.util.EclipseFileManager;
 import org.eclipse.jdt.internal.compiler.batch.Main;
@@ -133,6 +134,11 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 	@Override
 	public JavaFileManager getFileManager() {
 		return this._fileManager;
+	}
+
+	@Override
+	public Set<String> getAddedModules() {
+		return this._compilerOwner.rootModules;
 	}
 
 	@Override

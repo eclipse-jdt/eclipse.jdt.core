@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2024 IBM Corporation.
+ * Copyright (c) 2017, 2026 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -324,6 +324,30 @@ public class Java9ElementProcessor extends BaseProcessor {
 		ModuleElement mElement = _elementUtils.getModuleOf(typeElement);
 		assertNotNull("module should not be null", mElement);
 		assertEquals("Incorrect module element", "mod.a", mElement.getQualifiedName().toString());
+	}
+	public void testTypeElementAddedModule() {
+		assertNotNull("java.net.http is added with --add-modules", _elementUtils.getModuleElement("java.net.http"));
+		TypeElement client = _elementUtils.getTypeElement("java.net.http.HttpClient");
+		assertNotNull("java.net.http is added with --add-modules", client);
+		assertEquals("Incorrect module element", "java.net.http", _elementUtils.getModuleOf(client).getQualifiedName().toString());
+	}
+	public void testTypeElementAmbiguous() {
+		assertNotNull("x.X is in mod.x", _elementUtils.getTypeElement("x.X"));
+		assertNull("mod.x reads p.C from mod.a and from mod.b", _elementUtils.getTypeElement("p.C"));
+	}
+	public void testTypeElementOutsideModuleGraph() {
+		assertNotNull("java.lang.String is in java.base", _elementUtils.getTypeElement("java.lang.String"));
+		TypeElement connection = _elementUtils.getTypeElement("java.sql.Connection");
+		assertNotNull("java.sql is required by mod.x", connection);
+		assertEquals("Incorrect module element", "java.sql", _elementUtils.getModuleOf(connection).getQualifiedName().toString());
+		assertNotNull("java.sql is in the module graph", _elementUtils.getModuleElement("java.sql"));
+		if (!this.binary) {
+			assertNull("java.net.http is not in the module graph", _elementUtils.getTypeElement("java.net.http.HttpClient"));
+			assertNull("the module java.net.http is not in the module graph", _elementUtils.getModuleElement("java.net.http"));
+			for (ModuleElement module : _elementUtils.getAllModuleElements()) {
+				assertFalse("getAllModuleElements lists java.net.http", module.getQualifiedName().contentEquals("java.net.http"));
+			}
+		}
 	}
 	/*
 	 * Test binary modules from JRT system can be loaded and its attributes
