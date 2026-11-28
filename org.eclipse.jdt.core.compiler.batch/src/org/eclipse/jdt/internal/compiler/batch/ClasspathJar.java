@@ -253,12 +253,22 @@ public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageN
 	this.packageCache = new HashSet<>(41);
 	this.packageCache.add(Util.EMPTY_STRING);
 
+	String directory = null;
 	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = toClassRootRelativeName(e.nextElement().getName());
-		if (fileName != null)
+		if (fileName != null && !isInDirectory(fileName, directory)) {
 			addToPackageCache(fileName, false);
+			directory = directoryOf(fileName);
+		}
 	}
 	return singletonModuleNameIf(this.packageCache.contains(qualifiedPackageName));
+}
+static boolean isInDirectory(String fileName, String directory) {
+	return directory != null && fileName.lastIndexOf('/') == directory.length() && fileName.startsWith(directory);
+}
+static String directoryOf(String fileName) {
+	int last = fileName.lastIndexOf('/');
+	return last > 0 ? fileName.substring(0, last) : null;
 }
 @Override
 public synchronized boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
@@ -266,13 +276,16 @@ public synchronized boolean hasCompilationUnit(String qualifiedPackageName, Stri
 	if (packages == null) {
 		// one pass over the entries instead of one per package asked for
 		packages = new HashSet<>();
+		String directory = null;
 		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = toClassRootRelativeName(e.nextElement().getName());
-			if (fileName == null)
+			if (fileName == null || isInDirectory(fileName, directory))
 				continue;
 			int last = fileName.lastIndexOf('/');
-			if (last != -1 && Util.isClassFileName(fileName))
-				packages.add(fileName.substring(0, last));
+			if (last != -1 && Util.isClassFileName(fileName)) {
+				directory = fileName.substring(0, last);
+				packages.add(directory);
+			}
 		}
 		this.compilationUnitPackageCache = packages;
 	}
