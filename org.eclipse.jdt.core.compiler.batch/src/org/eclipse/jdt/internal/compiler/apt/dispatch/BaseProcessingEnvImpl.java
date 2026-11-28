@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
@@ -62,7 +61,6 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	private final List<ICompilationUnit> _deletedUnits;
 	private boolean _errorRaised;
 	private final Factory _factory;
-	public ModuleBinding _current_module;
 
 	public BaseProcessingEnvImpl() {
 		this._addedUnits = new ArrayList<>();

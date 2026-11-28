@@ -77,6 +77,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	testClasses.add(SyntaxErrorTest.class);
 	testClasses.add(DualParseSyntaxErrorTest.class);
 	testClasses.add(ParserTest.class);
+	testClasses.add(ParserReuseTest.class);
 	if (addComplianceDiagnoseTest)
 		testClasses.add(ComplianceDiagnoseTest.class);
 
