@@ -351,7 +351,8 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	private TypeBinding resolveAsType(TypeBinding switchType) {
 		for (Expression rExpression : this.results.rExpressions) {
 			if (rExpression.resolvedType != null && rExpression.resolvedType.isValidBinding()) {
-				if (rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, switchType) || rExpression.resolvedType.isCompatibleWith(switchType)) {
+				if (rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, switchType) || rExpression.resolvedType.isCompatibleWith(switchType)
+						|| this.expressionContext == INVOCATION_CONTEXT && rExpression.invocationArgumentType(rExpression.resolvedType, switchType, this.scope).isCompatibleWith(switchType)) {
 					rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
 					if (rExpression.resolvedType.needsUncheckedConversion(switchType))
 						this.scope.problemReporter().unsafeTypeConversion(rExpression, rExpression.resolvedType, switchType);

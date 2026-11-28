@@ -687,7 +687,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		boolean ok = true;
 		if (this.originalValueIfTrueType != null && this.originalValueIfTrueType.isValidBinding()) {
 			if (this.valueIfTrue.isConstantValueOfTypeAssignableToType(this.originalValueIfTrueType, targetType)
-					|| this.originalValueIfTrueType.isCompatibleWith(targetType)) {
+					|| this.originalValueIfTrueType.isCompatibleWith(targetType)
+					|| this.expressionContext == INVOCATION_CONTEXT && this.valueIfTrue.invocationArgumentType(this.originalValueIfTrueType, targetType, scope).isCompatibleWith(targetType)) {
 
 				this.valueIfTrue.computeConversion(scope, targetType, this.originalValueIfTrueType);
 				if (this.originalValueIfTrueType.needsUncheckedConversion(targetType)) {
@@ -710,7 +711,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		}
 		if (this.originalValueIfFalseType != null && this.originalValueIfFalseType.isValidBinding()) {
 			if (this.valueIfFalse.isConstantValueOfTypeAssignableToType(this.originalValueIfFalseType, targetType)
-					|| this.originalValueIfFalseType.isCompatibleWith(targetType)) {
+					|| this.originalValueIfFalseType.isCompatibleWith(targetType)
+					|| this.expressionContext == INVOCATION_CONTEXT && this.valueIfFalse.invocationArgumentType(this.originalValueIfFalseType, targetType, scope).isCompatibleWith(targetType)) {
 
 				this.valueIfFalse.computeConversion(scope, targetType, this.originalValueIfFalseType);
 				if (this.originalValueIfFalseType.needsUncheckedConversion(targetType)) {

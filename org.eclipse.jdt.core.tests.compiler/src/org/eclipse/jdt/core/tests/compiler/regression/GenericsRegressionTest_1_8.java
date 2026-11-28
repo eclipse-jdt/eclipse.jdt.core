@@ -11269,4 +11269,327 @@ public void testBug508834_comment0() {
 			""");
 	}
 
+	public void testGH5597() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					static class TypeLiteral<T> {}
+					static class Holder<K, V> {
+						Holder(TypeLiteral<K> k, TypeLiteral<V> v) {}
+					}
+					static <K, V> String m(TypeLiteral<K> k, TypeLiteral<V> v) { return "m"; }
+					static <K> String m1(TypeLiteral<K> k) { return "m1"; }
+					public static void main(String[] args) {
+						List<? extends TypeLiteral<?>> l = Arrays.asList(new TypeLiteral<String>(), new TypeLiteral<Integer>());
+						new Holder<>(l.get(0), l.get(1));
+						System.out.print(m(l.get(0), l.get(1)));
+						System.out.print(m(l.get(0), new TypeLiteral<String>()));
+						System.out.print(m1(l.get(0)));
+					}
+				}
+				"""
+			},
+			"mmm1");
+	}
+	public void testGH5597_conditionalArgument() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					static class TypeLiteral<T> {}
+					static <K> String m1(TypeLiteral<K> k) { return "1"; }
+					static <K, V> String m2(TypeLiteral<K> k, TypeLiteral<V> v) { return "2"; }
+					static String f(List<? extends TypeLiteral<?>> l, boolean b) {
+						return m1(b ? l.get(0) : null) + m2(b ? l.get(0) : null, l.get(1));
+					}
+					public static void main(String[] args) {
+						List<? extends TypeLiteral<?>> l = Arrays.asList(new TypeLiteral<String>(), new TypeLiteral<Integer>());
+						System.out.print(f(l, true));
+					}
+				}
+				"""
+			},
+			"12");
+	}
+	public void testGH5597_switchArgument() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					static class TypeLiteral<T> {}
+					static <K> String m1(TypeLiteral<K> k) { return "1"; }
+					static String f(List<? extends TypeLiteral<?>> l, int i) {
+						return m1(switch (i) { case 0 -> l.get(0); default -> throw new IllegalStateException(); });
+					}
+					public static void main(String[] args) {
+						List<? extends TypeLiteral<?>> l = Arrays.asList(new TypeLiteral<String>());
+						System.out.print(f(l, 0));
+					}
+				}
+				"""
+			},
+			"1");
+	}
+	public void testGH5597_methodReference() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					static class TypeLiteral<T> {}
+					interface I<T> {}
+					static class Impl<T> implements I<T> {}
+					static StringBuilder sb = new StringBuilder();
+					static <K> void m1(TypeLiteral<K> k) { sb.append("t"); }
+					static <K> void m2(I<K> k) { sb.append("i"); }
+					public static void main(String[] args) {
+						List<? extends TypeLiteral<?>> l = Arrays.asList(new TypeLiteral<String>());
+						List<? extends I<?>> li = Arrays.asList(new Impl<String>());
+						l.forEach(X::m1);
+						li.forEach(X::m2);
+						System.out.print(sb);
+					}
+				}
+				"""
+			},
+			"ti");
+	}
+	public void testGH5597_sameTypeArgument() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.List;
+				public class X {
+					static <K> void same(List<K> a, List<K> b) { a.add(b.get(0)); }
+					static void f(List<? extends List<?>> l) {
+						same(l.get(0), l.get(1));
+					}
+					static void g(List<? extends ArrayList<?>> l) {
+						same(l.get(0), l.get(1));
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 6)
+				same(l.get(0), l.get(1));
+				^^^^
+			The method same(List<K>, List<K>) in the type X is not applicable for the arguments (capture#1-of ? extends List<?>, capture#3-of ? extends List<?>)
+			----------
+			2. ERROR in X.java (at line 9)
+				same(l.get(0), l.get(1));
+				^^^^
+			The method same(List<K>, List<K>) in the type X is not applicable for the arguments (capture#7-of ? extends ArrayList<?>, capture#9-of ? extends ArrayList<?>)
+			----------
+			""");
+	}
+	public void testGH5597_superclassBound() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					static class TypeLiteral<T> {}
+					static class Sub<T> extends TypeLiteral<T> {}
+					static <K, V> String m(TypeLiteral<K> k, TypeLiteral<V> v) { return "m"; }
+					static <K> String m1(TypeLiteral<K> k) { return "m1"; }
+					public static void main(String[] args) {
+						List<? extends Sub<?>> l = Arrays.asList(new Sub<String>(), new Sub<Integer>());
+						System.out.print(m(l.get(0), l.get(1)));
+						System.out.print(m1(l.get(0)));
+					}
+				}
+				"""
+			},
+			"mm1");
+	}
+	public void testGH5597_captureBoundedByCapture() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					static class TypeLiteral<T> {}
+					static class Box<T extends TypeLiteral<?>, U extends T> {
+						U u;
+						Box(U u) { this.u = u; }
+						U getU() { return this.u; }
+					}
+					static <K> String m(TypeLiteral<K> k) { return "m"; }
+					static <K, V> String m2(TypeLiteral<K> k, TypeLiteral<V> v) { return "m2"; }
+					static String f(Box<?, ?> b) {
+						return m(b.getU()) + m2(b.getU(), b.u);
+					}
+					public static void main(String[] args) {
+						System.out.print(f(new Box<TypeLiteral<String>, TypeLiteral<String>>(new TypeLiteral<String>())));
+					}
+				}
+				"""
+			},
+			"mm2");
+	}
+	public void testGH5597_explicitConstructorCall() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					static class TypeLiteral<T> {}
+					static class Base {
+						final String s;
+						<K> Base(TypeLiteral<K> k) { this.s = "1"; }
+						<K, V> Base(TypeLiteral<K> k, TypeLiteral<V> v) { this.s = "2"; }
+					}
+					static class Derived extends Base {
+						Derived(List<? extends TypeLiteral<?>> l) { super(l.get(0)); }
+						Derived(List<? extends TypeLiteral<?>> l, int i) { super(l.get(0), l.get(1)); }
+						Derived(List<? extends TypeLiteral<?>> l, String s) { this(l, l.get(0)); }
+						<K> Derived(List<? extends TypeLiteral<?>> l, TypeLiteral<K> k) { super(k); }
+					}
+					public static void main(String[] args) {
+						List<? extends TypeLiteral<?>> l = Arrays.asList(new TypeLiteral<String>(), new TypeLiteral<Integer>());
+						System.out.print(new Derived(l).s + new Derived(l, 0).s + new Derived(l, "").s);
+					}
+				}
+				"""
+			},
+			"121");
+	}
+	public void testGH5597_declaredTypeVariable() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					static class TypeLiteral<T> {}
+					static <K, V> void m(TypeLiteral<K> k, TypeLiteral<V> v) {}
+					static <K> void m1(TypeLiteral<K> k) {}
+					<C extends TypeLiteral<?>> void g(C c) {
+						m(c, c);
+						m1(c);
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 6)
+				m(c, c);
+				^
+			The method m(X.TypeLiteral<K>, X.TypeLiteral<V>) in the type X is not applicable for the arguments (C, C)
+			----------
+			2. ERROR in X.java (at line 7)
+				m1(c);
+				^^
+			The method m1(X.TypeLiteral<K>) in the type X is not applicable for the arguments (C)
+			----------
+			""");
+	}
+	public void testGH5597_typeVariableParameter() {
+		runConformTest(
+			false,
+			JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone,
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.function.BiConsumer;
+				public class X {
+					static class TypeLiteral<T> {}
+					static <E> void put(List<E> l, E e) { l.add(e); }
+					static <E> void each(List<E> l, BiConsumer<List<E>, E> c) { c.accept(l, l.get(0)); }
+					public static void main(String[] args) {
+						List<? extends TypeLiteral<?>> l = new ArrayList<>(Arrays.asList(new TypeLiteral<String>()));
+						each(l, (list, e) -> put(list, e));
+						System.out.print(l.size());
+					}
+				}
+				"""
+			},
+			"2");
+	}
+	public void testGH5597_wildcardFormal() {
+		runConformTest(
+			false,
+			JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone,
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.Arrays;
+				import java.util.List;
+				public class X {
+					static class Foo<T> {
+						final T t;
+						Foo(T t) { this.t = t; }
+					}
+					static <T> List<T> wrap(Foo<? extends T> f) {
+						List<T> list = new ArrayList<>();
+						list.add(f.t);
+						return list;
+					}
+					public static void main(String[] args) {
+						List<? extends Foo<? extends Number>> l = Arrays.asList(new Foo<Integer>(1));
+						List<Number> w = wrap(l.get(0));
+						w.add(2.5);
+						wrap(l.get(0)).add(3.5);
+						System.out.print(w);
+					}
+				}
+				"""
+			},
+			"[1, 2.5]");
+	}
+	public void testGH5722() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					static class Entity<S extends Number> {}
+					static class Representation<S extends Number, T extends Entity<S>> {}
+					static class Effect<S extends Number> {
+						Effect(Representation<S, ? extends Entity<S>> rep) {}
+					}
+					static class EntityContent<E extends Entity<?>, R extends Representation<?, E>> {
+						EntityContent(R rep) {
+							new Effect<>(rep);
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 9)
+				new Effect<>(rep);
+				^^^^^^^^^^^^^^^^^
+			Cannot infer type arguments for Effect<>
+			----------
+			""");
+	}
+
 }

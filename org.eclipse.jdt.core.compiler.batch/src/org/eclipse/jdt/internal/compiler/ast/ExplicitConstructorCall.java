@@ -36,6 +36,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
@@ -53,6 +55,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	public int accessMode;
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
+	private Map<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
 
 	public final static int ImplicitSuper = 1;
 	public final static int Super = 2;
@@ -127,6 +130,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	 */
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+		cleanUpInferenceContexts();
 		if ((this.bits & ASTNode.IsReachable) == 0) {
 			return;
 		}
@@ -560,7 +564,9 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 
 	@Override
 	public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18) {
-		// Nothing to do.
+		if (this.inferenceContexts == null)
+			this.inferenceContexts = new HashMap<>();
+		this.inferenceContexts.put(method, infCtx18);
 	}
 
 	@Override
@@ -570,12 +576,19 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 
 	@Override
 	public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
-		return null;
+		if (this.inferenceContexts == null)
+			return null;
+		return this.inferenceContexts.get(method);
 	}
 
 	@Override
 	public void cleanUpInferenceContexts() {
-		// Nothing to do.
+		if (this.inferenceContexts == null)
+			return;
+		for (InferenceContext18 value : this.inferenceContexts.values()) {
+			value.cleanUp();
+		}
+		this.inferenceContexts = null;
 	}
 
 	@Override

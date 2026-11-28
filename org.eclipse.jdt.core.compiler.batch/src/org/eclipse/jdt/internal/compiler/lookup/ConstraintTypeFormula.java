@@ -36,6 +36,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
 	boolean isSoft;
 
+	boolean fromInvocationArgument;
+
 	public static ConstraintTypeFormula create(TypeBinding exprType, TypeBinding right, int relation) {
 		if (exprType == null || right == null)
 			return FALSE;
@@ -62,6 +64,23 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	// return: ReductionResult or ConstraintFormula[]
 	@Override
 	public Object reduce(InferenceContext18 inferenceContext) {
+		Object result = reduceFormula(inferenceContext);
+		if (this.fromInvocationArgument)
+			markFromInvocationArgument(result);
+		return result;
+	}
+
+	private static void markFromInvocationArgument(Object result) {
+		if (result instanceof ConstraintTypeFormula formula) {
+			if (formula != TRUE && formula != FALSE)
+				formula.fromInvocationArgument = true;
+		} else if (result instanceof ConstraintFormula[] formulas) {
+			for (ConstraintFormula formula : formulas)
+				markFromInvocationArgument(formula);
+		}
+	}
+
+	private Object reduceFormula(InferenceContext18 inferenceContext) {
 		if ((this.left.tagBits & TagBits.HasMissingType) != 0) {
 			inferenceContext.missingType = this.left;
 			return TRUE;
@@ -121,7 +140,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				} else {
 					// TODO: speculative addition:
 					//       see also note in BoundSet.combineSameSameWithProperType(..)
-					if (this.right instanceof InferenceVariable)
+					if (this.right instanceof InferenceVariable && !this.fromInvocationArgument)
 						return new TypeBound((InferenceVariable) this.right, this.left, SAME, this.isSoft);
 					return FALSE;
 				}

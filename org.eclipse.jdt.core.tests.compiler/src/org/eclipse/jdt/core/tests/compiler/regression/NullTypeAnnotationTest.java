@@ -20630,4 +20630,38 @@ public void testIssue5387_tweaked2() throws Exception {
 		----------
 		""");
 }
+public void testGH5597() throws Exception {
+	runNegativeTestWithLibs(new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class X {
+				interface Box<T> { T get(); }
+				static class TypeLiteral<T> {}
+				static <K> String m1(@NonNull TypeLiteral<K> k) { return "1"; }
+				static <K, V> String m2(@NonNull TypeLiteral<K> k, @NonNull TypeLiteral<V> v) { return "2"; }
+				String ok(Box<? extends @NonNull TypeLiteral<?>> b, Box<@NonNull ? extends TypeLiteral<?>> b2) {
+					return m1(b.get()) + m2(b.get(), b.get()) + m1(b2.get()) + m2(b2.get(), b2.get());
+				}
+				String bad(Box<? extends @Nullable TypeLiteral<?>> b, Box<@Nullable ? extends TypeLiteral<?>> b2) {
+					return m1(b.get()) + m1(b2.get());
+				}
+			}
+			"""
+		},
+		getCompilerOptions(),
+		"""
+		----------
+		1. ERROR in X.java (at line 11)
+			return m1(b.get()) + m1(b2.get());
+			          ^^^^^^^
+		Null type mismatch (type annotations): required 'X.@NonNull TypeLiteral<capture#of ?>' but this expression has type 'capture#of ? extends X.@Nullable TypeLiteral<?>'
+		----------
+		2. ERROR in X.java (at line 11)
+			return m1(b.get()) + m1(b2.get());
+			                        ^^^^^^^^
+		Null type mismatch (type annotations): required 'X.@NonNull TypeLiteral<capture#of ?>' but this expression has type '@Nullable capture#of ? extends X.TypeLiteral<?>'
+		----------
+		""");
+}
 }

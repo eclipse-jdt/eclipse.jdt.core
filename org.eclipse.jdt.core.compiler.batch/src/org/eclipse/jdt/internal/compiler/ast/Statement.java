@@ -191,7 +191,8 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 	// here we consume special case information generated in the ctor of ParameterizedGenericMethodBinding (see there):
 	int statusFromAnnotatedNull = expectedNonNullness == Boolean.TRUE ? nullStatus : 0;
 
-	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(expectedType, argument.resolvedType, null, null, nullStatus, argument, CheckMode.COMPATIBLE, false);
+	TypeBinding providedType = argument.invocationArgumentType(argument.resolvedType, expectedType, currentScope);
+	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(expectedType, providedType, null, null, nullStatus, argument, CheckMode.COMPATIBLE, false);
 
 	if (!annotationStatus.isAnyMismatch() && statusFromAnnotatedNull != 0)
 		expectedType = originalExpected; // to avoid reports mentioning '@NonNull null'!

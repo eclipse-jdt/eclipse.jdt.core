@@ -264,7 +264,7 @@ public class InferenceContext18 {
 		for (int i = 0; i < len; i++) {
 			TypeBinding thetaF = substitute(parameters[i]);
 			if (this.invocationArguments[i].isPertinentToApplicability(parameters[i], method)) {
-				this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
+				this.initialConstraints[numConstraints++] = argumentFormula(this.invocationArguments[i], thetaF);
 			} else if (!isTypeVariableOfCandidate(parameters[i], method)) {
 				this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
 			} // else we know it is potentially compatible, no need to assert.
@@ -274,7 +274,7 @@ public class InferenceContext18 {
 			TypeBinding thetaF = substitute(varArgsType);
 			for (int i = len; i < this.invocationArguments.length; i++) {
 				if (this.invocationArguments[i].isPertinentToApplicability(varArgsType, method)) {
-					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
+					this.initialConstraints[numConstraints++] = argumentFormula(this.invocationArguments[i], thetaF);
 				} else if (!isTypeVariableOfCandidate(varArgsType, method)) {
 					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
 				} // else we know it is potentially compatible, no need to assert.
@@ -288,6 +288,12 @@ public class InferenceContext18 {
 			final int length = this.initialConstraints.length;
 			System.arraycopy(this.initialConstraints, 0, this.finalConstraints = new ConstraintExpressionFormula[length], 0, length);
 		}
+	}
+
+	private ConstraintExpressionFormula argumentFormula(Expression argument, TypeBinding parameterType) {
+		ConstraintExpressionFormula formula = new ConstraintExpressionFormula(argument, parameterType, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
+		formula.isInvocationArgument = !(this.currentInvocation instanceof ReferenceExpression);
+		return formula;
 	}
 
 	private boolean isTypeVariableOfCandidate(TypeBinding type, MethodBinding candidate) {
@@ -656,7 +662,7 @@ public class InferenceContext18 {
 				TypeBinding fsi = fs[Math.min(i, p-1)];
 				InferenceSubstitution inferenceSubstitution = new InferenceSubstitution(this.environment, this.inferenceVariables, site);
 				TypeBinding substF = inferenceSubstitution.substitute(inferenceSubstitution,fsi);
-				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method))
+				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method, true))
 					return false;
 	        }
 		}
@@ -680,7 +686,7 @@ public class InferenceContext18 {
 				Expression[] resultExpressions = lambda.resultExpressions();
 				for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
 					Expression resultExpression = resultExpressions[i];
-					if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method))
+					if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method, false))
 						return false;
 				}
 			}
@@ -688,7 +694,7 @@ public class InferenceContext18 {
 		return true;
 	}
 
-	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method)
+	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean isArgument)
 			throws InferenceFailureException
 	{
 		boolean substFIsProperType = substF.isProperType(true);
@@ -698,7 +704,7 @@ public class InferenceContext18 {
 
 		// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
 		if (!expri.isPertinentToApplicability(fsi, method)) {
-			c.add(new ConstraintExpressionFormula(expri, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
+			c.add(isArgument ? argumentFormula(expri, substF) : new ConstraintExpressionFormula(expri, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
 		}
 		if (expri instanceof FunctionalExpression) {
 			c.add(new ConstraintExceptionFormula((FunctionalExpression) expri, substF));
@@ -743,11 +749,11 @@ public class InferenceContext18 {
 			}
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
-			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method)
-					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method);
+			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, isArgument)
+					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method, isArgument);
 		} else if (expri instanceof SwitchExpression se) {
 			for (Expression re : se.resultExpressions()) {
-				if (!addConstraintsToC_OneExpr(re, c, fsi, substF, method))
+				if (!addConstraintsToC_OneExpr(re, c, fsi, substF, method, isArgument))
 					return false;
 			}
 			return true;
