@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 BEA Systems, Inc.
+ * Copyright (c) 2006, 2026 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,7 +58,10 @@ public class BatchFilerImpl implements Filer {
 		this._env = env;
 		this._createdFiles = new HashSet<>();
 		this._encoding = main.getDefaultEncoding();
-		if (this._fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
+		IModule singleModule = main.getSingleModule();
+		if (singleModule != null) {
+			this._moduleName = String.valueOf(singleModule.name());
+		} else if (this._fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
 			try {
 				for (JavaFileObject javaFileObject : this._fileManager.list(StandardLocation.SOURCE_PATH, "", //$NON-NLS-1$
 						Collections.singleton(Kind.SOURCE), false)) {

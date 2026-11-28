@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2984,6 +2984,7 @@ public void configure(String[] argv) {
 			classCount);
 	}
 
+	this.module = null;
 	if (moduleSourcepathArg == null) {
 		handleSingleModuleCompilation();
 	}
@@ -3590,6 +3591,9 @@ protected void handleSingleModuleCompilation() {
 		}
 		this.module = singleMod;
 	}
+}
+public IModule getSingleModule() {
+	return this.module;
 }
 // overridable hook
 protected CompilationUnit createCompilationUnit(int idx, String filename) {
