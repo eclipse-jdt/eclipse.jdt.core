@@ -12115,4 +12115,81 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				""");
 	}
 
+	public void testIssue5730() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static void m(Object o, int x) {
+								switch (o) {
+									case String s:
+										while (true) { }
+									case Integer i:
+										break;
+									default:
+										break;
+								}
+							}
+							static void n(Object o, int x) {
+								switch (o) {
+									case String s:
+										while (x == 0 || true) { }
+									case Integer i:
+										break;
+									default:
+										break;
+								}
+							}
+						}
+						""",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 16)\n" +
+				"	case Integer i:\n" +
+				"	^^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern\n" +
+				"----------\n");
+	}
+	public void testIssue5730_switchInLoop() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							interface V { void run(String x); }
+							interface R { Object get(Object x); }
+							static void ex(V v) {}
+							static void ex(R r) {}
+							static void m() {
+								ex(x -> { do { switch (x) { case String s -> throw new RuntimeException(); } } while (false); });
+							}
+						}
+						""",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	ex(x -> { do { switch (x) { case String s -> throw new RuntimeException(); } } while (false); });\n" +
+				"	^^\n" +
+				"The method ex(X.V) is ambiguous for the type X\n" +
+				"----------\n");
+	}
+	public void testIssue5730_switchWithDefaultBeforeLoop() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							interface V { void run(String x); }
+							interface R { Object get(Object x); }
+							static void ex(V v) { System.out.println("V"); }
+							static void ex(R r) { System.out.println("R"); }
+							public static void main(String[] args) {
+								ex(x -> { switch (x.hashCode()) { case 1 -> System.out.print(""); default -> {} } while (x.hashCode() > 0) { } });
+							}
+						}
+						""",
+				},
+				"V");
+	}
 }

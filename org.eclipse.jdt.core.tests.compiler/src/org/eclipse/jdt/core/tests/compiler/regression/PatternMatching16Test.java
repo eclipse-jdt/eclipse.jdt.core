@@ -5041,4 +5041,37 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	public void testIssue5730() {
+		Map<String, String> options = getCompilerOptions(false);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static void m(Object o, int x) {
+								if (!(o instanceof String s)) {
+									while (true) { }
+								}
+								s.length();
+							}
+							static void n(Object o, int x) {
+								if (!(o instanceof String s)) {
+									while (x == 0 || true) { }
+								}
+								s.length();
+							}
+						}
+						""",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	s.length();\n" +
+				"	^\n" +
+				"s cannot be resolved\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
 }
