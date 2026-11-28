@@ -238,6 +238,36 @@ public class BatchTestUtils {
 		StringWriter stringWriter = new StringWriter();
 		compileTree(stringWriter, compiler, options, targetFolder, useJLS8Processors, listener);
 	}
+	public static void compileTreeWithSelectedFiles(StringWriter stringWriter, JavaCompiler compiler, List<String> options,
+			File targetFolder, List<File> selectedFiles,
+			boolean useJLS8Processors, DiagnosticListener<? super JavaFileObject> listener) {
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(selectedFiles);
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		options.add("-d");
+		options.add(_tmpBinFolderName);
+		options.add("-s");
+		options.add(_tmpGenFolderName);
+		options.add("-sourcepath");
+		options.add(targetFolder.getAbsolutePath());
+		addProcessorPaths(options, useJLS8Processors, true);
+		options.add("-XprintRounds");
+		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+		Boolean result = task.call();
+
+		if (!result.booleanValue()) {
+			String errorOutput = stringWriter.getBuffer().toString();
+			System.err.println("Compilation failed: " + errorOutput);
+	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		}
+		try {
+			manager.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	public static void compileTree(StringWriter stringWriter, JavaCompiler compiler, List<String> options,
 			File targetFolder, boolean useJLS8Processors,
 			DiagnosticListener<? super JavaFileObject> listener) {

@@ -862,10 +862,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// brought forward and compiled already. If there are any such, process them for annotations then and there.
 			// This would avoid the complications of marking some units as compiled but not-annotation-processed-yet.
 			if (top < this.totalUnits) {
-				length = this.totalUnits - top; // NOTE: Reuse the same variable, but make sure it's not used after this point
-				CompilationUnitDeclaration[] addedUnits = new CompilationUnitDeclaration[length];
-				System.arraycopy(this.unitsToProcess, top, addedUnits, 0, length);
-				this.annotationProcessorManager.processAnnotations(addedUnits, binaryTypeBindingsTemp, false);
+				// Processing added units may itself pull further units forward, so keep draining until none are left.
+				int processedTop = top;
+				while (processedTop < this.totalUnits) {
+					int end = this.totalUnits;
+					int addedLength = end - processedTop;
+					CompilationUnitDeclaration[] addedUnits = new CompilationUnitDeclaration[addedLength];
+					System.arraycopy(this.unitsToProcess, processedTop, addedUnits, 0, addedLength);
+					this.annotationProcessorManager.processAnnotations(addedUnits, binaryTypeBindingsTemp, false);
+					processedTop = end;
+				}
 			}
 			this.annotationProcessorStartIndex = top;
 			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
