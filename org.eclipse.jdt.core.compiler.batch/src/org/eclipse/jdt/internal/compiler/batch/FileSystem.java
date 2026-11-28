@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
@@ -572,6 +573,12 @@ public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) 
 			false,
 			moduleName);
 	return null;
+}
+public boolean isLocalOrAnonymousClassFile(char[][] compoundName, char[] moduleName) {
+	NameEnvironmentAnswer answer = internalFindClass(new String(CharOperation.concatWith(compoundName, '/')),
+			compoundName[compoundName.length - 1], false, moduleName);
+	IBinaryType binaryType = answer == null ? null : answer.getBinaryType();
+	return binaryType != null && (binaryType.isAnonymous() || binaryType.isLocal());
 }
 public char[][][] findTypeNames(char[][] packageName) {
 	char[][][] result = null;
